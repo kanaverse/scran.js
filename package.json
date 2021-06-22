@@ -1,0 +1,31 @@
+{
+  "name": "scran.js",
+  "version": "1.0.0",
+  "description": "Single-cell analysis and visualization in the browser",
+  "main": "index.js",
+  "scripts": {
+    "start": "parcel serve demo/index.html --open",
+    "build": "rm -rf dist/ && parcel build demo/index.html --no-optimize --public-url ./",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jkanche/scran.js.git"
+  },
+  "keywords": [
+    "single-cell",
+    "visualization"
+  ],
+  "author": "Jayaram Kancherla <jayaram.kancherla@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jkanche/scran.js/issues"
+  },
+  "homepage": "https://github.com/jkanche/scran.js#readme",
+  "devDependencies": {
+    "gh-pages": "^3.2.3",
+    "parcel": "^2.0.0-beta.2"
+  }
+}

@@ -4,7 +4,7 @@ class scran {
         this.wasm = wasm;
         
         // this.data = data;
-        // for now generate data
+        // for now generate random data
         this.data = this.generateData(10 * 10);
 
         // holds any options
