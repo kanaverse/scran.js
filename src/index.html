@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>scran.js - Analyze single-cell datasets in the browser</title>
+    </head>
+    <body>
+        <script src="target.js"></script>
+        <script type="module" src="index.js"></script>
+        <div id="app">
+            <div>
+                <h3>Upload a Dataset or Randomly Generate Data</h3>
+                <input
+                type="file"
+                name="upload single-cell dataset"
+                id="dataset"/>            
+
+                <h3>or For now randomly generate data</h3>
+                <button onClick="generateRandomData()">Generate Data</button>
+
+                <span class="data-info"></span>
+            </div>
+        </div>
+    </body>
+</html>

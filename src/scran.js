@@ -1,12 +1,8 @@
-class scran {
+export class scran {
     constructor (data, options, wasm) {
         // wasm module initialized in the browser
         this.wasm = wasm;
         
-        // this.data = data;
-        // for now generate random data
-        this.data = this.generateData(10 * 10);
-
         // holds any options
         this.options = options;
 
@@ -21,6 +17,11 @@ class scran {
                 "wasm": "HEAP32"
             }
         }
+
+        // this.data = data;
+        // for now generate random data
+        this.data = this.generateData(10 * 10);
+
     }
 
     getRandomArbitrary() {
@@ -28,7 +29,7 @@ class scran {
     }
 
     generateData(size) {
-        const arr = this.createMemorySpace(size, Float64Array);
+        const arr = this.createMemorySpace(size, "Float64Array", "oData");
         arr.set(arr.map(() => this.getRandomArbitrary()));
         return arr;
     }
@@ -53,7 +54,7 @@ class scran {
         }
 
         if (type == "Float64Array") {
-            let ptr = wasm._malloc(size * 8);
+            let ptr = this.wasm._malloc(size * 8);
 
             const arr = new Float64Array(
                 this.wasm[this._heapMap[type]["wasm"]].buffer,
@@ -61,9 +62,13 @@ class scran {
                 size
             );
 
-            this._internalMemTracker[key] = [ptr, size];
+            this._internalMemTracker[key] = [ptr, size, arr];
 
             return arr;
         }
+    }
+
+    freeMemorySpace(key) {
+        this.wasm._free(this._internalMemTracker[key][0])
     }
 }
