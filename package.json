@@ -1,31 +1,23 @@
 {
   "name": "scran.js",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "Single-cell analysis and visualization in the browser",
   "main": "index.js",
-  "scripts": {
-    "start": "parcel serve demo/index.html --open",
-    "build": "rm -rf dist/ && parcel build demo/index.html --no-optimize --public-url ./",
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/jkanche/scran.js.git"
-  },
-  "keywords": [
-    "single-cell",
-    "visualization"
-  ],
-  "author": "Jayaram Kancherla <jayaram.kancherla@gmail.com>",
+  "keywords": [],
+  "author": "Jayaram Kancherla, Aaron Lun",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/jkanche/scran.js/issues"
+  "scripts": {
+    "clean": "rm dist/bundle.js",
+    "start": "parcel src/index.html",
+    "build-prod": "parcel build src/index.html"
   },
-  "homepage": "https://github.com/jkanche/scran.js#readme",
+  "dependencies": {
+    "tailwindcss": "^2.2.4"
+  },
   "devDependencies": {
-    "gh-pages": "^3.2.3",
-    "parcel": "^2.0.0-beta.2"
+    "autoprefixer": "^10.2.6",
+    "parcel-bundler": "^1.12.5",
+    "postcss-modules": "^4.1.3",
+    "prettier": "^2.3.2"
   }
 }
