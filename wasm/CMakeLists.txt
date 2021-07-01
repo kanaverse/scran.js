@@ -11,6 +11,7 @@ add_subdirectory(extern)
 
 add_executable(
     scran_wasm 
+    src/per_cell_qc_metrics.cpp
     src/bindings.cpp
 )
 
