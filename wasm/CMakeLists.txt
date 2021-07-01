@@ -11,7 +11,7 @@ add_subdirectory(extern)
 
 add_executable(
     scran_wasm 
-    src/target.cpp
+    src/bindings.cpp
 )
 
 target_link_libraries(
