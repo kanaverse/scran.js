@@ -13,7 +13,7 @@ add_executable(
     scran_wasm 
     src/per_cell_qc_metrics.cpp
     src/per_cell_qc_filters.cpp
-    src/bindings.cpp
+    src/NumericMatrix.cpp
 )
 
 target_link_libraries(

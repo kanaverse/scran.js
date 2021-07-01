@@ -17,25 +17,17 @@ struct NumericMatrix {
      * @param nc Number of columns.
      * @param values Offset to the start of an input array of `double`s of length `nr*nc`.
      */
-    NumericMatrix(int nr, int nc, uintptr_t values) {
-        JSVector<double> thing(reinterpret_cast<const double*>(values), nr*nc);
-        ptr = std::shared_ptr<tatami::numeric_matrix>(new tatami::DenseRowMatrix<double, int, decltype(thing)>(nr, nc, thing));
-        return;
-    }
+    NumericMatrix(int nr, int nc, uintptr_t values);
 
     /** 
      * @return Number of rows in the matrix.
      */
-    int nrow() const {
-        return ptr->nrow();
-    }
+    int nrow() const;
 
     /** 
      * @return Number of columns in the matrix.
      */
-    int ncol() const {
-        return ptr->ncol();
-    }
+    int ncol() const;
 
     /** 
      * @param r Requested row.
@@ -43,14 +35,7 @@ struct NumericMatrix {
      *
      * @return The array in `values` is filled with the values of row `r`.
      */
-    void row(int r, uintptr_t values) {
-        double* buffer = reinterpret_cast<double*>(values);
-        auto out = ptr->row(r, buffer);
-        if (out != buffer) {
-            std::copy(out, out + ptr->ncol(), buffer);
-        }
-        return;
-    }
+    void row(int r, uintptr_t values);
 
     /** 
      * @param c Requested column.
@@ -58,14 +43,7 @@ struct NumericMatrix {
      *
      * @return The array in `values` is filled with the values of column `c`.
      */
-    void column(int c, uintptr_t values) {
-        double* buffer = reinterpret_cast<double*>(values);
-        auto out = ptr->column(c, buffer);
-        if (out != buffer) {
-            std::copy(out, out + ptr->nrow(), buffer);
-        }
-        return;
-    }
+    void column(int c, uintptr_t values);
 
     /** 
      * A pointer to a `tatami::numeric_matrix`, for use in other functions.
