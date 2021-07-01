@@ -3,6 +3,7 @@
 #include "scran/quality_control/PerCellQCFilters.hpp"
 #include <vector>
 #include <algorithm>
+#include <cstdint>
 
 /**
  * Apply a typical filtering step on the per-cell QC metrics, by removing cells that have undesirable outlier values.
@@ -10,8 +11,8 @@
  * @param ncells Number of cells, and the length of all vectors discussed here.
  * @param sums Offset to an input buffer of `double`s with `ncells` elements, containing the total sum of counts for all cells.
  * @param detected Offset to an input buffer of `int32_t`s with `ncells` elements, containing the number of detected features for all cells.
- * @param subsets Number of feature subsets to be considered.
- * @param proportions Offset to an array of offsets of length `subsets`, where each internal offset points to an input buffer of  `double`s with `ncells` elements.
+ * @param nsubsets Number of feature subsets to be considered.
+ * @param proportions Offset to an array of offsets of length `nsubsets`, where each internal offset points to an input buffer of `double`s with `ncells` elements.
  * Each referenced buffer contains the proportion of counts assigned to a particular feature subset in each cell.
  *
  * @param use_blocks Whether or not to compute the default filters within each block.
@@ -24,7 +25,7 @@
  * indicating whether a cell should be discarded because its log-total count is a small outlier.
  * @param discard_detected Offset to an output buffer of `uint8_t`s with `ncells` elements,
  * indicating whether a cell should be discarded because its log-number of detected genes is a small outlier.
- * @param discard_proportions Offset to an array of offsets of length `subsets`, where each internal offset points to an output buffer of `uint8_t`s with `ncells` elements.
+ * @param discard_proportions Offset to an array of offsets of length `nsubsets`, where each internal offset points to an output buffer of `uint8_t`s with `ncells` elements.
  * Each referenced buffer indicates whether a cell should be discarded because the proportion of the corresponding feature subset is a large outlier.
  * @param discard_overall Offset to a buffer of `uint8_t`s with `ncells` elements,
  * indicating whether a cell should be discarded for any of the previous reasons.
@@ -33,7 +34,7 @@
  * specifying the lower bound on the total sum of counts for each block.
  * @param threshold_detected Offset to an output buffer of `double`s of length equal to the number of blocks (if `use_blocks = true`) or 1 (otherwise),
  * specifying the lower bound on the number of detected features for each block.
- * @param threshold_proportions Offset to an array of offsets of length `subsets`.
+ * @param threshold_proportions Offset to an array of offsets of length `nsubsets`.
  * Each internal offset points to an output buffer of `double`s of length equal to the number of blocks (if `use_blocks = true`) or 1 (otherwise),
  * which contains the upper bound on the proportion of the corresponding feature subset.
  *
@@ -42,7 +43,7 @@
 void per_cell_qc_filters(int ncells, 
                          uintptr_t sums, 
                          uintptr_t detected, 
-                         int subsets, 
+                         int nsubsets, 
                          uintptr_t proportions,
 
                          bool use_blocks, 
@@ -68,16 +69,16 @@ void per_cell_qc_filters(int ncells,
     std::vector<const double*> prop_in;
     std::vector<uint8_t*> prop_out;
 
-    if (subsets) {
+    if (nsubsets) {
         const double** propptrs = reinterpret_cast<const double**>(proportions);
-        prop_in.insert(prop_in.end(), propptrs, propptrs + subsets);
+        prop_in.insert(prop_in.end(), propptrs, propptrs + nsubsets);
         uint8_t** discptrs = reinterpret_cast<uint8_t**>(proportions);
-        prop_out.insert(prop_out.end(), discptrs, discptrs + subsets);
+        prop_out.insert(prop_out.end(), discptrs, discptrs + nsubsets);
     }
 
     auto thresholds = qc.run(ncells,
            reinterpret_cast<double*>(sums),  
-           reinterpret_cast<int*>(detected), 
+           reinterpret_cast<int32_t*>(detected), 
            std::move(prop_in),
            reinterpret_cast<uint8_t*>(discard_sums),
            reinterpret_cast<uint8_t*>(discard_detected),
@@ -88,7 +89,7 @@ void per_cell_qc_filters(int ncells,
     std::copy(thresholds.sums.begin(), thresholds.sums.end(), reinterpret_cast<double*>(threshold_sums));
     std::copy(thresholds.detected.begin(), thresholds.detected.end(), reinterpret_cast<double*>(threshold_detected));
     double** subout = reinterpret_cast<double**>(threshold_proportions);
-    for (int s = 0; s < subsets; ++s) {
+    for (int s = 0; s < nsubsets; ++s) {
         std::copy(thresholds.subset_proportions[s].begin(), thresholds.subset_proportions[s].end(), subout[s]);
     }
 
