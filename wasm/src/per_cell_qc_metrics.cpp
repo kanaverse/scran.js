@@ -44,6 +44,12 @@ void per_cell_qc_metrics(const NumericMatrix& mat,
     return;
 }
 
+/**
+ * @cond 
+ */
 EMSCRIPTEN_BINDINGS(per_cell_qc_metrics) {
     emscripten::function("per_cell_qc_metrics", &per_cell_qc_metrics);
 }
+/**
+ * @endcond 
+ */

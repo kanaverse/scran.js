@@ -34,6 +34,9 @@ void NumericMatrix::column(int c, uintptr_t values) {
     return;
 }
 
+/**
+ * @cond 
+ */
 EMSCRIPTEN_BINDINGS(my_class_example) {
     emscripten::class_<NumericMatrix>("NumericMatrix")
         .constructor<int, int, uintptr_t>()
@@ -43,3 +46,7 @@ EMSCRIPTEN_BINDINGS(my_class_example) {
         .function("column", &NumericMatrix::column)
         ;
 }
+/**
+ * @endcond 
+ */
+

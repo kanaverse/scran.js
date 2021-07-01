@@ -96,6 +96,13 @@ void per_cell_qc_filters(int ncells,
     return;
 }
 
+/**
+ * @cond 
+ */
 EMSCRIPTEN_BINDINGS(per_cell_qc_filters) {
     emscripten::function("per_cell_qc_filters", &per_cell_qc_filters);
 }
+/**
+ * @endcond 
+ */
+
