@@ -128,6 +128,21 @@ template&lt;typename T &gt; </div>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Create a vector of pointers based on the WASM heap offsets.</p>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">T</td><td>Type of the pointers to cast the offsets to.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">ptr</td><td>Offset to the start of a unsigned 32-bit integer array. Each integer is itself assumed to be an offset to another array of type <code>T</code>. </td></tr>
+    <tr><td class="paramname">n</td><td>Number of integers in the array referenced by <code>ptr</code>.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>A <code>std::vector&lt;T&gt;</code> of length <code>n</code>, containing pointers to various arrays. </dd></dl>
 
 </div>
 </div>
