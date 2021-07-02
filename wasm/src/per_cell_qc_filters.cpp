@@ -1,6 +1,10 @@
 #include <emscripten/bind.h>
+
 #include "NumericMatrix.h"
+#include "utils.h"
+
 #include "scran/quality_control/PerCellQCFilters.hpp"
+
 #include <vector>
 #include <algorithm>
 #include <cstdint>
@@ -63,32 +67,23 @@ void per_cell_qc_filters(int ncells,
     scran::PerCellQCFilters qc;
     qc.set_nmads(nmads);
     if (use_blocks) {
-        qc.set_blocks(ncells, reinterpret_cast<const uint8_t*>(blocks));
-    }
-
-    std::vector<const double*> prop_in;
-    std::vector<uint8_t*> prop_out;
-
-    if (nsubsets) {
-        const double** propptrs = reinterpret_cast<const double**>(proportions);
-        prop_in.insert(prop_in.end(), propptrs, propptrs + nsubsets);
-        uint8_t** discptrs = reinterpret_cast<uint8_t**>(proportions);
-        prop_out.insert(prop_out.end(), discptrs, discptrs + nsubsets);
+        qc.set_blocks(ncells, reinterpret_cast<const int32_t*>(blocks));
     }
 
     auto thresholds = qc.run(ncells,
-           reinterpret_cast<double*>(sums),  
-           reinterpret_cast<int32_t*>(detected), 
-           std::move(prop_in),
-           reinterpret_cast<uint8_t*>(discard_sums),
-           reinterpret_cast<uint8_t*>(discard_detected),
-           std::move(prop_out),
-           reinterpret_cast<uint8_t*>(discard_overall)
+        reinterpret_cast<const double*>(sums),  
+        reinterpret_cast<const int32_t*>(detected), 
+        cast_vector_of_pointers<const double*>(proportions, nsubsets),
+        reinterpret_cast<uint8_t*>(discard_sums),
+        reinterpret_cast<uint8_t*>(discard_detected),
+        cast_vector_of_pointers<uint8_t*>(discard_proportions, nsubsets),
+        reinterpret_cast<uint8_t*>(discard_overall)
     );
 
     std::copy(thresholds.sums.begin(), thresholds.sums.end(), reinterpret_cast<double*>(threshold_sums));
     std::copy(thresholds.detected.begin(), thresholds.detected.end(), reinterpret_cast<double*>(threshold_detected));
-    double** subout = reinterpret_cast<double**>(threshold_proportions);
+
+    auto subout = cast_vector_of_pointers<double*>(threshold_proportions, nsubsets);
     for (int s = 0; s < nsubsets; ++s) {
         std::copy(thresholds.subset_proportions[s].begin(), thresholds.subset_proportions[s].end(), subout[s]);
     }

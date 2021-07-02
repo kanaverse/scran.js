@@ -1,6 +1,10 @@
 #include <emscripten/bind.h>
+
 #include "NumericMatrix.h"
+#include "utils.h"
+
 #include "scran/quality_control/PerCellQCMetrics.hpp"
+
 #include <vector>
 #include <cstdint>
 
@@ -29,16 +33,13 @@ void per_cell_qc_metrics(const NumericMatrix& mat,
     scran::PerCellQCMetrics qc;
 
     if (nsubsets) {
-        const uint8_t** subptrs = reinterpret_cast<const uint8_t**>(subsets);
-        qc.set_subsets(std::vector<const uint8_t*>(subptrs, subptrs + nsubsets));
+        qc.set_subsets(cast_vector_of_pointers<const uint8_t*>(subsets, nsubsets));
     }
-
-    double** propptrs = reinterpret_cast<double**>(proportions);
 
     qc.run(mat.ptr.get(), 
            reinterpret_cast<double*>(sums),  
            reinterpret_cast<int32_t*>(detected),  
-           std::vector<double*>(propptrs, propptrs + nsubsets)
+           cast_vector_of_pointers<double*>(proportions, nsubsets)
     );
 
     return;
