@@ -10,6 +10,18 @@
  * This provides a wrapper around a `tatami::numeric_matrix` with Javascript-visible bindings to some basic methods.
  */
 struct NumericMatrix {
+    /** Construct a `NumericMatrix` from an existing pointer to a `tatami::numeric_matrix`.
+     *
+     * @param p Pointer to a `tatami::numeric_matrix`.
+     */
+    NumericMatrix(const tatami::numeric_matrix* p);
+
+    /** Construct a `NumericMatrix` from an existing pointer to a `tatami::numeric_matrix`.
+     *
+     * @param p Pointer to a `tatami::numeric_matrix`.
+     */
+    NumericMatrix(std::shared_ptr<const tatami::numeric_matrix> p);
+
     /**
      * Construct a `NumericMatrix` from a row-major dense array.
      *
@@ -48,7 +60,7 @@ struct NumericMatrix {
     /** 
      * A pointer to a `tatami::numeric_matrix`, for use in other functions.
      */
-    std::shared_ptr<tatami::numeric_matrix> ptr;
+    std::shared_ptr<const tatami::numeric_matrix> ptr;
 };
 
 #endif

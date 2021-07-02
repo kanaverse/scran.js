@@ -2,6 +2,10 @@
 #include "NumericMatrix.h"
 #include "JSVector.h"
 
+NumericMatrix::NumericMatrix(const tatami::numeric_matrix* p) : ptr(std::shared_ptr<const tatami::numeric_matrix>(p)) {}
+
+NumericMatrix::NumericMatrix(std::shared_ptr<const tatami::numeric_matrix> p) : ptr(std::move(p)) {}
+
 NumericMatrix::NumericMatrix(int nr, int nc, uintptr_t values) {
     JSVector<double> thing(reinterpret_cast<const double*>(values), nr*nc);
     ptr = std::shared_ptr<tatami::numeric_matrix>(new tatami::DenseRowMatrix<double, int, decltype(thing)>(nr, nc, thing));
