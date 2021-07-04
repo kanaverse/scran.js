@@ -3,7 +3,6 @@
 #include "NumericMatrix.h"
 #include "irlba/irlba.hpp"
 
-#include "tatami/stats/sums.hpp"
 #include "tatami/stats/variances.hpp"
 
 #include "Eigen/Sparse"
@@ -11,10 +10,19 @@
 #include <vector>
 #include <cmath>
 
-typedef Eigen::SparseMatrix<double> SpMat; // declares a column-major sparse matrix type of double
-typedef Eigen::Triplet<double> T;
-
-void run_pca(const NumericMatrix& mat, int number, bool scale, uintptr_t pcs) {
+/**
+ * Perform a principal components analysis to obtain per-cell coordinates in low-dimensional space.
+ *
+ * @param mat The input log-expression matrix, with features in rows and cells in columns.
+ * @param number Number of PCs to obtain.
+ * @param scale Whether to standardize rows in `mat` to unit variance.
+ * @param pcs Offset to an output array of `double`s of length `number * mat.ncol()`.
+ * @param prop_var Offset to an output array of `double`s of length `number`.
+ *
+ * @return `pcs` is filled with the PC coordinates in a column-major manner.
+ * `prop_var` is filled with the percentage of variance explained by each successive PC.
+ */
+void run_pca(const NumericMatrix& mat, int number, bool scale, uintptr_t pcs, uintptr_t prop_var) {
     const auto& ptr = mat.ptr;
     auto NR = ptr->nrow();
     auto NC = ptr->ncol();
@@ -25,9 +33,11 @@ void run_pca(const NumericMatrix& mat, int number, bool scale, uintptr_t pcs) {
 
     // Filling up the vector of triplets. We pre-allocate at an assumed 10%
     // density, so as to avoid unnecessary movements.
+    typedef Eigen::Triplet<double> T;
     std::vector<T> triplets;
     Eigen::VectorXd center_v(NR), scale_v(NR);
     triplets.reserve(static_cast<double>(NR * NC) * 0.1);
+    double total_var = 0;
 
     if (ptr->prefer_rows()) {
         std::vector<double> xbuffer(NC);
@@ -36,12 +46,12 @@ void run_pca(const NumericMatrix& mat, int number, bool scale, uintptr_t pcs) {
         for (size_t r = 0; r < NR; ++r) {
             auto range = ptr->sparse_row(r, xbuffer.data(), ibuffer.data());
 
+            auto stats = tatami::stats::VarianceHelper::compute_with_mean(range, NC);
+            center_v[r] = stats.first;
+            total_var += stats.second;
             if (scale) {
-                auto stats = tatami::stats::VarianceHelper::compute_with_mean(range, NC);
-                center_v[r] = stats.first;
                 scale_v[r] = std::sqrt(stats.second);
             } else {
-                center_v[r] = tatami::stats::SumHelper::compute(range, NC) / NC;
                 scale_v[r] = 1;
             }
 
@@ -54,39 +64,28 @@ void run_pca(const NumericMatrix& mat, int number, bool scale, uintptr_t pcs) {
         std::vector<double> xbuffer(NR);
         std::vector<int> ibuffer(NR);
         
-        if (scale) {
-            tatami::stats::VarianceHelper::Sparse running(NR);
-            for (size_t c = 0; c < NC; ++c) {
-                auto range = ptr->sparse_column(c, xbuffer.data(), ibuffer.data());
-                running.add(range);
-                for (size_t i = 0; i < range.number; ++i) {
-                    triplets.push_back(T(c, range.index[i], range.value[i])); // transposing.
-                }
+        tatami::stats::VarianceHelper::Sparse running(NR);
+        for (size_t c = 0; c < NC; ++c) {
+            auto range = ptr->sparse_column(c, xbuffer.data(), ibuffer.data());
+            running.add(range);
+            for (size_t i = 0; i < range.number; ++i) {
+                triplets.push_back(T(c, range.index[i], range.value[i])); // transposing.
             }
+        }
 
-            running.finish();
-            std::copy(running.means().begin(), running.means().end(), center_v.begin());
+        running.finish();
+        std::copy(running.means().begin(), running.means().end(), center_v.begin());
+        total_var = std::accumulate(running.statistics().begin(), running.statistics().end(), 0.0);
+
+        if (scale) {
             std::copy(running.statistics().begin(), running.statistics().end(), scale_v.begin());
             for (auto& s : scale_v) { s = std::sqrt(s); }
-
         } else {
-            tatami::stats::SumHelper::Sparse running(NR);
-            for (size_t c = 0; c < NC; ++c) {
-                auto range = ptr->sparse_column(c, xbuffer.data(), ibuffer.data());
-                running.add(range);
-                for (size_t i = 0; i < range.number; ++i) {
-                    triplets.push_back(T(c, range.index[i], range.value[i])); // transposing.
-                }
-            }
-
-            running.finish();
-            std::copy(running.statistics().begin(), running.statistics().end(), center_v.begin());
-            for (auto& c : center_v) { c /= NC; }
             std::fill(scale_v.begin(), scale_v.end(), 1);
         }
     }
 
-    SpMat A(NC, NR); // transposing.
+    Eigen::SparseMatrix<double> A(NC, NR); // transposing.
     A.setFromTriplets(triplets.begin(), triplets.end());
 
     // Running the irlba step.
@@ -94,12 +93,17 @@ void run_pca(const NumericMatrix& mat, int number, bool scale, uintptr_t pcs) {
     irlba::NormalSampler norm(42);
     auto result = irb.set_number(number).run(A, center_v, scale_v, norm);
     
-    // Copying over the U * S into the output array.
+    // Copying over results into the output arrays.
     double* output = reinterpret_cast<double*>(pcs);
     for (int i = 0; i < number; ++i) {
         for (size_t j = 0; j < NC; ++j, ++output) {
             (*output) = result.U.coeff(j, i) * result.D[i];
         }
+    }
+
+    double* output_prop = reinterpret_cast<double*>(prop_var);
+    for (int i = 0; i < number; ++i) {
+        output_prop[i] = result.D[i] * result.D[i] / static_cast<double>(NC - 1) / total_var;
     }
 
     return;
