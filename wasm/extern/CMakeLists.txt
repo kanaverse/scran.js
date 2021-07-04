@@ -8,3 +8,10 @@ FetchContent_Declare(
   GIT_TAG master
 )
 FetchContent_MakeAvailable(scran)
+
+FetchContent_Declare(
+  irlba 
+  GIT_REPOSITORY https://github.com/LTLA/CppIrlba
+  GIT_TAG master
+)
+FetchContent_MakeAvailable(irlba)
