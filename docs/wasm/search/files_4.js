@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['readme_2emd_35',['README.md',['../README_8md.html',1,'']]],
-  ['run_5fpca_2ecpp_36',['run_pca.cpp',['../run__pca_8cpp.html',1,'']]]
+  ['per_5fcell_5fqc_5ffilters_2ecpp_36',['per_cell_qc_filters.cpp',['../per__cell__qc__filters_8cpp.html',1,'']]],
+  ['per_5fcell_5fqc_5fmetrics_2ecpp_37',['per_cell_qc_metrics.cpp',['../per__cell__qc__metrics_8cpp.html',1,'']]]
 ];

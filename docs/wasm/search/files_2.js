@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['numericmatrix_2ecpp_31',['NumericMatrix.cpp',['../NumericMatrix_8cpp.html',1,'']]],
-  ['numericmatrix_2eh_32',['NumericMatrix.h',['../NumericMatrix_8h.html',1,'']]]
+  ['model_5fgene_5fvar_2ecpp_33',['model_gene_var.cpp',['../model__gene__var_8cpp.html',1,'']]]
 ];

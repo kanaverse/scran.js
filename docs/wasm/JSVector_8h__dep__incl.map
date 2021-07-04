@@ -1,9 +1,10 @@
 <map id="JSVector.h" name="JSVector.h">
-<area shape="rect" id="node1" title=" " alt="" coords="174,5,261,32"/>
+<area shape="rect" id="node1" title=" " alt="" coords="171,5,258,32"/>
 <area shape="rect" id="node2" href="$NumericMatrix_8cpp.html" title=" " alt="" coords="5,155,136,181"/>
-<area shape="rect" id="node3" href="$NumericMatrix_8h.html" title=" " alt="" coords="230,80,346,107"/>
+<area shape="rect" id="node3" href="$NumericMatrix_8h.html" title=" " alt="" coords="301,80,417,107"/>
 <area shape="rect" id="node4" href="$filter__cells_8cpp.html" title=" " alt="" coords="160,155,264,181"/>
-<area shape="rect" id="node5" href="$per__cell__qc__filters_8cpp.html" title=" " alt="" coords="289,155,439,181"/>
-<area shape="rect" id="node6" href="$per__cell__qc__metrics_8cpp.html" title=" " alt="" coords="464,155,627,181"/>
-<area shape="rect" id="node7" href="$run__pca_8cpp.html" title=" " alt="" coords="651,155,743,181"/>
+<area shape="rect" id="node5" href="$model__gene__var_8cpp.html" title=" " alt="" coords="288,155,429,181"/>
+<area shape="rect" id="node6" href="$per__cell__qc__filters_8cpp.html" title=" " alt="" coords="454,155,605,181"/>
+<area shape="rect" id="node7" href="$per__cell__qc__metrics_8cpp.html" title=" " alt="" coords="629,155,792,181"/>
+<area shape="rect" id="node8" href="$run__pca_8cpp.html" title=" " alt="" coords="817,155,909,181"/>
 </map>
