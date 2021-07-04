@@ -15,6 +15,7 @@ add_executable(
     src/per_cell_qc_filters.cpp
     src/filter_cells.cpp
     src/log_norm_counts.cpp
+    src/model_gene_var.cpp
     src/run_pca.cpp
     src/NumericMatrix.cpp
 )
