@@ -46,10 +46,10 @@ void model_gene_var(const NumericMatrix& mat,
 {
     scran::ModelGeneVar var;
     var.set_span(span);
+    auto bptr = add_blocks(var, use_blocks, blocks, mat.ncol());
+
     int nblocks = 1;
     if (use_blocks) {
-        const int32_t* bptr = reinterpret_cast<const int32_t*>(blocks);
-        var.set_blocks(mat.ncol(), bptr);
         nblocks = *std::max_element(bptr, bptr + mat.ncol()) + 1;
     }
 
