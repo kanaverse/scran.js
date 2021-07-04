@@ -16,6 +16,8 @@
  * @param mat The input log-expression matrix, with features in rows and cells in columns.
  * @param number Number of PCs to obtain.
  * Must be less than the smaller dimension of `mat`.
+ * @param[in] subset Offset to an input array of `uint8_t`s of length `mat.nrow()`,
+ * indicating which features should be used for the PCA.
  * @param scale Whether to standardize rows in `mat` to unit variance.
  * If `true`, all rows in `mat` are assumed to have non-zero variance.
  * @param pcs Offset to an output array of `double`s of length `number * mat.ncol()`.
@@ -24,14 +26,33 @@
  * @return `pcs` is filled with the PC coordinates in a column-major manner.
  * `prop_var` is filled with the percentage of variance explained by each successive PC.
  */
-void run_pca(const NumericMatrix& mat, int number, bool scale, uintptr_t pcs, uintptr_t prop_var) {
-    const auto& ptr = mat.ptr;
+void run_pca(const NumericMatrix& mat, int number, uintptr_t subset, bool scale, uintptr_t pcs, uintptr_t prop_var) {
+    auto ptr = mat.ptr;
     auto NR = ptr->nrow();
     auto NC = ptr->ncol();
-    assert(NR > 1);
     assert(NC > 1);
-    assert(NR > number);
     assert(NC > number);
+
+    // Subsetting up the desired subset.
+    const uint8_t* subptr = reinterpret_cast<const uint8_t*>(subset);
+    size_t nused = std::accumulate(subptr, subptr + NR, static_cast<size_t>(0));
+    if (nused != NR) {
+        std::vector<int> subdex(nused);
+        {
+            auto sIt = subdex.begin();
+            for (int i = 0; i < NR; ++i) {
+                if (subptr[i]) {
+                    *sIt = i;
+                    ++sIt;
+                }
+            }
+        }
+        ptr = tatami::make_DelayedSubset<0>(mat.ptr, std::move(subdex));
+        NR = nused;
+    }
+
+    assert(NR > 1);
+    assert(NR > number);
 
     // Filling up the vector of triplets. We pre-allocate at an assumed 10%
     // density, so as to avoid unnecessary movements.
