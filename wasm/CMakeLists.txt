@@ -11,12 +11,17 @@ add_subdirectory(extern)
 
 add_executable(
     scran_wasm 
-    src/target.cpp
+    src/per_cell_qc_metrics.cpp
+    src/per_cell_qc_filters.cpp
+    src/filter_cells.cpp
+    src/run_pca.cpp
+    src/NumericMatrix.cpp
 )
 
 target_link_libraries(
     scran_wasm
     scran
+    irlba
 )
 
 set_target_properties(scran_wasm PROPERTIES LINK_FLAGS "--bind")
