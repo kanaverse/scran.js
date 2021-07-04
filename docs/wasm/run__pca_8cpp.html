@@ -97,12 +97,12 @@ Include dependency graph for run_pca.cpp:</div>
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:ab0d3c9409f62cec7e18cd573ed74087d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="run__pca_8cpp.html#ab0d3c9409f62cec7e18cd573ed74087d">run_pca</a> (const <a class="el" href="structNumericMatrix.html">NumericMatrix</a> &amp;mat, int number, bool scale, uintptr_t pcs, uintptr_t prop_var)</td></tr>
-<tr class="separator:ab0d3c9409f62cec7e18cd573ed74087d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae1d199a55cbba67e4a58f46fdd9d23f3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="run__pca_8cpp.html#ae1d199a55cbba67e4a58f46fdd9d23f3">run_pca</a> (const <a class="el" href="structNumericMatrix.html">NumericMatrix</a> &amp;mat, int number, uintptr_t subset, bool scale, uintptr_t pcs, uintptr_t prop_var)</td></tr>
+<tr class="separator:ae1d199a55cbba67e4a58f46fdd9d23f3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function Documentation</h2>
-<a id="ab0d3c9409f62cec7e18cd573ed74087d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab0d3c9409f62cec7e18cd573ed74087d">&#9670;&nbsp;</a></span>run_pca()</h2>
+<a id="ae1d199a55cbba67e4a58f46fdd9d23f3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae1d199a55cbba67e4a58f46fdd9d23f3">&#9670;&nbsp;</a></span>run_pca()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -118,6 +118,12 @@ Functions</h2></td></tr>
           <td></td>
           <td class="paramtype">int&#160;</td>
           <td class="paramname"><em>number</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uintptr_t&#160;</td>
+          <td class="paramname"><em>subset</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -147,11 +153,12 @@ Functions</h2></td></tr>
 <p>Perform a principal components analysis to obtain per-cell coordinates in low-dimensional space.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">mat</td><td>The input log-expression matrix, with features in rows and cells in columns. </td></tr>
-    <tr><td class="paramname">number</td><td>Number of PCs to obtain. Must be less than the smaller dimension of <code>mat</code>. </td></tr>
-    <tr><td class="paramname">scale</td><td>Whether to standardize rows in <code>mat</code> to unit variance. If <code>true</code>, all rows in <code>mat</code> are assumed to have non-zero variance. </td></tr>
-    <tr><td class="paramname">pcs</td><td>Offset to an output array of <code>double</code>s of length <code>number * mat.ncol()</code>. </td></tr>
-    <tr><td class="paramname">prop_var</td><td>Offset to an output array of <code>double</code>s of length <code>number</code>.</td></tr>
+    <tr><td class="paramdir"></td><td class="paramname">mat</td><td>The input log-expression matrix, with features in rows and cells in columns. </td></tr>
+    <tr><td class="paramdir"></td><td class="paramname">number</td><td>Number of PCs to obtain. Must be less than the smaller dimension of <code>mat</code>. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">subset</td><td>Offset to an input array of <code>uint8_t</code>s of length <code>mat.nrow()</code>, indicating which features should be used for the PCA. </td></tr>
+    <tr><td class="paramdir"></td><td class="paramname">scale</td><td>Whether to standardize rows in <code>mat</code> to unit variance. If <code>true</code>, all rows in <code>mat</code> are assumed to have non-zero variance. </td></tr>
+    <tr><td class="paramdir"></td><td class="paramname">pcs</td><td>Offset to an output array of <code>double</code>s of length <code>number * mat.ncol()</code>. </td></tr>
+    <tr><td class="paramdir"></td><td class="paramname">prop_var</td><td>Offset to an output array of <code>double</code>s of length <code>number</code>.</td></tr>
   </table>
   </dd>
 </dl>
