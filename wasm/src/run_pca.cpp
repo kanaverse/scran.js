@@ -15,7 +15,9 @@
  *
  * @param mat The input log-expression matrix, with features in rows and cells in columns.
  * @param number Number of PCs to obtain.
+ * Must be less than the smaller dimension of `mat`.
  * @param scale Whether to standardize rows in `mat` to unit variance.
+ * If `true`, all rows in `mat` are assumed to have non-zero variance.
  * @param pcs Offset to an output array of `double`s of length `number * mat.ncol()`.
  * @param prop_var Offset to an output array of `double`s of length `number`.
  *
