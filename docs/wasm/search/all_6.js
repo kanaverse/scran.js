@@ -1,8 +1,5 @@
 var searchData=
 [
-  ['ncol_9',['ncol',['../structNumericMatrix.html#ad21bf001b87002dcb346d9fcdd4e8a60',1,'NumericMatrix']]],
-  ['nrow_10',['nrow',['../structNumericMatrix.html#aca9949603c5969178a3d43eb1a352f63',1,'NumericMatrix']]],
-  ['numericmatrix_11',['NumericMatrix',['../structNumericMatrix.html',1,'NumericMatrix'],['../structNumericMatrix.html#a66a4590191812cc5aaadb1f226023b08',1,'NumericMatrix::NumericMatrix(const tatami::numeric_matrix *p)'],['../structNumericMatrix.html#a06927edd7002205d6f5385971b404d13',1,'NumericMatrix::NumericMatrix(std::shared_ptr&lt; const tatami::numeric_matrix &gt; p)'],['../structNumericMatrix.html#af316832630f2a6bd5bd815ffce78018c',1,'NumericMatrix::NumericMatrix(int nr, int nc, uintptr_t values)']]],
-  ['numericmatrix_2ecpp_12',['NumericMatrix.cpp',['../NumericMatrix_8cpp.html',1,'']]],
-  ['numericmatrix_2eh_13',['NumericMatrix.h',['../NumericMatrix_8h.html',1,'']]]
+  ['jsvector_8',['JSVector',['../classJSVector.html',1,'JSVector&lt; T &gt;'],['../classJSVector.html#a16d8086bad473b8cf7ddc7ddb9bdda90',1,'JSVector::JSVector()']]],
+  ['jsvector_2eh_9',['JSVector.h',['../JSVector_8h.html',1,'']]]
 ];
