@@ -14,19 +14,19 @@ import {scran} from "./scran.js";
 // ----> load Data from input
 function generateRandomData() {
 
-    var obj = new scran([], {}, Module);
+    var obj = new scran([], 10, 10, {}, Module);
 
     // console.log(obj);
 
     window.scObj = obj;
 
-    document.querySelector(".data-info").innerHTML = "generated a typed array of size " + window.scObj.data.length;
+    document.querySelector(".data-info").innerHTML = "generated a typed array of size " + window.scObj.data.vector.length;
 }
 
 // Step2: QC metrics
 function performQC() {
-
-
+    var instance =  window.scObj.getNumMatrix();
+    window.scObj.QC();
 }
 
 

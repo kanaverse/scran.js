@@ -7,8 +7,9 @@
         <title>scran.js - Analyze single-cell datasets in the browser</title>
     </head>
     <body>
-        <script src="target.js"></script>
+        <script src="scran_wasm.js"></script>
         <script type="module" src="index.js"></script>
+        <h1> Non-interactive version </h1>
         <div id="app">
             <div>
                 <h3>Upload a Dataset or Randomly Generate Data</h3>
@@ -21,6 +22,11 @@
                 <button onClick="generateRandomData()">Generate Data</button>
 
                 <span class="data-info"></span>
+
+                <h3>QC stats</h3>
+                <button onClick="performQC()">Run QC</button>
+
+                <span class="qc-info"></span>
             </div>
         </div>
     </body>
