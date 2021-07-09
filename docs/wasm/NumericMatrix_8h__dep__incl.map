@@ -1,9 +1,10 @@
 <map id="NumericMatrix.h" name="NumericMatrix.h">
-<area shape="rect" id="node1" title=" " alt="" coords="389,5,505,32"/>
+<area shape="rect" id="node1" title=" " alt="" coords="477,5,593,32"/>
 <area shape="rect" id="node2" href="$filter__cells_8cpp.html" title=" " alt="" coords="5,80,109,107"/>
-<area shape="rect" id="node3" href="$model__gene__var_8cpp.html" title=" " alt="" coords="133,80,275,107"/>
-<area shape="rect" id="node4" href="$NumericMatrix_8cpp.html" title=" " alt="" coords="299,80,429,107"/>
-<area shape="rect" id="node5" href="$per__cell__qc__filters_8cpp.html" title=" " alt="" coords="454,80,605,107"/>
-<area shape="rect" id="node6" href="$per__cell__qc__metrics_8cpp.html" title=" " alt="" coords="629,80,792,107"/>
-<area shape="rect" id="node7" href="$run__pca_8cpp.html" title=" " alt="" coords="817,80,909,107"/>
+<area shape="rect" id="node3" href="$log__norm__counts_8cpp.html" title=" " alt="" coords="134,80,279,107"/>
+<area shape="rect" id="node4" href="$model__gene__var_8cpp.html" title=" " alt="" coords="304,80,445,107"/>
+<area shape="rect" id="node5" href="$NumericMatrix_8cpp.html" title=" " alt="" coords="469,80,600,107"/>
+<area shape="rect" id="node6" href="$per__cell__qc__filters_8cpp.html" title=" " alt="" coords="625,80,775,107"/>
+<area shape="rect" id="node7" href="$per__cell__qc__metrics_8cpp.html" title=" " alt="" coords="800,80,963,107"/>
+<area shape="rect" id="node8" href="$run__pca_8cpp.html" title=" " alt="" coords="987,80,1079,107"/>
 </map>

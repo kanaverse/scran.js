@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['row_55',['row',['../structNumericMatrix.html#a428afa5858a25c1c6b8861900e0dad7b',1,'NumericMatrix']]],
-  ['run_5fpca_56',['run_pca',['../run__pca_8cpp.html#ae1d199a55cbba67e4a58f46fdd9d23f3',1,'run_pca.cpp']]]
+  ['per_5fcell_5fqc_5ffilters_57',['per_cell_qc_filters',['../per__cell__qc__filters_8cpp.html#a9b2c265d22a1bb9c2ed43fdfc737b92d',1,'per_cell_qc_filters.cpp']]],
+  ['per_5fcell_5fqc_5fmetrics_58',['per_cell_qc_metrics',['../per__cell__qc__metrics_8cpp.html#a41e250b8bea6e044ffedb689c0304d3e',1,'per_cell_qc_metrics.cpp']]]
 ];
