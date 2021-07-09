@@ -10,4 +10,3 @@ dist
 # wasm CMake builds
 wasm/_deps
 wasm/CMakeFiles
-wasm/extern

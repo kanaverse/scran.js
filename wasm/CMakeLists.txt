@@ -7,6 +7,8 @@ project(scran_wasm
 
 set(CMAKE_CXX_STANDARD 17)
 
+set(F2C_EXTERNAL_ARITH_HEADER "${CMAKE_SOURCE_DIR}/arith.h")
+
 add_subdirectory(extern)
 
 add_executable(
