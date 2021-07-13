@@ -79,10 +79,10 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a66a4590191812cc5aaadb1f226023b08"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structNumericMatrix.html#a66a4590191812cc5aaadb1f226023b08">NumericMatrix</a> (const tatami::numeric_matrix *p)</td></tr>
-<tr class="separator:a66a4590191812cc5aaadb1f226023b08"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a06927edd7002205d6f5385971b404d13"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structNumericMatrix.html#a06927edd7002205d6f5385971b404d13">NumericMatrix</a> (std::shared_ptr&lt; const tatami::numeric_matrix &gt; p)</td></tr>
-<tr class="separator:a06927edd7002205d6f5385971b404d13"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad2a44d614c57a6bf2a3e400167ebb3e8"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structNumericMatrix.html#ad2a44d614c57a6bf2a3e400167ebb3e8">NumericMatrix</a> (const tatami::NumericMatrix *p)</td></tr>
+<tr class="separator:ad2a44d614c57a6bf2a3e400167ebb3e8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a03837f6ccdc2da8a2caa7e2772a2a0fd"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structNumericMatrix.html#a03837f6ccdc2da8a2caa7e2772a2a0fd">NumericMatrix</a> (std::shared_ptr&lt; const tatami::NumericMatrix &gt; p)</td></tr>
+<tr class="separator:a03837f6ccdc2da8a2caa7e2772a2a0fd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af316832630f2a6bd5bd815ffce78018c"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structNumericMatrix.html#af316832630f2a6bd5bd815ffce78018c">NumericMatrix</a> (int nr, int nc, uintptr_t values)</td></tr>
 <tr class="separator:af316832630f2a6bd5bd815ffce78018c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aca9949603c5969178a3d43eb1a352f63"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structNumericMatrix.html#aca9949603c5969178a3d43eb1a352f63">nrow</a> () const</td></tr>
@@ -96,15 +96,15 @@ Public Member Functions</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:aee03c0e30018ff9229f74429dd585e81"><td class="memItemLeft" align="right" valign="top">std::shared_ptr&lt; const tatami::numeric_matrix &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structNumericMatrix.html#aee03c0e30018ff9229f74429dd585e81">ptr</a></td></tr>
-<tr class="separator:aee03c0e30018ff9229f74429dd585e81"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af05a5782bb8e5a7b083a156cea46df92"><td class="memItemLeft" align="right" valign="top">std::shared_ptr&lt; const tatami::NumericMatrix &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structNumericMatrix.html#af05a5782bb8e5a7b083a156cea46df92">ptr</a></td></tr>
+<tr class="separator:af05a5782bb8e5a7b083a156cea46df92"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>A numeric matrix that stores conceptual <code>double</code>s. </p>
-<p>This provides a wrapper around a <code>tatami::numeric_matrix</code> with Javascript-visible bindings to some basic methods. </p>
+<p>This provides a wrapper around a <code>tatami::NumericMatrix</code> with Javascript-visible bindings to some basic methods. </p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a id="a66a4590191812cc5aaadb1f226023b08"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a66a4590191812cc5aaadb1f226023b08">&#9670;&nbsp;</a></span>NumericMatrix() <span class="overload">[1/3]</span></h2>
+<a id="ad2a44d614c57a6bf2a3e400167ebb3e8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad2a44d614c57a6bf2a3e400167ebb3e8">&#9670;&nbsp;</a></span>NumericMatrix() <span class="overload">[1/3]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -112,24 +112,24 @@ Public Attributes</h2></td></tr>
         <tr>
           <td class="memname">NumericMatrix::NumericMatrix </td>
           <td>(</td>
-          <td class="paramtype">const tatami::numeric_matrix *&#160;</td>
+          <td class="paramtype">const tatami::NumericMatrix *&#160;</td>
           <td class="paramname"><em>p</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Construct a <code><a class="el" href="structNumericMatrix.html" title="A numeric matrix that stores conceptual doubles.">NumericMatrix</a></code> from an existing pointer to a <code>tatami::numeric_matrix</code>.</p>
+<p>Construct a <code><a class="el" href="structNumericMatrix.html" title="A numeric matrix that stores conceptual doubles.">NumericMatrix</a></code> from an existing pointer to a <code>tatami::NumericMatrix</code>.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">p</td><td>Pointer to a <code>tatami::numeric_matrix</code>. </td></tr>
+    <tr><td class="paramname">p</td><td>Pointer to a <code>tatami::NumericMatrix</code>. </td></tr>
   </table>
   </dd>
 </dl>
 
 </div>
 </div>
-<a id="a06927edd7002205d6f5385971b404d13"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a06927edd7002205d6f5385971b404d13">&#9670;&nbsp;</a></span>NumericMatrix() <span class="overload">[2/3]</span></h2>
+<a id="a03837f6ccdc2da8a2caa7e2772a2a0fd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a03837f6ccdc2da8a2caa7e2772a2a0fd">&#9670;&nbsp;</a></span>NumericMatrix() <span class="overload">[2/3]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -137,16 +137,16 @@ Public Attributes</h2></td></tr>
         <tr>
           <td class="memname">NumericMatrix::NumericMatrix </td>
           <td>(</td>
-          <td class="paramtype">std::shared_ptr&lt; const tatami::numeric_matrix &gt;&#160;</td>
+          <td class="paramtype">std::shared_ptr&lt; const tatami::NumericMatrix &gt;&#160;</td>
           <td class="paramname"><em>p</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Construct a <code><a class="el" href="structNumericMatrix.html" title="A numeric matrix that stores conceptual doubles.">NumericMatrix</a></code> from an existing pointer to a <code>tatami::numeric_matrix</code>.</p>
+<p>Construct a <code><a class="el" href="structNumericMatrix.html" title="A numeric matrix that stores conceptual doubles.">NumericMatrix</a></code> from an existing pointer to a <code>tatami::NumericMatrix</code>.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">p</td><td>Pointer to a <code>tatami::numeric_matrix</code>. </td></tr>
+    <tr><td class="paramname">p</td><td>Pointer to a <code>tatami::NumericMatrix</code>. </td></tr>
   </table>
   </dd>
 </dl>
@@ -306,18 +306,18 @@ Public Attributes</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Member Data Documentation</h2>
-<a id="aee03c0e30018ff9229f74429dd585e81"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aee03c0e30018ff9229f74429dd585e81">&#9670;&nbsp;</a></span>ptr</h2>
+<a id="af05a5782bb8e5a7b083a156cea46df92"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af05a5782bb8e5a7b083a156cea46df92">&#9670;&nbsp;</a></span>ptr</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">std::shared_ptr&lt;const tatami::numeric_matrix&gt; NumericMatrix::ptr</td>
+          <td class="memname">std::shared_ptr&lt;const tatami::NumericMatrix&gt; NumericMatrix::ptr</td>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>A pointer to a <code>tatami::numeric_matrix</code>, for use in other functions. </p>
+<p>A pointer to a <code>tatami::NumericMatrix</code>, for use in other functions. </p>
 
 </div>
 </div>

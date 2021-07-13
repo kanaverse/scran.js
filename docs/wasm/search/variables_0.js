@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['ptr_62',['ptr',['../structNumericMatrix.html#aee03c0e30018ff9229f74429dd585e81',1,'NumericMatrix']]]
+  ['ptr_62',['ptr',['../structNumericMatrix.html#af05a5782bb8e5a7b083a156cea46df92',1,'NumericMatrix']]]
 ];
