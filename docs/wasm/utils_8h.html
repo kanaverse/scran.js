@@ -101,31 +101,22 @@ Functions</h2></td></tr>
 <tr class="memitem:aaf20a63dc6866a9961f9099feec5942c"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
 <tr class="memitem:aaf20a63dc6866a9961f9099feec5942c"><td class="memTemplItemLeft" align="right" valign="top">std::vector&lt; T &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="utils_8h.html#aaf20a63dc6866a9961f9099feec5942c">cast_vector_of_pointers</a> (uintptr_t ptr, size_t n)</td></tr>
 <tr class="separator:aaf20a63dc6866a9961f9099feec5942c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a784c644363911c9435a84de99fad00cb"><td class="memTemplParams" colspan="2">template&lt;class OBJ &gt; </td></tr>
-<tr class="memitem:a784c644363911c9435a84de99fad00cb"><td class="memTemplItemLeft" align="right" valign="top">const int32_t *&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="utils_8h.html#a784c644363911c9435a84de99fad00cb">add_blocks</a> (OBJ &amp;fun, bool use_blocks, uintptr_t blocks, size_t n)</td></tr>
-<tr class="separator:a784c644363911c9435a84de99fad00cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8ddad69aa73a5f8275e5d492fff53d30"><td class="memItemLeft" align="right" valign="top">std::pair&lt; const int32_t *, std::vector&lt; int32_t &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="utils_8h.html#a8ddad69aa73a5f8275e5d492fff53d30">add_blocks</a> (bool use_blocks, uintptr_t blocks, size_t n)</td></tr>
+<tr class="separator:a8ddad69aa73a5f8275e5d492fff53d30"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function Documentation</h2>
-<a id="a784c644363911c9435a84de99fad00cb"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a784c644363911c9435a84de99fad00cb">&#9670;&nbsp;</a></span>add_blocks()</h2>
+<a id="a8ddad69aa73a5f8275e5d492fff53d30"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8ddad69aa73a5f8275e5d492fff53d30">&#9670;&nbsp;</a></span>add_blocks()</h2>
 
 <div class="memitem">
 <div class="memproto">
-<div class="memtemplate">
-template&lt;class OBJ &gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">const int32_t* add_blocks </td>
+          <td class="memname">std::pair&lt;const int32_t*, std::vector&lt;int32_t&gt; &gt; add_blocks </td>
           <td>(</td>
-          <td class="paramtype">OBJ &amp;&#160;</td>
-          <td class="paramname"><em>fun</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
           <td class="paramtype">bool&#160;</td>
           <td class="paramname"><em>use_blocks</em>, </td>
         </tr>
@@ -154,22 +145,15 @@ template&lt;class OBJ &gt; </div>
 </table>
 </div><div class="memdoc">
 <p>Set blocking information for an instance of a function class.</p>
-<dl class="tparams"><dt>Template Parameters</dt><dd>
-  <table class="tparams">
-    <tr><td class="paramname">OBJ</td><td>Function class, usually from the <b>scran</b> library. This should have a <code>set_blocks()</code> method.</td></tr>
-  </table>
-  </dd>
-</dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">fun</td><td>Instance of a function class. </td></tr>
     <tr><td class="paramname">use_blocks</td><td>Whether or not to use blocks. </td></tr>
-    <tr><td class="paramname">blocks</td><td>Offset to an array of <code>int32_t</code>s with <code>ncells</code> elements, containing the block assignment for each cell. Block IDs should be consecutive and 0-based. If <code>use_blocks = false</code>, this value is ignored. </td></tr>
+    <tr><td class="paramname">blocks</td><td>Offset to an array of <code>int32_t</code>s with <code>n</code> elements, containing the block assignment for each cell. Block IDs should be consecutive and 0-based. If <code>use_blocks = false</code>, this value is ignored. </td></tr>
     <tr><td class="paramname">n</td><td>Length of the array referenced by <code>blocks</code>. Only used if <code>use_blocks = true</code>.</td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>A pointer to the array of block values. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>A pair containing a pointer to the array of block indices, plus a vector containing a (possibly empty) buffer. If <code>use_blocks = false</code>, the former will point to the address occupied by the latter, which in turn will be filled with all-zero values (i.e., all elements in the same block). </dd></dl>
 
 </div>
 </div>

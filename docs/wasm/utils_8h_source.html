@@ -85,18 +85,20 @@ $(function() {
 <div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;    <span class="keywordflow">return</span> store;</div>
 <div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;}</div>
 <div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160; </div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">class</span> OBJ&gt;</div>
-<div class="line"><a name="l00047"></a><span class="lineno"><a class="line" href="utils_8h.html#a784c644363911c9435a84de99fad00cb">   47</a></span>&#160;<span class="keyword">inline</span> <span class="keyword">const</span> int32_t* <a class="code" href="utils_8h.html#a784c644363911c9435a84de99fad00cb">add_blocks</a>(OBJ&amp; fun, <span class="keywordtype">bool</span> use_blocks, uintptr_t blocks, <span class="keywordtype">size_t</span> n) {</div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;    <span class="keyword">const</span> int32_t* output = NULL;</div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;    <span class="keywordflow">if</span> (use_blocks) {</div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;        output = <span class="keyword">reinterpret_cast&lt;</span><span class="keyword">const </span>int32_t*<span class="keyword">&gt;</span>(blocks);</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;        fun.set_blocks(n, output);</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;    }</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;    <span class="keywordflow">return</span> output;</div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;}</div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160; </div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="ttc" id="autils_8h_html_a784c644363911c9435a84de99fad00cb"><div class="ttname"><a href="utils_8h.html#a784c644363911c9435a84de99fad00cb">add_blocks</a></div><div class="ttdeci">const int32_t * add_blocks(OBJ &amp;fun, bool use_blocks, uintptr_t blocks, size_t n)</div><div class="ttdef"><b>Definition:</b> utils.h:47</div></div>
+<div class="line"><a name="l00045"></a><span class="lineno"><a class="line" href="utils_8h.html#a8ddad69aa73a5f8275e5d492fff53d30">   45</a></span>&#160;<span class="keyword">inline</span> std::pair&lt;const int32_t*, std::vector&lt;int32_t&gt; &gt; <a class="code" href="utils_8h.html#a8ddad69aa73a5f8275e5d492fff53d30">add_blocks</a>(<span class="keywordtype">bool</span> use_blocks, uintptr_t blocks, <span class="keywordtype">size_t</span> n) {</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;    std::vector&lt;int32_t&gt; tmp_blocks;</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;    <span class="keyword">const</span> int32_t* block_ptr = NULL;</div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;    <span class="keywordflow">if</span> (!use_blocks) {</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;        tmp_blocks.resize(n, 0);</div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;        block_ptr = tmp_blocks.data();</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;    } <span class="keywordflow">else</span> {</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;        block_ptr = <span class="keyword">reinterpret_cast&lt;</span><span class="keyword">const </span>int32_t*<span class="keyword">&gt;</span>(blocks);</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;    }</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;    <span class="keywordflow">return</span> std::make_pair(block_ptr, tmp_blocks);</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;}</div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160; </div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="ttc" id="autils_8h_html_a8ddad69aa73a5f8275e5d492fff53d30"><div class="ttname"><a href="utils_8h.html#a8ddad69aa73a5f8275e5d492fff53d30">add_blocks</a></div><div class="ttdeci">std::pair&lt; const int32_t *, std::vector&lt; int32_t &gt; &gt; add_blocks(bool use_blocks, uintptr_t blocks, size_t n)</div><div class="ttdef"><b>Definition:</b> utils.h:45</div></div>
 <div class="ttc" id="autils_8h_html_aaf20a63dc6866a9961f9099feec5942c"><div class="ttname"><a href="utils_8h.html#aaf20a63dc6866a9961f9099feec5942c">cast_vector_of_pointers</a></div><div class="ttdeci">std::vector&lt; T &gt; cast_vector_of_pointers(uintptr_t ptr, size_t n)</div><div class="ttdef"><b>Definition:</b> utils.h:19</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->

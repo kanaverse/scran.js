@@ -149,7 +149,7 @@ Functions</h2></td></tr>
     <tr><td class="paramname">use_size_factors</td><td>Whether to use custom size factors, or to compute them based on the library size. </td></tr>
     <tr><td class="paramname">size_factors</td><td>Offset to an array of <code>double</code>s of length <code>nsubsets</code>, containing (possibly uncentered) positive size factors for each column of <code>mat</code>. Only used if <code>use_size_factors = true</code>. </td></tr>
     <tr><td class="paramname">use_blocks</td><td>Whether or not to compute the default filters within each block. </td></tr>
-    <tr><td class="paramname">blocks</td><td>Offset to an array of <code>int32_t</code>s with <code>ncells</code> elements, containing the block assignment for each cell. Block IDs should be consecutive and 0-based. If <code>use_blocks = false</code>, this value is ignored.</td></tr>
+    <tr><td class="paramname">blocks</td><td>Offset to an array of <code>int32_t</code>s with <code>mat.ncol()</code> elements, containing the block assignment for each cell. Block IDs should be consecutive and 0-based. If <code>use_blocks = false</code>, this value is ignored.</td></tr>
   </table>
   </dd>
 </dl>
