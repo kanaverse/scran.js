@@ -16,7 +16,7 @@
  * @param size_factors Offset to an array of `double`s of length `nsubsets`, containing (possibly uncentered) positive size factors for each column of `mat`.
  * Only used if `use_size_factors = true`.
  * @param use_blocks Whether or not to compute the default filters within each block.
- * @param blocks Offset to an array of `int32_t`s with `ncells` elements, containing the block assignment for each cell.
+ * @param blocks Offset to an array of `int32_t`s with `mat.ncol()` elements, containing the block assignment for each cell.
  * Block IDs should be consecutive and 0-based.
  * If `use_blocks = false`, this value is ignored.
  *
@@ -32,7 +32,7 @@ NumericMatrix log_norm_counts(const NumericMatrix& mat,
 
 {
     scran::LogNormCounts norm;
-    add_blocks(norm, use_blocks, blocks, mat.ncol());
+    auto block_info = add_blocks(use_blocks, blocks, mat.ncol());
     
     std::vector<double> sf;
     if (use_size_factors) {
@@ -42,7 +42,7 @@ NumericMatrix log_norm_counts(const NumericMatrix& mat,
         sf = tatami::column_sums(mat.ptr.get());
     }
 
-    return NumericMatrix(norm.run(mat.ptr, std::move(sf)));
+    return NumericMatrix(norm.run(mat.ptr, std::move(sf), block_info.first));
 }
 
 /**

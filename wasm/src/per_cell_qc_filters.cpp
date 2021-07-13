@@ -66,9 +66,10 @@ void per_cell_qc_filters(int ncells,
 {
     scran::PerCellQCFilters qc;
     qc.set_nmads(nmads);
-    add_blocks(qc, use_blocks, blocks, ncells);
+    auto block_info = add_blocks(use_blocks, blocks, ncells);
 
     auto thresholds = qc.run(ncells,
+        block_info.first,
         reinterpret_cast<const double*>(sums),  
         reinterpret_cast<const int32_t*>(detected), 
         cast_vector_of_pointers<const double*>(proportions, nsubsets),
