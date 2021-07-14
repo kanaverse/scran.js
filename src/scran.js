@@ -16,7 +16,7 @@ export class scran {
       },
       Float32Array: {
         size: 4,
-        wasm: "HEAP32",
+        wasm: "HEAPF32",
       },
       Uint8Array: {
         size: 1,
@@ -37,10 +37,16 @@ export class scran {
     this.nrow = nrow;
     this.ncol = ncol;
     this.data = this.generateData(nrow * ncol);
+
+    console.log(this.data);
   }
 
   getRandomArbitrary() {
     return Math.random();
+  }
+
+  setZero(arr) {
+    arr.vector.set(arr.vector.map(() => 0));
   }
 
   generateData(size) {
@@ -72,11 +78,39 @@ export class scran {
       const typeOpt = this._heapMap[type];
       let ptr = this.wasm._malloc(size * typeOpt["size"]);
 
-      const arr = new Float64Array(
-        this.wasm[typeOpt["wasm"]].buffer,
-        ptr,
-        size
-      );
+      let arr;
+
+      if (type == "Float64Array") {
+        arr = new Float64Array(
+          this.wasm[typeOpt["wasm"]].buffer,
+          ptr,
+          size
+        );
+      } else if (type == "Float32Array") {
+        arr = new Float32Array(
+          this.wasm[typeOpt["wasm"]].buffer,
+          ptr,
+          size
+        );
+      } else if (type == "Uint8Array") {
+        arr = new Uint8Array(
+          this.wasm[typeOpt["wasm"]].buffer,
+          ptr,
+          size
+        );
+      } else if (type == "Int32Array") {
+        arr = new Int32Array(
+          this.wasm[typeOpt["wasm"]].buffer,
+          ptr,
+          size
+        );
+      } else if (type == "Uint32Array") {
+        arr = new Uint32Array(
+          this.wasm[typeOpt["wasm"]].buffer,
+          ptr,
+          size
+        );
+      }
 
       let x = {
         pointer: ptr,
@@ -84,6 +118,7 @@ export class scran {
         vector: arr,
       };
 
+      this.setZero(x);
       this._internalMemTracker[key] = x;
 
       return x;
@@ -95,7 +130,7 @@ export class scran {
   }
 
   getNumMatrix(key) {
-    var dmat = this.createMemorySpace(this.ncol, "Float64Array", "dataMat");
+    var dmat = this.createMemorySpace(this.ncol * this.nrow, "Float64Array", "dataMat");
 
     var instance = new this.wasm.NumericMatrix(
       this.nrow,
@@ -111,9 +146,10 @@ export class scran {
   // pretty much from PR #1 Aaron's code
   QC() {
     var sums = this.createMemorySpace(this.ncol, "Float64Array", "qc_sums");
+    
     var detected = this.createMemorySpace(
       this.ncol,
-      "Float32Array",
+      "Int32Array",
       "qc_detected"
     );
     var subsets = this.createMemorySpace(this.ncol, "Uint8Array", "qc_subsets");

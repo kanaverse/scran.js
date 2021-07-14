@@ -14,7 +14,7 @@ import {scran} from "./scran.js";
 // ----> load Data from input
 function generateRandomData() {
 
-    var obj = new scran([], 10, 10, {}, Module);
+    var obj = new scran([], 3, 3, {}, Module);
 
     // console.log(obj);
 

@@ -3,8 +3,9 @@
 ```
 # inside wasm
 
-cmake .
-make
+emcmake cmake -S . -B build
+cd build
+emmake make
 ```
 
 ## Building and running on localhost
