@@ -26,4 +26,6 @@ target_link_libraries(
     irlba
 )
 
-set_target_properties(scran_wasm PROPERTIES LINK_FLAGS "--bind")
+target_compile_options(scran_wasm PUBLIC "-pthread")
+
+set_target_properties(scran_wasm PROPERTIES LINK_FLAGS "--bind --pthread -s PTHREAD_POOL_SIZE=4")

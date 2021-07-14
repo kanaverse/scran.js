@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>js to wasm array</title>
+  </head>
+  <body>
+
+    <script type="text/javascript">
+      function getRandomArbitrary() {
+        return Math.random();
+      }
+
+      var Module = {
+        onRuntimeInitialized: function() {
+          // size of array
+          const n = 1000;
+
+            // Write an allocation function, couldn't be bothered.
+            function allocate_uint8_vector (n) {
+              var ptr = Module._malloc(n);
+              var vec = new Uint8Array(Module.HEAPU8.buffer, ptr, n);
+              return { offset: ptr, vector: vec };
+            }
+
+            function allocate_uint32_vector (n) {
+              var ptr = Module._malloc(n * 4);
+              var vec = new Uint32Array(Module.HEAPU32.buffer, ptr, n);
+              return { offset: ptr, vector: vec };
+            }
+
+            function allocate_int32_vector (n) {
+              var ptr = Module._malloc(n * 4);
+              var vec = new Int32Array(Module.HEAP32.buffer, ptr, n);
+              return { offset: ptr, vector: vec };
+            }
+
+            function allocate_double_vector (n) {
+              var ptr = Module._malloc(n * 8);
+              var vec = new Float64Array(Module.HEAPF64.buffer, ptr, n);
+              return { offset: ptr, vector: vec };
+            }
+
+            var mat = allocate_double_vector(1000);
+            console.log("Offset is " + mat.offset);
+            var mat0 = mat.vector;
+            mat0.set(mat0.map(() => getRandomArbitrary()));
+            var nrow = 50, ncol = 20;
+            var instance = new Module.NumericMatrix(nrow, ncol, mat.offset);
+
+            var sums = allocate_double_vector(instance.ncol());
+            var detected = allocate_int32_vector(instance.ncol());
+
+            subsets = allocate_uint8_vector(instance.nrow());
+            subsets.vector[0] = 1;
+            subsets.vector[3] = 1;
+            subsets.vector[10] = 1;
+            subsets_array = allocate_uint32_vector(1); // Note the use of a 32-bit array to hold the offsets.
+            subsets_array.vector[0] = subsets.ptr;
+
+            proportions = allocate_double_vector(instance.ncol());
+            proportions_array = allocate_uint32_vector(1);
+            proportions_array.vector[0] = proportions.offset;
+
+                    console.log(sums.vector);
+            Module.per_cell_qc_metrics(instance, 1, subsets_array.offset, sums.offset, detected.offset, proportions_array.offset, 3);
+                    console.log(sums.vector);
+
+          instance.delete();
+        }
+      };
+    </script>
+    <script src="a.out.js"></script>
+  </body>
+</html>
+
