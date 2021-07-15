@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['log_5fnorm_5fcounts_10',['log_norm_counts',['../log__norm__counts_8cpp.html#a67c799ea48a1c508b5a8455a996df103',1,'log_norm_counts.cpp']]],
-  ['log_5fnorm_5fcounts_2ecpp_11',['log_norm_counts.cpp',['../log__norm__counts_8cpp.html',1,'']]]
+  ['model_5fgene_5fvar_11',['model_gene_var',['../model__gene__var_8cpp.html#aa9878513d40942dd0ba6e2df621cb64a',1,'model_gene_var.cpp']]],
+  ['model_5fgene_5fvar_2ecpp_12',['model_gene_var.cpp',['../model__gene__var_8cpp.html',1,'']]]
 ];

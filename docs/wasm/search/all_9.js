@@ -1,8 +1,8 @@
 var searchData=
 [
-  ['ncol_14',['ncol',['../structNumericMatrix.html#ad21bf001b87002dcb346d9fcdd4e8a60',1,'NumericMatrix']]],
-  ['nrow_15',['nrow',['../structNumericMatrix.html#aca9949603c5969178a3d43eb1a352f63',1,'NumericMatrix']]],
-  ['numericmatrix_16',['NumericMatrix',['../structNumericMatrix.html',1,'NumericMatrix'],['../structNumericMatrix.html#ad2a44d614c57a6bf2a3e400167ebb3e8',1,'NumericMatrix::NumericMatrix(const tatami::NumericMatrix *p)'],['../structNumericMatrix.html#a03837f6ccdc2da8a2caa7e2772a2a0fd',1,'NumericMatrix::NumericMatrix(std::shared_ptr&lt; const tatami::NumericMatrix &gt; p)'],['../structNumericMatrix.html#af316832630f2a6bd5bd815ffce78018c',1,'NumericMatrix::NumericMatrix(int nr, int nc, uintptr_t values)']]],
-  ['numericmatrix_2ecpp_17',['NumericMatrix.cpp',['../NumericMatrix_8cpp.html',1,'']]],
-  ['numericmatrix_2eh_18',['NumericMatrix.h',['../NumericMatrix_8h.html',1,'']]]
+  ['per_5fcell_5fqc_5ffilters_18',['per_cell_qc_filters',['../per__cell__qc__filters_8cpp.html#a9b2c265d22a1bb9c2ed43fdfc737b92d',1,'per_cell_qc_filters.cpp']]],
+  ['per_5fcell_5fqc_5ffilters_2ecpp_19',['per_cell_qc_filters.cpp',['../per__cell__qc__filters_8cpp.html',1,'']]],
+  ['per_5fcell_5fqc_5fmetrics_20',['per_cell_qc_metrics',['../per__cell__qc__metrics_8cpp.html#a41e250b8bea6e044ffedb689c0304d3e',1,'per_cell_qc_metrics.cpp']]],
+  ['per_5fcell_5fqc_5fmetrics_2ecpp_21',['per_cell_qc_metrics.cpp',['../per__cell__qc__metrics_8cpp.html',1,'']]],
+  ['ptr_22',['ptr',['../structNumericMatrix.html#af05a5782bb8e5a7b083a156cea46df92',1,'NumericMatrix']]]
 ];
