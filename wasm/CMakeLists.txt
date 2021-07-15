@@ -27,4 +27,4 @@ target_link_libraries(
     irlba
 )
 
-set_target_properties(scran_wasm PROPERTIES LINK_FLAGS "--bind -s ALLOW_MEMORY_GROWTH=1")
+set_target_properties(scran_wasm PROPERTIES LINK_FLAGS "--bind -s ALLOW_MEMORY_GROWTH=1 -s FORCE_FILESYSTEM=1")
