@@ -32,7 +32,6 @@ NumericMatrix log_norm_counts(const NumericMatrix& mat,
 
 {
     scran::LogNormCounts norm;
-    auto block_info = add_blocks(use_blocks, blocks, mat.ncol());
     
     std::vector<double> sf;
     if (use_size_factors) {
@@ -42,7 +41,11 @@ NumericMatrix log_norm_counts(const NumericMatrix& mat,
         sf = tatami::column_sums(mat.ptr.get());
     }
 
-    return NumericMatrix(norm.run(mat.ptr, std::move(sf), block_info.first));
+    if (use_blocks) {
+        return NumericMatrix(norm.run_blocked(mat.ptr, std::move(sf), reinterpret_cast<const uint32_t*>(blocks)));
+    } else {
+        return NumericMatrix(norm.run(mat.ptr, std::move(sf)));
+    }
 }
 
 /**
