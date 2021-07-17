@@ -5,7 +5,7 @@ include(FetchContent)
 FetchContent_Declare(
   scran 
   GIT_REPOSITORY https://github.com/LTLA/libscran
-  GIT_TAG matrixmarket
+  GIT_TAG master
 )
 FetchContent_MakeAvailable(scran)
 
