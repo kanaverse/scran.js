@@ -14,7 +14,8 @@
                 <input
                 type="file"
                 name="upload single-cell dataset"
-                id="dataset"/>            
+                id="dataset"
+                onChange="parseFile(this.files)"/>            
 
                 <h3>or For now randomly generate data</h3>
                 <button onClick="generateRandomData()">Generate Data</button>

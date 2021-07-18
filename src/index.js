@@ -33,11 +33,24 @@ function performPCA() {
     window.scObj.PCA();
 }
 
+function parseFile(e) {
+    console.log(e);
+
+    var myWorker = new Worker('FileWorker.js');
+
+    // document more types
+    myWorker.postMessage({
+        type: "mount",
+        files: e
+    });
+}
+
 // Again easy for development
 // TODO: use parcel instead
 window.generateRandomData = generateRandomData;
 window.performQC = performQC;
 window.performPCA = performPCA;
+window.parseFile = parseFile;
 
 // generateRandomData();
 // performQC();
