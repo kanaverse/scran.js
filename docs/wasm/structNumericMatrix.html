@@ -98,6 +98,8 @@ Public Member Functions</h2></td></tr>
 Public Attributes</h2></td></tr>
 <tr class="memitem:af05a5782bb8e5a7b083a156cea46df92"><td class="memItemLeft" align="right" valign="top">std::shared_ptr&lt; const tatami::NumericMatrix &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structNumericMatrix.html#af05a5782bb8e5a7b083a156cea46df92">ptr</a></td></tr>
 <tr class="separator:af05a5782bb8e5a7b083a156cea46df92"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa60f1d60eacd5361dbec67975f4f259d"><td class="memItemLeft" align="right" valign="top">std::vector&lt; size_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structNumericMatrix.html#aa60f1d60eacd5361dbec67975f4f259d">permutation</a></td></tr>
+<tr class="separator:aa60f1d60eacd5361dbec67975f4f259d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>A numeric matrix that stores conceptual <code>double</code>s. </p>
@@ -306,6 +308,21 @@ Public Attributes</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Member Data Documentation</h2>
+<a id="aa60f1d60eacd5361dbec67975f4f259d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa60f1d60eacd5361dbec67975f4f259d">&#9670;&nbsp;</a></span>permutation</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;size_t&gt; NumericMatrix::permutation</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>A permutation vector, indicating how rows were shuffled to enable a more memory-efficient storage format. If the current matrix is <code>X</code>, the original matrix would have been obtained as <code>X[permutation,]</code>. If empty, no shuffling was performed. </p>
+
+</div>
+</div>
 <a id="af05a5782bb8e5a7b083a156cea46df92"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#af05a5782bb8e5a7b083a156cea46df92">&#9670;&nbsp;</a></span>ptr</h2>
 

@@ -4,5 +4,6 @@ var searchData=
   ['per_5fcell_5fqc_5ffilters_2ecpp_19',['per_cell_qc_filters.cpp',['../per__cell__qc__filters_8cpp.html',1,'']]],
   ['per_5fcell_5fqc_5fmetrics_20',['per_cell_qc_metrics',['../per__cell__qc__metrics_8cpp.html#a41e250b8bea6e044ffedb689c0304d3e',1,'per_cell_qc_metrics.cpp']]],
   ['per_5fcell_5fqc_5fmetrics_2ecpp_21',['per_cell_qc_metrics.cpp',['../per__cell__qc__metrics_8cpp.html',1,'']]],
-  ['ptr_22',['ptr',['../structNumericMatrix.html#af05a5782bb8e5a7b083a156cea46df92',1,'NumericMatrix']]]
+  ['permutation_22',['permutation',['../structNumericMatrix.html#aa60f1d60eacd5361dbec67975f4f259d',1,'NumericMatrix']]],
+  ['ptr_23',['ptr',['../structNumericMatrix.html#af05a5782bb8e5a7b083a156cea46df92',1,'NumericMatrix']]]
 ];
