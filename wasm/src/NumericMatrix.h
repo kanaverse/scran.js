@@ -61,6 +61,13 @@ struct NumericMatrix {
      * A pointer to a `tatami::NumericMatrix`, for use in other functions.
      */
     std::shared_ptr<const tatami::NumericMatrix> ptr;
+
+    /**
+     * A permutation vector, indicating how rows were shuffled to enable a more memory-efficient storage format.
+     * If the current matrix is `X`, the original matrix would have been obtained as `X[permutation,]`.
+     * If empty, no shuffling was performed.
+     */
+    std::vector<size_t> permutation;
 };
 
 #endif
