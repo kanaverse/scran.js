@@ -1,0 +1,35 @@
+on: [push, pull_request]
+
+name: Build wasm
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Get latest CMake
+      uses: lukka/get-cmake@latest
+
+    - name: Get emscripten
+      uses: mymindstorm/setup-emsdk@v9
+
+    - name: Configure the build
+      run: |
+        cd wasm
+        emcmake cmake -S . -B build
+
+    - name: Run the build
+      run: |
+        cd wasm/build
+        emmake make
+
+    - uses: actions/upload-artifact@v2
+      with:
+        name: wasm
+        path: |
+          wasm/build/scran_wasm.js
+          wasm/build/scran_wasm.wasm
