@@ -32,11 +32,8 @@ void per_cell_qc_metrics(const NumericMatrix& mat,
 {
     scran::PerCellQCMetrics qc;
 
-    if (nsubsets) {
-        qc.set_subsets(cast_vector_of_pointers<const uint8_t*>(subsets, nsubsets));
-    }
-
     qc.run(mat.ptr.get(), 
+           cast_vector_of_pointers<const uint8_t*>(subsets, nsubsets),
            reinterpret_cast<double*>(sums),  
            reinterpret_cast<int32_t*>(detected),  
            cast_vector_of_pointers<double*>(proportions, nsubsets)

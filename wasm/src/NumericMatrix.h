@@ -7,20 +7,20 @@
 /**
  * @brief A numeric matrix that stores conceptual `double`s.
  *
- * This provides a wrapper around a `tatami::numeric_matrix` with Javascript-visible bindings to some basic methods.
+ * This provides a wrapper around a `tatami::NumericMatrix` with Javascript-visible bindings to some basic methods.
  */
 struct NumericMatrix {
-    /** Construct a `NumericMatrix` from an existing pointer to a `tatami::numeric_matrix`.
+    /** Construct a `NumericMatrix` from an existing pointer to a `tatami::NumericMatrix`.
      *
-     * @param p Pointer to a `tatami::numeric_matrix`.
+     * @param p Pointer to a `tatami::NumericMatrix`.
      */
-    NumericMatrix(const tatami::numeric_matrix* p);
+    NumericMatrix(const tatami::NumericMatrix* p);
 
-    /** Construct a `NumericMatrix` from an existing pointer to a `tatami::numeric_matrix`.
+    /** Construct a `NumericMatrix` from an existing pointer to a `tatami::NumericMatrix`.
      *
-     * @param p Pointer to a `tatami::numeric_matrix`.
+     * @param p Pointer to a `tatami::NumericMatrix`.
      */
-    NumericMatrix(std::shared_ptr<const tatami::numeric_matrix> p);
+    NumericMatrix(std::shared_ptr<const tatami::NumericMatrix> p);
 
     /**
      * Construct a `NumericMatrix` from a row-major dense array.
@@ -58,9 +58,9 @@ struct NumericMatrix {
     void column(int c, uintptr_t values);
 
     /** 
-     * A pointer to a `tatami::numeric_matrix`, for use in other functions.
+     * A pointer to a `tatami::NumericMatrix`, for use in other functions.
      */
-    std::shared_ptr<const tatami::numeric_matrix> ptr;
+    std::shared_ptr<const tatami::NumericMatrix> ptr;
 };
 
 #endif
