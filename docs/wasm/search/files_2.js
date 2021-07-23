@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['log_5fnorm_5fcounts_2ecpp_37',['log_norm_counts.cpp',['../log__norm__counts_8cpp.html',1,'']]]
+  ['jsvector_2eh_39',['JSVector.h',['../JSVector_8h.html',1,'']]]
 ];
