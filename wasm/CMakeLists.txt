@@ -25,6 +25,7 @@ add_executable(
     src/log_norm_counts.cpp
     src/model_gene_var.cpp
     src/run_pca.cpp
+    src/cluster_snn_graph.cpp
     src/NumericMatrix.cpp
 )
 
