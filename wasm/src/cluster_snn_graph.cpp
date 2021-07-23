@@ -5,7 +5,7 @@
 
 void cluster_snn_graph(int ndim, int ncells, uintptr_t mat, int k, double resolution, uintptr_t membership) {
     scran::ClusterSNNGraph clust;
-    clust.builder.set_neighbors(k);
+    clust.set_neighbors(k);
 
     const double* ptr = reinterpret_cast<const double*>(mat);
     auto output = clust.run_multilevel(ndim, ncells, ptr, resolution);
