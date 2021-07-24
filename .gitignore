@@ -5,9 +5,12 @@ node_modules
 .cache
 
 # parcel dist
+.parcel-cache
+data
 dist
 
 # wasm CMake builds
 wasm/_deps
 wasm/CMakeFiles
 wasm/extern
+wasm/build
