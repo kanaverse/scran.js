@@ -1,5 +1,5 @@
-export class scran {
-  constructor(data, nrow, ncol, options, wasm) {
+class scran {
+  constructor(wasm, options) {
     // wasm module initialized in the browser
     this.wasm = wasm;
 
@@ -30,8 +30,10 @@ export class scran {
         size: 4,
         wasm: "HEAPU32",
       },
-    };
+    }
+  }
 
+  loadData(data, nrow, ncol) {
     // this.data = data;
     // for now generate random data
     this.nrow = nrow;
@@ -43,6 +45,13 @@ export class scran {
     this.matrix = this.getNumMatrix(this.data, nrow, ncol);
 
     console.log(this.matrix);
+  }
+
+  loadDataFromPath(path) {
+    this.matrix = Module.read_matrix_market(path);
+    console.log(this.matrix);
+    console.log(this.matrix.nrow());
+    console.log(this.matrix.ncol());
   }
 
   getRandomArbitrary() {
@@ -285,9 +294,9 @@ export class scran {
     );
 
     Module.run_pca(
-      this.filteredMatrix, 
-      5, true, sub.ptr, 
-      false, pcs.ptr, 
+      this.filteredMatrix,
+      5, true, sub.ptr,
+      false, pcs.ptr,
       var_exp.ptr);
 
     console.log(pcs.vector);
@@ -295,3 +304,5 @@ export class scran {
 
   }
 }
+
+// export default scran;

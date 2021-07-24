@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>scran.js - Analyze single-cell datasets in the browser</title>
+</head>
+
+<body>
+    <nav class="uk-navbar-container" uk-navbar>
+        <div class="uk-navbar-left">
+
+            <ul class="uk-navbar-nav">
+                <li class="uk-active">
+                    <a href="#">
+                        <div>
+                            SCRAN.JS - Analyze Single-cell datasets in the browser
+                            <!-- <div class="uk-navbar-subtitle">Analyze Single-cell datasets in the browser</div> -->
+                        </div>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="uk-child-width-1-1@s" uk-grid>
+        <div>
+            <div uk-grid>
+                <div class="uk-width-auto@m">
+                    <ul class="uk-tab-left" uk-tab="connect: #component-tab-left; animation: uk-animation-fade">
+                        <li><a href="#">1. Load Dataset</a></li>
+                        <li><a href="#">2. QC</a></li>
+                        <li><a href="#">3. Feature Selection</a></li>
+                        <li><a href="#">4. PCA</a></li>
+                        <li><a href="#">4. Clustering</a></li>
+                    </ul>
+                </div>
+                <div class="uk-width-expand@m">
+                    <ul id="component-tab-left" class="uk-switcher">
+                        <li>
+                            <h4>Upload Single-cell dataset</h4>
+                            <form>
+
+                                <div class="uk-margin" uk-margin>
+                                    <div uk-form-custom="target: true">
+                                        <input id="mtx-upload-file" type="file" name="upload mtx file">
+                                        <input class="uk-input uk-form-width-medium" type="text" placeholder="Select file" disabled>
+                                    </div>
+                                    <button id="mtx-upload-submit" class="uk-button uk-button-default" type="button" tabindex="-1">Upload</button>
+                                </div>
+
+                            </form>
+
+                            <h4>Generate random test data</h4>
+                            <form>
+
+                                <div class="uk-margin">
+                                    <div uk-form-custom>
+                                        <button class="uk-button uk-button-default" type="button" tabindex="-1">Generate Data</button>
+                                    </div>
+                                </div>
+                            </form>
+
+                        </li>
+                        <li>
+
+                            <h3>QC stats - pretty much where the UI for filtering will go into, scatter plots etc</h3>
+                            <button onClick="performQC()">Run QC</button>
+                            <span class="qc-info"></span>
+
+                        </li>
+                        <li>
+
+                            <h3>Perform PCA</h3>
+                            <button onClick="performPCA()">Perform PCA</button>
+                            <span class="pca-info"></span>
+
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- <script src="scran_wasm.js"></script> -->
+    <script type="module" src="./index.js"></script>
+
+    <!-- TODO: should be part of the repo later on -->
+    <!-- UIkit CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.7.1/dist/css/uikit.min.css" />
+
+    <!-- UIkit JS -->
+    <script src="https://cdn.jsdelivr.net/npm/uikit@3.7.1/dist/js/uikit.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/uikit@3.7.1/dist/js/uikit-icons.min.js"></script>
+</body>
+
+</html>
