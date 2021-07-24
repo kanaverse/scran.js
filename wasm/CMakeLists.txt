@@ -29,6 +29,10 @@ add_executable(
     src/NumericMatrix.cpp
 )
 
+target_compile_options(
+    scran_wasm PUBLIC "-O2"
+)
+
 target_link_libraries(
     scran_wasm
     scran
@@ -39,4 +43,4 @@ if (NOT HAVE_ZLIB_H)
     target_link_libraries(scran_wasm zlib)
 endif()
 
-set_target_properties(scran_wasm PROPERTIES LINK_FLAGS "--bind -s ALLOW_MEMORY_GROWTH=1 -s FORCE_FILESYSTEM=1 -s USE_ZLIB=1")
+set_target_properties(scran_wasm PROPERTIES LINK_FLAGS "--bind -O2 -s ALLOW_MEMORY_GROWTH=1 -s FORCE_FILESYSTEM=1 -s USE_ZLIB=1 -lworkerfs.js")
