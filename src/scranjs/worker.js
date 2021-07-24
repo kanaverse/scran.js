@@ -77,7 +77,7 @@ onmessage = function (msg) {
 
         var t0 = performance.now();
 
-        data.loadDataFromPath(fdata);
+        data.loadDataFromPath(fdata, false);
 
         var t1 = performance.now();
         console.log("Call to loadDataFromPath took " + (t1 - t0) + " milliseconds.");
