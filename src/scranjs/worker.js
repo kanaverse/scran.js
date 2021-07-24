@@ -34,8 +34,8 @@ onmessage = function (msg) {
         // initWasm();
 
         Module.onRuntimeInitialized = function load_done_callback() {
-            data = new scran({}, Module);
             FS.mkdir(DATA_PATH, 0o777);
+            data = new scran({}, Module);
 
             postMessage({
                 type: payload.type,
@@ -66,12 +66,47 @@ onmessage = function (msg) {
 
         const file_path = `${DATA_PATH}/${files[0].name}`;
 
+        var t0 = performance.now();
+
+        const fdata = FS.readFile(file_path);
+
+        var t1 = performance.now();
+        console.log("Call to ReadFile took " + (t1 - t0) + " milliseconds.");
+
+        console.log(fdata);
+
+        var t0 = performance.now();
+
         data.loadDataFromPath(file_path);
+
+        var t1 = performance.now();
+        console.log("Call to loadDataFromPath took " + (t1 - t0) + " milliseconds.");
 
         // TODO: send multiple msgs for loading screen
         postMessage({
             type: payload.type,
-            msg: `Success: Data Loaded into browser, ${data.matrix.ncol()}, ${data.matrix.nrow()}`
+            msg: `Success: Data Loaded into browser, ${data.matrix.nrow()}, ${data.matrix.ncol()}`
+        })
+    } else if (payload.type == "QC") {
+        data.QC();
+
+        postMessage({
+            type: payload.type,
+            msg: `Success: QC Complete, ${data.matrix.nrow()}, ${data.matrix.ncol()}`
+        })
+    } else if (payload.type == "FEATURE_SELECTION") {
+        // need a fsel
+
+        postMessage({
+            type: payload.type,
+            msg: `Success: FSEL done, ${data.matrix.nrow()}, ${data.matrix.ncol()}`
+        })
+    } else if (payload.type == "PCA") {
+        data.PCA();
+
+        postMessage({
+            type: payload.type,
+            msg: `Success: PCA done, ${data.matrix.nrow()}, ${data.matrix.ncol()}`
         })
     }
 }

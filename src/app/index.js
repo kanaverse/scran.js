@@ -32,4 +32,25 @@ document.addEventListener("DOMContentLoaded", () => {
             "msg": files
         });
     });
+
+    document.getElementById("run-qc").addEventListener("click", (event) => {
+        window.app.worker.postMessage({
+            "type": "QC",
+            "msg": "not much to pass"
+        });
+    });
+
+    document.getElementById("run-fsel").addEventListener("click", (event) => {
+        window.app.worker.postMessage({
+            "type": "FEATURE_SELECTION",
+            "msg": "not much to pass"
+        });
+    });
+
+    document.getElementById("run-pca").addEventListener("click", (event) => {
+        window.app.worker.postMessage({
+            "type": "PCA",
+            "msg": "not much to pass"
+        });
+    });
 });

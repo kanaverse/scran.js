@@ -1,5 +1,5 @@
 class scran {
-  constructor(wasm, options) {
+  constructor(options, wasm) {
     // wasm module initialized in the browser
     this.wasm = wasm;
 
@@ -50,6 +50,8 @@ class scran {
   loadDataFromPath(path) {
     this.matrix = Module.read_matrix_market(path);
     console.log(this.matrix);
+    this.nrow = this.matrix.nrow();
+    this.ncol = this.matrix.ncol();
     console.log(this.matrix.nrow());
     console.log(this.matrix.ncol());
   }

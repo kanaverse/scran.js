@@ -34,7 +34,7 @@
                         <li><a href="#">2. QC</a></li>
                         <li><a href="#">3. Feature Selection</a></li>
                         <li><a href="#">4. PCA</a></li>
-                        <li><a href="#">4. Clustering</a></li>
+                        <li><a href="#">5. Clustering</a></li>
                     </ul>
                 </div>
                 <div class="uk-width-expand@m">
@@ -67,14 +67,21 @@
                         <li>
 
                             <h3>QC stats - pretty much where the UI for filtering will go into, scatter plots etc</h3>
-                            <button onClick="performQC()">Run QC</button>
+                            <button id="run-qc" class="uk-button uk-button-default" type="button" tabindex="-1">Run QC</button>
+
                             <span class="qc-info"></span>
+
+                        </li>
+                        <li>
+                            <h3>Feature Selection - currently does nothing</h3>
+                            <button id="run-fsel" class="uk-button uk-button-default" type="button" tabindex="-1">Done Feature Selection</button>
+                            <span class="pca-info"></span>
 
                         </li>
                         <li>
 
                             <h3>Perform PCA</h3>
-                            <button onClick="performPCA()">Perform PCA</button>
+                            <button id="run-pca" class="uk-button uk-button-default" type="button" tabindex="-1">Perform PCA</button>
                             <span class="pca-info"></span>
 
                         </li>
