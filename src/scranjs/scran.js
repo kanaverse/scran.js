@@ -47,14 +47,8 @@ class scran {
     console.log(this.matrix);
   }
 
-  loadDataFromPath(buffer, compressed) {
-    var N = buffer.length;
-    var ptr = Module._malloc(N); // in bytes
-    var vec = new Uint8Array(Module.HEAPU8.buffer, ptr, N);
-    vec.set(buffer);
-    console.log(vec);
-
-    this.matrix = Module.read_matrix_market(ptr, N, compressed);
+  loadDataFromPath(ptr, size, compressed) {
+    this.matrix = Module.read_matrix_market(ptr, size, compressed);
     console.log(this.matrix);
     this.nrow = this.matrix.nrow();
     this.ncol = this.matrix.ncol();
