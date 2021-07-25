@@ -3,45 +3,14 @@
 #include "NumericMatrix.h"
 #include "tatami/ext/MatrixMarket.hpp"
 #include <string>
-#include <iostream>
-
-template<typename T = double, typename IDX = int>
-tatami::MatrixMarket::LayeredMatrixData<T, IDX> load_layered_sparse_matrix_from_buffer(const char* buffer, size_t len) {
-    auto process = [&](auto& obj) -> void {
-        size_t counter = 0;
-        auto copy = buffer;
-        while (counter < len) {
-            auto processed = obj.add(copy, len);
-            counter += processed;
-            copy += processed;
-        }
-    };
-
-    tatami::MatrixMarket::LineAssignments ass;
-    process(ass);
-    ass.finish();
-
-    tatami::MatrixMarket::LayeredMatrixData<T, IDX> output;
-    output.permutation = ass.permutation;
-
-    constexpr size_t max16 = std::numeric_limits<uint16_t>::max();
-    if (ass.nrows > max16) {
-        tatami::MatrixMarket::LayeredBuilder<uint16_t> builder(std::move(ass));
-        process(builder);
-        output.matrix = builder.template finish<T, IDX>();
-    } else {
-        tatami::MatrixMarket::LayeredBuilder<IDX> builder(std::move(ass));
-        process(builder);
-        output.matrix = builder.template finish<T, IDX>();
-    }
-
-    return output;
-}
-
 
 // Stolen from 'inf()' at http://www.zlib.net/zpipe.c,
 // with some shuffling of code to make it a bit more C++-like.
 struct Unzlibber {
+    Unzlibber(unsigned char* buf, size_t n) : buffer(buf), len(n) {}
+    unsigned char* buffer;
+    size_t len;
+
     struct ZStream {
         ZStream() {
             /* allocate inflate state */
@@ -73,7 +42,7 @@ struct Unzlibber {
     };
 
     template<class OBJECT>
-    void operator()(unsigned char* buffer, size_t len, OBJECT& obj) {
+    void operator()(OBJECT& obj) {
         int bufsize = 262144;
         std::vector<unsigned char> output(bufsize + 1); // enough a safety NULL at EOF, see below.
 
@@ -119,10 +88,7 @@ struct Unzlibber {
             for (size_t i = 0; i < leftovers; ++i) {
                 output[i] = output[total_processed + i];
             }
-
-            std::cout << "WHEE" << std::endl;
-            std::cout << zstr.strm.avail_out << std::endl;
-        } while (zstr.strm.avail_out == 0);
+        } while (zstr.strm.avail_in);
 
         /* clean up and return */
         if (ret != Z_STREAM_END) {
@@ -132,30 +98,17 @@ struct Unzlibber {
     }
 };
 
-template<typename T = double, typename IDX = int>
-tatami::MatrixMarket::LayeredMatrixData<T, IDX> load_layered_sparse_matrix_gzip_from_buffer(unsigned char * buffer, size_t len) {
-    Unzlibber unz;
-    tatami::MatrixMarket::LineAssignments ass;
-    unz(buffer, len, ass);
-    ass.finish();
-
-    tatami::MatrixMarket::LayeredMatrixData<T, IDX> output;
-    output.permutation = ass.permutation;
-
-    constexpr size_t max16 = std::numeric_limits<uint16_t>::max();
-    if (ass.nrows > max16) {
-        tatami::MatrixMarket::LayeredBuilder<uint16_t> builder(std::move(ass));
-        unz(buffer, len, builder);
-        output.matrix = builder.template finish<T, IDX>();
-    } else {
-        tatami::MatrixMarket::LayeredBuilder<IDX> builder(std::move(ass));
-        unz(buffer, len, builder);
-        output.matrix = builder.template finish<T, IDX>();
-    }
-
-    return output;
-}
-
+/**
+ * Read a (possibly compressed) Matrix Market file into a sparse `NumericMatrix` object.
+ * The file should only contain non-negative integer values.
+ *
+ * @param buffer Offset to a unsigned 8-bit integer array of length `size`,
+ * containing the byte contents of the file.
+ * @param size Length of the array referenced by `buffer`.
+ * @param compressed Whether the file is Gzip-compressed.
+ *
+ * @return A `NumericMatrix` object containing the file contents.
+ */
 NumericMatrix read_matrix_market(uintptr_t buffer, int size, bool compressed) {
     auto process = [&](auto& stuff) {
         NumericMatrix output(std::move(stuff.matrix));
@@ -165,11 +118,21 @@ NumericMatrix read_matrix_market(uintptr_t buffer, int size, bool compressed) {
 
     if (compressed) {
         unsigned char* bufptr = reinterpret_cast<unsigned char*>(buffer);
-        auto stuff = load_layered_sparse_matrix_gzip_from_buffer(bufptr, size);
+        Unzlibber unz(bufptr, size);
+        auto stuff = tatami::MatrixMarket::load_layered_sparse_matrix_internal(unz);
         return process(stuff);
     } else {
         const char* bufptr = reinterpret_cast<const char*>(buffer);
-        auto stuff = load_layered_sparse_matrix_from_buffer(bufptr, size);
+        auto reader = [&](auto& obj) -> void {
+            size_t counter = 0;
+            auto copy = bufptr;
+            while (counter < size) {
+                auto processed = obj.add(copy, size - counter);
+                counter += processed;
+                copy += processed;
+            }
+        };
+        auto stuff = tatami::MatrixMarket::load_layered_sparse_matrix_internal(reader);
         return process(stuff);
     }
 }
