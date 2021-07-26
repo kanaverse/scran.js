@@ -47,8 +47,8 @@ class scran {
     console.log(this.matrix);
   }
 
-  loadDataFromPath(path) {
-    this.matrix = Module.read_matrix_market(path);
+  loadDataFromPath(ptr, size, compressed) {
+    this.matrix = Module.read_matrix_market(ptr, size, compressed);
     console.log(this.matrix);
     this.nrow = this.matrix.nrow();
     this.ncol = this.matrix.ncol();

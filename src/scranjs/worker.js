@@ -68,19 +68,27 @@ onmessage = function (msg) {
 
         var t0 = performance.now();
 
-        const fdata = FS.readFile(file_path);
+        const file_details = FS.stat(file_path);
+        var file_size = file_details.size;
+
+        var buffer_ptr = Module._malloc(file_size); // in bytes
+        var buffer_vec = new Uint8Array(Module.HEAPU8.buffer, buffer_ptr, file_size);
+
+        var stream = FS.open(file_path, "r")
+        FS.read(stream, buffer_vec, 0, file_size, 0);
+        console.log(buffer_vec);
+        FS.close(stream);
 
         var t1 = performance.now();
-        console.log("Call to ReadFile took " + (t1 - t0) + " milliseconds.");
-
-        console.log(fdata);
+        console.log("Reading the file took " + (t1 - t0) + " milliseconds.");
 
         var t0 = performance.now();
 
-        data.loadDataFromPath(file_path);
+        var ext = file_path.split('.').pop();
+        data.loadDataFromPath(buffer_ptr, file_size, (ext == "gz"));
 
         var t1 = performance.now();
-        console.log("Call to loadDataFromPath took " + (t1 - t0) + " milliseconds.");
+        console.log("Loading the file took " + (t1 - t0) + " milliseconds.");
 
         // TODO: send multiple msgs for loading screen
         postMessage({
