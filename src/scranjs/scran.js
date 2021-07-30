@@ -36,25 +36,16 @@ class scran {
   loadData(data, nrow, ncol) {
     // this.data = data;
     // for now generate random data
-    this.nrow = nrow;
-    this.ncol = ncol;
     this.data = this.generateData(nrow * ncol);
 
     console.log(this.data);
 
     this.matrix = this.getNumMatrix(this.data, nrow, ncol);
-    this.nrow = this.matrix.nrow();
-    this.ncol = this.matrix.ncol();
     console.log(this.matrix);
   }
 
   loadDataFromPath(ptr, size, compressed) {
     this.matrix = Module.read_matrix_market(ptr, size, compressed);
-    console.log(this.matrix);
-    this.nrow = this.matrix.nrow();
-    this.ncol = this.matrix.ncol();
-    console.log(this.matrix.nrow());
-    console.log(this.matrix.ncol());
   }
 
   getRandomArbitrary() {
@@ -163,9 +154,9 @@ class scran {
 
   getNumMatrix(data, nrow, ncol) {
     var instance = new this.wasm.NumericMatrix(
-      this.nrow,
-      this.ncol,
-      this.data.ptr
+      nrow,
+      ncol,
+      data.ptr
     );
 
     return instance;
@@ -173,14 +164,14 @@ class scran {
 
   // pretty much from PR #1 Aaron's code
   qcMetrics() {
-    var sums = this.createMemorySpace(this.ncol, "Float64Array", "qc_sums");
+    var sums = this.createMemorySpace(this.matrix.ncol(), "Float64Array", "qc_sums");
 
     var detected = this.createMemorySpace(
-      this.ncol,
+      this.matrix.ncol(),
       "Int32Array",
       "qc_detected"
     );
-    var subsets = this.createMemorySpace(this.ncol, "Uint8Array", "qc_subsets");
+    var subsets = this.createMemorySpace(this.matrix.ncol(), "Uint8Array", "qc_subsets");
 
     // subsets.vector[0] = 0;
     // subsets.vector[3] = 0;
@@ -195,7 +186,7 @@ class scran {
     arr_sub_array[0] = subsets.ptr;
 
     var proportions = this.createMemorySpace(
-      this.ncol,
+      this.matrix.ncol(),
       "Float64Array",
       "qc_proportions"
     );
@@ -217,22 +208,22 @@ class scran {
     );
 
     var discard_sums = this.createMemorySpace(
-      this.ncol,
+      this.matrix.ncol(),
       "Uint8Array",
       "disc_qc_sums"
     );
     var discard_detected = this.createMemorySpace(
-      this.ncol,
+      this.matrix.ncol(),
       "Uint8Array",
       "disc_qc_detected"
     );
     var discard_proportions = this.createMemorySpace(
-      this.ncol,
+      this.matrix.ncol(),
       "Uint8Array",
       "disc_qc_proportions"
     );
     var discard_overall = this.createMemorySpace(
-      this.ncol,
+      this.matrix.ncol(),
       "Uint8Array",
       "disc_qc_overall"
     );
@@ -254,7 +245,7 @@ class scran {
     );
 
     this.wasm.per_cell_qc_filters(
-      this.ncol,
+      this.matrix.ncol(),
       sums.ptr,
       detected.ptr,
       0,
@@ -283,8 +274,6 @@ class scran {
     console.log(filtered.ncol()); // should be less.
 
     this.filteredMatrix = filtered;
-    this.nrow = this.filteredMatrix.nrow();
-    this.ncol = this.filteredMatrix.ncol();
 
     // console.log(sums.vector);
     // console.log(detected.vector);
@@ -308,103 +297,19 @@ class scran {
     }
   }
 
-  // qcFilters() {
-
-  //   var sums = this.getMemorySpace("qc_sums");
-  //   var detected = this.getMemorySpace("qc_detected");
-
-  //   var discard_sums = this.createMemorySpace(
-  //     this.ncol,
-  //     "Uint8Array",
-  //     "disc_qc_sums"
-  //   );
-  //   var discard_detected = this.createMemorySpace(
-  //     this.ncol,
-  //     "Uint8Array",
-  //     "disc_qc_detected"
-  //   );
-  //   var discard_proportions = this.createMemorySpace(
-  //     this.ncol,
-  //     "Uint8Array",
-  //     "disc_qc_proportions"
-  //   );
-  //   var discard_overall = this.createMemorySpace(
-  //     this.ncol,
-  //     "Uint8Array",
-  //     "disc_qc_overall"
-  //   );
-
-  //   var threshold_sums = this.createMemorySpace(
-  //     1,
-  //     "Float64Array",
-  //     "threshold_qc_sums"
-  //   );
-  //   var threshold_detected = this.createMemorySpace(
-  //     1,
-  //     "Float64Array",
-  //     "threshold_qc_detected"
-  //   );
-  //   var threshold_proportions = this.createMemorySpace(
-  //     1,
-  //     "Float64Array",
-  //     "threshold_qc_proportions"
-  //   );
-
-  //   this.wasm.per_cell_qc_filters(
-  //     this.ncol,
-  //     sums.ptr,
-  //     detected.ptr,
-  //     0,
-  //     0,
-  //     false,
-  //     0,
-  //     1, // should set to 3, using 1 to see if the output works.
-
-  //     discard_sums.ptr,
-  //     discard_detected.ptr,
-  //     0,
-  //     discard_overall.ptr,
-  //     threshold_sums.ptr,
-  //     threshold_detected.ptr,
-  //     threshold_qc_proportions
-  //   );
-
-  //   console.log(discard_sums.vector);
-  //   console.log(threshold_sums.vector);
-  //   console.log(threshold_detected.vector);
-
-  //   var filtered = this.wasm.filter_cells(this.matrix,
-  //     discard_overall.ptr, false);
-  //   console.log(filtered.ncol()); // should be less.
-
-  //   this.filteredMatrix = filtered;
-  //   this.nrow = this.filteredMatrix.nrow();
-  //   this.ncol = this.filteredMatrix.ncol();
-
-  //   // return {
-  //   //   "sums": sums.vector,
-  //   //   "detected": detected.vector,
-  //   //   "proportion": proportions.vector
-  //   // }
-
-  //   // probably should delete all the vectors we made.
-  //   // instance.delete();
-  // }
-
   PCA() {
     this.n_pcs = 5;
 
     var sub = this.createMemorySpace(
-      this.nrow,
+      this.matrix.nrow(),
       "Uint8Array",
       "subset_PCA"
     );
 
     // console.log(sub.vector);
 
-    console.log(this.ncol);
     var pcs = this.createMemorySpace(
-      this.ncol * this.n_pcs,
+      this.matrix.ncol() * this.n_pcs,
       "Float64Array",
       "mat_PCA"
     );
@@ -438,20 +343,16 @@ class scran {
 
   cluster() {
     var clusters = this.createMemorySpace(
-      this.ncol,
+      this.filteredMatrix.ncol(),
       "Int32Array",
       "clusters"
     );
-
-    var arr_clus = this.getVector("clusters");
-    arr_clus.set(arr_clus.map(() => 20));
     
     var pcs = this.getMemorySpace("mat_PCA");
 
-    Module.cluster_snn_graph(this.n_pcs, this.ncol, pcs.ptr, 2, 0.5, clusters.ptr);
-    // arr_clus.set(arr_clus.map(() => 20));
+    Module.cluster_snn_graph(this.n_pcs, this.filteredMatrix.ncol(), pcs.ptr, 2, 0.5, clusters.ptr);
     var arr_clust = this.getVector("clusters");
-    console.log(arr_clust);
+    // console.log(arr_clust);
 
     return {
       "clusters": arr_clust,
