@@ -276,6 +276,8 @@ class scran {
     // console.log(threshold_sums.vector);
     // console.log(threshold_detected.vector);
 
+    console.log(discard_overall.ptr);
+    console.log(this.getVector("disc_qc_overall"));
     var filtered = this.wasm.filter_cells(this.matrix,
     discard_overall.ptr, false);
     console.log(filtered.ncol()); // should be less.
@@ -400,6 +402,7 @@ class scran {
 
     // console.log(sub.vector);
 
+    console.log(this.ncol);
     var pcs = this.createMemorySpace(
       this.ncol * this.n_pcs,
       "Float64Array",
@@ -416,7 +419,7 @@ class scran {
     // console.log(var_exp.vector);
 
     Module.run_pca(
-      this.matrix,
+      this.filteredMatrix,
       this.n_pcs, false, sub.ptr,
       false, pcs.ptr,
       var_exp.ptr);
