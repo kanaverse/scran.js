@@ -42,11 +42,22 @@ node dist/bundle.js
 ```
 
 TODO:
-- [ ] Need loading screens when waiting for worker
+- [ ] Need loading screens when waiting for worker to process
+    - [ ] progress at each steps 
 - [ ] Allow users to upload identities
     either by regular expression
     human - MT-
     mouse - mt-
 - [ ] next button on every step
 - [ ] better css layouts
-- [ ] log y axis on qc plots
+    - steps on the top
+    - left - description
+    - center - content
+    - right - optional ui input/settings
+- [ ] QC: 
+    - [ ] log y-axis on qc plots
+    - [ ] 
+- [ ] PCA: 
+    - [ ] show % 
+    - [ ] allow users to choose # of pcs
+- [ ] 

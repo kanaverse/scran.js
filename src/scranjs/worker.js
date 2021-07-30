@@ -162,7 +162,7 @@ onmessage = function (msg) {
 
         postMessage({
             type: payload.type,
-            // resp: JSON.parse(JSON.stringify(resp)),
+            resp: JSON.parse(JSON.stringify(resp)),
             msg: `Success: CLUS done, ${data.filteredMatrix.nrow()}, ${data.filteredMatrix.ncol()}`
         })
     }

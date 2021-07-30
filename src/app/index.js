@@ -73,6 +73,36 @@ class App {
                 }
 
                 Plotly.newPlot(elem.id, data, layout);
+            } else if (payload.type == "CLUS") {
+                const payload = msg.data;
+                var x = {};
+                var key = "clusters";
+                var cont = document.getElementById("clus_charts");
+                var elem = document.createElement("div");
+                elem.id = `clus_${key}`;
+                cont.appendChild(elem);
+
+                for (var i = 0; i < Object.values(payload.resp[key]).length; i++) {
+                    var clus = Object.values(payload.resp[key])[i];
+                    if ("CLUS_" + clus in x) {
+                        x["CLUS_" + clus]++;
+                    } else {
+                        x["CLUS_" + clus] = 0;
+                    } 
+                }
+                var data = [
+                    {
+                        x: Object.keys(x),
+                        y: Object.values(x),
+                        type: 'bar'
+                    }
+                ];
+
+                var layout = {
+                    title: "Cells per cluster"
+                }
+
+                Plotly.newPlot(elem.id, data, layout);
             }
         }
 

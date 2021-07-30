@@ -12,7 +12,8 @@
     "build": "rm -rf dist/ && parcel build src/app/index.html --no-optimize --public-url ./"
   },
   "dependencies": {
-    "dekkai": "^0.3.6"
+    "dekkai": "^0.3.6",
+    "epiviz.gl": "github:epiviz/epiviz.gl"
   },
   "devDependencies": {
     "gh-pages": "^3.2.0",
