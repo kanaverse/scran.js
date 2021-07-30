@@ -6,6 +6,15 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>scran.js - Analyze single-cell datasets in the browser</title>
+    <style>
+        /* #qc_charts {
+            display:flex;
+        }
+
+        #qc_charts > div {
+            flex: 0 32%;
+            } */
+    </style>
 </head>
 
 <body>
@@ -42,14 +51,31 @@
                         <li>
                             <h4>Upload Single-cell dataset</h4>
                             <form>
-
+                                <h5>Barcode File</h5>
+                                <div class="uk-margin" uk-margin>
+                                    <div uk-form-custom="target: true">
+                                        <input id="barcodes-upload-file" type="file" name="upload barcodes file">
+                                        <input class="uk-input uk-form-width-medium" type="text" placeholder="Select barcodes file" disabled>
+                                    </div>
+                                </div>
+                                <h5>Genes File</h5>
+                                <div class="uk-margin" uk-margin>
+                                    <div uk-form-custom="target: true">
+                                        <input id="genes-upload-file" type="file" name="upload genes file">
+                                        <input class="uk-input uk-form-width-medium" type="text" placeholder="Select genes file" disabled>
+                                    </div>
+                                    <!-- <button id="mtx-upload-submit" class="uk-button uk-button-default" type="button" tabindex="-1">Upload</button> -->
+                                </div>
+                                <h5>Matrix File</h5>
                                 <div class="uk-margin" uk-margin>
                                     <div uk-form-custom="target: true">
                                         <input id="mtx-upload-file" type="file" name="upload mtx file">
-                                        <input class="uk-input uk-form-width-medium" type="text" placeholder="Select file" disabled>
+                                        <input class="uk-input uk-form-width-medium" type="text" placeholder="Select matrix file" disabled>
                                     </div>
-                                    <button id="mtx-upload-submit" class="uk-button uk-button-default" type="button" tabindex="-1">Upload</button>
+                                    <!-- <button id="mtx-upload-submit" class="uk-button uk-button-default" type="button" tabindex="-1">Upload</button> -->
                                 </div>
+
+                                <button id="mtx-upload-submit" class="uk-button uk-button-default" type="button" tabindex="-1">Upload Data</button>
 
                             </form>
 
@@ -66,23 +92,33 @@
                         </li>
                         <li>
 
-                            <h3>QC stats - pretty much where the UI for filtering will go into, scatter plots etc</h3>
+                            <h3>QC metrics per cell</h3>
                             <button id="run-qc" class="uk-button uk-button-default" type="button" tabindex="-1">Run QC</button>
-
+                            <div id="qc_charts"></div>
                             <span class="qc-info"></span>
 
                         </li>
                         <li>
                             <h3>Feature Selection - currently does nothing</h3>
-                            <button id="run-fsel" class="uk-button uk-button-default" type="button" tabindex="-1">Done Feature Selection</button>
-                            <span class="pca-info"></span>
+                            <button id="run-fsel" class="uk-button uk-button-default" type="button" tabindex="-1">Run Feature Selection</button>
+                            <div id="fsel_charts"></div>
+                            <span class="fsel-info"></span>
 
                         </li>
                         <li>
 
                             <h3>Perform PCA</h3>
                             <button id="run-pca" class="uk-button uk-button-default" type="button" tabindex="-1">Perform PCA</button>
+                            <div id="pca_charts"></div>
                             <span class="pca-info"></span>
+
+                        </li>
+                        <li>
+
+                            <h3>Perform Clustering</h3>
+                            <button id="run-clus" class="uk-button uk-button-default" type="button" tabindex="-1">Perform Clustering</button>
+                            <div id="clus_charts"></div>
+                            <span class="clus-info"></span>
 
                         </li>
                     </ul>
@@ -101,6 +137,9 @@
     <!-- UIkit JS -->
     <script src="https://cdn.jsdelivr.net/npm/uikit@3.7.1/dist/js/uikit.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/uikit@3.7.1/dist/js/uikit-icons.min.js"></script>
+
+    <!-- Plotly -->
+    <script src="https://cdn.plot.ly/plotly-2.3.0.min.js"></script>
 </body>
 
 </html>
