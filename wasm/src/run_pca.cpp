@@ -21,7 +21,7 @@
  * @param[out] pcs Offset to an output array of `double`s of length `number * mat.ncol()`.
  * @param[out] prop_var Offset to an output array of `double`s of length `number`.
  *
- * @return `pcs` is filled with the PC coordinates in a column-major manner.
+ * @return `pcs` is filled with the PC coordinates in a column-major manner, where each row corresponds to a PC and each column corresponds to a cell.
  * `prop_var` is filled with the percentage of variance explained by each successive PC.
  */
 void run_pca(const NumericMatrix& mat, int number, bool use_subset, uintptr_t subset, bool scale, uintptr_t pcs, uintptr_t prop_var) {
@@ -42,6 +42,7 @@ void run_pca(const NumericMatrix& mat, int number, bool use_subset, uintptr_t su
     
     // Copying over results into the output arrays.
     double* output = reinterpret_cast<double*>(pcs);
+    result.pcs.adjointInPlace();
     std::copy(result.pcs.data(), result.pcs.data() + result.pcs.rows() * result.pcs.cols(), output);
 
     double* output_prop = reinterpret_cast<double*>(prop_var);
