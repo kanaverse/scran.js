@@ -20,16 +20,20 @@
  * Block IDs should be consecutive and 0-based.
  * If `use_blocks = false`, this value is ignored.
  *
- * @param[out] means Offset to an array of offsets of length equal to the number of blocks (or 1, if `use_blocks = false`).
- * Each internal offset points to an output buffer of `double`s with `mat.nrow()` elements, to hold the mean of each feature in each block.
- * @param[out] variances Offset to an array of offsets of length equal to the number of blocks (or 1, if `use_blocks = false`).
- * Each internal offset points to an output buffer of `double`s with `mat.nrow()` elements, to hold the variance of each feature in each block.
- * @param[out] fitted Offset to an array of offsets of length equal to the number of blocks (or 1, if `use_blocks = false`).
- * Each internal offset points to an output buffer of `double`s with `mat.nrow()` elements, to hold the fitted value of the trend for each feature in each block.
- * @param[out] residuals Offset to an array of offsets of length equal to the number of blocks (or 1, if `use_blocks = false`).
- * Each internal offset points to an output buffer of `double`s with `mat.nrow()` elements, to hold the residual from the trend for each feature in each block.
+ * @param[out] means If `use_blocks = false`, an offset to an output array of `double`s with `mat.nrow()` elements, to hold the mean of each feature.\n 
+ * If `use_blocks = true`, this should instead be an offset to an array of offsets of length equal to the number of blocks.
+ * Each internal offset points to an output array of `double`s to hold the mean of each feature in each block. 
+ * @param[out] variances  If `use_blocks = false`, an offset to an output array of `double`s with `mat.nrow()` elements, to hold the variance of each feature.\n 
+ * If `use_blocks = true`, this should instead be an offset to an array of offsets of length equal to the number of blocks.
+ * Each internal offset points to an output array of `double`s with `mat.nrow()` elements, to hold the variance of each feature in each block.
+ * @param[out] fitted If `use_blocks = false`, an offset to an output array of `double`s with `mat.nrow()` elements, to hold the fitted value of the trend for each feature.\n 
+ * If `use_blocks = true`, this should instead be an offset to an array of offsets of length equal to the number of blocks.
+ * Each internal offset points to an output array of `double`s with `mat.nrow()` elements, to hold the fitted value for each feature in each block.
+ * @param[out] residuals If `use_blocks = false`, an offset to an output array of `double`s with `mat.nrow()` elements, to hold the residual of the trend for each feature.\n 
+ * If `use_blocks = true`, this should instead be an offset to an array of offsets of length equal to the number of blocks. 
+ * Each internal offset points to an output array of `double`s with `mat.nrow()` elements, to hold the residual for each feature in each block.
  *
- * @return The buffers in `means`, `variances`, `fitted` and `residuals` are filled.
+ * @return The arrays in `means`, `variances`, `fitted` and `residuals` are filled.
  * If `use_block = true`, statistics are computed separately for the cells in each block.
  */
 void model_gene_var(const NumericMatrix& mat,
@@ -48,9 +52,9 @@ void model_gene_var(const NumericMatrix& mat,
     var.set_span(span);
 
     if (use_blocks) {
-        const uint32_t* bptr = reinterpret_cast<const uint32_t*>(blocks);
+        const int32_t* bptr = reinterpret_cast<const int32_t*>(blocks);
         int nblocks = *std::max_element(bptr, bptr + mat.ncol()) + 1;
-        var.run(mat.ptr.get(),
+        var.run_blocked(mat.ptr.get(), bptr,
             cast_vector_of_pointers<double*>(means, nblocks),
             cast_vector_of_pointers<double*>(variances, nblocks),
             cast_vector_of_pointers<double*>(fitted, blocks),
@@ -58,10 +62,10 @@ void model_gene_var(const NumericMatrix& mat,
         );
     } else {
         var.run(mat.ptr.get(),
-            cast_vector_of_pointers<double*>(means, 1),
-            cast_vector_of_pointers<double*>(variances, 1),
-            cast_vector_of_pointers<double*>(fitted, 1),
-            cast_vector_of_pointers<double*>(residuals, 1)
+            reinterpret_cast<double*>(means),
+            reinterpret_cast<double*>(variances),
+            reinterpret_cast<double*>(fitted),
+            reinterpret_cast<double*>(residuals)
         );
     }
 
