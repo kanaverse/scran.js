@@ -16,22 +16,19 @@
  * @param span The span of the LOWESS smoother for fitting the mean-variance trend.
  *
  * @param use_blocks Whether or not to compute the statistics within each block.
+ * If `false`, the number of blocks is assumed to be 1, otherwise it is determined from the maximum value of `blocks`.
  * @param blocks If `use_blocks = true`, offset to an array of `int32_t`s with `ncells` elements, containing the block assignment for each cell.
  * Block IDs should be consecutive and 0-based.
  * If `use_blocks = false`, this value is ignored.
  *
- * @param[out] means If `use_blocks = false`, an offset to an output array of `double`s with `mat.nrow()` elements, to hold the mean of each feature.\n 
- * If `use_blocks = true`, this should instead be an offset to an array of offsets of length equal to the number of blocks.
- * Each internal offset points to an output array of `double`s to hold the mean of each feature in each block. 
- * @param[out] variances  If `use_blocks = false`, an offset to an output array of `double`s with `mat.nrow()` elements, to hold the variance of each feature.\n 
- * If `use_blocks = true`, this should instead be an offset to an array of offsets of length equal to the number of blocks.
- * Each internal offset points to an output array of `double`s with `mat.nrow()` elements, to hold the variance of each feature in each block.
- * @param[out] fitted If `use_blocks = false`, an offset to an output array of `double`s with `mat.nrow()` elements, to hold the fitted value of the trend for each feature.\n 
- * If `use_blocks = true`, this should instead be an offset to an array of offsets of length equal to the number of blocks.
- * Each internal offset points to an output array of `double`s with `mat.nrow()` elements, to hold the fitted value for each feature in each block.
- * @param[out] residuals If `use_blocks = false`, an offset to an output array of `double`s with `mat.nrow()` elements, to hold the residual of the trend for each feature.\n 
- * If `use_blocks = true`, this should instead be an offset to an array of offsets of length equal to the number of blocks. 
- * Each internal offset points to an output array of `double`s with `mat.nrow()` elements, to hold the residual for each feature in each block.
+ * @param[out] means Offset to a 2D array of `double` with number of rows and columns equal to `mat.nrow()` and the number of blocks, respectively.
+ * Each column contains the mean log-expression of each feature in the corresponding block. 
+ * @param[out] variances Offset to a 2D array of `double` with number of rows and columns equal to `mat.nrow()` and the number of blocks, respectively.
+ * Each column contains the variance of log-expression of each feature in the corresponding block. 
+ * @param[out] fitted Offset to a 2D array of `double` with number of rows and columns equal to `mat.nrow()` and the number of blocks, respectively.
+ * Each column contains the fitted value of the trend of each feature in the corresponding block. 
+ * @param[out] residuals Offset to a 2D array of `double` with number of rows and columns equal to `mat.nrow()` and the number of blocks, respectively.
+ * Each column contains the residual from the trend of each feature in the corresponding block. 
  *
  * @return The arrays in `means`, `variances`, `fitted` and `residuals` are filled.
  * If `use_block = true`, statistics are computed separately for the cells in each block.
@@ -55,10 +52,10 @@ void model_gene_var(const NumericMatrix& mat,
         const int32_t* bptr = reinterpret_cast<const int32_t*>(blocks);
         int nblocks = *std::max_element(bptr, bptr + mat.ncol()) + 1;
         var.run_blocked(mat.ptr.get(), bptr,
-            cast_vector_of_pointers<double*>(means, nblocks),
-            cast_vector_of_pointers<double*>(variances, nblocks),
-            cast_vector_of_pointers<double*>(fitted, blocks),
-            cast_vector_of_pointers<double*>(residuals, nblocks)
+            extract_column_pointers<double*>(means, mat.nrow(), nblocks),
+            extract_column_pointers<double*>(variances, mat.nrow(), nblocks),
+            extract_column_pointers<double*>(fitted, mat.nrow(), blocks),
+            extract_column_pointers<double*>(residuals, mat.nrow(), nblocks)
         );
     } else {
         var.run(mat.ptr.get(),

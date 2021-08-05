@@ -5,29 +5,6 @@
 #include <cstdint>
 
 /**
- * Create a vector of pointers based on the WASM heap offsets.
- * 
- * @tparam T Type of the pointers to cast the offsets to.
- *
- * @param ptr Offset to the start of a unsigned 32-bit integer array.
- * Each integer is itself assumed to be an offset to another array of type `T`.
- * @param n Number of integers in the array referenced by `ptr`.
- *
- * @return A `std::vector<T>` of length `n`, containing pointers to various arrays.
- */
-template<typename T>
-inline std::vector<T> cast_vector_of_pointers(uintptr_t ptr, size_t n) {
-    std::vector<T> store(n);
-    if (n) {
-        uint32_t* ptrs = reinterpret_cast<uint32_t*>(ptr);
-        for (size_t i = 0; i < n; ++i) {
-            store[i] = reinterpret_cast<T>(static_cast<uintptr_t>(ptrs[i]));
-        }
-    }
-    return store;
-}
-
-/**
  * Create a vector of pointers to the columns of a matrix.
  * 
  * @tparam T Type of the pointers to cast.
@@ -51,6 +28,23 @@ inline std::vector<T> extract_column_pointers(uintptr_t ptr, size_t nr, size_t n
     return store;
 }
 
+/**
+ * Create a vector of pointers to the "columns" of matrices inside a 3-dimensional array.
+ * The first two dimensions are assumed to represent the matrices of interest,
+ * while the third dimension is most commonly used as a blocking factor.
+ * 
+ * @tparam T Type of the pointers to cast.
+ *
+ * @param ptr Offset to the start of a 3D array of values of the type pointed to by `T`.
+ * The first dimension should be the fastest-changing, followed by the second; the last dimension should be slowest.
+ * @param nr Number of rows in the array.
+ * @param nc Number of column in the array.
+ * @param nb Number of blocks in the array.
+ *
+ * @return A vector of vector of pointers.
+ * Each internal vector corresponds to the 2D matrix inside the 3D array,
+ * while each pointer points to each column inside each matrix.
+ */
 template<typename T>
 inline std::vector<std::vector<T> > extract_column_pointers_blocked(uintptr_t ptr, size_t nr, size_t nc, size_t nb) {
     std::vector<std::vector<T> > store(nb, std::vector<T>(nc));
