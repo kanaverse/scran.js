@@ -58,7 +58,8 @@ class scran {
 
   generateData(size) {
     const arr = this.createMemorySpace(size, "Float64Array", "oData");
-    arr.vector.set(arr.vector.map(() => this.getRandomArbitrary()));
+    var vec = this.getVector("oData");
+    vec.set(vec.map(() => this.getRandomArbitrary()));
     return arr;
   }
 
@@ -253,47 +254,38 @@ class scran {
       false,
       0,
       1, // should set to 3, using 1 to see if the output works.
-
       discard_sums.ptr,
       discard_detected.ptr,
-      0,
+      discard_proportions.ptr,
       discard_overall.ptr,
       threshold_sums.ptr,
       threshold_detected.ptr,
-      0
+      threshold_proportions.ptr
     );
 
-    // console.log(discard_sums.vector);
-    // console.log(threshold_sums.vector);
-    // console.log(threshold_detected.vector);
-
-    console.log(discard_overall.ptr);
-    console.log(this.getVector("disc_qc_overall"));
     var filtered = this.wasm.filter_cells(this.matrix,
       discard_overall.ptr, false);
-    console.log(filtered.ncol()); // should be less.
+    // console.log(filtered.ncol()); // should be less.
 
     this.filteredMatrix = filtered;
 
-    // console.log(sums.vector);
-    // console.log(detected.vector);
-    // console.log(proportions.vector);
-
     var sums_vector = this.getVector("qc_sums");
     var detected_vector = this.getVector("qc_detected");
-    // var proportions_vector = this.getVector("qc_proportions");
-    // var discard_sums_vector = this.getVector("disc_qc_sums");
-    // var threshold_sums_vector = this.getVector("threshold_qc_sums");
-    // var threshold_detected_vector = this.getVector("threshold_qc_detected");
+    var proportions_vector = this.getVector("qc_proportions");
+    var threshold_sums_vector = this.getVector("threshold_qc_sums");
+    var threshold_detected_vector = this.getVector("threshold_qc_detected");
+    var threshold_proportions_vector = this.getVector("threshold_qc_proportions");
 
 
     return {
       "sums": sums_vector,
       "detected": detected_vector,
-      // "proportion": proportions_vector,
-      // "discarded_sums": discard_sums_vector,
-      // "threshold_sums": threshold_sums_vector,
-      // "threshold_detected": threshold_detected_vector
+      "proportion": proportions_vector,
+      "thresholds": {
+        "sums": threshold_sums_vector,
+        "detected": threshold_detected_vector,
+        "proportion": threshold_proportions_vector
+      }
     }
   }
 

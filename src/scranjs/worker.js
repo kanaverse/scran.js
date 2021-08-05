@@ -30,10 +30,6 @@ onmessage = function (msg) {
     if (payload.type == "LOAD") {
         // TODO: parcel2 doesn't load inline importScripts
         importScripts("./scran_wasm.js");
-        // importScripts(new URL("./scran_wasm.js", import.meta.url),
-        // { type: "module" });
-
-        // initWasm();
 
         Module.onRuntimeInitialized = function load_done_callback() {
             FS.mkdir(DATA_PATH, 0o777);
@@ -41,40 +37,35 @@ onmessage = function (msg) {
 
             postMessage({
                 type: payload.type,
-                msg: `Success: Module Loaded`
-            })
+                msg: `Success: ScranJS/WASM initialized`
+            });
         }
     } else if (payload.type == "MOUNT") {
         // barcodes, genes, mtx
         var input = payload.msg;
 
         if (!data) {
-            console.log("need to initialize first");
-
             postMessage({
                 type: payload.type,
-                msg: `Error: module not initialized`
-            })
+                msg: `Error: ScranJS/WASM not initialized`
+            });
         }
 
-        // data.loadData([], 100,100);
-
         data.files = input;
-
-        var mtx_file = input[2];
-        const mtx_file_path = `${DATA_PATH}/${mtx_file[0].name}`;
-
         // FS.unmount(mtx_file_path);
-        // TODO: only dealing with first file for now, 
-        // manage multiple files later on
+        var files_to_load = [];
+        data.files.forEach(m => {
+            if (m.length > 0) {
+                files_to_load.push(m[0]);
+            }
+        })
+
         FS.mount(WORKERFS, {
-            files: [input[0][0], input[1][0], input[2][0]]
-            // blobs: [{ "name": input[0].name, "data": input[0] },
-            // { "name": input[1].name, "data": input[1]},
-            // { "name": input[2].name, "data": input[2]}]
+            files: files_to_load
         }, DATA_PATH);
 
-
+        var mtx_file = input[0];
+        const mtx_file_path = `${DATA_PATH}/${mtx_file[0].name}`;
         // var t0 = performance.now();
         const file_details = FS.stat(mtx_file_path);
         var file_size = file_details.size;
@@ -88,47 +79,62 @@ onmessage = function (msg) {
         FS.close(stream);
         // var t1 = performance.now();
         // console.log("Reading the file took " + (t1 - t0) + " milliseconds.");
-        
+
         var t0 = performance.now();
         var ext = mtx_file_path.split('.').pop();
         data.loadDataFromPath(buffer_ptr, file_size, (ext == "gz"));
         var t1 = performance.now();
-        console.log("Loading the file took " + (t1 - t0) + " milliseconds.");
+        // console.log("Loading mtx file took " + (t1 - t0) + " milliseconds.");
+
+        postMessage({
+            type: payload.type,
+            msg: `Success: mtx file loaded in ${(t1-t0)/1000} seconds`
+        });
 
         const tsv = d3.dsvFormat("\t");
 
-        var barcode_file = input[0];
-        const barcode_file_path = `${DATA_PATH}/${barcode_file[0].name}`;
+        var barcode_file = input[1];
+        if (barcode_file.length > 0) {
+            var t0 = performance.now();
+            const barcode_file_path = `${DATA_PATH}/${barcode_file[0].name}`;
+            const barcode_str = FS.readFile(barcode_file_path, { "encoding": "utf8" });
+            data.barcodes = tsv.parse(barcode_str);
+            var t1 = performance.now();
+            // console.log("Loading barcodes file took " + (t1 - t0) + " milliseconds.");
+            // console.log(data.barcodes);
+    
+            postMessage({
+                type: payload.type,
+                msg: `Success: barcodes file loaded in ${(t1-t0)/1000} seconds`
+            });
+        }
 
-        // FS.unmount(barcode_file_path);
-        // FS.mount(WORKERFS, {
-        //     files: [barcode_file[0]],
-        //     blobs: [{ "name": barcode_file[0].name, "data": barcode_file[0] }]
-        // }, DATA_PATH);
 
-        const barcode_str = FS.readFile(barcode_file_path, {"encoding": "utf8"});
-        data.barcodes = tsv.parse(barcode_str);
-        console.log(data.barcodes);
+        var genes_file = input[2];
+        if(genes_file.length > 0) {
+            var t0 = performance.now();
+            const genes_file_path = `${DATA_PATH}/${genes_file[0].name}`;
+            const genes_str = FS.readFile(genes_file_path, { "encoding": "utf8" });
+            data.genes = tsv.parse(genes_str);
+            var t1 = performance.now();
+    
+            postMessage({
+                type: payload.type,
+                msg: `Success: genes file loaded in ${(t1-t0)/1000} seconds`
+            });
+        }
 
-        var genes_file = input[1];
-        const genes_file_path = `${DATA_PATH}/${genes_file[0].name}`;
-
-        // FS.unmount(genes_file_path);
-        // FS.mount(WORKERFS, {
-        //     files: [genes_file[0]],
-        //     blobs: [{ "name": genes_file[0].name, "data": genes_file[0] }]
-        // }, DATA_PATH);
-
-        const genes_str = FS.readFile(genes_file_path, {"encoding": "utf8"});
-        data.genes = tsv.parse(genes_str);
-
-        console.log(data.genes);
-
-        // TODO: send multiple msgs for loading screen
         postMessage({
             type: payload.type,
-            msg: `Success: Data Loaded into browser, ${data.matrix.nrow()}, ${data.matrix.ncol()}`
+            msg: `Success: Data loaded, dimensions: ${data.matrix.nrow()}, ${data.matrix.ncol()}`
         })
+    } else if (payload.type == "GENERATE_DATA") {
+
+        data.loadData([], 100, 100);
+        postMessage({
+            type: payload.type,
+            msg: `Success: Test data loaded, dimensions: ${data.matrix.nrow()}, ${data.matrix.ncol()}`
+        });
     } else if (payload.type == "QC") {
         const resp = data.qcMetrics();
 
