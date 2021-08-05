@@ -39,7 +39,7 @@
  * specifying the lower bound on the total sum of counts for each block.
  * @param[out] threshold_detected Offset to an output buffer of `double`s of length equal to the number of blocks (if `use_blocks = true`) or 1 (otherwise),
  * specifying the lower bound on the number of detected features for each block.
- * @param[out] threshold_proportions Offset to a 2D array of `uint8_t`s with number of rows and columns equal to `nsubsets` and the number of blocks, respectively.
+ * @param[out] threshold_proportions Offset to a 2D array of `double`s with number of rows and columns equal to `nsubsets` and the number of blocks, respectively.
  * (If `use_blocks = false`, the number of blocks is assumed to be 1.)
  * The array is column-major where each column corresponds to a block;
  * each value contains the upper bound on the proportion of a feature subset (row) in that block.
