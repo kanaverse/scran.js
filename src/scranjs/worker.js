@@ -4,6 +4,7 @@ importScripts("./scran.js");
 // importScripts("./scran_wasm.js");
 
 importScripts("https://cdn.jsdelivr.net/npm/d3-dsv@3");
+// importScripts("https://cdn.jsdelivr.net/npm/umap-js@1.3.3/lib/umap-js.js");
 console.log(d3);
 
 const DATA_PATH = "/data";
@@ -164,6 +165,17 @@ onmessage = function (msg) {
             type: payload.type,
             resp: JSON.parse(JSON.stringify(resp)),
             msg: `Success: CLUS done, ${data.filteredMatrix.nrow()}, ${data.filteredMatrix.ncol()}`
+        })
+
+        var t0 = performance.now();
+        var resp = data.umap();
+        var t1 = performance.now();
+        console.log("CLUS:UMAP took " + (t1 - t0) + " milliseconds.");
+
+        postMessage({
+            type: payload.type,
+            resp: JSON.parse(JSON.stringify(resp)),
+            msg: `Success: CLUS:UMAP done, ${data.filteredMatrix.nrow()}, ${data.filteredMatrix.ncol()}`
         })
     }
 }

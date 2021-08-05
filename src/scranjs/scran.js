@@ -270,7 +270,7 @@ class scran {
     console.log(discard_overall.ptr);
     console.log(this.getVector("disc_qc_overall"));
     var filtered = this.wasm.filter_cells(this.matrix,
-    discard_overall.ptr, false);
+      discard_overall.ptr, false);
     console.log(filtered.ncol()); // should be less.
 
     this.filteredMatrix = filtered;
@@ -278,7 +278,7 @@ class scran {
     // console.log(sums.vector);
     // console.log(detected.vector);
     // console.log(proportions.vector);
-    
+
     var sums_vector = this.getVector("qc_sums");
     var detected_vector = this.getVector("qc_detected");
     // var proportions_vector = this.getVector("qc_proportions");
@@ -347,7 +347,7 @@ class scran {
       "Int32Array",
       "clusters"
     );
-    
+
     var pcs = this.getMemorySpace("mat_PCA");
 
     Module.cluster_snn_graph(this.n_pcs, this.filteredMatrix.ncol(), pcs.ptr, 2, 0.5, clusters.ptr);
@@ -356,6 +356,31 @@ class scran {
 
     return {
       "clusters": arr_clust,
+    }
+  }
+
+  umap() {
+    var self = this;
+    var mat_arr = [];
+    for (var i = 0; i < this.filteredMatrix.nrow(); i++) {
+      mat_arr.push(
+        arr = new Float64Array(
+          this.wasm[typeOpt["wasm"]].buffer,
+          self.filteredMatrix.row(i),
+          size
+        )
+      );
+    }
+
+    const umap = new UMAP();
+    const nEpochs = umap.initializeFit(mat_arr);
+    for (let i = 0; i < nEpochs; i++) {
+      umap.step();
+    }
+    const embedding = umap.getEmbedding();
+
+    return {
+      "embedding": embedding,
     }
   }
 }
