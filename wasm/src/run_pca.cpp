@@ -46,6 +46,9 @@ void run_pca(const NumericMatrix& mat, int number, bool use_subset, uintptr_t su
     std::copy(result.pcs.data(), result.pcs.data() + result.pcs.rows() * result.pcs.cols(), output);
 
     double* output_prop = reinterpret_cast<double*>(prop_var);
+    for (auto& x : result.variance_explained) {
+        x /= result.total_variance;
+    }
     std::copy(result.variance_explained.begin(), result.variance_explained.end(), output_prop);
 
     return;
