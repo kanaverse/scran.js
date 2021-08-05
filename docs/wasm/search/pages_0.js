@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['wasm_20compilation_89',['WASM compilation',['../index.html',1,'']]]
+  ['wasm_20compilation_97',['WASM compilation',['../index.html',1,'']]]
 ];

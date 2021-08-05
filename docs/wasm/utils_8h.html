@@ -86,11 +86,12 @@ This graph shows which files directly or indirectly include this file:</div>
 <div class="dyncontent">
 <div class="center"><img src="utils_8h__dep__incl.png" border="0" usemap="#autils_8hdep" alt=""/></div>
 <map name="autils_8hdep" id="autils_8hdep">
-<area shape="rect" title=" " alt="" coords="303,5,359,32"/>
+<area shape="rect" title=" " alt="" coords="389,5,445,32"/>
 <area shape="rect" href="log__norm__counts_8cpp.html" title=" " alt="" coords="5,80,151,107"/>
 <area shape="rect" href="model__gene__var_8cpp.html" title=" " alt="" coords="175,80,317,107"/>
 <area shape="rect" href="per__cell__qc__filters_8cpp.html" title=" " alt="" coords="341,80,492,107"/>
 <area shape="rect" href="per__cell__qc__metrics_8cpp.html" title=" " alt="" coords="517,80,679,107"/>
+<area shape="rect" href="score__markers_8cpp.html" title=" " alt="" coords="704,80,836,107"/>
 </map>
 </div>
 </div>
@@ -101,6 +102,12 @@ Functions</h2></td></tr>
 <tr class="memitem:aaf20a63dc6866a9961f9099feec5942c"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
 <tr class="memitem:aaf20a63dc6866a9961f9099feec5942c"><td class="memTemplItemLeft" align="right" valign="top">std::vector&lt; T &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="utils_8h.html#aaf20a63dc6866a9961f9099feec5942c">cast_vector_of_pointers</a> (uintptr_t ptr, size_t n)</td></tr>
 <tr class="separator:aaf20a63dc6866a9961f9099feec5942c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae57c47f824ec417fc1e113d479c3ea4b"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
+<tr class="memitem:ae57c47f824ec417fc1e113d479c3ea4b"><td class="memTemplItemLeft" align="right" valign="top">std::vector&lt; T &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="utils_8h.html#ae57c47f824ec417fc1e113d479c3ea4b">extract_column_pointers</a> (uintptr_t ptr, size_t nr, size_t nc)</td></tr>
+<tr class="separator:ae57c47f824ec417fc1e113d479c3ea4b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4c5edcd8f70e5f2b266909aecb7d80bb"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
+<tr class="memitem:a4c5edcd8f70e5f2b266909aecb7d80bb"><td class="memTemplItemLeft" align="right" valign="top">std::vector&lt; std::vector&lt; T &gt; &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="utils_8h.html#a4c5edcd8f70e5f2b266909aecb7d80bb">extract_column_pointers_blocked</a> (uintptr_t ptr, size_t nr, size_t nc, size_t nb)</td></tr>
+<tr class="separator:a4c5edcd8f70e5f2b266909aecb7d80bb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function Documentation</h2>
 <a id="aaf20a63dc6866a9961f9099feec5942c"></a>
@@ -153,6 +160,116 @@ template&lt;typename T &gt; </div>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>A <code>std::vector&lt;T&gt;</code> of length <code>n</code>, containing pointers to various arrays. </dd></dl>
+
+</div>
+</div>
+<a id="ae57c47f824ec417fc1e113d479c3ea4b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae57c47f824ec417fc1e113d479c3ea4b">&#9670;&nbsp;</a></span>extract_column_pointers()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename T &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;T&gt; extract_column_pointers </td>
+          <td>(</td>
+          <td class="paramtype">uintptr_t&#160;</td>
+          <td class="paramname"><em>ptr</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>nr</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>nc</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Create a vector of pointers to the columns of a matrix.</p>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">T</td><td>Type of the pointers to cast.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">ptr</td><td>Offset to the start of a 2D array of values of the type pointed to by <code>T</code>. Array values should be stored in column-major format. </td></tr>
+    <tr><td class="paramname">nr</td><td>Number of rows in the array. </td></tr>
+    <tr><td class="paramname">nc</td><td>Number of column in the array.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>A vector of pointers to each column. </dd></dl>
+
+</div>
+</div>
+<a id="a4c5edcd8f70e5f2b266909aecb7d80bb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4c5edcd8f70e5f2b266909aecb7d80bb">&#9670;&nbsp;</a></span>extract_column_pointers_blocked()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename T &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;std::vector&lt;T&gt; &gt; extract_column_pointers_blocked </td>
+          <td>(</td>
+          <td class="paramtype">uintptr_t&#160;</td>
+          <td class="paramname"><em>ptr</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>nr</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>nc</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>nb</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
 
 </div>
 </div>
