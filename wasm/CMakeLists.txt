@@ -26,6 +26,7 @@ add_executable(
     src/model_gene_var.cpp
     src/run_pca.cpp
     src/cluster_snn_graph.cpp
+    src/score_markers.cpp
     src/NumericMatrix.cpp
 )
 
