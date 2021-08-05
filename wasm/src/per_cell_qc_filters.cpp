@@ -83,6 +83,13 @@ void per_cell_qc_filters(int ncells,
                                      reinterpret_cast<uint8_t*>(discard_overall)
     );
 
+    std::copy(thresholds.sums.begin(), thresholds.sums.end(), reinterpret_cast<double*>(threshold_sums));
+    std::copy(thresholds.detected.begin(), thresholds.detected.end(), reinterpret_cast<double*>(threshold_detected));
+    auto collated = cast_vector_of_pointers<double*>(threshold_proportions, nsubsets);
+    for (int s = 0; s < nsubsets; ++s) {
+        std::copy(thresholds.subset_proportions[s].begin(), thresholds.subset_proportions[s].end(), collated[s]);
+    }
+
     return;
 }
 
