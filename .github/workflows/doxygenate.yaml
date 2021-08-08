@@ -24,7 +24,7 @@ jobs:
     
     - name: copy the app
       run: |
-        cp -r src docs/
+        cp -r src wasm/docs/html/app
   
     - name: GH Pages Deployment
       uses: JamesIves/github-pages-deploy-action@4.1.3
