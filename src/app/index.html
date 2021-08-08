@@ -14,7 +14,12 @@
         #qc_charts > div {
             flex: 0 32%;
             } */
+
+        #logs-cont {
+            display: none;
+        }
     </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/clusterize.js/0.18.0/clusterize.css" integrity="sha512-EhS3ScT4pPbaBKduk1uogfaKwFP9LzodMlLzRMapRqJrhoOV6K/s6FMb00JlinE0xVUMVDS6BazFaUnlbIKXEw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 
 <body>
@@ -27,6 +32,14 @@
                         <div>
                             SCRAN.JS - Analyze Single-cell datasets in the browser
                             <!-- <div class="uk-navbar-subtitle">Analyze Single-cell datasets in the browser</div> -->
+                        </div>
+                    </a>
+                </li>
+                <li>
+                    <a href="#">
+                        <div id="oData">
+                        </div>
+                        <div id="fData">
                         </div>
                     </a>
                 </li>
@@ -51,64 +64,112 @@
                         <li>
                             <h4>Upload Single-cell dataset</h4>
                             <form>
-                                <h5>Barcode File</h5>
-                                <div class="uk-margin" uk-margin>
-                                    <div uk-form-custom="target: true">
-                                        <input id="barcodes-upload-file" type="file" name="upload barcodes file">
-                                        <input class="uk-input uk-form-width-medium" type="text" placeholder="Select barcodes file" disabled>
+                                <div class="uk-column-1-3">
+                                    <div>
+                                        <h5>Matrix File</h5>
+                                        <div class="uk-margin" uk-margin>
+                                            <div uk-form-custom="target: true">
+                                                <input id="mtx-upload-file" type="file" name="upload mtx file">
+                                                <input class="uk-input uk-form-width-medium" type="text"
+                                                    placeholder="Select matrix file" disabled>
+                                            </div>
+                                            <!-- <button id="mtx-upload-submit" class="uk-button uk-button-default" type="button" tabindex="-1">Upload</button> -->
+                                        </div>
                                     </div>
-                                </div>
-                                <h5>Genes File</h5>
-                                <div class="uk-margin" uk-margin>
-                                    <div uk-form-custom="target: true">
-                                        <input id="genes-upload-file" type="file" name="upload genes file">
-                                        <input class="uk-input uk-form-width-medium" type="text" placeholder="Select genes file" disabled>
+                                    <div>
+                                        <h5>Barcode File</h5>
+                                        <div class="uk-margin" uk-margin>
+                                            <div uk-form-custom="target: true">
+                                                <input id="barcodes-upload-file" type="file"
+                                                    name="upload barcodes file">
+                                                <input class="uk-input uk-form-width-medium" type="text"
+                                                    placeholder="Select barcodes file" disabled>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <!-- <button id="mtx-upload-submit" class="uk-button uk-button-default" type="button" tabindex="-1">Upload</button> -->
-                                </div>
-                                <h5>Matrix File</h5>
-                                <div class="uk-margin" uk-margin>
-                                    <div uk-form-custom="target: true">
-                                        <input id="mtx-upload-file" type="file" name="upload mtx file">
-                                        <input class="uk-input uk-form-width-medium" type="text" placeholder="Select matrix file" disabled>
+                                    <div>
+                                        <h5>Genes File</h5>
+                                        <div class="uk-margin" uk-margin>
+                                            <div uk-form-custom="target: true">
+                                                <input id="genes-upload-file" type="file" name="upload genes file">
+                                                <input class="uk-input uk-form-width-medium" type="text"
+                                                    placeholder="Select genes file" disabled>
+                                            </div>
+                                            <!-- <button id="mtx-upload-submit" class="uk-button uk-button-default" type="button" tabindex="-1">Upload</button> -->
+                                        </div>
                                     </div>
-                                    <!-- <button id="mtx-upload-submit" class="uk-button uk-button-default" type="button" tabindex="-1">Upload</button> -->
                                 </div>
 
-                                <button id="mtx-upload-submit" class="uk-button uk-button-default" type="button" tabindex="-1">Upload Data</button>
+                                <button id="mtx-upload-submit" class="uk-button uk-button-default" type="button"
+                                    tabindex="-1">Upload Data</button>
 
                             </form>
 
-                            <h4>Generate random test data</h4>
+                            <h4>Generate Test Data</h4>
                             <form>
 
                                 <div class="uk-margin">
                                     <div uk-form-custom>
-                                        <button class="uk-button uk-button-default" type="button" tabindex="-1">Generate Data</button>
+                                        <button id="mtx-generate-submit" class="uk-button uk-button-default"
+                                            type="button" tabindex="-1">Generate Data</button>
                                     </div>
                                 </div>
                             </form>
-
                         </li>
                         <li>
 
                             <h3>QC metrics per cell</h3>
-                            <button id="run-qc" class="uk-button uk-button-default" type="button" tabindex="-1">Run QC</button>
-                            <div id="qc_charts"></div>
+                            <button id="run-qc" class="uk-button uk-button-default" type="button" tabindex="-1">Run
+                                QC</button>
+                            <div id="qc_charts" class="uk-container uk-flex uk-flex-wrap uk-flex-wrap-around"></div>
                             <span class="qc-info"></span>
 
                         </li>
                         <li>
                             <h3>Feature Selection - currently does nothing</h3>
-                            <button id="run-fsel" class="uk-button uk-button-default" type="button" tabindex="-1">Run Feature Selection</button>
-                            <div id="fsel_charts"></div>
+                            <button id="run-fsel" class="uk-button uk-button-default" type="button" tabindex="-1">Run
+                                Feature Selection</button>
+                            <div id="fsel_charts">
+                                <div class="clusterize">
+                                    <!-- <table>
+                                      <thead>
+                                        <tr id="row_header">
+                                            <th>Genes</th>
+                                            <th>Means</th>
+                                            <th>Vars</th>
+                                            <th>Fitted</th>
+                                            <th>Residuals</th>
+                                        </tr>
+                                      </thead>
+                                    </table> -->
+                                    <div id="scrollArea" class="clusterize-scroll">
+                                      <table>
+                                        <thead>
+                                            <tr id="row_header">
+                                                <th>Genes</th>
+                                                <th>Means</th>
+                                                <th>Vars</th>
+                                                <th>Fitted</th>
+                                                <th>Residuals</th>
+                                            </tr>
+                                          </thead>
+                                        <tbody id="contentArea" class="clusterize-content">
+                                          <tr class="clusterize-no-data">
+                                            <td>Loading data…</td>
+                                          </tr>
+                                        </tbody>
+                                      </table>
+                                    </div>
+                                  </div>
+                            </div>
                             <span class="fsel-info"></span>
 
                         </li>
                         <li>
 
                             <h3>Perform PCA</h3>
-                            <button id="run-pca" class="uk-button uk-button-default" type="button" tabindex="-1">Perform PCA</button>
+                            <button id="run-pca" class="uk-button uk-button-default" type="button" tabindex="-1">Perform
+                                PCA</button>
                             <div id="pca_charts"></div>
                             <span class="pca-info"></span>
 
@@ -116,7 +177,8 @@
                         <li>
 
                             <h3>Perform Clustering</h3>
-                            <button id="run-clus" class="uk-button uk-button-default" type="button" tabindex="-1">Perform Clustering</button>
+                            <button id="run-clus" class="uk-button uk-button-default" type="button"
+                                tabindex="-1">Perform Clustering</button>
                             <div id="clus_charts"></div>
                             <span class="clus-info"></span>
 
@@ -124,10 +186,15 @@
                     </ul>
                 </div>
             </div>
+            <div id="logs-cont" class="uk-margin uk-margin-auto-right uk-margin-auto@m uk-width-1-2@s uk-card uk-card-default uk-card-body uk-text-left">
+                <h5>LOGS</h5>
+                <div id="logs"></div>
+            </div>
         </div>
     </div>
 
     <!-- <script src="scran_wasm.js"></script> -->
+    <script src="../scranjs/boxPlot.js"></script>
     <script type="module" src="./index.js"></script>
 
     <!-- TODO: should be part of the repo later on -->
@@ -139,7 +206,16 @@
     <script src="https://cdn.jsdelivr.net/npm/uikit@3.7.1/dist/js/uikit-icons.min.js"></script>
 
     <!-- Plotly -->
-    <script src="https://cdn.plot.ly/plotly-2.3.0.min.js"></script>
+    <!-- <script src="https://cdn.plot.ly/plotly-2.3.0.min.js"></script> -->
+
+    <!-- GRID JS -->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/gridjs/dist/gridjs.umd.js"></script> -->
+
+    <!-- clusterize -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clusterize.js/0.18.0/clusterize.js" integrity="sha512-NPPrAOcaIEBqkr4XyF/OuiDsZK/+BTj8I6fnIBNVsb/D7RQmueUh7v8GX0DNZ0iodTuIu5ts00bMz8iLFdxH5g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <!-- D3JS v6 -->
+    <script src="https://d3js.org/d3.v6.js"></script>
 </body>
 
 </html>

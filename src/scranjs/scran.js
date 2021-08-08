@@ -31,6 +31,9 @@ class scran {
         wasm: "HEAPU32",
       },
     }
+
+    this.genes = null;
+    this.barcodes = null;
   }
 
   loadData(data, nrow, ncol) {
@@ -58,7 +61,8 @@ class scran {
 
   generateData(size) {
     const arr = this.createMemorySpace(size, "Float64Array", "oData");
-    arr.vector.set(arr.vector.map(() => this.getRandomArbitrary()));
+    var vec = this.getVector("oData");
+    vec.set(vec.map(() => this.getRandomArbitrary()));
     return arr;
   }
 
@@ -183,7 +187,7 @@ class scran {
   }
 
   // pretty much from PR #1 Aaron's code
-  qcMetrics() {
+  qcMetrics(threshold) {
     var sums = this.createMemorySpace(this.matrix.ncol(), "Float64Array", "qc_sums");
 
     var detected = this.createMemorySpace(
@@ -264,6 +268,14 @@ class scran {
       "threshold_qc_proportions"
     );
 
+    var threshold_sums_vector = this.getVector("threshold_qc_sums");
+    var threshold_detected_vector = this.getVector("threshold_qc_detected");
+    var threshold_proportions_vector = this.getVector("threshold_qc_proportions");
+
+    threshold_sums_vector[0] = threshold[0];
+    threshold_detected_vector[0] = threshold[1];
+    threshold_proportions_vector[0] = threshold[2];
+
     this.wasm.per_cell_qc_filters(
       this.matrix.ncol(),
       sums.ptr,
@@ -272,8 +284,7 @@ class scran {
       subsets.ptr,
       false,
       0,
-      1, // should set to 3, using 1 to see if the output works.
-
+      3, // should set to 3, using 1 to see if the output works.
       discard_sums.ptr,
       discard_detected.ptr,
       discard_proportions.ptr,
@@ -283,36 +294,83 @@ class scran {
       threshold_proportions.ptr
     );
 
-    // console.log(discard_sums.vector);
-    // console.log(threshold_sums.vector);
-    // console.log(threshold_detected.vector);
-
-    console.log(discard_overall.ptr);
-    console.log(this.getVector("disc_qc_overall"));
     var filtered = this.wasm.filter_cells(this.matrix,
       discard_overall.ptr, false);
-    console.log(filtered.ncol()); // should be less.
+    // console.log(filtered.ncol()); // should be less.
 
     this.filteredMatrix = filtered;
 
-    // console.log(sums.vector);
-    // console.log(detected.vector);
-    // console.log(proportions.vector);
-
     var sums_vector = this.getVector("qc_sums");
     var detected_vector = this.getVector("qc_detected");
-    // var proportions_vector = this.getVector("qc_proportions");
-    // var discard_sums_vector = this.getVector("disc_qc_sums");
-    // var threshold_sums_vector = this.getVector("threshold_qc_sums");
-    // var threshold_detected_vector = this.getVector("threshold_qc_detected");
+    var proportions_vector = this.getVector("qc_proportions");
+    var threshold_sums_vector = this.getVector("threshold_qc_sums");
+    var threshold_detected_vector = this.getVector("threshold_qc_detected");
+    var threshold_proportions_vector = this.getVector("threshold_qc_proportions");
 
     return {
       "sums": sums_vector,
       "detected": detected_vector,
-      // "proportion": proportions_vector,
-      // "discarded_sums": discard_sums_vector,
-      // "threshold_sums": threshold_sums_vector,
-      // "threshold_detected": threshold_detected_vector
+      "proportion": proportions_vector,
+      "thresholds": {
+        "sums": threshold_sums_vector,
+        "detected": threshold_detected_vector,
+        "proportion": threshold_proportions_vector
+      }
+    }
+  }
+
+  fSelection() {
+    var means = this.createMemorySpace(this.filteredMatrix.nrow(),
+      "Float64Array", "fsel_means");
+
+    var means_array = this.createMemorySpace(1,
+      "Uint32Array", "fsel_means_arr");
+
+    var means_vec = this.getVector("fsel_means_arr");
+    means_vec[0] = means.ptr;
+
+    var vars = this.createMemorySpace(this.filteredMatrix.nrow(),
+      "Float64Array", "fsel_vars");
+
+    var vars_array = this.createMemorySpace(1,
+      "Uint32Array", "fsel_vars_arr");
+
+    var vars_vec = this.getVector("fsel_vars_arr");
+    vars_vec[0] = vars.ptr;
+
+    var fitted = this.createMemorySpace(this.filteredMatrix.nrow(),
+      "Float64Array", "fsel_fitted");
+    var fitted_array = this.createMemorySpace(1,
+      "Uint32Array", "fsel_fitted_arr");
+
+    var fitted_vec = this.getVector("fsel_fitted_arr");
+    fitted_vec[0] = fitted.ptr;
+
+    var resids = this.createMemorySpace(this.filteredMatrix.nrow(),
+      "Float64Array", "fsel_resids");
+    var resids_array = this.createMemorySpace(1,
+      "Uint32Array", "fsel_resids_arr");
+
+    var resids_vec = this.getVector("fsel_resids_arr");
+    resids_vec[0] = resids.ptr;
+
+    this.wasm.model_gene_var(this.filteredMatrix, false, 0,
+      0.3, means_array.ptr,
+      vars_array.ptr,
+      fitted_array.ptr,
+      resids_array.ptr);
+
+    var means_vec2 = this.getVector("fsel_means");
+    var vars_vec2 = this.getVector("fsel_vars");
+    var fitted_vec2 = this.getVector("fsel_fitted");
+    var resids_vec2 = this.getVector("fsel_resids");
+
+    return {
+      "means": means_vec2,
+      "vars": vars_vec2,
+      "fitted": fitted_vec2,
+      "resids": resids_vec2,
+      "genes": this.genes
     }
   }
 
