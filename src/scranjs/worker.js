@@ -125,18 +125,37 @@ onmessage = function (msg) {
         }
 
         postMessage({
+            type: "ODATA",
+            resp: `${data.matrix.nrow()} X ${data.matrix.ncol()}`,
+            msg: `Success: Data loaded, dimensions: ${data.matrix.nrow()}, ${data.matrix.ncol()}`
+        })
+
+        postMessage({
             type: payload.type,
             msg: `Success: Data loaded, dimensions: ${data.matrix.nrow()}, ${data.matrix.ncol()}`
         })
     } else if (payload.type == "GENERATE_DATA") {
 
         data.loadData([], 100, 100);
+
+        postMessage({
+            type: "ODATA",
+            resp: `${data.matrix.nrow()} X ${data.matrix.ncol()}`,
+            msg: `Success: Data loaded, dimensions: ${data.matrix.nrow()}, ${data.matrix.ncol()}`
+        })
+
         postMessage({
             type: payload.type,
             msg: `Success: Test data loaded, dimensions: ${data.matrix.nrow()}, ${data.matrix.ncol()}`
         });
     } else if (payload.type == "QC") {
-        const resp = data.qcMetrics();
+        const resp = data.qcMetrics(payload.input);
+
+        postMessage({
+            type: "FDATA",
+            resp: `${data.filteredMatrix.nrow()} X ${data.filteredMatrix.ncol()}`,
+            msg: `Success: Data filtered, dimensions: ${data.filteredMatrix.nrow()}, ${data.filteredMatrix.ncol()}`
+        })
 
         postMessage({
             type: payload.type,
@@ -145,9 +164,11 @@ onmessage = function (msg) {
         })
     } else if (payload.type == "FEATURE_SELECTION") {
         // need a fsel
+        var resp = data.fSelection();
 
         postMessage({
             type: payload.type,
+            resp: JSON.parse(JSON.stringify(resp)),
             msg: `Success: FSEL done, ${data.filteredMatrix.nrow()}, ${data.filteredMatrix.ncol()}`
         })
     } else if (payload.type == "PCA") {

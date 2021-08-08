@@ -14,6 +14,8 @@ class boxPlot {
 
         this.chartContent = this.svg.append('g').attr('class', 'chart-content');
         this.legend = this.svg.append('g').attr('class', 'chart-legend');
+
+        this.threshold = 0;
     }
 
     draw(data, key, dimx, dimy, threshold) {
@@ -313,53 +315,76 @@ class boxPlot {
 
         function clamp(x, lo, hi) {
             return x < lo ? lo : x > hi ? hi : x;
-          }
+        }
 
         function dragged(event, d) {
             // var x = event.dx;
             var y = event.y;
-            
+
             var lines = d3.select(this);
-            
+
             // Update the line properties
             var attributes = {
-              x1: parseInt(line.attr('x1')),
-              y1: parseInt(line.attr('y1')) + y,
-        
-              x2: parseInt(line.attr('x2')),
-              y2: parseInt(line.attr('y2')) + y,
-            };
-          
-            lines.attr(attributes);
-          }
+                x1: parseInt(line.attr('x1')),
+                y1: parseInt(line.attr('y1')) + y,
 
-          function dragstarted(event) {
+                x2: parseInt(line.attr('x2')),
+                y2: parseInt(line.attr('y2')) + y,
+            };
+
+            lines.attr(attributes);
+        }
+
+        function dragstarted(event) {
             const line = d3.select(this).classed("dragging", true);
-          
+
             event.on("drag", dragged).on("end", ended);
-          
+
             function dragged(event, d) {
                 line.attr("y1", event.y).attr("y2", event.y);
             }
-          
+
             function ended() {
                 line.classed("dragging", false);
+                self.threshold = yScale.invert(parseInt(line.attr("y1")));
+
+                const event = new CustomEvent('threshold',
+                    {
+                        bubbles: true,
+                        detail: {
+                            "threshold": line.attr("y1")
+                        }
+                    });
+                self.container.dispatchEvent(event);
             }
-          }
+        }
 
         //drag line;
         var drag = d3.drag()
             .on('start', dragstarted);
+
+        itemsGroup
+            .selectAll(".threshold").remove();
 
         var line = itemsGroup
             .append("line")
             .attr("class", "threshold")
             .attr("x1", margins.left + xScale(minX))
             .attr("y1", margins.top + yScale(threshold))
-            .attr("x2", margins.left + xScale( maxX))
+            .attr("x2", margins.left + xScale(maxX))
             .attr("y2", margins.top + yScale(threshold))
             .attr("stroke-width", 5)
             .attr("stroke", "Orange")
+            .on("mouseover", function () {
+                var lines = d3.select(this);
+                line.attr("stroke", "black");
+                lines.attr("stroke-width", "8");
+            })
+            .on("mouseout", function () {
+                var lines = d3.select(this);
+                line.attr("stroke", "Orange");
+                lines.attr("stroke-width", "5");
+            })
             .call(drag);
 
         return items;
