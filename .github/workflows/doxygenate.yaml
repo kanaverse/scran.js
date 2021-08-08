@@ -2,6 +2,7 @@ on:
   push:
     branches:
       - master
+      - gh-deploy-app
 
 name: Build documentation
 
@@ -10,14 +11,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
+
     - name: Add Pretty CSS
       uses: wei/wget@v1
       with:
         args: -O wasm/docs/doxygen-awesome.css https://raw.githubusercontent.com/jothepro/doxygen-awesome-css/main/doxygen-awesome.css
+    
     - name: Doxygen Action
       uses: mattnotmitt/doxygen-action@v1.1.0
       with:
         working-directory: wasm/docs/
+    
+    - name: copy the app
+      run: |
+        cp -r src wasm/docs/src
+  
     - name: GH Pages Deployment
       uses: JamesIves/github-pages-deploy-action@4.1.3
       with:
