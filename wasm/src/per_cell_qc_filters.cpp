@@ -39,10 +39,10 @@
  * specifying the lower bound on the total sum of counts for each block.
  * @param[out] threshold_detected Offset to an output buffer of `double`s of length equal to the number of blocks (if `use_blocks = true`) or 1 (otherwise),
  * specifying the lower bound on the number of detected features for each block.
- * @param[out] threshold_proportions Offset to a 2D array of `double`s with number of rows and columns equal to `nsubsets` and the number of blocks, respectively.
+ * @param[out] threshold_proportions Offset to a 2D array of `double`s with number of rows and columns equal to the number of blocks and `nsubsets`, respectively.
  * (If `use_blocks = false`, the number of blocks is assumed to be 1.)
- * The array is column-major where each column corresponds to a block;
- * each value contains the upper bound on the proportion of a feature subset (row) in that block.
+ * The array is column-major where each column corresponds to a feature subset;
+ * each value contains the upper bound on the proportion of that subset in a particular block.
  *
  * @return All buffers in `discard_sums`, `discard_detected`, `discard_proportions` and `discard_overall` are filled.
  */
@@ -87,9 +87,11 @@ void per_cell_qc_filters(int ncells,
 
     std::copy(thresholds.sums.begin(), thresholds.sums.end(), reinterpret_cast<double*>(threshold_sums));
     std::copy(thresholds.detected.begin(), thresholds.detected.end(), reinterpret_cast<double*>(threshold_detected));
-    auto collated = extract_column_pointers<double*>(threshold_proportions, nsubsets);
+
+    auto collated = reinterpret_cast<double*>(threshold_proportions);
     for (int s = 0; s < nsubsets; ++s) {
-        std::copy(thresholds.subset_proportions[s].begin(), thresholds.subset_proportions[s].end(), collated[s]);
+        std::copy(thresholds.subset_proportions[s].begin(), thresholds.subset_proportions[s].end(), collated);
+        collated += thresholds.subset_proportions[s].size();
     }
 
     return;
