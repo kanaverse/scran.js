@@ -5,7 +5,6 @@ class App {
     constructor() {
         this.worker = new Worker(
             new URL("../scranjs/worker.js", import.meta.url),
-            // { type: "classic" }
         );
 
         this.qcBoxPlots = {};
@@ -18,32 +17,41 @@ class App {
 
             var log_cont = document.getElementById("logs");
             if (payload.msg.startsWith("Success")) {
-                log_cont.insertAdjacentHTML('beforeend', `<div><span class="uk-label uk-label-success">${payload.msg}</span></div>`);
+                log_cont.insertAdjacentHTML('beforeend',
+                    `<pre data-prefix="~"><code>${payload.msg}</code></pre>`);
             } else if (payload.msg.startsWith("Error")) {
-                log_cont.insertAdjacentHTML('beforeend', `<div><span class="uk-label uk-label-danger">${payload.msg}</span></div>`);
+                log_cont.insertAdjacentHTML('beforeend',
+                    `<pre data-prefix="~"><code>${payload.msg}</code></pre>`);
             } else {
-                log_cont.insertAdjacentHTML('beforeend', `<div><span class="uk-label uk-label-default">${payload.msg}</span></div>`);
+                log_cont.insertAdjacentHTML('beforeend',
+                    `<pre data-prefix="~"><code>${payload.msg}</code></pre>`);
             }
 
             if (payload.type == "ODATA") {
-                document.getElementById("oData").innerHTML = "";
-                document.getElementById("oData").insertAdjacentHTML('beforeend',
-                    `<p>Matrix Dims: ${payload.resp}</p>`)
+                var cont = document.getElementById("odata");
+                elem = cont.querySelector(".stat-value");
+                elem.innerHTML = payload.resp;
+
+                document.getElementById("load-data-btn").setAttribute("data-content", "✓");
             } else if (payload.type == "FDATA") {
-                document.getElementById("fData").innerHTML = "";
-                document.getElementById("fData").insertAdjacentHTML('beforeend',
-                    `<p>Filtered Matrix Dims: ${payload.resp}</p>`)
+                var cont = document.getElementById("fdata");
+                elem = cont.querySelector(".stat-value");
+                elem.innerHTML = payload.resp;
+
+                document.getElementById("qc-data-btn").setAttribute("data-content", "✓");
             } else if (payload.type == "MOUNT" || payload.type == "GENERATE_DATA") {
             } else if (payload.type == "QC") {
                 ["sums", "detected", "proportion"].forEach(key => {
                     var cont = document.getElementById("qc_charts");
                     const eid = `qc_${key}`;
-                    var threshold = payload.resp["thresholds"][key][0];
+                    var threshold = payload.resp["thresholds"][key];
                     var vec = Object.values(payload.resp[key]);
 
                     if (key != "proportion") {
                         vec = vec.map((m) => Math.log2(m + 1));
                         threshold = Math.log2(threshold + 1)
+                    } else {
+                        threshold = Math.min([threshold, 100]);
                     }
 
                     if (!cont.querySelector("#" + eid)) {
@@ -59,28 +67,26 @@ class App {
 
                         elem.addEventListener("threshold", (e) => {
                             window.app.worker.postMessage({
-                                "type": "QC",
+                                "type": "QCThresholds",
                                 "input": [
                                     self.qcBoxPlots['qc_sums'].threshold,
                                     self.qcBoxPlots['qc_detected'].threshold,
-                                    self.qcBoxPlots['qc_proportion'].threshold
+                                    Math.min([self.qcBoxPlots['qc_proportion'].threshold], 100)
                                 ], // sums, detected & threshold 
                                 "msg": "not much to pass"
                             });
                         })
+
+                        var plot = self.qcBoxPlots[eid];
+                        plot.threshold = threshold;
+
+                        var pData = {
+                            "y": vec,
+                            "x": key != "proportion" ? "log-" + key : key
+                        };
+
+                        plot.draw(pData, "", 'x', 'y', threshold);
                     }
-
-                    var plot = self.qcBoxPlots[eid];
-                    plot.threshold = threshold;
-
-                    var pData = {
-                        "y": vec,
-                        "x": key != "proportion" ? "log-" + key : key
-                    };
-
-                    plot.draw(pData, "", 'x', 'y', threshold);
-
-
                 });
             } else if (payload.type == "FEATURE_SELECTION") {
                 const payload = msg.data;
@@ -118,6 +124,7 @@ class App {
                 //       },
                 //     data: table
                 //   }).render(document.getElementById("fsel_charts"));
+                document.getElementById("fsel-data-btn").setAttribute("data-content", "✓");
 
             } else if (payload.type == "PCA") {
                 const payload = msg.data;
@@ -129,8 +136,9 @@ class App {
                 cont.appendChild(elem);
 
                 for (var i = 0; i < Object.keys(payload.resp[key]).length; i++) {
-                    x.push("PC" + i);
+                    x.push("PC" + (i + 1));
                 }
+
                 var data = [
                     {
                         x: x,
@@ -143,14 +151,14 @@ class App {
                     title: key
                 }
 
-                // Plotly.newPlot(elem.id, data, layout);
+                Plotly.newPlot(elem.id, data, layout);
             } else if (payload.type == "CLUS") {
                 const payload = msg.data;
                 var x = {};
                 var key = "clusters";
-                var cont = document.getElementById("clus_charts");
+                var cont = document.getElementById("cluster_charts");
                 var elem = document.createElement("div");
-                elem.id = `clus_${key}`;
+                elem.id = `cluster_${key}`;
                 cont.appendChild(elem);
 
                 for (var i = 0; i < Object.values(payload.resp[key]).length; i++) {
@@ -212,7 +220,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    document.getElementById("run-qc").addEventListener("click", (event) => {
+    document.getElementById("qc-submit").addEventListener("click", (event) => {
         window.app.worker.postMessage({
             "type": "QC",
             "input": [0, 0, 0], // sums, detected & threshold 
@@ -220,21 +228,35 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    document.getElementById("run-fsel").addEventListener("click", (event) => {
+    document.getElementById("qc-filter-submit").addEventListener("click", (event) => {
+        window.app.worker.postMessage({
+            "type": "QCFilter",
+            // "input": [0, 0, 0], // sums, detected & threshold 
+            "msg": "not much to pass"
+        });
+    });
+
+    document.getElementById("fsel-submit").addEventListener("click", (event) => {
+        var val = document.getElementById("fsel-input").value;
+        if (!val) { val = 0.3; }
         window.app.worker.postMessage({
             "type": "FEATURE_SELECTION",
+            "input": [parseFloat(val)],
             "msg": "not much to pass"
         });
     });
 
-    document.getElementById("run-pca").addEventListener("click", (event) => {
+    document.getElementById("pca-submit").addEventListener("click", (event) => {
+        var val = document.getElementById("pcs-input").value;
+        if (!val) { val = 5; }
         window.app.worker.postMessage({
             "type": "PCA",
+            "input": [parseInt(val)],
             "msg": "not much to pass"
         });
     });
 
-    document.getElementById("run-clus").addEventListener("click", (event) => {
+    document.getElementById("cluster-submit").addEventListener("click", (event) => {
         window.app.worker.postMessage({
             "type": "CLUS",
             "msg": "not much to pass"

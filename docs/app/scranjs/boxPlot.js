@@ -196,7 +196,7 @@ class boxPlot {
 
                     var finished = gridYCountFinished[gridY][gridX];
 
-                    var cx = (margins.left + (d.values[0] - minX) * (width - margins.left - margins.right) / (maxX - minX));
+                    var cx = (margins.left + (cellX - minX) * (width - margins.left - margins.right) / (maxX - minX));
                     if (finished % 2 == 0) {
                         cx += (finished / 2) * xScale(0.014);
                     } else {
@@ -208,7 +208,9 @@ class boxPlot {
                     var fill = "blue";
                     circle
                         .attr('cx', cx)
-                        .attr('cy', height - margins.bottom - ((d.values[1] - minY) * (height - margins.top - margins.bottom) / (maxY - minY)))
+                        .attr('cy', 
+                        // height - margins.top - margins.bottom - ((cellY - minY) * (height - margins.top - margins.bottom) / (maxY - minY))
+                        y)
                         .attr('class', d.cssClasses)
                         .style('fill', fill);
                 });
@@ -233,107 +235,85 @@ class boxPlot {
 
         var rectBox = itemsGroup;
 
-        rectBox.selectAll('.iqr-range').remove();
-        rectBox.selectAll('.whisker').remove();
-        for (i = 0; i < plotData.length; i++) {
-            var findIQR = plotData[i][1];
-            var lower_upper = [];
-            lower_upper = quartiles(findIQR);
+        // rectBox.selectAll('.iqr-range').remove();
+        // rectBox.selectAll('.whisker').remove();
+        // for (i = 0; i < plotData.length; i++) {
+        //     var findIQR = plotData[i][1];
+        //     var lower_upper = [];
+        //     lower_upper = quartiles(findIQR);
 
-            var iqr_result = lower_upper[1] - lower_upper[0];
-            var iqr_15 = iqr_result * 1.5;
+        //     var iqr_result = lower_upper[1] - lower_upper[0];
+        //     var iqr_15 = iqr_result * 1.5;
 
-            var whisker_lower_index = 0;
-            var whisker_upper_index = findIQR.length - 1;
-            for (var j = 0; j < findIQR.length; j++) {
-                if (findIQR[j] < lower_upper[0] - iqr_15) {
-                    whisker_lower_index = j;
-                }
-                else {
-                    break;
-                }
-            }
-            for (var k = findIQR.length - 1; k > 0; k--) {
-                if (findIQR[k] > (lower_upper[1] + iqr_15)) {
-                    whisker_upper_index = k;
-                }
-                else {
-                    break;
-                }
-            }
-            rectBox.append("rect")
-                .attr('id', "0")
-                .attr('class', 'iqr-range')
-                .style('opacity', 1)
-                .style('fill-opacity', 0.2)
-                .attr('x', margins.left + (0.6 + plotData[i][0] - minX) * (width - margins.left - margins.right) / (maxX - minX))
-                .attr('y', height - margins.bottom - ((lower_upper[1] - minY) * (height - margins.top - margins.bottom) / (maxY - minY)))
-                .attr('width', xScale(.8))
-                .attr('height', Math.abs((yScale(lower_upper[1]) - yScale(lower_upper[0]))))
-                .attr('fill', '#1E90FF');
+        //     var whisker_lower_index = 0;
+        //     var whisker_upper_index = findIQR.length - 1;
+        //     for (var j = 0; j < findIQR.length; j++) {
+        //         if (findIQR[j] < lower_upper[0] - iqr_15) {
+        //             whisker_lower_index = j;
+        //         }
+        //         else {
+        //             break;
+        //         }
+        //     }
+        //     for (var k = findIQR.length - 1; k > 0; k--) {
+        //         if (findIQR[k] > (lower_upper[1] + iqr_15)) {
+        //             whisker_upper_index = k;
+        //         }
+        //         else {
+        //             break;
+        //         }
+        //     }
+        //     rectBox.append("rect")
+        //         .attr('id', "0")
+        //         .attr('class', 'iqr-range')
+        //         .style('opacity', 1)
+        //         .style('fill-opacity', 0.2)
+        //         .attr('x', margins.left + (0.6 + plotData[i][0] - minX) * (width - margins.left - margins.right) / (maxX - minX))
+        //         .attr('y', height - margins.bottom - ((lower_upper[1] - minY) * (height - margins.top - margins.bottom) / (maxY - minY)))
+        //         .attr('width', xScale(.8))
+        //         .attr('height', Math.abs((yScale(lower_upper[1]) - yScale(lower_upper[0]))))
+        //         .attr('fill', '#1E90FF');
 
-            rectBox.append("line")
-                .style("stroke", "gray")
-                .attr('class', 'whisker')
-                .attr("x1", margins.left + (1 + plotData[i][0] - minX) * (width - margins.left - margins.right) / (maxX - minX))
-                .attr('y1', height - margins.bottom - ((lower_upper[1] - minY) * (height - margins.top - margins.right) / (maxY - minY)))
-                .attr("x2", margins.left + (1 + plotData[i][0] - minX) * (width - margins.left - margins.right) / (maxX - minX))
-                .attr('y2', (height - margins.bottom - ((findIQR[whisker_upper_index] - minY) * (height - margins.top - margins.bottom) / (maxY - minY))));
+        //     rectBox.append("line")
+        //         .style("stroke", "gray")
+        //         .attr('class', 'whisker')
+        //         .attr("x1", margins.left + (1 + plotData[i][0] - minX) * (width - margins.left - margins.right) / (maxX - minX))
+        //         .attr('y1', height - margins.bottom - ((lower_upper[1] - minY) * (height - margins.top - margins.right) / (maxY - minY)))
+        //         .attr("x2", margins.left + (1 + plotData[i][0] - minX) * (width - margins.left - margins.right) / (maxX - minX))
+        //         .attr('y2', (height - margins.bottom - ((findIQR[whisker_upper_index] - minY) * (height - margins.top - margins.bottom) / (maxY - minY))));
 
-            rectBox.append("line")
-                .style("stroke", "gray")
-                .attr('class', 'whisker')
-                .attr("x1", margins.left + (1 + plotData[i][0] - minX) * (width - margins.left - margins.right) / (maxX - minX))
-                .attr('y1', height - margins.bottom - ((lower_upper[0] - minY) * (height - margins.top - margins.right) / (maxY - minY)))
-                .attr("x2", margins.left + (1 + plotData[i][0] - minX) * (width - margins.left - margins.right) / (maxX - minX))
-                .attr('y2', (height - margins.bottom - ((findIQR[whisker_lower_index] - minY) * (height - margins.top - margins.right) / (maxY - minY))));
+        //     rectBox.append("line")
+        //         .style("stroke", "gray")
+        //         .attr('class', 'whisker')
+        //         .attr("x1", margins.left + (1 + plotData[i][0] - minX) * (width - margins.left - margins.right) / (maxX - minX))
+        //         .attr('y1', height - margins.bottom - ((lower_upper[0] - minY) * (height - margins.top - margins.right) / (maxY - minY)))
+        //         .attr("x2", margins.left + (1 + plotData[i][0] - minX) * (width - margins.left - margins.right) / (maxX - minX))
+        //         .attr('y2', (height - margins.bottom - ((findIQR[whisker_lower_index] - minY) * (height - margins.top - margins.right) / (maxY - minY))));
 
-            rectBox.append("line")
-                .style("stroke", "gray")
-                .attr('class', 'whisker')
-                .attr("x1", margins.left + (0.6 + plotData[i][0] - minX) * (width - margins.left - margins.right) / (maxX - minX))
-                .attr('y1', height - margins.bottom - ((findIQR[whisker_upper_index] - minY) * (height - margins.top - margins.bottom) / (maxY - minY)))
-                .attr("x2", margins.left + (1.4 + plotData[i][0] - minX) * (width - margins.left - margins.right) / (maxX - minX))
-                .attr('y2', (height - margins.bottom - ((findIQR[whisker_upper_index] - minY) * (height - margins.top - margins.bottom) / (maxY - minY))));
+        //     rectBox.append("line")
+        //         .style("stroke", "gray")
+        //         .attr('class', 'whisker')
+        //         .attr("x1", margins.left + (0.6 + plotData[i][0] - minX) * (width - margins.left - margins.right) / (maxX - minX))
+        //         .attr('y1', height - margins.bottom - ((findIQR[whisker_upper_index] - minY) * (height - margins.top - margins.bottom) / (maxY - minY)))
+        //         .attr("x2", margins.left + (1.4 + plotData[i][0] - minX) * (width - margins.left - margins.right) / (maxX - minX))
+        //         .attr('y2', (height - margins.bottom - ((findIQR[whisker_upper_index] - minY) * (height - margins.top - margins.bottom) / (maxY - minY))));
 
-            rectBox.append("line")
-                .style("stroke", "gray")
-                .attr('class', 'whisker')
-                .attr("x1", margins.left + (0.6 + plotData[i][0] - minX) * (width - margins.left - margins.right) / (maxX - minX))
-                .attr('y1', height - margins.bottom - ((findIQR[whisker_lower_index] - minY) * (height - margins.top - margins.bottom) / (maxY - minY)))
-                .attr("x2", margins.left + (1.4 + plotData[i][0] - minX) * (width - margins.left - margins.right) / (maxX - minX))
-                .attr('y2', (height - margins.bottom - ((findIQR[whisker_lower_index] - minY) * (height - margins.top - margins.bottom) / (maxY - minY))));
+        //     rectBox.append("line")
+        //         .style("stroke", "gray")
+        //         .attr('class', 'whisker')
+        //         .attr("x1", margins.left + (0.6 + plotData[i][0] - minX) * (width - margins.left - margins.right) / (maxX - minX))
+        //         .attr('y1', height - margins.bottom - ((findIQR[whisker_lower_index] - minY) * (height - margins.top - margins.bottom) / (maxY - minY)))
+        //         .attr("x2", margins.left + (1.4 + plotData[i][0] - minX) * (width - margins.left - margins.right) / (maxX - minX))
+        //         .attr('y2', (height - margins.bottom - ((findIQR[whisker_lower_index] - minY) * (height - margins.top - margins.bottom) / (maxY - minY))));
 
-        }
+        // }
 
-        function quartiles(d) {
-            d.sort(d3.ascending);
-            var q1 = d3.quantile(d, .25);
-            var q3 = d3.quantile(d, .75);
-            return [q1, q3];
-        };
-
-        function clamp(x, lo, hi) {
-            return x < lo ? lo : x > hi ? hi : x;
-        }
-
-        function dragged(event, d) {
-            // var x = event.dx;
-            var y = event.y;
-
-            var lines = d3.select(this);
-
-            // Update the line properties
-            var attributes = {
-                x1: parseInt(line.attr('x1')),
-                y1: parseInt(line.attr('y1')) + y,
-
-                x2: parseInt(line.attr('x2')),
-                y2: parseInt(line.attr('y2')) + y,
-            };
-
-            lines.attr(attributes);
-        }
+        // function quartiles(d) {
+        //     d.sort(d3.ascending);
+        //     var q1 = d3.quantile(d, .25);
+        //     var q3 = d3.quantile(d, .75);
+        //     return [q1, q3];
+        // };
 
         function dragstarted(event) {
             const line = d3.select(this).classed("dragging", true);
@@ -352,9 +332,10 @@ class boxPlot {
                     {
                         bubbles: true,
                         detail: {
-                            "threshold": line.attr("y1")
+                            "threshold": yScale.invert(parseInt(line.attr("y1")))
                         }
                     });
+
                 self.container.dispatchEvent(event);
             }
         }
