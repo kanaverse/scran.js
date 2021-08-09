@@ -151,16 +151,16 @@ Functions</h2></td></tr>
 <p>Compute some basic -cell QC metrics.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">mat</td><td>A <code><a class="el" href="structNumericMatrix.html" title="A numeric matrix that stores conceptual doubles.">NumericMatrix</a></code> object containing features in rows and cells in columns. </td></tr>
-    <tr><td class="paramname">nsubsets</td><td>Number of feature subsets to be considered. </td></tr>
-    <tr><td class="paramname">subsets</td><td>Offset to an array of offsets of length <code>nsubsets</code>, where each internal offset points to an input buffer of <code>uint8_t</code>s with <code>ncells</code> elements. Each referenced buffer indicates whether each feature in <code>mat</code> belongs to the corresponding feature subset.</td></tr>
-    <tr><td class="paramname">sums</td><td>Offset to an output buffer of <code>double</code>s with <code>ncells</code> elements, containing the total sum of counts for all cells. </td></tr>
-    <tr><td class="paramname">detected</td><td>Offset to an output buffer of <code>int32_t</code>s with <code>ncells</code> elements, containing the number of detected features for all cells. </td></tr>
-    <tr><td class="paramname">proportions</td><td>Offset to an array of offsets of length <code>subsets</code>, where each internal offset points to an output buffer of <code>double</code>s with <code>ncells</code> elements. Each referenced buffer contains the proportion of counts assigned to a particular feature subset in each cell.</td></tr>
+    <tr><td class="paramdir"></td><td class="paramname">mat</td><td>A <code><a class="el" href="structNumericMatrix.html" title="A numeric matrix that stores conceptual doubles.">NumericMatrix</a></code> object containing features in rows and cells in columns. </td></tr>
+    <tr><td class="paramdir"></td><td class="paramname">nsubsets</td><td>Number of feature subsets to be considered. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">subsets</td><td>Offset to a 2D array of <code>uint8_t</code>s with number of rows and columns equal to <code>mat.nrow()</code> and <code>nsubsets</code>, respectively. The array should be column-major where each column corresponds to a feature subset and each value indicates whether each feature in <code>mat</code> belongs to that subset.</td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">sums</td><td>Offset to an output buffer of <code>double</code>s with <code>mat.ncol()</code> elements, containing the total sum of counts for all cells. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">detected</td><td>Offset to an output buffer of <code>int32_t</code>s with <code>mat.ncol()</code> elements, containing the number of detected features for all cells. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">proportions</td><td>Offset to a 2D array of <code>double</code>s with number of rows and columns equal to <code>mat.ncol()</code> and <code>subsets</code>, respectively. The array should be column-major where each column corresponds to a subset and each value contains the proportion of counts assigned to that subset in each cell.</td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>All buffers in <code>sums</code>, <code>detected</code>, <code>proportions</code> and <code>discard_overall</code> are filled. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>All arrays in <code>sums</code>, <code>detected</code>, <code>proportions</code> and <code>discard_overall</code> are filled. </dd></dl>
 
 </div>
 </div>

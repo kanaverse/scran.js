@@ -99,9 +99,6 @@ This graph shows which files directly or indirectly include this file:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:aaf20a63dc6866a9961f9099feec5942c"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
-<tr class="memitem:aaf20a63dc6866a9961f9099feec5942c"><td class="memTemplItemLeft" align="right" valign="top">std::vector&lt; T &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="utils_8h.html#aaf20a63dc6866a9961f9099feec5942c">cast_vector_of_pointers</a> (uintptr_t ptr, size_t n)</td></tr>
-<tr class="separator:aaf20a63dc6866a9961f9099feec5942c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae57c47f824ec417fc1e113d479c3ea4b"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
 <tr class="memitem:ae57c47f824ec417fc1e113d479c3ea4b"><td class="memTemplItemLeft" align="right" valign="top">std::vector&lt; T &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="utils_8h.html#ae57c47f824ec417fc1e113d479c3ea4b">extract_column_pointers</a> (uintptr_t ptr, size_t nr, size_t nc)</td></tr>
 <tr class="separator:ae57c47f824ec417fc1e113d479c3ea4b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -110,59 +107,6 @@ Functions</h2></td></tr>
 <tr class="separator:a4c5edcd8f70e5f2b266909aecb7d80bb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function Documentation</h2>
-<a id="aaf20a63dc6866a9961f9099feec5942c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aaf20a63dc6866a9961f9099feec5942c">&#9670;&nbsp;</a></span>cast_vector_of_pointers()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;typename T &gt; </div>
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::vector&lt;T&gt; cast_vector_of_pointers </td>
-          <td>(</td>
-          <td class="paramtype">uintptr_t&#160;</td>
-          <td class="paramname"><em>ptr</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">size_t&#160;</td>
-          <td class="paramname"><em>n</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<p>Create a vector of pointers based on the WASM heap offsets.</p>
-<dl class="tparams"><dt>Template Parameters</dt><dd>
-  <table class="tparams">
-    <tr><td class="paramname">T</td><td>Type of the pointers to cast the offsets to.</td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">ptr</td><td>Offset to the start of a unsigned 32-bit integer array. Each integer is itself assumed to be an offset to another array of type <code>T</code>. </td></tr>
-    <tr><td class="paramname">n</td><td>Number of integers in the array referenced by <code>ptr</code>.</td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>A <code>std::vector&lt;T&gt;</code> of length <code>n</code>, containing pointers to various arrays. </dd></dl>
-
-</div>
-</div>
 <a id="ae57c47f824ec417fc1e113d479c3ea4b"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ae57c47f824ec417fc1e113d479c3ea4b">&#9670;&nbsp;</a></span>extract_column_pointers()</h2>
 
@@ -270,6 +214,23 @@ template&lt;typename T &gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Create a vector of pointers to the "columns" of matrices inside a 3-dimensional array. The first two dimensions are assumed to represent the matrices of interest, while the third dimension is most commonly used as a blocking factor.</p>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">T</td><td>Type of the pointers to cast.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">ptr</td><td>Offset to the start of a 3D array of values of the type pointed to by <code>T</code>. The first dimension should be the fastest-changing, followed by the second; the last dimension should be slowest. </td></tr>
+    <tr><td class="paramname">nr</td><td>Number of rows in the array. </td></tr>
+    <tr><td class="paramname">nc</td><td>Number of column in the array. </td></tr>
+    <tr><td class="paramname">nb</td><td>Number of blocks in the array.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>A vector of vector of pointers. Each internal vector corresponds to the 2D matrix inside the 3D array, while each pointer points to each column inside each matrix. </dd></dl>
 
 </div>
 </div>

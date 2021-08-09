@@ -73,48 +73,35 @@ $(function() {
 <div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="preprocessor">#include &lt;vector&gt;</span></div>
 <div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="preprocessor">#include &lt;cstdint&gt;</span></div>
 <div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160; </div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</div>
-<div class="line"><a name="l00019"></a><span class="lineno"><a class="line" href="utils_8h.html#aaf20a63dc6866a9961f9099feec5942c">   19</a></span>&#160;<span class="keyword">inline</span> std::vector&lt;T&gt; <a class="code" href="utils_8h.html#aaf20a63dc6866a9961f9099feec5942c">cast_vector_of_pointers</a>(uintptr_t ptr, <span class="keywordtype">size_t</span> n) {</div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;    std::vector&lt;T&gt; store(n);</div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;    <span class="keywordflow">if</span> (n) {</div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;        uint32_t* ptrs = <span class="keyword">reinterpret_cast&lt;</span>uint32_t*<span class="keyword">&gt;</span>(ptr);</div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;        <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> i = 0; i &lt; n; ++i) {</div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;            store[i] = <span class="keyword">reinterpret_cast&lt;</span>T<span class="keyword">&gt;</span>(<span class="keyword">static_cast&lt;</span>uintptr_t<span class="keyword">&gt;</span>(ptrs[i]));</div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;        }</div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;    }</div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;    <span class="keywordflow">return</span> store;</div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;}</div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160; </div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</div>
-<div class="line"><a name="l00043"></a><span class="lineno"><a class="line" href="utils_8h.html#ae57c47f824ec417fc1e113d479c3ea4b">   43</a></span>&#160;<span class="keyword">inline</span> std::vector&lt;T&gt; <a class="code" href="utils_8h.html#ae57c47f824ec417fc1e113d479c3ea4b">extract_column_pointers</a>(uintptr_t ptr, <span class="keywordtype">size_t</span> nr, <span class="keywordtype">size_t</span> nc) {</div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;    std::vector&lt;T&gt; store(nc);</div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;    <span class="keywordflow">if</span> (nr &amp;&amp; nc) {</div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;        T raw = <span class="keyword">reinterpret_cast&lt;</span>T<span class="keyword">&gt;</span>(ptr);</div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;        <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> i = 0; i &lt; nc; ++i, raw += nr) {</div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;            store[i] = raw;</div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;        }</div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;    }</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;    <span class="keywordflow">return</span> store;</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;}</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160; </div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</div>
-<div class="line"><a name="l00055"></a><span class="lineno"><a class="line" href="utils_8h.html#a4c5edcd8f70e5f2b266909aecb7d80bb">   55</a></span>&#160;<span class="keyword">inline</span> std::vector&lt;std::vector&lt;T&gt; &gt; <a class="code" href="utils_8h.html#a4c5edcd8f70e5f2b266909aecb7d80bb">extract_column_pointers_blocked</a>(uintptr_t ptr, <span class="keywordtype">size_t</span> nr, <span class="keywordtype">size_t</span> nc, <span class="keywordtype">size_t</span> nb) {</div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;    std::vector&lt;std::vector&lt;T&gt; &gt; store(nb, std::vector&lt;T&gt;(nc));</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;    <span class="keywordflow">if</span> (nb &amp;&amp; nr &amp;&amp; nc) {</div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;        T raw = <span class="keyword">reinterpret_cast&lt;</span>T<span class="keyword">&gt;</span>(ptr);</div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;        <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> b = 0; b &lt; nb; ++b) {</div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;            <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> i = 0; i &lt; nc; ++i, raw += nr) {</div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;                store[b][i] = raw;</div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;            }</div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;        }</div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;    }</div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;    <span class="keywordflow">return</span> store;</div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;}</div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160; </div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="ttc" id="autils_8h_html_a4c5edcd8f70e5f2b266909aecb7d80bb"><div class="ttname"><a href="utils_8h.html#a4c5edcd8f70e5f2b266909aecb7d80bb">extract_column_pointers_blocked</a></div><div class="ttdeci">std::vector&lt; std::vector&lt; T &gt; &gt; extract_column_pointers_blocked(uintptr_t ptr, size_t nr, size_t nc, size_t nb)</div><div class="ttdef"><b>Definition:</b> utils.h:55</div></div>
-<div class="ttc" id="autils_8h_html_aaf20a63dc6866a9961f9099feec5942c"><div class="ttname"><a href="utils_8h.html#aaf20a63dc6866a9961f9099feec5942c">cast_vector_of_pointers</a></div><div class="ttdeci">std::vector&lt; T &gt; cast_vector_of_pointers(uintptr_t ptr, size_t n)</div><div class="ttdef"><b>Definition:</b> utils.h:19</div></div>
-<div class="ttc" id="autils_8h_html_ae57c47f824ec417fc1e113d479c3ea4b"><div class="ttname"><a href="utils_8h.html#ae57c47f824ec417fc1e113d479c3ea4b">extract_column_pointers</a></div><div class="ttdeci">std::vector&lt; T &gt; extract_column_pointers(uintptr_t ptr, size_t nr, size_t nc)</div><div class="ttdef"><b>Definition:</b> utils.h:43</div></div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</div>
+<div class="line"><a name="l00020"></a><span class="lineno"><a class="line" href="utils_8h.html#ae57c47f824ec417fc1e113d479c3ea4b">   20</a></span>&#160;<span class="keyword">inline</span> std::vector&lt;T&gt; <a class="code" href="utils_8h.html#ae57c47f824ec417fc1e113d479c3ea4b">extract_column_pointers</a>(uintptr_t ptr, <span class="keywordtype">size_t</span> nr, <span class="keywordtype">size_t</span> nc) {</div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;    std::vector&lt;T&gt; store(nc);</div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;    <span class="keywordflow">if</span> (nr &amp;&amp; nc) {</div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;        T raw = <span class="keyword">reinterpret_cast&lt;</span>T<span class="keyword">&gt;</span>(ptr);</div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;        <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> i = 0; i &lt; nc; ++i, raw += nr) {</div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;            store[i] = raw;</div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;        }</div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;    }</div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;    <span class="keywordflow">return</span> store;</div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;}</div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160; </div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</div>
+<div class="line"><a name="l00049"></a><span class="lineno"><a class="line" href="utils_8h.html#a4c5edcd8f70e5f2b266909aecb7d80bb">   49</a></span>&#160;<span class="keyword">inline</span> std::vector&lt;std::vector&lt;T&gt; &gt; <a class="code" href="utils_8h.html#a4c5edcd8f70e5f2b266909aecb7d80bb">extract_column_pointers_blocked</a>(uintptr_t ptr, <span class="keywordtype">size_t</span> nr, <span class="keywordtype">size_t</span> nc, <span class="keywordtype">size_t</span> nb) {</div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;    std::vector&lt;std::vector&lt;T&gt; &gt; store(nb, std::vector&lt;T&gt;(nc));</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;    <span class="keywordflow">if</span> (nb &amp;&amp; nr &amp;&amp; nc) {</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;        T raw = <span class="keyword">reinterpret_cast&lt;</span>T<span class="keyword">&gt;</span>(ptr);</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;        <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> b = 0; b &lt; nb; ++b) {</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;            <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> i = 0; i &lt; nc; ++i, raw += nr) {</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;                store[b][i] = raw;</div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;            }</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;        }</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;    }</div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;    <span class="keywordflow">return</span> store;</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;}</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160; </div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="ttc" id="autils_8h_html_a4c5edcd8f70e5f2b266909aecb7d80bb"><div class="ttname"><a href="utils_8h.html#a4c5edcd8f70e5f2b266909aecb7d80bb">extract_column_pointers_blocked</a></div><div class="ttdeci">std::vector&lt; std::vector&lt; T &gt; &gt; extract_column_pointers_blocked(uintptr_t ptr, size_t nr, size_t nc, size_t nb)</div><div class="ttdef"><b>Definition:</b> utils.h:49</div></div>
+<div class="ttc" id="autils_8h_html_ae57c47f824ec417fc1e113d479c3ea4b"><div class="ttname"><a href="utils_8h.html#ae57c47f824ec417fc1e113d479c3ea4b">extract_column_pointers</a></div><div class="ttdeci">std::vector&lt; T &gt; extract_column_pointers(uintptr_t ptr, size_t nr, size_t nc)</div><div class="ttdef"><b>Definition:</b> utils.h:20</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
