@@ -149,7 +149,7 @@ onmessage = function (msg) {
             msg: `Success: Test data loaded, dimensions: ${data.matrix.nrow()}, ${data.matrix.ncol()}`
         });
     } else if (payload.type == "QC") {
-        const resp = data.qcMetrics(payload.input);
+        const resp = data.qcMetrics(payload.input[0]);
 
         postMessage({
             type: "FDATA",

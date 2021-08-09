@@ -79,12 +79,12 @@ class App {
 
                         var plot = self.qcBoxPlots[eid];
                         plot.threshold = threshold;
-
+    
                         var pData = {
                             "y": vec,
                             "x": key != "proportion" ? "log-" + key : key
                         };
-
+    
                         plot.draw(pData, "", 'x', 'y', threshold);
                     }
                 });
@@ -221,9 +221,19 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     document.getElementById("qc-submit").addEventListener("click", (event) => {
+        var val = document.getElementById("qc-nmads-input").value;
         window.app.worker.postMessage({
             "type": "QC",
-            "input": [0, 0, 0], // sums, detected & threshold 
+            "input": [parseFloat(val)], // sums, detected & threshold 
+            "msg": "not much to pass"
+        });
+    });
+
+    document.getElementById("qc-nmads-input").addEventListener("change", (event) => {
+        var val = document.getElementById("qc-nmads-input").value;
+        window.app.worker.postMessage({
+            "type": "QC",
+            "input": [parseFloat(val)], // sums, detected & threshold 
             "msg": "not much to pass"
         });
     });
