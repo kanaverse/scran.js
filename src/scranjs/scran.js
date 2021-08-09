@@ -107,13 +107,33 @@ class scran {
     return this._internalMemTracker[key];
   }
 
-  getVector(key) {
-
+  getVector(key, which=null, dim=null) {
     const obj = this.getMemorySpace(key);
     const type = obj["type"];
-    const ptr = obj["ptr"];
-    const size = obj["size"];
     const typeOpt = this._heapMap[type];
+    var ptr = obj["ptr"];
+    var size = obj["size"];
+
+    if (dim != null) {
+      if (!Array.isArray(dim)) {
+        dim = [dim];
+      }
+      if (!Array.isArray(which)){
+        which = [which];
+      }
+      if (dim.size != which.size) {
+         throw "'dim' and 'which' do not have the same length";
+      }
+
+      var vec_size = size / dim.reduce( (a, b) => a * b );
+      var multiplier = vec_size;
+      for (var i=0; i < which.length; i++) {
+        ptr += multiplier * which[i]; 
+        multiplier *= dim[i];
+      }
+
+      size = vec_size;
+    } 
 
     let arr;
 
@@ -175,40 +195,40 @@ class scran {
       "Int32Array",
       "qc_detected"
     );
-    var subsets = this.createMemorySpace(this.matrix.ncol(), "Uint8Array", "qc_subsets");
 
-    // subsets.vector[0] = 0;
-    // subsets.vector[3] = 0;
-    // subsets.vector[10] = 0;
-
-    var subsets_array = this.createMemorySpace(
-      1,
-      "Uint32Array",
-      "qc_subsets_array"
+    var nsubsets = 2;
+    var subsets = this.createMemorySpace(
+        this.matrix.ncol() * nsubsets, 
+        "Uint8Array", 
+        "qc_subsets"
     );
-    var arr_sub_array = this.getVector("qc_subsets_array");
-    arr_sub_array[0] = subsets.ptr;
+
+    // Testing:
+    var subvec = this.getVector("qc_subsets");
+    subvec.set(subvec.map(() => 0));
+    subvec[0] = 1;
+    subvec[1] = 1;
+    subvec[2] = 1;
+    subvec[this.matrix.ncol() + 2] = 1;
+    subvec[this.matrix.ncol() + 3] = 1;
+    subvec[this.matrix.ncol() + 4] = 1;
+    subvec[this.matrix.ncol() + 5] = 1;
+    console.log(this.getVector("qc_subsets", 0, 2));
+    console.log(this.getVector("qc_subsets", 1, 2));
 
     var proportions = this.createMemorySpace(
-      this.matrix.ncol(),
+      this.matrix.ncol() * nsubsets,
       "Float64Array",
       "qc_proportions"
     );
-    var proportions_array = this.createMemorySpace(
-      1,
-      "Uint32Array",
-      "qc_proportions_array"
-    );
-    var arr_proportions_array = this.getVector("qc_proportions_array");
-    arr_proportions_array[0] = proportions.ptr;
 
     this.wasm.per_cell_qc_metrics(
       this.matrix,
-      1,
-      subsets_array.ptr,
+      nsubsets,
+      subsets.ptr,
       sums.ptr,
       detected.ptr,
-      proportions_array.ptr
+      proportions.ptr
     );
 
     var discard_sums = this.createMemorySpace(
@@ -222,7 +242,7 @@ class scran {
       "disc_qc_detected"
     );
     var discard_proportions = this.createMemorySpace(
-      this.matrix.ncol(),
+      this.matrix.ncol() * nsubsets,
       "Uint8Array",
       "disc_qc_proportions"
     );
@@ -243,7 +263,7 @@ class scran {
       "threshold_qc_detected"
     );
     var threshold_proportions = this.createMemorySpace(
-      1,
+      nsubsets,
       "Float64Array",
       "threshold_qc_proportions"
     );
@@ -260,8 +280,8 @@ class scran {
       this.matrix.ncol(),
       sums.ptr,
       detected.ptr,
-      0,
-      0,
+      nsubsets,
+      subsets.ptr,
       false,
       0,
       3, // should set to 3, using 1 to see if the output works.
