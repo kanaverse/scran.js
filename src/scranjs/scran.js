@@ -52,7 +52,7 @@ class scran {
   }
 
   getRandomArbitrary() {
-    return Math.random();
+    return Math.random() * 100;
   }
 
   setZero(arr) {
@@ -107,7 +107,7 @@ class scran {
     return this._internalMemTracker[key];
   }
 
-  getVector(key, which=null, dim=null) {
+  getVector(key, which = null, dim = null) {
     const obj = this.getMemorySpace(key);
     const type = obj["type"];
     const typeOpt = this._heapMap[type];
@@ -118,22 +118,22 @@ class scran {
       if (!Array.isArray(dim)) {
         dim = [dim];
       }
-      if (!Array.isArray(which)){
+      if (!Array.isArray(which)) {
         which = [which];
       }
       if (dim.size != which.size) {
-         throw "'dim' and 'which' do not have the same length";
+        throw "'dim' and 'which' do not have the same length";
       }
 
-      var vec_size = size / dim.reduce( (a, b) => a * b );
+      var vec_size = size / dim.reduce((a, b) => a * b);
       var multiplier = vec_size;
-      for (var i=0; i < which.length; i++) {
-        ptr += multiplier * which[i]; 
+      for (var i = 0; i < which.length; i++) {
+        ptr += multiplier * which[i];
         multiplier *= dim[i];
       }
 
       size = vec_size;
-    } 
+    }
 
     let arr;
 
@@ -188,7 +188,11 @@ class scran {
 
   // pretty much from PR #1 Aaron's code
   qcMetrics(threshold) {
-    var sums = this.createMemorySpace(this.matrix.ncol(), "Float64Array", "qc_sums");
+    var sums = this.createMemorySpace(
+      this.matrix.ncol(),
+      "Float64Array",
+      "qc_sums"
+    );
 
     var detected = this.createMemorySpace(
       this.matrix.ncol(),
@@ -196,25 +200,25 @@ class scran {
       "qc_detected"
     );
 
-    var nsubsets = 2;
+    var nsubsets = 1;
     var subsets = this.createMemorySpace(
-        this.matrix.ncol() * nsubsets, 
-        "Uint8Array", 
-        "qc_subsets"
+      this.matrix.ncol() * nsubsets,
+      "Uint8Array",
+      "qc_subsets"
     );
 
     // Testing:
     var subvec = this.getVector("qc_subsets");
     subvec.set(subvec.map(() => 0));
-    subvec[0] = 1;
-    subvec[1] = 1;
-    subvec[2] = 1;
-    subvec[this.matrix.ncol() + 2] = 1;
-    subvec[this.matrix.ncol() + 3] = 1;
-    subvec[this.matrix.ncol() + 4] = 1;
-    subvec[this.matrix.ncol() + 5] = 1;
-    console.log(this.getVector("qc_subsets", 0, 2));
-    console.log(this.getVector("qc_subsets", 1, 2));
+    // subvec[0] = 1;
+    // subvec[1] = 1;
+    // subvec[2] = 1;
+    // subvec[this.matrix.ncol() + 2] = 1;
+    // subvec[this.matrix.ncol() + 3] = 1;
+    // subvec[this.matrix.ncol() + 4] = 1;
+    // subvec[this.matrix.ncol() + 5] = 1;
+    // console.log(this.getVector("qc_subsets", 0, 2));
+    // console.log(this.getVector("qc_subsets", 1, 2));
 
     var proportions = this.createMemorySpace(
       this.matrix.ncol() * nsubsets,
@@ -272,9 +276,9 @@ class scran {
     var threshold_detected_vector = this.getVector("threshold_qc_detected");
     var threshold_proportions_vector = this.getVector("threshold_qc_proportions");
 
-    threshold_sums_vector[0] = threshold[0];
-    threshold_detected_vector[0] = threshold[1];
-    threshold_proportions_vector[0] = threshold[2];
+    // threshold_sums_vector[0] = threshold[0];
+    // threshold_detected_vector[0] = threshold[1];
+    // threshold_proportions_vector[0] = threshold[2];
 
     this.wasm.per_cell_qc_filters(
       this.matrix.ncol(),
@@ -307,19 +311,55 @@ class scran {
     var threshold_detected_vector = this.getVector("threshold_qc_detected");
     var threshold_proportions_vector = this.getVector("threshold_qc_proportions");
 
+    this.thresholds = [threshold_sums_vector[0],
+    threshold_detected_vector[0],
+    threshold_proportions_vector[0]
+    ];
+
     return {
       "sums": sums_vector,
       "detected": detected_vector,
       "proportion": proportions_vector,
       "thresholds": {
-        "sums": threshold_sums_vector,
-        "detected": threshold_detected_vector,
-        "proportion": threshold_proportions_vector
+        "sums": threshold_sums_vector[0],
+        "detected": threshold_detected_vector[0],
+        "proportion": threshold_proportions_vector[0]
       }
     }
   }
 
-  fSelection() {
+  filterCells() {
+    var sums_vector = this.getVector("qc_sums");
+    var detected_vector = this.getVector("qc_detected");
+    var proportions_vector = this.getVector("qc_proportions");
+
+    var discard_overall = this.createMemorySpace(
+      this.matrix.ncol(),
+      "Uint8Array",
+      "disc_qc_filt"
+    );
+
+    var disc_vector = this.getVector("disc_qc_filt");
+
+    for (var n = 0; n < this.matrix.ncol(); n++) {
+      if (sums_vector[n] > this.thresholds[0] &&
+        detected_vector[n] > this.thresholds[1] &&
+        proportions_vector[n] < this.thresholds[2]) {
+        disc_vector[n] = 1;
+      } else {
+        disc_vector[n] = 0;
+      }
+    }
+
+    var filtered = this.wasm.filter_cells(this.matrix,
+      discard_overall.ptr, false);
+    // console.log(filtered.ncol()); // should be less.
+
+    this.filteredMatrix = filtered;
+
+  }
+
+  fSelection(span) {
     var means = this.createMemorySpace(this.filteredMatrix.nrow(),
       "Float64Array", "fsel_means");
 
@@ -355,10 +395,10 @@ class scran {
     resids_vec[0] = resids.ptr;
 
     this.wasm.model_gene_var(this.filteredMatrix, false, 0,
-      0.3, means_array.ptr,
-      vars_array.ptr,
-      fitted_array.ptr,
-      resids_array.ptr);
+      span, means.ptr,
+      vars.ptr,
+      fitted.ptr,
+      resids.ptr);
 
     var means_vec2 = this.getVector("fsel_means");
     var vars_vec2 = this.getVector("fsel_vars");
@@ -374,11 +414,11 @@ class scran {
     }
   }
 
-  PCA() {
-    this.n_pcs = 5;
+  PCA(npc) {
+    this.n_pcs = npc;
 
     var sub = this.createMemorySpace(
-      this.matrix.nrow(),
+      this.filteredMatrix.nrow(),
       "Uint8Array",
       "subset_PCA"
     );
@@ -386,7 +426,7 @@ class scran {
     // console.log(sub.vector);
 
     var pcs = this.createMemorySpace(
-      this.matrix.ncol() * this.n_pcs,
+      this.filteredMatrix.ncol() * this.n_pcs,
       "Float64Array",
       "mat_PCA"
     );
@@ -410,7 +450,7 @@ class scran {
     var var_exp = this.getVector("var_exp_PCA");
 
     // console.log(pcs.vector);
-    console.log(var_exp.vector);
+    // console.log(var_exp.vector);
 
     return {
       // "pcs": pcs,
@@ -442,7 +482,7 @@ class scran {
     for (var i = 0; i < this.filteredMatrix.nrow(); i++) {
       mat_arr.push(
         arr = new Float64Array(
-          this.wasm[typeOpt["wasm"]].buffer,
+          this.wasm["HEAPF64"].buffer,
           self.filteredMatrix.row(i),
           size
         )
