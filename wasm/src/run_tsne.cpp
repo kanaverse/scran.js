@@ -28,7 +28,7 @@ struct TsneStatus {
      * @return Number of iterations run so far.
      */
     int iterations () const {
-        return status.iteration;
+        return status.iteration();
     }
 };
 
