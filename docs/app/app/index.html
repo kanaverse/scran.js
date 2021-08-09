@@ -217,6 +217,15 @@
                 <div class="card-body">
                     <h2 class="card-title">Perform QC</h2>
                     <p>Generate per cell QC metrics and filter cells</p>
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text">NMADS: Number of MADs from the median, to use for defining outliers. (defaults to 3)</span>
+                        </label>
+                        <div class="relative">
+                            <input id="qc-nmads-input" type="number" placeholder="3"
+                                class="w-full pr-16 input input-primary input-bordered">
+                        </div>
+                    </div>
                     <div id="qc_charts" class="flex flex-wrap justify-evenly"></div>
 
                     <div class="card-actions">

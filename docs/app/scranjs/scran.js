@@ -187,7 +187,7 @@ class scran {
   }
 
   // pretty much from PR #1 Aaron's code
-  qcMetrics(threshold) {
+  qcMetrics(nmads) {
     var sums = this.createMemorySpace(
       this.matrix.ncol(),
       "Float64Array",
@@ -288,7 +288,7 @@ class scran {
       subsets.ptr,
       false,
       0,
-      3, // should set to 3, using 1 to see if the output works.
+      nmads, // should set to 3, using 1 to see if the output works.
       discard_sums.ptr,
       discard_detected.ptr,
       discard_proportions.ptr,
