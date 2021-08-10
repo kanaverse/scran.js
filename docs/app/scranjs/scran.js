@@ -202,7 +202,7 @@ class scran {
 
     var nsubsets = 1;
     var subsets = this.createMemorySpace(
-      this.matrix.ncol() * nsubsets,
+      this.matrix.nrow() * nsubsets,
       "Uint8Array",
       "qc_subsets"
     );
