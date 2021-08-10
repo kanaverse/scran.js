@@ -25,6 +25,7 @@ add_executable(
     src/log_norm_counts.cpp
     src/model_gene_var.cpp
     src/run_pca.cpp
+    src/run_tsne.cpp
     src/cluster_snn_graph.cpp
     src/score_markers.cpp
     src/NumericMatrix.cpp
@@ -37,6 +38,7 @@ target_compile_options(
 target_link_libraries(
     scran_wasm
     scran
+    qdtsne
 )
 
 target_compile_definitions(scran_wasm PRIVATE TATAMI_USE_ZLIB=1)

@@ -42,3 +42,12 @@ if (NOT HAVE_ZLIB_H)
     add_library(zlib INTERFACE)
     target_include_directories(zlib INTERFACE ${zlib_SOURCE_DIR})
 endif()
+
+FetchContent_Declare(
+  qdtsne 
+  GIT_REPOSITORY https://github.com/LTLA/qdtsne
+  GIT_TAG master
+)
+FetchContent_MakeAvailable(qdtsne)
+
+
