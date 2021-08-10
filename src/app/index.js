@@ -152,6 +152,9 @@ class App {
                 }
 
                 Plotly.newPlot(elem.id, data, layout);
+            } else if (payload.type == "TSNE") {
+                const payload = msg.data;
+                console.log(payload);
             } else if (payload.type == "CLUS") {
                 const payload = msg.data;
                 var x = {};
@@ -210,10 +213,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     document.getElementById("mtx-generate-submit").addEventListener("click", (event) => {
-        var mtx = document.getElementById("mtx-upload-file").files;
-        var barcodes = document.getElementById("barcodes-upload-file").files;
-        var genes = document.getElementById("genes-upload-file").files;
-
         window.app.worker.postMessage({
             "type": "GENERATE_DATA",
             "msg": []
@@ -222,6 +221,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.getElementById("qc-submit").addEventListener("click", (event) => {
         var val = document.getElementById("qc-nmads-input").value;
+        if (!val) { val = 3; }
         window.app.worker.postMessage({
             "type": "QC",
             "input": [parseFloat(val)], // sums, detected & threshold 
@@ -261,6 +261,16 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!val) { val = 5; }
         window.app.worker.postMessage({
             "type": "PCA",
+            "input": [parseInt(val)],
+            "msg": "not much to pass"
+        });
+    });
+
+    document.getElementById("tsne-submit").addEventListener("click", (event) => {
+        var val = document.getElementById("tsne-input").value;
+        if (!val) { val = 200; }
+        window.app.worker.postMessage({
+            "type": "TSNE",
             "input": [parseInt(val)],
             "msg": "not much to pass"
         });

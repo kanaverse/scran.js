@@ -342,9 +342,9 @@ class scran {
     var disc_vector = this.getVector("disc_qc_filt");
 
     for (var n = 0; n < this.matrix.ncol(); n++) {
-      if (sums_vector[n] > this.thresholds[0] &&
-        detected_vector[n] > this.thresholds[1] &&
-        proportions_vector[n] < this.thresholds[2]) {
+      if (sums_vector[n] < this.thresholds[0] ||
+        detected_vector[n] < this.thresholds[1] ||
+        proportions_vector[n] > this.thresholds[2]) {
         disc_vector[n] = 1;
       } else {
         disc_vector[n] = 0;
@@ -473,6 +473,34 @@ class scran {
 
     return {
       "clusters": arr_clust,
+    }
+  }
+
+  tsne(iterations) {
+    var tsne = this.createMemorySpace(
+      this.filteredMatrix.ncol() * 2,
+      "Float64Array",
+      "tsne"
+    );
+
+    // console.log(this.getVector("mat_PCA"));
+    var pcs = this.getVector("mat_PCA");
+
+    var stuff = this.wasm.initialize_tsne(
+      pcs.ptr, this.n_pcs,
+      this.filteredMatrix.ncol(),
+      iterations, false, tsne.ptr);
+
+    // console.log(stuff.iterations());
+    // console.log(this.getVector("tsne"));
+    // this.wasm.run_tsne(stuff, 100, tsne.ptr);
+    // console.log(stuff.iterations());
+    // console.log(this.getVector("tsne"));
+    // Module.run_tsne(stuff, 100, tsne.ptr);
+    console.log(stuff.iterations());
+
+    return {
+      "tsne": this.getVector("tsne")
     }
   }
 

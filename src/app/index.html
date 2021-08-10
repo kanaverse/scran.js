@@ -109,24 +109,10 @@
         </div> -->
     </div>
 
-    <div class="flex-col">
+    <!-- <div class="flex-col">
         <div class="flex  justify-center space-x-4">
-            <div class="shadow stats">
-                <div id="odata" class="stat">
-                    <div class="stat-title">Matrix Dims</div>
-                    <div class="stat-value">?????</div>
-                    <div class="stat-desc">...</div>
-                </div>
-            </div>
-            <div class="shadow stats">
-                <div id="fdata" class="stat">
-                    <div class="stat-title">Filtered Matrix Dims</div>
-                    <div class="stat-value">?????</div>
-                    <div class="stat-desc">...</div>
-                </div>
-            </div>
         </div>
-    </div>
+    </div> -->
 
     <ul class="w-full steps">
         <li id="load-data-btn" data-content="?" class="step step-neutral">
@@ -149,7 +135,12 @@
                 <a href="#performPCA" class="link">PCA</a>
             </button>
         </li>
-        <li id="clyster-data-btn" data-content="?" class="step step-neutral">
+        <li id="tsne-data-btn" data-content="?" class="step step-neutral">
+            <button class="btn btn-ghost">
+                <a href="#performTSNE" class="link">TSNE</a>
+            </button>
+        </li>
+        <li id="cluster-data-btn" data-content="?" class="step step-neutral">
             <button class="btn btn-ghost">
                 <a href="#performCluster" class="link">Cluster</a>
             </button>
@@ -168,13 +159,13 @@
     </ul>
 
     <div class="flex-col space-y-6">
-        <div id="loadData" class="flex justify-center">
-            <div class="card w-5/6 lg:card-side bordered shadow">
+        <div id="loadData" class="ml-36 flex justify-left items-center space-x-6">
+            <div class="card w-4/6 lg:card-side bordered shadow">
                 <div class="card-body">
                     <h2 class="card-title">Load Data</h2>
                     <p>Upload either a mtx file (w/ barcodes and/or genes) or generate [random] test data to use the app
                     </p>
-                    <div class="flex justify-evenly">
+                    <div class="flex justify-left items-center">
                         <div class="form-control">
                             <label class="label">
                                 <span class="label-text">Upload MTX File</span>
@@ -210,16 +201,26 @@
                     </div>
                 </div>
             </div>
+            <!-- <div class="card w-3/6 lg:card-side bordered shadow"> -->
+            <div class="shadow stats">
+                <div id="odata" class="stat">
+                    <div class="stat-title">Matrix Dims</div>
+                    <div class="stat-value">?????</div>
+                    <div class="stat-desc">...</div>
+                </div>
+            </div>
+            <!-- </div> -->
         </div>
 
-        <div id="performQC" class="flex justify-center">
-            <div class="card w-5/6 lg:card-side bordered shadow">
+        <div id="performQC" class="ml-36 flex justify-left items-center space-x-6">
+            <div class="card w-4/6 lg:card-side bordered shadow">
                 <div class="card-body">
                     <h2 class="card-title">Perform QC</h2>
                     <p>Generate per cell QC metrics and filter cells</p>
                     <div class="form-control">
                         <label class="label">
-                            <span class="label-text">NMADS: Number of MADs from the median, to use for defining outliers. (defaults to 3)</span>
+                            <span class="label-text">NMADS: Number of MADs from the median, to use for defining
+                                outliers. (defaults to 3)</span>
                         </label>
                         <div class="relative">
                             <input id="qc-nmads-input" type="number" placeholder="3"
@@ -234,9 +235,17 @@
                     </div>
                 </div>
             </div>
+
+            <div class="shadow stats">
+                <div id="fdata" class="stat">
+                    <div class="stat-title">Filtered Matrix Dims</div>
+                    <div class="stat-value">?????</div>
+                    <div class="stat-desc">...</div>
+                </div>
+            </div>
         </div>
 
-        <div id="featureSelection" class="flex justify-center">
+        <div id="featureSelection" class="ml-36 flex justify-left items-center space-x-6">
             <div class="card w-5/6 lg:card-side bordered shadow">
                 <div class="card-body">
                     <h2 class="card-title">Feature Selection</h2>
@@ -245,7 +254,8 @@
                     </p>
                     <div class="form-control">
                         <label class="label">
-                            <span class="label-text">Span factor: The span of the LOWESS smoother for fitting the mean-variance trend. (defaults to 0.3)</span>
+                            <span class="label-text">Span factor: The span of the LOWESS smoother for fitting the
+                                mean-variance trend. (defaults to 0.3)</span>
                         </label>
                         <div class="relative">
                             <input id="fsel-input" type="number" placeholder="0.3"
@@ -283,11 +293,12 @@
             </div>
         </div>
 
-        <div id="performPCA" class="flex justify-center">
+        <div id="performPCA" class="ml-36 flex justify-left items-center space-x-6">
             <div class="card w-5/6 lg:card-side bordered shadow">
                 <div class="card-body">
                     <h2 class="card-title">Perform PCA</h2>
-                    <p>Perform a principal components analysis to obtain per-cell coordinates in low-dimensional space.</p>
+                    <p>Perform a principal components analysis to obtain per-cell coordinates in low-dimensional space.
+                    </p>
                     <div class="form-control">
                         <label class="label">
                             <span class="label-text">Choose # of PCs (defaults to 5)</span>
@@ -306,7 +317,30 @@
             </div>
         </div>
 
-        <div id="performCluster" class="flex justify-center">
+        <div id="performTSNE" class="ml-36 flex justify-left items-center space-x-6">
+            <div class="card w-5/6 lg:card-side bordered shadow">
+                <div class="card-body">
+                    <h2 class="card-title">Compute TSNE</h2>
+                    <p>Perform TSNE.</p>
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text">Choose Iterations (defaults to 200)</span>
+                        </label>
+                        <div class="relative">
+                            <input id="tsne-input" type="number" placeholder="200"
+                                class="w-full pr-16 input input-primary input-bordered">
+                        </div>
+                    </div>
+                    <div id="tsne_charts" class="flex flex-wrap justify-evenly"></div>
+                    <div class="card-actions">
+                        <button id="tsne-submit" class="btn btn-primary">Compute TSNE</button>
+                        <!-- <button id="mtx-generate-submit" class="btn btn-ghost">Generate Test Data</button> -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="performCluster" class="ml-36 flex justify-left items-center space-x-6">
             <div class="card w-5/6 lg:card-side bordered shadow">
                 <div class="card-body">
                     <h2 class="card-title">Perform Clustering</h2>
