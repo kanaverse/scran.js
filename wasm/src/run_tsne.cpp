@@ -57,11 +57,14 @@ TsneStatus initialize_tsne(uintptr_t mat, int nr, int nc, double perplexity, boo
 
     qdtsne::Tsne factory;
     factory.set_perplexity(perplexity);
+    std::unique_ptr<knncolle::Base<> > search;
     if (approximate) {
-        return TsneStatus(factory.template initialize<knncolle::AnnoyEuclidean<> >(ptr, nr, nc));
+        search.reset(new knncolle::AnnoyEuclidean<>(nr, nc, ptr));
     } else {
-        return TsneStatus(factory.template initialize<>(ptr, nr, nc));
+        search.reset(new knncolle::VpTreeEuclidean<>(nr, nc, ptr));
     }
+
+    return TsneStatus(factory.template initialize<>(search.get()));
 }
     
 /**
