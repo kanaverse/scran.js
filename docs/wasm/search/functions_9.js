@@ -1,5 +1,6 @@
 var searchData=
 [
-  ['operator_28_29_78',['operator()',['../structUnzlibber.html#a702f232ffd5b58049b463528e3dfe78d',1,'Unzlibber']]],
-  ['operator_3d_79',['operator=',['../structUnzlibber_1_1ZStream.html#a644f94e32600728e92b43be2dacc0eec',1,'Unzlibber::ZStream::operator=(const ZStream &amp;)=delete'],['../structUnzlibber_1_1ZStream.html#a3f782e5805e9a26613455edc77fe662f',1,'Unzlibber::ZStream::operator=(ZStream &amp;&amp;)=delete']]]
+  ['ncol_84',['ncol',['../structNumericMatrix.html#ad21bf001b87002dcb346d9fcdd4e8a60',1,'NumericMatrix']]],
+  ['nrow_85',['nrow',['../structNumericMatrix.html#aca9949603c5969178a3d43eb1a352f63',1,'NumericMatrix']]],
+  ['numericmatrix_86',['NumericMatrix',['../structNumericMatrix.html#ad2a44d614c57a6bf2a3e400167ebb3e8',1,'NumericMatrix::NumericMatrix(const tatami::NumericMatrix *p)'],['../structNumericMatrix.html#a03837f6ccdc2da8a2caa7e2772a2a0fd',1,'NumericMatrix::NumericMatrix(std::shared_ptr&lt; const tatami::NumericMatrix &gt; p)'],['../structNumericMatrix.html#af316832630f2a6bd5bd815ffce78018c',1,'NumericMatrix::NumericMatrix(int nr, int nc, uintptr_t values)']]]
 ];

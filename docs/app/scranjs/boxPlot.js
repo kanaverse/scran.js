@@ -4,12 +4,12 @@ class boxPlot {
         this.props = properties;
         this.id = id;
 
-        this.props.width = "500px";
-        this.props.height = "500px"
+        this.props.width = 400;
+        this.props.height = 300;
 
-        this.container.style.height = this.props.height;
-        this.container.style.width = this.props.width;
-        this.container.insertAdjacentHTML('beforeend', '<svg id="svg-' + id + '" class="visualization" width="500" height="500"><style type="text/css"></style><defs></defs></svg>',);
+        this.container.style.height = this.props.height + "px";
+        this.container.style.width = this.props.width + "px";
+        this.container.insertAdjacentHTML('beforeend', '<svg id="svg-' + id + `" class="visualization" width="${this.props.width}" height="${this.props.height}"><style type="text/css"></style><defs></defs></svg>,`);
         this.svg = d3.select('#svg-' + id);
 
         this.chartContent = this.svg.append('g').attr('class', 'chart-content');
@@ -20,7 +20,7 @@ class boxPlot {
 
     draw(data, key, dimx, dimy, threshold) {
         var self = this;
-        var circleRadius = 1.7
+        var circleRadius = 0.8
         var gridSquareSize = Math.max(Math.floor(circleRadius), 1);
 
         var margins = {
@@ -30,8 +30,8 @@ class boxPlot {
             left: 60
         };
 
-        var width = 480;
-        var height = 450;
+        var width = this.props.width - 50;
+        var height = this.props.height - 50;
 
         var minYdata = data[dimy][0];
         var maxYdata = data[dimy][0];
@@ -198,9 +198,9 @@ class boxPlot {
 
                     var cx = (margins.left + (cellX - minX) * (width - margins.left - margins.right) / (maxX - minX));
                     if (finished % 2 == 0) {
-                        cx += (finished / 2) * xScale(0.014);
+                        cx += (finished / 2) * xScale(0.009);
                     } else {
-                        cx -= Math.ceil(finished / 2) * xScale(0.014);
+                        cx -= Math.ceil(finished / 2) * xScale(0.009);
                     }
 
                     gridYCountFinished[gridY][gridX]++;

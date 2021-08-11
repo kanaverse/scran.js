@@ -69,9 +69,9 @@ class App {
                             window.app.worker.postMessage({
                                 "type": "QCThresholds",
                                 "input": [
-                                    self.qcBoxPlots['qc_sums'].threshold,
-                                    self.qcBoxPlots['qc_detected'].threshold,
-                                    Math.min([self.qcBoxPlots['qc_proportion'].threshold], 100)
+                                    Math.pow(2, self.qcBoxPlots['qc_sums'].threshold),
+                                    Math.pow(2, self.qcBoxPlots['qc_detected'].threshold),
+                                    Math.pow(2, Math.min([self.qcBoxPlots['qc_proportion'].threshold], 100))
                                 ], // sums, detected & threshold 
                                 "msg": "not much to pass"
                             });
@@ -79,12 +79,12 @@ class App {
 
                         var plot = self.qcBoxPlots[eid];
                         plot.threshold = threshold;
-    
+
                         var pData = {
                             "y": vec,
                             "x": key != "proportion" ? "log-" + key : key
                         };
-    
+
                         plot.draw(pData, "", 'x', 'y', threshold);
                     }
                 });
@@ -152,6 +152,66 @@ class App {
                 }
 
                 Plotly.newPlot(elem.id, data, layout);
+            } else if (payload.type == "TSNE") {
+                const payload = msg.data;
+                console.log(payload);
+
+                var cont = document.getElementById("tsne_charts");
+                var elem = document.createElement("div");
+                elem.style.width = "500px";
+                elem.style.height = "500px";
+                cont.appendChild(elem);
+
+                var tsne1 = [], tsne2 = [], sample = [];
+                var payload_vals = Object.values(payload.resp["tsne"]);
+                var min = 1000, max=-1000;
+                for (var i = 0; i < payload_vals.length; i++) {
+                    if (i % 2 == 0) {
+                        tsne1.push(payload_vals[i]);
+                    }
+                    else {
+                        tsne2.push(payload_vals[i]);
+                        sample.push("sample");
+                    }
+                }
+
+                const visualization = new WebGLVis(elem);
+                visualization.addToDom();
+                visualization.setSchema({
+                    defaultData: {
+                        "tsne1": tsne1,
+                        "tsne2": tsne2,
+                        "sample": sample
+                    },
+                    "labels": [
+                        {
+                          "y": -1.3,
+                          "x": 0,
+                          "text": "Iteration " + payload.resp["iteration"],
+                          "fixedX": true
+                        }
+                      ],
+                    tracks: [
+                        {
+                            "mark": "point",
+                            "x": {
+                                "attribute": "tsne1",
+                                "type": "quantitative",
+                                "domain": [-500, 500]// [Math.min(...tsne1), Math.max(...tsne1)]
+                            },
+                            "y": {
+                                "attribute": "tsne2",
+                                "type": "quantitative",
+                                "domain": [-500, 500] //[Math.min(...tsne2), Math.max(...tsne2)]
+                            },
+                            "color": {
+                                "value": "blue",
+                            },
+                            "opacity": { "value": 0.6 }
+                        },
+                    ],
+                });
+
             } else if (payload.type == "CLUS") {
                 const payload = msg.data;
                 var x = {};
@@ -181,7 +241,59 @@ class App {
                     title: "Cells per cluster"
                 }
 
-                // Plotly.newPlot(elem.id, data, layout);
+                Plotly.newPlot(elem.id, data, layout);
+
+                var elem2 = document.createElement("div");
+                elem2.style.width = "500px";
+                elem2.style.height = "500px";
+                cont.appendChild(elem2);
+
+                var tsne1 = [], tsne2 = [];
+                var payload_vals = Object.values(payload.resp["tsne"]);
+                var min = 1000, max=-1000;
+                for (var i = 0; i < payload_vals.length; i++) {
+                    if (i % 2 == 0) {
+                        tsne1.push(payload_vals[i]);
+                    }
+                    else {
+                        tsne2.push(payload_vals[i]);
+                        // sample.push("sample");
+                    }
+                }
+
+                var samples = Object.values(payload.resp["clusters"]);
+
+                const visualization = new WebGLVis(elem2);
+                visualization.addToDom();
+                visualization.setSchema({
+                    defaultData: {
+                        "tsne1": tsne1,
+                        "tsne2": tsne2,
+                        "sample": samples
+                    },
+                    tracks: [
+                        {
+                            "mark": "point",
+                            "x": {
+                                "attribute": "tsne1",
+                                "type": "quantitative",
+                                "domain": [-500, 500] //[Math.min(...tsne1), Math.max(...tsne1)]
+                            },
+                            "y": {
+                                "attribute": "tsne2",
+                                "type": "quantitative",
+                                "domain": [-500, 500]  //[Math.min(...tsne2), Math.max(...tsne2)]
+                            },
+                            "color": {
+                                "attribute": "sample",
+                                "type": "categorical",
+                                "cardinality": Math.max(...samples),
+                                "colorScheme": "interpolateRainbow"
+                              },
+                            "opacity": { "value": 0.6 }
+                        },
+                    ],
+                });
             }
         }
 
@@ -210,10 +322,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     document.getElementById("mtx-generate-submit").addEventListener("click", (event) => {
-        var mtx = document.getElementById("mtx-upload-file").files;
-        var barcodes = document.getElementById("barcodes-upload-file").files;
-        var genes = document.getElementById("genes-upload-file").files;
-
         window.app.worker.postMessage({
             "type": "GENERATE_DATA",
             "msg": []
@@ -222,6 +330,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.getElementById("qc-submit").addEventListener("click", (event) => {
         var val = document.getElementById("qc-nmads-input").value;
+        if (!val) { val = 3; }
         window.app.worker.postMessage({
             "type": "QC",
             "input": [parseFloat(val)], // sums, detected & threshold 
@@ -262,6 +371,19 @@ document.addEventListener("DOMContentLoaded", () => {
         window.app.worker.postMessage({
             "type": "PCA",
             "input": [parseInt(val)],
+            "msg": "not much to pass"
+        });
+    });
+
+    document.getElementById("tsne-submit").addEventListener("click", (event) => {
+        var iter = document.getElementById("tsne-input-iterations").value;
+        var perp = document.getElementById("tsne-input-perplexity").value;
+
+        if (!iter) { iter = 200; }
+        if (!perp) { perp = 30; }
+        window.app.worker.postMessage({
+            "type": "TSNE",
+            "input": [parseInt(perp), parseInt(iter)],
             "msg": "not much to pass"
         });
     });

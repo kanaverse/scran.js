@@ -1,6 +1,5 @@
 var searchData=
 [
-  ['read_5fmatrix_5fmarket_82',['read_matrix_market',['../read__matrix__market_8cpp.html#ae97d4b17f48f6d25070f7e6dc91e20b3',1,'read_matrix_market.cpp']]],
-  ['row_83',['row',['../structNumericMatrix.html#a428afa5858a25c1c6b8861900e0dad7b',1,'NumericMatrix']]],
-  ['run_5fpca_84',['run_pca',['../run__pca_8cpp.html#a621610cf19d42bda18cb5f2ca9c42c54',1,'run_pca.cpp']]]
+  ['per_5fcell_5fqc_5ffilters_89',['per_cell_qc_filters',['../per__cell__qc__filters_8cpp.html#a9b2c265d22a1bb9c2ed43fdfc737b92d',1,'per_cell_qc_filters.cpp']]],
+  ['per_5fcell_5fqc_5fmetrics_90',['per_cell_qc_metrics',['../per__cell__qc__metrics_8cpp.html#a41e250b8bea6e044ffedb689c0304d3e',1,'per_cell_qc_metrics.cpp']]]
 ];
