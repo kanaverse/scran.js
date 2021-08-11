@@ -440,7 +440,7 @@ class scran {
     // console.log(pcs.vector);
     // console.log(var_exp.vector);
 
-    Module.run_pca(
+    this.wasm.run_pca(
       this.filteredMatrix,
       this.n_pcs, false, sub.ptr,
       false, pcs.ptr,
@@ -449,12 +449,60 @@ class scran {
     var pcs = this.getVector("mat_PCA");
     var var_exp = this.getVector("var_exp_PCA");
 
+    this.init_tsne = null;
+
     // console.log(pcs.vector);
     // console.log(var_exp.vector);
 
     return {
       // "pcs": pcs,
       "var_exp": var_exp
+    }
+  }
+
+  tsne(perplexity, iterations) {
+    var self = this;
+    var tsne = this.createMemorySpace(
+      this.filteredMatrix.ncol() * 2,
+      "Float64Array",
+      "tsne"
+    );
+
+    // console.log(this.getVector("mat_PCA"));
+    var pcs = this.getMemorySpace("mat_PCA");
+
+    if (!this.init_tsne) {
+      this.init_tsne = this.wasm.initialize_tsne(
+        pcs.ptr, this.n_pcs,
+        this.filteredMatrix.ncol(),
+        perplexity, false, tsne.ptr);
+    }
+
+    this.wasm.run_tsne(this.init_tsne, 300, tsne.ptr);
+    console.log(this.init_tsne.iterations());
+    this._lastIter = 0;
+
+    var iterator = setInterval(() => {
+
+      if (self.init_tsne.iterations() >= iterations) {
+        clearInterval(iterator);
+      }
+
+      postMessage({
+        type: "TSNE",
+        resp: JSON.parse(JSON.stringify({
+          "tsne": self.getVector("tsne"),
+          "iteration": self.init_tsne.iterations()
+        })),
+        msg: `Success: TSNE done, ${self.filteredMatrix.nrow()}, ${self.filteredMatrix.ncol()}`
+      });
+
+      self.wasm.run_tsne(self.init_tsne, 300, tsne.ptr);
+    }, 300);
+
+    return {
+      "tsne": self.getVector("tsne"),
+      "iteration": self._lastIter
     }
   }
 
@@ -467,40 +515,13 @@ class scran {
 
     var pcs = this.getMemorySpace("mat_PCA");
 
-    Module.cluster_snn_graph(this.n_pcs, this.filteredMatrix.ncol(), pcs.ptr, 2, 0.5, clusters.ptr);
+    this.wasm.cluster_snn_graph(this.n_pcs, this.filteredMatrix.ncol(), pcs.ptr, 2, 0.5, clusters.ptr);
     var arr_clust = this.getVector("clusters");
     // console.log(arr_clust);
 
     return {
+      "tsne": this.getVector("tsne"),
       "clusters": arr_clust,
-    }
-  }
-
-  tsne(iterations) {
-    var tsne = this.createMemorySpace(
-      this.filteredMatrix.ncol() * 2,
-      "Float64Array",
-      "tsne"
-    );
-
-    // console.log(this.getVector("mat_PCA"));
-    var pcs = this.getVector("mat_PCA");
-
-    var stuff = this.wasm.initialize_tsne(
-      pcs.ptr, this.n_pcs,
-      this.filteredMatrix.ncol(),
-      iterations, false, tsne.ptr);
-
-    // console.log(stuff.iterations());
-    // console.log(this.getVector("tsne"));
-    // this.wasm.run_tsne(stuff, 100, tsne.ptr);
-    // console.log(stuff.iterations());
-    // console.log(this.getVector("tsne"));
-    // Module.run_tsne(stuff, 100, tsne.ptr);
-    console.log(stuff.iterations());
-
-    return {
-      "tsne": this.getVector("tsne")
     }
   }
 
