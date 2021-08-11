@@ -202,9 +202,10 @@ onmessage = function (msg) {
         postMessage({
             type: payload.type,
             resp: JSON.parse(JSON.stringify(resp)),
-            msg: `Success: PCA done, ${data.filteredMatrix.nrow()}, ${data.filteredMatrix.ncol()}`
+            msg: `Success: PCA done, ${data.filteredMatrix.nrow()}, ${data.filteredMatrix.ncol()}` + " took " + (t1 - t0) + " milliseconds."
         })
     } else if (payload.type == "TSNE") {
+        data.init_tsne = null;
         var t0 = performance.now();
         var resp = data.tsne(payload.input[0], payload.input[1]);
         var t1 = performance.now();
@@ -213,7 +214,7 @@ onmessage = function (msg) {
         postMessage({
             type: payload.type,
             resp: JSON.parse(JSON.stringify(resp)),
-            msg: `Success: TSNE done, ${data.filteredMatrix.nrow()}, ${data.filteredMatrix.ncol()}`
+            msg: `Success: TSNE done, ${data.filteredMatrix.nrow()}, ${data.filteredMatrix.ncol()}` + " took " + (t1 - t0) + " milliseconds."
         });
     } else if (payload.type == "CLUS") {
         var t0 = performance.now();
@@ -224,7 +225,7 @@ onmessage = function (msg) {
         postMessage({
             type: payload.type,
             resp: JSON.parse(JSON.stringify(resp)),
-            msg: `Success: CLUS done, ${data.filteredMatrix.nrow()}, ${data.filteredMatrix.ncol()}`
+            msg: `Success: CLUS done, ${data.filteredMatrix.nrow()}, ${data.filteredMatrix.ncol()}` + " took " + (t1 - t0) + " milliseconds."
         })
 
         // var t0 = performance.now();

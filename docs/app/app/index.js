@@ -366,6 +366,10 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     document.getElementById("pca-submit").addEventListener("click", (event) => {
+
+        document.getElementById("tsne_charts").innerHTML = "";
+        document.getElementById("cluster_charts").innerHTML = "";
+
         var val = document.getElementById("pcs-input").value;
         if (!val) { val = 5; }
         window.app.worker.postMessage({
@@ -376,6 +380,10 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     document.getElementById("tsne-submit").addEventListener("click", (event) => {
+
+        document.getElementById("tsne_charts").innerHTML = "";
+        document.getElementById("cluster_charts").innerHTML = "";
+
         var iter = document.getElementById("tsne-input-iterations").value;
         var perp = document.getElementById("tsne-input-perplexity").value;
 
@@ -389,6 +397,9 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     document.getElementById("cluster-submit").addEventListener("click", (event) => {
+
+        document.getElementById("cluster_charts").innerHTML = "";
+
         window.app.worker.postMessage({
             "type": "CLUS",
             "msg": "not much to pass"
