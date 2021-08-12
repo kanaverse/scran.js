@@ -6,6 +6,7 @@
 #include <vector>
 #include <cmath>
 #include <chrono>
+#include <random>
 
 /**
  * @brief The status of the t-SNE algorithm.
@@ -50,13 +51,13 @@ struct TsneStatus {
 TsneStatus initialize_tsne(uintptr_t mat, int nr, int nc, double perplexity, bool approximate, uintptr_t Y) {
     const double* ptr = reinterpret_cast<const double*>(mat);
     double* yptr = reinterpret_cast<double*>(Y);
+    std::mt19937_64 rng(1234567890);
+    std::normal_distribution<> dist(0.0, 1.0);
     for (int c = 0; c < nc; ++c) {
-        yptr[c * 2] = ptr[c * nr];
-        yptr[c * 2 + 1] = ptr[c * nr + 1];
+        yptr[c * 2] = dist(rng);
+        yptr[c * 2 + 1] = dist(rng);
     }
 
-    qdtsne::Tsne factory;
-    factory.set_perplexity(perplexity);
     std::unique_ptr<knncolle::Base<> > search;
     if (approximate) {
         search.reset(new knncolle::AnnoyEuclidean<>(nr, nc, ptr));
@@ -64,6 +65,8 @@ TsneStatus initialize_tsne(uintptr_t mat, int nr, int nc, double perplexity, boo
         search.reset(new knncolle::VpTreeEuclidean<>(nr, nc, ptr));
     }
 
+    qdtsne::Tsne factory;
+    factory.set_perplexity(perplexity);
     return TsneStatus(factory.template initialize<>(search.get()));
 }
     
