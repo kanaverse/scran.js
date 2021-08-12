@@ -507,17 +507,12 @@ class scran {
   }
 
   cluster() {
-    var clusters = this.createMemorySpace(
-      this.filteredMatrix.ncol(),
-      "Int32Array",
-      "clusters"
-    );
-
     var pcs = this.getMemorySpace("mat_PCA");
-
-    this.wasm.cluster_snn_graph(this.n_pcs, this.filteredMatrix.ncol(), pcs.ptr, 2, 0.5, clusters.ptr);
-    var arr_clust = this.getVector("clusters");
-    // console.log(arr_clust);
+    var clustering = this.wasm.cluster_snn_graph(this.n_pcs, this.filteredMatrix.ncol(), pcs.ptr, 2, 0.5);
+    var arr_clust_raw = clustering.membership(clustering.best());
+    console.log(arr_clust_raw);
+    var arr_clust = arr_clust_raw.slice();
+    clustering.delete();
 
     return {
       "tsne": this.getVector("tsne"),
