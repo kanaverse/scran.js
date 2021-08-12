@@ -49,16 +49,10 @@ struct TsneStatus {
  * @return A `TsneStatus` object that can be passed to `run_tsne()` to create 
  */
 TsneStatus initialize_tsne(uintptr_t mat, int nr, int nc, double perplexity, bool approximate, uintptr_t Y) {
-    const double* ptr = reinterpret_cast<const double*>(mat);
-    double* yptr = reinterpret_cast<double*>(Y);
-    std::mt19937_64 rng(1234567890);
-    std::normal_distribution<> dist(0.0, 1.0);
-    for (int c = 0; c < nc; ++c) {
-        yptr[c * 2] = dist(rng);
-        yptr[c * 2 + 1] = dist(rng);
-    }
+    qdtsne::initialize_random(reinterpret_cast<double*>(Y), nc);
 
     std::unique_ptr<knncolle::Base<> > search;
+    const double* ptr = reinterpret_cast<const double*>(mat);
     if (approximate) {
         search.reset(new knncolle::AnnoyEuclidean<>(nr, nc, ptr));
     } else {
