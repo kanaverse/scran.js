@@ -268,50 +268,14 @@ class scran {
   }
 
   fSelection(span) {
-    var means = this.createMemorySpace(this.filteredMatrix.nrow(),
-      "Float64Array", "fsel_means");
+    var model_output = this.wasm.model_gene_var(this.filteredMatrix, false, 0, span);
 
-    var means_array = this.createMemorySpace(1,
-      "Uint32Array", "fsel_means_arr");
+    var means_vec2 = model_output.means(0).slice();
+    var vars_vec2 = model_output.variances(0).slice();
+    var fitted_vec2 = model_output.fitted(0).slice();
+    var resids_vec2 = model_output.residuals(0).slice();
 
-    var means_vec = this.getVector("fsel_means_arr");
-    means_vec[0] = means.ptr;
-
-    var vars = this.createMemorySpace(this.filteredMatrix.nrow(),
-      "Float64Array", "fsel_vars");
-
-    var vars_array = this.createMemorySpace(1,
-      "Uint32Array", "fsel_vars_arr");
-
-    var vars_vec = this.getVector("fsel_vars_arr");
-    vars_vec[0] = vars.ptr;
-
-    var fitted = this.createMemorySpace(this.filteredMatrix.nrow(),
-      "Float64Array", "fsel_fitted");
-    var fitted_array = this.createMemorySpace(1,
-      "Uint32Array", "fsel_fitted_arr");
-
-    var fitted_vec = this.getVector("fsel_fitted_arr");
-    fitted_vec[0] = fitted.ptr;
-
-    var resids = this.createMemorySpace(this.filteredMatrix.nrow(),
-      "Float64Array", "fsel_resids");
-    var resids_array = this.createMemorySpace(1,
-      "Uint32Array", "fsel_resids_arr");
-
-    var resids_vec = this.getVector("fsel_resids_arr");
-    resids_vec[0] = resids.ptr;
-
-    this.wasm.model_gene_var(this.filteredMatrix, false, 0,
-      span, means.ptr,
-      vars.ptr,
-      fitted.ptr,
-      resids.ptr);
-
-    var means_vec2 = this.getVector("fsel_means");
-    var vars_vec2 = this.getVector("fsel_vars");
-    var fitted_vec2 = this.getVector("fsel_fitted");
-    var resids_vec2 = this.getVector("fsel_resids");
+    model_output.delete();
 
     return {
       "means": means_vec2,
