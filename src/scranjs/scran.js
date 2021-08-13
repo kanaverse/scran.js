@@ -345,7 +345,9 @@ class scran {
         perplexity, false, tsne.ptr);
     }
 
-    this.wasm.run_tsne(this.init_tsne, 300, tsne.ptr);
+    var delay = 300;
+    var maxiter = 1000;
+    this.wasm.run_tsne(this.init_tsne, delay, maxiter, tsne.ptr);
     console.log(this.init_tsne.iterations());
     this._lastIter = 0;
 
@@ -364,8 +366,8 @@ class scran {
         msg: `Success: TSNE done, ${self.filteredMatrix.nrow()}, ${self.filteredMatrix.ncol()}`
       });
 
-      self.wasm.run_tsne(self.init_tsne, 300, tsne.ptr);
-    }, 300);
+      self.wasm.run_tsne(self.init_tsne, delay, maxiter, tsne.ptr);
+    }, delay);
 
     return {
       "tsne": self.getVector("tsne"),

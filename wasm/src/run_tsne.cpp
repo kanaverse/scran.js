@@ -76,14 +76,15 @@ TsneStatus initialize_tsne(uintptr_t mat, int nr, int nc, double perplexity, boo
  * @param status A `TsneStatus` object created by `initialize_status()`.
  * @param runtime Number of milliseconds to run before returning. 
  * Iterations are performed until the specified `runtime` is exceeded.
- * At least `min_iter` iterations are always performed.
+ * @param maxiter Maximum number of iterations to perform.
+ * The function will return even if `runtime` has not been exceeded.
  * @param[in, out] Y Offset to a two-dimensional array containing the initial coordinates.
  * Each row corresponds to a dimension, each column corresponds to a cell, and the matrix is in column-major format.
  * On output, this will be filled with the updated coordinates.
  *
  * @return `Y` and `TsneStatus` are updated with the latest results.
  */
-void run_tsne(TsneStatus& status, int runtime, uintptr_t Y) {
+void run_tsne(TsneStatus& status, int runtime, int maxiter, uintptr_t Y) {
     qdtsne::Tsne factory;
     double* ptr = reinterpret_cast<double*>(Y);
     int iter = status.iterations();
@@ -92,7 +93,7 @@ void run_tsne(TsneStatus& status, int runtime, uintptr_t Y) {
     do {
         ++iter;
         factory.set_max_iter(iter).run(status.status, ptr);
-    } while (std::chrono::steady_clock::now() < end);
+    } while (iter < maxiter && std::chrono::steady_clock::now() < end);
 
     return;
 }
