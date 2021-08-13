@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['multilevelclusterresults_59',['MultilevelClusterResults',['../structMultilevelClusterResults.html',1,'']]]
+  ['multilevelclusterresults_72',['MultilevelClusterResults',['../structMultilevelClusterResults.html',1,'']]]
 ];

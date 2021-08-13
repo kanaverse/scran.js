@@ -69,9 +69,13 @@ $(function() {
 <div class="title">per_cell_qc_metrics.cpp File Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p>Compute per-cell QC metrics from the count matrix.  
+<a href="#details">More...</a></p>
 <div class="textblock"><code>#include &lt;emscripten/bind.h&gt;</code><br />
 <code>#include &quot;<a class="el" href="NumericMatrix_8h_source.html">NumericMatrix.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="utils_8h_source.html">utils.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="PerCellQCMetrics__Results_8h_source.html">PerCellQCMetrics_Results.h</a>&quot;</code><br />
 <code>#include &quot;scran/quality_control/PerCellQCMetrics.hpp&quot;</code><br />
 <code>#include &lt;vector&gt;</code><br />
 <code>#include &lt;cstdint&gt;</code><br />
@@ -80,33 +84,36 @@ Include dependency graph for per_cell_qc_metrics.cpp:</div>
 <div class="dyncontent">
 <div class="center"><img src="per__cell__qc__metrics_8cpp__incl.png" border="0" usemap="#aper__cell__qc__metrics_8cpp" alt=""/></div>
 <map name="aper__cell__qc__metrics_8cpp" id="aper__cell__qc__metrics_8cpp">
-<area shape="rect" title=" " alt="" coords="258,5,421,32"/>
-<area shape="rect" title=" " alt="" coords="5,87,129,114"/>
-<area shape="rect" href="NumericMatrix_8h.html" title=" " alt="" coords="153,87,269,114"/>
-<area shape="rect" href="utils_8h.html" title=" " alt="" coords="345,87,401,114"/>
-<area shape="rect" title=" " alt="" coords="313,169,371,196"/>
-<area shape="rect" title=" " alt="" coords="403,169,465,196"/>
-<area shape="rect" title=" " alt="" coords="475,80,630,121"/>
-<area shape="rect" href="JSVector_8h.html" title=" " alt="" coords="52,169,139,196"/>
-<area shape="rect" title=" " alt="" coords="163,169,271,196"/>
-<area shape="rect" title=" " alt="" coords="63,244,128,271"/>
+<area shape="rect" title="Compute per&#45;cell QC metrics from the count matrix." alt="" coords="455,5,618,32"/>
+<area shape="rect" title=" " alt="" coords="264,162,388,189"/>
+<area shape="rect" href="NumericMatrix_8h.html" title=" " alt="" coords="121,80,237,107"/>
+<area shape="rect" href="utils_8h.html" title=" " alt="" coords="625,80,681,107"/>
+<area shape="rect" title=" " alt="" coords="602,162,661,189"/>
+<area shape="rect" title=" " alt="" coords="686,162,747,189"/>
+<area shape="rect" href="PerCellQCMetrics__Results_8h.html" title="Store the per&#45;cell QC metrics, obviously." alt="" coords="313,80,499,107"/>
+<area shape="rect" title=" " alt="" coords="419,155,574,196"/>
+<area shape="rect" href="JSVector_8h.html" title=" " alt="" coords="137,162,224,189"/>
+<area shape="rect" title=" " alt="" coords="5,162,113,189"/>
+<area shape="rect" title=" " alt="" coords="148,244,213,271"/>
 </map>
 </div>
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a41e250b8bea6e044ffedb689c0304d3e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="per__cell__qc__metrics_8cpp.html#a41e250b8bea6e044ffedb689c0304d3e">per_cell_qc_metrics</a> (const <a class="el" href="structNumericMatrix.html">NumericMatrix</a> &amp;mat, int nsubsets, uintptr_t subsets, uintptr_t sums, uintptr_t detected, uintptr_t proportions)</td></tr>
-<tr class="separator:a41e250b8bea6e044ffedb689c0304d3e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a32328fe460f166eb37cb07a23f19280a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structPerCellQCMetrics__Results.html">PerCellQCMetrics_Results</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="per__cell__qc__metrics_8cpp.html#a32328fe460f166eb37cb07a23f19280a">per_cell_qc_metrics</a> (const <a class="el" href="structNumericMatrix.html">NumericMatrix</a> &amp;mat, int nsubsets, uintptr_t subsets)</td></tr>
+<tr class="separator:a32328fe460f166eb37cb07a23f19280a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Function Documentation</h2>
-<a id="a41e250b8bea6e044ffedb689c0304d3e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a41e250b8bea6e044ffedb689c0304d3e">&#9670;&nbsp;</a></span>per_cell_qc_metrics()</h2>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Compute per-cell QC metrics from the count matrix. </p>
+</div><h2 class="groupheader">Function Documentation</h2>
+<a id="a32328fe460f166eb37cb07a23f19280a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a32328fe460f166eb37cb07a23f19280a">&#9670;&nbsp;</a></span>per_cell_qc_metrics()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void per_cell_qc_metrics </td>
+          <td class="memname"><a class="el" href="structPerCellQCMetrics__Results.html">PerCellQCMetrics_Results</a> per_cell_qc_metrics </td>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="structNumericMatrix.html">NumericMatrix</a> &amp;&#160;</td>
           <td class="paramname"><em>mat</em>, </td>
@@ -121,25 +128,7 @@ Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">uintptr_t&#160;</td>
-          <td class="paramname"><em>subsets</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">uintptr_t&#160;</td>
-          <td class="paramname"><em>sums</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">uintptr_t&#160;</td>
-          <td class="paramname"><em>detected</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">uintptr_t&#160;</td>
-          <td class="paramname"><em>proportions</em>&#160;</td>
+          <td class="paramname"><em>subsets</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -148,19 +137,16 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Compute some basic -cell QC metrics.</p>
+<p>Compute some basic per-cell QC metrics.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir"></td><td class="paramname">mat</td><td>A <code><a class="el" href="structNumericMatrix.html" title="A numeric matrix that stores conceptual doubles.">NumericMatrix</a></code> object containing features in rows and cells in columns. </td></tr>
     <tr><td class="paramdir"></td><td class="paramname">nsubsets</td><td>Number of feature subsets to be considered. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">subsets</td><td>Offset to a 2D array of <code>uint8_t</code>s with number of rows and columns equal to <code>mat.nrow()</code> and <code>nsubsets</code>, respectively. The array should be column-major where each column corresponds to a feature subset and each value indicates whether each feature in <code>mat</code> belongs to that subset.</td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">sums</td><td>Offset to an output buffer of <code>double</code>s with <code>mat.ncol()</code> elements, containing the total sum of counts for all cells. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">detected</td><td>Offset to an output buffer of <code>int32_t</code>s with <code>mat.ncol()</code> elements, containing the number of detected features for all cells. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">proportions</td><td>Offset to a 2D array of <code>double</code>s with number of rows and columns equal to <code>mat.ncol()</code> and <code>subsets</code>, respectively. The array should be column-major where each column corresponds to a subset and each value contains the proportion of counts assigned to that subset in each cell.</td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>All arrays in <code>sums</code>, <code>detected</code>, <code>proportions</code> and <code>discard_overall</code> are filled. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>A <code><a class="el" href="structPerCellQCMetrics__Results.html" title="Javascript-visible wrapper around scran::PerCellQCMetrics::Results.">PerCellQCMetrics_Results</a></code> object that can be interrogated to obtain each QC metric. </dd></dl>
 
 </div>
 </div>

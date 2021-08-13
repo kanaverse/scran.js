@@ -188,18 +188,6 @@ class scran {
 
   // pretty much from PR #1 Aaron's code
   qcMetrics(nmads) {
-    var sums = this.createMemorySpace(
-      this.matrix.ncol(),
-      "Float64Array",
-      "qc_sums"
-    );
-
-    var detected = this.createMemorySpace(
-      this.matrix.ncol(),
-      "Int32Array",
-      "qc_detected"
-    );
-
     var nsubsets = 1;
     var subsets = this.createMemorySpace(
       this.matrix.nrow() * nsubsets,
@@ -220,118 +208,42 @@ class scran {
     // console.log(this.getVector("qc_subsets", 0, 2));
     // console.log(this.getVector("qc_subsets", 1, 2));
 
-    var proportions = this.createMemorySpace(
-      this.matrix.ncol() * nsubsets,
-      "Float64Array",
-      "qc_proportions"
-    );
+    var metrics_output = this.wasm.per_cell_qc_metrics(this.matrix, nsubsets, subsets.ptr);
+    this.qc_metrics = {
+        "sums": metrics_output.sums().slice(),
+        "detected": metrics_output.detected().slice(),
+        "proportion": metrics_output.subset_proportions(0).slice() // TODO: generalize for multiple subsets.
+    };
 
-    this.wasm.per_cell_qc_metrics(
-      this.matrix,
-      nsubsets,
-      subsets.ptr,
-      sums.ptr,
-      detected.ptr,
-      proportions.ptr
-    );
-
-    var discard_sums = this.createMemorySpace(
-      this.matrix.ncol(),
-      "Uint8Array",
-      "disc_qc_sums"
-    );
-    var discard_detected = this.createMemorySpace(
-      this.matrix.ncol(),
-      "Uint8Array",
-      "disc_qc_detected"
-    );
-    var discard_proportions = this.createMemorySpace(
-      this.matrix.ncol() * nsubsets,
-      "Uint8Array",
-      "disc_qc_proportions"
-    );
-    var discard_overall = this.createMemorySpace(
-      this.matrix.ncol(),
-      "Uint8Array",
-      "disc_qc_overall"
-    );
-
-    var threshold_sums = this.createMemorySpace(
-      1,
-      "Float64Array",
-      "threshold_qc_sums"
-    );
-    var threshold_detected = this.createMemorySpace(
-      1,
-      "Float64Array",
-      "threshold_qc_detected"
-    );
-    var threshold_proportions = this.createMemorySpace(
-      nsubsets,
-      "Float64Array",
-      "threshold_qc_proportions"
-    );
-
-    var threshold_sums_vector = this.getVector("threshold_qc_sums");
-    var threshold_detected_vector = this.getVector("threshold_qc_detected");
-    var threshold_proportions_vector = this.getVector("threshold_qc_proportions");
-
-    // threshold_sums_vector[0] = threshold[0];
-    // threshold_detected_vector[0] = threshold[1];
-    // threshold_proportions_vector[0] = threshold[2];
-
-    this.wasm.per_cell_qc_filters(
-      this.matrix.ncol(),
-      sums.ptr,
-      detected.ptr,
-      nsubsets,
-      subsets.ptr,
-      false,
-      0,
-      nmads, // should set to 3, using 1 to see if the output works.
-      discard_sums.ptr,
-      discard_detected.ptr,
-      discard_proportions.ptr,
-      discard_overall.ptr,
-      threshold_sums.ptr,
-      threshold_detected.ptr,
-      threshold_proportions.ptr
-    );
-
-    var filtered = this.wasm.filter_cells(this.matrix,
-      discard_overall.ptr, false);
-    // console.log(filtered.ncol()); // should be less.
-
-    this.filteredMatrix = filtered;
-
-    var sums_vector = this.getVector("qc_sums");
-    var detected_vector = this.getVector("qc_detected");
-    var proportions_vector = this.getVector("qc_proportions");
-    var threshold_sums_vector = this.getVector("threshold_qc_sums");
-    var threshold_detected_vector = this.getVector("threshold_qc_detected");
-    var threshold_proportions_vector = this.getVector("threshold_qc_proportions");
-
-    this.thresholds = [threshold_sums_vector[0],
-    threshold_detected_vector[0],
-    threshold_proportions_vector[0]
+    var filter_output = this.wasm.per_cell_qc_filters(metrics_output, false, 0, nmads);
+    this.thresholds = [
+        filter_output.thresholds_sums()[0],
+        filter_output.thresholds_detected()[0],
+        filter_output.thresholds_proportions(0)[0] // TODO: generalize...
     ];
 
+    var filtered = this.wasm.filter_cells(this.matrix, filter_output.discard_overall().byteOffset, false);
+    this.filteredMatrix = filtered;
+
+    metrics_output.delete();
+    filter_output.delete();
+
     return {
-      "sums": sums_vector,
-      "detected": detected_vector,
-      "proportion": proportions_vector,
+      "sums": this.qc_metrics.sums,
+      "detected": this.qc_metrics.detected,
+      "proportion": this.qc_metrics.proportion,
       "thresholds": {
-        "sums": threshold_sums_vector[0],
-        "detected": threshold_detected_vector[0],
-        "proportion": threshold_proportions_vector[0]
+        "sums": this.thresholds[0],
+        "detected": this.thresholds[1],
+        "proportion": this.thresholds[2]
       }
     }
   }
 
   filterCells() {
-    var sums_vector = this.getVector("qc_sums");
-    var detected_vector = this.getVector("qc_detected");
-    var proportions_vector = this.getVector("qc_proportions");
+    var sums_vector = this.qc_metrics.sums;
+    var detected_vector = this.qc_metrics.detected;
+    var proportions_vector = this.qc_metrics.proportion;
 
     var discard_overall = this.createMemorySpace(
       this.matrix.ncol(),
@@ -351,12 +263,8 @@ class scran {
       }
     }
 
-    var filtered = this.wasm.filter_cells(this.matrix,
-      discard_overall.ptr, false);
-    // console.log(filtered.ncol()); // should be less.
-
+    var filtered = this.wasm.filter_cells(this.matrix, discard_overall.ptr, false);
     this.filteredMatrix = filtered;
-
   }
 
   fSelection(span) {

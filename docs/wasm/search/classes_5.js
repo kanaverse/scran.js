@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['zstream_63',['ZStream',['../structUnzlibber_1_1ZStream.html',1,'Unzlibber']]]
+  ['unzlibber_77',['Unzlibber',['../structUnzlibber.html',1,'']]]
 ];

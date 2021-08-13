@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['numericmatrix_60',['NumericMatrix',['../structNumericMatrix.html',1,'']]]
+  ['numericmatrix_73',['NumericMatrix',['../structNumericMatrix.html',1,'']]]
 ];
