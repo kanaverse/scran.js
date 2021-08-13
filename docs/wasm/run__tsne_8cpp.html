@@ -70,6 +70,9 @@ $(function() {
 <div class="title">run_tsne.cpp File Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p>Visualize cells with t-SNE.  
+<a href="#details">More...</a></p>
 <div class="textblock"><code>#include &lt;emscripten/bind.h&gt;</code><br />
 <code>#include &quot;qdtsne/qdtsne.hpp&quot;</code><br />
 <code>#include &quot;knncolle/knncolle.hpp&quot;</code><br />
@@ -82,7 +85,7 @@ Include dependency graph for run_tsne.cpp:</div>
 <div class="dyncontent">
 <div class="center"><img src="run__tsne_8cpp__incl.png" border="0" usemap="#arun__tsne_8cpp" alt=""/></div>
 <map name="arun__tsne_8cpp" id="arun__tsne_8cpp">
-<area shape="rect" title=" " alt="" coords="458,5,554,32"/>
+<area shape="rect" title="Visualize cells with t&#45;SNE." alt="" coords="458,5,554,32"/>
 <area shape="rect" title=" " alt="" coords="5,80,129,107"/>
 <area shape="rect" title=" " alt="" coords="154,80,282,107"/>
 <area shape="rect" title=" " alt="" coords="306,80,453,107"/>
@@ -96,17 +99,19 @@ Include dependency graph for run_tsne.cpp:</div>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
 Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structTsneStatus.html">TsneStatus</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The status of the t-SNE algorithm.  <a href="structTsneStatus.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Status of the t-SNE algorithm.  <a href="structTsneStatus.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:aa3d408da563ab4a0435d18ea83d654fc"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structTsneStatus.html">TsneStatus</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="run__tsne_8cpp.html#aa3d408da563ab4a0435d18ea83d654fc">initialize_tsne</a> (uintptr_t mat, int nr, int nc, double perplexity, bool approximate, uintptr_t Y)</td></tr>
 <tr class="separator:aa3d408da563ab4a0435d18ea83d654fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5317ff654f1519e6e76e5d74bf387102"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="run__tsne_8cpp.html#a5317ff654f1519e6e76e5d74bf387102">run_tsne</a> (<a class="el" href="structTsneStatus.html">TsneStatus</a> &amp;status, int runtime, uintptr_t Y)</td></tr>
-<tr class="separator:a5317ff654f1519e6e76e5d74bf387102"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad29d8d3b48e3165dc7d8f0476a46119d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="run__tsne_8cpp.html#ad29d8d3b48e3165dc7d8f0476a46119d">run_tsne</a> (<a class="el" href="structTsneStatus.html">TsneStatus</a> &amp;status, int runtime, int maxiter, uintptr_t Y)</td></tr>
+<tr class="separator:ad29d8d3b48e3165dc7d8f0476a46119d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Function Documentation</h2>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Visualize cells with t-SNE. </p>
+</div><h2 class="groupheader">Function Documentation</h2>
 <a id="aa3d408da563ab4a0435d18ea83d654fc"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aa3d408da563ab4a0435d18ea83d654fc">&#9670;&nbsp;</a></span>initialize_tsne()</h2>
 
@@ -168,12 +173,12 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>A <code><a class="el" href="structTsneStatus.html" title="The status of the t-SNE algorithm.">TsneStatus</a></code> object that can be passed to <code><a class="el" href="run__tsne_8cpp.html#a5317ff654f1519e6e76e5d74bf387102">run_tsne()</a></code> to create </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>A <code><a class="el" href="structTsneStatus.html" title="Status of the t-SNE algorithm.">TsneStatus</a></code> object that can be passed to <code><a class="el" href="run__tsne_8cpp.html#ad29d8d3b48e3165dc7d8f0476a46119d">run_tsne()</a></code> to create </dd></dl>
 
 </div>
 </div>
-<a id="a5317ff654f1519e6e76e5d74bf387102"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5317ff654f1519e6e76e5d74bf387102">&#9670;&nbsp;</a></span>run_tsne()</h2>
+<a id="ad29d8d3b48e3165dc7d8f0476a46119d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad29d8d3b48e3165dc7d8f0476a46119d">&#9670;&nbsp;</a></span>run_tsne()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -193,6 +198,12 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>maxiter</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
           <td class="paramtype">uintptr_t&#160;</td>
           <td class="paramname"><em>Y</em>&#160;</td>
         </tr>
@@ -206,13 +217,14 @@ Functions</h2></td></tr>
 <p>Initialize the t-SNE on an input matrix, usually containing principal components for all cells.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramdir"></td><td class="paramname">status</td><td>A <code><a class="el" href="structTsneStatus.html" title="The status of the t-SNE algorithm.">TsneStatus</a></code> object created by <code>initialize_status()</code>. </td></tr>
-    <tr><td class="paramdir"></td><td class="paramname">runtime</td><td>Number of milliseconds to run before returning. Iterations are performed until the specified <code>runtime</code> is exceeded. At least <code>min_iter</code> iterations are always performed. </td></tr>
+    <tr><td class="paramdir"></td><td class="paramname">status</td><td>A <code><a class="el" href="structTsneStatus.html" title="Status of the t-SNE algorithm.">TsneStatus</a></code> object created by <code>initialize_status()</code>. </td></tr>
+    <tr><td class="paramdir"></td><td class="paramname">runtime</td><td>Number of milliseconds to run before returning. Iterations are performed until the specified <code>runtime</code> is exceeded. </td></tr>
+    <tr><td class="paramdir"></td><td class="paramname">maxiter</td><td>Maximum number of iterations to perform. The function will return even if <code>runtime</code> has not been exceeded. </td></tr>
     <tr><td class="paramdir">[in,out]</td><td class="paramname">Y</td><td>Offset to a two-dimensional array containing the initial coordinates. Each row corresponds to a dimension, each column corresponds to a cell, and the matrix is in column-major format. On output, this will be filled with the updated coordinates.</td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd><code>Y</code> and <code><a class="el" href="structTsneStatus.html" title="The status of the t-SNE algorithm.">TsneStatus</a></code> are updated with the latest results. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd><code>Y</code> and <code><a class="el" href="structTsneStatus.html" title="Status of the t-SNE algorithm.">TsneStatus</a></code> are updated with the latest results. </dd></dl>
 
 </div>
 </div>

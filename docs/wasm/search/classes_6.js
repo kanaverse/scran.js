@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['zstream_78',['ZStream',['../structUnzlibber_1_1ZStream.html',1,'Unzlibber']]]
+  ['tsnestatus_83',['TsneStatus',['../structTsneStatus.html',1,'']]]
 ];

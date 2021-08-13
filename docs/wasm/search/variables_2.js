@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['permutation_141',['permutation',['../structNumericMatrix.html#aa60f1d60eacd5361dbec67975f4f259d',1,'NumericMatrix']]],
-  ['ptr_142',['ptr',['../structNumericMatrix.html#af05a5782bb8e5a7b083a156cea46df92',1,'NumericMatrix']]]
+  ['strm_154',['strm',['../structUnzlibber_1_1ZStream.html#a1bc9f60dc52e4d8bc6c727d2748ddf09',1,'Unzlibber::ZStream']]]
 ];

@@ -264,54 +264,22 @@ class scran {
     }
 
     var filtered = this.wasm.filter_cells(this.matrix, discard_overall.ptr, false);
+
+    if (this.filteredMatrix !== undefined) {
+      this.filteredMatrix.delete();
+    }
     this.filteredMatrix = filtered;
   }
 
   fSelection(span) {
-    var means = this.createMemorySpace(this.filteredMatrix.nrow(),
-      "Float64Array", "fsel_means");
+    var model_output = this.wasm.model_gene_var(this.filteredMatrix, false, 0, span);
 
-    var means_array = this.createMemorySpace(1,
-      "Uint32Array", "fsel_means_arr");
+    var means_vec2 = model_output.means(0).slice();
+    var vars_vec2 = model_output.variances(0).slice();
+    var fitted_vec2 = model_output.fitted(0).slice();
+    var resids_vec2 = model_output.residuals(0).slice();
 
-    var means_vec = this.getVector("fsel_means_arr");
-    means_vec[0] = means.ptr;
-
-    var vars = this.createMemorySpace(this.filteredMatrix.nrow(),
-      "Float64Array", "fsel_vars");
-
-    var vars_array = this.createMemorySpace(1,
-      "Uint32Array", "fsel_vars_arr");
-
-    var vars_vec = this.getVector("fsel_vars_arr");
-    vars_vec[0] = vars.ptr;
-
-    var fitted = this.createMemorySpace(this.filteredMatrix.nrow(),
-      "Float64Array", "fsel_fitted");
-    var fitted_array = this.createMemorySpace(1,
-      "Uint32Array", "fsel_fitted_arr");
-
-    var fitted_vec = this.getVector("fsel_fitted_arr");
-    fitted_vec[0] = fitted.ptr;
-
-    var resids = this.createMemorySpace(this.filteredMatrix.nrow(),
-      "Float64Array", "fsel_resids");
-    var resids_array = this.createMemorySpace(1,
-      "Uint32Array", "fsel_resids_arr");
-
-    var resids_vec = this.getVector("fsel_resids_arr");
-    resids_vec[0] = resids.ptr;
-
-    this.wasm.model_gene_var(this.filteredMatrix, false, 0,
-      span, means.ptr,
-      vars.ptr,
-      fitted.ptr,
-      resids.ptr);
-
-    var means_vec2 = this.getVector("fsel_means");
-    var vars_vec2 = this.getVector("fsel_vars");
-    var fitted_vec2 = this.getVector("fsel_fitted");
-    var resids_vec2 = this.getVector("fsel_resids");
+    model_output.delete();
 
     return {
       "means": means_vec2,
@@ -333,31 +301,22 @@ class scran {
 
     // console.log(sub.vector);
 
-    var pcs = this.createMemorySpace(
-      this.filteredMatrix.ncol() * this.n_pcs,
-      "Float64Array",
-      "mat_PCA"
-    );
-
-    var var_exp = this.createMemorySpace(
-      this.n_pcs,
-      "Float64Array",
-      "var_exp_PCA"
-    );
-
     // console.log(pcs.vector);
     // console.log(var_exp.vector);
 
-    this.wasm.run_pca(
-      this.filteredMatrix,
-      this.n_pcs, false, sub.ptr,
-      false, pcs.ptr,
-      var_exp.ptr);
+    var pca_output = this.wasm.run_pca(this.filteredMatrix, this.n_pcs, false, sub.ptr, false);
 
-    var pcs = this.getVector("mat_PCA");
-    var var_exp = this.getVector("var_exp_PCA");
+    var var_exp = pca_output.variance_explained().slice();
+    var total_var = pca_output.total_variance();
+    for (var n = 0; n < var_exp.length; n++) {
+      var_exp[n] /= total_var;        
+    }
 
-    this.init_tsne = null;
+    if (this.pcs !== undefined) {
+      this.pcs.delete();
+    }
+    this.pcs = pca_output;
+    this.init_tsne = null; // AL: why is this even here?
 
     // console.log(pcs.vector);
     // console.log(var_exp.vector);
@@ -381,12 +340,14 @@ class scran {
 
     if (!this.init_tsne) {
       this.init_tsne = this.wasm.initialize_tsne(
-        pcs.ptr, this.n_pcs,
+        this.pcs.pcs().byteOffset, this.n_pcs,
         this.filteredMatrix.ncol(),
         perplexity, false, tsne.ptr);
     }
 
-    this.wasm.run_tsne(this.init_tsne, 300, tsne.ptr);
+    var delay = 300;
+    var maxiter = 1000;
+    this.wasm.run_tsne(this.init_tsne, delay, maxiter, tsne.ptr);
     console.log(this.init_tsne.iterations());
     this._lastIter = 0;
 
@@ -405,8 +366,8 @@ class scran {
         msg: `Success: TSNE done, ${self.filteredMatrix.nrow()}, ${self.filteredMatrix.ncol()}`
       });
 
-      self.wasm.run_tsne(self.init_tsne, 300, tsne.ptr);
-    }, 300);
+      self.wasm.run_tsne(self.init_tsne, delay, maxiter, tsne.ptr);
+    }, delay);
 
     return {
       "tsne": self.getVector("tsne"),
@@ -415,8 +376,7 @@ class scran {
   }
 
   cluster() {
-    var pcs = this.getMemorySpace("mat_PCA");
-    var clustering = this.wasm.cluster_snn_graph(this.n_pcs, this.filteredMatrix.ncol(), pcs.ptr, 2, 0.5);
+    var clustering = this.wasm.cluster_snn_graph(this.n_pcs, this.filteredMatrix.ncol(), this.pcs.pcs().byteOffset, 2, 0.5, false);
     var arr_clust_raw = clustering.membership(clustering.best());
     console.log(arr_clust_raw);
     var arr_clust = arr_clust_raw.slice();

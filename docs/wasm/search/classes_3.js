@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['percellqcfilters_5fresults_74',['PerCellQCFilters_Results',['../structPerCellQCFilters__Results.html',1,'']]],
-  ['percellqcmetrics_5fresults_75',['PerCellQCMetrics_Results',['../structPerCellQCMetrics__Results.html',1,'']]]
+  ['numericmatrix_79',['NumericMatrix',['../structNumericMatrix.html',1,'']]]
 ];

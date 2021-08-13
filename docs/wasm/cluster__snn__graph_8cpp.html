@@ -70,6 +70,9 @@ $(function() {
 <div class="title">cluster_snn_graph.cpp File Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p>Identify clusters from a shared nearest-neighbor graph.  
+<a href="#details">More...</a></p>
 <div class="textblock"><code>#include &lt;emscripten/bind.h&gt;</code><br />
 <code>#include &quot;scran/clustering/ClusterSNNGraph.hpp&quot;</code><br />
 <code>#include &lt;algorithm&gt;</code><br />
@@ -78,7 +81,7 @@ Include dependency graph for cluster_snn_graph.cpp:</div>
 <div class="dyncontent">
 <div class="center"><img src="cluster__snn__graph_8cpp__incl.png" border="0" usemap="#acluster__snn__graph_8cpp" alt=""/></div>
 <map name="acluster__snn__graph_8cpp" id="acluster__snn__graph_8cpp">
-<area shape="rect" title=" " alt="" coords="157,5,309,32"/>
+<area shape="rect" title="Identify clusters from a shared nearest&#45;neighbor graph." alt="" coords="157,5,309,32"/>
 <area shape="rect" title=" " alt="" coords="5,87,129,114"/>
 <area shape="rect" title=" " alt="" coords="153,80,312,121"/>
 <area shape="rect" title=" " alt="" coords="337,87,411,114"/>
@@ -87,23 +90,26 @@ Include dependency graph for cluster_snn_graph.cpp:</div>
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
 Classes</h2></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structMultilevelClusterResults.html">MultilevelClusterResults</a></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structClusterSNNGraph__MultiLevelResult.html">ClusterSNNGraph_MultiLevelResult</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Javascript-visible wrapper around <code>scran::ClusterSNNGraph::MultiLevelResult</code>.  <a href="structClusterSNNGraph__MultiLevelResult.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:af5401060ab42b5fdeb423b4103dfa05b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structMultilevelClusterResults.html">MultilevelClusterResults</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cluster__snn__graph_8cpp.html#af5401060ab42b5fdeb423b4103dfa05b">cluster_snn_graph</a> (int ndim, int ncells, uintptr_t mat, int k, double resolution)</td></tr>
-<tr class="separator:af5401060ab42b5fdeb423b4103dfa05b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a392584a26826c60f38a7b38104bd2d06"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structClusterSNNGraph__MultiLevelResult.html">ClusterSNNGraph_MultiLevelResult</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cluster__snn__graph_8cpp.html#a392584a26826c60f38a7b38104bd2d06">cluster_snn_graph</a> (int ndim, int ncells, uintptr_t mat, int k, double resolution, bool approximate)</td></tr>
+<tr class="separator:a392584a26826c60f38a7b38104bd2d06"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Function Documentation</h2>
-<a id="af5401060ab42b5fdeb423b4103dfa05b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af5401060ab42b5fdeb423b4103dfa05b">&#9670;&nbsp;</a></span>cluster_snn_graph()</h2>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Identify clusters from a shared nearest-neighbor graph. </p>
+</div><h2 class="groupheader">Function Documentation</h2>
+<a id="a392584a26826c60f38a7b38104bd2d06"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a392584a26826c60f38a7b38104bd2d06">&#9670;&nbsp;</a></span>cluster_snn_graph()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="structMultilevelClusterResults.html">MultilevelClusterResults</a> cluster_snn_graph </td>
+          <td class="memname"><a class="el" href="structClusterSNNGraph__MultiLevelResult.html">ClusterSNNGraph_MultiLevelResult</a> cluster_snn_graph </td>
           <td>(</td>
           <td class="paramtype">int&#160;</td>
           <td class="paramname"><em>ndim</em>, </td>
@@ -130,7 +136,13 @@ Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">double&#160;</td>
-          <td class="paramname"><em>resolution</em>&#160;</td>
+          <td class="paramname"><em>resolution</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>approximate</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -139,6 +151,18 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir"></td><td class="paramname">ndim</td><td>Number of dimensions. </td></tr>
+    <tr><td class="paramdir"></td><td class="paramname">ncells</td><td>Number of cells. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">mat</td><td>Offset to an array of <code>double</code>s containing per-cell coordinates (usually PCs). Array should be column-major where rows are dimensions and columns are cells. </td></tr>
+    <tr><td class="paramdir"></td><td class="paramname">k</td><td>Number of neighbors to use to construct the nearest neighbor graph. </td></tr>
+    <tr><td class="paramdir"></td><td class="paramname">resolution</td><td>Resolution of the multi-level clustering, used in the modularity calculation. Larger values yield more fine-grained clusters. </td></tr>
+    <tr><td class="paramdir"></td><td class="paramname">approximate</td><td>Whether an approximate nearest neighbor search should be performed.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>A <code><a class="el" href="structClusterSNNGraph__MultiLevelResult.html" title="Javascript-visible wrapper around scran::ClusterSNNGraph::MultiLevelResult.">ClusterSNNGraph_MultiLevelResult</a></code> object containing the... multi-level clustering results, obviously. </dd></dl>
 
 </div>
 </div>

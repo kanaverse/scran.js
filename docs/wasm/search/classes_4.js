@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['tsnestatus_76',['TsneStatus',['../structTsneStatus.html',1,'']]]
+  ['percellqcfilters_5fresults_80',['PerCellQCFilters_Results',['../structPerCellQCFilters__Results.html',1,'']]],
+  ['percellqcmetrics_5fresults_81',['PerCellQCMetrics_Results',['../structPerCellQCMetrics__Results.html',1,'']]]
 ];

@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['zstream_137',['ZStream',['../structUnzlibber_1_1ZStream.html#aa62b5a02db8a74e391c0930e27dbb703',1,'Unzlibber::ZStream::ZStream()'],['../structUnzlibber_1_1ZStream.html#a5d70586bebea2eb3f5ad5b1c5a4ec145',1,'Unzlibber::ZStream::ZStream(const ZStream &amp;)=delete'],['../structUnzlibber_1_1ZStream.html#a6c65d98794c8a31cfb1160be2ce3d1f1',1,'Unzlibber::ZStream::ZStream(ZStream &amp;&amp;)=delete']]]
+  ['variance_5fexplained_148',['variance_explained',['../structRunPCA__Results.html#a09e953fcab96e95e2f7cc343c7b1fc72',1,'RunPCA_Results']]],
+  ['variances_149',['variances',['../structModelGeneVar__Results.html#a362c8586d00f0273a4f2a75688b89fd1',1,'ModelGeneVar_Results']]]
 ];
