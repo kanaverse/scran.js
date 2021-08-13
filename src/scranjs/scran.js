@@ -264,6 +264,10 @@ class scran {
     }
 
     var filtered = this.wasm.filter_cells(this.matrix, discard_overall.ptr, false);
+
+    if (this.filteredMatrix !== undefined) {
+      this.filteredMatrix.delete();
+    }
     this.filteredMatrix = filtered;
   }
 
@@ -370,7 +374,7 @@ class scran {
   }
 
   cluster() {
-    var clustering = this.wasm.cluster_snn_graph(this.n_pcs, this.filteredMatrix.ncol(), this.pcs.pcs().byteOffset, 2, 0.5);
+    var clustering = this.wasm.cluster_snn_graph(this.n_pcs, this.filteredMatrix.ncol(), this.pcs.pcs().byteOffset, 2, 0.5, false);
     var arr_clust_raw = clustering.membership(clustering.best());
     console.log(arr_clust_raw);
     var arr_clust = arr_clust_raw.slice();
