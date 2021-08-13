@@ -297,31 +297,22 @@ class scran {
 
     // console.log(sub.vector);
 
-    var pcs = this.createMemorySpace(
-      this.filteredMatrix.ncol() * this.n_pcs,
-      "Float64Array",
-      "mat_PCA"
-    );
-
-    var var_exp = this.createMemorySpace(
-      this.n_pcs,
-      "Float64Array",
-      "var_exp_PCA"
-    );
-
     // console.log(pcs.vector);
     // console.log(var_exp.vector);
 
-    this.wasm.run_pca(
-      this.filteredMatrix,
-      this.n_pcs, false, sub.ptr,
-      false, pcs.ptr,
-      var_exp.ptr);
+    var pca_output = this.wasm.run_pca(this.filteredMatrix, this.n_pcs, false, sub.ptr, false);
 
-    var pcs = this.getVector("mat_PCA");
-    var var_exp = this.getVector("var_exp_PCA");
+    var var_exp = pca_output.variance_explained().slice();
+    var total_var = pca_output.total_variance();
+    for (var n = 0; n < var_exp.length; n++) {
+      var_exp[n] /= total_var;        
+    }
 
-    this.init_tsne = null;
+    if (this.pcs !== undefined) {
+      this.pcs.delete();
+    }
+    this.pcs = pca_output;
+    this.init_tsne = null; // AL: why is this even here?
 
     // console.log(pcs.vector);
     // console.log(var_exp.vector);
@@ -345,7 +336,7 @@ class scran {
 
     if (!this.init_tsne) {
       this.init_tsne = this.wasm.initialize_tsne(
-        pcs.ptr, this.n_pcs,
+        this.pcs.pcs().byteOffset, this.n_pcs,
         this.filteredMatrix.ncol(),
         perplexity, false, tsne.ptr);
     }
@@ -379,8 +370,7 @@ class scran {
   }
 
   cluster() {
-    var pcs = this.getMemorySpace("mat_PCA");
-    var clustering = this.wasm.cluster_snn_graph(this.n_pcs, this.filteredMatrix.ncol(), pcs.ptr, 2, 0.5);
+    var clustering = this.wasm.cluster_snn_graph(this.n_pcs, this.filteredMatrix.ncol(), this.pcs.pcs().byteOffset, 2, 0.5);
     var arr_clust_raw = clustering.membership(clustering.best());
     console.log(arr_clust_raw);
     var arr_clust = arr_clust_raw.slice();
