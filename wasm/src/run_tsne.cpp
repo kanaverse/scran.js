@@ -9,7 +9,13 @@
 #include <random>
 
 /**
- * @brief The status of the t-SNE algorithm.
+ * @file run_tsne.cpp
+ *
+ * @brief Visualize cells with t-SNE.
+ */
+
+/**
+ * @brief Status of the t-SNE algorithm.
  *
  * This is a wrapper around the similarly named `Status` object from the [**qdtsne**](https://github.com/LTLA/qdtsne) library.
  * The general idea is to create this object via `initialize_tsne()` before repeatedly calling `run_tsne()` to obtain updates.
