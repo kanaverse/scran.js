@@ -102,7 +102,7 @@ $(function() {
 <div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;<span class="preprocessor">#ifndef SCRAN_NO_LOGGING</span></div>
 <div class="line"><a name="l00063"></a><span class="lineno"><a class="line" href="utils_8h.html#afb5f374e7dc9c07610cdc41f6bc2b263">   63</a></span>&#160;<span class="preprocessor">#define PROGRESS_PRINTER(name, state, total, message) \</span></div>
 <div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;<span class="preprocessor">    EM_ASM({ \</span></div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;<span class="preprocessor">        console.log(name + &quot; &quot;</span> + $0 + &quot; &quot; + $1 + &quot; &quot; + message); \</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;<span class="preprocessor">        console.log(&quot;__scran_wasm__ &quot;</span> + name + &quot; &quot; + $0 + &quot; &quot; + $1 + &quot; &quot; + message); \</div>
 <div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;    }, state, total);</div>
 <div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160; </div>
