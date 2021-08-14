@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['variance_5fexplained_150',['variance_explained',['../structRunPCA__Results.html#a09e953fcab96e95e2f7cc343c7b1fc72',1,'RunPCA_Results']]],
-  ['variances_151',['variances',['../structModelGeneVar__Results.html#a362c8586d00f0273a4f2a75688b89fd1',1,'ModelGeneVar_Results']]]
+  ['variance_5fexplained_154',['variance_explained',['../structRunPCA__Results.html#a09e953fcab96e95e2f7cc343c7b1fc72',1,'RunPCA_Results']]],
+  ['variances_155',['variances',['../structModelGeneVar__Results.html#a362c8586d00f0273a4f2a75688b89fd1',1,'ModelGeneVar_Results']]]
 ];

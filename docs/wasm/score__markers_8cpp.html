@@ -64,11 +64,15 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
+<a href="#nested-classes">Classes</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
 <div class="title">score_markers.cpp File Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p>Compute marker scores for each gene in each group of cells.  
+<a href="#details">More...</a></p>
 <div class="textblock"><code>#include &lt;emscripten/bind.h&gt;</code><br />
 <code>#include &quot;<a class="el" href="NumericMatrix_8h_source.html">NumericMatrix.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="utils_8h_source.html">utils.h</a>&quot;</code><br />
@@ -81,7 +85,7 @@ Include dependency graph for score_markers.cpp:</div>
 <div class="dyncontent">
 <div class="center"><img src="score__markers_8cpp__incl.png" border="0" usemap="#ascore__markers_8cpp" alt=""/></div>
 <map name="ascore__markers_8cpp" id="ascore__markers_8cpp">
-<area shape="rect" title=" " alt="" coords="307,5,439,32"/>
+<area shape="rect" title="Compute marker scores for each gene in each group of cells." alt="" coords="307,5,439,32"/>
 <area shape="rect" title=" " alt="" coords="5,87,129,114"/>
 <area shape="rect" href="NumericMatrix_8h.html" title="Javascript wrapper for a numeric matrix." alt="" coords="153,87,269,114"/>
 <area shape="rect" href="utils_8h.html" title=" " alt="" coords="345,87,401,114"/>
@@ -95,20 +99,28 @@ Include dependency graph for score_markers.cpp:</div>
 </map>
 </div>
 </div><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
+Classes</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structScoreMarkers__Results.html">ScoreMarkers_Results</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Javascript-visible wrapper for <code>scran::ScoreMarkers::Results</code>.  <a href="structScoreMarkers__Results.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:afbc164cc7273a3ccebd326b93be0c490"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="score__markers_8cpp.html#afbc164cc7273a3ccebd326b93be0c490">score_markers</a> (const <a class="el" href="structNumericMatrix.html">NumericMatrix</a> &amp;mat, uintptr_t groups, bool use_blocks, uintptr_t blocks, uintptr_t means, uintptr_t detected, uintptr_t min_cohen, uintptr_t mean_cohen, uintptr_t rank_cohen)</td></tr>
-<tr class="separator:afbc164cc7273a3ccebd326b93be0c490"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a96d5665269882aa23e30d033cd659973"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structScoreMarkers__Results.html">ScoreMarkers_Results</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="score__markers_8cpp.html#a96d5665269882aa23e30d033cd659973">score_markers</a> (const <a class="el" href="structNumericMatrix.html">NumericMatrix</a> &amp;mat, uintptr_t groups, bool use_blocks, uintptr_t blocks)</td></tr>
+<tr class="separator:a96d5665269882aa23e30d033cd659973"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Function Documentation</h2>
-<a id="afbc164cc7273a3ccebd326b93be0c490"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#afbc164cc7273a3ccebd326b93be0c490">&#9670;&nbsp;</a></span>score_markers()</h2>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Compute marker scores for each gene in each group of cells. </p>
+</div><h2 class="groupheader">Function Documentation</h2>
+<a id="a96d5665269882aa23e30d033cd659973"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a96d5665269882aa23e30d033cd659973">&#9670;&nbsp;</a></span>score_markers()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void score_markers </td>
+          <td class="memname"><a class="el" href="structScoreMarkers__Results.html">ScoreMarkers_Results</a> score_markers </td>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="structNumericMatrix.html">NumericMatrix</a> &amp;&#160;</td>
           <td class="paramname"><em>mat</em>, </td>
@@ -129,37 +141,7 @@ Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">uintptr_t&#160;</td>
-          <td class="paramname"><em>blocks</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">uintptr_t&#160;</td>
-          <td class="paramname"><em>means</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">uintptr_t&#160;</td>
-          <td class="paramname"><em>detected</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">uintptr_t&#160;</td>
-          <td class="paramname"><em>min_cohen</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">uintptr_t&#160;</td>
-          <td class="paramname"><em>mean_cohen</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">uintptr_t&#160;</td>
-          <td class="paramname"><em>rank_cohen</em>&#160;</td>
+          <td class="paramname"><em>blocks</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -174,18 +156,11 @@ Functions</h2></td></tr>
     <tr><td class="paramdir"></td><td class="paramname">mat</td><td>An input log-expression matrix containing features in rows and cells in columns. </td></tr>
     <tr><td class="paramdir"></td><td class="paramname">groups</td><td>Offset to an array of <code>int32_t</code>s with <code>ncells</code> elements, containing the group assignment for each cell. Group IDs should be consecutive and 0-based. </td></tr>
     <tr><td class="paramdir"></td><td class="paramname">use_blocks</td><td>Whether or not to compute the statistics within each block. </td></tr>
-    <tr><td class="paramdir"></td><td class="paramname">blocks</td><td>If <code>use_blocks = true</code>, offset to an array of <code>int32_t</code>s with <code>ncells</code> elements, containing the block assignment for each cell. Block IDs should be consecutive and 0-based. If <code>use_blocks = false</code>, this value is ignored.</td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">means</td><td>If <code>use_blocks = false</code>, an offset to a 2D array of <code>double</code>s to hold the mean log-expression of each feature in each group. If <code>use_blocks = true</code>, this should be an offset to a 3D array of <code>double</code>s instead. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">detected</td><td>If <code>use_blocks = false</code>, an offset to a 2D array of <code>double</code>s to hold the proportion of cells with detectable expression of each feature in each group. If <code>use_blocks = true</code>, this should be an offset to a 3D array of <code>double</code>s instead. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">min_cohen</td><td>An offset to a 2D array of <code>double</code>s to hold the minimum Cohen's d from pairwise comparisons between groups. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">mean_cohen</td><td>An offset to a 2D array of <code>double</code>s to hold the mean Cohen's d from pairwise comparisons between groups. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">rank_cohen</td><td>An offset to a 2D array of <code>double</code>s to hold the minimum rank of the Cohen's d values from pairwise comparisons between groups.</td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">blocks</td><td>If <code>use_blocks = true</code>, offset to an array of <code>int32_t</code>s with <code>ncells</code> elements, containing the block assignment for each cell. Block IDs should be consecutive and 0-based. If <code>use_blocks = false</code>, this value is ignored.</td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>The arrays in <code>means</code>, <code>variances</code>, <code>fitted</code> and <code>residuals</code> are filled. If <code>use_block = true</code>, statistics are computed separately for the cells in each block.</dd></dl>
-<p>All of the output 2D arrays in this function should have number of rows and columns equal to the number of features and groups, respectively. Filling of each array is done in column major format such that all values corresponding to the same group are contiguous.</p>
-<p>For the output 3D arrays, the first, second and third dimensions are expected to correspond to features, groups and blocks, respectively. The first dimension should be the fastest changing dimension while the third dimension is the slowest. In other words, all values for the same group/block combination are contiguous; then all values in the same block are contiguous. </p>
+<dl class="section return"><dt>Returns</dt><dd>A <code><a class="el" href="structScoreMarkers__Results.html" title="Javascript-visible wrapper for scran::ScoreMarkers::Results.">ScoreMarkers_Results</a></code> containing summary statistics from comparisons between groups of cells. </dd></dl>
 
 </div>
 </div>

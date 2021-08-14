@@ -1,5 +1,5 @@
 <map id="score_markers.cpp" name="score_markers.cpp">
-<area shape="rect" id="node1" title=" " alt="" coords="307,5,439,32"/>
+<area shape="rect" id="node1" title="Compute marker scores for each gene in each group of cells." alt="" coords="307,5,439,32"/>
 <area shape="rect" id="node2" title=" " alt="" coords="5,87,129,114"/>
 <area shape="rect" id="node3" href="$NumericMatrix_8h.html" title="Javascript wrapper for a numeric matrix." alt="" coords="153,87,269,114"/>
 <area shape="rect" id="node7" href="$utils_8h.html" title=" " alt="" coords="345,87,401,114"/>
