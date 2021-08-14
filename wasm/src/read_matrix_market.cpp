@@ -1,6 +1,13 @@
+#include <emscripten.h>
 #include <emscripten/bind.h>
 
+#include "utils.h"
 #include "NumericMatrix.h"
+
+#ifdef PROGRESS_PRINTER
+#define TATAMI_PROGRESS_PRINTER(name, state, total, message) PROGRESS_PRINTER(name, state, total, message)
+#endif
+
 #include "tatami/ext/MatrixMarket.hpp"
 #include <string>
 
@@ -116,10 +123,19 @@ NumericMatrix read_matrix_market(uintptr_t buffer, int size, bool compressed) {
         return output;
     };
 
+#ifdef PROGRESS_PRINTER
+    PROGRESS_PRINTER("read_matrix_market", 1, 2, "Loading Matrix Market file")
+#endif 
+
     if (compressed) {
         unsigned char* bufptr = reinterpret_cast<unsigned char*>(buffer);
         Unzlibber unz(bufptr, size);
         auto stuff = tatami::MatrixMarket::load_layered_sparse_matrix_internal(unz);
+
+#ifdef PROGRESS_PRINTER
+        PROGRESS_PRINTER("read_matrix_market", 2, 2, "Done")
+#endif
+
         return process(stuff);
     } else {
         const char* bufptr = reinterpret_cast<const char*>(buffer);
@@ -133,6 +149,11 @@ NumericMatrix read_matrix_market(uintptr_t buffer, int size, bool compressed) {
             }
         };
         auto stuff = tatami::MatrixMarket::load_layered_sparse_matrix_internal(reader);
+
+#ifdef PROGRESS_PRINTER
+        PROGRESS_PRINTER("read_matrix_market", 2, 2, "Done")
+#endif
+
         return process(stuff);
     }
 }

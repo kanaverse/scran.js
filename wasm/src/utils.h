@@ -59,4 +59,11 @@ inline std::vector<std::vector<T> > extract_column_pointers_blocked(uintptr_t pt
     return store;
 }
 
+#ifndef SCRAN_NO_LOGGING
+#define PROGRESS_PRINTER(name, state, total, message) \
+    EM_ASM({ \
+        console.log(name + " " + $0 + " " + $1 + " " + message); \
+    }, state, total);
+#endif
+
 #endif
