@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['buffer_152',['buffer',['../structUnzlibber.html#aaa5369073218a4cca9a618ef04088f6f',1,'Unzlibber']]]
+  ['buffer_154',['buffer',['../structUnzlibber.html#aaa5369073218a4cca9a618ef04088f6f',1,'Unzlibber']]]
 ];

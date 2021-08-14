@@ -64,6 +64,7 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
+<a href="#define-members">Macros</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
 <div class="title">utils.h File Reference</div>  </div>
@@ -86,17 +87,23 @@ This graph shows which files directly or indirectly include this file:</div>
 <div class="dyncontent">
 <div class="center"><img src="utils_8h__dep__incl.png" border="0" usemap="#autils_8hdep" alt=""/></div>
 <map name="autils_8hdep" id="autils_8hdep">
-<area shape="rect" title=" " alt="" coords="389,5,445,32"/>
+<area shape="rect" title=" " alt="" coords="479,5,535,32"/>
 <area shape="rect" href="log__norm__counts_8cpp.html" title=" " alt="" coords="5,80,151,107"/>
 <area shape="rect" href="model__gene__var_8cpp.html" title="Model the mean&#45;variance relationship across all genes." alt="" coords="175,80,317,107"/>
 <area shape="rect" href="per__cell__qc__filters_8cpp.html" title="Define filters on the QC metrics to remove low&#45;quality cells." alt="" coords="341,80,492,107"/>
 <area shape="rect" href="per__cell__qc__metrics_8cpp.html" title="Compute per&#45;cell QC metrics from the count matrix." alt="" coords="517,80,679,107"/>
-<area shape="rect" href="score__markers_8cpp.html" title=" " alt="" coords="704,80,836,107"/>
+<area shape="rect" href="read__matrix__market_8cpp.html" title=" " alt="" coords="703,80,863,107"/>
+<area shape="rect" href="score__markers_8cpp.html" title=" " alt="" coords="888,80,1020,107"/>
 </map>
 </div>
 </div>
 <p><a href="utils_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
+Macros</h2></td></tr>
+<tr class="memitem:afb5f374e7dc9c07610cdc41f6bc2b263"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="utils_8h.html#afb5f374e7dc9c07610cdc41f6bc2b263">PROGRESS_PRINTER</a>(name,  state,  total,  message)</td></tr>
+<tr class="separator:afb5f374e7dc9c07610cdc41f6bc2b263"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:ae57c47f824ec417fc1e113d479c3ea4b"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
@@ -106,6 +113,50 @@ Functions</h2></td></tr>
 <tr class="memitem:a4c5edcd8f70e5f2b266909aecb7d80bb"><td class="memTemplItemLeft" align="right" valign="top">std::vector&lt; std::vector&lt; T &gt; &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="utils_8h.html#a4c5edcd8f70e5f2b266909aecb7d80bb">extract_column_pointers_blocked</a> (uintptr_t ptr, size_t nr, size_t nc, size_t nb)</td></tr>
 <tr class="separator:a4c5edcd8f70e5f2b266909aecb7d80bb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<h2 class="groupheader">Macro Definition Documentation</h2>
+<a id="afb5f374e7dc9c07610cdc41f6bc2b263"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afb5f374e7dc9c07610cdc41f6bc2b263">&#9670;&nbsp;</a></span>PROGRESS_PRINTER</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define PROGRESS_PRINTER</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">name, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">state, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">total, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">message&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>Value:</b><div class="fragment"><div class="line">    EM_ASM({ \</div>
+<div class="line">        console.log(name + <span class="stringliteral">&quot; &quot;</span> + $0 + <span class="stringliteral">&quot; &quot;</span> + $1 + <span class="stringliteral">&quot; &quot;</span> + message); \</div>
+<div class="line">    }, state, total);</div>
+</div><!-- fragment -->
+</div>
+</div>
 <h2 class="groupheader">Function Documentation</h2>
 <a id="ae57c47f824ec417fc1e113d479c3ea4b"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ae57c47f824ec417fc1e113d479c3ea4b">&#9670;&nbsp;</a></span>extract_column_pointers()</h2>

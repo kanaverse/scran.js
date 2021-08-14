@@ -99,7 +99,14 @@ $(function() {
 <div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;    <span class="keywordflow">return</span> store;</div>
 <div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;}</div>
 <div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160; </div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;<span class="preprocessor">#ifndef SCRAN_NO_LOGGING</span></div>
+<div class="line"><a name="l00063"></a><span class="lineno"><a class="line" href="utils_8h.html#afb5f374e7dc9c07610cdc41f6bc2b263">   63</a></span>&#160;<span class="preprocessor">#define PROGRESS_PRINTER(name, state, total, message) \</span></div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;<span class="preprocessor">    EM_ASM({ \</span></div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;<span class="preprocessor">        console.log(name + &quot; &quot;</span> + $0 + &quot; &quot; + $1 + &quot; &quot; + message); \</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;    }, state, total);</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160; </div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="ttc" id="autils_8h_html_a4c5edcd8f70e5f2b266909aecb7d80bb"><div class="ttname"><a href="utils_8h.html#a4c5edcd8f70e5f2b266909aecb7d80bb">extract_column_pointers_blocked</a></div><div class="ttdeci">std::vector&lt; std::vector&lt; T &gt; &gt; extract_column_pointers_blocked(uintptr_t ptr, size_t nr, size_t nc, size_t nb)</div><div class="ttdef"><b>Definition:</b> utils.h:49</div></div>
 <div class="ttc" id="autils_8h_html_ae57c47f824ec417fc1e113d479c3ea4b"><div class="ttname"><a href="utils_8h.html#ae57c47f824ec417fc1e113d479c3ea4b">extract_column_pointers</a></div><div class="ttdeci">std::vector&lt; T &gt; extract_column_pointers(uintptr_t ptr, size_t nr, size_t nc)</div><div class="ttdef"><b>Definition:</b> utils.h:20</div></div>
 </div><!-- fragment --></div><!-- contents -->
