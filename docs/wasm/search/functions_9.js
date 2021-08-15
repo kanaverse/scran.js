@@ -1,7 +1,7 @@
 var searchData=
 [
-  ['ncol_131',['ncol',['../structNumericMatrix.html#ad21bf001b87002dcb346d9fcdd4e8a60',1,'NumericMatrix']]],
-  ['nrow_132',['nrow',['../structNumericMatrix.html#aca9949603c5969178a3d43eb1a352f63',1,'NumericMatrix']]],
-  ['number_133',['number',['../structClusterSNNGraph__MultiLevelResult.html#a47236ba499140e165b610683015ce32d',1,'ClusterSNNGraph_MultiLevelResult']]],
-  ['numericmatrix_134',['NumericMatrix',['../structNumericMatrix.html#ad2a44d614c57a6bf2a3e400167ebb3e8',1,'NumericMatrix::NumericMatrix(const tatami::NumericMatrix *p)'],['../structNumericMatrix.html#a03837f6ccdc2da8a2caa7e2772a2a0fd',1,'NumericMatrix::NumericMatrix(std::shared_ptr&lt; const tatami::NumericMatrix &gt; p)'],['../structNumericMatrix.html#af316832630f2a6bd5bd815ffce78018c',1,'NumericMatrix::NumericMatrix(int nr, int nc, uintptr_t values)']]]
+  ['means_129',['means',['../structModelGeneVar__Results.html#aa6709f3271a9b3482fe4b19d8152c1ea',1,'ModelGeneVar_Results::means()'],['../structScoreMarkers__Results.html#ace8ae48f96297598475fd5bfbfebeec6',1,'ScoreMarkers_Results::means()']]],
+  ['membership_130',['membership',['../structClusterSNNGraph__MultiLevelResult.html#a433eb8a327e6d270542205e3407c924b',1,'ClusterSNNGraph_MultiLevelResult']]],
+  ['model_5fgene_5fvar_131',['model_gene_var',['../model__gene__var_8cpp.html#a293da11d683b41f396389ef742ac8fd5',1,'model_gene_var.cpp']]],
+  ['modularity_132',['modularity',['../structClusterSNNGraph__MultiLevelResult.html#a774e0fe07dd3ea9e0a2c175f1bee2347',1,'ClusterSNNGraph_MultiLevelResult']]]
 ];

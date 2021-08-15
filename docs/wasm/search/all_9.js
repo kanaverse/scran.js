@@ -1,9 +1,9 @@
 var searchData=
 [
-  ['ncol_33',['ncol',['../structNumericMatrix.html#ad21bf001b87002dcb346d9fcdd4e8a60',1,'NumericMatrix']]],
-  ['nrow_34',['nrow',['../structNumericMatrix.html#aca9949603c5969178a3d43eb1a352f63',1,'NumericMatrix']]],
-  ['number_35',['number',['../structClusterSNNGraph__MultiLevelResult.html#a47236ba499140e165b610683015ce32d',1,'ClusterSNNGraph_MultiLevelResult']]],
-  ['numericmatrix_36',['NumericMatrix',['../structNumericMatrix.html',1,'NumericMatrix'],['../structNumericMatrix.html#ad2a44d614c57a6bf2a3e400167ebb3e8',1,'NumericMatrix::NumericMatrix(const tatami::NumericMatrix *p)'],['../structNumericMatrix.html#a03837f6ccdc2da8a2caa7e2772a2a0fd',1,'NumericMatrix::NumericMatrix(std::shared_ptr&lt; const tatami::NumericMatrix &gt; p)'],['../structNumericMatrix.html#af316832630f2a6bd5bd815ffce78018c',1,'NumericMatrix::NumericMatrix(int nr, int nc, uintptr_t values)']]],
-  ['numericmatrix_2ecpp_37',['NumericMatrix.cpp',['../NumericMatrix_8cpp.html',1,'']]],
-  ['numericmatrix_2eh_38',['NumericMatrix.h',['../NumericMatrix_8h.html',1,'']]]
+  ['means_28',['means',['../structModelGeneVar__Results.html#aa6709f3271a9b3482fe4b19d8152c1ea',1,'ModelGeneVar_Results::means()'],['../structScoreMarkers__Results.html#ace8ae48f96297598475fd5bfbfebeec6',1,'ScoreMarkers_Results::means()']]],
+  ['membership_29',['membership',['../structClusterSNNGraph__MultiLevelResult.html#a433eb8a327e6d270542205e3407c924b',1,'ClusterSNNGraph_MultiLevelResult']]],
+  ['model_5fgene_5fvar_30',['model_gene_var',['../model__gene__var_8cpp.html#a293da11d683b41f396389ef742ac8fd5',1,'model_gene_var.cpp']]],
+  ['model_5fgene_5fvar_2ecpp_31',['model_gene_var.cpp',['../model__gene__var_8cpp.html',1,'']]],
+  ['modelgenevar_5fresults_32',['ModelGeneVar_Results',['../structModelGeneVar__Results.html',1,'']]],
+  ['modularity_33',['modularity',['../structClusterSNNGraph__MultiLevelResult.html#a774e0fe07dd3ea9e0a2c175f1bee2347',1,'ClusterSNNGraph_MultiLevelResult']]]
 ];

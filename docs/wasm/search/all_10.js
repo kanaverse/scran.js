@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['variance_5fexplained_75',['variance_explained',['../structRunPCA__Results.html#a09e953fcab96e95e2f7cc343c7b1fc72',1,'RunPCA_Results']]],
-  ['variances_76',['variances',['../structModelGeneVar__Results.html#a362c8586d00f0273a4f2a75688b89fd1',1,'ModelGeneVar_Results']]]
+  ['unzlibber_74',['Unzlibber',['../structUnzlibber.html',1,'Unzlibber'],['../structUnzlibber.html#a729a8de0cd3dda80f3149979b338ad9a',1,'Unzlibber::Unzlibber()']]],
+  ['utils_2eh_75',['utils.h',['../utils_8h.html',1,'']]]
 ];

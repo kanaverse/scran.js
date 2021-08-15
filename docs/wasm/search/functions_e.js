@@ -1,7 +1,7 @@
 var searchData=
 [
-  ['thresholds_5fdetected_149',['thresholds_detected',['../structPerCellQCFilters__Results.html#a44514b1f5f5e44e94bfe0b40c5eeae59',1,'PerCellQCFilters_Results']]],
-  ['thresholds_5fproportions_150',['thresholds_proportions',['../structPerCellQCFilters__Results.html#a6b8886ed979da7419723922475dbf434',1,'PerCellQCFilters_Results']]],
-  ['thresholds_5fsums_151',['thresholds_sums',['../structPerCellQCFilters__Results.html#aa21b5e3fb3f85ee3e59a2b9559a3e45a',1,'PerCellQCFilters_Results']]],
-  ['total_5fvariance_152',['total_variance',['../structRunPCA__Results.html#a38a81c83462a601cc097912c9d32ec5a',1,'RunPCA_Results']]]
+  ['score_5fmarkers_147',['score_markers',['../score__markers_8cpp.html#a96d5665269882aa23e30d033cd659973',1,'score_markers.cpp']]],
+  ['size_148',['size',['../classJSVector.html#a29628665d2589799afc3389ef06991aa',1,'JSVector']]],
+  ['subset_5fproportions_149',['subset_proportions',['../structPerCellQCMetrics__Results.html#af8245c5a21f0aed9ba1a5b87031384f7',1,'PerCellQCMetrics_Results']]],
+  ['sums_150',['sums',['../structPerCellQCMetrics__Results.html#aed2914052ca302f343e852dfa7c5f7b3',1,'PerCellQCMetrics_Results']]]
 ];

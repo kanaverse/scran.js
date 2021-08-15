@@ -1,5 +1,6 @@
 var searchData=
 [
-  ['filter_5fcells_121',['filter_cells',['../filter__cells_8cpp.html#ae1984ba8f1a790bbd5c41d418540732e',1,'filter_cells.cpp']]],
-  ['fitted_122',['fitted',['../structModelGeneVar__Results.html#ad3e6821f4675647d9c314ef0f52d98af',1,'ModelGeneVar_Results']]]
+  ['end_120',['end',['../classJSVector.html#acf9447361bf90122a933a4c6008b15cb',1,'JSVector']]],
+  ['extract_5fcolumn_5fpointers_121',['extract_column_pointers',['../utils_8h.html#ae57c47f824ec417fc1e113d479c3ea4b',1,'utils.h']]],
+  ['extract_5fcolumn_5fpointers_5fblocked_122',['extract_column_pointers_blocked',['../utils_8h.html#a4c5edcd8f70e5f2b266909aecb7d80bb',1,'utils.h']]]
 ];

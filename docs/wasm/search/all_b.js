@@ -1,12 +1,5 @@
 var searchData=
 [
-  ['pcs_41',['pcs',['../structRunPCA__Results.html#ae3a8141dd4e9c9320a4c4fafb5c92c1c',1,'RunPCA_Results']]],
-  ['per_5fcell_5fqc_5ffilters_42',['per_cell_qc_filters',['../per__cell__qc__filters_8cpp.html#ab44d05e1ed906631e214a43bf3bc7d3c',1,'per_cell_qc_filters.cpp']]],
-  ['per_5fcell_5fqc_5ffilters_2ecpp_43',['per_cell_qc_filters.cpp',['../per__cell__qc__filters_8cpp.html',1,'']]],
-  ['per_5fcell_5fqc_5fmetrics_44',['per_cell_qc_metrics',['../per__cell__qc__metrics_8cpp.html#a32328fe460f166eb37cb07a23f19280a',1,'per_cell_qc_metrics.cpp']]],
-  ['per_5fcell_5fqc_5fmetrics_2ecpp_45',['per_cell_qc_metrics.cpp',['../per__cell__qc__metrics_8cpp.html',1,'']]],
-  ['percellqcfilters_5fresults_46',['PerCellQCFilters_Results',['../structPerCellQCFilters__Results.html',1,'']]],
-  ['percellqcmetrics_5fresults_47',['PerCellQCMetrics_Results',['../structPerCellQCMetrics__Results.html',1,'']]],
-  ['percellqcmetrics_5fresults_2eh_48',['PerCellQCMetrics_Results.h',['../PerCellQCMetrics__Results_8h.html',1,'']]],
-  ['progress_5fprinter_49',['PROGRESS_PRINTER',['../utils_8h.html#afb5f374e7dc9c07610cdc41f6bc2b263',1,'utils.h']]]
+  ['operator_28_29_40',['operator()',['../structUnzlibber.html#a702f232ffd5b58049b463528e3dfe78d',1,'Unzlibber']]],
+  ['operator_3d_41',['operator=',['../structUnzlibber_1_1ZStream.html#a644f94e32600728e92b43be2dacc0eec',1,'Unzlibber::ZStream::operator=(const ZStream &amp;)=delete'],['../structUnzlibber_1_1ZStream.html#a3f782e5805e9a26613455edc77fe662f',1,'Unzlibber::ZStream::operator=(ZStream &amp;&amp;)=delete']]]
 ];

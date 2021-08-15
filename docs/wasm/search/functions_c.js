@@ -1,8 +1,6 @@
 var searchData=
 [
-  ['read_5fmatrix_5fmarket_140',['read_matrix_market',['../read__matrix__market_8cpp.html#ae97d4b17f48f6d25070f7e6dc91e20b3',1,'read_matrix_market.cpp']]],
-  ['residuals_141',['residuals',['../structModelGeneVar__Results.html#a3237bf6fab7d0570849f8febccdcabb5',1,'ModelGeneVar_Results']]],
-  ['row_142',['row',['../structNumericMatrix.html#a428afa5858a25c1c6b8861900e0dad7b',1,'NumericMatrix']]],
-  ['run_5fpca_143',['run_pca',['../run__pca_8cpp.html#a02ea0870e6d0c9f18277d43aa1f9e028',1,'run_pca.cpp']]],
-  ['run_5ftsne_144',['run_tsne',['../run__tsne_8cpp.html#ad29d8d3b48e3165dc7d8f0476a46119d',1,'run_tsne.cpp']]]
+  ['pcs_139',['pcs',['../structRunPCA__Results.html#ae3a8141dd4e9c9320a4c4fafb5c92c1c',1,'RunPCA_Results']]],
+  ['per_5fcell_5fqc_5ffilters_140',['per_cell_qc_filters',['../per__cell__qc__filters_8cpp.html#ab44d05e1ed906631e214a43bf3bc7d3c',1,'per_cell_qc_filters.cpp']]],
+  ['per_5fcell_5fqc_5fmetrics_141',['per_cell_qc_metrics',['../per__cell__qc__metrics_8cpp.html#a32328fe460f166eb37cb07a23f19280a',1,'per_cell_qc_metrics.cpp']]]
 ];

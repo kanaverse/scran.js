@@ -1,5 +1,6 @@
 var searchData=
 [
-  ['initialize_5ftsne_20',['initialize_tsne',['../run__tsne_8cpp.html#aa3d408da563ab4a0435d18ea83d654fc',1,'run_tsne.cpp']]],
-  ['iterations_21',['iterations',['../structTsneStatus.html#a93d56829545fd0375edca0d1238a451c',1,'TsneStatus']]]
+  ['filter_5fcells_18',['filter_cells',['../filter__cells_8cpp.html#ae1984ba8f1a790bbd5c41d418540732e',1,'filter_cells.cpp']]],
+  ['filter_5fcells_2ecpp_19',['filter_cells.cpp',['../filter__cells_8cpp.html',1,'']]],
+  ['fitted_20',['fitted',['../structModelGeneVar__Results.html#ad3e6821f4675647d9c314ef0f52d98af',1,'ModelGeneVar_Results']]]
 ];

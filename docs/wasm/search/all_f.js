@@ -1,5 +1,9 @@
 var searchData=
 [
-  ['unzlibber_73',['Unzlibber',['../structUnzlibber.html',1,'Unzlibber'],['../structUnzlibber.html#a729a8de0cd3dda80f3149979b338ad9a',1,'Unzlibber::Unzlibber()']]],
-  ['utils_2eh_74',['utils.h',['../utils_8h.html',1,'']]]
+  ['tatami_5fprogress_5fprinter_68',['TATAMI_PROGRESS_PRINTER',['../read__matrix__market_8cpp.html#a5b5c20bcc6d5384f8f235e403bf87ea9',1,'read_matrix_market.cpp']]],
+  ['thresholds_5fdetected_69',['thresholds_detected',['../structPerCellQCFilters__Results.html#a44514b1f5f5e44e94bfe0b40c5eeae59',1,'PerCellQCFilters_Results']]],
+  ['thresholds_5fproportions_70',['thresholds_proportions',['../structPerCellQCFilters__Results.html#a6b8886ed979da7419723922475dbf434',1,'PerCellQCFilters_Results']]],
+  ['thresholds_5fsums_71',['thresholds_sums',['../structPerCellQCFilters__Results.html#aa21b5e3fb3f85ee3e59a2b9559a3e45a',1,'PerCellQCFilters_Results']]],
+  ['total_5fvariance_72',['total_variance',['../structRunPCA__Results.html#a38a81c83462a601cc097912c9d32ec5a',1,'RunPCA_Results']]],
+  ['tsnestatus_73',['TsneStatus',['../structTsneStatus.html',1,'']]]
 ];

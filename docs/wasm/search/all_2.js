@@ -1,9 +1,8 @@
 var searchData=
 [
-  ['data_8',['data',['../classJSVector.html#a01b509ab40b93353a2c01be2fd8fcefc',1,'JSVector']]],
-  ['detected_9',['detected',['../structPerCellQCMetrics__Results.html#aeb4cd294478c282fa053e8e8ecd0232c',1,'PerCellQCMetrics_Results::detected()'],['../structScoreMarkers__Results.html#a8705a7cd8c25f47f0460774265f90d5a',1,'ScoreMarkers_Results::detected()']]],
-  ['discard_5fdetected_10',['discard_detected',['../structPerCellQCFilters__Results.html#a585fce58a562d79a7e8bfb9463ab888e',1,'PerCellQCFilters_Results']]],
-  ['discard_5foverall_11',['discard_overall',['../structPerCellQCFilters__Results.html#a14881582dbc95ccf5494401f4f5a56bf',1,'PerCellQCFilters_Results']]],
-  ['discard_5fproportions_12',['discard_proportions',['../structPerCellQCFilters__Results.html#a3df1095b792847fcab43fb79f9d2f8fd',1,'PerCellQCFilters_Results']]],
-  ['discard_5fsums_13',['discard_sums',['../structPerCellQCFilters__Results.html#ad601a66885ce0f364d68a9558086f2f1',1,'PerCellQCFilters_Results']]]
+  ['cluster_5fsnn_5fgraph_4',['cluster_snn_graph',['../cluster__snn__graph_8cpp.html#a392584a26826c60f38a7b38104bd2d06',1,'cluster_snn_graph.cpp']]],
+  ['cluster_5fsnn_5fgraph_2ecpp_5',['cluster_snn_graph.cpp',['../cluster__snn__graph_8cpp.html',1,'']]],
+  ['clustersnngraph_5fmultilevelresult_6',['ClusterSNNGraph_MultiLevelResult',['../structClusterSNNGraph__MultiLevelResult.html',1,'']]],
+  ['cohen_7',['cohen',['../structScoreMarkers__Results.html#a77ce6eb68fd05cff4a5218e4a6fb549c',1,'ScoreMarkers_Results']]],
+  ['column_8',['column',['../structNumericMatrix.html#a6f0a43d05259f91bcbe5710ee8151922',1,'NumericMatrix']]]
 ];
