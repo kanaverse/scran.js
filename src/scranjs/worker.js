@@ -134,6 +134,14 @@ onmessage = function (msg) {
             type: payload.type,
             msg: `Success: Data loaded, dimensions: ${data.matrix.nrow()}, ${data.matrix.ncol()}`
         })
+
+
+        var ftime  = (t1-t0)/1000;
+        postMessage({
+            type: payload.type,
+            resp: `~${ftime.toFixed(2)} sec`,
+            msg: 'Done'
+        });
     } else if (payload.type == "GENERATE_DATA") {
 
         data.loadData([], 10000, 1000);
@@ -148,8 +156,15 @@ onmessage = function (msg) {
             type: payload.type,
             msg: `Success: Test data loaded, dimensions: ${data.matrix.nrow()}, ${data.matrix.ncol()}`
         });
+
+        postMessage({
+            type: payload.type,
+            msg: 'Done'
+        });
     } else if (payload.type == "QC") {
+        var t0 = performance.now();
         const resp = data.qcMetrics(payload.input[0]);
+        var t1 = performance.now();
 
         postMessage({
             type: "FDATA",
@@ -158,10 +173,17 @@ onmessage = function (msg) {
         })
 
         postMessage({
-            type: payload.type,
+            type: "QC_RESP",
             resp: JSON.parse(JSON.stringify(resp)),
             msg: `Success: QC Complete, ${data.filteredMatrix.nrow()}, ${data.filteredMatrix.ncol()}`
-        })
+        });
+
+        var ftime  = (t1-t0)/1000;
+        postMessage({
+            type: payload.type,
+            resp: `~${ftime.toFixed(2)} sec`,
+            msg: 'Done'
+        });
     } else if (payload.type == "QCThresholds") {
         data.thresholds = payload.input;
 
@@ -186,13 +208,22 @@ onmessage = function (msg) {
         })
     } else if (payload.type == "FEATURE_SELECTION") {
         // need a fsel
+        var t0 = performance.now();
         var resp = data.fSelection(payload.input[0]);
+        var t1 = performance.now();
 
         postMessage({
-            type: payload.type,
+            type: 'FSEL_RESP',
             resp: JSON.parse(JSON.stringify(resp)),
             msg: `Success: FSEL done, ${data.filteredMatrix.nrow()}, ${data.filteredMatrix.ncol()}`
         })
+
+        var ftime  = (t1-t0)/1000;
+        postMessage({
+            type: payload.type,
+            resp: `~${ftime.toFixed(2)} sec`,
+            msg: 'Done'
+        });
     } else if (payload.type == "PCA") {
         var t0 = performance.now();
         var resp = data.PCA(payload.input[0]);

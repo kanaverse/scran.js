@@ -7,387 +7,347 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>SCRANJS - Analyze single-cell datasets in the browser</title>
     <style>
-        .file-input {
-            padding-top: 0.35rem;
+        .header {
+            background-color: rgb(238, 238, 238);
         }
 
-        #tsne_charts {
-            max-height: 600px;
-            overflow: auto;
+        .accordion-item {
+            margin-top: 10px;
         }
 
-        /* #cluster_charts {
-            max-height: 600px;
-        } */
+        #load-data-timer,
+        #load-data-success,
+        #load-data-fail,
+        #load-data-spinner,
+        #qc-accordion,
+        #qc-timer,
+        #qc-success,
+        #qc-fail,
+        #qc-spinner,
+        #fsel-accordion,
+        #fsel-timer,
+        #fsel-success,
+        #fsel-fail,
+        #fsel-spinner {
+            display: none;
+        }
     </style>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.1/dist/tailwind.min.css" rel="stylesheet" type="text/css" />
-    <link href="https://cdn.jsdelivr.net/npm/daisyui@1.11.0/dist/full.css" rel="stylesheet" type="text/css" />
-
-        <!-- epiviz.gl -->
-        <!-- <script type="module" src="./egl/index.js"></script> -->
-        <script type="module">
-            import WebGLVis from'./egl/index.js';
-            window.WebGLVis  = WebGLVis; 
-        </script>
+    <!-- CSS only -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
+    <!-- JavaScript Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-U1DAWAznBHeqEIlVSCgzq+c9gqGAJn5c/t99JyeKa9xxaYpSvHU5awsuZVVFIhvj"
+        crossorigin="anonymous"></script>
+    <!-- epiviz.gl -->
+    <!-- <script type="module" src="./egl/index.js"></script> -->
+    <script type="module">
+        import WebGLVis from './egl/index.js';
+        window.WebGLVis = WebGLVis;
+    </script>
 </head>
 
 <body>
-    <div class="navbar mb-2 shadow-lg bg-neutral text-neutral-content">
-        <div class="flex-none hidden lg:flex">
-            <button class="btn btn-square btn-ghost">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                    class="inline-block w-6 h-6 stroke-current">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16">
-                    </path>
-                </svg>
-            </button>
-        </div>
-        <div class="flex-1 hidden px-2 mx-2 lg:flex">
-            <span class="text-lg font-bold">
-                SCRAN JS - Analyze Single Cell Datasets
-            </span>
-        </div>
-        <div class="flex-none hidden px-2 mx-2 lg:flex">
-            <div class="flex items-stretch">
-                <!-- <a class="btn btn-ghost btn-sm rounded-btn">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-5 mr-2 stroke-current">              
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>            
-                </svg>
-                      Likes
-                    
-              </a>  -->
-                <!-- <a class="btn btn-ghost btn-sm rounded-btn">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                        class="inline-block w-5 mr-2 stroke-current">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9">
-                        </path>
-                    </svg>
-                    Notifications
 
-                </a> -->
-                <!-- <a class="btn btn-ghost btn-sm rounded-btn">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-5 mr-2 stroke-current">          
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path>                
-                </svg>
-                      Files
-                    
-              </a>  -->
-                <a href="#logs" class="modal-button btn btn-ghost btn-sm rounded-btn">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                        class="inline-block w-5 mr-2 stroke-current">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
-                    </svg>
-                    LOGS
+    <main>
+        <div class="container py-4 my-5">
+            <header class="pb-3 mb-4 border-bottom">
+                <a href="/" class="d-flex align-items-center text-dark text-decoration-none">
+                    <!-- <svg xmlns="http://www.w3.org/2000/svg" width="40" height="32" class="me-2" viewBox="0 0 118 94" role="img"><title>Bootstrap</title><path fill-rule="evenodd" clip-rule="evenodd" d="M24.509 0c-6.733 0-11.715 5.893-11.492 12.284.214 6.14-.064 14.092-2.066 20.577C8.943 39.365 5.547 43.485 0 44.014v5.972c5.547.529 8.943 4.649 10.951 11.153 2.002 6.485 2.28 14.437 2.066 20.577C12.794 88.106 17.776 94 24.51 94H93.5c6.733 0 11.714-5.893 11.491-12.284-.214-6.14.064-14.092 2.066-20.577 2.009-6.504 5.396-10.624 10.943-11.153v-5.972c-5.547-.529-8.934-4.649-10.943-11.153-2.002-6.484-2.28-14.437-2.066-20.577C105.214 5.894 100.233 0 93.5 0H24.508zM80 57.863C80 66.663 73.436 72 62.543 72H44a2 2 0 01-2-2V24a2 2 0 012-2h18.437c9.083 0 15.044 4.92 15.044 12.474 0 5.302-4.01 10.049-9.119 10.88v.277C75.317 46.394 80 51.21 80 57.863zM60.521 28.34H49.948v14.934h8.905c6.884 0 10.68-2.772 10.68-7.727 0-4.643-3.264-7.207-9.012-7.207zM49.948 49.2v16.458H60.91c7.167 0 10.964-2.876 10.964-8.281 0-5.406-3.903-8.178-11.425-8.178H49.948z" fill="currentColor"></path></svg> -->
+                    <span class="fs-4">SCRANJS - Single Cell Analysis in the browser</span>
                 </a>
-                <!-- <label for="modal-notif" class="btn btn-ghost modal-button">open modal</label> 
-              <input type="checkbox" id="modal-notif" class="modal-toggle"> 
-              <div class="modal">
-                <div class="modal-box">
-                  <p>Enim dolorem dolorum omnis atque necessitatibus. Consequatur aut adipisci qui iusto illo eaque. Consequatur repudiandae et. Nulla ea quasi eligendi. Saepe velit autem minima.</p> 
-                  <div class="modal-action">
-                    <label for="modal-notif" class="btn btn-primary">Accept</label> 
-                    <label for="modal-notif" class="btn">Close</label>
-                  </div>
-                </div>
-              </div> -->
-            </div>
-        </div>
-        <!-- <div class="flex-1 lg:flex-none">
-          <div class="form-control">
-            <input type="text" placeholder="Search" class="input input-ghost">
-          </div>
-        </div> 
-        <div class="flex-none">
-          <button class="btn btn-square btn-ghost">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-6 h-6 stroke-current">             
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>             
-            </svg>
-          </button>
-        </div>  -->
-        <!-- <div class="flex-none">
-            <button class="btn btn-square btn-ghost">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                    class="inline-block w-6 h-6 stroke-current">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9">
-                    </path>
-                </svg>
-            </button>
-        </div> -->
-        <!-- <div class="flex-none">
-          <div class="avatar">
-            <div class="rounded-full w-10 h-10 m-1">
-              <img src="https://i.pravatar.cc/500?img=32">
-            </div>
-          </div>
-        </div> -->
-    </div>
+            </header>
 
-    <!-- <div class="flex-col">
-        <div class="flex  justify-center space-x-4">
-        </div>
-    </div> -->
+            <div id="load-data-accordion">
+                <div class="card">
+                    <div class="card-header" id="load-data-header">
+                        <div class="d-flex flex-row justify-content-between">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link" data-bs-toggle="collapse" data-bs-target="#load-data-card"
+                                    aria-expanded="true" aria-controls="load-data-card">
+                                    Load Data
+                                    <span id="load-data-timer"
+                                        class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary">
 
-    <ul class="w-full steps">
-        <li id="load-data-btn" data-content="?" class="step step-neutral">
-            <button class="btn btn-ghost">
-                <a href="#loadData" class="link">Load Data</a>
-            </button>
-        </li>
-        <li id="qc-data-btn" data-content="?" class="step step-neutral">
-            <button class="btn btn-ghost">
-                <a href="#performQC" class="link">Perform QC</a>
-            </button>
-        </li>
-        <li id="fsel-data-btn" data-content="?" class="step step-neutral">
-            <button class="btn btn-ghost">
-                <a href="#featureSelection" class="link">Feature Selection</a>
-            </button>
-        </li>
-        <li id="pca-data-btn" data-content="?" class="step step-neutral">
-            <button class="btn btn-ghost">
-                <a href="#performPCA" class="link">PCA</a>
-            </button>
-        </li>
-        <li id="tsne-data-btn" data-content="?" class="step step-neutral">
-            <button class="btn btn-ghost">
-                <a href="#performTSNE" class="link">TSNE</a>
-            </button>
-        </li>
-        <li id="cluster-data-btn" data-content="?" class="step step-neutral">
-            <button class="btn btn-ghost">
-                <a href="#performCluster" class="link">Cluster</a>
-            </button>
-        </li>
-        <li id="mg-data-btn" data-content="?" class="step step-neutral">
-            <button class="btn btn-ghost">
-                <a href="#performMGA" class="link">Marker Genes</a>
-            </button>
-        </li>
-        <!-- <li id="de-data-btn" data-content="?" class="step step-neutral">
-            <button class="btn btn-ghost">
-                <a href="#performDE" class="link">Diff. Expression</a>
-            </button>
-        </li> -->
-        <li data-content="●" class="step step-neutral">Done</li>
-    </ul>
-
-    <div class="flex-col space-y-6">
-        <div id="loadData" class="ml-36 flex justify-left items-center space-x-6">
-            <div class="card w-4/6 lg:card-side bordered shadow">
-                <div class="card-body">
-                    <h2 class="card-title">Load Data</h2>
-                    <p>Upload either a mtx file (w/ barcodes and/or genes) or generate [random] test data to use the app
-                    </p>
-                    <div class="flex justify-left items-center space-x-6">
-                        <div class="form-control">
-                            <label class="label">
-                                <span class="label-text">Upload MTX File</span>
-                            </label>
-                            <div class="relative">
-                                <input id="mtx-upload-file" type="file" placeholder="Search"
-                                    class="file-input w-full pr-16 input input-primary input-bordered">
+                                        <span class="visually-hidden">time to run</span>
+                                    </span>
+                                </button>
+                            </h5>
+                            <div>
+                                <ul class="nav nav-tabs" id="load-data-tabs" role="tablist">
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link active" id="load-data-input-tab" data-bs-toggle="tab"
+                                            data-bs-target="#load-data-input" type="button" role="tab"
+                                            aria-controls="load-data-input" aria-selected="true">Input</button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="load-data-log-tab" data-bs-toggle="tab"
+                                            data-bs-target="#load-data-logger" type="button" role="tab"
+                                            aria-controls="load-data-logger" aria-selected="false">Logs</button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="load-data-output-tab" data-bs-toggle="tab"
+                                            data-bs-target="#load-data-output" type="button" role="tab"
+                                            aria-controls="load-data-output" aria-selected="false">Output</button>
+                                    </li>
+                                </ul>
                             </div>
-                        </div>
-                        <div class="form-control">
-                            <label class="label">
-                                <span class="label-text">Upload Barcodes File</span>
-                            </label>
-                            <div class="relative">
-                                <input id="barcodes-upload-file" type="file" placeholder="Search"
-                                    class="file-input w-full pr-16 input input-primary input-bordered">
-                            </div>
-                        </div>
-                        <div class="form-control">
-                            <label class="label">
-                                <span class="label-text">Upload Genes File</span>
-                            </label>
-                            <div class="relative">
-                                <input id="genes-upload-file" type="file" placeholder="Search"
-                                    class="file-input w-full pr-16 input input-primary input-bordered">
+                            <div id="load-data-status">
+                                <span id="load-data-notrun" class="badge bg-secondary">not run</span>
+                                <span id="load-data-success" class="badge bg-success">Success</span>
+                                <span id="load-data-fail" class="badge bg-danger">Danger</span>
+                                <div id="load-data-spinner" class="spinner-border text-secondary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="card-actions">
-                        <button id="mtx-upload-submit" class="btn btn-primary">Upload data</button>
-                        <button id="mtx-generate-submit" class="btn btn-ghost">Generate Test Data</button>
-                    </div>
-                </div>
-            </div>
-            <!-- <div class="card w-3/6 lg:card-side bordered shadow"> -->
-            <div class="shadow stats">
-                <div id="odata" class="stat">
-                    <div class="stat-title">Matrix Dims</div>
-                    <div class="stat-value">?????</div>
-                    <div class="stat-desc">...</div>
-                </div>
-            </div>
-            <!-- </div> -->
-        </div>
+                    <div id="load-data-card" class="collapse show" aria-labelledby="load-data-header"
+                        data-parent="#load-data-accordion">
+                        <div class="card-body">
+                            <p>Upload either a mtx file (w/ barcodes and/or genes) or generate [random] test data to use
+                                the
+                                app
+                            </p>
+                            <div id="load-data" class="accordion-collapse collapse show"
+                                aria-labelledby="load-data-header" data-bs-parent="#load-data-accordion">
+                                <div class="accordion-body">
+                                    <div class="tab-content" id="myTabContent">
+                                        <div class="tab-pane fade show active" id="load-data-input" role="tabpanel"
+                                            aria-labelledby="home-tab">
+                                            <div class="row g-4 py-3 row-cols-1 row-cols-lg-3">
+                                                <div class="feature col">
+                                                    <!-- <h2>Upload MTX File</h2> -->
+                                                    <!-- <p>...</p> -->
+                                                    <label for="mtx-upload-file" class="form-label">Upload MTX
+                                                        file</label>
+                                                    <input class="form-control" type="file" id="mtx-upload-file">
+                                                </div>
+                                                <div class="feature col">
+                                                    <label for="barcodes-upload-file" class="form-label">Upload Barcodes
+                                                        file</label>
+                                                    <input class="form-control" type="file" id="barcodes-upload-file">
+                                                </div>
+                                                <div class="feature col">
+                                                    <label for="genes-upload-file" class="form-label">Upload Genes
+                                                        file</label>
+                                                    <input class="form-control" type="file" id="genes-upload-file">
+                                                </div>
+                                            </div>
+                                            <button id="mtx-upload-submit" type="button" class="btn btn-primary">Read
+                                                Data</button>
+                                            <button id="mtx-generate-submit" type="button"
+                                                class="btn btn-secondary">Generate Test Data</button>
 
-        <div id="performQC" class="ml-36 flex justify-left items-center space-x-6">
-            <div class="card w-4/6 lg:card-side bordered shadow">
-                <div class="card-body">
-                    <h2 class="card-title">Perform QC</h2>
-                    <p>Generate per cell QC metrics and filter cells</p>
-                    <div class="form-control">
-                        <label class="label">
-                            <span class="label-text">NMADS: Number of MADs from the median, to use for defining
-                                outliers. (defaults to 3)</span>
-                        </label>
-                        <div class="relative">
-                            <input id="qc-nmads-input" type="number" placeholder="3"
-                                class="w-full pr-16 input input-primary input-bordered">
+                                        </div>
+                                        <div class="tab-pane fade" id="load-data-logger" role="tabpanel"
+                                            aria-labelledby="profile-tab">
+                                            Logs</div>
+                                        <div class="tab-pane fade" id="load-data-output" role="tabpanel"
+                                            aria-labelledby="contact-tab">
+                                            Output</div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div id="qc_charts" class="flex flex-wrap justify-evenly"></div>
-
-                    <div class="card-actions">
-                        <button id="qc-submit" class="btn btn-primary">Run QC</button>
-                        <button id="qc-filter-submit" class="btn btn-ghost">Confirm QC Filters</button>
-                    </div>
                 </div>
             </div>
 
-            <div class="shadow stats">
-                <div id="fdata" class="stat">
-                    <div class="stat-title">Filtered Matrix Dims</div>
-                    <div class="stat-value">?????</div>
-                    <div class="stat-desc">...</div>
-                </div>
-            </div>
-        </div>
-
-        <div id="featureSelection" class="ml-36 flex justify-left items-center space-x-6">
-            <div class="card w-5/6 lg:card-side bordered shadow">
-                <div class="card-body">
-                    <h2 class="card-title">Feature Selection</h2>
-                    <p>Model the variance of the log-expression values for each gene, accounting for the mean-variance
-                        trend.
-                    </p>
-                    <div class="form-control">
-                        <label class="label">
-                            <span class="label-text">Span factor: The span of the LOWESS smoother for fitting the
-                                mean-variance trend. (defaults to 0.3)</span>
-                        </label>
-                        <div class="relative">
-                            <input id="fsel-input" type="number" placeholder="0.3"
-                                class="w-full pr-16 input input-primary input-bordered">
-                        </div>
-                    </div>
-                    <div id="fsel_charts" class="flex flex-wrap justify-evenly">
-                        <div class="clusterize">
-                            <div id="scrollArea" class="clusterize-scroll">
-                                <table>
-                                    <thead>
-                                        <tr id="row_header">
-                                            <th>Genes</th>
-                                            <th>Means</th>
-                                            <th>Vars</th>
-                                            <th>Fitted</th>
-                                            <th>Residuals</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="contentArea" class="clusterize-content">
-                                        <tr class="clusterize-no-data">
-                                            <td>Loading data…</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+            <div id="qc-accordion">
+                <div class="card">
+                    <div class="card-header" id="qc-header">
+                        <div class="d-flex flex-row justify-content-between">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link" data-bs-toggle="collapse" data-bs-target="#qc-card"
+                                    aria-expanded="true" aria-controls="qc-card">
+                                    QC Metrics and Filtering
+                                    <span id="qc-timer"
+                                        class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary">
+                                        <span class="visually-hidden">time to run</span>
+                                    </span>
+                                </button>
+                            </h5>
+                            <div>
+                                <ul class="nav nav-tabs" id="qc-tabs" role="tablist">
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link active" id="qc-input-tab" data-bs-toggle="tab"
+                                            data-bs-target="#qc-input" type="button" role="tab" aria-controls="home"
+                                            aria-selected="true">Input</button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="qc-log-tab" data-bs-toggle="tab"
+                                            data-bs-target="#qc-logger" type="button" role="tab"
+                                            aria-controls="qc-logger" aria-selected="false">Logs</button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="qc-output-tab" data-bs-toggle="tab"
+                                            data-bs-target="#qc-output" type="button" role="tab"
+                                            aria-controls="qc-output" aria-selected="false">Output</button>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div id="qc-status">
+                                <span id="qc-notrun" class="badge bg-secondary">not run</span>
+                                <span id="qc-success" class="badge bg-success">Success</span>
+                                <span id="qc-fail" class="badge bg-danger">Danger</span>
+                                <div id="qc-spinner" class="spinner-border text-secondary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="card-actions">
-                        <button id="fsel-submit" class="btn btn-primary">Compute Gene Metrics</button>
-                        <!-- <button id="mtx-generate-submit" class="btn btn-ghost">Generate Test Data</button> -->
-                    </div>
-                </div>
-            </div>
-        </div>
+                    <div id="qc-card" class="collapse show" aria-labelledby="qc-header" data-parent="#qc-accordion">
+                        <div class="card-body">
+                            <p>Generate per cell QC metrics and filter cells</p>
+                            <div id="qc" class="accordion-collapse collapse show" aria-labelledby="qc-header"
+                                data-bs-parent="#qc-accordion">
+                                <div class="accordion-body">
+                                    <div class="tab-content" id="qcContent">
+                                        <div class="tab-pane fade show active" id="qc-input" role="tabpanel"
+                                            aria-labelledby="input-tab">
+                                            <div class="row g-4 py-3 row-cols-1 row-cols-lg-2">
+                                                <div class="feature col">
+                                                    <label for="qc-nmads-input" class="form-label">NMADS: Number of MADs
+                                                        from the median, to use for defining
+                                                        outliers. (defaults to 3)</label>
+                                                    <input class="form-control" placeholder="3" type="number"
+                                                        id="qc-nmads-input">
+                                                </div>
+                                            </div>
+                                            <button id="qc-submit" type="button" class="btn btn-primary">Perform
+                                                QC</button>
+                                        </div>
+                                        <div class="tab-pane fade" id="qc-logger" role="tabpanel"
+                                            aria-labelledby="qc-logs-tab">
+                                            Logs</div>
+                                        <div class="tab-pane fade" id="qc-output" role="tabpanel"
+                                            aria-labelledby="qc-output-tab">
+                                            Output
+                                            <div id="qc_charts" class="row g-4 py-3 row-cols-1 row-cols-lg-2"></div>
+                                            <button id="qc-filter-submit" class="btn btn-secondary">Confirm QC Filters</button>
 
-        <div id="performPCA" class="ml-36 flex justify-left items-center space-x-6">
-            <div class="card w-5/6 lg:card-side bordered shadow">
-                <div class="card-body">
-                    <h2 class="card-title">Perform PCA</h2>
-                    <p>Perform a principal components analysis to obtain per-cell coordinates in low-dimensional space.
-                    </p>
-                    <div class="form-control">
-                        <label class="label">
-                            <span class="label-text">Choose # of PCs (defaults to 5)</span>
-                        </label>
-                        <div class="relative">
-                            <input id="pcs-input" type="number" placeholder="5"
-                                class="w-full pr-16 input input-primary input-bordered">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div id="pca_charts" class="flex flex-wrap justify-evenly"></div>
-                    <div class="card-actions">
-                        <button id="pca-submit" class="btn btn-primary">Compute PCs</button>
-                        <!-- <button id="mtx-generate-submit" class="btn btn-ghost">Generate Test Data</button> -->
-                    </div>
                 </div>
             </div>
-        </div>
 
-        <div id="performTSNE" class="ml-36 flex justify-left items-center space-x-6">
-            <div class="card w-5/6 lg:card-side bordered shadow">
-                <div class="card-body">
-                    <h2 class="card-title">Compute TSNE</h2>
-                    <p>Perform TSNE.</p>
-                    <div class="form-control">
-                        <label class="label">
-                            <span class="label-text">Choose Iterations (defaults to 200)</span>
-                        </label>
-                        <div class="relative">
-                            <input id="tsne-input-iterations" type="number" placeholder="200"
-                                class="w-full pr-16 input input-primary input-bordered">
+            <div id="fsel-accordion">
+                <div class="card">
+                    <div class="card-header" id="fsel-header">
+                        <div class="d-flex flex-row justify-content-between">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link" data-bs-toggle="collapse" data-bs-target="#fsel-card"
+                                    aria-expanded="true" aria-controls="fsel-card">
+                                    Filter Selection
+                                    <span id="fsel-timer"
+                                        class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary">
+                                        <span class="visually-hidden">time to run</span>
+                                    </span>
+                                </button>
+                            </h5>
+                            <div>
+                                <ul class="nav nav-tabs" id="fsel-tabs" role="tablist">
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link active" id="fsel-input-tab" data-bs-toggle="tab"
+                                            data-bs-target="#fsel-input" type="button" role="tab" aria-controls="home"
+                                            aria-selected="true">Input</button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="fsel-log-tab" data-bs-toggle="tab"
+                                            data-bs-target="#fsel-logger" type="button" role="tab"
+                                            aria-controls="fsel-logger" aria-selected="false">Logs</button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="fsel-output-tab" data-bs-toggle="tab"
+                                            data-bs-target="#fsel-output" type="button" role="tab"
+                                            aria-controls="fsel-output" aria-selected="false">Output</button>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div id="fsel-status">
+                                <span id="fsel-notrun" class="badge bg-secondary">not run</span>
+                                <span id="fsel-success" class="badge bg-success">Success</span>
+                                <span id="fsel-fail" class="badge bg-danger">Danger</span>
+                                <div id="fsel-spinner" class="spinner-border text-secondary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="form-control">
-                        <label class="label">
-                            <span class="label-text">Choose Perplexity (defaults to 30)</span>
-                        </label>
-                        <div class="relative">
-                            <input id="tsne-input-perplexity" type="number" placeholder="30"
-                                class="w-full pr-16 input input-primary input-bordered">
+
+                    <div id="fsel-card" class="collapse show" aria-labelledby="fsel-header"
+                        data-parent="#fsel-accordion">
+                        <div class="card-body">
+                            <p>Model the variance of the log-expression values for each gene, accounting for the
+                                mean-variance
+                                trend.</p>
+                            <div id="fsel" class="accordion-collapse collapse show" aria-labelledby="fsel-header"
+                                data-bs-parent="#fsel-accordion">
+                                <div class="accordion-body">
+                                    <div class="tab-content" id="fselContent">
+                                        <div class="tab-pane fade show active" id="fsel-input" role="tabpanel"
+                                            aria-labelledby="input-tab">
+                                            <div class="row g-4 py-3 row-cols-1 row-cols-lg-2">
+                                                <div class="feature col">
+                                                    <label for="fsel-input" class="form-label">Span factor: The span of
+                                                        the LOWESS smoother for fitting the
+                                                        mean-variance trend. (defaults to 0.3)</label>
+                                                    <input class="form-control" placeholder="0.3" type="number"
+                                                        id="fsel-input">
+                                                </div>
+                                            </div>
+                                            <button id="fsel-submit" type="button" class="btn btn-primary">Perform
+                                                fsel</button>
+                                        </div>
+                                        <div class="tab-pane fade" id="fsel-logger" role="tabpanel"
+                                            aria-labelledby="fsel-logs-tab">
+                                            Logs</div>
+                                        <div class="tab-pane fade" id="fsel-output" role="tabpanel"
+                                            aria-labelledby="fsel-output-tab">
+                                            Output
+                                            <div id="fsel_charts" class="flex flex-wrap justify-evenly">
+                                                <div class="clusterize">
+                                                    <div id="scrollArea" class="clusterize-scroll">
+                                                        <table>
+                                                            <thead>
+                                                                <tr id="row_header">
+                                                                    <th>Genes</th>
+                                                                    <th>Means</th>
+                                                                    <th>Vars</th>
+                                                                    <th>Fitted</th>
+                                                                    <th>Residuals</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody id="contentArea" class="clusterize-content">
+                                                                <tr class="clusterize-no-data">
+                                                                    <td>Loading data…</td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div id="tsne_charts" class="flex flex-wrap justify-evenly"></div>
-                    <div class="card-actions">
-                        <button id="tsne-submit" class="btn btn-primary">Compute TSNE</button>
-                        <!-- <button id="mtx-generate-submit" class="btn btn-ghost">Generate Test Data</button> -->
-                    </div>
                 </div>
             </div>
+
+            <footer class="pt-3 mt-4 text-muted border-top">
+                &copy; 2021
+            </footer>
         </div>
-
-        <div id="performCluster" class="ml-36 flex justify-left items-center space-x-6">
-            <div class="card w-5/6 lg:card-side bordered shadow">
-                <div class="card-body">
-                    <h2 class="card-title">Perform Clustering</h2>
-                    <p>Generate SNN graph and cluster</p>
-                    <div id="cluster_charts" class="flex flex-wrap justify-evenly"></div>
-
-                    <div class="card-actions">
-                        <button id="cluster-submit" class="btn btn-primary">Cluster cells</button>
-                        <!-- <button id="mtx-generate-submit" class="btn btn-ghost">Generate Test Data</button> -->
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="flex-col">
-            <div class="flex justify-center">
-                <div id="logs" class="mockup-code w-5/6">
-                </div>
-            </div>
-        </div>
-    </div>
-
+    </main>
 
     <!-- <script src="scran_wasm.js"></script> -->
     <script src="../scranjs/boxPlot.js"></script>

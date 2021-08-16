@@ -186,7 +186,6 @@ class scran {
     return instance;
   }
 
-  // pretty much from PR #1 Aaron's code
   qcMetrics(nmads) {
     var nsubsets = 1;
     var subsets = this.createMemorySpace(

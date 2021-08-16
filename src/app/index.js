@@ -15,32 +15,44 @@ class App {
             console.log(msg.data);
             const payload = msg.data;
 
-            var log_cont = document.getElementById("logs");
-            if (payload.msg.startsWith("Success")) {
-                log_cont.insertAdjacentHTML('beforeend',
-                    `<pre data-prefix="~"><code>${payload.msg}</code></pre>`);
-            } else if (payload.msg.startsWith("Error")) {
-                log_cont.insertAdjacentHTML('beforeend',
-                    `<pre data-prefix="~"><code>${payload.msg}</code></pre>`);
-            } else {
-                log_cont.insertAdjacentHTML('beforeend',
-                    `<pre data-prefix="~"><code>${payload.msg}</code></pre>`);
-            }
+            // logger
+            self._logger(payload);
+            // var log_cont = document.getElementById("logs");
 
             if (payload.type == "ODATA") {
-                var cont = document.getElementById("odata");
-                elem = cont.querySelector(".stat-value");
-                elem.innerHTML = payload.resp;
+                var output_cont = document.getElementById("load-data-output");
+                output_cont.insertAdjacentHTML('beforeend',
+                    `<p>${payload.msg}</p>`);
 
-                document.getElementById("load-data-btn").setAttribute("data-content", "✓");
             } else if (payload.type == "FDATA") {
-                var cont = document.getElementById("fdata");
-                elem = cont.querySelector(".stat-value");
-                elem.innerHTML = payload.resp;
+                // var cont = document.getElementById("fdata");
+                // elem = cont.querySelector(".stat-value");
+                // elem.innerHTML = payload.resp;
 
-                document.getElementById("qc-data-btn").setAttribute("data-content", "✓");
+                // document.getElementById("qc-data-btn").setAttribute("data-content", "✓");
             } else if (payload.type == "MOUNT" || payload.type == "GENERATE_DATA") {
-            } else if (payload.type == "QC") {
+
+                if (payload.msg.startsWith("Done")) {
+                    //  switch to output tab
+                    var tab = document.querySelector('#load-data-tabs button[data-bs-target="#load-data-output"]');
+                    var ttab = new bootstrap.Tab(tab)
+                    ttab.show();
+
+                    var container = document.getElementById("load-data-status");
+                    container.querySelector("#load-data-notrun").style.display = "none";
+                    container.querySelector("#load-data-spinner").style.display = "none";
+                    container.querySelector("#load-data-success").style.display = "block";
+
+                    // timer
+                    document.getElementById("load-data-timer").style.display = "block";
+                    document.getElementById("load-data-timer").innerHTML = payload.resp;
+
+                    // show QC Step
+                    document.getElementById("qc-accordion").style.display = "block";
+                }
+
+            } else if (payload.type == "QC_RESP") {
+                // add output plots
                 ["sums", "detected", "proportion"].forEach(key => {
                     var cont = document.getElementById("qc_charts");
                     const eid = `qc_${key}`;
@@ -88,44 +100,62 @@ class App {
                         plot.draw(pData, "", 'x', 'y', threshold);
                     }
                 });
-            } else if (payload.type == "FEATURE_SELECTION") {
+            } else if (payload.type == "QC") {
+
+                if (payload.msg.startsWith("Done")) {
+                    //  switch to output tab
+                    var tab = document.querySelector('#qc-tabs button[data-bs-target="#qc-output"]');
+                    var ttab = new bootstrap.Tab(tab)
+                    ttab.show();
+
+                    var container = document.getElementById("qc-status");
+                    container.querySelector("#qc-notrun").style.display = "none";
+                    container.querySelector("#qc-spinner").style.display = "none";
+                    container.querySelector("#qc-success").style.display = "block";
+
+                    // timer
+                    document.getElementById("qc-timer").style.display = "block";
+                    document.getElementById("qc-timer").innerHTML = payload.resp;
+
+                    // show FSEL Step
+                    document.getElementById("fsel-accordion").style.display = "block";
+                }
+            } else if (payload.type == "FSEL_RESP") {
                 const payload = msg.data;
                 var keys = ["genes", "means", "vars", "fitted", "resids"];
                 var isGene = payload.resp["genes"] != null;
                 var table = [];
-                // Object.keys(payload.resp["means"]).length
                 for (var i = 0; i < 100; i++) {
-                    // var tr = isGene ? [payload.resp["genes"][i]] : []
-                    // tr.push(payload.resp["means"][i], payload.resp["vars"][i], 
-                    //     payload.resp["fitted"][i], payload.resp["resids"][i]);
                     var tr = isGene ? `<td>${payload.resp["genes"][i]["gene"]}</td>` : "<td>-</td>";
                     tr += `<td>${payload.resp["means"][i]}</td><td>${payload.resp["vars"][i]}</td><td>${payload.resp["fitted"][i]}</td><td>${payload.resp["resids"][i]}</td>`
                     table.push(`<tr>${tr}</tr>`);
                 }
 
                 var columns = isGene ? keys : keys.slice(1);
-
-                // columns.forEach(m => {
-                //     document.getElementById("row_header").insertAdjacentHTML(
-                //         'beforeend',
-                //         `<th>${m}</th>`
-                //     )
-                // });
-
                 var clusterize = new Clusterize({
                     rows: table,
                     scrollId: 'scrollArea',
                     contentId: 'contentArea'
                 });
-                // const grid = new Grid({
-                //     columns: columns,
-                //     pagination: {
-                //         limit: 10
-                //       },
-                //     data: table
-                //   }).render(document.getElementById("fsel_charts"));
-                document.getElementById("fsel-data-btn").setAttribute("data-content", "✓");
+            } else if (payload.type == "FEATURE_SELECTION") {
+                if (payload.msg.startsWith("Done")) {
+                    //  switch to output tab
+                    var tab = document.querySelector('#fsel-tabs button[data-bs-target="#fsel-output"]');
+                    var ttab = new bootstrap.Tab(tab)
+                    ttab.show();
 
+                    var container = document.getElementById("fsel-status");
+                    container.querySelector("#fsel-notrun").style.display = "none";
+                    container.querySelector("#fsel-spinner").style.display = "none";
+                    container.querySelector("#fsel-success").style.display = "block";
+
+                    // timer
+                    document.getElementById("fsel-timer").style.display = "block";
+                    document.getElementById("fsel-timer").innerHTML = payload.resp;
+
+                    // show PCA Step
+                    // document.getElementById("fsel-accordion").style.display = "block";
+                }
             } else if (payload.type == "PCA") {
                 const payload = msg.data;
                 var x = [];
@@ -164,7 +194,7 @@ class App {
 
                 var tsne1 = [], tsne2 = [], sample = [];
                 var payload_vals = Object.values(payload.resp["tsne"]);
-                var min = 1000, max=-1000;
+                var min = 1000, max = -1000;
                 for (var i = 0; i < payload_vals.length; i++) {
                     if (i % 2 == 0) {
                         tsne1.push(payload_vals[i]);
@@ -185,12 +215,12 @@ class App {
                     },
                     "labels": [
                         {
-                          "y": -1.3,
-                          "x": 0,
-                          "text": "Iteration " + payload.resp["iteration"],
-                          "fixedX": true
+                            "y": -1.3,
+                            "x": 0,
+                            "text": "Iteration " + payload.resp["iteration"],
+                            "fixedX": true
                         }
-                      ],
+                    ],
                     tracks: [
                         {
                             "mark": "point",
@@ -250,7 +280,7 @@ class App {
 
                 var tsne1 = [], tsne2 = [];
                 var payload_vals = Object.values(payload.resp["tsne"]);
-                var min = 1000, max=-1000;
+                var min = 1000, max = -1000;
                 for (var i = 0; i < payload_vals.length; i++) {
                     if (i % 2 == 0) {
                         tsne1.push(payload_vals[i]);
@@ -289,7 +319,7 @@ class App {
                                 "type": "categorical",
                                 "cardinality": Math.max(...samples),
                                 "colorScheme": "interpolateRainbow"
-                              },
+                            },
                             "opacity": { "value": 0.6 }
                         },
                     ],
@@ -303,6 +333,34 @@ class App {
         });
 
         var self = this;
+    }
+
+    _logger(payload) {
+        if (payload.type == "MOUNT" || payload.type == "GENERATE_DATA") {
+            var log_cont = document.getElementById("load-data-logger");
+            if (payload.msg.startsWith("Success")) {
+                log_cont.insertAdjacentHTML('beforeend',
+                    `<p>${payload.msg}</p>`);
+            } else if (payload.msg.startsWith("Error")) {
+                log_cont.insertAdjacentHTML('beforeend',
+                    `<p>${payload.msg}</p>`);
+            } else {
+                log_cont.insertAdjacentHTML('beforeend',
+                    `<p>${payload.msg}</p>`);
+            }
+        } else if (payload.type == "QC") {
+            var log_cont = document.getElementById("qc-logger");
+            if (payload.msg.startsWith("Success")) {
+                log_cont.insertAdjacentHTML('beforeend',
+                    `<p>${payload.msg}</p>`);
+            } else if (payload.msg.startsWith("Error")) {
+                log_cont.insertAdjacentHTML('beforeend',
+                    `<p>${payload.msg}</p>`);
+            } else {
+                log_cont.insertAdjacentHTML('beforeend',
+                    `<p>${payload.msg}</p>`);
+            }
+        }
     }
 
 }
@@ -319,6 +377,16 @@ document.addEventListener("DOMContentLoaded", () => {
             "type": "MOUNT",
             "msg": [mtx, barcodes, genes]
         });
+
+        // logs/status
+        var container = document.getElementById("load-data-status");
+        container.querySelector("#load-data-notrun").style.display = "none";
+        container.querySelector("#load-data-spinner").style.display = "block";
+
+        // switch to log tab
+        var tab = document.querySelector('#load-data-tabs button[data-bs-target="#load-data-logger"]');
+        var ttab = new bootstrap.Tab(tab)
+        ttab.show();
     });
 
     document.getElementById("mtx-generate-submit").addEventListener("click", (event) => {
@@ -336,6 +404,16 @@ document.addEventListener("DOMContentLoaded", () => {
             "input": [parseFloat(val)], // sums, detected & threshold 
             "msg": "not much to pass"
         });
+
+        // logs/status
+        var container = document.getElementById("qc-status");
+        container.querySelector("#qc-notrun").style.display = "none";
+        container.querySelector("#qc-spinner").style.display = "block";
+
+        // switch to log tab
+        var tab = document.querySelector('#qc-tabs button[data-bs-target="#qc-logger"]');
+        var ttab = new bootstrap.Tab(tab)
+        ttab.show();
     });
 
     document.getElementById("qc-nmads-input").addEventListener("change", (event) => {
@@ -363,6 +441,16 @@ document.addEventListener("DOMContentLoaded", () => {
             "input": [parseFloat(val)],
             "msg": "not much to pass"
         });
+
+        // logs/status
+        var container = document.getElementById("fsel-status");
+        container.querySelector("#fsel-notrun").style.display = "none";
+        container.querySelector("#fsel-spinner").style.display = "block";
+
+        // switch to log tab
+        var tab = document.querySelector('#fsel-tabs button[data-bs-target="#fsel-logger"]');
+        var ttab = new bootstrap.Tab(tab)
+        ttab.show();
     });
 
     document.getElementById("pca-submit").addEventListener("click", (event) => {
