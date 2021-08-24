@@ -65,6 +65,19 @@ struct ScoreMarkers_Results {
         const auto& current = store.cohen[s][g];
         return emscripten::val(emscripten::typed_memory_view(current.size(), current.data()));
     }
+
+    /**
+     * @param g Group of interest.
+     * @param s Summary statistic of interest for the per-gene AUC from the pairwise comparisons between `g` and every other group.
+     * This can be the minimum across comparisons (0), mean (1), median (2), maximum (3) or min-rank (4).
+     * 
+     * @return `Float64Array` view of length equal to the number of genes.
+     * Each entry contains the summarized AUC across all pairwise comparisons between `g` and every other group for a particular gene.
+     */
+    emscripten::val auc(int g, int s=1) const {
+        const auto& current = store.auc[s][g];
+        return emscripten::val(emscripten::typed_memory_view(current.size(), current.data()));
+    }
 };
 
 /**
