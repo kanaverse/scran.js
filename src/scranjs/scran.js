@@ -378,11 +378,18 @@ class scran {
   cluster() {
     var clustering = this.wasm.cluster_snn_graph(this.n_pcs, this.filteredMatrix.ncol(), this.pcs.pcs().byteOffset, 2, 0.5, false);
     var arr_clust_raw = clustering.membership(clustering.best());
-    // console.log(arr_clust_raw);
     var arr_clust = arr_clust_raw.slice();
     clustering.delete();
 
-    this._clusterAssignments = arr_clust;
+    var clus_vec = this.createMemorySpace(
+      arr_clust.length,
+      "Int32Array",
+      "cluster_assignments"
+    );
+
+    var cluster_vec = this.getVector("cluster_assignments");
+
+    arr_clust.set(arr_clust);
 
     return {
       "tsne": this.getVector("tsne"),
@@ -391,8 +398,11 @@ class scran {
   }
 
   marker_gene() {
+
+    var clus_assigns = this.getMemorySpace("cluster_assignments");
+
     var markers = this.wasm.score_markers(this.filteredMatrix,
-      this._clusterAssignments, false, 0);
+      clus_assigns.ptr, false, 0);
 
     return {
       "markers": markers,

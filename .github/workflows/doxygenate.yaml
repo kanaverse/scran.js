@@ -12,15 +12,15 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Add Pretty CSS
-      uses: wei/wget@v1
-      with:
-        args: -O wasm/docs/doxygen-awesome.css https://raw.githubusercontent.com/jothepro/doxygen-awesome-css/main/doxygen-awesome.css
+    # - name: Add Pretty CSS
+    #   uses: wei/wget@v1
+    #   with:
+    #     args: -O wasm/docs/doxygen-awesome.css https://raw.githubusercontent.com/jothepro/doxygen-awesome-css/main/doxygen-awesome.css
     
-    - name: Doxygen Action
-      uses: mattnotmitt/doxygen-action@v1.1.0
-      with:
-        working-directory: wasm/docs/
+    # - name: Doxygen Action
+    #   uses: mattnotmitt/doxygen-action@v1.1.0
+    #   with:
+    #     working-directory: wasm/docs/
 
     - name: Copy everything
       run: |
