@@ -7517,7 +7517,7 @@ class WebGLVis {
     );
     this.dataWorker.onmessage = (message) => {
       this.dataWorkerStream.push(message);
-      console.log(this.dataWorkerStream);
+      // console.log(this.dataWorkerStream);
     };
 
     // Needs to be called at the end of addToDOM so mouseReader has correct dimensions to work with

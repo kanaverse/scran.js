@@ -1702,7 +1702,7 @@ class DataProcessor {
   constructor(schema) {
     this.schema = schema;
 
-    console.log("Loading data...");
+    // console.log("Loading data...");
 
     new SchemaProcessor(schema, this.indexData.bind(this));
   }
@@ -1733,7 +1733,7 @@ class DataProcessor {
 
     this.index = new Flatbush(totalPoints);
     this.data = [];
-    console.log("Reading data...");
+    // console.log("Reading data...");
 
     // Process the global data in the schema processor
     if (schemaHelper.data) {
@@ -1788,10 +1788,10 @@ class DataProcessor {
         }
       });
 
-    console.log("Indexing data...");
+    // console.log("Indexing data...");
     this.index.finish();
 
-    console.log("Data processing complete.");
+    // console.log("Data processing complete.");
   }
 
   /**

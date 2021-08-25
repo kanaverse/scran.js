@@ -12,7 +12,7 @@ class App {
         var self = this;
 
         this.worker.onmessage = function (msg) {
-            console.log(msg.data);
+            // console.log(msg.data);
             const payload = msg.data;
 
             // logger
@@ -34,9 +34,9 @@ class App {
 
                 if (payload.msg.startsWith("Done")) {
                     //  switch to output tab
-                    var tab = document.querySelector('#load-data-tabs button[data-bs-target="#load-data-output"]');
-                    var ttab = new bootstrap.Tab(tab)
-                    ttab.show();
+                    // var tab = document.querySelector('#load-data-tabs button[data-bs-target="#load-data-output"]');
+                    // var ttab = new bootstrap.Tab(tab)
+                    // ttab.show();
 
                     var container = document.getElementById("load-data-status");
                     container.querySelector("#load-data-notrun").style.display = "none";
@@ -48,7 +48,7 @@ class App {
                     document.getElementById("load-data-timer").innerHTML = payload.resp;
 
                     // show QC Step
-                    document.getElementById("qc-accordion").style.display = "block";
+                    // document.getElementById("qc-accordion").style.display = "block";
                 }
 
             } else if (payload.type == "QC_RESP") {
@@ -104,9 +104,9 @@ class App {
 
                 if (payload.msg.startsWith("Done")) {
                     //  switch to output tab
-                    var tab = document.querySelector('#qc-tabs button[data-bs-target="#qc-output"]');
-                    var ttab = new bootstrap.Tab(tab)
-                    ttab.show();
+                    // var tab = document.querySelector('#qc-tabs button[data-bs-target="#qc-output"]');
+                    // var ttab = new bootstrap.Tab(tab)
+                    // ttab.show();
 
                     var container = document.getElementById("qc-status");
                     container.querySelector("#qc-notrun").style.display = "none";
@@ -118,7 +118,7 @@ class App {
                     document.getElementById("qc-timer").innerHTML = payload.resp;
 
                     // show FSEL Step
-                    document.getElementById("fsel-accordion").style.display = "block";
+                    // document.getElementById("fsel-accordion").style.display = "block";
                 }
             } else if (payload.type == "FSEL_RESP") {
                 const payload = msg.data;
@@ -140,9 +140,9 @@ class App {
             } else if (payload.type == "FEATURE_SELECTION") {
                 if (payload.msg.startsWith("Done")) {
                     //  switch to output tab
-                    var tab = document.querySelector('#fsel-tabs button[data-bs-target="#fsel-output"]');
-                    var ttab = new bootstrap.Tab(tab)
-                    ttab.show();
+                    // var tab = document.querySelector('#fsel-tabs button[data-bs-target="#fsel-output"]');
+                    // var ttab = new bootstrap.Tab(tab)
+                    // ttab.show();
 
                     var container = document.getElementById("fsel-status");
                     container.querySelector("#fsel-notrun").style.display = "none";
@@ -157,40 +157,57 @@ class App {
                     // document.getElementById("fsel-accordion").style.display = "block";
                 }
             } else if (payload.type == "PCA") {
+
                 const payload = msg.data;
-                var x = [];
-                var key = "var_exp";
-                var cont = document.getElementById("pca_charts");
-                var elem = document.createElement("div");
-                elem.id = `pca_${key}`;
-                cont.appendChild(elem);
 
-                for (var i = 0; i < Object.keys(payload.resp[key]).length; i++) {
-                    x.push("PC" + (i + 1));
-                }
+                if (payload.msg.startsWith("Done")) {
+                    //  switch to output tab
+                    // var tab = document.querySelector('#qc-tabs button[data-bs-target="#qc-output"]');
+                    // var ttab = new bootstrap.Tab(tab)
+                    // ttab.show();
 
-                var data = [
-                    {
-                        x: x,
-                        y: Object.values(payload.resp[key]),
-                        type: 'bar'
+                    var container = document.getElementById("pca-status");
+                    container.querySelector("#pca-notrun").style.display = "none";
+                    container.querySelector("#pca-spinner").style.display = "none";
+                    container.querySelector("#pca-success").style.display = "block";
+
+                    // timer
+                    document.getElementById("pca-timer").style.display = "block";
+                    document.getElementById("pca-timer").innerHTML = payload.resp;
+
+                    // show FSEL Step
+                    // document.getElementById("fsel-accordion").style.display = "block";
+                } else {
+                    var x = [];
+                    var key = "var_exp";
+                    var cont = document.getElementById("pca_charts");
+                    var elem = document.createElement("div");
+                    elem.id = `pca_${key}`;
+                    cont.appendChild(elem);
+
+                    for (var i = 0; i < Object.keys(payload.resp[key]).length; i++) {
+                        x.push("PC" + (i + 1));
                     }
-                ];
 
-                var layout = {
-                    title: key
+                    var data = [
+                        {
+                            x: x,
+                            y: Object.values(payload.resp[key]),
+                            type: 'bar'
+                        }
+                    ];
+
+                    var layout = {
+                        title: key
+                    }
+
+                    Plotly.newPlot(elem.id, data, layout);
                 }
-
-                Plotly.newPlot(elem.id, data, layout);
             } else if (payload.type == "TSNE") {
-                const payload = msg.data;
-                console.log(payload);
 
-                var cont = document.getElementById("tsne_charts");
-                var elem = document.createElement("div");
-                elem.style.width = "500px";
-                elem.style.height = "500px";
-                cont.appendChild(elem);
+                // setTimeout(() => {
+                const payload = msg.data;
+                // console.log(payload);
 
                 var tsne1 = [], tsne2 = [], sample = [];
                 var payload_vals = Object.values(payload.resp["tsne"]);
@@ -205,48 +222,161 @@ class App {
                     }
                 }
 
-                const visualization = new WebGLVis(elem);
+                if (!self.tsneViz) {
+                    var cont = document.getElementById("tsne_charts");
+                    cont.innerHTML = "";
+
+                    var elem = document.createElement("div");
+                    elem.class = ".tsne"
+                    elem.style.width = "500px";
+                    elem.style.height = "500px";
+                    cont.appendChild(elem);
+
+                    const visualization = new WebGLVis(elem);
+                    visualization.addToDom();
+                    visualization.setSchema({
+                        defaultData: {
+                            "tsne1": tsne1,
+                            "tsne2": tsne2,
+                            "sample": sample
+                        },
+                        "labels": [
+                            {
+                                "y": -1.3,
+                                "x": 0,
+                                "text": "Iteration " + payload.resp["iteration"],
+                                "fixedX": true
+                            }
+                        ],
+                        xAxis: 'none',
+                        yAxis: 'none',
+                        tracks: [
+                            {
+                                "mark": "point",
+                                "x": {
+                                    "attribute": "tsne1",
+                                    "type": "quantitative",
+                                    "domain": [Math.min(...tsne1), Math.max(...tsne1)]
+                                },
+                                "y": {
+                                    "attribute": "tsne2",
+                                    "type": "quantitative",
+                                    "domain": [Math.min(...tsne2), Math.max(...tsne2)]
+                                },
+                                "color": {
+                                    "value": "blue",
+                                },
+                                "size": { "value": 2 },
+                                "opacity": { "value": 0.65 }
+                            },
+                        ],
+                    });
+
+                    self.tsneViz = visualization;
+                } else {
+                    self.tsneViz.setSchema({
+                        defaultData: {
+                            "tsne1": tsne1,
+                            "tsne2": tsne2,
+                            "sample": sample
+                        },
+                        "labels": [
+                            {
+                                "y": -1.3,
+                                "x": 0,
+                                "text": "Iteration " + payload.resp["iteration"],
+                                "fixedX": true
+                            }
+                        ],
+                        xAxis: 'none',
+                        yAxis: 'none',
+                        tracks: [
+                            {
+                                "mark": "point",
+                                "x": {
+                                    "attribute": "tsne1",
+                                    "type": "quantitative",
+                                    "domain": [Math.min(...tsne1), Math.max(...tsne1)]
+                                },
+                                "y": {
+                                    "attribute": "tsne2",
+                                    "type": "quantitative",
+                                    "domain": [Math.min(...tsne2), Math.max(...tsne2)]
+                                },
+                                "color": {
+                                    "value": "blue",
+                                },
+                                "size": { "value": 2 },
+                                "opacity": { "value": 0.65 }
+                            },
+                        ],
+                    });
+                }
+
+                // }, 10000);
+            } else if (payload.type == "CLUS") {
+
+                const payload = msg.data;
+                var x = {};
+                var key = "clusters";
+                var cont = document.getElementById("clus_charts");
+
+                var elem2 = document.createElement("div");
+                elem2.style.width = "450px";
+                elem2.style.height = "450px";
+                cont.appendChild(elem2);
+
+                var tsne1 = [], tsne2 = [];
+                var payload_vals = Object.values(payload.resp["tsne"]);
+                var min = 1000, max = -1000;
+                for (var i = 0; i < payload_vals.length; i++) {
+                    if (i % 2 == 0) {
+                        tsne1.push(payload_vals[i]);
+                    }
+                    else {
+                        tsne2.push(payload_vals[i]);
+                        // sample.push("sample");
+                    }
+                }
+
+                var samples = Object.values(payload.resp["clusters"]);
+
+                const visualization = new WebGLVis(elem2);
                 visualization.addToDom();
                 visualization.setSchema({
                     defaultData: {
                         "tsne1": tsne1,
                         "tsne2": tsne2,
-                        "sample": sample
+                        "sample": samples
                     },
-                    "labels": [
-                        {
-                            "y": -1.3,
-                            "x": 0,
-                            "text": "Iteration " + payload.resp["iteration"],
-                            "fixedX": true
-                        }
-                    ],
+                    xAxis: 'none',
+                    yAxis: 'none',
                     tracks: [
                         {
                             "mark": "point",
                             "x": {
                                 "attribute": "tsne1",
                                 "type": "quantitative",
-                                "domain": [-500, 500]// [Math.min(...tsne1), Math.max(...tsne1)]
+                                "domain": [Math.min(...tsne1), Math.max(...tsne1)]
                             },
                             "y": {
                                 "attribute": "tsne2",
                                 "type": "quantitative",
-                                "domain": [-500, 500] //[Math.min(...tsne2), Math.max(...tsne2)]
+                                "domain": [Math.min(...tsne2), Math.max(...tsne2)]
                             },
                             "color": {
-                                "value": "blue",
+                                "attribute": "sample",
+                                "type": "categorical",
+                                "cardinality": Math.max(...samples),
+                                "colorScheme": "interpolateRainbow"
                             },
-                            "opacity": { "value": 0.6 }
+                            "size": { "value": 2 },
+                            "opacity": { "value": 1 }
                         },
                     ],
                 });
 
-            } else if (payload.type == "CLUS") {
-                const payload = msg.data;
-                var x = {};
-                var key = "clusters";
-                var cont = document.getElementById("cluster_charts");
+
                 var elem = document.createElement("div");
                 elem.id = `cluster_${key}`;
                 cont.appendChild(elem);
@@ -273,57 +403,7 @@ class App {
 
                 Plotly.newPlot(elem.id, data, layout);
 
-                var elem2 = document.createElement("div");
-                elem2.style.width = "500px";
-                elem2.style.height = "500px";
-                cont.appendChild(elem2);
 
-                var tsne1 = [], tsne2 = [];
-                var payload_vals = Object.values(payload.resp["tsne"]);
-                var min = 1000, max = -1000;
-                for (var i = 0; i < payload_vals.length; i++) {
-                    if (i % 2 == 0) {
-                        tsne1.push(payload_vals[i]);
-                    }
-                    else {
-                        tsne2.push(payload_vals[i]);
-                        // sample.push("sample");
-                    }
-                }
-
-                var samples = Object.values(payload.resp["clusters"]);
-
-                const visualization = new WebGLVis(elem2);
-                visualization.addToDom();
-                visualization.setSchema({
-                    defaultData: {
-                        "tsne1": tsne1,
-                        "tsne2": tsne2,
-                        "sample": samples
-                    },
-                    tracks: [
-                        {
-                            "mark": "point",
-                            "x": {
-                                "attribute": "tsne1",
-                                "type": "quantitative",
-                                "domain": [-500, 500] //[Math.min(...tsne1), Math.max(...tsne1)]
-                            },
-                            "y": {
-                                "attribute": "tsne2",
-                                "type": "quantitative",
-                                "domain": [-500, 500]  //[Math.min(...tsne2), Math.max(...tsne2)]
-                            },
-                            "color": {
-                                "attribute": "sample",
-                                "type": "categorical",
-                                "cardinality": Math.max(...samples),
-                                "colorScheme": "interpolateRainbow"
-                            },
-                            "opacity": { "value": 0.6 }
-                        },
-                    ],
-                });
             }
         }
 
@@ -336,20 +416,20 @@ class App {
     }
 
     _logger(payload) {
+        var log_cont = null;
         if (payload.type == "MOUNT" || payload.type == "GENERATE_DATA") {
-            var log_cont = document.getElementById("load-data-logger");
-            if (payload.msg.startsWith("Success")) {
-                log_cont.insertAdjacentHTML('beforeend',
-                    `<p>${payload.msg}</p>`);
-            } else if (payload.msg.startsWith("Error")) {
-                log_cont.insertAdjacentHTML('beforeend',
-                    `<p>${payload.msg}</p>`);
-            } else {
-                log_cont.insertAdjacentHTML('beforeend',
-                    `<p>${payload.msg}</p>`);
-            }
+            log_cont = document.getElementById("load-data-logger");
         } else if (payload.type == "QC") {
-            var log_cont = document.getElementById("qc-logger");
+            log_cont = document.getElementById("qc-logger");
+        } else if (payload.type == "FSEL") {
+            log_cont = document.getElementById("fsel-logger");
+        } else if (payload.type == "PCA") {
+            log_cont = document.getElementById("pca-logger");
+        } else if (payload.type == "TSNE") {
+            log_cont = document.getElementById("tsne-logger");
+        }
+
+        if (log_cont) {
             if (payload.msg.startsWith("Success")) {
                 log_cont.insertAdjacentHTML('beforeend',
                     `<p>${payload.msg}</p>`);
@@ -384,9 +464,9 @@ document.addEventListener("DOMContentLoaded", () => {
         container.querySelector("#load-data-spinner").style.display = "block";
 
         // switch to log tab
-        var tab = document.querySelector('#load-data-tabs button[data-bs-target="#load-data-logger"]');
-        var ttab = new bootstrap.Tab(tab)
-        ttab.show();
+        // var tab = document.querySelector('#load-data-tabs button[data-bs-target="#load-data-logger"]');
+        // var ttab = new bootstrap.Tab(tab)
+        // ttab.show();
     });
 
     document.getElementById("mtx-generate-submit").addEventListener("click", (event) => {
@@ -411,9 +491,9 @@ document.addEventListener("DOMContentLoaded", () => {
         container.querySelector("#qc-spinner").style.display = "block";
 
         // switch to log tab
-        var tab = document.querySelector('#qc-tabs button[data-bs-target="#qc-logger"]');
-        var ttab = new bootstrap.Tab(tab)
-        ttab.show();
+        // var tab = document.querySelector('#qc-tabs button[data-bs-target="#qc-logger"]');
+        // var ttab = new bootstrap.Tab(tab)
+        // ttab.show();
     });
 
     document.getElementById("qc-nmads-input").addEventListener("change", (event) => {
@@ -447,18 +527,18 @@ document.addEventListener("DOMContentLoaded", () => {
         container.querySelector("#fsel-notrun").style.display = "none";
         container.querySelector("#fsel-spinner").style.display = "block";
 
-        // switch to log tab
-        var tab = document.querySelector('#fsel-tabs button[data-bs-target="#fsel-logger"]');
-        var ttab = new bootstrap.Tab(tab)
-        ttab.show();
+        // // switch to log tab
+        // var tab = document.querySelector('#fsel-tabs button[data-bs-target="#fsel-logger"]');
+        // var ttab = new bootstrap.Tab(tab)
+        // ttab.show();
     });
 
     document.getElementById("pca-submit").addEventListener("click", (event) => {
 
         document.getElementById("tsne_charts").innerHTML = "";
-        document.getElementById("cluster_charts").innerHTML = "";
+        document.getElementById("clus_charts").innerHTML = "";
 
-        var val = document.getElementById("pcs-input").value;
+        var val = document.getElementById("pca-input").value;
         if (!val) { val = 5; }
         window.app.worker.postMessage({
             "type": "PCA",
@@ -470,10 +550,11 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("tsne-submit").addEventListener("click", (event) => {
 
         document.getElementById("tsne_charts").innerHTML = "";
-        document.getElementById("cluster_charts").innerHTML = "";
+        document.getElementById("clus_charts").innerHTML = "";
+        window.app.tsneViz = null;
 
-        var iter = document.getElementById("tsne-input-iterations").value;
-        var perp = document.getElementById("tsne-input-perplexity").value;
+        var iter = document.getElementById("tsne-input-iter").value;
+        var perp = document.getElementById("tsne-input-perp").value;
 
         if (!iter) { iter = 200; }
         if (!perp) { perp = 30; }
@@ -484,12 +565,18 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    document.getElementById("cluster-submit").addEventListener("click", (event) => {
-
-        document.getElementById("cluster_charts").innerHTML = "";
+    document.getElementById("clus-submit").addEventListener("click", (event) => {
+        document.getElementById("clus_charts").innerHTML = "";
 
         window.app.worker.postMessage({
             "type": "CLUS",
+            "msg": "not much to pass"
+        });
+    });
+
+    document.getElementById("mg-submit").addEventListener("click", (event) => {
+        window.app.worker.postMessage({
+            "type": "MARKER_GENE",
             "msg": "not much to pass"
         });
     });

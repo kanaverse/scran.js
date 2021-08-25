@@ -41,14 +41,15 @@ class scran {
     // for now generate random data
     this.data = this.generateData(nrow * ncol);
 
-    console.log(this.data);
+    // console.log(this.data);
 
     this.matrix = this.getNumMatrix(this.data, nrow, ncol);
-    console.log(this.matrix);
+    // console.log(this.matrix);
   }
 
   loadDataFromPath(ptr, size, compressed) {
-    this.matrix = Module.read_matrix_market(ptr, size, compressed);
+    this.matrix = this.wasm.read_matrix_market(ptr, size, compressed);
+    this.matrix = this.wasm.log_norm_counts(this.matrix, false, 0, false, 0);
   }
 
   getRandomArbitrary() {
@@ -209,16 +210,16 @@ class scran {
 
     var metrics_output = this.wasm.per_cell_qc_metrics(this.matrix, nsubsets, subsets.ptr);
     this.qc_metrics = {
-        "sums": metrics_output.sums().slice(),
-        "detected": metrics_output.detected().slice(),
-        "proportion": metrics_output.subset_proportions(0).slice() // TODO: generalize for multiple subsets.
+      "sums": metrics_output.sums().slice(),
+      "detected": metrics_output.detected().slice(),
+      "proportion": metrics_output.subset_proportions(0).slice() // TODO: generalize for multiple subsets.
     };
 
     var filter_output = this.wasm.per_cell_qc_filters(metrics_output, false, 0, nmads);
     this.thresholds = [
-        filter_output.thresholds_sums()[0],
-        filter_output.thresholds_detected()[0],
-        filter_output.thresholds_proportions(0)[0] // TODO: generalize...
+      filter_output.thresholds_sums()[0],
+      filter_output.thresholds_detected()[0],
+      filter_output.thresholds_proportions(0)[0] // TODO: generalize...
     ];
 
     var filtered = this.wasm.filter_cells(this.matrix, filter_output.discard_overall().byteOffset, false);
@@ -308,7 +309,7 @@ class scran {
     var var_exp = pca_output.variance_explained().slice();
     var total_var = pca_output.total_variance();
     for (var n = 0; n < var_exp.length; n++) {
-      var_exp[n] /= total_var;        
+      var_exp[n] /= total_var;
     }
 
     if (this.pcs !== undefined) {
@@ -344,10 +345,10 @@ class scran {
         perplexity, false, tsne.ptr);
     }
 
-    var delay = 300;
-    var maxiter = 1000;
-    this.wasm.run_tsne(this.init_tsne, delay, maxiter, tsne.ptr);
-    console.log(this.init_tsne.iterations());
+    var delay = 15;
+    // var maxiter = 1000;
+    this.wasm.run_tsne(this.init_tsne, delay, iterations, tsne.ptr);
+    // console.log(this.init_tsne.iterations());
     this._lastIter = 0;
 
     var iterator = setInterval(() => {
@@ -365,7 +366,7 @@ class scran {
         msg: `Success: TSNE done, ${self.filteredMatrix.nrow()}, ${self.filteredMatrix.ncol()}`
       });
 
-      self.wasm.run_tsne(self.init_tsne, delay, maxiter, tsne.ptr);
+      self.wasm.run_tsne(self.init_tsne, delay, iterations, tsne.ptr);
     }, delay);
 
     return {
@@ -377,13 +378,24 @@ class scran {
   cluster() {
     var clustering = this.wasm.cluster_snn_graph(this.n_pcs, this.filteredMatrix.ncol(), this.pcs.pcs().byteOffset, 2, 0.5, false);
     var arr_clust_raw = clustering.membership(clustering.best());
-    console.log(arr_clust_raw);
+    // console.log(arr_clust_raw);
     var arr_clust = arr_clust_raw.slice();
     clustering.delete();
+
+    this._clusterAssignments = arr_clust;
 
     return {
       "tsne": this.getVector("tsne"),
       "clusters": arr_clust,
+    }
+  }
+
+  marker_gene() {
+    var markers = this.wasm.score_markers(this.filteredMatrix,
+      this._clusterAssignments, false, 0);
+
+    return {
+      "markers": markers,
     }
   }
 
