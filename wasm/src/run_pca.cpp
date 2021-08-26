@@ -5,6 +5,7 @@
 
 #include <vector>
 #include <cmath>
+#include <algorithm>
 
 /**
  * @file run_pca.cpp
@@ -75,6 +76,12 @@ RunPCA_Results run_pca(const NumericMatrix& mat, int number, bool use_subset, ui
 
     scran::RunPCA pca;
     pca.set_rank(number).set_scale(scale);
+
+    // Guessing the sparsity during initial pre-allocation of each column's memory.
+    // We cap the capacity to avoid allocation problems during sparse matrix construction.
+    constexpr double capacity = 50e6;
+    double sparsity_guess = std::min((capacity / NC) / NR, 0.1);
+    pca.set_sparsity(sparsity_guess);
 
     const uint8_t* subptr = NULL;
     if (use_subset) {
