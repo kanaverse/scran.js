@@ -281,6 +281,10 @@ class scran {
 
     model_output.delete();
 
+    this.residuals = resids_vec2;
+    this.sorted_residuals = resids_vec2.slice(); // a separate copy.
+    this.sorted_residuals.sort();
+
     return {
       "means": means_vec2,
       "vars": vars_vec2,
@@ -299,12 +303,25 @@ class scran {
       "subset_PCA"
     );
 
+    var filter = false;
+    var num_hvgs = 4000;
+    if ("sorted_residuals" in this && num_hvgs > 0) {
+        filter = true;
+        var threshold_at = this.sorted_residuals[this.sorted_residuals.length - num_hvgs];
+
+        var sub2 = this.getVector("subset_PCA");
+        sub2.forEach((element, index, array) => {
+            array[index] = this.residuals[index] >= threshold_at;
+        });
+        console.log(sub2);
+    }
+
     // console.log(sub.vector);
 
     // console.log(pcs.vector);
     // console.log(var_exp.vector);
 
-    var pca_output = this.wasm.run_pca(this.filteredMatrix, this.n_pcs, false, sub.ptr, false);
+    var pca_output = this.wasm.run_pca(this.filteredMatrix, this.n_pcs, filter, sub.ptr, false);
 
     var var_exp = pca_output.variance_explained().slice();
     var total_var = pca_output.total_variance();
