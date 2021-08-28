@@ -169,7 +169,7 @@ onmessage = function (msg) {
 
         postMessage({
             type: "QC_RESP",
-            resp: JSON.parse(JSON.stringify(resp)),
+            // resp: JSON.parse(JSON.stringify(resp)),
             msg: `Success: QC Complete, ${data.filteredMatrix.nrow()}, ${data.filteredMatrix.ncol()}`
         });
 
@@ -209,7 +209,7 @@ onmessage = function (msg) {
 
         postMessage({
             type: 'FSEL_RESP',
-            resp: JSON.parse(JSON.stringify(resp)),
+            // resp: JSON.parse(JSON.stringify(resp)),
             msg: `Success: FSEL done, ${data.filteredMatrix.nrow()}, ${data.filteredMatrix.ncol()}`
         })
 
@@ -251,7 +251,7 @@ onmessage = function (msg) {
         });
     } else if (payload.type == "CLUS") {
         var t0 = performance.now();
-        var resp = data.cluster();
+        var resp = data.cluster(payload.input[0], payload.input[1]);
         var t1 = performance.now();
         // console.log("CLUS took " + (t1 - t0) + " milliseconds.");
 
@@ -262,7 +262,7 @@ onmessage = function (msg) {
         });
     } else if (payload.type == "MARKER_GENE") {
         var t0 = performance.now();
-        var resp = data.marker_gene();
+        var resp = data.markerGenes();
         var t1 = performance.now();
         // console.log("CLUS took " + (t1 - t0) + " milliseconds.");
 

@@ -49,7 +49,7 @@ class scran {
 
   loadDataFromPath(ptr, size, compressed) {
     this.matrix = this.wasm.read_matrix_market(ptr, size, compressed);
-    this.matrix = this.wasm.log_norm_counts(this.matrix, false, 0, false, 0);
+    // this.matrix = this.wasm.log_norm_counts(this.matrix, false, 0, false, 0);
   }
 
   getRandomArbitrary() {
@@ -357,10 +357,13 @@ class scran {
         clearInterval(iterator);
       }
 
+      var sh_tsne = self.getVector("tsne") //new SharedArrayBuffer(this.filteredMatrix.ncol());
+      // sh_tsne.set(self.getVector("tsne"));
+
       postMessage({
         type: "TSNE",
         resp: JSON.parse(JSON.stringify({
-          "tsne": self.getVector("tsne"),
+          "tsne": sh_tsne,
           "iteration": self.init_tsne.iterations()
         })),
         msg: `Success: TSNE done, ${self.filteredMatrix.nrow()}, ${self.filteredMatrix.ncol()}`
@@ -369,14 +372,19 @@ class scran {
       self.wasm.run_tsne(self.init_tsne, delay, iterations, tsne.ptr);
     }, delay);
 
+    var sh_tsne = self.getVector("tsne") //new SharedArrayBuffer(this.filteredMatrix.ncol());
+    // sh_tsne.set(self.getVector("tsne"));
+
     return {
-      "tsne": self.getVector("tsne"),
+      "tsne": sh_tsne,
+      "clusters": self.getVector("cluster_assignments"),
       "iteration": self._lastIter
     }
   }
 
-  cluster() {
-    var clustering = this.wasm.cluster_snn_graph(this.n_pcs, this.filteredMatrix.ncol(), this.pcs.pcs().byteOffset, 2, 0.5, false);
+  cluster(k, res) {
+    var clustering = this.wasm.cluster_snn_graph(this.n_pcs, this.filteredMatrix.ncol(),
+      this.pcs.pcs().byteOffset, k, res, false);
     var arr_clust_raw = clustering.membership(clustering.best());
     var arr_clust = arr_clust_raw.slice();
     clustering.delete();
@@ -389,25 +397,56 @@ class scran {
 
     var cluster_vec = this.getVector("cluster_assignments");
 
-    arr_clust.set(arr_clust);
+    cluster_vec.set(arr_clust);
 
     return {
-      "tsne": this.getVector("tsne"),
-      "clusters": arr_clust,
+      "clusters": cluster_vec,
     }
   }
 
-  marker_gene() {
-
+  markerGenes() {
+    var self = this;
     var clus_assigns = this.getMemorySpace("cluster_assignments");
 
-    var markers = this.wasm.score_markers(this.filteredMatrix,
+    var markers_output = this.wasm.score_markers(this.filteredMatrix,
       clus_assigns.ptr, false, 0);
 
+    var cluster_vec = this.getVector("cluster_assignments");
+
+    all_cohens = {};
+    for (var i=0; i < Math.max(...cluster_vec); i++) {
+      var cohen = markers_output.cohen(i, 1).slice();
+
+      all_cohens["CLUS_" + i] = self.findMaxIndices(cohen, 5);
+    }
+
+
+    // var auc = markers_output.auc(0).slice();
+    // var cohen = markers_output.cohen(0, 1).slice();
+    // var detected = markers_output.detected(0, 0).slice();
+    // var means = markers_output.means(0, 0).slice();
+
+    markers_output.delete();
+
     return {
-      "markers": markers,
+      // "auc": auc,
+      "cohen": cohen
+      // "detected": detected,
+      // "means": means
     }
   }
+
+  findMaxIndices(arr, max) {
+    var top = [];
+    for (var i = 0; i < arr.length; i++) {
+      top.push(i);
+        if (top.length > max) {
+          top.sort(function(a, b) { return inp[b] - inp[a]; }); 
+          top.pop();
+        }
+    }
+    return top;
+}
 
   umap() {
     var self = this;

@@ -1,5 +1,5 @@
-import { g as getDrawModeForTrack, D as DEFAULT_CHANNELS, S as SchemaProcessor, V as VertexCalculator } from './schema-processor-02fdb272.js';
-import { c as colorSpecifierToHex, s as scale } from './utilities-b398dcce.js';
+import { g as getDrawModeForTrack, D as DEFAULT_CHANNELS, b as SpecificationProcessor, V as VertexCalculator } from './specification-processor-ddf3cd75.js';
+import { k as colorSpecifierToHex, s as scale } from './utilities-2e08b1bd.js';
 
 class Drawer {
   /**
@@ -60,10 +60,10 @@ class SemanticZoomer {
    * Gives guidance or takes control over canvas when semantic zooming
    * is necessary. Developers should extend this class to create semantic zooming
    * behavior.
-   * @param {SchemaProcessor} schemaHelper
+   * @param {SpecificationProcessor} specificationHelper
    */
-  constructor(schemaHelper) {
-    this.schemaHelper = schemaHelper;
+  constructor(specificationHelper) {
+    this.specificationHelper = specificationHelper;
   }
 
   getRecommendedDrawingMode(trackShader, currentXRange, currentYRange) {
@@ -72,30 +72,30 @@ class SemanticZoomer {
     }
 
     if (
-      !this.schemaHelper.xScale.isGenomeScale &&
-      !this.schemaHelper.yScale.isGenomeScale
+      !this.specificationHelper.xScale.isGenomeScale &&
+      !this.specificationHelper.yScale.isGenomeScale
     ) {
       // Currently only used for genome tracks
       return "TRIANGLES";
     }
-    if (this.schemaHelper.xScale.isGenomeScale) {
+    if (this.specificationHelper.xScale.isGenomeScale) {
       const numberOfGenes =
-        this.schemaHelper.xScale.mapGenomeIndexToClipSpaceInverse(
+        this.specificationHelper.xScale.mapGenomeIndexToClipSpaceInverse(
           currentXRange[1]
         ) -
-        this.schemaHelper.xScale.mapGenomeIndexToClipSpaceInverse(
+        this.specificationHelper.xScale.mapGenomeIndexToClipSpaceInverse(
           currentXRange[0]
         );
       if (numberOfGenes < sizeOfGeneRangeForTriangles) {
         return "TRIANGLES";
       }
     }
-    if (this.schemaHelper.yScale.isGenomeScale) {
+    if (this.specificationHelper.yScale.isGenomeScale) {
       const numberOfGenes =
-        this.schemaHelper.yScale.mapGenomeIndexToClipSpaceInverse(
+        this.specificationHelper.yScale.mapGenomeIndexToClipSpaceInverse(
           currentYRange[1]
         ) -
-        this.schemaHelper.yScale.mapGenomeIndexToClipSpaceInverse(
+        this.specificationHelper.yScale.mapGenomeIndexToClipSpaceInverse(
           currentYRange[0]
         );
       if (numberOfGenes < sizeOfGeneRangeForTriangles) {
@@ -177,7 +177,7 @@ class VertexShader {
 
   /**
    * A class meant to contain all the relevant information for a shader program, such as uniforms
-   * attributes, and ultimately the vertices. Do not use the constructor. Use VertexShader.fromSchema
+   * attributes, and ultimately the vertices. Do not use the constructor. Use VertexShader.fromSpecification
    * or fromTrack instead.
    */
   constructor() {
@@ -197,7 +197,7 @@ class VertexShader {
    * Add a mark to the buffers by calculating its vertices, then adding its
    * attributes such as size, color, or opacity to the buffers.
    *
-   * @param {Object} mark passed in from SchemaHelper in webgl-drawer.js
+   * @param {Object} mark passed in from SpecificationHelper in webgl-drawer.js
    * @param {VertexCalculator} vertexCalculator used to calculate vertices for a track
    */
   addMarkToBuffers(mark, vertexCalculator) {
@@ -276,20 +276,20 @@ class VertexShader {
   }
 
   /**
-   * Construct the vertex shaders for each track in the schema.
+   * Construct the vertex shaders for each track in the specification.
    *
-   * @param {Object} schema of visualization
+   * @param {Object} specification of visualization
    * @returns an array of {@link VertexShaders}s
    */
-  static fromSchema(schema) {
+  static fromSpecification(specification) {
     // Returns one per track
-    return schema.tracks.map(VertexShader.fromTrack);
+    return specification.tracks.map(VertexShader.fromTrack);
   }
 
   /**
    * Construct the vertex shader a track including setting attributes, uniforms, drawMode.
    *
-   * @param {Object} track from schema
+   * @param {Object} track from specification
    * @returns a {@link VertexShaders}
    */
   static fromTrack(track) {
@@ -304,7 +304,7 @@ class VertexShader {
         continue;
       }
       if (channel in track) {
-        // Schema specifies channel
+        // Specification specifies channel
         if (track[channel].value) {
           // Channel has default value
           if (channel === "color") {
@@ -2641,39 +2641,39 @@ class WebGLCanvasDrawer extends Drawer {
   }
 
   /**
-   * Sets the schema and begins the process of drawing it.
+   * Sets the specification and begins the process of drawing it.
    *  1. Cancels any current animation
    *  2. Builds shaders for the tracks
    *  3. After data is loaded, calls populateBuffers.
    *
-   * @param {Object} schema of visualization
+   * @param {Object} specification of visualization
    */
-  setSchema(schema) {
+  setSpecification(specification) {
     super.render(); // Cancels current animation frame
 
     // Populate buffers needs a trackShader built to know what buffers to fill
-    this.trackShaders = VertexShader.fromSchema(schema);
+    this.trackShaders = VertexShader.fromSpecification(specification);
 
-    new SchemaProcessor(schema, this.populateBuffers.bind(this));
+    new SpecificationProcessor(specification, this.populateBuffers.bind(this));
   }
 
   /**
    * Populate the buffers that are fed to webgl for drawing.
    *
-   * @param {SchemaProcessor} schemaHelper created in the setSchema method
+   * @param {SpecificationProcessor} specificationHelper created in the setSpecification method
    */
-  populateBuffers(schemaHelper) {
-    let currentTrack = schemaHelper.getNextTrack();
+  populateBuffers(specificationHelper) {
+    let currentTrack = specificationHelper.getNextTrack();
     let currentTrackShaderIndex = 0;
 
-    this.semanticZoomer = new SemanticZoomer(schemaHelper);
+    this.semanticZoomer = new SemanticZoomer(specificationHelper);
 
     while (currentTrack) {
       // Construct calculator in track loop as calculator keeps internal state for each track
       let vertexCalculator = new VertexCalculator(
-        schemaHelper.xScale,
-        schemaHelper.yScale,
-        currentTrack.track // Access actual track schema
+        specificationHelper.xScale,
+        specificationHelper.yScale,
+        currentTrack.track // Access actual track specification
       );
 
       let currentMark = currentTrack.getNextMark();
@@ -2688,7 +2688,7 @@ class WebGLCanvasDrawer extends Drawer {
         currentMark = currentTrack.getNextMark();
       }
 
-      currentTrack = schemaHelper.getNextTrack();
+      currentTrack = specificationHelper.getNextTrack();
       currentTrackShaderIndex++;
     }
 
@@ -2791,7 +2791,7 @@ class WebGLCanvasDrawer extends Drawer {
 
 /**
  * The offscreen webgl worker is meant to communicate from the {@link WebGLVis}
- * by sending a schema data to the drawer for management of shader program and
+ * by sending a specification data to the drawer for management of shader program and
  * eventually drawing. Most messages passed are containing the new viewport
  * information for the drawer to process.
  */
@@ -2816,8 +2816,8 @@ self.onmessage = (message) => {
       self.drawer.receiveViewport(message.data);
       self.drawer.render();
       break;
-    case "schema":
-      self.drawer.setSchema(message.data.schema);
+    case "specification":
+      self.drawer.setSpecification(message.data.specification);
       break;
     case "clearBuffers":
       self.drawer.clearBuffers();

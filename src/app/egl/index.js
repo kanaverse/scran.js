@@ -1,4 +1,4 @@
-import { g as getDimAndMarginStyleForSchema, a as getScaleForSchema, s as scale, b as getViewportForSchema } from './utilities-b398dcce.js';
+import { g as getDimAndMarginStyleForSpecification, a as getScaleForSpecification, s as scale, b as getViewportForSpecification, D as DEFAULT_WIDTH, c as DEFAULT_HEIGHT } from './utilities-2e08b1bd.js';
 
 /*!
  * FPSMeter 0.3.1 - 9th May 2013
@@ -3259,14 +3259,14 @@ class SVGInteractor {
   }
 
   /**
-   * Set the schema for this class to refer to.
+   * Set the specification for this class to refer to.
    *
-   * @param {Object} schema
+   * @param {Object} specification
    */
-  setSchema(schema) {
-    this.schema = schema;
+  setSpecification(specification) {
+    this.specification = specification;
 
-    const styles = getDimAndMarginStyleForSchema(schema);
+    const styles = getDimAndMarginStyleForSpecification(specification);
     this.svg.style.width = styles.width;
     this.svg.style.height = styles.height;
     this.svg.style.margin = styles.margin;
@@ -3274,7 +3274,7 @@ class SVGInteractor {
     this.initialX = undefined; // used for updating labels
     this.initialY = undefined;
     select(this._labelMarker).selectAll("*").remove();
-    for (const _ of this.schema.labels || []) {
+    for (const _ of this.specification.labels || []) {
       select(this._labelMarker).append("text");
     }
   }
@@ -3305,13 +3305,13 @@ class SVGInteractor {
     if (this.currentXRange) {
       this.xAxis = this._calculateAxis(
         "x",
-        this.schema.xAxis,
-        this.schema,
-        getScaleForSchema("x", this.schema),
+        this.specification.xAxis,
+        this.specification,
+        getScaleForSpecification("x", this.specification),
         this.xAxisAnchor
       );
 
-      if (this.schema.labels) {
+      if (this.specification.labels) {
         this.updateLabels();
       }
     }
@@ -3323,9 +3323,9 @@ class SVGInteractor {
     if (this.currentYRange) {
       this.yAxis = this._calculateAxis(
         "y",
-        this.schema.yAxis,
-        this.schema,
-        getScaleForSchema("y", this.schema),
+        this.specification.yAxis,
+        this.specification,
+        getScaleForSpecification("y", this.specification),
         this.yAxisAnchor
       );
     }
@@ -3336,20 +3336,20 @@ class SVGInteractor {
   }
 
   updateLabels() {
-    if (!this.initialX && this.schema.labels) {
-      this.initialX = this.schema.labels.map(
+    if (!this.initialX && this.specification.labels) {
+      this.initialX = this.specification.labels.map(
         (label) => this._calculateViewportSpotInverse(label.x, label.y)[0]
       );
     }
-    if (!this.initialY && this.schema.labels) {
-      this.initialY = this.schema.labels.map(
+    if (!this.initialY && this.specification.labels) {
+      this.initialY = this.specification.labels.map(
         (label) => this._calculateViewportSpotInverse(label.x, label.y)[1]
       );
     }
 
     select(this._labelMarker)
       .selectAll("text")
-      .data(this.schema.labels)
+      .data(this.specification.labels)
       .text((d) => d.text)
       .attr("x", (d, i) => {
         if (d.fixedX) {
@@ -3374,7 +3374,7 @@ class SVGInteractor {
       });
   }
 
-  _calculateAxis(dimension, orientation, schema, genomeScale, anchor) {
+  _calculateAxis(dimension, orientation, specification, genomeScale, anchor) {
     let axis, domain, range;
     if (dimension === "x") {
       domain = this.currentXRange;
@@ -3439,7 +3439,7 @@ class SVGInteractor {
     }
 
     let genomic = false;
-    for (const track of schema.tracks) {
+    for (const track of specification.tracks) {
       if (track[dimension].type && track[dimension].type.includes("genomic")) {
         genomic = true;
       }
@@ -3574,23 +3574,23 @@ class MouseReader {
   }
 
   /**
-   * Set the schema of the mouse reader and the svg interaction
-   * @param {Object} schema
+   * Set the specification of the mouse reader and the svg interaction
+   * @param {Object} specification
    */
-  setSchema(schema) {
-    const styles = getDimAndMarginStyleForSchema(schema);
+  setSpecification(specification) {
+    const styles = getDimAndMarginStyleForSpecification(specification);
     this.element.style.width = styles.width;
     this.element.style.height = styles.height;
     this.element.style.margin = styles.margin;
 
-    this.viewport = getViewportForSchema(schema);
-    this.SVGInteractor.setSchema(schema);
+    this.viewport = getViewportForSpecification(specification);
+    this.SVGInteractor.setSpecification(specification);
     this._updateSVG();
   }
 
   /**
    * Set the viewport in the format mouseReader.viewport = [minX, maxX, minY, maxY].
-   * Mostly used to make Scatterplot.setOptions simpler.
+   * Mostly used to make WebGLVis.setViewOptions simpler.
    */
   set viewport(toSet) {
     this.minX = toSet[0];
@@ -3650,10 +3650,26 @@ class MouseReader {
               .concat(
                 this._calculateViewportSpot(...getLayerXandYFromEvent(event))
               );
+            this.element.parentElement.dispatchEvent(
+              new CustomEvent("onSelection", {
+                detail: {
+                  bounds: this._currentSelectionPoints,
+                  type: this.tool,
+                },
+              })
+            );
             break;
           case "lasso":
             this._currentSelectionPoints.push(
               ...this._calculateViewportSpot(...getLayerXandYFromEvent(event))
+            );
+            this.element.parentElement.dispatchEvent(
+              new CustomEvent("onSelection", {
+                detail: {
+                  bounds: this._currentSelectionPoints,
+                  type: this.tool,
+                },
+              })
             );
             break;
         }
@@ -3758,6 +3774,15 @@ class MouseReader {
       }
     }
 
+    this.element.parentElement.dispatchEvent(
+      new CustomEvent(event.wheelDelta < 0 ? "zoomIn" : "zoomOut", {
+        detail: {
+          viewport: this.getViewport(),
+          type: this.tool,
+        },
+      })
+    );
+
     this.handler.sendDrawerState(this.getViewport());
     this._updateSVG();
   }
@@ -3793,6 +3818,15 @@ class MouseReader {
         this.currentYRange = previousY;
       }
     }
+
+    this.element.parentElement.dispatchEvent(
+      new CustomEvent("pan", {
+        detail: {
+          viewport: this.getViewport(),
+          type: this.tool,
+        },
+      })
+    );
 
     this.handler.sendDrawerState(this.getViewport());
     this._updateSVG();
@@ -6940,460 +6974,748 @@ var Validator_1;
 
 Validator_1 = validator;
 
+var schema$2 = "https://json-schema.org/draft/2020-12/schema";
+var id$2 = "/visualization";
+var title$2 = "Visualization";
+var description$2 = "A webgl visualization made of a sequence of tracks";
+var type$2 = "object";
+var required$1 = [
+	"tracks"
+];
+var properties$2 = {
+	labels: {
+		description: "set of labels to display on visualization, properties of labels can be any valid attribute for an svg text element",
+		examples: [
+			{
+				x: 100,
+				y: 200,
+				text: "my favorite data point",
+				rotate: -90
+			},
+			{
+				x: -1.1,
+				y: 0,
+				text: "Track 1",
+				color: "red",
+				fixedX: true
+			}
+		],
+		type: "array",
+		items: {
+			properties: {
+				x: {
+					description: "x coordinate of label with respect to data coordinates, should be on scale with [-1, 1] if x dimension is categorical or genomic",
+					type: "number"
+				},
+				y: {
+					description: "y coordinate of label with respect to data coordinates, should be on scale with [-1, 1] if y dimension is categorical or genomic",
+					type: "number"
+				},
+				fixedX: {
+					description: "fix the x coordinate of the label, so it does not move when panning/zooming left or right",
+					type: "boolean"
+				},
+				fixedY: {
+					description: "fix the y coordinate of the label, so it does not move when panning/zooming up or down",
+					type: "boolean"
+				},
+				required: [
+					"x",
+					"y"
+				]
+			}
+		}
+	},
+	xAxis: {
+		description: "location of x-axis",
+		"enum": [
+			"bottom",
+			"top",
+			"center",
+			"none",
+			"zero"
+		]
+	},
+	yAxis: {
+		description: "location of y-axis",
+		"enum": [
+			"left",
+			"right",
+			"center",
+			"none",
+			"zero"
+		]
+	},
+	tracks: {
+		description: "A track is a map from the data to a sequence of marks",
+		type: "array",
+		items: {
+			$ref: "/track"
+		}
+	},
+	defaultData: {
+		description: "A string of a csv href containing data or an object of inline data where each key is a column of values",
+		examples: [
+			"http://example.com/data.csv",
+			{
+				day: [
+					1,
+					2
+				],
+				price: [
+					10,
+					20
+				]
+			}
+		],
+		type: [
+			"string",
+			"object"
+		],
+		additionalProperties: {
+			type: "array"
+		},
+		minProperties: 1
+	},
+	width: {
+		description: "Width of the visualization in css units",
+		examples: [
+			"400px",
+			"100%",
+			"10em",
+			"600"
+		],
+		type: "string"
+	},
+	height: {
+		description: "Height of the visualization in css units",
+		examples: [
+			"400px",
+			"100%",
+			"10em",
+			"600"
+		],
+		type: "string"
+	},
+	margins: {
+		description: "Margins for the visualization; gives more space for labels and axis to render",
+		properties: {
+			top: {
+				description: "Top margin of the visualization in css units",
+				type: "string",
+				examples: [
+					"100px",
+					"5%",
+					"5em"
+				]
+			},
+			bottom: {
+				description: "Bottom margin of the visualization in css units",
+				type: "string",
+				examples: [
+					"100px",
+					"5%",
+					"5em"
+				]
+			},
+			left: {
+				description: "Left margin of the visualization in css units",
+				type: "string",
+				examples: [
+					"100px",
+					"5%",
+					"5em"
+				]
+			},
+			right: {
+				description: "Right margin of the visualization in css units",
+				type: "string",
+				examples: [
+					"100px",
+					"5%",
+					"5em"
+				]
+			}
+		}
+	}
+};
+var allOf$1 = [
+	{
+		description: "if there is no default data for the visualization require each track to have data property",
+		"if": {
+			not: {
+				required: [
+					"defaultData"
+				]
+			}
+		},
+		then: {
+			properties: {
+				tracks: {
+					items: {
+						required: [
+							"data"
+						]
+					}
+				}
+			}
+		},
+		"else": {
+		}
+	}
+];
 var visualization = {
-  "schema": "https://json-schema.org/draft/2020-12/schema",
-  "id": "/visualization",
-  "title": "Visualization",
-  "description": "A webgl visualization made of a sequence of tracks",
-  "type": "object",
-  "required": ["tracks"],
-  "properties": {
-    "labels": {
-      "description": "set of labels to display on visualization, properties of labels can be any valid attribute for an svg text element",
-      "examples": [
-        {
-          "x": 100,
-          "y": 200,
-          "text": "my favorite data point",
-          "rotate": -90
-        },
-        {
-          "x": -1.1,
-          "y": 0,
-          "text": "Track 1",
-          "color": "red",
-          "fixedX": true
-        }
-      ],
-      "type": "array",
-      "items": {
-        "properties": {
-          "x": {
-            "description": "x coordinate of label with respect to data coordinates, should be on scale with [-1, 1] if x dimension is categorical or genomic",
-            "type": "number"
-          },
-          "y": {
-            "description": "y coordinate of label with respect to data coordinates, should be on scale with [-1, 1] if y dimension is categorical or genomic",
-            "type": "number"
-          },
-          "fixedX": {
-            "description": "fix the x coordinate of the label, so it does not move when panning/zooming left or right",
-            "type": "boolean"
-          },
-          "fixedY": {
-            "description": "fix the y coordinate of the label, so it does not move when panning/zooming up or down",
-
-            "type": "boolean"
-          },
-          "required": ["x", "y"]
-        }
-      }
-    },
-    "xAxis": {
-      "description": "location of x-axis",
-      "enum": ["bottom", "top", "center", "none", "zero"]
-    },
-    "yAxis": {
-      "description": "location of y-axis",
-      "enum": ["left", "right", "center", "none", "zero"]
-    },
-    "tracks": {
-      "description": "A track is a map from the data to a sequence of marks",
-      "type": "array",
-      "items": { "$ref": "/track" }
-    },
-    "defaultData": {
-      "description": "A string of a csv href containing data or an object of inline data where each key is a column of values",
-      "examples": [
-        "http://example.com/data.csv",
-        {
-          "day": [1, 2],
-          "price": [10, 20]
-        }
-      ],
-      "type": ["string", "object"],
-      "additionalProperties": { "type": "array" },
-      "minProperties": 1
-    }
-  },
-
-  "allOf": [
-    {
-      "description": "if there is no default data for the visualization require each track to have data property",
-      "if": {
-        "not": { "required": ["defaultData"] }
-      },
-      "then": {
-        "properties": {
-          "tracks": {
-            "items": {
-              "required": ["data"]
-            }
-          }
-        }
-      },
-      "else": {}
-    }
-  ]
+	schema: schema$2,
+	id: id$2,
+	title: title$2,
+	description: description$2,
+	type: type$2,
+	required: required$1,
+	properties: properties$2,
+	allOf: allOf$1
 };
 
+var schema$1 = "https://json-schema.org/draft/2020-12/schema";
+var id$1 = "/track";
+var title$1 = "Track";
+var description$1 = "A track to visualize";
+var type$1 = "object";
+var required = [
+	"mark",
+	"x",
+	"y"
+];
+var properties$1 = {
+	data: {
+		description: "A string of a csv href containing data or an object of inline data where each key is an array of a data column",
+		type: [
+			"string",
+			"object"
+		],
+		additionalProperties: {
+			type: "array"
+		},
+		minProperties: 1
+	},
+	mark: {
+		description: "type of mark to visualize",
+		"enum": [
+			"point",
+			"line",
+			"area",
+			"rect",
+			"tick",
+			"arc"
+		]
+	},
+	tooltips: {
+		description: "a number between 0 and 1 where 0 is no tooltips, 1 is always show, and, for example, 0.1 would be show tooltips when zoomed in to 10% of the domain",
+		type: "number",
+		minimum: 0,
+		maximum: 1
+	},
+	x: {
+		description: "define the x coordinates of the marks",
+		type: "object",
+		allOf: [
+			{
+				$ref: "/channel"
+			}
+		],
+		examples: [
+			{
+				type: "genomic",
+				chrAttribute: "chr",
+				geneAttribute: "gene",
+				domain: [
+					"chr2:100",
+					"chr2:300"
+				]
+			}
+		]
+	},
+	y: {
+		description: "define the y coordinates of the marks",
+		type: "object",
+		allOf: [
+			{
+				$ref: "/channel"
+			}
+		],
+		examples: [
+			{
+				type: "quantitative",
+				attribute: "time",
+				domain: [
+					0,
+					10
+				]
+			},
+			{
+				attribute: "sample",
+				type: "categorical",
+				cardinality: 10
+			}
+		]
+	},
+	color: {
+		description: "define the color of the marks, for fixed values can be any css3 color descriptor or a number that translates to a color in hex",
+		type: "object",
+		properties: {
+			colorScheme: {
+				description: "d3 continuous color scheme to use, see d3-scale-chromatic for options",
+				examples: [
+					"interpolateBlues",
+					"interpolateReds",
+					"interpolateRainbow"
+				],
+				type: "string"
+			}
+		},
+		examples: [
+			{
+				value: "red"
+			},
+			{
+				value: 16581375
+			},
+			{
+				attribute: "sample",
+				type: "categorical",
+				cardinality: 10,
+				colorScheme: "interpolateBuGn"
+			}
+		],
+		allOf: [
+			{
+				$ref: "/channel"
+			}
+		]
+	},
+	size: {
+		description: "size of the mark, used only when mark type is point, use width or height for other mark types. The units of this channel correspond to 1/200th of the canvas e.g. a size of 100 is half the canvas.",
+		type: "object",
+		properties: {
+			maxSize: {
+				type: "number"
+			},
+			minSize: {
+				type: "number"
+			},
+			value: {
+				type: "number"
+			}
+		},
+		examples: [
+			{
+				attribute: "population",
+				type: "quantitative",
+				domain: [
+					0,
+					1000
+				],
+				maxSize: 10,
+				minSize: 1
+			}
+		],
+		allOf: [
+			{
+				$ref: "/channel"
+			}
+		]
+	},
+	width: {
+		description: "width of the mark, used for rect, arc, and tick marks only. The units of this channel correspond to 1/200th of the width of the canvas. This channel may be a genomic range type for arc tracks. If both height and width are specified for a tick mark, only width is used.",
+		type: "object",
+		properties: {
+			maxWidth: {
+				type: "number"
+			},
+			minWidth: {
+				type: "number"
+			},
+			value: {
+				type: "number"
+			}
+		},
+		allOf: [
+			{
+				$ref: "/channel"
+			}
+		]
+	},
+	height: {
+		description: "height of the mark, used for rect, arc, and tick marks only. The units of this channel correspond to 1/200th of the height of the canvas. This channel may be a genomic range type for arc tracks.",
+		type: "object",
+		properties: {
+			maxHeight: {
+				type: "number"
+			},
+			minHeight: {
+				type: "number"
+			},
+			value: {
+				type: "number"
+			}
+		},
+		allOf: [
+			{
+				$ref: "/channel"
+			}
+		]
+	},
+	opacity: {
+		description: "opacity of the mark, compatible with all mark types",
+		type: "object",
+		properties: {
+			minOpacity: {
+				type: "number",
+				minimum: 0,
+				exclusiveMaximum: 1
+			},
+			value: {
+				type: "number"
+			}
+		},
+		allOf: [
+			{
+				$ref: "/channel"
+			}
+		]
+	},
+	shape: {
+		description: "shape of the mark, used only for point marks",
+		type: "object",
+		properties: {
+			value: {
+				"enum": [
+					"dot",
+					"circle",
+					"diamond",
+					"triangle"
+				]
+			}
+		},
+		allOf: [
+			{
+				$ref: "/channel"
+			}
+		]
+	}
+};
 var track = {
-  "schema": "https://json-schema.org/draft/2020-12/schema",
-  "id": "/track",
-  "title": "Track",
-  "description": "A track to visualize",
-  "type": "object",
-  "required": ["mark", "x", "y"],
-  "properties": {
-    "data": {
-      "description": "A string of a csv href containing data or an object of inline data where each key is an array of a data column",
-      "type": ["string", "object"],
-      "additionalProperties": { "type": "array" },
-      "minProperties": 1
-    },
-    "mark": {
-      "description": "type of mark to visualize",
-      "enum": ["point", "line", "area", "rect", "tick", "arc"]
-    },
-    "tooltips": {
-      "description": "a number between 0 and 1 where 0 is no tooltips, 1 is always show, and, for example, 0.1 would be show tooltips when zoomed in to 10% of the domain",
-      "type": "number",
-      "minimum": 0,
-      "maximum": 1
-    },
-    "x": {
-      "description": "define the x coordinates of the marks",
-      "type": "object",
-      "allOf": [{ "$ref": "/channel" }],
-      "examples": [
-        {
-          "type": "genomic",
-          "chrAttribute": "chr",
-          "geneAttribute": "gene",
-          "domain": ["chr2:100", "chr2:300"]
-        }
-      ]
-    },
-    "y": {
-      "description": "define the y coordinates of the marks",
-      "type": "object",
-      "allOf": [{ "$ref": "/channel" }],
-      "examples": [
-        {
-          "type": "quantitative",
-          "attribute": "time",
-          "domain": [0, 10]
-        },
-        {
-          "attribute": "sample",
-          "type": "categorical",
-          "cardinality": 10
-        }
-      ]
-    },
-    "color": {
-      "description": "define the color of the marks, for fixed values can be any css3 color descriptor or a number that translates to a color in hex",
-      "type": "object",
-      "properties": {
-        "colorScheme": {
-          "description": "d3 continuous color scheme to use, see d3-scale-chromatic for options",
-          "examples": [
-            "interpolateBlues",
-            "interpolateReds",
-            "interpolateRainbow"
-          ],
-          "type": "string"
-        }
-      },
-      "examples": [
-        {
-          "value": "red"
-        },
-        {
-          "value": 16581375
-        },
-        {
-          "attribute": "sample",
-          "type": "categorical",
-          "cardinality": 10,
-          "colorScheme": "interpolateBuGn"
-        }
-      ],
-      "allOf": [{ "$ref": "/channel" }]
-    },
-    "size": {
-      "description": "size of the mark, used only when mark type is point, use width or height for other mark types. The units of this channel correspond to 1/200th of the canvas e.g. a size of 100 is half the canvas.",
-      "type": "object",
-      "properties": {
-        "maxSize": {
-          "type": "number"
-        },
-        "minSize": {
-          "type": "number"
-        },
-        "value": {
-          "type": "number"
-        }
-      },
-      "examples": [
-        {
-          "attribute": "population",
-          "type": "quantitative",
-          "domain": [0, 1000],
-          "maxSize": 10,
-          "minSize": 1
-        }
-      ],
-      "allOf": [{ "$ref": "/channel" }]
-    },
-    "width": {
-      "description": "width of the mark, used for rect, arc, and tick marks only. The units of this channel correspond to 1/200th of the width of the canvas. This channel may be a genomic range type for arc tracks. If both height and width are specified for a tick mark, only width is used.",
-      "type": "object",
-      "properties": {
-        "maxWidth": {
-          "type": "number"
-        },
-        "minWidth": {
-          "type": "number"
-        },
-        "value": {
-          "type": "number"
-        }
-      },
-      "allOf": [{ "$ref": "/channel" }]
-    },
-    "height": {
-      "description": "height of the mark, used for rect, arc, and tick marks only. The units of this channel correspond to 1/200th of the height of the canvas. This channel may be a genomic range type for arc tracks.",
-      "type": "object",
-      "properties": {
-        "maxHeight": {
-          "type": "number"
-        },
-        "minHeight": {
-          "type": "number"
-        },
-        "value": {
-          "type": "number"
-        }
-      },
-      "allOf": [{ "$ref": "/channel" }]
-    },
-    "opacity": {
-      "description": "opacity of the mark, compatible with all mark types",
-      "type": "object",
-      "properties": {
-        "minOpacity": {
-          "type": "number",
-          "minimum": 0,
-          "exclusiveMaximum": 1
-        },
-        "value": {
-          "type": "number"
-        }
-      },
-      "allOf": [{ "$ref": "/channel" }]
-    },
-    "shape": {
-      "description": "shape of the mark, used only for point marks",
-      "type": "object",
-      "properties": {
-        "value": {
-          "enum": ["dot", "circle", "diamond", "triangle"]
-        }
-      },
-      "allOf": [{ "$ref": "/channel" }]
-    }
-  }
+	schema: schema$1,
+	id: id$1,
+	title: title$1,
+	description: description$1,
+	type: type$1,
+	required: required,
+	properties: properties$1
 };
 
+var schema = "https://json-schema.org/draft/2020-12/schema";
+var id = "/channel";
+var title = "Channel";
+var description = "A channel of a visualization";
+var type = "object";
+var properties = {
+	type: {
+		description: "type of attribute, genomic range only compatible with x, y, width and height",
+		"enum": [
+			"quantitative",
+			"categorical",
+			"genomic",
+			"genomicRange",
+			"inline"
+		]
+	},
+	attribute: {
+		description: "column of data frame to use for mapping channel",
+		type: "string"
+	},
+	value: {
+		description: "if fixing a channel, specify with value",
+		type: [
+			"string",
+			"number",
+			"boolean"
+		]
+	},
+	domain: {
+		description: "domain of attribute to use for mapping, required if type is quantitative",
+		type: "array"
+	},
+	cardinality: {
+		description: "number of attribute values to use for mapping, required if type is categorical",
+		type: "integer"
+	},
+	chrAttribute: {
+		description: "if type is genomic or genomicRange, the attribute that contains the chromosome id",
+		type: "string"
+	},
+	startAttribute: {
+		description: "if type is genomicRange, the attribute that contains the start of the range",
+		type: "string"
+	},
+	endAttribute: {
+		description: "if type is genomicRange, the attribute that contains the end of the range",
+		type: "string"
+	},
+	genome: {
+		description: "genome being mapped",
+		"enum": [
+			"hg38",
+			"hg19",
+			"mm39"
+		]
+	}
+};
+var allOf = [
+	{
+		description: "If type is genomic, require genomic attributes and forbid regular attributes",
+		anyOf: [
+			{
+				not: {
+					properties: {
+						type: {
+							"const": "genomic"
+						}
+					},
+					required: [
+						"type"
+					]
+				}
+			},
+			{
+				required: [
+					"chrAttribute",
+					"geneAttribute",
+					"genome"
+				],
+				not: {
+					required: [
+						"attribute",
+						"startAttribute",
+						"endAttribute"
+					]
+				},
+				properties: {
+					domain: {
+						items: [
+							{
+								type: "string",
+								pattern: "chr(\\d{1,2}|[XY]):\\d+"
+							},
+							{
+								type: "string",
+								pattern: "chr(\\d{1,2}|[XY]):\\d+"
+							}
+						]
+					}
+				}
+			}
+		]
+	},
+	{
+		description: "If type is genomicRange, require genomicRange attributes and forbid regular attribute",
+		anyOf: [
+			{
+				not: {
+					properties: {
+						type: {
+							"const": "genomicRange"
+						}
+					},
+					required: [
+						"type"
+					]
+				}
+			},
+			{
+				required: [
+					"chrAttribute",
+					"startAttribute",
+					"endAttribute",
+					"genome"
+				],
+				not: {
+					required: [
+						"attribute",
+						"geneAttribute"
+					]
+				},
+				properties: {
+					domain: {
+						items: [
+							{
+								type: "string",
+								pattern: "chr(\\d{1,2}|[XY]):\\d+"
+							},
+							{
+								type: "string",
+								pattern: "chr(\\d{1,2}|[XY]):\\d+"
+							}
+						]
+					}
+				}
+			}
+		]
+	},
+	{
+		description: "If type is quantitative, require domain and forbid cardinality",
+		anyOf: [
+			{
+				not: {
+					properties: {
+						type: {
+							"const": "quantitative"
+						}
+					},
+					required: [
+						"type"
+					]
+				}
+			},
+			{
+				required: [
+					"domain"
+				],
+				properties: {
+					domain: {
+						items: [
+							{
+								type: "number"
+							},
+							{
+								type: "number"
+							}
+						]
+					}
+				},
+				not: {
+					required: [
+						"cardinality"
+					]
+				}
+			}
+		]
+	},
+	{
+		description: "If type is categorical, require cardinality and forbid domain",
+		anyOf: [
+			{
+				not: {
+					properties: {
+						type: {
+							"const": "categorical"
+						}
+					},
+					required: [
+						"type"
+					]
+				}
+			},
+			{
+				required: [
+					"cardinality"
+				],
+				not: {
+					required: [
+						"domain"
+					]
+				}
+			}
+		]
+	},
+	{
+		description: "If value is defined, disallow other attributes",
+		anyOf: [
+			{
+				not: {
+					properties: {
+						value: {
+							not: {
+								type: "null"
+							}
+						}
+					},
+					required: [
+						"value"
+					]
+				}
+			},
+			{
+				allOf: [
+					{
+						not: {
+							required: [
+								"attribute"
+							]
+						}
+					},
+					{
+						not: {
+							required: [
+								"type"
+							]
+						}
+					},
+					{
+						not: {
+							required: [
+								"domain"
+							]
+						}
+					},
+					{
+						not: {
+							required: [
+								"cardinality"
+							]
+						}
+					}
+				]
+			}
+		]
+	},
+	{
+		description: "If value is not defined, require attribute or genomic attributes",
+		anyOf: [
+			{
+				not: {
+					properties: {
+						value: {
+							type: "null"
+						}
+					}
+				}
+			},
+			{
+				oneOf: [
+					{
+						required: [
+							"attribute"
+						]
+					},
+					{
+						required: [
+							"chrAttribute",
+							"genome"
+						]
+					}
+				]
+			}
+		]
+	}
+];
 var channel = {
-  "schema": "https://json-schema.org/draft/2020-12/schema",
-  "id": "/channel",
-  "title": "Channel",
-  "description": "A channel of a visualization",
-  "type": "object",
-  "properties": {
-    "type": {
-      "description": "type of attribute, genomic range only compatible with x, y, width and height",
-      "enum": ["quantitative", "categorical", "genomic", "genomicRange"]
-    },
-    "attribute": {
-      "description": "column of data frame to use for mapping channel",
-      "type": "string"
-    },
-    "value": {
-      "description": "if fixing a channel, specify with value",
-      "type": ["string", "number", "boolean"]
-    },
-    "domain": {
-      "description": "domain of attribute to use for mapping, required if type is quantitative",
-      "type": "array"
-    },
-    "cardinality": {
-      "description": "number of attribute values to use for mapping, required if type is categorical",
-      "type": "integer"
-    },
-    "chrAttribute": {
-      "description": "if type is genomic or genomicRange, the attribute that contains the chromosome id",
-      "type": "string"
-    },
-    "startAttribute": {
-      "description": "if type is genomicRange, the attribute that contains the start of the range",
-      "type": "string"
-    },
-    "endAttribute": {
-      "description": "if type is genomicRange, the attribute that contains the end of the range",
-      "type": "string"
-    },
-    "genome": {
-      "description": "genome being mapped",
-      "enum": ["hg38", "hg19", "mm39"]
-    }
-  },
-  "allOf": [
-    {
-      "description": "If type is genomic, require genomic attributes and forbid regular attributes",
-      "anyOf": [
-        {
-          "not": {
-            "properties": { "type": { "const": "genomic" } },
-            "required": ["type"]
-          }
-        },
-        {
-          "required": ["chrAttribute", "geneAttribute", "genome"],
-          "not": {
-            "required": ["attribute", "startAttribute", "endAttribute"]
-          },
-          "properties": {
-            "domain": {
-              "items": [
-                { "type": "string", "pattern": "chr(\\d{1,2}|[XY]):\\d+" },
-                { "type": "string", "pattern": "chr(\\d{1,2}|[XY]):\\d+" }
-              ]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "description": "If type is genomicRange, require genomicRange attributes and forbid regular attribute",
-      "anyOf": [
-        {
-          "not": {
-            "properties": { "type": { "const": "genomicRange" } },
-            "required": ["type"]
-          }
-        },
-        {
-          "required": [
-            "chrAttribute",
-            "startAttribute",
-            "endAttribute",
-            "genome"
-          ],
-          "not": { "required": ["attribute", "geneAttribute"] },
-          "properties": {
-            "domain": {
-              "items": [
-                { "type": "string", "pattern": "chr(\\d{1,2}|[XY]):\\d+" },
-                { "type": "string", "pattern": "chr(\\d{1,2}|[XY]):\\d+" }
-              ]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "description": "If type is quantitative, require domain and forbid cardinality",
-      "anyOf": [
-        {
-          "not": {
-            "properties": { "type": { "const": "quantitative" } },
-            "required": ["type"]
-          }
-        },
-        {
-          "required": ["domain"],
-          "properties": {
-            "domain": {
-              "items": [{ "type": "number" }, { "type": "number" }]
-            }
-          },
-          "not": {
-            "required": ["cardinality"]
-          }
-        }
-      ]
-    },
-
-    {
-      "description": "If type is categorical, require cardinality and forbid domain",
-      "anyOf": [
-        {
-          "not": {
-            "properties": { "type": { "const": "categorical" } },
-            "required": ["type"]
-          }
-        },
-        {
-          "required": ["cardinality"],
-          "not": {
-            "required": ["domain"]
-          }
-        }
-      ]
-    },
-
-    {
-      "description": "If value is defined, disallow other attributes",
-      "anyOf": [
-        {
-          "not": {
-            "properties": { "value": { "not": { "type": "null" } } },
-            "required": ["value"]
-          }
-        },
-        {
-          "allOf": [
-            {
-              "not": { "required": ["attribute"] }
-            },
-            {
-              "not": { "required": ["type"] }
-            },
-            {
-              "not": { "required": ["domain"] }
-            },
-            {
-              "not": { "required": ["cardinality"] }
-            }
-          ]
-        }
-      ]
-    },
-
-    {
-      "description": "If value is not defined, require attribute or genomic attributes",
-      "anyOf": [
-        {
-          "not": {
-            "properties": { "value": { "type": "null" } }
-          }
-        },
-        {
-          "oneOf": [
-            {
-              "required": ["attribute"]
-            },
-            {
-              "required": ["chrAttribute", "genome"]
-            }
-          ]
-        }
-      ]
-    }
-  ]
+	schema: schema,
+	id: id,
+	title: title,
+	description: description,
+	type: type,
+	properties: properties,
+	allOf: allOf
 };
 
 const v = new Validator_1();
@@ -7401,9 +7723,9 @@ v.addSchema(channel, "/channel");
 v.addSchema(track, "/track");
 
 /**
- * Utility method that returns a boolean on whether the json is a valid schema.
+ * Utility method that returns a boolean on whether the json is a valid specification.
  * console.errors the reason if it is not.
- * @param {Object} json schema
+ * @param {Object} json specification
  * @returns boolean
  */
 const isJSONValid = (json) => {
@@ -7425,7 +7747,7 @@ class WebGLVis {
   ]);
 
   /**
-   * A class meant to display a visualization based off a given schema using webgl.
+   * A class meant to display a visualization based off a given specification using webgl.
    *
    * @param {HTMLElement} container <div> or other container element meant to contain the visualization and its mousereader
    */
@@ -7435,13 +7757,10 @@ class WebGLVis {
 
     this.parent = document.createElement("div");
     this.parent.style.position = "relative";
-    this.parent.style.width = "100%";
-    this.parent.style.height = "100%";
     this.parent.style.overflow = "hidden";
 
     this.canvas = document.createElement("canvas");
-    this.canvas.style.width = "100%";
-    this.canvas.style.height = "100%";
+    this.canvas.style.position = "absolute";
   }
 
   /**
@@ -7457,16 +7776,16 @@ class WebGLVis {
       height,
     });
 
-    this.canvas.style.width = "300px";
-    this.canvas.style.height = "300px";
+    this.canvas.style.width = width;
+    this.canvas.style.height = height;
     this.mouseReader.width = width;
     this.mouseReader.height = height;
     this.sendDrawerState(this.mouseReader.getViewport());
   }
 
   /**
-   * This method does three things, and should only be called once. If changing the schema
-   * use setSchema.
+   * This method does three things, and should only be called once. If changing the specification
+   * use setSpecification.
    *  1. Add the canvas and mousereader to the DOM for use.
    *  2. Creates the WebWorkers that render and process the data.
    *  3. Exposes the messages the webworkers send back to the main thread under this.dataWorkerStream
@@ -7478,21 +7797,13 @@ class WebGLVis {
     this.parent.appendChild(this.canvas);
     this.parent.appendChild(this.mouseReader.element);
 
-    const canvasBox = this.canvas.getBoundingClientRect();
-    this.width = this.parent.clientWidth;
-    this.height = this.parent.clientHeight;
-    this.canvas.width = canvasBox.width;
-    this.canvas.height = canvasBox.height;
-
-    this.canvas.style.position = "absolute";
-
     if (displayFPSMeter) {
       this.initFpsmeter();
     }
 
     const offscreenCanvas = this.canvas.transferControlToOffscreen();
 
-    this.webglWorker = new Worker(new URL("offscreen-webgl-worker-987d7ecd.js", import.meta.url),
+    this.webglWorker = new Worker(new URL("offscreen-webgl-worker-430c7b65.js", import.meta.url),
       { type: "module" }
     );
     this.webglWorker.postMessage(
@@ -7512,11 +7823,14 @@ class WebGLVis {
     };
 
     this.dataWorkerStream = [];
-    this.dataWorker = new Worker(new URL("data-processor-worker-acf75cb8.js", import.meta.url),
+    this.dataWorker = new Worker(new URL("data-processor-worker-e93083ad.js", import.meta.url),
       { type: "module" }
     );
     this.dataWorker.onmessage = (message) => {
       this.dataWorkerStream.push(message);
+      this.parent.dispatchEvent(
+        new CustomEvent("onSelectionEnd", { detail: message })
+      );
       // console.log(this.dataWorkerStream);
     };
 
@@ -7547,32 +7861,39 @@ class WebGLVis {
     this.sendDrawerState(this.mouseReader.getViewport());
   }
 
-  _setMargins(schema) {
-    const styles = getDimAndMarginStyleForSchema(schema);
-    this.canvas.style.width = "300px";
-    this.canvas.style.height = "300px";
+  _setMargins(specification) {
+    const styles = getDimAndMarginStyleForSpecification(specification);
+    this.parent.style.width = specification.width || DEFAULT_WIDTH;
+    this.parent.style.height = specification.height || DEFAULT_HEIGHT;
+    this.canvas.style.width = styles.width;
+    this.canvas.style.height = styles.height;
     this.canvas.style.margin = styles.margin;
 
-    const canvasBox = this.canvas.getBoundingClientRect();
-    this.setCanvasSize(canvasBox.width, canvasBox.height);
+    if (isNaN(styles.width) || isNaN(styles.height)) {
+      // Using css calc
+      const canvasBox = this.canvas.getBoundingClientRect();
+      this.setCanvasSize(canvasBox.width, canvasBox.height);
+    } else {
+      this.setCanvasSize(styles.width, styles.height);
+    }
   }
 
   /**
-   * Set the schema of the visualization, and then render it.
+   * Set the specification of the visualization, and then render it.
    *
-   * @param {Object} schema describing visualization
-   * @returns boolean on whether the schema was accepted
+   * @param {Object} specification describing visualization
+   * @returns boolean on whether the specification was accepted
    */
-  setSchema(schema) {
-    if (!isJSONValid(schema)) {
+  setSpecification(specification) {
+    if (!isJSONValid(specification)) {
       return false;
     }
 
-    this._setMargins(schema);
-    this.mouseReader.setSchema(schema);
+    this._setMargins(specification);
+    this.mouseReader.setSpecification(specification);
     this.sendDrawerState(this.mouseReader.getViewport());
-    this.webglWorker.postMessage({ type: "schema", schema });
-    this.dataWorker.postMessage({ type: "init", schema });
+    this.webglWorker.postMessage({ type: "specification", specification });
+    this.dataWorker.postMessage({ type: "init", specification });
     return true;
   }
 
@@ -7632,9 +7953,29 @@ class WebGLVis {
       theme: "light",
       history: 25,
       top: "-20px",
-      left: `${this.width / 2}px`,
+      left: `100px`,
       transform: "translateX(-100%)",
     });
+  }
+
+  /**
+   * Adds an event listener to visualization on the appropriate component.
+   * Current event types that are supported are
+   * "zoomIn": fires when user zooms in
+   * "zoomOut": fires when user zooms out
+   * "pan": fires when user pans
+   * "onSelection": fires while user is changing the selection box/lasso
+   * "onSelectionEnd": fires when a selection has been completed and the results are in the dataWorkerStream
+   *
+   * For information on the parameters and functionality see:
+   *   https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener
+   *
+   * @param {String} type
+   * @param {Function} listener
+   * @param {Object} options
+   */
+  addEventListener(type, listener, options) {
+    this.parent.addEventListener(type, listener, options);
   }
 }
 

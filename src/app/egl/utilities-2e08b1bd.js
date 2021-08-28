@@ -1055,21 +1055,21 @@ function colorSpecifierToHex(specifier) {
 }
 
 /**
- * Get the VIEWPORT of the schema to be used by the mouseReader.
+ * Get the VIEWPORT of the specification to be used by the mouseReader.
  * If all types for a dimension across tracks are categorical or genomic,
  * will default to [-1, 1] for that dimension for the mouseReader. If X or Y
  * has a fixed value, it will consider the width or height channel domains.
  *
- * @param {Object} schema of visualization
+ * @param {Object} specification of visualization
  * @returns [smallestX, largestX, smallestY, largestY] of viewport
  */
-function getViewportForSchema(schema) {
+function getViewportForSpecification(specification) {
   let smallestX = Number.POSITIVE_INFINITY;
   let largestX = Number.NEGATIVE_INFINITY;
   let smallestY = Number.POSITIVE_INFINITY;
   let largestY = Number.NEGATIVE_INFINITY;
 
-  schema.tracks.forEach((track) => {
+  specification.tracks.forEach((track) => {
     let xDomain = track.x.domain;
     if (
       !xDomain &&
@@ -1106,20 +1106,20 @@ function getViewportForSchema(schema) {
 }
 
 /**
- * Given a schema, return a SCALE to be used for mapping data points to clip space
+ * Given a specification, return a SCALE to be used for mapping data points to clip space
  * for the drawer.
  *
  * @param {String} dimension either x or y
- * @param {Object} schema for the visualization
+ * @param {Object} specification for the visualization
  * @returns function which can be used to map to an "x" or "y" value
  */
-const getScaleForSchema = (dimension, schema) => {
+const getScaleForSpecification = (dimension, specification) => {
   if (dimension !== "x" && dimension !== "y") {
     console.error(`${dimension} is not x or y!`);
   }
   let genomic = false;
   let genome;
-  for (const track of schema.tracks) {
+  for (const track of specification.tracks) {
     if (track[dimension].type && track[dimension].type.includes("genomic")) {
       genome = track[dimension].genome;
       genomic = true;
@@ -1128,7 +1128,7 @@ const getScaleForSchema = (dimension, schema) => {
   }
 
   if (!genomic) {
-    const viewport = getViewportForSchema(schema);
+    const viewport = getViewportForSpecification(specification);
     if (dimension === "x") {
       return scale([viewport[0], viewport[1]], [-1, 1]);
     }
@@ -1142,7 +1142,7 @@ const getScaleForSchema = (dimension, schema) => {
   let largestGene = undefined;
   let largestGeneValue = Number.NEGATIVE_INFINITY;
 
-  for (const track of schema.tracks) {
+  for (const track of specification.tracks) {
     let xDomain = track[dimension].domain;
     if (xDomain) {
       if (geneScale.toClipSpaceFromString(xDomain[0]) < smallestGeneValue) {
@@ -1161,27 +1161,98 @@ const getScaleForSchema = (dimension, schema) => {
   return asScale.toCallable();
 };
 
-const DEFAULT_MARGIN = "2em";
-const getDimAndMarginStyleForSchema = (schema) => {
-  if (schema.margins === undefined) {
-    return {
-      width: Math.min(200, `calc(100% - ${DEFAULT_MARGIN} - ${DEFAULT_MARGIN}`),
-      height: Math.min(200, `calc(100% - ${DEFAULT_MARGIN} - ${DEFAULT_MARGIN}`),
-      margin: DEFAULT_MARGIN,
-    };
+const RELATIVE_LENGTH_UNITS = [
+  "em",
+  "ex",
+  "ch",
+  "rem",
+  "lh",
+  "vw",
+  "vh",
+  "vmin",
+  "vmax",
+  "%",
+];
+const getPixelMeasurement = (cssMeasurement) => {
+  if (RELATIVE_LENGTH_UNITS.some((unit) => cssMeasurement.includes(unit))) {
+    return false;
   }
+  const asFloat = parseFloat(cssMeasurement);
+  return isNaN(asFloat) ? false : asFloat;
+};
+
+const DEFAULT_MARGIN = "50px";
+const DEFAULT_WIDTH = "100%";
+const DEFAULT_HEIGHT = DEFAULT_WIDTH;
+const getDimAndMarginStyleForSpecification = (specification) => {
   let toReturn = {};
-  toReturn.width = Math.min(200, `calc(100% - ${schema.margins.left || DEFAULT_MARGIN} - ${
-    schema.margins.right || DEFAULT_MARGIN
-  })`);
-  toReturn.height = Math.min(200, `calc(100% - ${schema.margins.top || DEFAULT_MARGIN} - ${
-    schema.margins.bottom || DEFAULT_MARGIN
-  })`);
-  // Shorthand for top right bottom left
-  toReturn.margin = `${schema.margins.top || DEFAULT_MARGIN}
-                     ${schema.margins.right || DEFAULT_MARGIN}
-                     ${schema.margins.bottom || DEFAULT_MARGIN}
-                     ${schema.margins.left || DEFAULT_MARGIN}`;
+  const calculatedMargins = {};
+  if (specification.margins === undefined) {
+    toReturn.margin = DEFAULT_MARGIN;
+    calculatedMargins.top = DEFAULT_MARGIN;
+    calculatedMargins.right = DEFAULT_MARGIN;
+    calculatedMargins.bottom = DEFAULT_MARGIN;
+    calculatedMargins.left = DEFAULT_MARGIN;
+  } else {
+    calculatedMargins.top =
+      specification.margins.top === undefined
+        ? DEFAULT_MARGIN
+        : specification.margins.top;
+    calculatedMargins.right =
+      specification.margins.right === undefined
+        ? DEFAULT_MARGIN
+        : specification.margins.right;
+    calculatedMargins.bottom =
+      specification.margins.bottom === undefined
+        ? DEFAULT_MARGIN
+        : specification.margins.bottom;
+    calculatedMargins.left =
+      specification.margins.left === undefined
+        ? DEFAULT_MARGIN
+        : specification.margins.left;
+    // Shorthand for top right bottom left
+    toReturn.margin = `${calculatedMargins.top}
+                       ${calculatedMargins.right}
+                       ${calculatedMargins.bottom}
+                       ${calculatedMargins.left}`;
+  }
+
+  const calculatedWidth = specification.width || DEFAULT_WIDTH;
+  const calculatedHeight = specification.height || DEFAULT_HEIGHT;
+  const allMeasurements = [
+    calculatedMargins.top,
+    calculatedMargins.right,
+    calculatedMargins.bottom,
+    calculatedMargins.left,
+    calculatedWidth,
+    calculatedHeight,
+  ];
+
+  if (allMeasurements.every(getPixelMeasurement)) {
+    // Let's encode as a number to allow users using typescript or doing weird DOM things able to define
+    // the width and height explicitly
+    toReturn.width =
+      getPixelMeasurement(calculatedWidth) -
+      getPixelMeasurement(calculatedMargins.left) -
+      getPixelMeasurement(calculatedMargins.right);
+    toReturn.height =
+      getPixelMeasurement(calculatedHeight) -
+      getPixelMeasurement(calculatedMargins.bottom) -
+      getPixelMeasurement(calculatedMargins.top);
+  } else {
+    // If user is using css units in their margins and dimensions, then use css calc
+    toReturn.width = `calc(
+      ${calculatedWidth} - 
+      ${calculatedMargins.left} - 
+      ${calculatedMargins.right}
+    )`;
+
+    toReturn.height = `calc(
+      ${calculatedHeight} - 
+      ${calculatedMargins.top} - 
+      ${calculatedMargins.bottom}
+    )`;
+  }
   return toReturn;
 };
 
@@ -1206,4 +1277,4 @@ const getQuadraticBezierCurveForPoints = (P0, P1, P2) => {
   return (t) => [x(t), y(t)];
 };
 
-export { Color as C, Rgb as R, getScaleForSchema as a, getViewportForSchema as b, colorSpecifierToHex as c, define as d, extend as e, brighter as f, getDimAndMarginStyleForSchema as g, darker as h, getQuadraticBezierCurveForPoints as i, rgb as j, rgbStringToHex as k, rgbConvert as r, scale as s };
+export { Color as C, DEFAULT_WIDTH as D, Rgb as R, getScaleForSpecification as a, getViewportForSpecification as b, DEFAULT_HEIGHT as c, define as d, extend as e, brighter as f, getDimAndMarginStyleForSpecification as g, darker as h, getQuadraticBezierCurveForPoints as i, rgb as j, colorSpecifierToHex as k, rgbStringToHex as l, rgbConvert as r, scale as s };

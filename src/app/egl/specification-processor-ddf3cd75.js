@@ -1,4 +1,4 @@
-import { R as Rgb, r as rgbConvert, d as define, e as extend, C as Color, f as brighter, h as darker, i as getQuadraticBezierCurveForPoints, j as rgb, a as getScaleForSchema, c as colorSpecifierToHex, s as scale, k as rgbStringToHex } from './utilities-b398dcce.js';
+import { R as Rgb, r as rgbConvert, d as define, e as extend, C as Color, f as brighter, h as darker, i as getQuadraticBezierCurveForPoints, j as rgb, a as getScaleForSpecification, k as colorSpecifierToHex, s as scale, l as rgbStringToHex } from './utilities-2e08b1bd.js';
 
 const radians = Math.PI / 180;
 const degrees = 180 / Math.PI;
@@ -206,7 +206,7 @@ class VertexCalculator {
    *
    * @param {Function or GenomeScale} xScale maps the x values of the data to clip space [-1, 1]
    * @param {Function or GenomeScale} yScale maps the y values of the data to clip space [-1, 1]
-   * @param {Object} track from schema
+   * @param {Object} track from specification
    */
   constructor(xScale, yScale, track) {
     this.xScale = xScale;
@@ -281,6 +281,8 @@ class VertexCalculator {
         return this._getVerticesForPolygon(mark, 16);
       case "cross":
         return this._getVerticesForCross(mark);
+      default:
+        console.error(`${mark.shape} is not a valid shape!`);
     }
   }
 
@@ -1049,7 +1051,7 @@ var d3 = /*#__PURE__*/Object.freeze({
   interpolatePlasma: plasma
 });
 
-// Default channel values of schema which is passed to webgl drawer
+// Default channel values of specification which is passed to webgl drawer
 const DEFAULT_CHANNELS = Object.freeze({
   size: {
     value: 1,
@@ -1113,7 +1115,7 @@ const SHAPES = [undefined, "dot", "triangle", "circle", "diamond"];
 /**
  * Given a track, determine the WebGL draw mode for it
  *
- * @param {Object} track from schema
+ * @param {Object} track from specification
  * @returns WebGLDrawMode as a string
  */
 const getDrawModeForTrack = (track) => {
@@ -1135,28 +1137,28 @@ const getDrawModeForTrack = (track) => {
   }
 };
 
-class SchemaProcessor {
+class SpecificationProcessor {
   /**
-   * Process a schema by reading in the data, the channel information, and producing an
+   * Process a specification by reading in the data, the channel information, and producing an
    * iterator like interface with getNextTrack to feed to a drawer.
    *
-   * @param {Object} schema user defined schema
+   * @param {Object} specification user defined specification
    * @param {Function} callback function to call after all the data has been loaded
    */
-  constructor(schema, callback) {
+  constructor(specification, callback) {
     this.index = 0;
-    this.schema = schema;
-    if (typeof schema.defaultData === "string") {
+    this.specification = specification;
+    if (typeof specification.defaultData === "string") {
       // data is a url to get
-      this.dataPromise = fetch(schema.defaultData)
+      this.dataPromise = fetch(specification.defaultData)
         .then((response) => response.text())
         .then((text) => (this.data = text.split("\n")));
-    } else if (schema.defaultData) {
+    } else if (specification.defaultData) {
       // default data is defined, assumed to be an object
-      this.data = schema.defaultData;
+      this.data = specification.defaultData;
       this.isInlineData = true;
     }
-    this.tracks = schema.tracks.map((track) => new Track(this, track));
+    this.tracks = specification.tracks.map((track) => new Track(this, track));
 
     const allPromises = this.tracks
       .map((track) => track.dataPromise)
@@ -1165,8 +1167,8 @@ class SchemaProcessor {
       allPromises.push(this.dataPromise);
     }
 
-    this.xScale = getScaleForSchema("x", schema);
-    this.yScale = getScaleForSchema("y", schema);
+    this.xScale = getScaleForSpecification("x", specification);
+    this.yScale = getScaleForSpecification("y", specification);
 
     // When all tracks have acquired their data, call the callback
     // TODO: Allow tracks to be processed while waiting for others, need to keep in mind order
@@ -1187,13 +1189,13 @@ class SchemaProcessor {
 
 class Track {
   /**
-   * Process a track from a schema by loading data and producing an iterator
+   * Process a track from a specification by loading data and producing an iterator
    * like interface with getNextDataPoint or getNextMark.
    *
-   * @param {Object} schema user defined visualization
+   * @param {Object} specification user defined visualization
    * @param {Object} track user defined track
    */
-  constructor(schema, track) {
+  constructor(specification, track) {
     this.track = track;
 
     if (typeof track.data === "string") {
@@ -1211,20 +1213,20 @@ class Track {
       this.isInlineData = true;
       this.processHeadersAndMappers();
       this.hasOwnData = true;
-    } else if (schema.data) {
-      // Track does not have its own data, but the schema has default data
-      this.data = schema.data;
-      this.isInlineData = schema.isInlineData;
+    } else if (specification.data) {
+      // Track does not have its own data, but the specification has default data
+      this.data = specification.data;
+      this.isInlineData = specification.isInlineData;
       this.processHeadersAndMappers();
-    } else if (schema.dataPromise) {
-      // Track does not have its own data, but the schema is GETting default data
-      schema.dataPromise.then(() => {
-        this.data = schema.data;
+    } else if (specification.dataPromise) {
+      // Track does not have its own data, but the specification is GETting default data
+      specification.dataPromise.then(() => {
+        this.data = specification.data;
         this.processHeadersAndMappers();
       });
     } else {
       console.error(
-        `Could not find data (no defaultData in schema and no data specified for this track) for track ${track}.`
+        `Could not find data (no defaultData in specification and no data specified for this track) for track ${track}.`
       );
     }
   }
@@ -1335,6 +1337,9 @@ class Track {
         let attrMapper;
 
         switch (channelInfo.type) {
+          case "inline":
+            attrMapper = buildMapperForInlineChannel(channel);
+            break;
           case "quantitative":
             attrMapper = buildMapperForQuantitiveChannel(channel, channelInfo);
             break;
@@ -1373,9 +1378,32 @@ class Track {
 }
 
 /**
+ * Build a function which maps an attribute that is a channel value to a compatible value.
+ *
+ * @param {String} channel the name of the channel to build an inline mapper for
+ * @param {Object} channelInfo the info of the channel from a track
+ * @returns a function that maps attribute values to appropriate channel values.
+ */
+const buildMapperForInlineChannel = (channel, channelInfo) => {
+  switch (channel) {
+    case "width":
+    case "height":
+    case "size":
+      return (dimension) => parseFloat(dimension);
+    case "color":
+      return (color) => colorSpecifierToHex(color);
+    default:
+      console.info(
+        `No special behavior for ${channel} as an inline attribute.`
+      );
+      return (inlineValue) => inlineValue;
+  }
+};
+
+/**
  * Build a function which maps a numerical value for an attribute to a property of a mark
  * @param {*} channel the name of the quantitative channel to map
- * @param {*} channelInfo the object containing info for this channel from the schema
+ * @param {*} channelInfo the object containing info for this channel from the specification
  * @returns a function that maps a data attribute value to a channel value
  */
 const buildMapperForQuantitiveChannel = (channel, channelInfo) => {
@@ -1423,7 +1451,7 @@ const buildMapperForQuantitiveChannel = (channel, channelInfo) => {
  * Build a function which maps a discrete (integers are possible) value for an attribute
  * to a property of a mark
  * @param {*} channel the name of the categorical channel to map
- * @param {*} channelInfo the object containing info for this channel from the schema
+ * @param {*} channelInfo the object containing info for this channel from the specification
  * @returns a function that maps a data attribute value to a channel value
  */
 const buildMapperForCategoricalChannel = (channel, channelInfo) => {
@@ -1503,7 +1531,7 @@ const buildMapperForCategoricalChannel = (channel, channelInfo) => {
 /**
  * Build a function which maps a genome chr, gene, to an object consumable by a GenomeScale
  * @param {*} channel either x or y
- * @param {*} channelInfo the object containing info for this channel from the schema
+ * @param {*} channelInfo the object containing info for this channel from the specification
  * @returns a function that maps (genomeChr, geneLoc) -> [chrId, geneLocation]
  *  ex: ["X", 200]
  */
@@ -1526,7 +1554,7 @@ const buildMapperForGenomicChannel = (channel, channelInfo) => {
 /**
  * Build a function which maps a genome chr, start, and end to an object consumable by a scale
  * @param {*} channel either x or y, width or height may be included if doing arc marks
- * @param {*} channelInfo the object containing info for this channel from the schema
+ * @param {*} channelInfo the object containing info for this channel from the specification
  * @returns a function that maps (genomeChr, genomeStart, genomeEnd) -> an object containing mark metadata for position
  *  format: [chrId, geneLocation, chrId2, geneLocation2]
  *  ex: ["1", 1000, "X", 2000]
@@ -1552,4 +1580,4 @@ const buildMapperForGenomicRangeChannel = (channel, channelInfo) => {
   }
 };
 
-export { DEFAULT_CHANNELS as D, SchemaProcessor as S, VertexCalculator as V, SIZE_UNITS as a, transformGenomicRangeToStandard as b, getDrawModeForTrack as g, transformGenomicRangeArcToStandard as t };
+export { DEFAULT_CHANNELS as D, SIZE_UNITS as S, VertexCalculator as V, transformGenomicRangeToStandard as a, SpecificationProcessor as b, getDrawModeForTrack as g, transformGenomicRangeArcToStandard as t };

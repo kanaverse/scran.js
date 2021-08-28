@@ -21,13 +21,19 @@ class App {
 
             if (payload.type == "ODATA") {
                 var output_cont = document.getElementById("load-data-output");
-                output_cont.insertAdjacentHTML('beforeend',
-                    `<p>${payload.msg}</p>`);
+                output_cont.style.display = "block";
+                // output_cont.insertAdjacentHTML('beforeend',
+                //     `<p>${payload.msg}</p>`);
+
+                var cont = document.getElementById("load-data-stats");
+                cont.innerHTML = payload.resp;
 
             } else if (payload.type == "FDATA") {
-                // var cont = document.getElementById("fdata");
-                // elem = cont.querySelector(".stat-value");
-                // elem.innerHTML = payload.resp;
+                var output_cont = document.getElementById("qc-output");
+                output_cont.style.display = "block";
+
+                var cont = document.getElementById("qc-stats");
+                cont.innerHTML = payload.resp;
 
                 // document.getElementById("qc-data-btn").setAttribute("data-content", "✓");
             } else if (payload.type == "MOUNT" || payload.type == "GENERATE_DATA") {
@@ -52,8 +58,8 @@ class App {
                 }
 
             } else if (payload.type == "QC_RESP") {
-                // add output plots
-                ["sums", "detected", "proportion"].forEach(key => {
+                // "sums", "detected", "proportion"
+                [].forEach(key => {
                     var cont = document.getElementById("qc_charts");
                     const eid = `qc_${key}`;
                     var threshold = payload.resp["thresholds"][key];
@@ -122,21 +128,22 @@ class App {
                 }
             } else if (payload.type == "FSEL_RESP") {
                 const payload = msg.data;
-                var keys = ["genes", "means", "vars", "fitted", "resids"];
-                var isGene = payload.resp["genes"] != null;
-                var table = [];
-                for (var i = 0; i < 100; i++) {
-                    var tr = isGene ? `<td>${payload.resp["genes"][i]["gene"]}</td>` : "<td>-</td>";
-                    tr += `<td>${payload.resp["means"][i]}</td><td>${payload.resp["vars"][i]}</td><td>${payload.resp["fitted"][i]}</td><td>${payload.resp["resids"][i]}</td>`
-                    table.push(`<tr>${tr}</tr>`);
-                }
+                // var keys = ["genes", "means", "vars", "fitted", "resids"];
+                // var isGene = false // payload.resp["genes"] != null;
+                // var table = [];
 
-                var columns = isGene ? keys : keys.slice(1);
-                var clusterize = new Clusterize({
-                    rows: table,
-                    scrollId: 'scrollArea',
-                    contentId: 'contentArea'
-                });
+                // for (var i = 0; i < 10; i++) {
+                //     var tr = isGene ? `<td>${payload.resp["genes"][i]["gene"]}</td>` : `<td>Gene-${i}</td>`;
+                //     tr += `<td>${payload.resp["means"][i]}</td><td>${payload.resp["vars"][i]}</td><td>${payload.resp["fitted"][i]}</td><td>${payload.resp["resids"][i]}</td>`
+                //     table.push(`<tr>${tr}</tr>`);
+                // }
+
+                // var columns = isGene ? keys : keys.slice(1);
+                // var clusterize = new Clusterize({
+                //     rows: table,
+                //     scrollId: 'scrollArea',
+                //     contentId: 'contentArea'
+                // });
             } else if (payload.type == "FEATURE_SELECTION") {
                 if (payload.msg.startsWith("Done")) {
                     //  switch to output tab
@@ -181,6 +188,10 @@ class App {
                     var x = [];
                     var key = "var_exp";
                     var cont = document.getElementById("pca_charts");
+                    // cont.innerHTML = "";
+                    if (cont.querySelector(`pca_${key}`)) {
+                        cont.querySelector(`pca_${key}`).remove();
+                    }
                     var elem = document.createElement("div");
                     elem.id = `pca_${key}`;
                     cont.appendChild(elem);
@@ -198,7 +209,7 @@ class App {
                     ];
 
                     var layout = {
-                        title: key
+                        title: "% variance explained"
                     }
 
                     Plotly.newPlot(elem.id, data, layout);
@@ -208,6 +219,19 @@ class App {
                 // setTimeout(() => {
                 const payload = msg.data;
                 // console.log(payload);
+
+                if (!self.cluster_mappings) {
+                    self.cluster_mappings = Object.values(payload.resp["clusters"]);
+                    self.cluster_count = Math.max(...self.cluster_mappings);
+                    self.cluster_colors = randomColor({ luminosity: 'dark', count: self.cluster_count + 1 });
+                    self.cluster_colors_gradients = [];
+                    for (var i = 0; i < self.cluster_count + 1; i++) {
+                        var gradient = new Rainbow();
+                        gradient.setSpectrum("grey", self.cluster_colors[i]);
+                        gradient.setNumberRange(0, self.tsne_cluster_iterations);
+                        self.cluster_colors_gradients.push(gradient);
+                    }
+                }
 
                 var tsne1 = [], tsne2 = [], sample = [];
                 var payload_vals = Object.values(payload.resp["tsne"]);
@@ -222,6 +246,13 @@ class App {
                     }
                 }
 
+                self.final_cluster_colors_array =
+                    self.cluster_mappings.map(x => "#" + self.cluster_colors_gradients[x].colorAt(payload.resp["iteration"]));
+
+                var iter = parseInt(payload.resp["iteration"]);
+                var y0 = 400 / self.tsne_cluster_iterations;
+                var y1 = Math.max(y0 * (self.tsne_cluster_iterations - iter), 1);
+
                 if (!self.tsneViz) {
                     var cont = document.getElementById("tsne_charts");
                     cont.innerHTML = "";
@@ -234,17 +265,18 @@ class App {
 
                     const visualization = new WebGLVis(elem);
                     visualization.addToDom();
-                    visualization.setSchema({
+                    visualization.setSpecification({
                         defaultData: {
                             "tsne1": tsne1,
                             "tsne2": tsne2,
-                            "sample": sample
+                            "sample": sample,
+                            "colors": self.final_cluster_colors_array
                         },
                         "labels": [
                             {
-                                "y": -1.3,
+                                "y": y1,
                                 "x": 0,
-                                "text": "Iteration " + payload.resp["iteration"],
+                                "text": "Iteration " + iter,
                                 "fixedX": true
                             }
                         ],
@@ -264,7 +296,9 @@ class App {
                                     "domain": [Math.min(...tsne2), Math.max(...tsne2)]
                                 },
                                 "color": {
-                                    "value": "blue",
+                                    // "value": "blue",
+                                    "attribute": "colors",
+                                    "type": "inline"
                                 },
                                 "size": { "value": 2 },
                                 "opacity": { "value": 0.65 }
@@ -274,15 +308,16 @@ class App {
 
                     self.tsneViz = visualization;
                 } else {
-                    self.tsneViz.setSchema({
+                    self.tsneViz.setSpecification({
                         defaultData: {
                             "tsne1": tsne1,
                             "tsne2": tsne2,
-                            "sample": sample
+                            "sample": sample,
+                            "colors": self.final_cluster_colors_array
                         },
                         "labels": [
                             {
-                                "y": -1.3,
+                                "y": y1,
                                 "x": 0,
                                 "text": "Iteration " + payload.resp["iteration"],
                                 "fixedX": true
@@ -304,7 +339,9 @@ class App {
                                     "domain": [Math.min(...tsne2), Math.max(...tsne2)]
                                 },
                                 "color": {
-                                    "value": "blue",
+                                    // "value": "blue",
+                                    "attribute": "colors",
+                                    "type": "inline"
                                 },
                                 "size": { "value": 2 },
                                 "opacity": { "value": 0.65 }
@@ -321,60 +358,60 @@ class App {
                 var key = "clusters";
                 var cont = document.getElementById("clus_charts");
 
-                var elem2 = document.createElement("div");
-                elem2.style.width = "450px";
-                elem2.style.height = "450px";
-                cont.appendChild(elem2);
+                // var elem2 = document.createElement("div");
+                // elem2.style.width = "450px";
+                // elem2.style.height = "450px";
+                // cont.appendChild(elem2);
 
-                var tsne1 = [], tsne2 = [];
-                var payload_vals = Object.values(payload.resp["tsne"]);
-                var min = 1000, max = -1000;
-                for (var i = 0; i < payload_vals.length; i++) {
-                    if (i % 2 == 0) {
-                        tsne1.push(payload_vals[i]);
-                    }
-                    else {
-                        tsne2.push(payload_vals[i]);
-                        // sample.push("sample");
-                    }
-                }
+                // var tsne1 = [], tsne2 = [];
+                // var payload_vals = Object.values(payload.resp["tsne"]);
+                // var min = 1000, max = -1000;
+                // for (var i = 0; i < payload_vals.length; i++) {
+                //     if (i % 2 == 0) {
+                //         tsne1.push(payload_vals[i]);
+                //     }
+                //     else {
+                //         tsne2.push(payload_vals[i]);
+                //         // sample.push("sample");
+                //     }
+                // }
 
-                var samples = Object.values(payload.resp["clusters"]);
+                // var samples = Object.values(payload.resp["clusters"]);
 
-                const visualization = new WebGLVis(elem2);
-                visualization.addToDom();
-                visualization.setSchema({
-                    defaultData: {
-                        "tsne1": tsne1,
-                        "tsne2": tsne2,
-                        "sample": samples
-                    },
-                    xAxis: 'none',
-                    yAxis: 'none',
-                    tracks: [
-                        {
-                            "mark": "point",
-                            "x": {
-                                "attribute": "tsne1",
-                                "type": "quantitative",
-                                "domain": [Math.min(...tsne1), Math.max(...tsne1)]
-                            },
-                            "y": {
-                                "attribute": "tsne2",
-                                "type": "quantitative",
-                                "domain": [Math.min(...tsne2), Math.max(...tsne2)]
-                            },
-                            "color": {
-                                "attribute": "sample",
-                                "type": "categorical",
-                                "cardinality": Math.max(...samples),
-                                "colorScheme": "interpolateRainbow"
-                            },
-                            "size": { "value": 2 },
-                            "opacity": { "value": 1 }
-                        },
-                    ],
-                });
+                // const visualization = new WebGLVis(elem2);
+                // visualization.addToDom();
+                // visualization.setSchema({
+                //     defaultData: {
+                //         "tsne1": tsne1,
+                //         "tsne2": tsne2,
+                //         "sample": samples
+                //     },
+                //     xAxis: 'none',
+                //     yAxis: 'none',
+                //     tracks: [
+                //         {
+                //             "mark": "point",
+                //             "x": {
+                //                 "attribute": "tsne1",
+                //                 "type": "quantitative",
+                //                 "domain": [Math.min(...tsne1), Math.max(...tsne1)]
+                //             },
+                //             "y": {
+                //                 "attribute": "tsne2",
+                //                 "type": "quantitative",
+                //                 "domain": [Math.min(...tsne2), Math.max(...tsne2)]
+                //             },
+                //             "color": {
+                //                 "attribute": "sample",
+                //                 "type": "categorical",
+                //                 "cardinality": Math.max(...samples),
+                //                 "colorScheme": "interpolateRainbow"
+                //             },
+                //             "size": { "value": 2 },
+                //             "opacity": { "value": 1 }
+                //         },
+                //     ],
+                // });
 
 
                 var elem = document.createElement("div");
@@ -538,7 +575,7 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("tsne_charts").innerHTML = "";
         document.getElementById("clus_charts").innerHTML = "";
 
-        var val = document.getElementById("pca-input").value;
+        var val = document.getElementById("pca-npc-input").value;
         if (!val) { val = 5; }
         window.app.worker.postMessage({
             "type": "PCA",
@@ -547,10 +584,25 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
+    document.getElementById("clus-submit").addEventListener("click", (event) => {
+        document.getElementById("clus_charts").innerHTML = "";
+
+        var k = document.getElementById("clus-k-input").value;
+        var res = document.getElementById("clus-res-input").value;
+
+        if (!k) { k = 10; }
+        if (!res) { res = 0.5; }
+
+        window.app.worker.postMessage({
+            "type": "CLUS",
+            "input": [parseInt(k), parseInt(res)],
+            "msg": "not much to pass"
+        });
+    });
+
     document.getElementById("tsne-submit").addEventListener("click", (event) => {
 
         document.getElementById("tsne_charts").innerHTML = "";
-        document.getElementById("clus_charts").innerHTML = "";
         window.app.tsneViz = null;
 
         var iter = document.getElementById("tsne-input-iter").value;
@@ -558,18 +610,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (!iter) { iter = 200; }
         if (!perp) { perp = 30; }
+
+        window.app.tsne_cluster_iterations = parseInt(iter);
         window.app.worker.postMessage({
             "type": "TSNE",
             "input": [parseInt(perp), parseInt(iter)],
-            "msg": "not much to pass"
-        });
-    });
-
-    document.getElementById("clus-submit").addEventListener("click", (event) => {
-        document.getElementById("clus_charts").innerHTML = "";
-
-        window.app.worker.postMessage({
-            "type": "CLUS",
             "msg": "not much to pass"
         });
     });

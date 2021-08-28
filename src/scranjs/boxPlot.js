@@ -20,7 +20,8 @@ class boxPlot {
 
     draw(data, key, dimx, dimy, threshold) {
         var self = this;
-        var circleRadius = 0.8
+        var circleRadius = 0.3;
+        var gap = 0.001;
         var gridSquareSize = Math.max(Math.floor(circleRadius), 1);
 
         var margins = {
@@ -198,9 +199,9 @@ class boxPlot {
 
                     var cx = (margins.left + (cellX - minX) * (width - margins.left - margins.right) / (maxX - minX));
                     if (finished % 2 == 0) {
-                        cx += (finished / 2) * xScale(0.009);
+                        cx += (finished / 2) * xScale(gap);
                     } else {
-                        cx -= Math.ceil(finished / 2) * xScale(0.009);
+                        cx -= Math.ceil(finished / 2) * xScale(gap);
                     }
 
                     gridYCountFinished[gridY][gridX]++;
