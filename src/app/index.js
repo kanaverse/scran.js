@@ -694,7 +694,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         window.app.worker.postMessage({
             "type": "CLUS",
-            "input": [parseInt(k), parseInt(res)],
+            "input": [parseInt(k), parseFloat(res)],
             "msg": "not much to pass"
         });
 
