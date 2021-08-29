@@ -25,7 +25,7 @@ jobs:
     - name: Copy everything
       run: |
         mkdir gh-pages-staging
-        cp -r wasm/docs/html gh-pages-staging/wasm
+    # cp -r wasm/docs/html gh-pages-staging/wasm
         cp -r src gh-pages-staging/app
     
     - name: GH Pages Deployment
