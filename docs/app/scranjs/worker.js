@@ -1,11 +1,6 @@
 importScripts("./scran.js");
-// import scran from './scran.js';
-// import Module from './scran_wasm.js';
-// importScripts("./scran_wasm.js");
 
 importScripts("https://cdn.jsdelivr.net/npm/d3-dsv@3");
-// importScripts("https://cdn.jsdelivr.net/npm/umap-js@1.3.3/lib/umap-js.js");
-console.log(d3);
 
 const DATA_PATH = "/data";
 let wasmModule = null;
@@ -22,8 +17,8 @@ let data = null;
 
 onmessage = function (msg) {
     var self = this;
-    console.log("in worker");
-    console.log(msg.data);
+    // console.log("in worker");
+    // console.log(msg.data);
 
     const payload = msg.data;
 
@@ -88,7 +83,7 @@ onmessage = function (msg) {
 
         postMessage({
             type: payload.type,
-            msg: `Success: mtx file loaded in ${(t1-t0)/1000} seconds`
+            msg: `Success: mtx file loaded in ${(t1 - t0) / 1000} seconds`
         });
 
         const tsv = d3.dsvFormat("\t");
@@ -102,25 +97,25 @@ onmessage = function (msg) {
             var t1 = performance.now();
             // console.log("Loading barcodes file took " + (t1 - t0) + " milliseconds.");
             // console.log(data.barcodes);
-    
+
             postMessage({
                 type: payload.type,
-                msg: `Success: barcodes file loaded in ${(t1-t0)/1000} seconds`
+                msg: `Success: barcodes file loaded in ${(t1 - t0) / 1000} seconds`
             });
         }
 
 
         var genes_file = input[2];
-        if(genes_file.length > 0) {
+        if (genes_file.length > 0) {
             var t0 = performance.now();
             const genes_file_path = `${DATA_PATH}/${genes_file[0].name}`;
             const genes_str = FS.readFile(genes_file_path, { "encoding": "utf8" });
             data.genes = tsv.parse(genes_str);
             var t1 = performance.now();
-    
+
             postMessage({
                 type: payload.type,
-                msg: `Success: genes file loaded in ${(t1-t0)/1000} seconds`
+                msg: `Success: genes file loaded in ${(t1 - t0) / 1000} seconds`
             });
         }
 
@@ -134,6 +129,14 @@ onmessage = function (msg) {
             type: payload.type,
             msg: `Success: Data loaded, dimensions: ${data.matrix.nrow()}, ${data.matrix.ncol()}`
         })
+
+
+        var ftime = (t1 - t0) / 1000;
+        postMessage({
+            type: payload.type,
+            resp: `~${ftime.toFixed(2)} sec`,
+            msg: 'Done'
+        });
     } else if (payload.type == "GENERATE_DATA") {
 
         data.loadData([], 10000, 1000);
@@ -148,8 +151,15 @@ onmessage = function (msg) {
             type: payload.type,
             msg: `Success: Test data loaded, dimensions: ${data.matrix.nrow()}, ${data.matrix.ncol()}`
         });
+
+        postMessage({
+            type: payload.type,
+            msg: 'Done'
+        });
     } else if (payload.type == "QC") {
+        var t0 = performance.now();
         const resp = data.qcMetrics(payload.input[0]);
+        var t1 = performance.now();
 
         postMessage({
             type: "FDATA",
@@ -158,10 +168,17 @@ onmessage = function (msg) {
         })
 
         postMessage({
-            type: payload.type,
+            type: "QC_RESP",
             resp: JSON.parse(JSON.stringify(resp)),
             msg: `Success: QC Complete, ${data.filteredMatrix.nrow()}, ${data.filteredMatrix.ncol()}`
-        })
+        });
+
+        var ftime = (t1 - t0) / 1000;
+        postMessage({
+            type: payload.type,
+            resp: `~${ftime.toFixed(2)} sec`,
+            msg: 'Done'
+        });
     } else if (payload.type == "QCThresholds") {
         data.thresholds = payload.input;
 
@@ -186,57 +203,113 @@ onmessage = function (msg) {
         })
     } else if (payload.type == "FEATURE_SELECTION") {
         // need a fsel
+        var t0 = performance.now();
         var resp = data.fSelection(payload.input[0]);
+        var t1 = performance.now();
 
         postMessage({
-            type: payload.type,
+            type: 'FSEL_RESP',
             resp: JSON.parse(JSON.stringify(resp)),
             msg: `Success: FSEL done, ${data.filteredMatrix.nrow()}, ${data.filteredMatrix.ncol()}`
         })
+
+        var ftime = (t1 - t0) / 1000;
+        postMessage({
+            type: payload.type,
+            resp: `~${ftime.toFixed(2)} sec`,
+            msg: 'Done'
+        });
     } else if (payload.type == "PCA") {
         var t0 = performance.now();
         var resp = data.PCA(payload.input[0]);
         var t1 = performance.now();
-        console.log("PCA took " + (t1 - t0) + " milliseconds.");
+        // console.log("PCA took " + (t1 - t0) + " milliseconds.");
 
         postMessage({
             type: payload.type,
             resp: JSON.parse(JSON.stringify(resp)),
             msg: `Success: PCA done, ${data.filteredMatrix.nrow()}, ${data.filteredMatrix.ncol()}` + " took " + (t1 - t0) + " milliseconds."
         })
+
+        var ftime = (t1 - t0) / 1000;
+        postMessage({
+            type: payload.type,
+            resp: `~${ftime.toFixed(2)} sec`,
+            msg: 'Done'
+        });
     } else if (payload.type == "TSNE") {
         data.init_tsne = null;
         var t0 = performance.now();
         var resp = data.tsne(payload.input[0], payload.input[1]);
         var t1 = performance.now();
-        console.log("TSNE took " + (t1 - t0) + " milliseconds.");
+        // console.log("TSNE took " + (t1 - t0) + " milliseconds.");
 
         postMessage({
             type: payload.type,
             resp: JSON.parse(JSON.stringify(resp)),
             msg: `Success: TSNE done, ${data.filteredMatrix.nrow()}, ${data.filteredMatrix.ncol()}` + " took " + (t1 - t0) + " milliseconds."
         });
+
+        var ftime = (t1 - t0) / 1000;
+        postMessage({
+            type: payload.type,
+            resp: `~${ftime.toFixed(2)} sec`,
+            msg: 'Done'
+        });
     } else if (payload.type == "CLUS") {
         var t0 = performance.now();
-        var resp = data.cluster();
+        var resp = data.cluster(payload.input[0], payload.input[1]);
         var t1 = performance.now();
-        console.log("CLUS took " + (t1 - t0) + " milliseconds.");
+        // console.log("CLUS took " + (t1 - t0) + " milliseconds.");
 
         postMessage({
             type: payload.type,
             resp: JSON.parse(JSON.stringify(resp)),
             msg: `Success: CLUS done, ${data.filteredMatrix.nrow()}, ${data.filteredMatrix.ncol()}` + " took " + (t1 - t0) + " milliseconds."
-        })
+        });
 
-        // var t0 = performance.now();
-        // var resp = data.umap();
-        // var t1 = performance.now();
-        // console.log("CLUS:UMAP took " + (t1 - t0) + " milliseconds.");
+        var ftime = (t1 - t0) / 1000;
+        postMessage({
+            type: payload.type,
+            resp: `~${ftime.toFixed(2)} sec`,
+            msg: 'Done'
+        });
+    } else if (payload.type == "MARKER_GENE") {
+        var t0 = performance.now();
+        var resp = data.markerGenes();
+        var t1 = performance.now();
+        // console.log("CLUS took " + (t1 - t0) + " milliseconds.");
 
+        postMessage({
+            type: payload.type,
+            resp: JSON.parse(JSON.stringify(resp)),
+            msg: `Success: MARKER_GENE done, ${data.filteredMatrix.nrow()}, ${data.filteredMatrix.ncol()}` + " took " + (t1 - t0) + " milliseconds."
+        });
+
+        var ftime = (t1 - t0) / 1000;
+        postMessage({
+            type: payload.type,
+            resp: `~${ftime.toFixed(2)} sec`,
+            msg: 'Done'
+        });
+    } else if (payload.type == "GET_CLUSTER_MARKERS") {
+        var t0 = performance.now();
+        var resp = data.getClusterMarkers(payload.input[0]);
+        var t1 = performance.now();
+        // console.log("CLUS took " + (t1 - t0) + " milliseconds.");
+
+        postMessage({
+            type: payload.type,
+            resp: JSON.parse(JSON.stringify(resp)),
+            msg: `Success: GET_MARKER_GENE done, ${data.filteredMatrix.nrow()}, ${data.filteredMatrix.ncol()}` + " took " + (t1 - t0) + " milliseconds."
+        });
+
+        // var ftime = (t1 - t0) / 1000;
         // postMessage({
         //     type: payload.type,
-        //     resp: JSON.parse(JSON.stringify(resp)),
-        //     msg: `Success: CLUS:UMAP done, ${data.filteredMatrix.nrow()}, ${data.filteredMatrix.ncol()}`
-        // })
+        //     resp: `~${ftime.toFixed(2)} sec`,
+        //     msg: 'Done'
+        // });
     }
+
 }

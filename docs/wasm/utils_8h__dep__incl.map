@@ -1,9 +1,0 @@
-<map id="utils.h" name="utils.h">
-<area shape="rect" id="node1" title=" " alt="" coords="479,5,535,32"/>
-<area shape="rect" id="node2" href="$log__norm__counts_8cpp.html" title=" " alt="" coords="5,80,151,107"/>
-<area shape="rect" id="node3" href="$model__gene__var_8cpp.html" title="Model the mean&#45;variance relationship across all genes." alt="" coords="175,80,317,107"/>
-<area shape="rect" id="node4" href="$per__cell__qc__filters_8cpp.html" title="Define filters on the QC metrics to remove low&#45;quality cells." alt="" coords="341,80,492,107"/>
-<area shape="rect" id="node5" href="$per__cell__qc__metrics_8cpp.html" title="Compute per&#45;cell QC metrics from the count matrix." alt="" coords="517,80,679,107"/>
-<area shape="rect" id="node6" href="$read__matrix__market_8cpp.html" title=" " alt="" coords="703,80,863,107"/>
-<area shape="rect" id="node7" href="$score__markers_8cpp.html" title="Compute marker scores for each gene in each group of cells." alt="" coords="888,80,1020,107"/>
-</map>
