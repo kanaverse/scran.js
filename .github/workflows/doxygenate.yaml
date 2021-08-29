@@ -21,11 +21,11 @@ jobs:
     #   uses: mattnotmitt/doxygen-action@v1.1.0
     #   with:
     #     working-directory: wasm/docs/
+    # cp -r wasm/docs/html gh-pages-staging/wasm
 
     - name: Copy everything
       run: |
         mkdir gh-pages-staging
-    # cp -r wasm/docs/html gh-pages-staging/wasm
         cp -r src gh-pages-staging/app
     
     - name: GH Pages Deployment
