@@ -66,8 +66,8 @@ class App {
                     var vec = Object.values(payload.resp[key]);
 
                     if (key != "proportion") {
-                        vec = vec.map((m) => Math.log2(m + 1));
-                        threshold = Math.log2(threshold + 1)
+                        // vec = vec.map((m) => Math.log2(m + 1));
+                        // threshold = Math.log2(threshold + 1)
                     } else {
                         threshold = Math.min([threshold, 100]);
                     }
@@ -87,9 +87,12 @@ class App {
                             window.app.worker.postMessage({
                                 "type": "QCThresholds",
                                 "input": [
-                                    Math.pow(2, self.qcBoxPlots['qc_sums'].threshold),
-                                    Math.pow(2, self.qcBoxPlots['qc_detected'].threshold),
-                                    Math.pow(2, Math.min([self.qcBoxPlots['qc_proportion'].threshold], 100))
+                                    self.qcBoxPlots['qc_sums'].threshold,
+                                    // Math.pow(2, self.qcBoxPlots['qc_sums'].threshold),
+                                    self.qcBoxPlots['qc_detected'].threshold,
+                                    // Math.pow(2, self.qcBoxPlots['qc_detected'].threshold),
+                                    Math.min([self.qcBoxPlots['qc_proportion'].threshold], 100)
+                                    // Math.pow(2, Math.min([self.qcBoxPlots['qc_proportion'].threshold], 100))
                                 ], // sums, detected & threshold 
                                 "msg": "not much to pass"
                             });
@@ -100,10 +103,15 @@ class App {
 
                         var pData = {
                             "y": vec,
-                            "x": key != "proportion" ? "log-" + key : key
+                            "x": key != "proportion" ? "log-" + key : key,
+                            "range" : payload.resp["ranges"][key]
                         };
 
-                        plot.draw(pData, "", 'x', 'y', threshold);
+                        var xlabel = key;
+
+                        // if (key != "proportion") { xlabel = "log-" + xlabel}
+
+                        plot.draw(pData, "", 'x', 'y', threshold, xlabel);
                     }
                 });
             } else if (payload.type == "QC") {
@@ -252,17 +260,19 @@ class App {
                     }
 
                     var tsne1 = [], tsne2 = [], sample = [];
-                    var payload_vals = Object.values(payload.resp["tsne"]);
-                    var min = 1000, max = -1000;
-                    for (var i = 0; i < payload_vals.length; i++) {
-                        if (i % 2 == 0) {
-                            tsne1.push(payload_vals[i]);
-                        }
-                        else {
-                            tsne2.push(payload_vals[i]);
-                            sample.push("sample");
-                        }
-                    }
+                    // var payload_vals = Object.values(payload.resp["tsne"]);
+                    var tsne1 = Object.values(payload.resp["tsne1"]);
+                    var tsne2 = Object.values(payload.resp["tsne2"]);
+                    // var min = 1000, max = -1000;
+                    // for (var i = 0; i < payload_vals.length; i++) {
+                    //     if (i % 2 == 0) {
+                    //         tsne1.push(payload_vals[i]);
+                    //     }
+                    //     else {
+                    //         tsne2.push(payload_vals[i]);
+                    //         // sample.push("sample");
+                    //     }
+                    // }
 
                     self.final_cluster_colors_array =
                         self.cluster_mappings.map(x => "#" + self.cluster_colors_gradients[x].colorAt(payload.resp["iteration"]));
@@ -287,7 +297,7 @@ class App {
                             defaultData: {
                                 "tsne1": tsne1,
                                 "tsne2": tsne2,
-                                "sample": sample,
+                                // "sample": sample,
                                 "colors": self.final_cluster_colors_array
                             },
                             "labels": [
@@ -330,7 +340,7 @@ class App {
                             defaultData: {
                                 "tsne1": tsne1,
                                 "tsne2": tsne2,
-                                "sample": sample,
+                                // "sample": sample,
                                 "colors": self.final_cluster_colors_array
                             },
                             "labels": [

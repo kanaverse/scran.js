@@ -1,6 +1,7 @@
 importScripts("./scran.js");
 
 importScripts("https://cdn.jsdelivr.net/npm/d3-dsv@3");
+importScripts("https://cdn.jsdelivr.net/npm/d3-scale@4");
 
 const DATA_PATH = "/data";
 let wasmModule = null;
