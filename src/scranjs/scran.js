@@ -49,7 +49,7 @@ class scran {
 
   loadDataFromPath(ptr, size, compressed) {
     this.matrix = this.wasm.read_matrix_market(ptr, size, compressed);
-    // this.matrix = this.wasm.log_norm_counts(this.matrix, false, 0, false, 0);
+    this.matrix = this.wasm.log_norm_counts(this.matrix, false, 0, false, 0);
   }
 
   getRandomArbitrary() {
@@ -188,6 +188,7 @@ class scran {
   }
 
   qcMetrics(nmads) {
+    var self = this;
     var nsubsets = 1;
     var subsets = this.createMemorySpace(
       this.matrix.nrow() * nsubsets,
@@ -228,10 +229,49 @@ class scran {
     metrics_output.delete();
     filter_output.delete();
 
+    // compute distributions for all
+    var maxDist = 100;
+    var distributions = {
+      "sums": new Array(maxDist).fill(0),
+      "detected": new Array(maxDist).fill(0),
+      "proportion": new Array(maxDist).fill(0)
+    };
+
+    var ranges = {
+      "sums": [],
+      "detected": [],
+      "proportion": []
+    };
+
+    ["sums", "detected", "proportion"].forEach(function (x, i) {
+
+      // if (x != "proportion") {
+      //   self.qc_metrics[x] = self.qc_metrics[x].map(x => Math.log2(x + 1));
+      // }
+
+      var tmin = Math.min(...self.qc_metrics[x]);
+      var tmax = Math.max(...self.qc_metrics[x]);
+
+      ranges[x] = [tmin, tmax];
+
+      // var tscale = d3.scaleLinear()
+      //   .domain([tmin, tmax])
+      //   .range([0, 100]);
+
+      var m = (100) / (tmax - tmin);
+      var b = -m * tmin;
+
+      self.qc_metrics[x].forEach(function (y, j) {
+        var idx = Math.ceil((m * y) + b);
+        distributions[x][idx]++;
+      });
+    });
+
     return {
-      "sums": this.qc_metrics.sums,
-      "detected": this.qc_metrics.detected,
-      "proportion": this.qc_metrics.proportion,
+      "sums": distributions.sums,
+      "detected": distributions.detected,
+      "proportion": distributions.proportion,
+      "ranges": ranges,
       "thresholds": {
         "sums": this.thresholds[0],
         "detected": this.thresholds[1],
@@ -377,10 +417,22 @@ class scran {
       var sh_tsne = self.getVector("tsne") //new SharedArrayBuffer(this.filteredMatrix.ncol());
       // sh_tsne.set(self.getVector("tsne"));
 
+      var tsne1 = [], tsne2 = [];
+      for (var i = 0; i < sh_tsne.length; i++) {
+        if (i % 2 == 0) {
+          tsne1.push(sh_tsne[i]);
+        }
+        else {
+          tsne2.push(sh_tsne[i]);
+          // sample.push("sample");
+        }
+      }
+
       postMessage({
         type: "TSNE",
         resp: JSON.parse(JSON.stringify({
-          "tsne": sh_tsne,
+          "tsne1": tsne1,
+          "tsne2": tsne2,
           "iteration": self.init_tsne.iterations()
         })),
         msg: `Success: TSNE done, ${self.filteredMatrix.nrow()}, ${self.filteredMatrix.ncol()}`
@@ -392,8 +444,20 @@ class scran {
     var sh_tsne = self.getVector("tsne") //new SharedArrayBuffer(this.filteredMatrix.ncol());
     // sh_tsne.set(self.getVector("tsne"));
 
+    var tsne1 = [], tsne2 = [];
+    for (var i = 0; i < sh_tsne.length; i++) {
+      if (i % 2 == 0) {
+        tsne1.push(sh_tsne[i]);
+      }
+      else {
+        tsne2.push(sh_tsne[i]);
+        // sample.push("sample");
+      }
+    }
+
     return {
-      "tsne": sh_tsne,
+      "tsne1": tsne1,
+      "tsne2": tsne2,
       "clusters": self.getVector("cluster_assignments"),
       "iteration": self._lastIter
     }
