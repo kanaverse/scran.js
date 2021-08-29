@@ -169,7 +169,7 @@ onmessage = function (msg) {
 
         postMessage({
             type: "QC_RESP",
-            // resp: JSON.parse(JSON.stringify(resp)),
+            resp: JSON.parse(JSON.stringify(resp)),
             msg: `Success: QC Complete, ${data.filteredMatrix.nrow()}, ${data.filteredMatrix.ncol()}`
         });
 
@@ -209,7 +209,7 @@ onmessage = function (msg) {
 
         postMessage({
             type: 'FSEL_RESP',
-            // resp: JSON.parse(JSON.stringify(resp)),
+            resp: JSON.parse(JSON.stringify(resp)),
             msg: `Success: FSEL done, ${data.filteredMatrix.nrow()}, ${data.filteredMatrix.ncol()}`
         })
 
@@ -249,6 +249,13 @@ onmessage = function (msg) {
             resp: JSON.parse(JSON.stringify(resp)),
             msg: `Success: TSNE done, ${data.filteredMatrix.nrow()}, ${data.filteredMatrix.ncol()}` + " took " + (t1 - t0) + " milliseconds."
         });
+
+        var ftime = (t1 - t0) / 1000;
+        postMessage({
+            type: payload.type,
+            resp: `~${ftime.toFixed(2)} sec`,
+            msg: 'Done'
+        });
     } else if (payload.type == "CLUS") {
         var t0 = performance.now();
         var resp = data.cluster(payload.input[0], payload.input[1]);
@@ -260,6 +267,13 @@ onmessage = function (msg) {
             resp: JSON.parse(JSON.stringify(resp)),
             msg: `Success: CLUS done, ${data.filteredMatrix.nrow()}, ${data.filteredMatrix.ncol()}` + " took " + (t1 - t0) + " milliseconds."
         });
+
+        var ftime = (t1 - t0) / 1000;
+        postMessage({
+            type: payload.type,
+            resp: `~${ftime.toFixed(2)} sec`,
+            msg: 'Done'
+        });
     } else if (payload.type == "MARKER_GENE") {
         var t0 = performance.now();
         var resp = data.markerGenes();
@@ -269,7 +283,33 @@ onmessage = function (msg) {
         postMessage({
             type: payload.type,
             resp: JSON.parse(JSON.stringify(resp)),
-            msg: `Success: CLUS done, ${data.filteredMatrix.nrow()}, ${data.filteredMatrix.ncol()}` + " took " + (t1 - t0) + " milliseconds."
+            msg: `Success: MARKER_GENE done, ${data.filteredMatrix.nrow()}, ${data.filteredMatrix.ncol()}` + " took " + (t1 - t0) + " milliseconds."
         });
+
+        var ftime = (t1 - t0) / 1000;
+        postMessage({
+            type: payload.type,
+            resp: `~${ftime.toFixed(2)} sec`,
+            msg: 'Done'
+        });
+    } else if (payload.type == "GET_CLUSTER_MARKERS") {
+        var t0 = performance.now();
+        var resp = data.getClusterMarkers(payload.input[0]);
+        var t1 = performance.now();
+        // console.log("CLUS took " + (t1 - t0) + " milliseconds.");
+
+        postMessage({
+            type: payload.type,
+            resp: JSON.parse(JSON.stringify(resp)),
+            msg: `Success: GET_MARKER_GENE done, ${data.filteredMatrix.nrow()}, ${data.filteredMatrix.ncol()}` + " took " + (t1 - t0) + " milliseconds."
+        });
+
+        // var ftime = (t1 - t0) / 1000;
+        // postMessage({
+        //     type: payload.type,
+        //     resp: `~${ftime.toFixed(2)} sec`,
+        //     msg: 'Done'
+        // });
     }
+
 }

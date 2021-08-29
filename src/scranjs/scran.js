@@ -306,14 +306,14 @@ class scran {
     var filter = false;
     var num_hvgs = 4000;
     if ("sorted_residuals" in this && num_hvgs > 0) {
-        filter = true;
-        var threshold_at = this.sorted_residuals[this.sorted_residuals.length - num_hvgs];
+      filter = true;
+      var threshold_at = this.sorted_residuals[this.sorted_residuals.length - num_hvgs];
 
-        var sub2 = this.getVector("subset_PCA");
-        sub2.forEach((element, index, array) => {
-            array[index] = this.residuals[index] >= threshold_at;
-        });
-        console.log(sub2);
+      var sub2 = this.getVector("subset_PCA");
+      sub2.forEach((element, index, array) => {
+        array[index] = this.residuals[index] >= threshold_at;
+      });
+      // console.log(sub2);
     }
 
     // console.log(sub.vector);
@@ -428,14 +428,16 @@ class scran {
     var markers_output = this.wasm.score_markers(this.filteredMatrix,
       clus_assigns.ptr, false, 0);
 
-    var cluster_vec = this.getVector("cluster_assignments");
+    self.markerGenes = markers_output;
 
-    all_cohens = {};
-    for (var i=0; i < Math.max(...cluster_vec); i++) {
-      var cohen = markers_output.cohen(i, 1).slice();
+    // var cluster_vec = this.getVector("cluster_assignments");
 
-      all_cohens["CLUS_" + i] = self.findMaxIndices(cohen, 5);
-    }
+    // var all_cohens = {};
+    // for (var i=0; i < Math.max(...cluster_vec); i++) {
+    //   var cohen = markers_output.cohen(i, 1).slice();
+
+    //   all_cohens["CLUS_" + i] = self.findMaxIndices(cohen, 5);
+    // }
 
 
     // var auc = markers_output.auc(0).slice();
@@ -443,11 +445,27 @@ class scran {
     // var detected = markers_output.detected(0, 0).slice();
     // var means = markers_output.means(0, 0).slice();
 
-    markers_output.delete();
+    // markers_output.delete();
 
     return {
       // "auc": auc,
-      "cohen": cohen
+      // "cohen": cohen
+      // "detected": detected,
+      // "means": means
+    }
+  }
+
+  getClusterMarkers(cluster) {
+    var self = this;
+
+    // var auc = self.markerGenes.auc(cluster).slice();
+    var cohen = self.markerGenes.cohen(cluster, 1).slice();
+    var detected = self.markerGenes.detected(cluster, 0).slice();
+    var means = self.markerGenes.means(cluster, 0).slice();
+
+    return {
+      // "auc": auc,
+      "cohen": self.findMaxIndices(cohen, 5),
       // "detected": detected,
       // "means": means
     }
@@ -457,13 +475,13 @@ class scran {
     var top = [];
     for (var i = 0; i < arr.length; i++) {
       top.push(i);
-        if (top.length > max) {
-          top.sort(function(a, b) { return inp[b] - inp[a]; }); 
-          top.pop();
-        }
+      if (top.length > max) {
+        top.sort(function (a, b) { return arr[b] - arr[a]; });
+        top.pop();
+      }
     }
     return top;
-}
+  }
 
   umap() {
     var self = this;

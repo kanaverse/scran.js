@@ -58,8 +58,8 @@ class App {
                 }
 
             } else if (payload.type == "QC_RESP") {
-                // "sums", "detected", "proportion"
-                [].forEach(key => {
+                // 
+                ["sums", "detected", "proportion"].forEach(key => {
                     var cont = document.getElementById("qc_charts");
                     const eid = `qc_${key}`;
                     var threshold = payload.resp["thresholds"][key];
@@ -128,22 +128,22 @@ class App {
                 }
             } else if (payload.type == "FSEL_RESP") {
                 const payload = msg.data;
-                // var keys = ["genes", "means", "vars", "fitted", "resids"];
-                // var isGene = false // payload.resp["genes"] != null;
-                // var table = [];
+                var keys = ["genes", "means", "vars", "fitted", "resids"];
+                var isGene = false // payload.resp["genes"] != null;
+                var table = [];
 
-                // for (var i = 0; i < 10; i++) {
-                //     var tr = isGene ? `<td>${payload.resp["genes"][i]["gene"]}</td>` : `<td>Gene-${i}</td>`;
-                //     tr += `<td>${payload.resp["means"][i]}</td><td>${payload.resp["vars"][i]}</td><td>${payload.resp["fitted"][i]}</td><td>${payload.resp["resids"][i]}</td>`
-                //     table.push(`<tr>${tr}</tr>`);
-                // }
+                for (var i = 0; i < 10; i++) {
+                    var tr = isGene ? `<td>${payload.resp["genes"][i]["gene"]}</td>` : `<td>Gene-${i}</td>`;
+                    tr += `<td>${payload.resp["means"][i]}</td><td>${payload.resp["vars"][i]}</td><td>${payload.resp["fitted"][i]}</td><td>${payload.resp["resids"][i]}</td>`
+                    table.push(`<tr>${tr}</tr>`);
+                }
 
-                // var columns = isGene ? keys : keys.slice(1);
-                // var clusterize = new Clusterize({
-                //     rows: table,
-                //     scrollId: 'scrollArea',
-                //     contentId: 'contentArea'
-                // });
+                var columns = isGene ? keys : keys.slice(1);
+                var clusterize = new Clusterize({
+                    rows: table,
+                    scrollId: 'scrollArea',
+                    contentId: 'contentArea'
+                });
             } else if (payload.type == "FEATURE_SELECTION") {
                 if (payload.msg.startsWith("Done")) {
                     //  switch to output tab
@@ -216,230 +216,322 @@ class App {
                 }
             } else if (payload.type == "TSNE") {
 
-                // setTimeout(() => {
-                const payload = msg.data;
-                // console.log(payload);
+                if (payload.msg.startsWith("Done")) {
+                    //  switch to output tab
+                    // var tab = document.querySelector('#qc-tabs button[data-bs-target="#qc-output"]');
+                    // var ttab = new bootstrap.Tab(tab)
+                    // ttab.show();
 
-                if (!self.cluster_mappings) {
-                    self.cluster_mappings = Object.values(payload.resp["clusters"]);
-                    self.cluster_count = Math.max(...self.cluster_mappings);
-                    self.cluster_colors = randomColor({ luminosity: 'dark', count: self.cluster_count + 1 });
-                    self.cluster_colors_gradients = [];
-                    for (var i = 0; i < self.cluster_count + 1; i++) {
-                        var gradient = new Rainbow();
-                        gradient.setSpectrum("grey", self.cluster_colors[i]);
-                        gradient.setNumberRange(0, self.tsne_cluster_iterations);
-                        self.cluster_colors_gradients.push(gradient);
-                    }
-                }
+                    var container = document.getElementById("tsne-status");
+                    container.querySelector("#tsne-notrun").style.display = "none";
+                    container.querySelector("#tsne-spinner").style.display = "none";
+                    container.querySelector("#tsne-success").style.display = "block";
 
-                var tsne1 = [], tsne2 = [], sample = [];
-                var payload_vals = Object.values(payload.resp["tsne"]);
-                var min = 1000, max = -1000;
-                for (var i = 0; i < payload_vals.length; i++) {
-                    if (i % 2 == 0) {
-                        tsne1.push(payload_vals[i]);
-                    }
-                    else {
-                        tsne2.push(payload_vals[i]);
-                        sample.push("sample");
-                    }
-                }
+                    // timer
+                    document.getElementById("tsne-timer").style.display = "block";
+                    document.getElementById("tsne-timer").innerHTML = payload.resp;
 
-                self.final_cluster_colors_array =
-                    self.cluster_mappings.map(x => "#" + self.cluster_colors_gradients[x].colorAt(payload.resp["iteration"]));
-
-                var iter = parseInt(payload.resp["iteration"]);
-                var y0 = 400 / self.tsne_cluster_iterations;
-                var y1 = Math.max(y0 * (self.tsne_cluster_iterations - iter), 1);
-
-                if (!self.tsneViz) {
-                    var cont = document.getElementById("tsne_charts");
-                    cont.innerHTML = "";
-
-                    var elem = document.createElement("div");
-                    elem.class = ".tsne"
-                    elem.style.width = "500px";
-                    elem.style.height = "500px";
-                    cont.appendChild(elem);
-
-                    const visualization = new WebGLVis(elem);
-                    visualization.addToDom();
-                    visualization.setSpecification({
-                        defaultData: {
-                            "tsne1": tsne1,
-                            "tsne2": tsne2,
-                            "sample": sample,
-                            "colors": self.final_cluster_colors_array
-                        },
-                        "labels": [
-                            {
-                                "y": y1,
-                                "x": 0,
-                                "text": "Iteration " + iter,
-                                "fixedX": true
-                            }
-                        ],
-                        xAxis: 'none',
-                        yAxis: 'none',
-                        tracks: [
-                            {
-                                "mark": "point",
-                                "x": {
-                                    "attribute": "tsne1",
-                                    "type": "quantitative",
-                                    "domain": [Math.min(...tsne1), Math.max(...tsne1)]
-                                },
-                                "y": {
-                                    "attribute": "tsne2",
-                                    "type": "quantitative",
-                                    "domain": [Math.min(...tsne2), Math.max(...tsne2)]
-                                },
-                                "color": {
-                                    // "value": "blue",
-                                    "attribute": "colors",
-                                    "type": "inline"
-                                },
-                                "size": { "value": 2 },
-                                "opacity": { "value": 0.65 }
-                            },
-                        ],
-                    });
-
-                    self.tsneViz = visualization;
+                    // show FSEL Step
+                    // document.getElementById("fsel-accordion").style.display = "block";
                 } else {
-                    self.tsneViz.setSpecification({
-                        defaultData: {
-                            "tsne1": tsne1,
-                            "tsne2": tsne2,
-                            "sample": sample,
-                            "colors": self.final_cluster_colors_array
-                        },
-                        "labels": [
-                            {
-                                "y": y1,
-                                "x": 0,
-                                "text": "Iteration " + payload.resp["iteration"],
-                                "fixedX": true
-                            }
-                        ],
-                        xAxis: 'none',
-                        yAxis: 'none',
-                        tracks: [
-                            {
-                                "mark": "point",
-                                "x": {
-                                    "attribute": "tsne1",
-                                    "type": "quantitative",
-                                    "domain": [Math.min(...tsne1), Math.max(...tsne1)]
-                                },
-                                "y": {
-                                    "attribute": "tsne2",
-                                    "type": "quantitative",
-                                    "domain": [Math.min(...tsne2), Math.max(...tsne2)]
-                                },
-                                "color": {
-                                    // "value": "blue",
-                                    "attribute": "colors",
-                                    "type": "inline"
-                                },
-                                "size": { "value": 2 },
-                                "opacity": { "value": 0.65 }
+                    // setTimeout(() => {
+                    const payload = msg.data;
+                    // console.log(payload);
+
+                    if (!self.cluster_mappings) {
+                        self.cluster_mappings = Object.values(payload.resp["clusters"]);
+                        self.cluster_count = Math.max(...self.cluster_mappings);
+                        self.cluster_colors = randomColor({ luminosity: 'dark', count: self.cluster_count + 1 });
+                        self.cluster_colors_gradients = [];
+                        for (var i = 0; i < self.cluster_count + 1; i++) {
+                            var gradient = new Rainbow();
+                            gradient.setSpectrum("grey", self.cluster_colors[i]);
+                            gradient.setNumberRange(0, self.tsne_cluster_iterations);
+                            self.cluster_colors_gradients.push(gradient);
+                        }
+                    }
+
+                    var tsne1 = [], tsne2 = [], sample = [];
+                    var payload_vals = Object.values(payload.resp["tsne"]);
+                    var min = 1000, max = -1000;
+                    for (var i = 0; i < payload_vals.length; i++) {
+                        if (i % 2 == 0) {
+                            tsne1.push(payload_vals[i]);
+                        }
+                        else {
+                            tsne2.push(payload_vals[i]);
+                            sample.push("sample");
+                        }
+                    }
+
+                    self.final_cluster_colors_array =
+                        self.cluster_mappings.map(x => "#" + self.cluster_colors_gradients[x].colorAt(payload.resp["iteration"]));
+
+                    var iter = parseInt(payload.resp["iteration"]);
+                    var y0 = 400 / self.tsne_cluster_iterations;
+                    var y1 = -1.43; // Math.max(y0 * (self.tsne_cluster_iterations - iter), 2);
+
+                    if (!self.tsneViz) {
+                        var cont = document.getElementById("tsne_charts");
+                        cont.innerHTML = "";
+
+                        var elem = document.createElement("div");
+                        elem.class = ".tsne"
+                        elem.style.width = "500px";
+                        elem.style.height = "500px";
+                        cont.appendChild(elem);
+
+                        const visualization = new WebGLVis(elem);
+                        visualization.addToDom();
+                        visualization.setSpecification({
+                            defaultData: {
+                                "tsne1": tsne1,
+                                "tsne2": tsne2,
+                                "sample": sample,
+                                "colors": self.final_cluster_colors_array
                             },
-                        ],
-                    });
+                            "labels": [
+                                {
+                                    "y": y1,
+                                    "x": 0,
+                                    "text": "Iteration " + iter,
+                                    "fixedX": true
+                                }
+                            ],
+                            xAxis: 'none',
+                            yAxis: 'none',
+                            tracks: [
+                                {
+                                    "mark": "point",
+                                    "x": {
+                                        "attribute": "tsne1",
+                                        "type": "quantitative",
+                                        "domain": [Math.min(...tsne1), Math.max(...tsne1)]
+                                    },
+                                    "y": {
+                                        "attribute": "tsne2",
+                                        "type": "quantitative",
+                                        "domain": [Math.min(...tsne2), Math.max(...tsne2)]
+                                    },
+                                    "color": {
+                                        // "value": "blue",
+                                        "attribute": "colors",
+                                        "type": "inline"
+                                    },
+                                    "size": { "value": 2 },
+                                    "opacity": { "value": 0.65 }
+                                },
+                            ],
+                        });
+
+                        self.tsneViz = visualization;
+                    } else {
+                        self.tsneViz.setSpecification({
+                            defaultData: {
+                                "tsne1": tsne1,
+                                "tsne2": tsne2,
+                                "sample": sample,
+                                "colors": self.final_cluster_colors_array
+                            },
+                            "labels": [
+                                {
+                                    "y": y1,
+                                    "x": 0,
+                                    "text": "Iteration " + payload.resp["iteration"],
+                                    "fixedX": true
+                                }
+                            ],
+                            xAxis: 'none',
+                            yAxis: 'none',
+                            tracks: [
+                                {
+                                    "mark": "point",
+                                    "x": {
+                                        "attribute": "tsne1",
+                                        "type": "quantitative",
+                                        "domain": [Math.min(...tsne1), Math.max(...tsne1)]
+                                    },
+                                    "y": {
+                                        "attribute": "tsne2",
+                                        "type": "quantitative",
+                                        "domain": [Math.min(...tsne2), Math.max(...tsne2)]
+                                    },
+                                    "color": {
+                                        // "value": "blue",
+                                        "attribute": "colors",
+                                        "type": "inline"
+                                    },
+                                    "size": { "value": 2 },
+                                    "opacity": { "value": 0.65 }
+                                },
+                            ],
+                        });
+                    }
+                    // }, 10000);
+
                 }
 
-                // }, 10000);
             } else if (payload.type == "CLUS") {
 
-                const payload = msg.data;
-                var x = {};
-                var key = "clusters";
-                var cont = document.getElementById("clus_charts");
+                if (payload.msg.startsWith("Done")) {
+                    //  switch to output tab
+                    // var tab = document.querySelector('#qc-tabs button[data-bs-target="#qc-output"]');
+                    // var ttab = new bootstrap.Tab(tab)
+                    // ttab.show();
 
-                // var elem2 = document.createElement("div");
-                // elem2.style.width = "450px";
-                // elem2.style.height = "450px";
-                // cont.appendChild(elem2);
+                    var container = document.getElementById("clus-status");
+                    container.querySelector("#clus-notrun").style.display = "none";
+                    container.querySelector("#clus-spinner").style.display = "none";
+                    container.querySelector("#clus-success").style.display = "block";
 
-                // var tsne1 = [], tsne2 = [];
-                // var payload_vals = Object.values(payload.resp["tsne"]);
-                // var min = 1000, max = -1000;
-                // for (var i = 0; i < payload_vals.length; i++) {
-                //     if (i % 2 == 0) {
-                //         tsne1.push(payload_vals[i]);
-                //     }
-                //     else {
-                //         tsne2.push(payload_vals[i]);
-                //         // sample.push("sample");
-                //     }
-                // }
+                    // timer
+                    document.getElementById("clus-timer").style.display = "block";
+                    document.getElementById("clus-timer").innerHTML = payload.resp;
 
-                // var samples = Object.values(payload.resp["clusters"]);
+                    // show FSEL Step
+                    // document.getElementById("fsel-accordion").style.display = "block";
+                } else {
+                    const payload = msg.data;
+                    var x = {};
+                    var key = "clusters";
+                    var cont = document.getElementById("clus_charts");
 
-                // const visualization = new WebGLVis(elem2);
-                // visualization.addToDom();
-                // visualization.setSchema({
-                //     defaultData: {
-                //         "tsne1": tsne1,
-                //         "tsne2": tsne2,
-                //         "sample": samples
-                //     },
-                //     xAxis: 'none',
-                //     yAxis: 'none',
-                //     tracks: [
-                //         {
-                //             "mark": "point",
-                //             "x": {
-                //                 "attribute": "tsne1",
-                //                 "type": "quantitative",
-                //                 "domain": [Math.min(...tsne1), Math.max(...tsne1)]
-                //             },
-                //             "y": {
-                //                 "attribute": "tsne2",
-                //                 "type": "quantitative",
-                //                 "domain": [Math.min(...tsne2), Math.max(...tsne2)]
-                //             },
-                //             "color": {
-                //                 "attribute": "sample",
-                //                 "type": "categorical",
-                //                 "cardinality": Math.max(...samples),
-                //                 "colorScheme": "interpolateRainbow"
-                //             },
-                //             "size": { "value": 2 },
-                //             "opacity": { "value": 1 }
-                //         },
-                //     ],
-                // });
+                    // var elem2 = document.createElement("div");
+                    // elem2.style.width = "450px";
+                    // elem2.style.height = "450px";
+                    // cont.appendChild(elem2);
+
+                    // var tsne1 = [], tsne2 = [];
+                    // var payload_vals = Object.values(payload.resp["tsne"]);
+                    // var min = 1000, max = -1000;
+                    // for (var i = 0; i < payload_vals.length; i++) {
+                    //     if (i % 2 == 0) {
+                    //         tsne1.push(payload_vals[i]);
+                    //     }
+                    //     else {
+                    //         tsne2.push(payload_vals[i]);
+                    //         // sample.push("sample");
+                    //     }
+                    // }
+
+                    // var samples = Object.values(payload.resp["clusters"]);
+
+                    // const visualization = new WebGLVis(elem2);
+                    // visualization.addToDom();
+                    // visualization.setSchema({
+                    //     defaultData: {
+                    //         "tsne1": tsne1,
+                    //         "tsne2": tsne2,
+                    //         "sample": samples
+                    //     },
+                    //     xAxis: 'none',
+                    //     yAxis: 'none',
+                    //     tracks: [
+                    //         {
+                    //             "mark": "point",
+                    //             "x": {
+                    //                 "attribute": "tsne1",
+                    //                 "type": "quantitative",
+                    //                 "domain": [Math.min(...tsne1), Math.max(...tsne1)]
+                    //             },
+                    //             "y": {
+                    //                 "attribute": "tsne2",
+                    //                 "type": "quantitative",
+                    //                 "domain": [Math.min(...tsne2), Math.max(...tsne2)]
+                    //             },
+                    //             "color": {
+                    //                 "attribute": "sample",
+                    //                 "type": "categorical",
+                    //                 "cardinality": Math.max(...samples),
+                    //                 "colorScheme": "interpolateRainbow"
+                    //             },
+                    //             "size": { "value": 2 },
+                    //             "opacity": { "value": 1 }
+                    //         },
+                    //     ],
+                    // });
 
 
-                var elem = document.createElement("div");
-                elem.id = `cluster_${key}`;
-                cont.appendChild(elem);
+                    var elem = document.createElement("div");
+                    elem.id = `cluster_${key}`;
+                    cont.appendChild(elem);
 
-                for (var i = 0; i < Object.values(payload.resp[key]).length; i++) {
-                    var clus = Object.values(payload.resp[key])[i];
-                    if ("CLUS_" + clus in x) {
-                        x["CLUS_" + clus]++;
-                    } else {
-                        x["CLUS_" + clus] = 0;
+                    for (var i = 0; i < Object.values(payload.resp[key]).length; i++) {
+                        var clus = Object.values(payload.resp[key])[i];
+                        if ("CLUS_" + clus in x) {
+                            x["CLUS_" + clus]++;
+                        } else {
+                            x["CLUS_" + clus] = 0;
+                        }
                     }
-                }
-                var data = [
-                    {
-                        x: Object.keys(x),
-                        y: Object.values(x),
-                        type: 'bar'
+
+                    self._cluster_size = Object.keys(x).length;
+                    var data = [
+                        {
+                            x: Object.keys(x),
+                            y: Object.values(x),
+                            type: 'bar'
+                        }
+                    ];
+
+                    var layout = {
+                        title: "Cells per cluster"
                     }
-                ];
 
-                var layout = {
-                    title: "Cells per cluster"
+                    Plotly.newPlot(elem.id, data, layout);
                 }
+            } else if (payload.type == "MARKER_GENE") {
+                if (payload.msg.startsWith("Done")) {
 
-                Plotly.newPlot(elem.id, data, layout);
+                    var container = document.getElementById("mg-status");
+                    container.querySelector("#mg-notrun").style.display = "none";
+                    container.querySelector("#mg-spinner").style.display = "none";
+                    container.querySelector("#mg-success").style.display = "block";
 
+                    // timer
+                    document.getElementById("mg-timer").style.display = "block";
+                    document.getElementById("mg-timer").innerHTML = payload.resp;
+
+                } else {
+                    var container = document.getElementById("mg_charts");
+                    container.style.display = "block";
+
+                    var selectCont = document.getElementById("mg_clus_selection");
+                    var select = document.createElement("select");
+                    select.id = "md-cluster-select";
+
+                    for (var i = 0; i < self._cluster_size; i++) {
+                        var option = document.createElement("option");
+                        option.value = i;
+                        // if (i==0) {
+                        //     option.selected = "selected";
+                        // }
+                        option.text = "CLUS_" + i;
+                        select.add(option);
+                    }
+
+                    selectCont.appendChild(select);
+
+                    select.addEventListener('change', (event) => {
+                        const cluster = event.target.value;
+
+                        self.worker.postMessage({
+                            "type": "GET_CLUSTER_MARKERS",
+                            "input": [parseInt(cluster)],
+                            "msg": "not much to pass"
+                        });
+                    });
+
+                    // select.value = "CLUS_0";
+                }
+            }  else if (payload.type == "GET_CLUSTER_MARKERS") { 
+
+                var cont = document.getElementById("mg_top_markers");
+                cont.innerHTML = "";
+                // console.log(payload.msg);
+
+                var text = payload.resp["cohen"].map(x => "GENE_" + x).join(" , ");
+                cont.innerHTML = "Top Markers : " + text;
 
             }
         }
@@ -464,6 +556,8 @@ class App {
             log_cont = document.getElementById("pca-logger");
         } else if (payload.type == "TSNE") {
             log_cont = document.getElementById("tsne-logger");
+        } else if (payload.type == "MARKER_GENE") {
+            log_cont = document.getElementById("mg-logger");
         }
 
         if (log_cont) {
@@ -506,12 +600,12 @@ document.addEventListener("DOMContentLoaded", () => {
         // ttab.show();
     });
 
-    document.getElementById("mtx-generate-submit").addEventListener("click", (event) => {
-        window.app.worker.postMessage({
-            "type": "GENERATE_DATA",
-            "msg": []
-        });
-    });
+    // document.getElementById("mtx-generate-submit").addEventListener("click", (event) => {
+    //     window.app.worker.postMessage({
+    //         "type": "GENERATE_DATA",
+    //         "msg": []
+    //     });
+    // });
 
     document.getElementById("qc-submit").addEventListener("click", (event) => {
         var val = document.getElementById("qc-nmads-input").value;
@@ -582,6 +676,11 @@ document.addEventListener("DOMContentLoaded", () => {
             "input": [parseInt(val)],
             "msg": "not much to pass"
         });
+
+        // logs/status
+        var container = document.getElementById("pca-status");
+        container.querySelector("#pca-notrun").style.display = "none";
+        container.querySelector("#pca-spinner").style.display = "block";
     });
 
     document.getElementById("clus-submit").addEventListener("click", (event) => {
@@ -598,6 +697,11 @@ document.addEventListener("DOMContentLoaded", () => {
             "input": [parseInt(k), parseInt(res)],
             "msg": "not much to pass"
         });
+
+        // logs/status
+        var container = document.getElementById("clus-status");
+        container.querySelector("#clus-notrun").style.display = "none";
+        container.querySelector("#clus-spinner").style.display = "block";
     });
 
     document.getElementById("tsne-submit").addEventListener("click", (event) => {
@@ -617,6 +721,11 @@ document.addEventListener("DOMContentLoaded", () => {
             "input": [parseInt(perp), parseInt(iter)],
             "msg": "not much to pass"
         });
+
+        // logs/status
+        var container = document.getElementById("tsne-status");
+        container.querySelector("#tsne-notrun").style.display = "none";
+        container.querySelector("#tsne-spinner").style.display = "block";
     });
 
     document.getElementById("mg-submit").addEventListener("click", (event) => {
@@ -624,5 +733,10 @@ document.addEventListener("DOMContentLoaded", () => {
             "type": "MARKER_GENE",
             "msg": "not much to pass"
         });
+
+        // logs/status
+        var container = document.getElementById("mg-status");
+        container.querySelector("#mg-notrun").style.display = "none";
+        container.querySelector("#mg-spinner").style.display = "block";
     });
 });

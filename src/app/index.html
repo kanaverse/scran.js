@@ -50,7 +50,8 @@
         #mg-timer,
         #mg-success,
         #mg-fail,
-        #mg-spinner {
+        #mg-spinner,
+        #mg_charts {
             display: none;
         }
 
@@ -163,8 +164,8 @@
                                             </div>
                                             <button id="mtx-upload-submit" type="button" class="btn btn-primary">Read
                                                 Data</button>
-                                            <button id="mtx-generate-submit" type="button"
-                                                class="btn btn-secondary">Generate Test Data</button>
+                                            <!-- <button id="mtx-generate-submit" type="button"
+                                                class="btn btn-secondary">Generate Test Data</button> -->
                                             <div id="load-data-output">
                                                 <div class="d-flex justify-content-center" style="margin-top:5px;">
                                                     <div class="col-xl-3 col-lg-6">
@@ -713,8 +714,6 @@
                 </div>
             </div>
 
-
-
             <div class="step" id="mg-accordion">
                 <div class="card">
                     <div class="card-header" id="mg-header">
@@ -773,6 +772,11 @@
                                             <button id="mg-submit" type="button" class="btn btn-primary">Compute
                                                 Markers</button>
                                             <div id="mg_charts" class="flex justify-evenly">
+                                                <div id="mg_clus_selection">
+                                                    <label>Choose a Cluster :
+
+                                                </div>
+                                                <p id="mg_top_markers"></p>
                                             </div>
                                         </div>
                                         <div class="tab-pane fade" id="mg-logger" role="tabpanel"
