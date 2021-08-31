@@ -4,7 +4,7 @@ importScripts("https://cdn.jsdelivr.net/npm/d3-dsv@3");
 importScripts("https://cdn.jsdelivr.net/npm/d3-scale@4");
 
 const DATA_PATH = "/data";
-let wasmModule = null;
+var wasmModule = null;
 let data = null;
 
 // only if MODULARIZE=1 during emcc
@@ -26,8 +26,10 @@ onmessage = function (msg) {
     if (payload.type == "LOAD") {
         // TODO: parcel2 doesn't load inline importScripts
         importScripts("./scran_wasm.js");
+        console.log(data);
 
         Module.onRuntimeInitialized = function load_done_callback() {
+            console.log("I'm done loading");
             FS.mkdir(DATA_PATH, 0o777);
             data = new scran({}, Module);
 
@@ -36,6 +38,7 @@ onmessage = function (msg) {
                 msg: `Success: ScranJS/WASM initialized`
             });
         }
+
     } else if (payload.type == "MOUNT") {
         // barcodes, genes, mtx
         var input = payload.msg;
