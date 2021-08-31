@@ -5,9 +5,13 @@
 #include "tatami/tatami.h"
 
 /**
- * @brief A numeric matrix that stores conceptual `double`s.
+ * @file NumericMatrix.h
  *
- * This provides a wrapper around a `tatami::NumericMatrix` with Javascript-visible bindings to some basic methods.
+ * @brief Javascript wrapper for a numeric matrix.
+ */ 
+
+/**
+ * @brief Javascript-visible interface for a matrix of `double`s.
  */
 struct NumericMatrix {
     /** Construct a `NumericMatrix` from an existing pointer to a `tatami::NumericMatrix`.
@@ -58,9 +62,14 @@ struct NumericMatrix {
     void column(int c, uintptr_t values);
 
     /** 
-     * A pointer to a `tatami::NumericMatrix`, for use in other functions.
+     * @cond
      */
     std::shared_ptr<const tatami::NumericMatrix> ptr;
+
+    std::vector<size_t> permutation;
+    /**
+     * @endcond
+     */
 };
 
 #endif

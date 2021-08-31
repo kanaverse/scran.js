@@ -5,53 +5,65 @@
 #include <cstdint>
 
 /**
- * Create a vector of pointers based on the WASM heap offsets.
+ * Create a vector of pointers to the columns of a matrix.
  * 
- * @tparam T Type of the pointers to cast the offsets to.
+ * @tparam T Type of the pointers to cast.
  *
- * @param ptr Offset to the start of a unsigned 32-bit integer array.
- * Each integer is itself assumed to be an offset to another array of type `T`.
- * @param n Number of integers in the array referenced by `ptr`.
+ * @param ptr Offset to the start of a 2D array of values of the type pointed to by `T`.
+ * Array values should be stored in column-major format.
+ * @param nr Number of rows in the array.
+ * @param nc Number of column in the array.
  *
- * @return A `std::vector<T>` of length `n`, containing pointers to various arrays.
+ * @return A vector of pointers to each column.
  */
 template<typename T>
-inline std::vector<T> cast_vector_of_pointers(uintptr_t ptr, size_t n) {
-    std::vector<T> store(n);
-    if (n) {
-        uint32_t* ptrs = reinterpret_cast<uint32_t*>(ptr);
-        for (size_t i = 0; i < n; ++i) {
-            store[i] = reinterpret_cast<T>(static_cast<uintptr_t>(ptrs[i]));
+inline std::vector<T> extract_column_pointers(uintptr_t ptr, size_t nr, size_t nc) {
+    std::vector<T> store(nc);
+    if (nr && nc) {
+        T raw = reinterpret_cast<T>(ptr);
+        for (size_t i = 0; i < nc; ++i, raw += nr) {
+            store[i] = raw;
         }
     }
     return store;
 }
 
 /**
- * Set blocking information for an instance of a function class.
+ * Create a vector of pointers to the "columns" of matrices inside a 3-dimensional array.
+ * The first two dimensions are assumed to represent the matrices of interest,
+ * while the third dimension is most commonly used as a blocking factor.
+ * 
+ * @tparam T Type of the pointers to cast.
  *
- * @param use_blocks Whether or not to use blocks.
- * @param blocks Offset to an array of `int32_t`s with `n` elements, containing the block assignment for each cell.
- * Block IDs should be consecutive and 0-based.
- * If `use_blocks = false`, this value is ignored.
- * @param n Length of the array referenced by `blocks`.
- * Only used if `use_blocks = true`.
+ * @param ptr Offset to the start of a 3D array of values of the type pointed to by `T`.
+ * The first dimension should be the fastest-changing, followed by the second; the last dimension should be slowest.
+ * @param nr Number of rows in the array.
+ * @param nc Number of column in the array.
+ * @param nb Number of blocks in the array.
  *
- * @return A pair containing a pointer to the array of block indices, 
- * plus a vector containing a (possibly empty) buffer.
- * If `use_blocks = false`, the former will point to the address occupied by the latter,
- * which in turn will be filled with all-zero values (i.e., all elements in the same block).
+ * @return A vector of vector of pointers.
+ * Each internal vector corresponds to the 2D matrix inside the 3D array,
+ * while each pointer points to each column inside each matrix.
  */
-inline std::pair<const int32_t*, std::vector<int32_t> > add_blocks(bool use_blocks, uintptr_t blocks, size_t n) {
-    std::vector<int32_t> tmp_blocks;
-    const int32_t* block_ptr = NULL;
-    if (!use_blocks) {
-        tmp_blocks.resize(n, 0);
-        block_ptr = tmp_blocks.data();
-    } else {
-        block_ptr = reinterpret_cast<const int32_t*>(blocks);
+template<typename T>
+inline std::vector<std::vector<T> > extract_column_pointers_blocked(uintptr_t ptr, size_t nr, size_t nc, size_t nb) {
+    std::vector<std::vector<T> > store(nb, std::vector<T>(nc));
+    if (nb && nr && nc) {
+        T raw = reinterpret_cast<T>(ptr);
+        for (size_t b = 0; b < nb; ++b) {
+            for (size_t i = 0; i < nc; ++i, raw += nr) {
+                store[b][i] = raw;
+            }
+        }
     }
-    return std::make_pair(block_ptr, tmp_blocks);
+    return store;
 }
+
+#ifndef SCRAN_NO_LOGGING
+#define PROGRESS_PRINTER(name, state, total, message) \
+    EM_ASM({ \
+        console.log("__scran_wasm__ " + name + " " + $0 + " " + $1 + " " + message); \
+    }, state, total);
+#endif
 
 #endif

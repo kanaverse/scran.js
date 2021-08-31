@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Cross-Origin-Opener-Policy" content="same-origin" />
+
+    <title>SCRANJS - Analyze single-cell datasets in the browser</title>
+    <style>
+        .header {
+            background-color: rgb(238, 238, 238);
+        }
+
+        .accordion-item {
+            margin-top: 10px;
+        }
+
+        .step {
+            margin: 10px !important;
+        }
+
+        #load-data-timer,
+        #load-data-success,
+        #load-data-fail,
+        #load-data-spinner,
+        #load-data-output,
+        #qc-timer,
+        #qc-success,
+        #qc-fail,
+        #qc-spinner,
+        #qc-output,
+        #fsel-timer,
+        #fsel-success,
+        #fsel-fail,
+        #fsel-spinner,
+        #pca-timer,
+        #pca-success,
+        #pca-fail,
+        #pca-spinner,
+        #tsne-timer,
+        #tsne-success,
+        #tsne-fail,
+        #tsne-spinner,
+        #clus-timer,
+        #clus-success,
+        #clus-fail,
+        #clus-spinner,
+        #mg-timer,
+        #mg-success,
+        #mg-fail,
+        #mg-spinner,
+        #mg_charts {
+            display: none;
+        }
+
+        /* #load-data-timer,
+        #load-data-success,
+        #load-data-fail,
+        #load-data-spinner,
+        #qc-accordion,
+        #qc-timer,
+        #qc-success,
+        #qc-fail,
+        #qc-spinner,
+        #fsel-accordion,
+        #fsel-timer,
+        #fsel-success,
+        #fsel-fail,
+        #fsel-spinner {
+            display: none;
+        } */
+
+        #clus_charts {
+            flex-wrap: nowrap;
+        }
+
+    </style>
+    <!-- CSS only -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
+    <!-- JavaScript Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-U1DAWAznBHeqEIlVSCgzq+c9gqGAJn5c/t99JyeKa9xxaYpSvHU5awsuZVVFIhvj"
+        crossorigin="anonymous"></script>
+    <!-- epiviz.gl -->
+    <!-- <script type="module" src="./egl/index.js"></script> -->
+
+    <script type="module">
+        import WebGLVis from './egl/index.js';
+        window.WebGLVis = WebGLVis;
+    </script>
+
+</head>
+
+<body>
+
+    <main>
+        <div class="container py-4 my-5">
+            <header class="pb-3 mb-4 border-bottom">
+                <a href="/" class="d-flex align-items-center text-dark text-decoration-none">
+                    <!-- <svg xmlns="http://www.w3.org/2000/svg" width="40" height="32" class="me-2" viewBox="0 0 118 94" role="img"><title>Bootstrap</title><path fill-rule="evenodd" clip-rule="evenodd" d="M24.509 0c-6.733 0-11.715 5.893-11.492 12.284.214 6.14-.064 14.092-2.066 20.577C8.943 39.365 5.547 43.485 0 44.014v5.972c5.547.529 8.943 4.649 10.951 11.153 2.002 6.485 2.28 14.437 2.066 20.577C12.794 88.106 17.776 94 24.51 94H93.5c6.733 0 11.714-5.893 11.491-12.284-.214-6.14.064-14.092 2.066-20.577 2.009-6.504 5.396-10.624 10.943-11.153v-5.972c-5.547-.529-8.934-4.649-10.943-11.153-2.002-6.484-2.28-14.437-2.066-20.577C105.214 5.894 100.233 0 93.5 0H24.508zM80 57.863C80 66.663 73.436 72 62.543 72H44a2 2 0 01-2-2V24a2 2 0 012-2h18.437c9.083 0 15.044 4.92 15.044 12.474 0 5.302-4.01 10.049-9.119 10.88v.277C75.317 46.394 80 51.21 80 57.863zM60.521 28.34H49.948v14.934h8.905c6.884 0 10.68-2.772 10.68-7.727 0-4.643-3.264-7.207-9.012-7.207zM49.948 49.2v16.458H60.91c7.167 0 10.964-2.876 10.964-8.281 0-5.406-3.903-8.178-11.425-8.178H49.948z" fill="currentColor"></path></svg> -->
+                    <span class="fs-4">SCRANJS - Single Cell Analysis in the browser</span>
+                </a>
+            </header>
+
+            <div class="step" id="load-data-accordion">
+                <div class="card">
+                    <div class="card-header" id="load-data-header">
+                        <div class="d-flex flex-row justify-content-between">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link" data-bs-toggle="collapse" data-bs-target="#load-data-card"
+                                    aria-expanded="true" aria-controls="load-data-card">
+                                    Load Data
+                                    <span id="load-data-timer"
+                                        class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary">
+                                        <span class="visually-hidden">time to run</span>
+                                    </span>
+                                </button>
+                            </h5>
+                            <div id="load-data-status">
+                                <span id="load-data-notrun" class="badge bg-secondary">not run</span>
+                                <span id="load-data-success" class="badge bg-success">Success</span>
+                                <span id="load-data-fail" class="badge bg-danger">Danger</span>
+                                <div id="load-data-spinner" class="spinner-border text-secondary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="load-data-card" class="collapse show" aria-labelledby="load-data-header"
+                        data-parent="#load-data-accordion">
+                        <div class="card-body">
+                            <p>Upload either a mtx file (w/ barcodes and/or genes) or generate [random] test data to use
+                                the
+                                app
+                            </p>
+                            <div id="load-data" class="accordion-collapse collapse show"
+                                aria-labelledby="load-data-header" data-bs-parent="#load-data-accordion">
+                                <div class="accordion-body">
+                                    <div class="tab-content" id="myTabContent">
+                                        <div class="tab-pane fade show active" id="load-data-input" role="tabpanel"
+                                            aria-labelledby="home-tab">
+                                            <div class="row g-4 py-3 row-cols-1 row-cols-lg-3">
+                                                <div class="feature col">
+                                                    <!-- <h2>Upload MTX File</h2> -->
+                                                    <!-- <p>...</p> -->
+                                                    <label for="mtx-upload-file" class="form-label">Upload MTX
+                                                        file</label>
+                                                    <input class="form-control" type="file" id="mtx-upload-file">
+                                                </div>
+                                                <div class="feature col">
+                                                    <label for="barcodes-upload-file" class="form-label">Upload Barcodes
+                                                        file</label>
+                                                    <input class="form-control" type="file" id="barcodes-upload-file">
+                                                </div>
+                                                <div class="feature col">
+                                                    <label for="genes-upload-file" class="form-label">Upload Genes
+                                                        file</label>
+                                                    <input class="form-control" type="file" id="genes-upload-file">
+                                                </div>
+                                            </div>
+                                            <button id="mtx-upload-submit" type="button" class="btn btn-primary">Read
+                                                Data</button>
+                                            <!-- <button id="mtx-generate-submit" type="button"
+                                                class="btn btn-secondary">Generate Test Data</button> -->
+                                            <div id="load-data-output">
+                                                <div class="d-flex justify-content-center" style="margin-top:5px;">
+                                                    <div class="col-xl-3 col-lg-6">
+                                                        <div class="card card-stats mb-4 mb-xl-0">
+                                                            <div class="card-body">
+                                                                <div class="row">
+                                                                    <div class="col">
+                                                                        <h5
+                                                                            class="card-title text-uppercase text-muted mb-0">
+                                                                            Dataset Dims</h5>
+                                                                        <span id="load-data-stats"
+                                                                            class="h2 font-weight-bold mb-0">?????</span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="tab-pane fade" id="load-data-logger" role="tabpanel"
+                                            aria-labelledby="profile-tab">
+                                            Logs</div>
+                                        <div class="tab-pane fade" id="load-data-output" role="tabpanel"
+                                            aria-labelledby="contact-tab">
+                                            Output</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step" id="qc-accordion">
+                <div class="card">
+                    <div class="card-header" id="qc-header">
+                        <div class="d-flex flex-row justify-content-between">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link" data-bs-toggle="collapse" data-bs-target="#qc-card"
+                                    aria-expanded="true" aria-controls="qc-card">
+                                    QC Metrics
+                                    <span id="qc-timer"
+                                        class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary">
+                                        <span class="visually-hidden">time to run</span>
+                                    </span>
+                                </button>
+                            </h5>
+                            <!-- <div>
+                                <ul class="nav nav-tabs" id="qc-tabs" role="tablist">
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link active" id="qc-input-tab" data-bs-toggle="tab"
+                                            data-bs-target="#qc-input" type="button" role="tab" aria-controls="home"
+                                            aria-selected="true">Input</button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="qc-log-tab" data-bs-toggle="tab"
+                                            data-bs-target="#qc-logger" type="button" role="tab"
+                                            aria-controls="qc-logger" aria-selected="false">Logs</button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="qc-output-tab" data-bs-toggle="tab"
+                                            data-bs-target="#qc-output" type="button" role="tab"
+                                            aria-controls="qc-output" aria-selected="false">Output</button>
+                                    </li>
+                                </ul>
+                            </div> -->
+                            <div id="qc-status">
+                                <span id="qc-notrun" class="badge bg-secondary">not run</span>
+                                <span id="qc-success" class="badge bg-success">Success</span>
+                                <span id="qc-fail" class="badge bg-danger">Danger</span>
+                                <div id="qc-spinner" class="spinner-border text-secondary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="qc-card" class="collapse" aria-labelledby="qc-header" data-parent="#qc-accordion">
+                        <div class="card-body">
+                            <p>Generate per cell QC metrics and filter cells</p>
+                            <div id="qc" class="accordion-collapse collapse show" aria-labelledby="qc-header"
+                                data-bs-parent="#qc-accordion">
+                                <div class="accordion-body">
+                                    <div class="tab-content" id="qcContent">
+                                        <div class="tab-pane fade show active" id="qc-input" role="tabpanel"
+                                            aria-labelledby="input-tab">
+                                            <div class="row g-4 py-3 row-cols-1 row-cols-lg-2">
+                                                <div class="feature col">
+                                                    <label for="qc-nmads-input" class="form-label">NMADS: Number of MADs
+                                                        from the median, to use for defining
+                                                        outliers. (defaults to 3)</label>
+                                                    <input class="form-control" placeholder="3" type="number"
+                                                        id="qc-nmads-input">
+                                                </div>
+                                            </div>
+                                            <button id="qc-submit" type="button" class="btn btn-primary">Perform
+                                                QC</button>
+                                            <div id="qc-output">
+                                                <div class="container">
+                                                    <div id="qc_charts" class="row g-4 py-3 row-cols-1 row-cols-lg-2">
+                                                    </div>
+                                                    <button id="qc-filter-submit" class="btn btn-secondary">Confirm QC
+                                                        Filters</button>
+
+                                                    <!-- <div class="col-xl-3 col-lg-6"> -->
+
+                                                    <!-- </div> -->
+                                                    <!-- <div class="row">
+                                                        <div class="col">
+                                                            <div class="d-flex flex-column justify-content-center"
+                                                                style="margin:5px;">
+                                                                <div id="qc_charts"
+                                                                    class="row g-4 py-3 row-cols-1 row-cols-lg-2"></div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col">
+                                                            <div class="d-flex flex-column align-self-center justify-content-center" style="margin:5px;">
+
+                                                                <button id="qc-filter-submit"
+                                                                    class="btn btn-secondary">Confirm QC
+                                                                    Filters</button>
+
+                                                                    <div class="card card-stats mb-4 mb-xl-0">
+                                                                        <div class="card-body">
+                                                                            <div class="row">
+                                                                                <div class="col">
+                                                                                    <h5
+                                                                                        class="card-title text-uppercase text-muted mb-0">
+                                                                                        Dataset Dims</h5>
+                                                                                    <span id="qc-stats"
+                                                                                        class="h2 font-weight-bold mb-0">?????</span>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+]                                                            </div>
+                                                        </div>
+                                                    </div> -->
+                                                </div>
+                                                <div class="d-flex justify-content-center" style="margin-top:5px;">
+                                                    <div class="col-xl-3 col-lg-6">
+                                                        <div class="card card-stats mb-4 mb-xl-0">
+                                                            <div class="card-body">
+                                                                <div class="row">
+                                                                    <div class="col">
+                                                                        <h5
+                                                                            class="card-title text-uppercase text-muted mb-0">
+                                                                            Filtered Dataset Dims</h5>
+                                                                        <span id="qc-stats"
+                                                                            class="h2 font-weight-bold mb-0">?????</span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="tab-pane fade" id="qc-logger" role="tabpanel"
+                                            aria-labelledby="qc-logs-tab">
+                                            Logs</div>
+                                        <div class="tab-pane fade" id="qc-output" role="tabpanel"
+                                            aria-labelledby="qc-output-tab">
+                                            Output
+
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step" id="fsel-accordion">
+                <div class="card">
+                    <div class="card-header" id="fsel-header">
+                        <div class="d-flex flex-row justify-content-between">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link" data-bs-toggle="collapse" data-bs-target="#fsel-card"
+                                    aria-expanded="true" aria-controls="fsel-card">
+                                    Feature Selection
+                                    <span id="fsel-timer"
+                                        class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary">
+                                        <span class="visually-hidden">time to run</span>
+                                    </span>
+                                </button>
+                            </h5>
+                            <!-- <div>
+                                <ul class="nav nav-tabs" id="fsel-tabs" role="tablist">
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link active" id="fsel-input-tab" data-bs-toggle="tab"
+                                            data-bs-target="#fsel-input" type="button" role="tab" aria-controls="home"
+                                            aria-selected="true">Input</button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="fsel-log-tab" data-bs-toggle="tab"
+                                            data-bs-target="#fsel-logger" type="button" role="tab"
+                                            aria-controls="fsel-logger" aria-selected="false">Logs</button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="fsel-output-tab" data-bs-toggle="tab"
+                                            data-bs-target="#fsel-output" type="button" role="tab"
+                                            aria-controls="fsel-output" aria-selected="false">Output</button>
+                                    </li>
+                                </ul>
+                            </div> -->
+                            <div id="fsel-status">
+                                <span id="fsel-notrun" class="badge bg-secondary">not run</span>
+                                <span id="fsel-success" class="badge bg-success">Success</span>
+                                <span id="fsel-fail" class="badge bg-danger">Danger</span>
+                                <div id="fsel-spinner" class="spinner-border text-secondary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="fsel-card" class="collapse" aria-labelledby="fsel-header" data-parent="#fsel-accordion">
+                        <div class="card-body">
+                            <p>Model the variance of the log-expression values for each gene, accounting for the
+                                mean-variance
+                                trend.</p>
+                            <div id="fsel" class="accordion-collapse collapse show" aria-labelledby="fsel-header"
+                                data-bs-parent="#fsel-accordion">
+                                <div class="accordion-body">
+                                    <div class="tab-content" id="fselContent">
+                                        <div class="tab-pane fade show active" id="fsel-input" role="tabpanel"
+                                            aria-labelledby="input-tab">
+                                            <div class="row g-4 py-3 row-cols-1 row-cols-lg-2">
+                                                <div class="feature col">
+                                                    <label for="fsel-input" class="form-label">Span factor: The span of
+                                                        the LOWESS smoother for fitting the
+                                                        mean-variance trend. (defaults to 0.3)</label>
+                                                    <input class="form-control" placeholder="0.3" type="number"
+                                                        id="fsel-input">
+                                                </div>
+                                            </div>
+                                            <button id="fsel-submit" type="button" class="btn btn-primary">Perform
+                                                fsel</button>
+
+                                                <div id="fsel_charts" class="flex flex-wrap justify-evenly">
+                                                    <div class="clusterize">
+                                                        <div id="scrollArea" class="clusterize-scroll">
+                                                            <table>
+                                                                <thead>
+                                                                    <tr id="row_header">
+                                                                        <th>Genes</th>
+                                                                        <th>Means</th>
+                                                                        <th>Vars</th>
+                                                                        <th>Fitted</th>
+                                                                        <th>Residuals</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody id="contentArea" class="clusterize-content">
+                                                                    <tr class="clusterize-no-data">
+                                                                        <td>Loading data…</td>
+                                                                    </tr>
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                        </div>
+                                        <div class="tab-pane fade" id="fsel-logger" role="tabpanel"
+                                            aria-labelledby="fsel-logs-tab">
+                                            Logs</div>
+                                        <div class="tab-pane fade" id="fsel-output" role="tabpanel"
+                                            aria-labelledby="fsel-output-tab">
+                                            Output
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step" id="pca-accordion">
+                <div class="card">
+                    <div class="card-header" id="pca-header">
+                        <div class="d-flex flex-row justify-content-between">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link" data-bs-toggle="collapse" data-bs-target="#pca-card"
+                                    aria-expanded="true" aria-controls="pca-card">
+                                    Compute PCA
+                                    <span id="pca-timer"
+                                        class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary">
+                                        <span class="visually-hidden">time to run</span>
+                                    </span>
+                                </button>
+                            </h5>
+                            <!-- <div>
+                                <ul class="nav nav-tabs" id="pca-tabs" role="tablist">
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link active" id="pca-input-tab" data-bs-toggle="tab"
+                                            data-bs-target="#pca-input" type="button" role="tab" aria-controls="home"
+                                            aria-selected="true">Input</button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="pca-log-tab" data-bs-toggle="tab"
+                                            data-bs-target="#pca-logger" type="button" role="tab"
+                                            aria-controls="pca-logger" aria-selected="false">Logs</button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="pca-output-tab" data-bs-toggle="tab"
+                                            data-bs-target="#pca-output" type="button" role="tab"
+                                            aria-controls="pca-output" aria-selected="false">Output</button>
+                                    </li>
+                                </ul>
+                            </div> -->
+                            <div id="pca-status">
+                                <span id="pca-notrun" class="badge bg-secondary">not run</span>
+                                <span id="pca-success" class="badge bg-success">Success</span>
+                                <span id="pca-fail" class="badge bg-danger">Danger</span>
+                                <div id="pca-spinner" class="spinner-border text-secondary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="pca-card" class="collapse" aria-labelledby="pca-header" data-parent="#pca-accordion">
+                        <div class="card-body">
+                            <p>Perform a principal components analysis to obtain per-cell coordinates in low-dimensional
+                                space.</p>
+                            <div id="pca" class="accordion-collapse collapse show" aria-labelledby="pca-header"
+                                data-bs-parent="#pca-accordion">
+                                <div class="accordion-body">
+                                    <div class="tab-content" id="pcaContent">
+                                        <div class="tab-pane fade show active" id="pca-input" role="tabpanel"
+                                            aria-labelledby="input-tab">
+                                            <div class="row g-4 py-3 row-cols-1 row-cols-lg-2">
+                                                <div class="feature col">
+                                                    <label for="pca-npc-input" class="form-label">Choose # of PCs (defaults
+                                                        to 5)</label>
+                                                    <input class="form-control" placeholder="5" type="number"
+                                                        id="pca-npc-input">
+                                                </div>
+                                            </div>
+                                            <button id="pca-submit" type="button" class="btn btn-primary">Compute
+                                                PCs</button>
+                                                <div id="pca_charts" class="flex flex-wrap justify-evenly">
+                                                </div>
+                                        </div>
+                                        <div class="tab-pane fade" id="pca-logger" role="tabpanel"
+                                            aria-labelledby="pca-logs-tab">
+                                            Logs</div>
+                                        <div class="tab-pane fade" id="pca-output" role="tabpanel"
+                                            aria-labelledby="pca-output-tab">
+                                            Output
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step" id="clus-accordion">
+                <div class="card">
+                    <div class="card-header" id="clus-header">
+                        <div class="d-flex flex-row justify-content-between">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link" data-bs-toggle="collapse" data-bs-target="#clus-card"
+                                    aria-expanded="true" aria-controls="clus-card">
+                                    Cluster cells
+                                    <span id="clus-timer"
+                                        class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary">
+                                        <span class="visually-hidden">time to run</span>
+                                    </span>
+                                </button>
+                            </h5>
+                            <!-- <div>
+                                <ul class="nav nav-tabs" id="clus-tabs" role="tablist">
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link active" id="clus-input-tab" data-bs-toggle="tab"
+                                            data-bs-target="#clus-input" type="button" role="tab" aria-controls="home"
+                                            aria-selected="true">Input</button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="clus-log-tab" data-bs-toggle="tab"
+                                            data-bs-target="#clus-logger" type="button" role="tab"
+                                            aria-controls="clus-logger" aria-selected="false">Logs</button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="clus-output-tab" data-bs-toggle="tab"
+                                            data-bs-target="#clus-output" type="button" role="tab"
+                                            aria-controls="clus-output" aria-selected="false">Output</button>
+                                    </li>
+                                </ul>
+                            </div> -->
+                            <div id="clus-status">
+                                <span id="clus-notrun" class="badge bg-secondary">not run</span>
+                                <span id="clus-success" class="badge bg-success">Success</span>
+                                <span id="clus-fail" class="badge bg-danger">Danger</span>
+                                <div id="clus-spinner" class="spinner-border text-secondary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="clus-card" class="collapse" aria-labelledby="clus-header" data-parent="#clus-accordion">
+                        <div class="card-body">
+                            <p>Generate SNN graph and cluster cells</p>
+                            <div id="clus" class="accordion-collapse collapse show" aria-labelledby="clus-header"
+                                data-bs-parent="#clus-accordion">
+                                <div class="accordion-body">
+                                    <div class="tab-content" id="clusContent">
+                                        <div class="tab-pane fade show active" id="clus-input" role="tabpanel"
+                                            aria-labelledby="input-tab">
+                                            <div class="row g-4 py-3 row-cols-1 row-cols-lg-2">
+                                                <div class="feature col">
+                                                    <label for="clus-k-input" class="form-label">
+                                                        Number of neighbors to use to construct the nearest neighbor
+                                                        graph. (defaults to 10)
+                                                    </label>
+                                                    <input class="form-control" placeholder="10" type="number"
+                                                        id="clus-k-input">
+                                                </div>
+                                                <div class="feature col">
+                                                    <label for="clus-res-input" class="form-label">Resolution of the
+                                                        multi-level clustering, used in the modularity calculation.
+                                                        Larger values yield more fine-grained clusters. (defaults to
+                                                        0.5) </label>
+                                                    <input class="form-control" placeholder="0.5" type="number"
+                                                        id="clus-res-input">
+                                                </div>
+                                            </div>
+                                            <button id="clus-submit" type="button" class="btn btn-primary">Cluster
+                                                Cells</button>
+                                            <div id="clus_charts" class="flex justify-evenly">
+                                            </div>
+                                        </div>
+                                        <div class="tab-pane fade" id="clus-logger" role="tabpanel"
+                                            aria-labelledby="clus-logs-tab">
+                                            Logs</div>
+                                        <div class="tab-pane fade" id="clus-output" role="tabpanel"
+                                            aria-labelledby="clus-output-tab">
+                                            Output
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step" id="tsne-accordion">
+                <div class="card">
+                    <div class="card-header" id="tsne-header">
+                        <div class="d-flex flex-row justify-content-between">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link" data-bs-toggle="collapse" data-bs-target="#tsne-card"
+                                    aria-expanded="true" aria-controls="tsne-card">
+                                    Compute t-SNE embeddings
+                                    <span id="tsne-timer"
+                                        class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary">
+                                        <span class="visually-hidden">time to run</span>
+                                    </span>
+                                </button>
+                            </h5>
+                            <!-- <div>
+                                <ul class="nav nav-tabs" id="tsne-tabs" role="tablist">
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link active" id="tsne-input-tab" data-bs-toggle="tab"
+                                            data-bs-target="#tsne-input" type="button" role="tab" aria-controls="home"
+                                            aria-selected="true">Input</button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="tsne-log-tab" data-bs-toggle="tab"
+                                            data-bs-target="#tsne-logger" type="button" role="tab"
+                                            aria-controls="tsne-logger" aria-selected="false">Logs</button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="tsne-output-tab" data-bs-toggle="tab"
+                                            data-bs-target="#tsne-output" type="button" role="tab"
+                                            aria-controls="tsne-output" aria-selected="false">Output</button>
+                                    </li>
+                                </ul>
+                            </div> -->
+                            <div id="tsne-status">
+                                <span id="tsne-notrun" class="badge bg-secondary">not run</span>
+                                <span id="tsne-success" class="badge bg-success">Success</span>
+                                <span id="tsne-fail" class="badge bg-danger">Danger</span>
+                                <div id="tsne-spinner" class="spinner-border text-secondary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="tsne-card" class="collapse" aria-labelledby="tsne-header" data-parent="#tsne-accordion">
+                        <div class="card-body">
+                            <p>Compute t-SNE embeddings and Visualize cells.</p>
+                            <div id="tsne" class="accordion-collapse collapse show" aria-labelledby="tsne-header"
+                                data-bs-parent="#tsne-accordion">
+                                <div class="accordion-body">
+                                    <div class="tab-content" id="tsneContent">
+                                        <div class="tab-pane fade show active" id="tsne-input" role="tabpanel"
+                                            aria-labelledby="input-tab">
+                                            <div class="row g-4 py-3 row-cols-1 row-cols-lg-2">
+                                                <div class="feature col">
+                                                    <label for="tsne-input-iter" class="form-label">Choose Iterations
+                                                        (defaults to 200)</label>
+                                                    <input class="form-control" placeholder="200" type="number"
+                                                        id="tsne-input-iter">
+                                                </div>
+                                                <div class="feature col">
+                                                    <label for="tsne-input-perp" class="form-label">Choose Perplexity
+                                                        (defaults to 30)</label>
+                                                    <input class="form-control" placeholder="30" type="number"
+                                                        id="tsne-input-perp">
+                                                </div>
+                                            </div>
+                                            <button id="tsne-submit" type="button" class="btn btn-primary">Compute
+                                                (Play)</button>
+                                            <!-- <button id="tsne-submit-pause" type="button" class="btn btn-primary">Compute
+                                                (Pause)</button> -->
+
+                                            <div id="tsne_charts" class="flex flex-wrap justify-evenly">
+                                            </div>
+                                            <p>Disclaimer: The animations do not reflect any underlying biology and is only a (fun) visual representation of the t-SNE algorithm</p>
+                                        </div>
+                                        <div class="tab-pane fade" id="tsne-logger" role="tabpanel"
+                                            aria-labelledby="tsne-logs-tab">
+                                            Logs</div>
+                                        <div class="tab-pane fade" id="tsne-output" role="tabpanel"
+                                            aria-labelledby="tsne-output-tab">
+                                            Output
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step" id="mg-accordion">
+                <div class="card">
+                    <div class="card-header" id="mg-header">
+                        <div class="d-flex flex-row justify-content-between">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link" data-bs-toggle="collapse" data-bs-target="#mg-card"
+                                    aria-expanded="true" aria-controls="mg-card">
+                                    Marker Genes
+                                    <span id="mg-timer"
+                                        class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary">
+                                        <span class="visually-hidden">time to run</span>
+                                    </span>
+                                </button>
+                            </h5>
+                            <!-- <div>
+                                <ul class="nav nav-tabs" id="mg-tabs" role="tablist">
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link active" id="mg-input-tab" data-bs-toggle="tab"
+                                            data-bs-target="#mg-input" type="button" role="tab" aria-controls="home"
+                                            aria-selected="true">Input</button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="mg-log-tab" data-bs-toggle="tab"
+                                            data-bs-target="#mg-logger" type="button" role="tab"
+                                            aria-controls="mg-logger" aria-selected="false">Logs</button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="mg-output-tab" data-bs-toggle="tab"
+                                            data-bs-target="#mg-output" type="button" role="tab"
+                                            aria-controls="mg-output" aria-selected="false">Output</button>
+                                    </li>
+                                </ul>
+                            </div> -->
+                            <div id="mg-status">
+                                <span id="mg-notrun" class="badge bg-secondary">not run</span>
+                                <span id="mg-success" class="badge bg-success">Success</span>
+                                <span id="mg-fail" class="badge bg-danger">Danger</span>
+                                <div id="mg-spinner" class="spinner-border text-secondary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="mg-card" class="collapse" aria-labelledby="mg-header" data-parent="#mg-accordion">
+                        <div class="card-body">
+                            <p>Compute marker scores for each gene in each group of cells.</p>
+                            <div id="de" class="accordion-collapse collapse show" aria-labelledby="mg-header"
+                                data-bs-parent="#mg-accordion">
+                                <div class="accordion-body">
+                                    <div class="tab-content" id="deContent">
+                                        <div class="tab-pane fade show active" id="mg-input" role="tabpanel"
+                                            aria-labelledby="input-tab">
+                                            <div class="row g-4 py-3 row-cols-1 row-cols-lg-2">
+                                            </div>
+                                            <button id="mg-submit" type="button" class="btn btn-primary">Compute
+                                                Markers</button>
+                                            <div id="mg_charts" class="flex justify-evenly">
+                                                <div id="mg_clus_selection">
+                                                    <label>Choose a Cluster :
+
+                                                </div>
+                                                <p id="mg_top_markers"></p>
+                                            </div>
+                                        </div>
+                                        <div class="tab-pane fade" id="mg-logger" role="tabpanel"
+                                            aria-labelledby="mg-logs-tab">
+                                            Logs</div>
+                                        <div class="tab-pane fade" id="mg-output" role="tabpanel"
+                                            aria-labelledby="mg-output-tab">
+                                            Output
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <footer class="pt-3 mt-4 text-muted border-top">
+                &copy; 2021
+            </footer>
+        </div>
+    </main>
+
+    <!-- <script src="scran_wasm.js"></script> -->
+    <script src="../scranjs/boxPlot.js"></script>
+    <script type="module" src="./index.js"></script>
+
+    <!-- TODO: should be part of the repo later on -->
+    <!-- UIkit CSS -->
+    <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.7.1/dist/css/uikit.min.css" /> -->
+
+    <!-- UIkit JS -->
+    <script src="https://cdn.jsdelivr.net/npm/uikit@3.7.1/dist/js/uikit.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/uikit@3.7.1/dist/js/uikit-icons.min.js"></script>
+
+    <!-- Plotly -->
+    <script src="https://cdn.plot.ly/plotly-2.3.0.min.js"></script>
+
+    <!-- GRID JS -->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/gridjs/dist/gridjs.umd.js"></script> -->
+
+    <!-- clusterize -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clusterize.js/0.18.0/clusterize.js"
+        integrity="sha512-NPPrAOcaIEBqkr4XyF/OuiDsZK/+BTj8I6fnIBNVsb/D7RQmueUh7v8GX0DNZ0iodTuIu5ts00bMz8iLFdxH5g=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <!-- D3JS v6 -->
+    <script src="https://d3js.org/d3.v6.js"></script>
+
+    <!-- random colors -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/randomcolor/0.6.1/randomColor.min.js"
+        integrity="sha512-vPeZ7JCboHcfpqSx5ZD+/jpEhS4JpXxfz9orSvAPPj0EKUVShU2tgy7XkU+oujBJKnWmu4hU7r9MMQNWPfXsYw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <!-- rainbowvis -->
+    <script src="./rainbow/rainbowvis.js"></script>
+</body>
+
+</html>
