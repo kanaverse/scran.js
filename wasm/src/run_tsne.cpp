@@ -1,5 +1,6 @@
 #include <emscripten/bind.h>
 
+#include "utils.h"
 #include "qdtsne/qdtsne.hpp"
 #include "knncolle/knncolle.hpp"
 
@@ -7,6 +8,7 @@
 #include <cmath>
 #include <chrono>
 #include <random>
+#include <iostream>
 
 /**
  * @file run_tsne.cpp
@@ -65,9 +67,39 @@ TsneStatus initialize_tsne(uintptr_t mat, int nr, int nc, double perplexity, boo
         search.reset(new knncolle::VpTreeEuclidean<>(nr, nc, ptr));
     }
 
+#ifdef __EMSCRIPTEN_PTHREADS__
+    int k = std::ceil(perplexity * 3);
+    std::vector<double> distances(nc * k);
+    std::vector<int> indices(nc * k);
+    std::vector<const double*> dptrs(nc);
+    std::vector<const int*> iptrs(nc);
+
+    run_parallel([&](int left, int right) -> void {
+        double* start_d = distances.data() + left * k;
+        int* start_i = indices.data() + left * k;
+
+        for (int i = left; i < right; ++i) {
+            auto current = search->find_nearest_neighbors(i, k);
+            dptrs[i] = start_d;
+            iptrs[i] = start_i;
+
+            for (const auto& x : current) {
+                *start_i = x.first;
+                *start_d = x.second;
+                ++start_i;
+                ++start_d;
+            }
+        }
+    }, nc, EMSCRIPTEN_NUM_THREADS);
+
+    qdtsne::Tsne factory;
+    factory.set_perplexity(perplexity);
+    return TsneStatus(factory.template initialize<>(iptrs, dptrs, k));
+#else
     qdtsne::Tsne factory;
     factory.set_perplexity(perplexity);
     return TsneStatus(factory.template initialize<>(search.get()));
+#endif
 }
     
 /**

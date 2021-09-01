@@ -11,10 +11,6 @@
 #include <cstdint>
 #include <cmath>
 
-#ifdef __EMSCRIPTEN_PTHREADS__ 
-#include <thread>
-#endif
-
 /**
  * @file per_cell_qc_metrics.cpp
  *
@@ -33,7 +29,6 @@
  */
 PerCellQCMetrics_Results per_cell_qc_metrics(const NumericMatrix& mat, int nsubsets, uintptr_t subsets) {
 #ifdef __EMSCRIPTEN_PTHREADS__
-    constexpr int nworkers = EMSCRIPTEN_NUM_THREADS;
     scran::PerCellQCMetrics::Results full_output(mat.ncol(), nsubsets);
     double* outsum = full_output.sums.data();
     int* outdet = full_output.detected.data();
@@ -45,12 +40,7 @@ PerCellQCMetrics_Results per_cell_qc_metrics(const NumericMatrix& mat, int nsubs
 
     auto subptrs = extract_column_pointers<const uint8_t*>(subsets, mat.nrow(), nsubsets);
 
-    int jobs_per_worker = std::ceil(static_cast<double>(mat.ncol())/nworkers);
-    std::vector<std::thread> workers;
-    workers.reserve(nworkers);
-    int first = 0; 
-
-    auto executor = [&](int left, int right) -> void {
+    run_parallel([&](int left, int right) -> void {
         auto propcopy = outprop;
         for (auto& p : propcopy) { 
             p += left;
@@ -58,16 +48,7 @@ PerCellQCMetrics_Results per_cell_qc_metrics(const NumericMatrix& mat, int nsubs
         auto current = tatami::make_DelayedSubsetBlock<1>(mat.ptr, left, right);
         scran::PerCellQCMetrics qc;
         qc.run(current.get(), subptrs, outsum + left, outdet + left, std::move(propcopy));
-    };
-
-    for (int w = 0; w < nworkers && first < mat.ncol(); ++w) {
-        int last = std::min(first + jobs_per_worker, static_cast<int>(mat.ncol()));
-        workers.emplace_back(std::thread(executor, first, last));
-    }
-
-    for (auto& wrk : workers) {
-        wrk.join();
-    }
+    }, mat.ncol(), EMSCRIPTEN_NUM_THREADS);
 
     return PerCellQCMetrics_Results(std::move(full_output));
 #else

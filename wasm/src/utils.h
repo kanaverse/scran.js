@@ -3,6 +3,11 @@
 
 #include <vector>
 #include <cstdint>
+#include <cmath>
+
+#ifdef __EMSCRIPTEN_PTHREADS__
+#include <thread>
+#endif
 
 /**
  * Create a vector of pointers to the columns of a matrix.
@@ -64,6 +69,25 @@ inline std::vector<std::vector<T> > extract_column_pointers_blocked(uintptr_t pt
     EM_ASM({ \
         console.log("__scran_wasm__ " + name + " " + $0 + " " + $1 + " " + message); \
     }, state, total);
+#endif
+
+#ifdef __EMSCRIPTEN_PTHREADS__
+template<class Function>
+void run_parallel(Function fun, int total, int nworkers) { 
+    int jobs_per_worker = std::ceil(static_cast<double>(total)/nworkers);
+    std::vector<std::thread> workers;
+    workers.reserve(nworkers);
+    int first = 0;
+
+    for (int w = 0; w < nworkers && first < total; ++w, first += jobs_per_worker) {
+        int last = std::min(first + jobs_per_worker, total);
+        workers.emplace_back(fun, first, last);
+    }
+
+    for (auto& wrk : workers) {
+        wrk.join();
+    }
+}
 #endif
 
 #endif
