@@ -12,8 +12,6 @@
 
 var Module = {};
 
-console.log("hitting me!");
-
 // Node.js support
 if (typeof process === 'object' && typeof process.versions === 'object' && typeof process.versions.node === 'string') {
   // Create as web-worker-like an environment as we can.
@@ -96,29 +94,25 @@ self.onmessage = function(e) {
 
       // Module and memory were sent from main thread
       Module['wasmModule'] = e.data.wasmModule;
-      console.log(e.data.wasmModule);
 
       Module['wasmMemory'] = e.data.wasmMemory;
 
       Module['buffer'] = Module['wasmMemory'].buffer;
 
       Module['ENVIRONMENT_IS_PTHREAD'] = true;
-        console.log(e.data.urlOrBlob);
 
       if (typeof e.data.urlOrBlob === 'string') {
-        importScripts("scran_wasm.js");
+        importScripts(e.data.urlOrBlob);
       } else {
         var objectUrl = URL.createObjectURL(e.data.urlOrBlob);
         importScripts(objectUrl);
         URL.revokeObjectURL(objectUrl);
       }
-        console.log("loading 2!");
 
       // MINIMAL_RUNTIME always compiled Wasm (&Wasm2JS) asynchronously, even in pthreads. But
       // regular runtime and asm.js are loaded synchronously, so in those cases
       // we are now loaded, and can post back to main thread.
       moduleLoaded();
-        console.log("loading 3!");
 
     } else if (e.data.cmd === 'objectTransfer') {
       Module['PThread'].receiveObjectTransfer(e.data);
@@ -225,3 +219,5 @@ self.onmessage = function(e) {
     throw ex;
   }
 };
+
+

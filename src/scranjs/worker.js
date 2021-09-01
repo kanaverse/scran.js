@@ -26,7 +26,9 @@ onmessage = function (msg) {
     if (payload.type == "LOAD") {
         // TODO: parcel2 doesn't load inline importScripts
         importScripts("./scran_wasm.js");
-        console.log(data);
+
+        Module["mainScriptUrlOrBlob"] = "http://localhost:8000/scranjs/scran_wasm.js";
+        console.log(Module);
 
         Module.onRuntimeInitialized = function load_done_callback() {
             console.log("I'm done loading");
