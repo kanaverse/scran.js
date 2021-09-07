@@ -50,4 +50,9 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(qdtsne)
 
-
+FetchContent_Declare(
+  umappp 
+  GIT_REPOSITORY https://github.com/LTLA/umappp
+  GIT_TAG master
+)
+FetchContent_MakeAvailable(umappp)
