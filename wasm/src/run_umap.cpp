@@ -84,7 +84,7 @@ UmapStatus initialize_umap(uintptr_t mat, int nr, int nc, int num_neighbors, int
 
     return UmapStatus(factory.initialize(std::move(x), 2, embedding));
 #else
-    factory.set_num_neighbors(num_neighbors).
+    factory.set_num_neighbors(num_neighbors);
     return UmapStatus(factory.initialize(search.get(), 2, embedding));
 #endif
 }
@@ -109,7 +109,7 @@ void run_umap(UmapStatus& status, int runtime, uintptr_t Y) {
     do {
         ++current;
         factory.run(status.status, 2, ptr, current);
-    } while (iter < maxiter && std::chrono::steady_clock::now() < end);
+    } while (std::chrono::steady_clock::now() < end);
 
     return;
 }
@@ -123,7 +123,7 @@ EMSCRIPTEN_BINDINGS(run_umap) {
     emscripten::function("run_umap", &run_umap);
 
     emscripten::class_<UmapStatus>("UmapStatus")
-        .function("iterations", &UmapStatus::iterations)
+        .function("epoch", &UmapStatus::epoch)
         ;
     
 }

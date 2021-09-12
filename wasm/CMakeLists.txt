@@ -40,6 +40,7 @@ target_link_libraries(
     scran_wasm
     scran
     qdtsne
+    umappp
 )
 
 target_compile_definitions(scran_wasm PRIVATE TATAMI_USE_ZLIB=1)
