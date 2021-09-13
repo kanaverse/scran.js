@@ -34,10 +34,17 @@ struct UmapStatus {
      */
 
     /**
-     * @return Number of iterations run so far.
+     * @return Number of epochs run so far.
      */
     int epoch() const {
         return status.epoch();
+    }
+
+    /**
+     * @return Total number of epochs to run.
+     */
+    int num_epochs() const {
+        return status.num_epochs();
     }
 };
 
@@ -105,11 +112,12 @@ void run_umap(UmapStatus& status, int runtime, uintptr_t Y) {
     umappp::Umap factory;
     double* ptr = reinterpret_cast<double*>(Y);
     int current = status.epoch();
+    const int total = status.num_epochs();
     auto end = std::chrono::steady_clock::now() + std::chrono::milliseconds(runtime);
     do {
         ++current;
         factory.run(status.status, 2, ptr, current);
-    } while (std::chrono::steady_clock::now() < end);
+    } while (current < total && std::chrono::steady_clock::now() < end);
 
     return;
 }
