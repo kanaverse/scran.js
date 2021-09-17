@@ -10,7 +10,7 @@ Users can then directly analyze their data without needing to manage any depende
 **scran.js** is heavily inspired by the [**scran** R package](https://bioconductor.org/packages/scran) and contains most of its related methods.
 Indeed, much of the implementation in this repository is taken directly from **scran** and its related R packages.
 
-## Support for key scRNA-seq analysis steps
+## Key scRNA-seq analysis steps
 
 Currently, the library and web app supports the key steps in a typical scRNA-seq analysis:
 
@@ -33,6 +33,8 @@ Coming soon:
 - Dimensionality reduction by uniform map and approximate projection (UMAP).
 - Batch correction via the mutual nearest neighbors method.
 
+The theory behind these methods is described in more detail in the [**Orchestrating Single Cell Analysis with Bioconductor**](https://bioconductor.org/books/release/OSCA/) book. 
+
 ## Efficient analysis with WebAssembly 
 
 We use WebAssembly (Wasm) to enable efficient client-side execution of common steps in a scRNA-seq analysis.
@@ -50,6 +52,31 @@ This includes quality control, normalization, feature selection, PCA, clustering
 
 For each step, we use Emscripten to compile the associated C++ functions into Wasm and generate Javascript-visible bindings.
 We can then load the Wasm binary into a web application and call the desired functions on user-supplied data.
+
+## Technical details
+
+### Passing data to/from Wasm
+
+To pass input arrays from Javascript to Wasm, we allocate a buffer on the Wasm heap with Javascript, bind that buffer to a `TypedArray` view and fill it with the input values.
+The offset is then passed as an integer to the Wasm binary to access buffer.
+From a C++ perspective, this involves casting the input integer to a pointer of the relevant type.
+We typically also require the length of the array, though this is often already available from other parameters.
+Note that the Javascript caller is responsible for freeing the allocated memory on the heap.
+
+To pass output arrays from Wasm to Javascript, we typically use a persistent C++ class with methods to return `TypedArray` views of a contiguous array (usually a `std::vector`).
+When executing a function of interest, an instance of this class is returned and its methods can be called to obtain the desired view.
+This is more convenient than a pre-allocation strategy where the offsets to output arrays are passed to the Wasm binary;
+the class-based approach does not require the Javascript code to know the size and number of the output arrays.
+However, the Javascript code is responsible for destroying the class instance when it is no longer required.
+
+As a general rule, it is best to assume that the `TypedArray` views do not remain valid after any allocations on the Wasm heap.
+This is because allocations may trigger heap growth, which in turn causes the heap to relocate.
+Any offsets remain valid but any existing views will now be pointing to invalid memory locations.
+Thus, we typically copy the data from the view into a "normal" `TypedArray` as soon as possible to avoid invalidation.
+(Turning on `pthreads` support will force Emscripten to rebind views after heap relocations, which should eliminate this problem;
+nonetheless, we still follow the aforementioned policy in case we are compiling without `pthreads`.)
+
+### Turning on `pthreads`
 
 ## Build wasm
 
