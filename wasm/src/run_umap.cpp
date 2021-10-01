@@ -26,9 +26,9 @@ struct UmapStatus {
     /**
      * @cond
      */
-    UmapStatus(umappp::Umap::Status s) : status(std::move(s)) {}
+    UmapStatus(umappp::Umap<>::Status s) : status(std::move(s)) {}
 
-    umappp::Umap::Status status;
+    umappp::Umap<>::Status status;
     /**
      * @endcond
      */
