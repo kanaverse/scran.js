@@ -1,0 +1,103 @@
+.app {
+  display: flex;
+}
+
+.sidebar {
+  width: 250px;
+}
+
+.content {
+  flex-grow: 4;
+}
+
+.options-container {
+  display: flex;
+  flex-direction: column;
+}
+
+/* MUURI layout css */
+
+.grid {
+  position: relative;
+}
+
+.item {
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  line-height: 200px;
+  margin: 5px;
+  z-index: 1;
+  resize: both;
+  overflow: auto;
+  border: 2px solid black;
+}
+
+.item.muuri-item-hidden {
+  z-index: 0;
+}
+
+.item.muuri-item-releasing {
+  z-index: 2;
+}
+
+.item.muuri-item-dragging {
+  z-index: 3;
+}
+
+.item-content {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  text-align: center;
+  /* background: grey; */
+  font-size: 50px;
+  color: grey;
+  cursor: pointer;
+  transition: width 0.3s ease, height 0.3s ease;
+}
+
+.item.muuri-item-dragging .item-content {
+  background: yellow;
+}
+
+.item.muuri-item-releasing .item-content {
+  background: green;
+}
+
+/* Accordion styles */
+.accordion {
+  background-color: #eee;
+  color: #444;
+  cursor: pointer;
+  padding: 18px;
+  width: 100%;
+  text-align: left;
+  border: none;
+  outline: none;
+  transition: 0.4s;
+}
+
+.active,
+.accordion:hover {
+  background-color: #ccc;
+}
+
+.panel {
+  padding: 0 18px;
+  background-color: white;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.2s ease-out;
+}
+
+.accordion:after {
+  content: "\02795"; 
+  color: #777;
+  float: right;
+  margin-left: 5px;
+}
+
+.active:after {
+  content: "\2796"; 
+}
