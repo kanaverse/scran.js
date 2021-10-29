@@ -22,7 +22,7 @@ struct ScoreMarkers_Results {
     /**
      * @cond
      */
-    typedef scran::ScoreMarkers::Results Store;
+    typedef scran::ScoreMarkers::Results<double> Store;
 
     ScoreMarkers_Results(Store s) : store(std::move(s)) {}
 

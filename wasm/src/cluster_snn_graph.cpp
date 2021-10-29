@@ -12,13 +12,13 @@
 /**
  * @brief Javascript-visible wrapper around `scran::ClusterSNNGraph::MultiLevelResult`.
  */
-struct ClusterSNNGraph_MultiLevelResult {
+struct ClusterSNNGraphMultiLevel_Result {
     /**
      * @cond
      */
-    typedef scran::ClusterSNNGraph::MultiLevelResult Store;
+    typedef scran::ClusterSNNGraphMultiLevel::Results Store;
 
-    ClusterSNNGraph_MultiLevelResult(Store s) : store(std::move(s)) {}
+    ClusterSNNGraphMultiLevel_Result(Store s) : store(std::move(s)) {}
 
     Store store;
     /**
@@ -67,15 +67,15 @@ struct ClusterSNNGraph_MultiLevelResult {
  * Larger values yield more fine-grained clusters.
  * @param approximate Whether an approximate nearest neighbor search should be performed.
  *
- * @return A `ClusterSNNGraph_MultiLevelResult` object containing the... multi-level clustering results, obviously.
+ * @return A `ClusterSNNGraphMultiLevel_Result` object containing the... multi-level clustering results, obviously.
  */
-ClusterSNNGraph_MultiLevelResult cluster_snn_graph(int ndim, int ncells, uintptr_t mat, int k, double resolution, bool approximate) {
-    scran::ClusterSNNGraph clust;
-    clust.set_neighbors(k).set_approximate(approximate);
+ClusterSNNGraphMultiLevel_Result cluster_snn_graph(int ndim, int ncells, uintptr_t mat, int k, double resolution, bool approximate) {
+    scran::ClusterSNNGraphMultiLevel clust;
+    clust.set_neighbors(k).set_resolution(resolution).set_approximate(approximate);
 
     const double* ptr = reinterpret_cast<const double*>(mat);
-    auto output = clust.run_multilevel(ndim, ncells, ptr, resolution);
-    return ClusterSNNGraph_MultiLevelResult(std::move(output));
+    auto output = clust.run(ndim, ncells, ptr);
+    return ClusterSNNGraphMultiLevel_Result(std::move(output));
 }
 
 /**
@@ -84,11 +84,11 @@ ClusterSNNGraph_MultiLevelResult cluster_snn_graph(int ndim, int ncells, uintptr
 EMSCRIPTEN_BINDINGS(cluster_snn_graph) {
     emscripten::function("cluster_snn_graph", &cluster_snn_graph);
 
-    emscripten::class_<ClusterSNNGraph_MultiLevelResult>("ClusterSNNGraph_MultiLevelResult")
-        .function("number", &ClusterSNNGraph_MultiLevelResult::number)
-        .function("best", &ClusterSNNGraph_MultiLevelResult::best)
-        .function("modularity", &ClusterSNNGraph_MultiLevelResult::modularity)
-        .function("membership", &ClusterSNNGraph_MultiLevelResult::membership);
+    emscripten::class_<ClusterSNNGraphMultiLevel_Result>("ClusterSNNGraphMultiLevel_Result")
+        .function("number", &ClusterSNNGraphMultiLevel_Result::number)
+        .function("best", &ClusterSNNGraphMultiLevel_Result::best)
+        .function("modularity", &ClusterSNNGraphMultiLevel_Result::modularity)
+        .function("membership", &ClusterSNNGraphMultiLevel_Result::membership);
 }
 /**
  * @endcond
