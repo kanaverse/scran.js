@@ -1,65 +1,217 @@
-<!doctype html>
-<html class="no-js" lang="en">
+<!DOCTYPE html>
+<html>
 
 <head>
-  <meta charset="utf-8" />
-  <meta http-equiv="x-ua-compatible" content="ie=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SCRAN.JS</title>
-  <script src="assets/js/index.js"></script>
+  <title>SCRANJS - Analyze single-cell datasets in the browser</title>
 
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cross-Origin-Opener-Policy" content="same-origin" />
+
+  <!-- CSS only -->
   <link href="assets/css/style.css" rel="stylesheet" />
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
+
+  <!-- JavaScript Bundle with Popper -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-U1DAWAznBHeqEIlVSCgzq+c9gqGAJn5c/t99JyeKa9xxaYpSvHU5awsuZVVFIhvj"
+    crossorigin="anonymous"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/muuri@0.9.5/dist/muuri.min.js"></script>
+
+  <script type="module">
+    import WebGLVis from './assets/vendor/egl/index.js';
+    window.WebGLVis = WebGLVis;
+  </script>
+
+  <script type="module" src="./assets/js/index.js"></script>
 </head>
 
 <body>
-  <div class="app">
-    <div class="sidebar">
-      <h5>SCRAN.JS</h5>
-      <div class="options-container">
-        <div>
-          <button class="accordion">QC</button>
-          <div class="panel">
-            <p>Option 1.</p>
+  <main>
+    <div class="container my-2">
+      <!-- header -->
+      <header class="pb-3 mb-4 border-bottom">
+        <a href="/" class="d-flex align-items-center text-dark text-decoration-none">
+          <span class="fs-4">SCRANJS - Single Cell Analysis in the browser</span>
+        </a>
+      </header>
+
+      <!-- tabs for settings -->
+      <div class="pb-3 mb-4 border-bottom container">
+        <ul class="nav nav-tabs nav-fill" id="settingsTab" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="loadData-tab" data-bs-toggle="tab" data-bs-target="#loadData"
+              type="button" role="tab" aria-controls="loadData" aria-selected="true">Load Data</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="qc-tab" data-bs-toggle="tab" data-bs-target="#qc" type="button" role="tab"
+              aria-controls="qc" aria-selected="false">QC</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="fSelection-tab" data-bs-toggle="tab" data-bs-target="#fSelection" type="button"
+              role="tab" aria-controls="fSelection" aria-selected="false">Feature Selection</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="pca-tab" data-bs-toggle="tab" data-bs-target="#pca" type="button" role="tab"
+              aria-controls="pca" aria-selected="false">PCA</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="cluster-tab" data-bs-toggle="tab" data-bs-target="#cluster" type="button"
+              role="tab" aria-controls="cluster" aria-selected="false">Cluster</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tsne-tab" data-bs-toggle="tab" data-bs-target="#tsne" type="button" role="tab"
+              aria-controls="tsne" aria-selected="false">t-SNE</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="markerGene-tab" data-bs-toggle="tab" data-bs-target="#markerGene" type="button"
+              role="tab" aria-controls="markerGene" aria-selected="false">Marker Gene</button>
+          </li>
+        </ul>
+        <div class="tab-content" id="settingsTabContent">
+          <div class="tab-pane fade show active" id="loadData" role="tabpanel" aria-labelledby="loadData-tab">
+            <p>Upload either a mtx file (w/ barcodes and/or genes) or generate [random] test data to use the app</p>
+            <div class="row g-4 py-3 row-cols-1 row-cols-lg-3">
+              <div class="feature col">
+                <!-- <h2>Upload MTX File</h2> -->
+                <!-- <p>...</p> -->
+                <label for="mtx-upload-file" class="form-label">Upload MTX
+                  file</label>
+                <input class="form-control" type="file" id="mtx-upload-file">
+              </div>
+              <div class="feature col">
+                <label for="barcodes-upload-file" class="form-label">Upload Barcodes
+                  file</label>
+                <input class="form-control" type="file" id="barcodes-upload-file">
+              </div>
+              <div class="feature col">
+                <label for="genes-upload-file" class="form-label">Upload Genes
+                  file</label>
+                <input class="form-control" type="file" id="genes-upload-file">
+              </div>
+            </div>
+          </div>
+          <div class="tab-pane fade" id="qc" role="tabpanel" aria-labelledby="qc-tab">
+            <p>Generate per cell QC metrics, Define filters and Filter cells</p>
+            <div class="row g-4 py-3 row-cols-1 row-cols-lg-3">
+              <div class="feature col">
+                <label for="qc-nmads-input" class="form-label">NMADS:
+                  Number of MADs from the median, to use for defining outliers. (defaults to 3)</label>
+                <input class="form-control" placeholder="3" type="number" id="qc-nmads-input">
+              </div>
+            </div>
+            <!-- <div class="row g-4 py-3">
+              <div class="feature col">
+                <label for="qc-mc-input" class="form-label">Define
+                  subsets</label>
+                <input class="form-control" placeholder="mt-" id="qc-mc-input">
+              </div>
+            </div> -->
+          </div>
+          <div class="tab-pane fade" id="fSelection" role="tabpanel" aria-labelledby="fSelection-tab">
+            <p>Model the variance of the log-expression values for each gene, accounting for the
+              mean-variance trend.</p>
+            <div class="row g-4 py-3 row-cols-1 row-cols-lg-2">
+              <div class="feature col">
+                <label for="fsel-input" class="form-label">Span factor:
+                  The span of the LOWESS smoother for fitting the mean-variance trend. (defaults to 0.3)</label>
+                <input class="form-control" placeholder="0.3" type="number" id="fsel-input">
+              </div>
+            </div>
+          </div>
+          <div class="tab-pane fade" id="pca" role="tabpanel" aria-labelledby="pca-tab">
+            <p>Perform a principal components analysis to obtain per-cell coordinates in
+              low-dimensional space.</p>
+            <div class="row g-4 py-3 row-cols-1 row-cols-lg-2">
+              <div class="feature col">
+                <label for="pca-npc-input" class="form-label">Choose #
+                  of PCs (defaults to 5)</label>
+                <input class="form-control" placeholder="5" type="number" id="pca-npc-input">
+              </div>
+            </div>
+          </div>
+          <div class="tab-pane fade" id="cluster" role="tabpanel" aria-labelledby="cluster-tab">
+            <p>Generate SNN graph and cluster cells</p>
+            <div class="row g-4 py-3 row-cols-1 row-cols-lg-2">
+              <div class="feature col">
+                <label for="clus-k-input" class="form-label">
+                  Number of neighbors to use to construct the nearest neighbor graph. (defaults to 10)
+                </label>
+                <input class="form-control" placeholder="10" type="number" id="clus-k-input">
+              </div>
+              <div class="feature col">
+                <label for="clus-res-input" class="form-label">Resolution of the
+                  multi-level clustering, used in the modularity calculation.
+                  Larger values yield more fine-grained clusters. (defaults to 0.5) </label>
+                <input class="form-control" placeholder="0.5" type="number" id="clus-res-input">
+              </div>
+            </div>
+          </div>
+          <div class="tab-pane fade" id="tsne" role="tabpanel" aria-labelledby="tsne-tab">
+            <p>Compute t-SNE embeddings and Visualize cells.</p>
+            <div class="row g-4 py-3 row-cols-1 row-cols-lg-2">
+              <div class="feature col">
+                <label for="tsne-input-iter" class="form-label">Choose Iterations
+                  (defaults to 200)</label>
+                <input class="form-control" placeholder="200" type="number" id="tsne-input-iter">
+              </div>
+              <div class="feature col">
+                <label for="tsne-input-perp" class="form-label">Choose Perplexity
+                  (defaults to 30)</label>
+                <input class="form-control" placeholder="30" type="number" id="tsne-input-perp">
+              </div>
+            </div>
+          </div>
+          <div class="tab-pane fade" id="markerGene" role="tabpanel" aria-labelledby="markerGene-tab">
+            <p>Compute marker scores for each gene in each group of cells.</p>
           </div>
         </div>
-        <div>
-          <button class="accordion">PCA</button>
-          <div class="panel">
-            <p>Option 1.</p>
-          </div>
-        </div>
-        <div>
-          <button class="accordion">UMAP</button>
-          <div class="panel">
-            <p>Option 1.</p>
-          </div>
-        </div>
+        <button id="run" type="button" class="btn btn-primary">RUN ALL</button>
       </div>
-    </div>
-    <div class="content">
+
+      <!-- Output UI -->
       <div class="grid">
+        <div class="item">
+          <div class="item-content">
+            <div class="d-flex justify-content-center" style="margin-top:5px;">
+              <div class="col-xl-3 col-lg-6">
+                <div class="card card-stats mb-4 mb-xl-0">
+                  <div class="card-body">
+                    <div class="row">
+                      <div class="col">
+                        <h5 class="card-title text-uppercase text-muted mb-0">
+                          Dataset Dims</h5>
+                        <span id="load-data-stats" class="h2 font-weight-bold mb-0">?????</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
 
         <div class="item">
-          <div class="item-content">1</div>
+          <div class="item-content">
+          </div>
         </div>
+
         <div class="item">
-          <div class="item-content">2</div>
+          <div class="item-content">
+          </div>
         </div>
+
         <div class="item">
-          <div class="item-content">3</div>
-        </div>
-        <div class="item">
-          <div class="item-content">4</div>
-        </div>
-        <div class="item">
-          <div class="item-content">5</div>
+          <div class="item-content">
+          </div>
         </div>
       </div>
+
     </div>
-
-  </div>
-  <script src="https://cdn.jsdelivr.net/npm/muuri@0.9.5/dist/muuri.min.js"></script>
-
+  </main>
 </body>
 
 </html>

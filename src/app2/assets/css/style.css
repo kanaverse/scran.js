@@ -1,4 +1,4 @@
-.app {
+/* .app {
   display: flex;
 }
 
@@ -15,6 +15,61 @@
   flex-direction: column;
 }
 
+.header {
+  background-color: rgb(238, 238, 238);
+}
+
+.accordion-item {
+  margin-top: 10px;
+}
+
+.step {
+  margin: 10px !important;
+}
+
+#load-data-timer,
+#load-data-success,
+#load-data-fail,
+#load-data-spinner,
+#load-data-output,
+#qc-timer,
+#qc-success,
+#qc-fail,
+#qc-spinner,
+#qc-output,
+#qc-mc-timer,
+#qc-mc-success,
+#qc-mc-fail,
+#qc-mc-spinner,
+#qc-mc-output,
+#fsel-timer,
+#fsel-success,
+#fsel-fail,
+#fsel-spinner,
+#pca-timer,
+#pca-success,
+#pca-fail,
+#pca-spinner,
+#tsne-timer,
+#tsne-success,
+#tsne-fail,
+#tsne-spinner,
+#clus-timer,
+#clus-success,
+#clus-fail,
+#clus-spinner,
+#mg-timer,
+#mg-success,
+#mg-fail,
+#mg-spinner,
+#mg_charts {
+  display: none;
+}
+
+#clus_charts {
+  flex-wrap: nowrap;
+} */
+
 /* MUURI layout css */
 
 .grid {
@@ -23,14 +78,14 @@
 
 .item {
   position: absolute;
-  width: 200px;
-  height: 200px;
-  line-height: 200px;
+  /* width: 700px;
+  height: 400px; */
+  /* line-height: 200px; */
   margin: 5px;
   z-index: 1;
   resize: both;
   overflow: auto;
-  border: 2px solid black;
+  border: 2px solid grey;
 }
 
 .item.muuri-item-hidden {
@@ -47,11 +102,11 @@
 
 .item-content {
   position: relative;
-  width: 200px;
+  width: 500px;
   height: 200px;
   text-align: center;
   /* background: grey; */
-  font-size: 50px;
+  /* font-size: 50px; */
   color: grey;
   cursor: pointer;
   transition: width 0.3s ease, height 0.3s ease;
@@ -66,7 +121,7 @@
 }
 
 /* Accordion styles */
-.accordion {
+/* .accordion {
   background-color: #eee;
   color: #444;
   cursor: pointer;
@@ -100,4 +155,23 @@
 
 .active:after {
   content: "\2796"; 
+} */
+
+/* css for various steps */
+
+.accordion-item {
+  margin-top: 10px;
+}
+
+.step {
+  margin: 10px !important;
+}
+
+#load-data-timer,
+#load-data-success,
+#load-data-fail,
+#load-data-spinner,
+#load-data-notrun,
+#load-data-output {
+  display: none;
 }
