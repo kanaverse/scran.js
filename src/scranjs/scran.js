@@ -1,3 +1,37 @@
+class scranSTATE {
+  constructor() {
+    this.state = {};
+  }
+
+  set(options) {
+    this.state = options;
+  }
+
+  get() {
+    return this.state;
+  }
+
+  diff(options) {
+    // could do something smarter later
+    if (this.state.files != options.files) {
+      return 0;
+    } else if (this.state.params.qc != options.params.qc) {
+      return 1;
+    } else if (this.state.params.fSelection != options.params.fSelection) {
+      return 2;
+    } else if (this.state.params.pca != options.params.pca) {
+      return 3;
+    } else if (this.state.params.cluster != options.params.cluster) {
+      return 4;
+    } else if (this.state.params.tsne != options.params.tsne) {
+      return 5;
+    } else if (this.state.params.markerGene != options.params.markerGene) {
+      return 6;
+    }
+  }
+}
+
+
 class scran {
   constructor(options, wasm) {
     // wasm module initialized in the browser
@@ -34,6 +68,81 @@ class scran {
 
     this.genes = null;
     this.barcodes = null;
+  }
+
+  // runner, decide if this should be inside or outside the class
+  // leaning towards being outside
+  run(step, state) {
+    var self = this;
+    switch (step) {
+      case 0:
+        self.mountFiles(state.files);
+      case 1:
+        self.qcMetrics(state.params.qc["qc-nmads"]);
+      case 2:
+        self.fSelection(state.params.fSelection["fsel-span"]);
+      case 3:
+        self.PCA(state.params.pca["pca-npc"]);
+      case 4:
+        self.cluster(state.params.cluster["clus-k"], state.params.cluster["clus-res"]);
+      case 5:
+        self.tsne(state.params.tsne["tsne-perp"], state.params.tsnep["tsne-iter"]);
+      case 6:
+        self.markerGenes();
+      default:
+        console.log(`{step} invalid`);
+        break;
+    }
+  }
+
+  mountFiles(input) {
+    var self = this;
+    self.files = input;
+
+    // FS.unmount(mtx_file_path);
+    
+    var files_to_load = [];
+    self.files.forEach(m => {
+      if (m.length > 0) {
+        files_to_load.push(m[0]);
+      }
+    })
+
+    FS.mount(WORKERFS, {
+      files: files_to_load
+    }, DATA_PATH);
+
+    var mtx_file = input[0];
+    const mtx_file_path = `${DATA_PATH}/${mtx_file[0].name}`;
+
+    const file_details = FS.stat(mtx_file_path);
+    var file_size = file_details.size;
+
+    var buffer_ptr = Module._malloc(file_size); // in bytes
+    var buffer_vec = new Uint8Array(Module.HEAPU8.buffer, buffer_ptr, file_size);
+
+    var stream = FS.open(mtx_file_path, "r")
+    FS.read(stream, buffer_vec, 0, file_size, 0);
+    FS.close(stream);
+
+    var ext = mtx_file_path.split('.').pop();
+    self.loadDataFromPath(buffer_ptr, file_size, (ext == "gz"));
+
+    const tsv = d3.dsvFormat("\t");
+
+    var barcode_file = input[1];
+    if (barcode_file.length > 0) {
+      const barcode_file_path = `${DATA_PATH}/${barcode_file[0].name}`;
+      const barcode_str = FS.readFile(barcode_file_path, { "encoding": "utf8" });
+      self.barcodes = tsv.parse(barcode_str);
+    }
+
+    var genes_file = input[2];
+    if (genes_file.length > 0) {
+      const genes_file_path = `${DATA_PATH}/${genes_file[0].name}`;
+      const genes_str = FS.readFile(genes_file_path, { "encoding": "utf8" });
+      self.genes = tsv.parse(genes_str);
+    }
   }
 
   loadData(data, nrow, ncol) {
@@ -417,24 +526,27 @@ class scran {
       var sh_tsne = self.getVector("tsne") //new SharedArrayBuffer(this.filteredMatrix.ncol());
       // sh_tsne.set(self.getVector("tsne"));
 
-      var tsne1 = [], tsne2 = [];
+      var tsne1 = new Float64Array(new SharedArrayBuffer(self.filteredMatrix.ncol() * 8)),
+        tsne2 = new Float64Array(new SharedArrayBuffer(self.filteredMatrix.ncol() * 8));
       for (var i = 0; i < sh_tsne.length; i++) {
         if (i % 2 == 0) {
-          tsne1.push(sh_tsne[i]);
+          // tsne1.push(sh_tsne[i]);
+          tsne1[parseInt(i / 2)] = sh_tsne[i];
         }
         else {
-          tsne2.push(sh_tsne[i]);
+          // tsne2.push(sh_tsne[i]);
           // sample.push("sample");
+          tsne2[Math.floor(i / 2)] = sh_tsne[i];
         }
       }
 
       postMessage({
         type: "TSNE",
-        resp: JSON.parse(JSON.stringify({
+        resp: {
           "tsne1": tsne1,
           "tsne2": tsne2,
           "iteration": self.init_tsne.iterations()
-        })),
+        },
         msg: `Success: TSNE done, ${self.filteredMatrix.nrow()}, ${self.filteredMatrix.ncol()}`
       });
 
@@ -444,21 +556,27 @@ class scran {
     var sh_tsne = self.getVector("tsne") //new SharedArrayBuffer(this.filteredMatrix.ncol());
     // sh_tsne.set(self.getVector("tsne"));
 
-    var tsne1 = [], tsne2 = [];
+    var tsne1 = new Float64Array(new SharedArrayBuffer(self.filteredMatrix.ncol() * 8)),
+      tsne2 = new Float64Array(new SharedArrayBuffer(self.filteredMatrix.ncol() * 8));
     for (var i = 0; i < sh_tsne.length; i++) {
       if (i % 2 == 0) {
-        tsne1.push(sh_tsne[i]);
+        // tsne1.push(sh_tsne[i]);
+        tsne1[parseInt(i / 2)] = sh_tsne[i];
       }
       else {
-        tsne2.push(sh_tsne[i]);
+        // tsne2.push(sh_tsne[i]);
         // sample.push("sample");
+        tsne2[Math.floor(i / 2)] = sh_tsne[i];
       }
     }
+
+    var cluster_sab = new Uint32Array(new SharedArrayBuffer(self.filteredMatrix.ncol() * 8));
+    self.getVector("cluster_assignments").map((x, i) => cluster_sab[i] = x);
 
     return {
       "tsne1": tsne1,
       "tsne2": tsne2,
-      "clusters": self.getVector("cluster_assignments"),
+      "clusters": cluster_sab,
       "iteration": self._lastIter
     }
   }

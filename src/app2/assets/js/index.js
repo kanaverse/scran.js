@@ -1,6 +1,8 @@
 
 class App {
     constructor() {
+
+        var self = this;
         // initialize GRID
         // items are draggable
         var grid = new Muuri('.grid', {
@@ -9,7 +11,7 @@ class App {
         });
 
         this.worker = new Worker(
-            new URL("../../../scranjs/worker.js", import.meta.url),
+            new URL("../../../scranjs/scranWorker.js", import.meta.url),
         );
 
         // var app_file_inputs, app_params, app_step_changed, first_run = true;
@@ -55,7 +57,7 @@ class App {
         var inputs = {
             "qc": ["qc-nmads-input"],
             "fSelection": ["fsel-input"],
-            "pc": ["pca-npc-input"],
+            "pca": ["pca-npc-input"],
             "cluster": ["clus-k-input", "clus-res-input"],
             "tsne": ["tsne-input-iter", "tsne-input-perp"],
             "markerGene": []
@@ -109,7 +111,7 @@ class App {
             // no inputs
             app_params["markerGene"] = {};
 
-            window.app.worker.postMessage({
+            self.worker.postMessage({
                 "type": "RUN",
                 "payload": {
                     "files": app_files_input,
@@ -117,6 +119,18 @@ class App {
                 },
                 "msg": "not much to pass"
             });
+        });
+
+        // msgs from worker
+        self.worker.onmessage = function (msg) {
+            console.log(msg);
+        }
+
+        // need to send an INIT 
+        // to the worker thread
+        self.worker.postMessage({
+            "type": "LOAD",
+            "msg": "Initial Load"
         });
 
         // ACCORDION effect in JS
