@@ -42,11 +42,6 @@ onmessage = function (msg) {
     } else {
         console.log("MIM:::msg type incorrect")
     }
-
-
-    //  need a state 
-    // management here
-
 }
 
 
