@@ -12,21 +12,24 @@ class scranSTATE {
   }
 
   diff(options) {
+    var self = this;
     // could do something smarter later
     if (this.state.files != options.files) {
       return 0;
-    } else if (this.state.params.qc != options.params.qc) {
-      return 1;
-    } else if (this.state.params.fSelection != options.params.fSelection) {
-      return 2;
-    } else if (this.state.params.pca != options.params.pca) {
-      return 3;
-    } else if (this.state.params.cluster != options.params.cluster) {
-      return 4;
-    } else if (this.state.params.tsne != options.params.tsne) {
-      return 5;
-    } else if (this.state.params.markerGene != options.params.markerGene) {
-      return 6;
+    } else {
+      // in this order
+      var paramlist = ["qc", "fSelection", "pca", "cluster", "tsne", "markerGene"];
+
+      var step = 1;
+      paramlist.forEach((m,i) => {
+        if (self.state.params[m] != options.params[m]) {
+          // since iteration is 0-indexing
+          step = i + 1;
+          break;
+        }
+      })
+
+      return step;
     }
   }
 }
