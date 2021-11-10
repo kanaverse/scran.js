@@ -32,13 +32,13 @@ onmessage = function (msg) {
     }  else if (payload.type == "RUN") {
         var diff = 0;
 
-        if (!scranSTATE.get()) {
-            scranSTATE.set(payload.payload);
+        if (!state.get_state()) {
+            state.set_state(payload.payload);
         } else {
-            var diff = scranSTATE.set(payload.payload);
+            var diff = state.diff(payload.payload);
         }
 
-        data.run(diff);
+        data.run(diff, state.get_state());
     } else {
         console.log("MIM:::msg type incorrect")
     }

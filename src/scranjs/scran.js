@@ -1,13 +1,13 @@
 class scranSTATE {
   constructor() {
-    this.state = {};
+    this.state = null;
   }
 
-  set(options) {
+  set_state(options) {
     this.state = options;
   }
 
-  get() {
+  get_state() {
     return this.state;
   }
 
@@ -21,13 +21,22 @@ class scranSTATE {
       var paramlist = ["qc", "fSelection", "pca", "cluster", "tsne", "markerGene"];
 
       var step = 1;
-      paramlist.forEach((m,i) => {
+
+      for (const [idx, m] of paramlist.entries()) {
         if (self.state.params[m] != options.params[m]) {
           // since iteration is 0-indexing
           step = i + 1;
           break;
         }
-      })
+      }
+
+      // paramlist.forEach((m,i) => {
+      //   if (self.state.params[m] != options.params[m]) {
+      //     // since iteration is 0-indexing
+      //     step = i + 1;
+      //     break;
+      //   }
+      // })
 
       return step;
     }
@@ -103,7 +112,7 @@ class scran {
     self.files = input;
 
     // FS.unmount(mtx_file_path);
-    
+
     var files_to_load = [];
     self.files.forEach(m => {
       if (m.length > 0) {
