@@ -26,7 +26,9 @@
     window.WebGLVis = WebGLVis;
   </script>
 
+  <script src="./assets/js/boxPlot.js"></script>
   <script type="module" src="./assets/js/index.js"></script>
+
 </head>
 
 <body>
@@ -155,7 +157,7 @@
             <div class="row g-4 py-3 row-cols-1 row-cols-lg-2">
               <div class="feature col">
                 <label for="tsne-input-iter" class="form-label">Choose Iterations
-                  (defaults to 200)</label>
+                  (defaults to 500)</label>
                 <input class="form-control" placeholder="200" type="number" id="tsne-input-iter">
               </div>
               <div class="feature col">
@@ -184,7 +186,14 @@
                   <div class="col">
                     <h5 class="card-title text-uppercase text-muted mb-0">
                       Dataset Dims</h5>
-                    <span id="load-data-stats" class="h2 font-weight-bold mb-0">?????</span>
+                    <span id="load-data-stats" class="h2 font-weight-bold mb-0">??? x ???</span>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col">
+                    <h5 class="card-title text-uppercase text-muted mb-0">
+                      After QC</h5>
+                    <span id="load-data-qc-stats" class="h2 font-weight-bold mb-0">??? x ???</span>
                   </div>
                 </div>
               </div>
@@ -194,23 +203,92 @@
 
         <!-- QC item -->
         <div class="item">
-          <div class="item-content">
+          <div class="item-content-qc">
+            <div id="qc_charts" class="row row-cols-1 row-cols-lg-3">
+            </div>
           </div>
         </div>
 
         <div class="item">
-          <div class="item-content">
+          <div class="item-content-fSelection">
+            <div id="fsel_charts" class="flex flex-wrap justify-evenly">
+              <div class="clusterize">
+                <div id="scrollArea" class="clusterize-scroll">
+                  <table>
+                    <thead>
+                      <tr id="row_header">
+                        <th>Genes</th>
+                        <th>Means</th>
+                        <th>Vars</th>
+                        <th>Fitted</th>
+                        <th>Residuals</th>
+                      </tr>
+                    </thead>
+                    <tbody id="contentArea" class="clusterize-content">
+                      <tr class="clusterize-no-data">
+                        <td>Loading data…</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
         <div class="item">
-          <div class="item-content">
+          <div class="item-content-pca">
+            <div id="pca_charts" class="flex flex-wrap justify-evenly">
+            </div>
+          </div>
+        </div>
+
+        <div class="item">
+          <div class="item-content-cluster">
+            <div id="clus_charts" class="flex justify-evenly">
+            </div>
+          </div>
+        </div>
+
+        <div class="item">
+          <div class="item-content-tsne">
+            <div id="tsne_charts" class="flex flex-wrap justify-evenly">
+            </div>
+          </div>
+        </div>
+
+
+        <div class="item">
+          <div class="item-content-markerGene">
+            <div id="mg_charts" class="flex justify-evenly">
+              <div id="mg_clus_selection">
+                <label>Choose a Cluster :
+              </div>
+              <p id="mg_top_markers"></p>
+            </div>
           </div>
         </div>
       </div>
-
-    </div>
   </main>
+
+  <!-- D3JS v6 -->
+  <script crossorigin="anonymous" src="https://d3js.org/d3.v6.js"></script>
+
+  <!-- clusterize -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/clusterize.js/0.18.0/clusterize.js"
+    integrity="sha512-NPPrAOcaIEBqkr4XyF/OuiDsZK/+BTj8I6fnIBNVsb/D7RQmueUh7v8GX0DNZ0iodTuIu5ts00bMz8iLFdxH5g=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+  <!-- Plotly -->
+  <script crossorigin="anonymous" src="https://cdn.plot.ly/plotly-2.3.0.min.js"></script>
+
+  <!-- random colors -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/randomcolor/0.6.1/randomColor.min.js"
+    integrity="sha512-vPeZ7JCboHcfpqSx5ZD+/jpEhS4JpXxfz9orSvAPPj0EKUVShU2tgy7XkU+oujBJKnWmu4hU7r9MMQNWPfXsYw=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+  <!-- rainbowvis -->
+  <script src="./assets/vendor/rainbow/rainbowvis.js"></script>
 </body>
 
 </html>

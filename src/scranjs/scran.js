@@ -82,31 +82,6 @@ class scran {
     this.barcodes = null;
   }
 
-  // runner, decide if this should be inside or outside the class
-  // leaning towards being outside
-  run(step, state) {
-    var self = this;
-    switch (step) {
-      case 0:
-        self.mountFiles(state.files);
-      case 1:
-        self.qcMetrics(state.params.qc["qc-nmads"]);
-      case 2:
-        self.fSelection(state.params.fSelection["fsel-span"]);
-      case 3:
-        self.PCA(state.params.pca["pca-npc"]);
-      case 4:
-        self.cluster(state.params.cluster["clus-k"], state.params.cluster["clus-res"]);
-      case 5:
-        self.tsne(state.params.tsne["tsne-perp"], state.params.tsnep["tsne-iter"]);
-      case 6:
-        self.markerGenes();
-      default:
-        console.log(`{step} invalid`);
-        break;
-    }
-  }
-
   mountFiles(input) {
     var self = this;
     self.files = input;
@@ -538,27 +513,24 @@ class scran {
       var sh_tsne = self.getVector("tsne") //new SharedArrayBuffer(this.filteredMatrix.ncol());
       // sh_tsne.set(self.getVector("tsne"));
 
-      var tsne1 = new Float64Array(new SharedArrayBuffer(self.filteredMatrix.ncol() * 8)),
-        tsne2 = new Float64Array(new SharedArrayBuffer(self.filteredMatrix.ncol() * 8));
+      var tsne1 = [], tsne2 = [];
       for (var i = 0; i < sh_tsne.length; i++) {
         if (i % 2 == 0) {
-          // tsne1.push(sh_tsne[i]);
-          tsne1[parseInt(i / 2)] = sh_tsne[i];
+          tsne1.push(sh_tsne[i]);
         }
         else {
-          // tsne2.push(sh_tsne[i]);
+          tsne2.push(sh_tsne[i]);
           // sample.push("sample");
-          tsne2[Math.floor(i / 2)] = sh_tsne[i];
         }
       }
 
       postMessage({
-        type: "TSNE",
-        resp: {
+        type: "tsne_iter",
+        resp: JSON.parse(JSON.stringify({
           "tsne1": tsne1,
           "tsne2": tsne2,
           "iteration": self.init_tsne.iterations()
-        },
+        })),
         msg: `Success: TSNE done, ${self.filteredMatrix.nrow()}, ${self.filteredMatrix.ncol()}`
       });
 
@@ -568,29 +540,87 @@ class scran {
     var sh_tsne = self.getVector("tsne") //new SharedArrayBuffer(this.filteredMatrix.ncol());
     // sh_tsne.set(self.getVector("tsne"));
 
-    var tsne1 = new Float64Array(new SharedArrayBuffer(self.filteredMatrix.ncol() * 8)),
-      tsne2 = new Float64Array(new SharedArrayBuffer(self.filteredMatrix.ncol() * 8));
+    var tsne1 = [], tsne2 = [];
     for (var i = 0; i < sh_tsne.length; i++) {
       if (i % 2 == 0) {
-        // tsne1.push(sh_tsne[i]);
-        tsne1[parseInt(i / 2)] = sh_tsne[i];
+        tsne1.push(sh_tsne[i]);
       }
       else {
-        // tsne2.push(sh_tsne[i]);
+        tsne2.push(sh_tsne[i]);
         // sample.push("sample");
-        tsne2[Math.floor(i / 2)] = sh_tsne[i];
       }
     }
-
-    var cluster_sab = new Uint32Array(new SharedArrayBuffer(self.filteredMatrix.ncol() * 8));
-    self.getVector("cluster_assignments").map((x, i) => cluster_sab[i] = x);
 
     return {
       "tsne1": tsne1,
       "tsne2": tsne2,
-      "clusters": cluster_sab,
+      "clusters": self.getVector("cluster_assignments"),
       "iteration": self._lastIter
     }
+
+    // var iterator = setInterval(() => {
+
+    //   if (self.init_tsne.iterations() >= iterations) {
+    //     clearInterval(iterator);
+    //   }
+
+
+    //   var sh_tsne = self.getVector("tsne") //new SharedArrayBuffer(this.filteredMatrix.ncol());
+    //   // sh_tsne.set(self.getVector("tsne"));
+
+    //   var tsne1 = new Float64Array(new SharedArrayBuffer(self.filteredMatrix.ncol() * 8)),
+    //     tsne2 = new Float64Array(new SharedArrayBuffer(self.filteredMatrix.ncol() * 8));
+    //   for (var i = 0; i < sh_tsne.length; i++) {
+    //     if (i % 2 == 0) {
+    //       // tsne1.push(sh_tsne[i]);
+    //       tsne1[parseInt(i / 2)] = sh_tsne[i];
+    //     }
+    //     else {
+    //       // tsne2.push(sh_tsne[i]);
+    //       // sample.push("sample");
+    //       tsne2[Math.floor(i / 2)] = sh_tsne[i];
+    //     }
+    //   }
+
+    //   postMessage({
+    //     type: "TSNE",
+    //     resp: {
+    //       "tsne1": tsne1,
+    //       "tsne2": tsne2,
+    //       "iteration": self.init_tsne.iterations()
+    //     },
+    //     msg: `Success: TSNE done, ${self.filteredMatrix.nrow()}, ${self.filteredMatrix.ncol()}`
+    //   });
+
+    //   self.wasm.run_tsne(self.init_tsne, delay, iterations, tsne.ptr);
+    // }, delay);
+
+    // var sh_tsne = self.getVector("tsne") //new SharedArrayBuffer(this.filteredMatrix.ncol());
+    // // sh_tsne.set(self.getVector("tsne"));
+
+    // var tsne1 = new Float64Array(new SharedArrayBuffer(self.filteredMatrix.ncol() * 8)),
+    //   tsne2 = new Float64Array(new SharedArrayBuffer(self.filteredMatrix.ncol() * 8));
+    // for (var i = 0; i < sh_tsne.length; i++) {
+    //   if (i % 2 == 0) {
+    //     // tsne1.push(sh_tsne[i]);
+    //     tsne1[parseInt(i / 2)] = sh_tsne[i];
+    //   }
+    //   else {
+    //     // tsne2.push(sh_tsne[i]);
+    //     // sample.push("sample");
+    //     tsne2[Math.floor(i / 2)] = sh_tsne[i];
+    //   }
+    // }
+
+    // var cluster_sab = new Uint32Array(new SharedArrayBuffer(self.filteredMatrix.ncol() * 8));
+    // self.getVector("cluster_assignments").map((x, i) => cluster_sab[i] = x);
+
+    // return {
+    //   "tsne1": tsne1,
+    //   "tsne2": tsne2,
+    //   "clusters": cluster_sab,
+    //   "iteration": self._lastIter
+    // }
   }
 
   cluster(k, res) {

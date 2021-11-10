@@ -100,10 +100,111 @@
   z-index: 3;
 }
 
-.item-content {
+.item-content-loadData {
+  position: relative;
+  width: 300px;
+  height: 160px;
+  text-align: center;
+  margin: 3px;
+  /* background: grey; */
+  /* font-size: 50px; */
+  color: grey;
+  cursor: pointer;
+  transition: width 0.3s ease, height 0.3s ease;
+}
+
+.item-content-qc {
+  position: relative;
+  width: 900px;
+  height: 230px;
+  text-align: center;
+  margin: 3px;
+  overflow: hidden;
+  /* background: grey; */
+  /* font-size: 50px; */
+  color: grey;
+  cursor: pointer;
+  transition: width 0.3s ease, height 0.3s ease;
+}
+
+#qc-charts {
+  justify-content: center;
+}
+
+.item-content-fSelection {
+  position: relative;
+  width: 900px;
+  height: 300px;
+  text-align: center;
+  margin: 3px;
+  overflow: hidden;
+  /* background: grey; */
+  /* font-size: 50px; */
+  color: grey;
+  cursor: pointer;
+  transition: width 0.3s ease, height 0.3s ease;
+}
+
+.item-content-cluster {
+  position: relative;
+  width: 300px;
+  height: 450px;
+  text-align: center;
+  margin: 3px;
+  overflow: hidden;
+  /* background: grey; */
+  /* font-size: 50px; */
+  color: grey;
+  cursor: pointer;
+  transition: width 0.3s ease, height 0.3s ease;
+}
+
+.item-content-pca {
+  position: relative;
+  width: 300px;
+  height: 450px;
+  text-align: center;
+  margin: 3px;
+  overflow: hidden;
+  /* background: grey; */
+  /* font-size: 50px; */
+  color: grey;
+  cursor: pointer;
+  transition: width 0.3s ease, height 0.3s ease;
+}
+
+.item-content-tsne {
   position: relative;
   width: 500px;
-  height: 200px;
+  height: 500px;
+  /* text-align: center; */
+  margin: 3px;
+  overflow: hidden;
+  /* background: grey; */
+  /* font-size: 50px; */
+  color: grey;
+  cursor: pointer;
+  transition: width 0.3s ease, height 0.3s ease;
+}
+
+.item-content-markerGene {
+  position: relative;
+  width: 600px;
+  height: 300px;
+  text-align: center;
+  margin: 3px;
+  overflow: hidden;
+  /* background: grey; */
+  /* font-size: 50px; */
+  color: grey;
+  cursor: pointer;
+  transition: width 0.3s ease, height 0.3s ease;
+}
+
+.item-content {
+  position: relative;
+  width: 300px;
+  height: 100px;
   text-align: center;
   /* background: grey; */
   /* font-size: 50px; */
