@@ -218,7 +218,7 @@ class App {
                 var x = [];
                 var key = "var_exp";
                 var cont = document.getElementById("pca_charts");
-                // cont.innerHTML = "";
+                cont.innerHTML = "";
                 if (cont.querySelector(`pca_${key}`)) {
                     cont.querySelector(`pca_${key}`).remove();
                 }

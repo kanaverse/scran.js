@@ -14,32 +14,35 @@ class scranSTATE {
   diff(options) {
     var self = this;
     // could do something smarter later
+
     if (this.state.files != options.files) {
-      return 0;
-    } else {
-      // in this order
-      var paramlist = ["qc", "fSelection", "pca", "cluster", "tsne", "markerGene"];
-
-      var step = 1;
-
-      for (const [idx, m] of paramlist.entries()) {
-        if (self.state.params[m] != options.params[m]) {
-          // since iteration is 0-indexing
-          step = i + 1;
+      var match = 0;
+      for (const [idx, m] of this.state.files.entries()) {
+        if (JSON.stringify(m[0]) != JSON.stringify(options.files[idx][0])) {
+          match++;
           break;
         }
       }
-
-      // paramlist.forEach((m,i) => {
-      //   if (self.state.params[m] != options.params[m]) {
-      //     // since iteration is 0-indexing
-      //     step = i + 1;
-      //     break;
-      //   }
-      // })
-
-      return step;
     }
+
+    if (match > 0) {
+      return 0;
+    }
+
+    // in this order
+    var paramlist = ["qc", "fSelection", "pca", "cluster", "tsne", "markerGene"];
+
+    var step = 1;
+
+    for (const [idx, m] of paramlist.entries()) {
+      if (JSON.stringify(self.state.params[m]) != JSON.stringify(options.params[m])) {
+        // since iteration is 0-indexing
+        step = idx + 1;
+        break;
+      }
+    }
+
+    return step;
   }
 }
 

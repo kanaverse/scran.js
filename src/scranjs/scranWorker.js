@@ -77,6 +77,7 @@ function run_steps(step, state) {
         case 5:
             var t0 = performance.now();
             var resp = data.tsne(state.params.tsne["tsne-perp"], state.params.tsne["tsne-iter"]);
+
             postMessage({
                 type: `${state_list[step]}_DATA`,
                 resp: JSON.parse(JSON.stringify(resp)),
@@ -94,6 +95,7 @@ function run_steps(step, state) {
                 msg: `Success: MARKER_GENE done, ${data.filteredMatrix.nrow()}, ${data.filteredMatrix.ncol()}` + " took " + (t1 - t0) + " milliseconds."
             });
             step++;
+            break;
         default:
             console.log(`${step} invalid`);
             break;
@@ -127,9 +129,9 @@ onmessage = function (msg) {
         if (!state.get_state()) {
             state.set_state(payload.payload);
         } else {
-            var diff = state.diff(payload.payload);
+            diff = state.diff(payload.payload);
         }
-
+        state.set_state(payload.payload);
         run_steps(diff, state.get_state());
     } 
     // custom events from UI
