@@ -8,9 +8,17 @@ class App {
         // initialize GRID
         // items are draggable
         var grid = new Muuri('.grid', {
+            items: '.item',
             dragEnabled: true,
-            dragHandle: ".item-content"
+            dragHandle: ".card-title"
         });
+
+        // const classes = [".item-loadData", ".item-qc", ".item-fSelection",
+        //     ".item-tsne", ".item-pca", ".item-cluster", ".item-markerGene"];
+        // var elems = classes.map(x => document.querySelector(x));
+
+        // hide elements by default
+        grid.hide(grid.getItems(), { instant: true });
 
         this.worker = new Worker(
             new URL("../../../scranjs/scranWorker.js", import.meta.url),
@@ -44,15 +52,14 @@ class App {
         })
 
         // test, double click on the element and it should resize
-        document.addEventListener('dblclick', (e) => {
-            var itemElement = e.target.closest('.item');
-            if (!itemElement) return;
+        // document.addEventListener('dblclick', (e) => {
+        //     var itemElement = e.target.closest('.item');
+        //     if (!itemElement) return;
+        //     var item = grid.getItems(itemElement)[0];
+        //     if (!item) return;
+        //     resizeItem(item, item._width, item._height === 200 ? 410 : 200);
+        // });
 
-            var item = grid.getItems(itemElement)[0];
-            if (!item) return;
-
-            resizeItem(item, item._width, item._height === 200 ? 410 : 200);
-        });
 
         // dom elements to keep track of for variables 
         var files = ["mtx-upload-file", "barcodes-upload-file", "genes-upload-file"];
@@ -196,22 +203,119 @@ class App {
                 });
             } else if (payload.type == "fSelection_DATA") {
                 const payload = msg.data;
-                var keys = ["genes", "means", "vars", "fitted", "resids"];
-                var isGene = false // payload.resp["genes"] != null;
-                var table = [];
 
-                for (var i = 0; i < 10; i++) {
-                    var tr = isGene ? `<td>${payload.resp["genes"][i]["gene"]}</td>` : `<td>Gene-${i}</td>`;
-                    tr += `<td>${payload.resp["means"][i]}</td><td>${payload.resp["vars"][i]}</td><td>${payload.resp["fitted"][i]}</td><td>${payload.resp["resids"][i]}</td>`
-                    table.push(`<tr>${tr}</tr>`);
+                // var genes = payload.resp["genes"]
+                // if (!genes) {
+                //     genes = [];
+                //     for (var i=0; i < Object.values(payload.resp["means"]).length; i++) {
+                //         genes.push("gene" + i);
+                //     }
+                // }
+
+                // var x = Object.values(payload.resp["means"]),
+                // y = Object.values(payload.resp["vars"]);
+
+                // if (!self.fSelViz) {
+                //     var cont = document.getElementById("fsel_charts");
+                //     cont.innerHTML = "";
+
+                //     var elem = document.createElement("div");
+                //     elem.class = ".fSel"
+                //     elem.style.width = "4750px";
+                //     elem.style.height = "475px";
+                //     cont.appendChild(elem);
+
+                //     const visualization = new WebGLVis(elem);
+                //     visualization.addToDom();
+                //     visualization.setSpecification({
+                //         defaultData: {
+                //             "x": x,
+                //             "y": y
+                //         },
+                //         tracks: [
+                //             {
+                //                 "mark": "point",
+                //                 "x": {
+                //                     "attribute": "x",
+                //                     "type": "quantitative",
+                //                     "domain": [Math.min(...x), Math.max(...x)]
+                //                 },
+                //                 "y": {
+                //                     "attribute": "y",
+                //                     "type": "quantitative",
+                //                     "domain": [Math.min(...y), Math.max(...y)]
+                //                 },
+                //                 "size": { "value": 2 },
+                //                 "opacity": { "value": 0.65 }
+                //             },
+                //         ],
+                //     });
+
+                //     self.fSelViz = visualization;
+                // } else {
+                //     self.fSelViz.setSpecification({
+                //         defaultData: {
+                //             "x": x,
+                //             "y": y,
+                //         },
+                //         tracks: [
+                //             {
+                //                 "mark": "point",
+                //                 "x": {
+                //                     "attribute": "x",
+                //                     "type": "quantitative",
+                //                     "domain": [Math.min(...x), Math.max(...y)]
+                //                 },
+                //                 "y": {
+                //                     "attribute": "y",
+                //                     "type": "quantitative",
+                //                     "domain": [Math.min(...x), Math.max(...y)]
+                //                 },
+                //                 "size": { "value": 2 },
+                //                 "opacity": { "value": 0.65 }
+                //             },
+                //         ],
+                //     });
+                // }
+
+                // plotly version - not great
+                var x = [];
+                var key = "var_exp";
+                var cont = document.getElementById("fsel_charts");
+                cont.innerHTML = "";
+                if (cont.querySelector(`fsel_${key}`)) {
+                    cont.querySelector(`fsel_${key}`).remove();
+                }
+                var elem = document.createElement("div");
+                elem.id = `fsel_${key}`;
+                cont.appendChild(elem);
+
+                var genes = payload.resp["genes"]
+                if (!genes) {
+                    genes = [];
+                    for (var i = 0; i < Object.values(payload.resp["means"]).length; i++) {
+                        genes.push("gene" + i);
+                    }
                 }
 
-                var columns = isGene ? keys : keys.slice(1);
-                var clusterize = new Clusterize({
-                    rows: table,
-                    scrollId: 'scrollArea',
-                    contentId: 'contentArea'
-                });
+                var data = [
+                    {
+                        x: Object.values(payload.resp["means"]),
+                        y: Object.values(payload.resp["vars"]),
+                        text: genes,
+                        mode: "markers",
+                        type: 'scatter'
+                    }
+                ];
+
+                var layout = {
+                    title: "means vs variance",
+                    autosize: true,
+                    width: 500,
+                    height: 500,
+                }
+
+                Plotly.newPlot(elem.id, data, layout, { responsive: true });
             } else if (payload.type == "pca_DATA") {
 
                 const payload = msg.data;
@@ -239,10 +343,13 @@ class App {
                 ];
 
                 var layout = {
-                    title: "% variance explained"
+                    title: "% variance explained",
+                    autosize: false,
+                    width: 300,
+                    height: 450,
                 }
 
-                Plotly.newPlot(elem.id, data, layout);
+                Plotly.newPlot(elem.id, data, layout, { responsive: true });
             } else if (payload.type == "tsne_DATA" || payload.type == "tsne_iter") {
                 // setTimeout(() => {
                 const payload = msg.data;
@@ -399,7 +506,10 @@ class App {
                 ];
 
                 var layout = {
-                    title: "Cells per cluster"
+                    title: "Cells per cluster",
+                    autosize: false,
+                    width: 300,
+                    height: 450,
                 }
 
                 Plotly.newPlot(elem.id, data, layout);
@@ -442,7 +552,43 @@ class App {
                 cont.innerHTML = "Top Markers : " + text;
 
             }
-
+            // show/hide elements in muuri based on status
+            else if (payload.type == "load_DONE") {
+                var elem = document.querySelector(".item-loadData");
+                var melem = grid.getItem(elem);
+                grid.show([melem]);
+                grid.refreshItems().layout();
+            } else if (payload.type == "qc_DONE") {
+                var elem = document.querySelector(".item-qc");
+                var melem = grid.getItem(elem);
+                grid.show([melem]);
+                grid.refreshItems().layout();
+            } else if (payload.type == "fSelection_DONE") {
+                var elem = document.querySelector(".item-fSelection");
+                var melem = grid.getItem(elem);
+                grid.show([melem]);
+                grid.refreshItems().layout();
+            } else if (payload.type == "pca_DONE") {
+                var elem = document.querySelector(".item-pca");
+                var melem = grid.getItem(elem);
+                grid.show([melem]);
+                grid.refreshItems().layout();
+            } else if (payload.type == "cluster_DONE") {
+                var elem = document.querySelector(".item-cluster");
+                var melem = grid.getItem(elem);
+                grid.show([melem]);
+                grid.refreshItems().layout();
+            } else if (payload.type == "tsne_DONE") {
+                var elem = document.querySelector(".item-tsne");
+                var melem = grid.getItem(elem);
+                grid.show([melem]);
+                grid.refreshItems().layout();
+            } else if (payload.type == "markerGene_DONE") {
+                var elem = document.querySelector(".item-markerGene");
+                var melem = grid.getItem(elem);
+                grid.show([melem]);
+                grid.refreshItems().layout();
+            }
         }
 
         // need to send an INIT 

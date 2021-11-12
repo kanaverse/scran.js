@@ -12,90 +12,170 @@ function run_steps(step, state) {
     var self = this;
     const state_list = ["load", "qc", "fSelection", "pca", "cluster", "tsne", "markerGene"];
 
+    // TODO: need to return error messages, but it stops when there's an error in 
+    // a particular step
     switch (step) {
         case 0:
-            var t0 = performance.now();
-            data.mountFiles(state.files);
-            var t1 = performance.now();
-            
-            postMessage({
-                type: `${state_list[step]}_DIMS`,
-                resp: `${data.matrix.nrow()} X ${data.matrix.ncol()}`,
-                msg: `Success: Data loaded, dimensions: ${data.matrix.nrow()}, ${data.matrix.ncol()}`
-            });
+            try {
+                var t0 = performance.now();
+                data.mountFiles(state.files);
+                var t1 = performance.now();
 
-            step++;
+                var ftime = (t1 - t0) / 1000;
+                postMessage({
+                    type: `${state_list[step]}_DONE`,
+                    resp: `~${ftime.toFixed(2)} sec`,
+                    msg: 'Done'
+                });
+
+                postMessage({
+                    type: `${state_list[step]}_DIMS`,
+                    resp: `${data.matrix.nrow()} X ${data.matrix.ncol()}`,
+                    msg: `Success: Data loaded, dimensions: ${data.matrix.nrow()}, ${data.matrix.ncol()}`
+                });
+
+                step++;
+            } catch (error) {
+                break;
+            }
         case 1:
-            var t0 = performance.now();
-            var resp = data.qcMetrics(state.params.qc["qc-nmads"]);
-            var t1 = performance.now();
+            try {
+                var t0 = performance.now();
+                var resp = data.qcMetrics(state.params.qc["qc-nmads"]);
+                var t1 = performance.now();
 
-            postMessage({
-                type: `${state_list[step]}_DIMS`,
-                resp: `${data.filteredMatrix.nrow()} X ${data.filteredMatrix.ncol()}`,
-                msg: `Success: Data filtered, dimensions: ${data.filteredMatrix.nrow()}, ${data.filteredMatrix.ncol()}`
-            });
+                var ftime = (t1 - t0) / 1000;
+                postMessage({
+                    type: `${state_list[step]}_DONE`,
+                    resp: `~${ftime.toFixed(2)} sec`,
+                    msg: 'Done'
+                });
 
-            postMessage({
-                type: `${state_list[step]}_DATA`,
-                resp: JSON.parse(JSON.stringify(resp)),
-                msg: `Success: QC Complete, ${data.filteredMatrix.nrow()}, ${data.filteredMatrix.ncol()}`
-            });
+                postMessage({
+                    type: `${state_list[step]}_DIMS`,
+                    resp: `${data.filteredMatrix.nrow()} X ${data.filteredMatrix.ncol()}`,
+                    msg: `Success: Data filtered, dimensions: ${data.filteredMatrix.nrow()}, ${data.filteredMatrix.ncol()}`
+                });
 
-            step++;
+                postMessage({
+                    type: `${state_list[step]}_DATA`,
+                    resp: JSON.parse(JSON.stringify(resp)),
+                    msg: `Success: QC Complete, ${data.filteredMatrix.nrow()}, ${data.filteredMatrix.ncol()}`
+                });
+
+                step++;
+            } catch (error) {
+                break;
+            }
         case 2:
-            var t0 = performance.now();
-            var resp = data.fSelection(state.params.fSelection["fsel-span"]);
-            postMessage({
-                type: `${state_list[step]}_DATA`,
-                resp: JSON.parse(JSON.stringify(resp)),
-                msg: `Success: FSEL done, ${data.filteredMatrix.nrow()}, ${data.filteredMatrix.ncol()}`
-            });
-            step++;
+            try {
+                var t0 = performance.now();
+                var resp = data.fSelection(state.params.fSelection["fsel-span"]);
+
+                var ftime = (t1 - t0) / 1000;
+                postMessage({
+                    type: `${state_list[step]}_DONE`,
+                    resp: `~${ftime.toFixed(2)} sec`,
+                    msg: 'Done'
+                });
+
+                postMessage({
+                    type: `${state_list[step]}_DATA`,
+                    resp: JSON.parse(JSON.stringify(resp)),
+                    msg: `Success: FSEL done, ${data.filteredMatrix.nrow()}, ${data.filteredMatrix.ncol()}`
+                });
+
+                step++;
+            } catch (error) {
+                break;
+            }
         case 3:
-            var t0 = performance.now();
-            var resp = data.PCA(state.params.pca["pca-npc"]);
-            var t1 = performance.now();
+            try {
+                var t0 = performance.now();
+                var resp = data.PCA(state.params.pca["pca-npc"]);
+                var t1 = performance.now();
+                
+                var ftime = (t1 - t0) / 1000;
+                postMessage({
+                    type: `${state_list[step]}_DONE`,
+                    resp: `~${ftime.toFixed(2)} sec`,
+                    msg: 'Done'
+                });
 
-            postMessage({
-                type: `${state_list[step]}_DATA`,
-                resp: JSON.parse(JSON.stringify(resp)),
-                msg: `Success: PCA done, ${data.filteredMatrix.nrow()}, ${data.filteredMatrix.ncol()}` + " took " + (t1 - t0) + " milliseconds."
-            });
-            step++;
+                postMessage({
+                    type: `${state_list[step]}_DATA`,
+                    resp: JSON.parse(JSON.stringify(resp)),
+                    msg: `Success: PCA done, ${data.filteredMatrix.nrow()}, ${data.filteredMatrix.ncol()}` + " took " + (t1 - t0) + " milliseconds."
+                });
+                step++;
+            } catch (error) {
+                break;
+            }
         case 4:
-            var t0 = performance.now();
-            var resp = data.cluster(state.params.cluster["clus-k"], state.params.cluster["clus-res"]);
-            var t1 = performance.now();
+            try {
+                var t0 = performance.now();
+                var resp = data.cluster(state.params.cluster["clus-k"], state.params.cluster["clus-res"]);
+                var t1 = performance.now();
 
-            postMessage({
-                type: `${state_list[step]}_DATA`,
-                resp: JSON.parse(JSON.stringify(resp)),
-                msg: `Success: CLUS done, ${data.filteredMatrix.nrow()}, ${data.filteredMatrix.ncol()}` + " took " + (t1 - t0) + " milliseconds."
-            });
-            step++;
+                var ftime = (t1 - t0) / 1000;
+                postMessage({
+                    type: `${state_list[step]}_DONE`,
+                    resp: `~${ftime.toFixed(2)} sec`,
+                    msg: 'Done'
+                });
+                
+                postMessage({
+                    type: `${state_list[step]}_DATA`,
+                    resp: JSON.parse(JSON.stringify(resp)),
+                    msg: `Success: CLUS done, ${data.filteredMatrix.nrow()}, ${data.filteredMatrix.ncol()}` + " took " + (t1 - t0) + " milliseconds."
+                });
+                step++;
+            } catch (error) {
+                break;
+            }
         case 5:
-            var t0 = performance.now();
-            var resp = data.tsne(state.params.tsne["tsne-perp"], state.params.tsne["tsne-iter"]);
+            try {
+                var t0 = performance.now();
+                var resp = data.tsne(state.params.tsne["tsne-perp"], state.params.tsne["tsne-iter"]);
 
-            postMessage({
-                type: `${state_list[step]}_DATA`,
-                resp: JSON.parse(JSON.stringify(resp)),
-                msg: `Success: TSNE done, ${data.filteredMatrix.nrow()}, ${data.filteredMatrix.ncol()}` + " took " + (t1 - t0) + " milliseconds."
-            });
-            step++;
+                var ftime = (t1 - t0) / 1000;
+                postMessage({
+                    type: `${state_list[step]}_DONE`,
+                    resp: `~${ftime.toFixed(2)} sec`,
+                    msg: 'Done'
+                });
+                
+                postMessage({
+                    type: `${state_list[step]}_DATA`,
+                    resp: JSON.parse(JSON.stringify(resp)),
+                    msg: `Success: TSNE done, ${data.filteredMatrix.nrow()}, ${data.filteredMatrix.ncol()}` + " took " + (t1 - t0) + " milliseconds."
+                });
+                step++;
+            } catch (error) {
+                break;
+            }
         case 6:
-            var t0 = performance.now();
-            var resp = data.markerGenes();
-            var t1 = performance.now();
+            try {
+                var t0 = performance.now();
+                var resp = data.markerGenes();
+                var t1 = performance.now();
 
-            postMessage({
-                type: `${state_list[step]}_DATA`,
-                resp: JSON.parse(JSON.stringify(resp)),
-                msg: `Success: MARKER_GENE done, ${data.filteredMatrix.nrow()}, ${data.filteredMatrix.ncol()}` + " took " + (t1 - t0) + " milliseconds."
-            });
-            step++;
-            break;
+                var ftime = (t1 - t0) / 1000;
+                postMessage({
+                    type: `${state_list[step]}_DONE`,
+                    resp: `~${ftime.toFixed(2)} sec`,
+                    msg: 'Done'
+                });
+                
+                postMessage({
+                    type: `${state_list[step]}_DATA`,
+                    resp: JSON.parse(JSON.stringify(resp)),
+                    msg: `Success: MARKER_GENE done, ${data.filteredMatrix.nrow()}, ${data.filteredMatrix.ncol()}` + " took " + (t1 - t0) + " milliseconds."
+                });
+                step++;
+            } catch (error) {
+                break;
+            }
         default:
             console.log(`${step} invalid`);
             break;
@@ -133,7 +213,7 @@ onmessage = function (msg) {
         }
         state.set_state(payload.payload);
         run_steps(diff, state.get_state());
-    } 
+    }
     // custom events from UI
     else if (payload.type == "setQCThresholds") {
         data.thresholds = payload.input;
@@ -157,6 +237,3 @@ onmessage = function (msg) {
         console.log("MIM:::msg type incorrect")
     }
 }
-
-
-

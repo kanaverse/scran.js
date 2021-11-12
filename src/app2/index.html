@@ -2,7 +2,7 @@
 <html>
 
 <head>
-  <title>SCRANJS - Analyze single-cell datasets in the browser</title>
+  <title>SCRANJS - Analyze single-cell datasets in the Browser</title>
 
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -14,12 +14,18 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
 
+  <link hred="//cdn.datatables.net/1.11.3/css/jquery.dataTables.min.css" , rel="stylesheet" />
+
   <!-- JavaScript Bundle with Popper -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-U1DAWAznBHeqEIlVSCgzq+c9gqGAJn5c/t99JyeKa9xxaYpSvHU5awsuZVVFIhvj"
     crossorigin="anonymous"></script>
 
   <script src="https://cdn.jsdelivr.net/npm/muuri@0.9.5/dist/muuri.min.js"></script>
+
+  <!-- welp I give up, using jquery -->
+  <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+  <script src="//cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
 
   <script type="module">
     import WebGLVis from './assets/vendor/egl/index.js';
@@ -37,7 +43,7 @@
       <!-- header -->
       <header class="pb-3 mb-4 border-bottom">
         <a href="/" class="d-flex align-items-center text-dark text-decoration-none">
-          <span class="fs-4">SCRANJS - Single Cell Analysis in the browser</span>
+          <span class="fs-4">SCRANJS - Single Cell Analysis in the Browser</span>
         </a>
       </header>
 
@@ -178,97 +184,100 @@
       <div class="grid">
 
         <!-- when datasets are loaded -->
-        <div class="item">
+        <div class="item item-loadData">
           <div class="item-content-loadData">
             <div class="card card-stats mb-0 mb-xl-0">
               <div class="card-body">
-                <div class="row">
-                  <div class="col">
-                    <h5 class="card-title text-uppercase text-muted mb-0">
-                      Dataset Dims</h5>
-                    <span id="load-data-stats" class="h2 font-weight-bold mb-0">??? x ???</span>
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col">
-                    <h5 class="card-title text-uppercase text-muted mb-0">
-                      After QC</h5>
-                    <span id="load-data-qc-stats" class="h2 font-weight-bold mb-0">??? x ???</span>
-                  </div>
-                </div>
+                <h5 class="card-title text-uppercase text-muted mb-0">
+                  Dataset Dims</h5>
+                <span id="load-data-stats" class="h2 font-weight-bold mb-0">??? x ???</span>
+                <h5 class="card-title text-uppercase text-muted mb-0">
+                  After QC</h5>
+                <span id="load-data-qc-stats" class="h2 font-weight-bold mb-0">??? x ???</span>
               </div>
             </div>
           </div>
         </div>
 
         <!-- QC item -->
-        <div class="item">
+        <div class="item item-qc">
           <div class="item-content-qc">
-            <div id="qc_charts" class="row row-cols-1 row-cols-lg-3">
-            </div>
-          </div>
-        </div>
-
-        <div class="item">
-          <div class="item-content-fSelection">
-            <div id="fsel_charts" class="flex flex-wrap justify-evenly">
-              <div class="clusterize">
-                <div id="scrollArea" class="clusterize-scroll">
-                  <table>
-                    <thead>
-                      <tr id="row_header">
-                        <th>Genes</th>
-                        <th>Means</th>
-                        <th>Vars</th>
-                        <th>Fitted</th>
-                        <th>Residuals</th>
-                      </tr>
-                    </thead>
-                    <tbody id="contentArea" class="clusterize-content">
-                      <tr class="clusterize-no-data">
-                        <td>Loading data…</td>
-                      </tr>
-                    </tbody>
-                  </table>
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">QC</h5>
+                <div id="qc_charts" class="row row-cols-1 row-cols-lg-3">
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        <div class="item">
-          <div class="item-content-pca">
-            <div id="pca_charts" class="flex flex-wrap justify-evenly">
-            </div>
-          </div>
-        </div>
-
-        <div class="item">
-          <div class="item-content-cluster">
-            <div id="clus_charts" class="flex justify-evenly">
-            </div>
-          </div>
-        </div>
-
-        <div class="item">
-          <div class="item-content-tsne">
-            <div id="tsne_charts" class="flex flex-wrap justify-evenly">
-            </div>
-          </div>
-        </div>
-
-
-        <div class="item">
-          <div class="item-content-markerGene">
-            <div id="mg_charts" class="flex justify-evenly">
-              <div id="mg_clus_selection">
-                <label>Choose a Cluster :
+        <div class="item item-fSelection">
+          <div class="item-content-fSelection">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">Feature Selection</h5>
+                <div id="fsel_charts" class="flex flex-wrap justify-evenly">
+                </div>
               </div>
-              <p id="mg_top_markers"></p>
             </div>
           </div>
         </div>
-      </div>
+
+        <div class="item item-pca">
+          <div class="item-content-pca">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">PCA</h5>
+                <div id="pca_charts" class="flex flex-wrap justify-evenly">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="item item-cluster">
+          <div class="item-content-cluster">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">Clusters</h5>
+                <div id="clus_charts" class="flex justify-evenly">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="item item-tsne">
+          <div class="item-content-tsne">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">t-SNE</h5>
+                <div id="tsne_charts" class="flex flex-wrap justify-evenly">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="item item-markerGene">
+          <div class="item-content-markerGene">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">Marker Gene Analysis</h5>
+                <div id="mg_charts" class="flex justify-evenly">
+                  <div id="mg_clus_selection">
+                    <label>Choose a Cluster :
+                  </div>
+                  <p id="mg_top_markers"></p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div> <!-- grid ends -->
+
   </main>
 
   <!-- D3JS v6 -->

@@ -83,7 +83,7 @@
   /* line-height: 200px; */
   margin: 5px;
   z-index: 1;
-  resize: both;
+  /* resize: both; */
   overflow: auto;
   border: 2px solid grey;
 }
@@ -104,10 +104,8 @@
   position: relative;
   width: 300px;
   height: 160px;
-  text-align: center;
   margin: 3px;
-  /* background: grey; */
-  /* font-size: 50px; */
+  text-align: center;
   color: grey;
   cursor: pointer;
   transition: width 0.3s ease, height 0.3s ease;
@@ -115,13 +113,10 @@
 
 .item-content-qc {
   position: relative;
-  width: 900px;
+  width: 1000px;
   height: 230px;
-  text-align: center;
-  margin: 3px;
+  margin: 5px;
   overflow: hidden;
-  /* background: grey; */
-  /* font-size: 50px; */
   color: grey;
   cursor: pointer;
   transition: width 0.3s ease, height 0.3s ease;
@@ -131,15 +126,16 @@
   justify-content: center;
 }
 
+.card-title {
+  text-align: center;
+}
+
 .item-content-fSelection {
   position: relative;
-  width: 900px;
-  height: 300px;
-  text-align: center;
-  margin: 3px;
+  width: 500px;
+  height: 500px;
+  margin: 5px;
   overflow: hidden;
-  /* background: grey; */
-  /* font-size: 50px; */
   color: grey;
   cursor: pointer;
   transition: width 0.3s ease, height 0.3s ease;
@@ -149,11 +145,8 @@
   position: relative;
   width: 300px;
   height: 450px;
-  text-align: center;
-  margin: 3px;
+  margin: 5px;
   overflow: hidden;
-  /* background: grey; */
-  /* font-size: 50px; */
   color: grey;
   cursor: pointer;
   transition: width 0.3s ease, height 0.3s ease;
@@ -163,11 +156,8 @@
   position: relative;
   width: 300px;
   height: 450px;
-  text-align: center;
-  margin: 3px;
+  margin: 5px;
   overflow: hidden;
-  /* background: grey; */
-  /* font-size: 50px; */
   color: grey;
   cursor: pointer;
   transition: width 0.3s ease, height 0.3s ease;
@@ -177,11 +167,8 @@
   position: relative;
   width: 500px;
   height: 500px;
-  /* text-align: center; */
-  margin: 3px;
+  margin: 5px;
   overflow: hidden;
-  /* background: grey; */
-  /* font-size: 50px; */
   color: grey;
   cursor: pointer;
   transition: width 0.3s ease, height 0.3s ease;
@@ -191,11 +178,8 @@
   position: relative;
   width: 600px;
   height: 300px;
-  text-align: center;
-  margin: 3px;
+  margin: 5px;
   overflow: hidden;
-  /* background: grey; */
-  /* font-size: 50px; */
   color: grey;
   cursor: pointer;
   transition: width 0.3s ease, height 0.3s ease;
@@ -205,9 +189,8 @@
   position: relative;
   width: 300px;
   height: 100px;
+  margin: 5px;
   text-align: center;
-  /* background: grey; */
-  /* font-size: 50px; */
   color: grey;
   cursor: pointer;
   transition: width 0.3s ease, height 0.3s ease;
