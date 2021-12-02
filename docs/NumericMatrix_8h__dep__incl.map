@@ -1,0 +1,12 @@
+<map id="NumericMatrix.h" name="NumericMatrix.h">
+<area shape="rect" id="node1" title="Javascript wrapper for a numeric matrix." alt="" coords="642,5,758,32"/>
+<area shape="rect" id="node2" href="$NumericMatrix_8cpp.html" title=" " alt="" coords="5,80,136,107"/>
+<area shape="rect" id="node3" href="$filter__cells_8cpp.html" title=" " alt="" coords="160,80,264,107"/>
+<area shape="rect" id="node4" href="$log__norm__counts_8cpp.html" title=" " alt="" coords="289,80,434,107"/>
+<area shape="rect" id="node5" href="$model__gene__var_8cpp.html" title="Model the mean&#45;variance relationship across all genes." alt="" coords="459,80,600,107"/>
+<area shape="rect" id="node6" href="$per__cell__qc__filters_8cpp.html" title="Define filters on the QC metrics to remove low&#45;quality cells." alt="" coords="625,80,775,107"/>
+<area shape="rect" id="node7" href="$per__cell__qc__metrics_8cpp.html" title="Compute per&#45;cell QC metrics from the count matrix." alt="" coords="800,80,963,107"/>
+<area shape="rect" id="node8" href="$read__matrix__market_8cpp.html" title=" " alt="" coords="987,80,1147,107"/>
+<area shape="rect" id="node9" href="$run__pca_8cpp.html" title="Compute the top principal components in the log&#45;expression matrix." alt="" coords="1171,80,1263,107"/>
+<area shape="rect" id="node10" href="$score__markers_8cpp.html" title="Compute marker scores for each gene in each group of cells." alt="" coords="1287,80,1419,107"/>
+</map>

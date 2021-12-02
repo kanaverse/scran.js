@@ -1,0 +1,5 @@
+<map id="PerCellQCMetrics_Results.h" name="PerCellQCMetrics_Results.h">
+<area shape="rect" id="node1" title="Store the per&#45;cell QC metrics, obviously." alt="" coords="78,5,265,32"/>
+<area shape="rect" id="node2" href="$per__cell__qc__filters_8cpp.html" title="Define filters on the QC metrics to remove low&#45;quality cells." alt="" coords="5,80,156,107"/>
+<area shape="rect" id="node3" href="$per__cell__qc__metrics_8cpp.html" title="Compute per&#45;cell QC metrics from the count matrix." alt="" coords="181,80,343,107"/>
+</map>

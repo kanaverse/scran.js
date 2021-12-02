@@ -1,0 +1,12 @@
+<map id="run_pca.cpp" name="run_pca.cpp">
+<area shape="rect" id="node1" title="Compute the top principal components in the log&#45;expression matrix." alt="" coords="395,5,487,32"/>
+<area shape="rect" id="node2" title=" " alt="" coords="5,87,129,114"/>
+<area shape="rect" id="node3" href="$NumericMatrix_8h.html" title="Javascript wrapper for a numeric matrix." alt="" coords="153,87,269,114"/>
+<area shape="rect" id="node7" title=" " alt="" coords="294,80,454,121"/>
+<area shape="rect" id="node8" title=" " alt="" coords="478,87,537,114"/>
+<area shape="rect" id="node9" title=" " alt="" coords="561,87,619,114"/>
+<area shape="rect" id="node10" title=" " alt="" coords="643,87,718,114"/>
+<area shape="rect" id="node4" href="$JSVector_8h.html" title=" " alt="" coords="107,169,193,196"/>
+<area shape="rect" id="node6" title=" " alt="" coords="217,169,325,196"/>
+<area shape="rect" id="node5" title=" " alt="" coords="117,244,183,271"/>
+</map>
