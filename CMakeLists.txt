@@ -48,9 +48,5 @@ if (NOT HAVE_ZLIB_H)
     target_link_libraries(scran_wasm zlib)
 endif()
 
+set_target_properties(scran_wasm PROPERTIES OUTPUT_NAME scran)
 set_target_properties(scran_wasm PROPERTIES LINK_FLAGS "--bind -O2 -s ALLOW_MEMORY_GROWTH=1 -s MAXIMUM_MEMORY=4GB -s FORCE_FILESYSTEM=1 -s USE_ZLIB=1 -lworkerfs.js")
-
-add_custom_command(TARGET scran_wasm POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE_BASE_NAME:scran_wasm>.js ${CMAKE_SOURCE_DIR}/../src/scranjs
-    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE_BASE_NAME:scran_wasm>.wasm ${CMAKE_SOURCE_DIR}/../src/scranjs
-)

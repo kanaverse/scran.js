@@ -9,7 +9,7 @@ jobs:
       fail-fast: false
 
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2.4.0
 
     - name: Get latest CMake
       uses: lukka/get-cmake@latest
@@ -18,18 +18,20 @@ jobs:
       uses: mymindstorm/setup-emsdk@v9
 
     - name: Configure the build
-      run: |
-        cd wasm
-        emcmake cmake -S . -B build
+      run: emcmake cmake -S . -B build
 
     - name: Run the build
       run: |
-        cd wasm/build
+        cd build
         emmake make
 
-    - uses: actions/upload-artifact@v2
+    - name: Publish binaries
+      uses: ncipollo/release-action@v1
+      if: github.ref == 'refs/heads/master'
       with:
-        name: wasm
-        path: |
-          wasm/build/scran_wasm.js
-          wasm/build/scran_wasm.wasm
+        allowUpdates: true
+        removeArtifacts: true
+        artifacts: "build/scran.js,build/scran.wasm"
+        name: latest
+        tag: latest
+        body: "Wasm binary for standard web deployments."
