@@ -23,7 +23,7 @@ jobs:
       uses: actions/cache@v2
       with:
         path: build
-        key: build-${{ runner.mode }}
+        key: build-${{ matrix.mode }}
 
     - name: Configure the build
       if: matrix.mode == 'standard'
