@@ -10,9 +10,13 @@ set(CMAKE_CXX_STANDARD 17)
 # Emscripten downloads the zlib headers for easy inclusion, but only after the
 # first use of USE_ZLIB=1. On a pristine system, these headers won't be
 # available for creation of the emcc'd object files. As such,we have to arrange
-# for them to be downloaded externally.
+# for them to be downloaded first by calling emcc manually.
 include(CheckIncludeFiles)
 check_include_files(zlib.h HAVE_ZLIB_H)
+if (HAVE_ZLIB_H)
+    execute_process(COMMAND touch ${CMAKE_CURRENT_BINARY_DIR}/dummy.cpp)
+    execute_process(COMMAND ${CMAKE_CXX_COMPILER} ${CMAKE_CURRENT_BINARY_DIR}/dummy.cpp -s USE_ZLIB=1 -o ${CMAKE_CURRENT_BINARY_DIR}/dummy.html)
+endif()
 
 add_subdirectory(extern)
 
@@ -44,9 +48,16 @@ target_link_libraries(
 )
 
 target_compile_definitions(scran_wasm PRIVATE TATAMI_USE_ZLIB=1)
-if (NOT HAVE_ZLIB_H) 
-    target_link_libraries(scran_wasm zlib)
+
+set_target_properties(scran_wasm PROPERTIES 
+    OUTPUT_NAME scran
+    LINK_FLAGS "--bind -O2 -s ALLOW_MEMORY_GROWTH=1 -s MAXIMUM_MEMORY=4GB -s FORCE_FILESYSTEM=1 -s USE_ZLIB=1"
+)
+
+set(COMPILE_NODE OFF CACHE BOOL "Compile for Node.js")
+if (NOT COMPILE_NODE)
+    set_property(TARGET scran_wasm APPEND PROPERTY LINK_FLAGS "-lworkerfs.js")
+else()
+    set_property(TARGET scran_wasm APPEND PROPERTY LINK_FLAGS "-lnode.js")
 endif()
 
-set_target_properties(scran_wasm PROPERTIES OUTPUT_NAME scran)
-set_target_properties(scran_wasm PROPERTIES LINK_FLAGS "--bind -O2 -s ALLOW_MEMORY_GROWTH=1 -s MAXIMUM_MEMORY=4GB -s FORCE_FILESYSTEM=1 -s USE_ZLIB=1 -lworkerfs.js")
