@@ -43,4 +43,9 @@ set_target_properties(scran_wasm PROPERTIES
     LINK_FLAGS "--bind -O2 -s ALLOW_MEMORY_GROWTH=1 -s MAXIMUM_MEMORY=4GB -s FORCE_FILESYSTEM=1 -s USE_ZLIB=1"
 )
 
-set_property(TARGET scran_wasm APPEND PROPERTY LINK_FLAGS "-lworkerfs.js")
+set(COMPILE_NODE OFF CACHE BOOL "Compile for Node.js")
+if (NOT COMPILE_NODE)
+    set_property(TARGET scran_wasm APPEND PROPERTY LINK_FLAGS "-lworkerfs.js")
+else()
+    set_property(TARGET scran_wasm APPEND PROPERTY LINK_FLAGS "-lnode.js")
+endif()

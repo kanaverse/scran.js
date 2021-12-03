@@ -7,6 +7,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
+      matrix:
+        mode: [standard, node]
 
     steps:
     - uses: actions/checkout@v2.4.0
@@ -21,10 +23,15 @@ jobs:
       uses: actions/cache@v2
       with:
         path: build
-        key: build
+        key: build-${{ runner.mode }}
 
     - name: Configure the build
+      if: matrix.mode == "standard"
       run: emcmake cmake -S . -B build
+
+    - name: Configure the build
+      if: matrix.mode == "node"
+      run: emcmake cmake -S . -B build -D COMPILE_NODE=ON
 
     - name: Run the build
       run: |
@@ -33,11 +40,11 @@ jobs:
 
     - name: Publish binaries
       uses: ncipollo/release-action@v1
-      if: github.ref == 'refs/heads/master'
+      if: github.ref == 'refs/heads/master' && (matrix.mode == "standard" || matrix.mode == "node")
       with:
         allowUpdates: true
         removeArtifacts: true
         artifacts: "build/scran.js,build/scran.wasm"
-        name: latest
-        tag: latest
-        body: "Wasm binary for standard web deployments."
+        name: latest-${{ matrix.mode }}
+        tag: latest-${{ matrix.mode }}
+        body: format("Wasm binary (`{0}`).", ${{ matrix.mode }}) 
