@@ -7,17 +7,6 @@ project(scran_wasm
 
 set(CMAKE_CXX_STANDARD 17)
 
-# Emscripten downloads the zlib headers for easy inclusion, but only after the
-# first use of USE_ZLIB=1. On a pristine system, these headers won't be
-# available for creation of the emcc'd object files. As such,we have to arrange
-# for them to be downloaded first by calling emcc manually.
-include(CheckIncludeFiles)
-check_include_files(zlib.h HAVE_ZLIB_H)
-if (HAVE_ZLIB_H)
-    execute_process(COMMAND touch ${CMAKE_CURRENT_BINARY_DIR}/dummy.cpp)
-    execute_process(COMMAND ${CMAKE_CXX_COMPILER} ${CMAKE_CURRENT_BINARY_DIR}/dummy.cpp -s USE_ZLIB=1 -o ${CMAKE_CURRENT_BINARY_DIR}/dummy.html)
-endif()
-
 add_subdirectory(extern)
 
 add_executable(
