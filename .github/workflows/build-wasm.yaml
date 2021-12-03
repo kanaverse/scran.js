@@ -17,6 +17,12 @@ jobs:
     - name: Get emscripten
       uses: mymindstorm/setup-emsdk@v9
 
+    - name: Cache the build directory
+      uses: actions/cache@v2
+      with:
+        path: build
+        key: build
+
     - name: Configure the build
       run: emcmake cmake -S . -B build
 

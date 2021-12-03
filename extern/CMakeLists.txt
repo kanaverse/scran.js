@@ -1,10 +1,33 @@
 cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
-execute_process(COMMAND bash generate.sh
-                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/igraph)
-set(F2C_EXTERNAL_ARITH_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/igraph/arith.h" CACHE FILEPATH "" FORCE)
+# Building the arith.h file for igraph (required from libscran).
+set(ARITH_DIR "${CMAKE_CURRENT_BINARY_DIR}/igraph")
+set(ARITH_H_PATH "${ARITH_DIR}/arith.h")
+if(NOT EXISTS ${ARITH_H_PATH})
+    file(MAKE_DIRECTORY ${ARITH_DIR})
+    if(NOT EXISTS "${ARITH_DIR}/arithchk.c")
+        file(DOWNLOAD https://raw.githubusercontent.com/igraph/igraph/298c0ac9777869090de2b3bca94a4d17cd5564fa/vendor/f2c/arithchk.c "${ARITH_DIR}/arithchk.c")
+    endif()
+    execute_process(COMMAND ${CMAKE_C_COMPILER} arithchk.c -lm -DNO_FPINIT -o arithchk.js WORKING_DIRECTORY ${ARITH_DIR})
+    execute_process(COMMAND node arithchk.js OUTPUT_FILE arith.h WORKING_DIRECTORY ${ARITH_DIR})
+endif()
+set(F2C_EXTERNAL_ARITH_HEADER ${ARITH_H_PATH} CACHE FILEPATH "" FORCE)
 set(IGRAPH_WARNINGS_AS_ERRORS OFF CACHE BOOL "" FORCE)
 
+# Emscripten downloads the zlib headers for easy inclusion, but only after the
+# first use of USE_ZLIB=1. On a pristine system, these headers won't be
+# available for creation of the emcc'd object files. As such,we have to arrange
+# for them to be downloaded first by calling emcc manually.
+include(CheckIncludeFiles)
+check_include_files(zlib.h HAVE_ZLIB_H)
+if (NOT HAVE_ZLIB_H)
+    set(ZLIB_DIR "${CMAKE_CURRENT_BINARY_DIR}/zlib")
+    file(MAKE_DIRECTORY ${ZLIB_DIR})
+    execute_process(COMMAND touch dummy.cpp WORKING_DIRECTORY ${ZLIB_DIR})
+    execute_process(COMMAND ${CMAKE_CXX_COMPILER} dummy.cpp -s USE_ZLIB=1 -o dummy.html WORKING_DIRECTORY ${ZLIB_DIR})
+endif()
+
+# Fetching all the other content.
 include(FetchContent)
 
 FetchContent_Declare(
@@ -20,28 +43,6 @@ FetchContent_Declare(
   GIT_TAG master
 )
 FetchContent_MakeAvailable(irlba)
-
-if (NOT HAVE_ZLIB_H)
-    # Pulling zlib from the port repository, which should hopefully
-    # be similar enough to whatever emcc is pulling down when USE_ZLIB=1.
-    # We just need it for the headers so we won't bother building it,
-    # given that they'll be linked to the right WASM file later on.
-    FetchContent_Declare(
-      zlib
-      GIT_REPOSITORY https://github.com/emscripten-ports/zlib
-      GIT_TAG master
-      CONFIGURE_COMMAND ""
-      BUILD_COMMAND ""
-    )
-
-    FetchContent_GetProperties(zlib)
-    if(NOT zlib_POPULATED)
-      FetchContent_Populate(zlib)
-    endif()
-
-    add_library(zlib INTERFACE)
-    target_include_directories(zlib INTERFACE ${zlib_SOURCE_DIR})
-endif()
 
 FetchContent_Declare(
   qdtsne 
