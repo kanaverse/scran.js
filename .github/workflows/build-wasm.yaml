@@ -26,11 +26,11 @@ jobs:
         key: build-${{ runner.mode }}
 
     - name: Configure the build
-      if: matrix.mode == "standard"
+      if: matrix.mode == 'standard'
       run: emcmake cmake -S . -B build
 
     - name: Configure the build
-      if: matrix.mode == "node"
+      if: matrix.mode == 'node'
       run: emcmake cmake -S . -B build -D COMPILE_NODE=ON
 
     - name: Run the build
@@ -40,7 +40,7 @@ jobs:
 
     - name: Publish binaries
       uses: ncipollo/release-action@v1
-      if: github.ref == 'refs/heads/master' && (matrix.mode == "standard" || matrix.mode == "node")
+      if: github.ref == 'refs/heads/master' && (matrix.mode == 'standard' || matrix.mode == 'node')
       with:
         allowUpdates: true
         removeArtifacts: true
