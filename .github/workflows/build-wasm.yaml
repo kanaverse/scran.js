@@ -19,12 +19,6 @@ jobs:
     - name: Get emscripten
       uses: mymindstorm/setup-emsdk@v9
 
-    - name: Cache the build directory
-      uses: actions/cache@v2
-      with:
-        path: build
-        key: build-${{ matrix.mode }}
-
     - name: Configure the build for web
       if: matrix.mode == 'web'
       run: emcmake cmake -S . -B build
