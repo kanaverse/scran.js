@@ -9,8 +9,7 @@
 #endif
 
 #include "tatami/ext/MatrixMarket.hpp"
-
-#ifndef USE_NODE_FS
+#include <string>
 
 // Stolen from 'inf()' at http://www.zlib.net/zpipe.c,
 // with some shuffling of code to make it a bit more C++-like.
@@ -158,37 +157,6 @@ NumericMatrix read_matrix_market(uintptr_t buffer, int size, bool compressed) {
         return process(stuff);
     }
 }
-
-#else
-
-#include <string>
-
-/**
- * Read a (possibly compressed) Matrix Market file into a sparse `NumericMatrix` object.
- * The file should only contain non-negative integer values.
- *
- * @param path Path to the MatrixMarket file of interest.
- * @param compressed Whether the file is Gzip-compressed.
- *
- * @return A `NumericMatrix` object containing the file contents.
- */
-NumericMatrix read_matrix_market(std::string path, bool compressed) {
-    auto process = [&](auto& stuff) {
-        NumericMatrix output(std::move(stuff.matrix));
-        output.permutation = stuff.permutation;
-        return output;
-    };
-
-    if (compressed) {
-        auto stuff = tatami::MatrixMarket::load_layered_sparse_matrix_gzip(path.c_str());
-        return process(stuff);
-    } else {
-        auto stuff = tatami::MatrixMarket::load_layered_sparse_matrix(path.c_str());
-        return process(stuff);
-    }
-}
-
-#endif
 
 /**
  * @cond
