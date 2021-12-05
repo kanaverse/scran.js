@@ -26,7 +26,7 @@ add_executable(
 )
 
 target_compile_options(
-    scran_wasm PUBLIC "-O2"
+    scran_wasm PUBLIC -O2 -s USE_PTHREADS=1
 )
 
 target_link_libraries(
@@ -38,10 +38,21 @@ target_link_libraries(
 
 target_compile_definitions(scran_wasm PRIVATE TATAMI_USE_ZLIB=1)
 
+
 set_target_properties(scran_wasm PROPERTIES 
     OUTPUT_NAME scran
-    LINK_FLAGS "--bind -O2 -s ALLOW_MEMORY_GROWTH=1 -s MAXIMUM_MEMORY=4GB -s FORCE_FILESYSTEM=1 -s USE_ZLIB=1 -s SINGLE_FILE=1"
+    LINK_FLAGS "--bind -s ALLOW_MEMORY_GROWTH=1 -s MAXIMUM_MEMORY=4GB -s FORCE_FILESYSTEM=1 -s USE_ZLIB=1 -s SINGLE_FILE=1"
 )
+
+# Adding flags for threaded compilation.
+set(COMPILE_PTHREADS ON CACHE BOOL "Compile with pthreads")
+if (COMPILE_PTHREADS)
+    set(EM_NTHREADS "Math.ceil(navigator.hardwareConcurrency*2/3)")
+    target_compile_definitions(scran_wasm PRIVATE "EMSCRIPTEN_NUM_THREADS_EXPRESSION=${EM_NTHREADS}")
+    set_property(TARGET scran_wasm APPEND APPEND_STRING PROPERTY LINK_FLAGS " -s USE_PTHREADS=1 -s PTHREAD_POOL_SIZE='${EM_NTHREADS}'")
+    target_sources(scran_wasm PRIVATE src/parallel.cpp)
+endif()
+
 
 set(COMPILE_NODE OFF CACHE BOOL "Compile for Node.js")
 if (COMPILE_NODE)

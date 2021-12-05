@@ -2,6 +2,7 @@
 
 #include "NumericMatrix.h"
 #include "utils.h"
+#include "parallel.h"
 #include "PerCellQCMetrics_Results.h"
 
 #include "scran/quality_control/PerCellQCMetrics.hpp"
@@ -48,7 +49,7 @@ PerCellQCMetrics_Results per_cell_qc_metrics(const NumericMatrix& mat, int nsubs
         auto current = tatami::make_DelayedSubsetBlock<1>(mat.ptr, left, right);
         scran::PerCellQCMetrics qc;
         qc.run(current.get(), subptrs, outsum + left, outdet + left, std::move(propcopy));
-    }, mat.ncol(), EMSCRIPTEN_NUM_THREADS);
+    }, mat.ncol());
 
     return PerCellQCMetrics_Results(std::move(full_output));
 #else
