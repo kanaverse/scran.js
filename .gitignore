@@ -1,13 +1,5 @@
-# node modules
-node_modules
-
-# parcel cache
-.cache
-
-# parcel dist
-.parcel-cache
-data
-dist
-
-# wasm CMake builds
-wasm/build
+build
+docs/html/
+docs/latex/
+*.swp
+testing

@@ -97,7 +97,7 @@ TsneStatus initialize_tsne(uintptr_t mat, int nr, int nc, double perplexity, boo
     return TsneStatus(factory.template initialize<>(iptrs, dptrs, k));
 #else
     qdtsne::Tsne factory;
-    factory.set_perplexity(perplexity);
+    factory.set_perplexity(perplexity).set_max_depth(7).set_interpolation(100);
     return TsneStatus(factory.template initialize<>(search.get()));
 #endif
 }

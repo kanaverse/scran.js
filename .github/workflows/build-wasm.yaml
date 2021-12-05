@@ -7,9 +7,11 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
+      matrix:
+        mode: [web, node]
 
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2.4.0
 
     - name: Get latest CMake
       uses: lukka/get-cmake@latest
@@ -17,19 +19,37 @@ jobs:
     - name: Get emscripten
       uses: mymindstorm/setup-emsdk@v9
 
-    - name: Configure the build
-      run: |
-        cd wasm
-        emcmake cmake -S . -B build
+    - name: Configure the build for web
+      if: matrix.mode == 'web'
+      run: emcmake cmake -S . -B build
+
+    - name: Configure the build for Node.js
+      if: matrix.mode == 'node'
+      run: emcmake cmake -S . -B build -D COMPILE_NODE=ON
 
     - name: Run the build
       run: |
-        cd wasm/build
+        cd build
         emmake make
 
-    - uses: actions/upload-artifact@v2
+    - name: Publish libary for web
+      uses: ncipollo/release-action@v1
+      if: github.ref == 'refs/heads/master' && matrix.mode == 'web' 
       with:
-        name: wasm
-        path: |
-          wasm/build/scran_wasm.js
-          wasm/build/scran_wasm.wasm
+        allowUpdates: true
+        removeArtifacts: true
+        artifacts: "build/scran.js"
+        name: latest-web
+        tag: latest-web
+        body: "JS library for web deployments."
+
+    - name: Publish libary for Node.js
+      uses: ncipollo/release-action@v1
+      if: github.ref == 'refs/heads/master' && matrix.mode == 'node' 
+      with:
+        allowUpdates: true
+        removeArtifacts: true
+        artifacts: "build/scran.js"
+        name: latest-node
+        tag: latest-node
+        body: "JS library for Node.js deployments."
