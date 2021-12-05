@@ -1,5 +1,6 @@
 var searchData=
 [
-  ['operator_28_29_0',['operator()',['../structUnzlibber.html#a702f232ffd5b58049b463528e3dfe78d',1,'Unzlibber']]],
-  ['operator_3d_1',['operator=',['../structUnzlibber_1_1ZStream.html#a4bc0c97eabe671b1fa81654fcaf31ae8',1,'Unzlibber::ZStream::operator=(const ZStream &amp;)=delete'],['../structUnzlibber_1_1ZStream.html#a17eb9dfc0a801458546ecc2bb8136bb1',1,'Unzlibber::ZStream::operator=(ZStream &amp;&amp;)=delete']]]
+  ['pcs_0',['pcs',['../structRunPCA__Results.html#ae3a8141dd4e9c9320a4c4fafb5c92c1c',1,'RunPCA_Results']]],
+  ['per_5fcell_5fqc_5ffilters_1',['per_cell_qc_filters',['../per__cell__qc__filters_8cpp.html#ab44d05e1ed906631e214a43bf3bc7d3c',1,'per_cell_qc_filters.cpp']]],
+  ['per_5fcell_5fqc_5fmetrics_2',['per_cell_qc_metrics',['../per__cell__qc__metrics_8cpp.html#a32328fe460f166eb37cb07a23f19280a',1,'per_cell_qc_metrics.cpp']]]
 ];
