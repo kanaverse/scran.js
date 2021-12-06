@@ -152,7 +152,7 @@ void run_umap(UmapStatus& status, int runtime, uintptr_t Y) {
  * @cond
  */
 EMSCRIPTEN_BINDINGS(run_umap) {
-    emscripten::function("initialize_umap_from_neighbors", &initialize_umap_from_index);
+    emscripten::function("initialize_umap_from_neighbors", &initialize_umap_from_neighbors);
 
     emscripten::function("initialize_umap_from_index", &initialize_umap_from_index);
 
