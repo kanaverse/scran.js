@@ -3,17 +3,38 @@
 
 #include "knncolle/knncolle.hpp"
 #include <memory>
+#include <vector>
 
 /**
  * @brief Prebuilt nearest neighbor index.
- *
- * This index is intended to be built once and used for repeated searching in other functions,
- * e.g., `initialize_tsne_from_index()`, `initialize_umap_from_index()`.
  */
 struct NeighborIndex {
+    /**
+     * @cond
+     */
     std::unique_ptr<knncolle::Base<> > search;
+    /**
+     * @endcond
+     */
 };
 
 NeighborIndex build_neighbor_index(uintptr_t, int, int, bool);
+
+/**
+ * @brief Nearest neighbor search results.
+ *
+ */
+struct NeighborResults { 
+    /**
+     * @cond
+     */
+    NeighborResults(size_t n) : results(n) {}
+    std::vector<std::vector<int, double> > results;
+    /**
+     * @endcond
+     */
+};
+
+NeighborResults find_nearest_neighbors(const NeighborIndex&, int);
 
 #endif

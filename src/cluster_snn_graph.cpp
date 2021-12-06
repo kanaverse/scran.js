@@ -144,7 +144,10 @@ ClusterSNNGraphMultiLevel_Result cluster_snn_graph_from_graph(const BuildSNNGrap
 }
 
 /**
- * @param graph An existing SNN graph for the dataset, usually constructed by `build_snn_graph()` or related functions.
+ * @param index An existing SNN graph for the dataset, usually constructed by `build_snn_graph()` or related functions.
+ * @param k Number of neighbors to use in the graph.
+ * @param scheme Weighting scheme to use for the edges.
+ * This can be 0 (by highest shared rank), 1 (by number of shared neighbors) or 2 (by the Jaccard index of neighbor sets).
  * @param resolution Resolution of the multi-level clustering, used in the modularity calculation.
  * Larger values yield more fine-grained clusters.
  *

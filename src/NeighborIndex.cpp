@@ -2,6 +2,7 @@
 
 #include "knncolle/knncolle.hpp"
 #include "NeighborIndex.h"
+#include "parallel.h"
 
 /**
  * @param[in] mat An offset to a 2D array with dimensions (e.g., principal components) in rows and cells in columns.
@@ -20,6 +21,30 @@ NeighborIndex build_neighbor_index(uintptr_t mat, int nr, int nc, bool approxima
         output.search.reset(new knncolle::VpTreeEuclidean<>(nr, nc, ptr));
     }
     return output;
+}
+
+/**
+ * @param index Prebuilt nearest neighbor search index.
+ * @param k Number of nearest neighbors to identify.
+ *
+ * @return A `NeighborResults` containing the search results for each cell.
+ */
+NeighborResults find_nearest_neighbors(const NeighborIndex& index, int k) {
+    NeighborResults output(nc);
+    const auto& search = index.search;
+    auto& x = output.neighbors;
+#ifdef __EMSCRIPTEN_PTHREADS__
+    run_parallel([&](int left, int right) -> void {
+        for (int i = left; i < right; ++i) {
+            x[i] = search->find_nearest_neighbors(i, num_neighbors);
+        }
+    }, nc);
+#else
+    for (size_t i = 0; i < nc; ++i) {
+        x[i] = search->find_nearest_neighbors(i, num_neighbors);
+    }
+#endif
+    return x;
 }
 
 /**

@@ -57,26 +57,14 @@ struct TsneStatus {
 TsneStatus initialize_tsne_from_index(const NeighborIndex& index, double perplexity, uintptr_t Y) {
     size_t nc = index.search->nobs();
     qdtsne::initialize_random(reinterpret_cast<double*>(Y), nc);
-    const auto& search = index.search;
-
-#ifdef __EMSCRIPTEN_PTHREADS__
-    int k = std::ceil(perplexity * 3);
-    qdtsne::NeighborList<int, double> nns(nc);
-
-    run_parallel([&](int left, int right) -> void {
-        for (int i = left; i < right; ++i) {
-            nns[i] = search->find_nearest_neighbors(i, k);
-        }
-    }, nc);
 
     qdtsne::Tsne factory;
     factory.set_perplexity(perplexity);
+
+    int k = std::ceil(perplexity * 3);
+    auto nns = find_nearest_neighbors(index, k);
+
     return TsneStatus(factory.template initialize<>(std::move(nns)));
-#else
-    qdtsne::Tsne factory;
-    factory.set_perplexity(perplexity).set_max_depth(7).set_interpolation(100);
-    return TsneStatus(factory.template initialize<>(search.get()));
-#endif
 }
 
 /**
@@ -100,7 +88,7 @@ TsneStatus initialize_tsne(uintptr_t mat, int nr, int nc, double perplexity, boo
 }
 
 /**
- * Initialize the t-SNE on an input matrix, usually containing principal components for all cells.
+ * Run the t-SNE from an initialized `TsneStatus` object.
  *
  * @param status A `TsneStatus` object created by `initialize_status()`.
  * @param runtime Number of milliseconds to run before returning. 

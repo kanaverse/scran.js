@@ -2,5 +2,5 @@
 #include "emscripten.h"
 
 EM_JS(int, find_num_threads, (), {
-    return EMSCRIPTEN_NUM_THREADS_EXPRESSION;
+    return Math.max(PThread.unusedWorkers.length, 1);
 });
