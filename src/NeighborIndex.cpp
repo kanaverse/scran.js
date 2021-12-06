@@ -56,6 +56,10 @@ EMSCRIPTEN_BINDINGS(build_neighbor_index) {
     emscripten::function("find_nearest_neighbors", &find_nearest_neighbors);
 
     emscripten::function("build_neighbor_index", &build_neighbor_index);
+
+    emscripten::class_<NeighborIndex>("NeighborIndex");
+    
+    emscripten::class_<NeighborResults>("NeighborResults");
 }
 /**
  * @endcond
