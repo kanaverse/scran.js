@@ -30,6 +30,34 @@ struct BuildSNNGraph_Result {
 };
 
 /**
+ * Build an shared nearest neighbor graph from existing neighbor search results.
+ *
+ * @param neighbors Pre-computed nearest neighbors for this dataset.
+ * @param scheme Weighting scheme to use for the edges.
+ * This can be 0 (by highest shared rank), 1 (by number of shared neighbors) or 2 (by the Jaccard index of neighbor sets).
+ *
+ * @return A `BuildSNNGraph_Result` containing the graph information.
+ */
+BuildSNNGraph_Result build_snn_graph_from_neighbors(const NeighborResults& neighbors, int scheme) {
+    size_t nc = neighbors.neighbors.size();
+    std::vector<std::vector<int > > indices(nc);
+    int k = 0;
+
+    for (size_t i = 0; i < nc; ++i) {
+        auto current = neighbors.neighbors[i];
+        auto& output = indices[i];
+        k = current.size(); // just in case BuildSNNGraph needs the neighbors to be set.
+        for (const auto& y : current) {
+            output.push_back(y.first);
+        }
+    }
+
+    scran::BuildSNNGraph builder;
+    builder.set_neighbors(k).set_weighting_scheme(static_cast<scran::BuildSNNGraph::Scheme>(scheme));
+    return BuildSNNGraph_Result(nc, builder.run(indices));
+}
+
+/**
  * Build an shared nearest neighbor graph from an existing nearest neighbor index.
  *
  * @param index A pre-built nearest neighbor index for the dataset.
@@ -183,6 +211,8 @@ ClusterSNNGraphMultiLevel_Result cluster_snn_graph(int ndim, int ncells, uintptr
  * @cond
  */
 EMSCRIPTEN_BINDINGS(cluster_snn_graph) {
+    emscripten::function("build_snn_graph_from_neighbors", &build_snn_graph_from_neighbors);
+
     emscripten::function("build_snn_graph_from_index", &build_snn_graph_from_index);
 
     emscripten::function("build_snn_graph", &build_snn_graph);

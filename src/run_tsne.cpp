@@ -64,7 +64,7 @@ TsneStatus initialize_tsne_from_index(const NeighborIndex& index, double perplex
     int k = std::ceil(perplexity * 3);
     auto nns = find_nearest_neighbors(index, k);
 
-    return TsneStatus(factory.template initialize<>(std::move(nns)));
+    return TsneStatus(factory.template initialize<>(std::move(nns.neighbors)));
 }
 
 /**

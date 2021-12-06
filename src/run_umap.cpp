@@ -78,6 +78,8 @@ UmapStatus initialize_umap_from_neighbors(const NeighborResults& neighbors, int 
  * Initialize the UMAP from a prebuilt neighbor index.
  *
  * @param index Pre-build neighbor search index, `build_neighbor_index()`.
+ * @param num_neighbors Number of neighbors to use to construct the fuzzy sets.
+ * Larger values focus on global structure more than the local structure.
  * @param num_epochs Maximum number of epochs to compute.
  * Larger values improve the likelihood of convergence.
  * @param min_dist Minimum distance between neighboring points in the output embedding.
@@ -88,7 +90,7 @@ UmapStatus initialize_umap_from_neighbors(const NeighborResults& neighbors, int 
  *
  * @return A `UmapStatus` object that can be passed to `run_umap()` to update `Y`.
  */
-UmapStatus initialize_umap_from_index(const NeighborIndex& index, int num_epochs, double min_dist, uintptr_t Y) {
+UmapStatus initialize_umap_from_index(const NeighborIndex& index, int num_neighbors, int num_epochs, double min_dist, uintptr_t Y) {
     auto neighbors = find_nearest_neighbors(index, num_neighbors);
     umappp::Umap factory;
     factory.set_min_dist(min_dist).set_num_epochs(num_epochs);
@@ -117,7 +119,7 @@ UmapStatus initialize_umap_from_index(const NeighborIndex& index, int num_epochs
  */
 UmapStatus initialize_umap(uintptr_t mat, int nr, int nc, int num_neighbors, int num_epochs, double min_dist, bool approximate, uintptr_t Y) {
     auto index = build_neighbor_index(mat, nr, nc, approximate);
-    return initialize_umap_from_index(index, num_epochs, min_dist, Y);
+    return initialize_umap_from_index(index, num_neighbors, num_epochs, min_dist, Y);
  }
 
 /**

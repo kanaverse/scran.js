@@ -30,21 +30,23 @@ NeighborIndex build_neighbor_index(uintptr_t mat, int nr, int nc, bool approxima
  * @return A `NeighborResults` containing the search results for each cell.
  */
 NeighborResults find_nearest_neighbors(const NeighborIndex& index, int k) {
+    size_t nc = index.search->nobs();
     NeighborResults output(nc);
     const auto& search = index.search;
     auto& x = output.neighbors;
+
 #ifdef __EMSCRIPTEN_PTHREADS__
     run_parallel([&](int left, int right) -> void {
         for (int i = left; i < right; ++i) {
-            x[i] = search->find_nearest_neighbors(i, num_neighbors);
+            x[i] = search->find_nearest_neighbors(i, k);
         }
     }, nc);
 #else
     for (size_t i = 0; i < nc; ++i) {
-        x[i] = search->find_nearest_neighbors(i, num_neighbors);
+        x[i] = search->find_nearest_neighbors(i, k);
     }
 #endif
-    return x;
+    return output;
 }
 
 /**

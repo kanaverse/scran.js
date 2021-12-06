@@ -28,8 +28,8 @@ struct NeighborResults {
     /**
      * @cond
      */
-    NeighborResults(size_t n) : results(n) {}
-    std::vector<std::vector<int, double> > results;
+    NeighborResults(size_t n) : neighbors(n) {}
+    std::vector<std::vector<std::pair<int, double> > > neighbors;
     /**
      * @endcond
      */
