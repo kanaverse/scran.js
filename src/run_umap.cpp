@@ -1,6 +1,7 @@
 #include <emscripten/bind.h>
 
 #include "utils.h"
+#include "parallel.h"
 #include "umappp/Umap.hpp"
 #include "knncolle/knncolle.hpp"
 
@@ -81,13 +82,13 @@ UmapStatus initialize_umap(uintptr_t mat, int nr, int nc, int num_neighbors, int
     double* embedding = reinterpret_cast<double*>(Y);
 
 #ifdef __EMSCRIPTEN_PTHREADS__
-    umappp:::NeighborList x(nc);
+    umappp::NeighborList<double> x(nc);
 
     run_parallel([&](int left, int right) -> void {
         for (int i = left; i < right; ++i) {
             x[i] = search->find_nearest_neighbors(i, num_neighbors);
         }
-    }, nc, EMSCRIPTEN_NUM_THREADS);
+    }, nc);
 
     return UmapStatus(factory.initialize(std::move(x), 2, embedding));
 #else

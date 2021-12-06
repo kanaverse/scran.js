@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <cstdint>
+#include <cmath>
 
 /**
  * Create a vector of pointers to the columns of a matrix.
@@ -58,12 +59,5 @@ inline std::vector<std::vector<T> > extract_column_pointers_blocked(uintptr_t pt
     }
     return store;
 }
-
-#ifndef SCRAN_NO_LOGGING
-#define PROGRESS_PRINTER(name, state, total, message) \
-    EM_ASM({ \
-        console.log("__scran_wasm__ " + name + " " + $0 + " " + $1 + " " + message); \
-    }, state, total);
-#endif
 
 #endif

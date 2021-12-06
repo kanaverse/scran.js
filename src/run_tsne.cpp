@@ -1,5 +1,7 @@
 #include <emscripten/bind.h>
 
+#include "utils.h"
+#include "parallel.h"
 #include "qdtsne/qdtsne.hpp"
 #include "knncolle/knncolle.hpp"
 
@@ -7,6 +9,7 @@
 #include <cmath>
 #include <chrono>
 #include <random>
+#include <iostream>
 
 /**
  * @file run_tsne.cpp
@@ -65,9 +68,24 @@ TsneStatus initialize_tsne(uintptr_t mat, int nr, int nc, double perplexity, boo
         search.reset(new knncolle::VpTreeEuclidean<>(nr, nc, ptr));
     }
 
+#ifdef __EMSCRIPTEN_PTHREADS__
+    int k = std::ceil(perplexity * 3);
+    qdtsne::NeighborList<int, double> nns(nc);
+
+    run_parallel([&](int left, int right) -> void {
+        for (int i = left; i < right; ++i) {
+            nns[i] = search->find_nearest_neighbors(i, k);
+        }
+    }, nc);
+
+    qdtsne::Tsne factory;
+    factory.set_perplexity(perplexity);
+    return TsneStatus(factory.template initialize<>(std::move(nns)));
+#else
     qdtsne::Tsne factory;
     factory.set_perplexity(perplexity).set_max_depth(7).set_interpolation(100);
     return TsneStatus(factory.template initialize<>(search.get()));
+#endif
 }
     
 /**
