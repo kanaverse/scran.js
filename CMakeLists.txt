@@ -23,6 +23,7 @@ add_executable(
     src/cluster_snn_graph.cpp
     src/score_markers.cpp
     src/NumericMatrix.cpp
+    src/NeighborIndex.cpp
 )
 
 target_compile_options(

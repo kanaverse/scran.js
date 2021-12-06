@@ -2,6 +2,7 @@
 
 #include "utils.h"
 #include "parallel.h"
+#include "NeighborIndex.h"
 #include "umappp/Umap.hpp"
 #include "knncolle/knncolle.hpp"
 
@@ -68,20 +69,15 @@ struct UmapStatus {
  *
  * @return A `UmapStatus` object that can be passed to `run_umap()` to update `Y`.
  */
-UmapStatus initialize_umap(uintptr_t mat, int nr, int nc, int num_neighbors, int num_epochs, double min_dist, bool approximate, uintptr_t Y) {
-    std::unique_ptr<knncolle::Base<> > search;
-    const double* ptr = reinterpret_cast<const double*>(mat);
-    if (approximate) {
-        search.reset(new knncolle::AnnoyEuclidean<>(nr, nc, ptr));
-    } else {
-        search.reset(new knncolle::VpTreeEuclidean<>(nr, nc, ptr));
-    }
+UmapStatus initialize_umap_from_index(const NeighborIndex& index, int num_neighbors, int num_epochs, double min_dist, uintptr_t Y) {
+    const auto& search = index.search;
 
     umappp::Umap factory;
     factory.set_min_dist(min_dist).set_num_epochs(num_epochs);
     double* embedding = reinterpret_cast<double*>(Y);
 
 #ifdef __EMSCRIPTEN_PTHREADS__
+    size_t nc = index.search->nobs();
     umappp::NeighborList<double> x(nc);
 
     run_parallel([&](int left, int right) -> void {
@@ -95,6 +91,30 @@ UmapStatus initialize_umap(uintptr_t mat, int nr, int nc, int num_neighbors, int
     factory.set_num_neighbors(num_neighbors);
     return UmapStatus(factory.initialize(search.get(), 2, embedding));
 #endif
+}
+
+/**
+ * Initialize the UMAP on an input matrix, usually containing principal components for all cells.
+ *
+ * @param[in] mat An offset to a 2D array with dimensions (e.g., principal components) in rows and cells in columns.
+ * @param nr Number of rows in `mat`.
+ * @param nc Number of columns in `mat`.
+ * @param num_neighbors Number of neighbors to use to construct the fuzzy sets.
+ * Larger values focus on global structure more than the local structure.
+ * @param num_epochs Maximum number of epochs to compute.
+ * Larger values improve the likelihood of convergence.
+ * @param min_dist Minimum distance between neighboring points in the output embedding.
+ * Larger values generate a more even distribution of points.
+ * @param approximate Whether to use an approximate neighbor search.
+ * @param[out] Y Offset to a 2-by-`nc` array containing the initial coordinates.
+ * Each row corresponds to a dimension, each column corresponds to a cell, and the matrix is in column-major format.
+ * This is filled with the first two rows of `mat`, i.e., the first and second PCs.
+ *
+ * @return A `UmapStatus` object that can be passed to `run_umap()` to update `Y`.
+ */
+UmapStatus initialize_umap(uintptr_t mat, int nr, int nc, int num_neighbors, int num_epochs, double min_dist, bool approximate, uintptr_t Y) {
+    NeighborIndex index = build_neighbor_index(mat, nr, nc, approximate);
+    return initialize_umap_from_index(index, num_neighbors, num_epochs, min_dist, Y);
 }
     
 /**
@@ -127,6 +147,8 @@ void run_umap(UmapStatus& status, int runtime, uintptr_t Y) {
  * @cond
  */
 EMSCRIPTEN_BINDINGS(run_umap) {
+    emscripten::function("initialize_umap_from_index", &initialize_umap_from_index);
+
     emscripten::function("initialize_umap", &initialize_umap);
 
     emscripten::function("run_umap", &run_umap);
