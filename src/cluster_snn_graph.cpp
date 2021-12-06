@@ -27,6 +27,13 @@ struct BuildSNNGraph_Result {
     /**
      * @endcond
      */
+
+    /**
+     * @return A deep copy of this object.
+     */
+    BuildSNNGraph_Result clone() const {
+        return *this;
+    }
 };
 
 /**

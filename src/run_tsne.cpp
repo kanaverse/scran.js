@@ -40,6 +40,13 @@ struct TsneStatus {
     int iterations () const {
         return status.iteration();
     }
+
+    /**
+     * @return A deep copy of this object.
+     */
+    TsneStatus clone() const {
+        return *this;
+    }
 };
 
 /**

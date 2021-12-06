@@ -48,6 +48,13 @@ struct UmapStatus {
     int num_epochs() const {
         return status.num_epochs();
     }
+
+    /**
+     * @return A deep copy of this object.
+     */
+    UmapStatus clone() const {
+        return *this;
+    }
 };
 
 /**
@@ -162,6 +169,7 @@ EMSCRIPTEN_BINDINGS(run_umap) {
 
     emscripten::class_<UmapStatus>("UmapStatus")
         .function("epoch", &UmapStatus::epoch)
+        .function("num_epochs", &UmapStatus::num_epochs)
         ;
     
 }
