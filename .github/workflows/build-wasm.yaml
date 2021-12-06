@@ -38,7 +38,7 @@ jobs:
       with:
         allowUpdates: true
         removeArtifacts: true
-        artifacts: "build/scran.js"
+        artifacts: "build/scran.js,build/scran.wasm,build/scran.worker.js"
         name: latest-web
         tag: latest-web
         body: "JS library for web deployments."
@@ -49,7 +49,7 @@ jobs:
       with:
         allowUpdates: true
         removeArtifacts: true
-        artifacts: "build/scran.js"
+        artifacts: "build/scran.js,build/scran.wasm/build/scran.worker.js"
         name: latest-node
         tag: latest-node
         body: "JS library for Node.js deployments."
