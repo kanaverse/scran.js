@@ -41,12 +41,12 @@ target_compile_definitions(scran_wasm PRIVATE TATAMI_USE_ZLIB=1)
 
 set_target_properties(scran_wasm PROPERTIES 
     OUTPUT_NAME scran
-    LINK_FLAGS "-O2 --bind -s ALLOW_MEMORY_GROWTH=1 -s MAXIMUM_MEMORY=4GB -s FORCE_FILESYSTEM=1 -s USE_ZLIB=1 -s SINGLE_FILE=1"
+    LINK_FLAGS "-O2 --bind -s ALLOW_MEMORY_GROWTH=1 -s MAXIMUM_MEMORY=4GB -s FORCE_FILESYSTEM=1 -s USE_ZLIB=1 -s MODULARIZE=1 -s EXPORT_NAME=loadScran"
 )
 
 set(COMPILE_NODE OFF CACHE BOOL "Compile for Node.js")
 if (COMPILE_NODE)
-    set_property(TARGET scran_wasm APPEND APPEND_STRING PROPERTY LINK_FLAGS " -s WASM_ASYNC_COMPILATION=0 -s ENVIRONMENT=node")
+    set_property(TARGET scran_wasm APPEND APPEND_STRING PROPERTY LINK_FLAGS " -s ENVIRONMENT=node")
 else ()
     set_property(TARGET scran_wasm APPEND APPEND_STRING PROPERTY LINK_FLAGS " -s ENVIRONMENT=web,worker")
 endif()
