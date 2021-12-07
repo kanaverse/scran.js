@@ -76,8 +76,8 @@ $(function() {
 <div class="textblock"><code>#include &lt;emscripten/bind.h&gt;</code><br />
 <code>#include &quot;<a class="el" href="utils_8h_source.html">utils.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="parallel_8h_source.html">parallel.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="NeighborIndex_8h_source.html">NeighborIndex.h</a>&quot;</code><br />
 <code>#include &quot;qdtsne/qdtsne.hpp&quot;</code><br />
-<code>#include &quot;knncolle/knncolle.hpp&quot;</code><br />
 <code>#include &lt;vector&gt;</code><br />
 <code>#include &lt;cmath&gt;</code><br />
 <code>#include &lt;chrono&gt;</code><br />
@@ -88,18 +88,20 @@ Include dependency graph for run_tsne.cpp:</div>
 <div class="dyncontent">
 <div class="center"><img src="run__tsne_8cpp__incl.png" border="0" usemap="#arun__tsne_8cpp" alt=""/></div>
 <map name="arun__tsne_8cpp" id="arun__tsne_8cpp">
-<area shape="rect" title="Visualize cells with t&#45;SNE." alt="" coords="387,5,483,32"/>
+<area shape="rect" title="Visualize cells with t&#45;SNE." alt="" coords="383,5,479,32"/>
 <area shape="rect" title=" " alt="" coords="5,80,129,107"/>
 <area shape="rect" href="utils_8h.html" title=" " alt="" coords="205,80,261,107"/>
-<area shape="rect" title=" " alt="" coords="119,155,178,181"/>
-<area shape="rect" title=" " alt="" coords="287,155,346,181"/>
+<area shape="rect" title=" " alt="" coords="297,155,355,181"/>
+<area shape="rect" title=" " alt="" coords="129,155,187,181"/>
 <area shape="rect" href="parallel_8h.html" title=" " alt="" coords="336,80,409,107"/>
-<area shape="rect" title=" " alt="" coords="434,80,562,107"/>
-<area shape="rect" title=" " alt="" coords="586,80,733,107"/>
-<area shape="rect" title=" " alt="" coords="757,80,818,107"/>
-<area shape="rect" title=" " alt="" coords="843,80,908,107"/>
-<area shape="rect" title=" " alt="" coords="933,80,1005,107"/>
-<area shape="rect" title=" " alt="" coords="202,155,263,181"/>
+<area shape="rect" href="NeighborIndex_8h.html" title=" " alt="" coords="434,80,549,107"/>
+<area shape="rect" title=" " alt="" coords="573,80,701,107"/>
+<area shape="rect" title=" " alt="" coords="725,80,786,107"/>
+<area shape="rect" title=" " alt="" coords="811,80,876,107"/>
+<area shape="rect" title=" " alt="" coords="901,80,973,107"/>
+<area shape="rect" title=" " alt="" coords="211,155,273,181"/>
+<area shape="rect" title=" " alt="" coords="515,155,662,181"/>
+<area shape="rect" title=" " alt="" coords="423,155,491,181"/>
 </map>
 </div>
 </div><table class="memberdecls">
@@ -111,6 +113,8 @@ Classes</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
+<tr class="memitem:a888793d112b36aedf5892061b7aca9c2"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structTsneStatus.html">TsneStatus</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="run__tsne_8cpp.html#a888793d112b36aedf5892061b7aca9c2">initialize_tsne_from_index</a> (const <a class="el" href="structNeighborIndex.html">NeighborIndex</a> &amp;index, double perplexity, uintptr_t Y)</td></tr>
+<tr class="separator:a888793d112b36aedf5892061b7aca9c2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa3d408da563ab4a0435d18ea83d654fc"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structTsneStatus.html">TsneStatus</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="run__tsne_8cpp.html#aa3d408da563ab4a0435d18ea83d654fc">initialize_tsne</a> (uintptr_t mat, int nr, int nc, double perplexity, bool approximate, uintptr_t Y)</td></tr>
 <tr class="separator:aa3d408da563ab4a0435d18ea83d654fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad29d8d3b48e3165dc7d8f0476a46119d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="run__tsne_8cpp.html#ad29d8d3b48e3165dc7d8f0476a46119d">run_tsne</a> (<a class="el" href="structTsneStatus.html">TsneStatus</a> &amp;status, int runtime, int maxiter, uintptr_t Y)</td></tr>
@@ -184,6 +188,50 @@ Functions</h2></td></tr>
 
 </div>
 </div>
+<a id="a888793d112b36aedf5892061b7aca9c2" name="a888793d112b36aedf5892061b7aca9c2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a888793d112b36aedf5892061b7aca9c2">&#9670;&nbsp;</a></span>initialize_tsne_from_index()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structTsneStatus.html">TsneStatus</a> initialize_tsne_from_index </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structNeighborIndex.html">NeighborIndex</a> &amp;&#160;</td>
+          <td class="paramname"><em>index</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double&#160;</td>
+          <td class="paramname"><em>perplexity</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uintptr_t&#160;</td>
+          <td class="paramname"><em>Y</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p >Initialize the t-SNE from a pre-built nearest neighbor index.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir"></td><td class="paramname">index</td><td>A pre-built nearest neighbor index, usually generated by <code><a class="el" href="NeighborIndex_8cpp.html#ad18ff23ea88755b16f82fe79497f9c68">build_neighbor_index()</a></code>. </td></tr>
+    <tr><td class="paramdir"></td><td class="paramname">perplexity</td><td>t-SNE perplexity, controlling the trade-off between preservation of local and global structure. Larger values focus on global structure more than the local structure. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">Y</td><td>Offset to a 2-by-<code>nc</code> array containing the initial coordinates. Each row corresponds to a dimension, each column corresponds to a cell, and the matrix is in column-major format. This is filled with the first two rows of <code>mat</code>, i.e., the first and second PCs.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>A <code><a class="el" href="structTsneStatus.html" title="Status of the t-SNE algorithm.">TsneStatus</a></code> object that can be passed to <code><a class="el" href="run__tsne_8cpp.html#ad29d8d3b48e3165dc7d8f0476a46119d">run_tsne()</a></code> to create </dd></dl>
+
+</div>
+</div>
 <a id="ad29d8d3b48e3165dc7d8f0476a46119d" name="ad29d8d3b48e3165dc7d8f0476a46119d"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ad29d8d3b48e3165dc7d8f0476a46119d">&#9670;&nbsp;</a></span>run_tsne()</h2>
 
@@ -221,7 +269,7 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p >Initialize the t-SNE on an input matrix, usually containing principal components for all cells.</p>
+<p >Run the t-SNE from an initialized <code><a class="el" href="structTsneStatus.html" title="Status of the t-SNE algorithm.">TsneStatus</a></code> object.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir"></td><td class="paramname">status</td><td>A <code><a class="el" href="structTsneStatus.html" title="Status of the t-SNE algorithm.">TsneStatus</a></code> object created by <code>initialize_status()</code>. </td></tr>

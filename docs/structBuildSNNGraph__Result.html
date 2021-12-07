@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.9.2"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>scran.js: TsneStatus Struct Reference</title>
+<title>scran.js: BuildSNNGraph_Result Struct Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -66,27 +66,24 @@ $(function() {
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
-<a href="structTsneStatus-members.html">List of all members</a>  </div>
-  <div class="headertitle"><div class="title">TsneStatus Struct Reference</div></div>
+<a href="structBuildSNNGraph__Result-members.html">List of all members</a>  </div>
+  <div class="headertitle"><div class="title">BuildSNNGraph_Result Struct Reference</div></div>
 </div><!--header-->
 <div class="contents">
 
-<p>Status of the t-SNE algorithm.  
- <a href="structTsneStatus.html#details">More...</a></p>
+<p>Javascript-visible wrapper around the result of <code>scran::BuildSNNGraph::run()</code>.  
+ <a href="structBuildSNNGraph__Result.html#details">More...</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a93d56829545fd0375edca0d1238a451c"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structTsneStatus.html#a93d56829545fd0375edca0d1238a451c">iterations</a> () const</td></tr>
-<tr class="separator:a93d56829545fd0375edca0d1238a451c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6f2dc0a5d02a6534fb91cd71b38f7724"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structTsneStatus.html">TsneStatus</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structTsneStatus.html#a6f2dc0a5d02a6534fb91cd71b38f7724">clone</a> () const</td></tr>
-<tr class="separator:a6f2dc0a5d02a6534fb91cd71b38f7724"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a23c49d4a8f0db893a801594578731282"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structBuildSNNGraph__Result.html">BuildSNNGraph_Result</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structBuildSNNGraph__Result.html#a23c49d4a8f0db893a801594578731282">clone</a> () const</td></tr>
+<tr class="separator:a23c49d4a8f0db893a801594578731282"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p >Status of the t-SNE algorithm. </p>
-<p >This is a wrapper around the similarly named <code>Status</code> object from the <a href="https://github.com/LTLA/qdtsne"><b>qdtsne</b></a> library. The general idea is to create this object via <code><a class="el" href="run__tsne_8cpp.html#aa3d408da563ab4a0435d18ea83d654fc">initialize_tsne()</a></code> before repeatedly calling <code><a class="el" href="run__tsne_8cpp.html#ad29d8d3b48e3165dc7d8f0476a46119d">run_tsne()</a></code> to obtain updates. </p>
+<div class="textblock"><p >Javascript-visible wrapper around the result of <code>scran::BuildSNNGraph::run()</code>. </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
-<a id="a6f2dc0a5d02a6534fb91cd71b38f7724" name="a6f2dc0a5d02a6534fb91cd71b38f7724"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a6f2dc0a5d02a6534fb91cd71b38f7724">&#9670;&nbsp;</a></span>clone()</h2>
+<a id="a23c49d4a8f0db893a801594578731282" name="a23c49d4a8f0db893a801594578731282"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a23c49d4a8f0db893a801594578731282">&#9670;&nbsp;</a></span>clone()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -95,7 +92,7 @@ Public Member Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="structTsneStatus.html">TsneStatus</a> TsneStatus::clone </td>
+          <td class="memname"><a class="el" href="structBuildSNNGraph__Result.html">BuildSNNGraph_Result</a> BuildSNNGraph_Result::clone </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -111,34 +108,8 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a93d56829545fd0375edca0d1238a451c" name="a93d56829545fd0375edca0d1238a451c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a93d56829545fd0375edca0d1238a451c">&#9670;&nbsp;</a></span>iterations()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">int TsneStatus::iterations </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<dl class="section return"><dt>Returns</dt><dd>Number of iterations run so far. </dd></dl>
-
-</div>
-</div>
 <hr/>The documentation for this struct was generated from the following file:<ul>
-<li><a class="el" href="run__tsne_8cpp.html">run_tsne.cpp</a></li>
+<li><a class="el" href="cluster__snn__graph_8cpp.html">cluster_snn_graph.cpp</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

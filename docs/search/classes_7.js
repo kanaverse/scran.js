@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['tsnestatus_0',['TsneStatus',['../structTsneStatus.html',1,'']]]
+  ['scoremarkers_5fresults_0',['ScoreMarkers_Results',['../structScoreMarkers__Results.html',1,'']]]
 ];

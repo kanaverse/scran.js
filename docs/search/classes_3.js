@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['numericmatrix_0',['NumericMatrix',['../structNumericMatrix.html',1,'']]]
+  ['modelgenevar_5fresults_0',['ModelGeneVar_Results',['../structModelGeneVar__Results.html',1,'']]]
 ];

@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['jsvector_0',['JSVector',['../classJSVector.html',1,'']]]
+  ['clustersnngraphmultilevel_5fresult_0',['ClusterSNNGraphMultiLevel_Result',['../structClusterSNNGraphMultiLevel__Result.html',1,'']]]
 ];
