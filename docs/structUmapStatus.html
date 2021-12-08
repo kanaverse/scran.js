@@ -66,6 +66,7 @@ $(function() {
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pub-static-methods">Static Public Member Functions</a> &#124;
 <a href="structUmapStatus-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">UmapStatus Struct Reference</div></div>
 </div><!--header-->
@@ -82,6 +83,11 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a1ea0cca74dbc213ad1b402965b96417c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af204ea69474edfdcb55066f2bfc35300"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structUmapStatus.html">UmapStatus</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structUmapStatus.html#af204ea69474edfdcb55066f2bfc35300">clone</a> () const</td></tr>
 <tr class="separator:af204ea69474edfdcb55066f2bfc35300"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
+Static Public Member Functions</h2></td></tr>
+<tr class="memitem:a7896a7b1f297bc6a18b0d15f49a9127a"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="structUmapStatus.html">UmapStatus</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structUmapStatus.html#a7896a7b1f297bc6a18b0d15f49a9127a">rebind</a> (uintptr_t offset)</td></tr>
+<tr class="separator:a7896a7b1f297bc6a18b0d15f49a9127a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p >Status of the UMAP algorithm. </p>
@@ -162,6 +168,39 @@ Public Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 <dl class="section return"><dt>Returns</dt><dd>Total number of epochs to run. </dd></dl>
+
+</div>
+</div>
+<a id="a7896a7b1f297bc6a18b0d15f49a9127a" name="a7896a7b1f297bc6a18b0d15f49a9127a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7896a7b1f297bc6a18b0d15f49a9127a">&#9670;&nbsp;</a></span>rebind()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static <a class="el" href="structUmapStatus.html">UmapStatus</a> UmapStatus::rebind </td>
+          <td>(</td>
+          <td class="paramtype">uintptr_t&#160;</td>
+          <td class="paramname"><em>offset</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p >Bind a <code><a class="el" href="structUmapStatus.html" title="Status of the UMAP algorithm.">UmapStatus</a></code> to an existing object in the Wasm heap.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">offset</td><td>Offset in the Wasm heap. </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>

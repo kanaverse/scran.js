@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['clone_0',['clone',['../structBuildSNNGraph__Result.html#a23c49d4a8f0db893a801594578731282',1,'BuildSNNGraph_Result::clone()'],['../structTsneStatus.html#a6f2dc0a5d02a6534fb91cd71b38f7724',1,'TsneStatus::clone()'],['../structUmapStatus.html#af204ea69474edfdcb55066f2bfc35300',1,'UmapStatus::clone()']]],
+  ['clone_0',['clone',['../structTsneStatus.html#a6f2dc0a5d02a6534fb91cd71b38f7724',1,'TsneStatus::clone()'],['../structUmapStatus.html#af204ea69474edfdcb55066f2bfc35300',1,'UmapStatus::clone()']]],
   ['cluster_5fsnn_5fgraph_1',['cluster_snn_graph',['../cluster__snn__graph_8cpp.html#a6706a215f7cc8e2cfc3f4e30ede99e11',1,'cluster_snn_graph.cpp']]],
   ['cluster_5fsnn_5fgraph_2ecpp_2',['cluster_snn_graph.cpp',['../cluster__snn__graph_8cpp.html',1,'']]],
   ['cluster_5fsnn_5fgraph_5ffrom_5fgraph_3',['cluster_snn_graph_from_graph',['../cluster__snn__graph_8cpp.html#a88a4b4f13f5bbb333357355fd454ae97',1,'cluster_snn_graph.cpp']]],

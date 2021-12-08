@@ -75,23 +75,34 @@ $(function() {
 <div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span><span class="preprocessor">#include &lt;vector&gt;</span></div>
 <div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span> </div>
 <div class="line"><a id="l00011" name="l00011"></a><span class="lineno"><a class="line" href="structNeighborIndex.html">   11</a></span><span class="keyword">struct </span><a class="code hl_struct" href="structNeighborIndex.html">NeighborIndex</a> {</div>
-<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span>    std::unique_ptr&lt;knncolle::Base&lt;&gt; &gt; search;</div>
-<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span>};</div>
-<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span> </div>
-<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span><a class="code hl_struct" href="structNeighborIndex.html">NeighborIndex</a> <a class="code hl_function" href="NeighborIndex_8h.html#a1dc33739be684ee25b41e3003427af01">build_neighbor_index</a>(uintptr_t, <span class="keywordtype">int</span>, <span class="keywordtype">int</span>, <span class="keywordtype">bool</span>);</div>
-<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span> </div>
-<div class="line"><a id="l00027" name="l00027"></a><span class="lineno"><a class="line" href="structNeighborResults.html">   27</a></span><span class="keyword">struct </span><a class="code hl_struct" href="structNeighborResults.html">NeighborResults</a> { </div>
-<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>    <a class="code hl_struct" href="structNeighborResults.html">NeighborResults</a>(<span class="keywordtype">size_t</span> n) : neighbors(n) {}</div>
-<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>    std::vector&lt;std::vector&lt;std::pair&lt;int, double&gt; &gt; &gt; neighbors;</div>
-<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>};</div>
-<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span> </div>
-<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span><a class="code hl_struct" href="structNeighborResults.html">NeighborResults</a> <a class="code hl_function" href="NeighborIndex_8h.html#a08ae949182763dbb8172ae1bbb9992b0">find_nearest_neighbors</a>(<span class="keyword">const</span> <a class="code hl_struct" href="structNeighborIndex.html">NeighborIndex</a>&amp;, <span class="keywordtype">int</span>);</div>
-<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span> </div>
-<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span>    std::shared_ptr&lt;knncolle::Base&lt;&gt; &gt; search;</div>
+<div class="line"><a id="l00025" name="l00025"></a><span class="lineno"><a class="line" href="structNeighborIndex.html#a7a2582126b4986f8501085afcacc191f">   25</a></span>    <span class="keyword">static</span> <a class="code hl_struct" href="structNeighborIndex.html">NeighborIndex</a> <a class="code hl_function" href="structNeighborIndex.html#a7a2582126b4986f8501085afcacc191f">rebind</a>(uintptr_t offset) {</div>
+<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>        <span class="keywordflow">return</span> *<span class="keyword">reinterpret_cast&lt;</span><a class="code hl_struct" href="structNeighborIndex.html">NeighborIndex</a>*<span class="keyword">&gt;</span>(offset);</div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>    }</div>
+<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>};</div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span> </div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span><a class="code hl_struct" href="structNeighborIndex.html">NeighborIndex</a> <a class="code hl_function" href="NeighborIndex_8h.html#a1dc33739be684ee25b41e3003427af01">build_neighbor_index</a>(uintptr_t, <span class="keywordtype">int</span>, <span class="keywordtype">int</span>, <span class="keywordtype">bool</span>);</div>
+<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span> </div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno"><a class="line" href="structNeighborResults.html">   36</a></span><span class="keyword">struct </span><a class="code hl_struct" href="structNeighborResults.html">NeighborResults</a> { </div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>    <span class="keyword">typedef</span> std::vector&lt;std::vector&lt;std::pair&lt;int, double&gt; &gt; &gt; Neighbors;</div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span> </div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>    <a class="code hl_struct" href="structNeighborResults.html">NeighborResults</a>(<span class="keywordtype">size_t</span> n) : neighbors(<span class="keyword">new</span> Neighbors(n)) {}</div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span> </div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>    std::shared_ptr&lt;Neighbors&gt; neighbors;</div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno"><a class="line" href="structNeighborResults.html#a36e15332744347fe5090f722e45a31d3">   54</a></span>    <span class="keyword">static</span> <a class="code hl_struct" href="structNeighborResults.html">NeighborResults</a> <a class="code hl_function" href="structNeighborResults.html#a36e15332744347fe5090f722e45a31d3">rebind</a>(uintptr_t offset) {</div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>        <span class="keywordflow">return</span> *<span class="keyword">reinterpret_cast&lt;</span><a class="code hl_struct" href="structNeighborResults.html">NeighborResults</a>*<span class="keyword">&gt;</span>(offset);</div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>    }</div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>};</div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span> </div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span><a class="code hl_struct" href="structNeighborResults.html">NeighborResults</a> <a class="code hl_function" href="NeighborIndex_8h.html#a08ae949182763dbb8172ae1bbb9992b0">find_nearest_neighbors</a>(<span class="keyword">const</span> <a class="code hl_struct" href="structNeighborIndex.html">NeighborIndex</a>&amp;, <span class="keywordtype">int</span>);</div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span> </div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span><span class="preprocessor">#endif</span></div>
 <div class="ttc" id="aNeighborIndex_8h_html_a08ae949182763dbb8172ae1bbb9992b0"><div class="ttname"><a href="NeighborIndex_8h.html#a08ae949182763dbb8172ae1bbb9992b0">find_nearest_neighbors</a></div><div class="ttdeci">NeighborResults find_nearest_neighbors(const NeighborIndex &amp;, int)</div><div class="ttdef"><b>Definition:</b> NeighborIndex.cpp:32</div></div>
 <div class="ttc" id="aNeighborIndex_8h_html_a1dc33739be684ee25b41e3003427af01"><div class="ttname"><a href="NeighborIndex_8h.html#a1dc33739be684ee25b41e3003427af01">build_neighbor_index</a></div><div class="ttdeci">NeighborIndex build_neighbor_index(uintptr_t, int, int, bool)</div><div class="ttdef"><b>Definition:</b> NeighborIndex.cpp:15</div></div>
 <div class="ttc" id="astructNeighborIndex_html"><div class="ttname"><a href="structNeighborIndex.html">NeighborIndex</a></div><div class="ttdoc">Prebuilt nearest neighbor index.</div><div class="ttdef"><b>Definition:</b> NeighborIndex.h:11</div></div>
-<div class="ttc" id="astructNeighborResults_html"><div class="ttname"><a href="structNeighborResults.html">NeighborResults</a></div><div class="ttdoc">Nearest neighbor search results.</div><div class="ttdef"><b>Definition:</b> NeighborIndex.h:27</div></div>
+<div class="ttc" id="astructNeighborIndex_html_a7a2582126b4986f8501085afcacc191f"><div class="ttname"><a href="structNeighborIndex.html#a7a2582126b4986f8501085afcacc191f">NeighborIndex::rebind</a></div><div class="ttdeci">static NeighborIndex rebind(uintptr_t offset)</div><div class="ttdef"><b>Definition:</b> NeighborIndex.h:25</div></div>
+<div class="ttc" id="astructNeighborResults_html"><div class="ttname"><a href="structNeighborResults.html">NeighborResults</a></div><div class="ttdoc">Nearest neighbor search results.</div><div class="ttdef"><b>Definition:</b> NeighborIndex.h:36</div></div>
+<div class="ttc" id="astructNeighborResults_html_a36e15332744347fe5090f722e45a31d3"><div class="ttname"><a href="structNeighborResults.html#a36e15332744347fe5090f722e45a31d3">NeighborResults::rebind</a></div><div class="ttdeci">static NeighborResults rebind(uintptr_t offset)</div><div class="ttdef"><b>Definition:</b> NeighborIndex.h:54</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
