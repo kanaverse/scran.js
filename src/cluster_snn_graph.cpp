@@ -5,6 +5,7 @@
 
 #include "scran/clustering/ClusterSNNGraph.hpp"
 #include <algorithm>
+#include <memory>
 
 /**
  * @file cluster_snn_graph.cpp
@@ -20,19 +21,23 @@ struct BuildSNNGraph_Result {
      * @cond
      **/
     typedef std::deque<scran::BuildSNNGraph::WeightedEdge> Edges;
-    BuildSNNGraph_Result(size_t nc, Edges e) : ncells(nc), edges(std::move(e)) {}
+
+    BuildSNNGraph_Result(size_t nc, Edges e) : ncells(nc), edges(new Edges(std::move(e))) {}
 
     size_t ncells;
-    Edges edges;
+
+    std::shared_ptr<Edges> edges;
     /**
      * @endcond
      */
 
-    /**
-     * @return A deep copy of this object.
+    /** 
+     * Bind a `BuildSNNGraph_Result` to an existing object in the Wasm heap.
+     *
+     * @param offset Offset in the Wasm heap.
      */
-    BuildSNNGraph_Result clone() const {
-        return *this;
+    static BuildSNNGraph_Result rebind(uintptr_t offset) {
+        return *reinterpret_cast<BuildSNNGraph_Result*>(offset);
     }
 };
 
@@ -46,12 +51,12 @@ struct BuildSNNGraph_Result {
  * @return A `BuildSNNGraph_Result` containing the graph information.
  */
 BuildSNNGraph_Result build_snn_graph_from_neighbors(const NeighborResults& neighbors, int scheme) {
-    size_t nc = neighbors.neighbors.size();
+    size_t nc = neighbors.neighbors->size();
     std::vector<std::vector<int > > indices(nc);
     int k = 0;
 
     for (size_t i = 0; i < nc; ++i) {
-        auto current = neighbors.neighbors[i];
+        auto current = (*neighbors.neighbors)[i];
         auto& output = indices[i];
         k = current.size(); // just in case BuildSNNGraph needs the neighbors to be set.
         for (const auto& y : current) {
@@ -125,9 +130,9 @@ struct ClusterSNNGraphMultiLevel_Result {
      */
     typedef scran::ClusterSNNGraphMultiLevel::Results Store;
 
-    ClusterSNNGraphMultiLevel_Result(Store s) : store(std::move(s)) {}
+    ClusterSNNGraphMultiLevel_Result(Store s) : store(new Store(std::move(s))) {}
 
-    Store store;
+    std::shared_ptr<Store> store;
     /**
      * @endcond
      */
@@ -136,14 +141,14 @@ struct ClusterSNNGraphMultiLevel_Result {
      * @return Number of available levels.
      */
     int number() const {
-        return store.membership.size();
+        return store->membership.size();
     }
 
     /**
      * @return Index of the level with the highest modularity.
      */
     int best() const {
-        return store.max;
+        return store->max;
     }
 
     /**
@@ -151,7 +156,7 @@ struct ClusterSNNGraphMultiLevel_Result {
      * @return Modularity of the clustering at that level.
      */
     double modularity(int i) const {
-        return store.modularity[i];
+        return store->modularity[i];
     }
 
     /**
@@ -159,8 +164,17 @@ struct ClusterSNNGraphMultiLevel_Result {
      * @return `Int32Array` view containing the cluster assignment for each cell.
      */
     emscripten::val membership(int i) const {
-        const auto& current = store.membership[i];
+        const auto& current = store->membership[i];
         return emscripten::val(emscripten::typed_memory_view(current.size(), current.data()));
+    }
+
+    /** 
+     * Bind a `BuildSNNGraph_Result` to an existing object in the Wasm heap.
+     *
+     * @param offset Offset in the Wasm heap.
+     */
+    static ClusterSNNGraphMultiLevel_Result rebind(uintptr_t offset) {
+        return *reinterpret_cast<ClusterSNNGraphMultiLevel_Result*>(offset);
     }
 };
 
@@ -174,7 +188,7 @@ struct ClusterSNNGraphMultiLevel_Result {
 ClusterSNNGraphMultiLevel_Result cluster_snn_graph_from_graph(const BuildSNNGraph_Result& graph, double resolution) {
     scran::ClusterSNNGraphMultiLevel clust;
     clust.set_resolution(resolution);
-    auto output = clust.run(graph.ncells, graph.edges);
+    auto output = clust.run(graph.ncells, *graph.edges);
     return ClusterSNNGraphMultiLevel_Result(std::move(output));
 }
 
@@ -230,11 +244,15 @@ EMSCRIPTEN_BINDINGS(cluster_snn_graph) {
 
     emscripten::function("cluster_snn_graph", &cluster_snn_graph);
 
+    emscripten::class_<BuildSNNGraph_Result>("BuildSNNGraph_Result")
+        .class_function("rebind", &BuildSNNGraph_Result::rebind);
+
     emscripten::class_<ClusterSNNGraphMultiLevel_Result>("ClusterSNNGraphMultiLevel_Result")
         .function("number", &ClusterSNNGraphMultiLevel_Result::number)
         .function("best", &ClusterSNNGraphMultiLevel_Result::best)
         .function("modularity", &ClusterSNNGraphMultiLevel_Result::modularity)
-        .function("membership", &ClusterSNNGraphMultiLevel_Result::membership);
+        .function("membership", &ClusterSNNGraphMultiLevel_Result::membership)
+        .class_function("rebind", &ClusterSNNGraphMultiLevel_Result::rebind);
 }
 /**
  * @endcond

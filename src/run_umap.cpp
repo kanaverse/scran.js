@@ -28,9 +28,11 @@ struct UmapStatus {
     /**
      * @cond
      */
-    UmapStatus(umappp::Umap<>::Status s) : status(std::move(s)) {}
+    typedef umappp::Umap<>::Status Status;
 
-    umappp::Umap<>::Status status;
+    UmapStatus(Status s) : status(new Status(std::move(s))) {}
+
+    std::shared_ptr<Status> status;
     /**
      * @endcond
      */
@@ -39,21 +41,30 @@ struct UmapStatus {
      * @return Number of epochs run so far.
      */
     int epoch() const {
-        return status.epoch();
+        return status->epoch();
     }
 
     /**
      * @return Total number of epochs to run.
      */
     int num_epochs() const {
-        return status.num_epochs();
+        return status->num_epochs();
     }
 
     /**
      * @return A deep copy of this object.
      */
     UmapStatus clone() const {
-        return *this;
+        return UmapStatus(*status);
+    }
+
+    /**
+     * Bind a `UmapStatus` to an existing object in the Wasm heap.
+     *
+     * @param offset Offset in the Wasm heap.
+     */
+    static UmapStatus rebind(uintptr_t offset) {
+        return *reinterpret_cast<UmapStatus*>(offset);
     }
 };
 
@@ -78,7 +89,7 @@ UmapStatus initialize_umap_from_neighbors(const NeighborResults& neighbors, int 
 
     // Don't move from neighbors; this means that we can easily re-use the
     // existing neighbors if someone wants to change the number of epochs.
-    return UmapStatus(factory.initialize(neighbors.neighbors, 2, embedding));
+    return UmapStatus(factory.initialize(*neighbors.neighbors, 2, embedding));
 }
 
 /**
@@ -102,7 +113,7 @@ UmapStatus initialize_umap_from_index(const NeighborIndex& index, int num_neighb
     umappp::Umap factory;
     factory.set_min_dist(min_dist).set_num_epochs(num_epochs);
     double* embedding = reinterpret_cast<double*>(Y);
-    return UmapStatus(factory.initialize(std::move(neighbors.neighbors), 2, embedding));
+    return UmapStatus(factory.initialize(std::move(*neighbors.neighbors), 2, embedding));
 }
 
 /**
@@ -149,7 +160,7 @@ void run_umap(UmapStatus& status, int runtime, uintptr_t Y) {
     auto end = std::chrono::steady_clock::now() + std::chrono::milliseconds(runtime);
     do {
         ++current;
-        factory.run(status.status, 2, ptr, current);
+        factory.run(*status.status, 2, ptr, current);
     } while (current < total && std::chrono::steady_clock::now() < end);
 
     return;
@@ -170,8 +181,8 @@ EMSCRIPTEN_BINDINGS(run_umap) {
     emscripten::class_<UmapStatus>("UmapStatus")
         .function("epoch", &UmapStatus::epoch)
         .function("num_epochs", &UmapStatus::num_epochs)
-        ;
-    
+        .function("clone", &UmapStatus::clone)
+        .class_function("rebind", &UmapStatus::rebind);
 }
 /**
  * @endcond

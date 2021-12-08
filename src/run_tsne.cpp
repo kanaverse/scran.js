@@ -27,9 +27,11 @@ struct TsneStatus {
     /**
      * @cond
      */
-    TsneStatus(qdtsne::Tsne<>::Status<int> s) : status(std::move(s)) {}
+    typedef qdtsne::Tsne<>::Status<int> Status;
 
-    qdtsne::Tsne<>::Status<int> status;
+    TsneStatus(Status s) : status(new Status(std::move(s))) {}
+
+    std::shared_ptr<Status> status;
     /**
      * @endcond
      */
@@ -38,14 +40,23 @@ struct TsneStatus {
      * @return Number of iterations run so far.
      */
     int iterations () const {
-        return status.iteration();
+        return status->iteration();
     }
 
     /**
      * @return A deep copy of this object.
      */
     TsneStatus clone() const {
-        return *this;
+        return TsneStatus(*status);
+    }
+
+    /**
+     * Bind a `TsneStatus` to an existing object in the Wasm heap.
+     *
+     * @param offset Offset in the Wasm heap.
+     */
+    static TsneStatus rebind(uintptr_t offset) {
+        return *reinterpret_cast<TsneStatus*>(offset);
     }
 };
 
@@ -71,7 +82,7 @@ TsneStatus initialize_tsne_from_index(const NeighborIndex& index, double perplex
     int k = std::ceil(perplexity * 3);
     auto nns = find_nearest_neighbors(index, k);
 
-    return TsneStatus(factory.template initialize<>(std::move(nns.neighbors)));
+    return TsneStatus(factory.template initialize<>(std::move(*nns.neighbors)));
 }
 
 /**
@@ -116,7 +127,7 @@ void run_tsne(TsneStatus& status, int runtime, int maxiter, uintptr_t Y) {
     auto end = std::chrono::steady_clock::now() + std::chrono::milliseconds(runtime);
     do {
         ++iter;
-        factory.set_max_iter(iter).run(status.status, ptr);
+        factory.set_max_iter(iter).run(*status.status, ptr);
     } while (iter < maxiter && std::chrono::steady_clock::now() < end);
 
     return;
@@ -134,8 +145,8 @@ EMSCRIPTEN_BINDINGS(run_tsne) {
 
     emscripten::class_<TsneStatus>("TsneStatus")
         .function("iterations", &TsneStatus::iterations)
-        ;
-    
+        .function("clone", &TsneStatus::clone)
+        .class_function("rebind", &TsneStatus::rebind);
 }
 /**
  * @endcond
