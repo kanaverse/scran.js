@@ -12,10 +12,19 @@ struct NeighborIndex {
     /**
      * @cond
      */
-    std::unique_ptr<knncolle::Base<> > search;
+    std::shared_ptr<knncolle::Base<> > search;
     /**
      * @endcond
      */
+
+    /** 
+     * Bind a `NeighborIndex` to an existing object in the Wasm heap.
+     *
+     * @param offset Offset in the Wasm heap.
+     */
+    static NeighborIndex bind(uintptr_t offset) {
+        return *reinterpret_cast<NeighborIndex*>(offset);
+    }
 };
 
 NeighborIndex build_neighbor_index(uintptr_t, int, int, bool);
@@ -28,11 +37,23 @@ struct NeighborResults {
     /**
      * @cond
      */
-    NeighborResults(size_t n) : neighbors(n) {}
-    std::vector<std::vector<std::pair<int, double> > > neighbors;
+    typedef std::vector<std::vector<std::pair<int, double> > > Neighbors;
+
+    NeighborResults(size_t n) : neighbors(new Neighbors(n)) {}
+
+    std::shared_ptr<Neighbors> neighbors;
     /**
      * @endcond
      */
+
+    /** 
+     * Bind a `NeighborResults` to an existing object in the Wasm heap.
+     *
+     * @param offset Offset in the Wasm heap.
+     */
+    static NeighborResults bind(uintptr_t offset) {
+        return *reinterpret_cast<NeighborResults*>(offset);
+    }
 };
 
 NeighborResults find_nearest_neighbors(const NeighborIndex&, int);

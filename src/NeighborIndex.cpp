@@ -33,7 +33,7 @@ NeighborResults find_nearest_neighbors(const NeighborIndex& index, int k) {
     size_t nc = index.search->nobs();
     NeighborResults output(nc);
     const auto& search = index.search;
-    auto& x = output.neighbors;
+    auto& x = *output.neighbors;
 
 #ifdef __EMSCRIPTEN_PTHREADS__
     run_parallel([&](int left, int right) -> void {
@@ -57,9 +57,11 @@ EMSCRIPTEN_BINDINGS(build_neighbor_index) {
 
     emscripten::function("build_neighbor_index", &build_neighbor_index);
 
-    emscripten::class_<NeighborIndex>("NeighborIndex");
+    emscripten::class_<NeighborIndex>("NeighborIndex")
+        .class_function("bind", &NeighborIndex::bind);
     
-    emscripten::class_<NeighborResults>("NeighborResults");
+    emscripten::class_<NeighborResults>("NeighborResults")
+        .class_function("bind", &NeighborResults::bind);
 }
 /**
  * @endcond
