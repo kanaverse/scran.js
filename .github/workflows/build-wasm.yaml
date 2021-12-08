@@ -32,23 +32,25 @@ jobs:
         cd build
         emmake make
 
-    - name: Publish libary for web
+    - name: Publish library for web
       uses: ncipollo/release-action@v1
       if: github.ref == 'refs/heads/master' && matrix.mode == 'web' 
       with:
         allowUpdates: true
         removeArtifacts: true
+        artifactErrorsFailBuild: true
         artifacts: "build/scran.js,build/scran.wasm,build/scran.worker.js"
         name: latest-web
         tag: latest-web
         body: "JS library for web deployments."
 
-    - name: Publish libary for Node.js
+    - name: Publish library for Node.js
       uses: ncipollo/release-action@v1
       if: github.ref == 'refs/heads/master' && matrix.mode == 'node' 
       with:
         allowUpdates: true
         removeArtifacts: true
+        artifactErrorsFailBuild: true
         artifacts: "build/scran.js,build/scran.wasm/build/scran.worker.js"
         name: latest-node
         tag: latest-node
