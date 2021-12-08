@@ -36,7 +36,7 @@ struct BuildSNNGraph_Result {
      *
      * @param offset Offset in the Wasm heap.
      */
-    static BuildSNNGraph_Result bind(uintptr_t offset) {
+    static BuildSNNGraph_Result rebind(uintptr_t offset) {
         return *reinterpret_cast<BuildSNNGraph_Result*>(offset);
     }
 };
@@ -173,7 +173,7 @@ struct ClusterSNNGraphMultiLevel_Result {
      *
      * @param offset Offset in the Wasm heap.
      */
-    static ClusterSNNGraphMultiLevel_Result bind(uintptr_t offset) {
+    static ClusterSNNGraphMultiLevel_Result rebind(uintptr_t offset) {
         return *reinterpret_cast<ClusterSNNGraphMultiLevel_Result*>(offset);
     }
 };
@@ -245,14 +245,14 @@ EMSCRIPTEN_BINDINGS(cluster_snn_graph) {
     emscripten::function("cluster_snn_graph", &cluster_snn_graph);
 
     emscripten::class_<BuildSNNGraph_Result>("BuildSNNGraph_Result")
-        .class_function("bind", &BuildSNNGraph_Result::bind);
+        .class_function("rebind", &BuildSNNGraph_Result::rebind);
 
     emscripten::class_<ClusterSNNGraphMultiLevel_Result>("ClusterSNNGraphMultiLevel_Result")
         .function("number", &ClusterSNNGraphMultiLevel_Result::number)
         .function("best", &ClusterSNNGraphMultiLevel_Result::best)
         .function("modularity", &ClusterSNNGraphMultiLevel_Result::modularity)
         .function("membership", &ClusterSNNGraphMultiLevel_Result::membership)
-        .class_function("bind", &ClusterSNNGraphMultiLevel_Result::bind);
+        .class_function("rebind", &ClusterSNNGraphMultiLevel_Result::rebind);
 }
 /**
  * @endcond

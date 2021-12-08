@@ -58,10 +58,10 @@ EMSCRIPTEN_BINDINGS(build_neighbor_index) {
     emscripten::function("build_neighbor_index", &build_neighbor_index);
 
     emscripten::class_<NeighborIndex>("NeighborIndex")
-        .class_function("bind", &NeighborIndex::bind);
+        .class_function("rebind", &NeighborIndex::rebind);
     
     emscripten::class_<NeighborResults>("NeighborResults")
-        .class_function("bind", &NeighborResults::bind);
+        .class_function("rebind", &NeighborResults::rebind);
 }
 /**
  * @endcond

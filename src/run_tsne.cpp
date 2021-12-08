@@ -55,7 +55,7 @@ struct TsneStatus {
      *
      * @param offset Offset in the Wasm heap.
      */
-    static TsneStatus bind(uintptr_t offset) {
+    static TsneStatus rebind(uintptr_t offset) {
         return *reinterpret_cast<TsneStatus*>(offset);
     }
 };
@@ -146,7 +146,7 @@ EMSCRIPTEN_BINDINGS(run_tsne) {
     emscripten::class_<TsneStatus>("TsneStatus")
         .function("iterations", &TsneStatus::iterations)
         .function("clone", &TsneStatus::clone)
-        .class_function("bind", &TsneStatus::bind);
+        .class_function("rebind", &TsneStatus::rebind);
 }
 /**
  * @endcond

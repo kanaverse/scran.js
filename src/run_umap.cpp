@@ -63,7 +63,7 @@ struct UmapStatus {
      *
      * @param offset Offset in the Wasm heap.
      */
-    static UmapStatus bind(uintptr_t offset) {
+    static UmapStatus rebind(uintptr_t offset) {
         return *reinterpret_cast<UmapStatus*>(offset);
     }
 };
@@ -182,7 +182,7 @@ EMSCRIPTEN_BINDINGS(run_umap) {
         .function("epoch", &UmapStatus::epoch)
         .function("num_epochs", &UmapStatus::num_epochs)
         .function("clone", &UmapStatus::clone)
-        .class_function("bind", &UmapStatus::bind);
+        .class_function("rebind", &UmapStatus::rebind);
 }
 /**
  * @endcond

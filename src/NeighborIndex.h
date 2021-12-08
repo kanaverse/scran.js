@@ -22,7 +22,7 @@ struct NeighborIndex {
      *
      * @param offset Offset in the Wasm heap.
      */
-    static NeighborIndex bind(uintptr_t offset) {
+    static NeighborIndex rebind(uintptr_t offset) {
         return *reinterpret_cast<NeighborIndex*>(offset);
     }
 };
@@ -51,7 +51,7 @@ struct NeighborResults {
      *
      * @param offset Offset in the Wasm heap.
      */
-    static NeighborResults bind(uintptr_t offset) {
+    static NeighborResults rebind(uintptr_t offset) {
         return *reinterpret_cast<NeighborResults*>(offset);
     }
 };
