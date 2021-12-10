@@ -46,7 +46,7 @@ struct TsneStatus {
     /**
      * @return A deep copy of this object.
      */
-    TsneStatus clone() const {
+    TsneStatus deepcopy() const {
         return TsneStatus(*status);
     }
 
@@ -145,7 +145,7 @@ EMSCRIPTEN_BINDINGS(run_tsne) {
 
     emscripten::class_<TsneStatus>("TsneStatus")
         .function("iterations", &TsneStatus::iterations)
-        .function("clone", &TsneStatus::clone)
+        .function("deepcopy", &TsneStatus::deepcopy)
         .class_function("rebind", &TsneStatus::rebind);
 }
 /**

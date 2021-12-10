@@ -54,7 +54,7 @@ struct UmapStatus {
     /**
      * @return A deep copy of this object.
      */
-    UmapStatus clone() const {
+    UmapStatus deepcopy() const {
         return UmapStatus(*status);
     }
 
@@ -181,7 +181,7 @@ EMSCRIPTEN_BINDINGS(run_umap) {
     emscripten::class_<UmapStatus>("UmapStatus")
         .function("epoch", &UmapStatus::epoch)
         .function("num_epochs", &UmapStatus::num_epochs)
-        .function("clone", &UmapStatus::clone)
+        .function("deepcopy", &UmapStatus::deepcopy)
         .class_function("rebind", &UmapStatus::rebind);
 }
 /**
