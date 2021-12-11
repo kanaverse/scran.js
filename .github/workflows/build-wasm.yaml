@@ -51,7 +51,7 @@ jobs:
         allowUpdates: true
         removeArtifacts: true
         artifactErrorsFailBuild: true
-        artifacts: "build/scran.js,build/scran.wasm/build/scran.worker.js"
+        artifacts: "build/scran.js,build/scran.wasm,build/scran.worker.js"
         name: latest-node
         tag: latest-node
         body: "JS library for Node.js deployments."
