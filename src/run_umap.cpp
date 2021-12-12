@@ -59,12 +59,10 @@ struct UmapStatus {
     }
 
     /**
-     * Bind a `UmapStatus` to an existing object in the Wasm heap.
-     *
-     * @param offset Offset in the Wasm heap.
+     * @return Number of observations in the dataset.
      */
-    static UmapStatus rebind(uintptr_t offset) {
-        return *reinterpret_cast<UmapStatus*>(offset);
+    int num_obs() const {
+        return status->nobs();
     }
 };
 
@@ -181,8 +179,8 @@ EMSCRIPTEN_BINDINGS(run_umap) {
     emscripten::class_<UmapStatus>("UmapStatus")
         .function("epoch", &UmapStatus::epoch)
         .function("num_epochs", &UmapStatus::num_epochs)
-        .function("deepcopy", &UmapStatus::deepcopy)
-        .class_function("rebind", &UmapStatus::rebind);
+        .function("num_obs", &UmapStatus::num_obs)
+        .function("deepcopy", &UmapStatus::deepcopy);
 }
 /**
  * @endcond

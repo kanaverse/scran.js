@@ -51,12 +51,10 @@ struct TsneStatus {
     }
 
     /**
-     * Bind a `TsneStatus` to an existing object in the Wasm heap.
-     *
-     * @param offset Offset in the Wasm heap.
+     * @return Number of observations in the dataset.
      */
-    static TsneStatus rebind(uintptr_t offset) {
-        return *reinterpret_cast<TsneStatus*>(offset);
+    int num_obs() const {
+        return status->nobs();
     }
 };
 
@@ -146,7 +144,7 @@ EMSCRIPTEN_BINDINGS(run_tsne) {
     emscripten::class_<TsneStatus>("TsneStatus")
         .function("iterations", &TsneStatus::iterations)
         .function("deepcopy", &TsneStatus::deepcopy)
-        .class_function("rebind", &TsneStatus::rebind);
+        .function("num_obs", &TsneStatus::num_obs);
 }
 /**
  * @endcond

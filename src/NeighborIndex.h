@@ -21,9 +21,18 @@ struct NeighborIndex {
      * Bind a `NeighborIndex` to an existing object in the Wasm heap.
      *
      * @param offset Offset in the Wasm heap.
+     * 
+     * @return A shallow copy of this `NeighborIndex` object.
      */
     static NeighborIndex rebind(uintptr_t offset) {
         return *reinterpret_cast<NeighborIndex*>(offset);
+    }
+
+    /**
+     * @return Number of observations in the dataset.
+     */
+    size_t num_obs() const {
+        return search->nobs();
     }
 };
 
