@@ -66,16 +66,9 @@ class WasmBuffer {
         this.wasm = wasm;
     }
 
-    array() {
-        const curtype = WasmBuffer.mapping[this.type];
-        const buffer = this.wasm[curtype["wasm"]].buffer;
-
-        const ptr = this.ptr;
-        const size = this.size;
-        const type = this.type;
-        if (ptr === null) {
-            throw "cannot create TypedArray from a null pointer";
-        }
+    static toArray(wasm, ptr, size, type) {
+        const curtype = WasmBuffer.mapping[type];
+        const buffer = wasm[curtype["wasm"]].buffer;
 
         let arr;
         if (type == "Float64Array") {
@@ -91,6 +84,14 @@ class WasmBuffer {
         }
 
         return arr;
+    }
+
+    array() {
+        const ptr = this.ptr;
+        if (ptr === null) {
+            throw "cannot create TypedArray from a null pointer";
+        }
+        return WasmBuffer.toArray(this.wasm, ptr, this.size, this.type);
     }
 
     free() {
