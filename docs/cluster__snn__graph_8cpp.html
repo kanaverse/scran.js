@@ -107,139 +107,22 @@ Classes</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:ad1d0747ef7e59f48151f47f6e72e46b1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structBuildSNNGraph__Result.html">BuildSNNGraph_Result</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cluster__snn__graph_8cpp.html#ad1d0747ef7e59f48151f47f6e72e46b1">build_snn_graph_from_neighbors</a> (const <a class="el" href="structNeighborResults.html">NeighborResults</a> &amp;neighbors, int scheme)</td></tr>
-<tr class="separator:ad1d0747ef7e59f48151f47f6e72e46b1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a05b02cc7075d2d73b7106d9cfdc50f13"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structBuildSNNGraph__Result.html">BuildSNNGraph_Result</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cluster__snn__graph_8cpp.html#a05b02cc7075d2d73b7106d9cfdc50f13">build_snn_graph_from_index</a> (const <a class="el" href="structNeighborIndex.html">NeighborIndex</a> &amp;index, int k, int scheme)</td></tr>
-<tr class="separator:a05b02cc7075d2d73b7106d9cfdc50f13"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab0fd3169b2719d108e8a092b5d132216"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structBuildSNNGraph__Result.html">BuildSNNGraph_Result</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cluster__snn__graph_8cpp.html#ab0fd3169b2719d108e8a092b5d132216">build_snn_graph</a> (uintptr_t mat, int nr, int nc, int k, int scheme, bool approximate)</td></tr>
-<tr class="separator:ab0fd3169b2719d108e8a092b5d132216"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a88a4b4f13f5bbb333357355fd454ae97"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structClusterSNNGraphMultiLevel__Result.html">ClusterSNNGraphMultiLevel_Result</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cluster__snn__graph_8cpp.html#a88a4b4f13f5bbb333357355fd454ae97">cluster_snn_graph_from_graph</a> (const <a class="el" href="structBuildSNNGraph__Result.html">BuildSNNGraph_Result</a> &amp;graph, double resolution)</td></tr>
-<tr class="separator:a88a4b4f13f5bbb333357355fd454ae97"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2b003264803b459a68cdf33322ea46f2"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structClusterSNNGraphMultiLevel__Result.html">ClusterSNNGraphMultiLevel_Result</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cluster__snn__graph_8cpp.html#a2b003264803b459a68cdf33322ea46f2">cluster_snn_graph_from_index</a> (const <a class="el" href="structNeighborIndex.html">NeighborIndex</a> &amp;index, int k, int scheme, double resolution)</td></tr>
-<tr class="separator:a2b003264803b459a68cdf33322ea46f2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6706a215f7cc8e2cfc3f4e30ede99e11"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structClusterSNNGraphMultiLevel__Result.html">ClusterSNNGraphMultiLevel_Result</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cluster__snn__graph_8cpp.html#a6706a215f7cc8e2cfc3f4e30ede99e11">cluster_snn_graph</a> (int ndim, int ncells, uintptr_t mat, int k, double resolution, bool approximate)</td></tr>
-<tr class="separator:a6706a215f7cc8e2cfc3f4e30ede99e11"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a032b252eaeefcc890d83aa42d7df4a53"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structBuildSNNGraph__Result.html">BuildSNNGraph_Result</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cluster__snn__graph_8cpp.html#a032b252eaeefcc890d83aa42d7df4a53">build_snn_graph</a> (const <a class="el" href="structNeighborResults.html">NeighborResults</a> &amp;neighbors, int scheme)</td></tr>
+<tr class="separator:a032b252eaeefcc890d83aa42d7df4a53"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4a3639798602da8d725c245d18a5c52d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structClusterSNNGraphMultiLevel__Result.html">ClusterSNNGraphMultiLevel_Result</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cluster__snn__graph_8cpp.html#a4a3639798602da8d725c245d18a5c52d">cluster_snn_graph</a> (const <a class="el" href="structBuildSNNGraph__Result.html">BuildSNNGraph_Result</a> &amp;graph, double resolution)</td></tr>
+<tr class="separator:a4a3639798602da8d725c245d18a5c52d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p >Identify clusters from a shared nearest-neighbor graph. </p>
 </div><h2 class="groupheader">Function Documentation</h2>
-<a id="ab0fd3169b2719d108e8a092b5d132216" name="ab0fd3169b2719d108e8a092b5d132216"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab0fd3169b2719d108e8a092b5d132216">&#9670;&nbsp;</a></span>build_snn_graph()</h2>
+<a id="a032b252eaeefcc890d83aa42d7df4a53" name="a032b252eaeefcc890d83aa42d7df4a53"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a032b252eaeefcc890d83aa42d7df4a53">&#9670;&nbsp;</a></span>build_snn_graph()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
           <td class="memname"><a class="el" href="structBuildSNNGraph__Result.html">BuildSNNGraph_Result</a> build_snn_graph </td>
-          <td>(</td>
-          <td class="paramtype">uintptr_t&#160;</td>
-          <td class="paramname"><em>mat</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>nr</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>nc</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>k</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>scheme</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">bool&#160;</td>
-          <td class="paramname"><em>approximate</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p >Build an shared nearest neighbor graph from an input matrix.</p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">mat</td><td>Offset to an array of <code>double</code>s containing per-cell coordinates (usually PCs). </td></tr>
-    <tr><td class="paramdir"></td><td class="paramname">nr</td><td>Number of dimensions. </td></tr>
-    <tr><td class="paramdir"></td><td class="paramname">nc</td><td>Number of cells. </td></tr>
-    <tr><td class="paramdir"></td><td class="paramname">k</td><td>Number of neighbors to use in the graph. </td></tr>
-    <tr><td class="paramdir"></td><td class="paramname">scheme</td><td>Weighting scheme to use for the edges. This can be 0 (by highest shared rank), 1 (by number of shared neighbors) or 2 (by the Jaccard index of neighbor sets). </td></tr>
-    <tr><td class="paramdir"></td><td class="paramname">approximate</td><td>Whether an approximate nearest neighbor search should be performed.</td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>A <code><a class="el" href="structBuildSNNGraph__Result.html" title="Javascript-visible wrapper around the result of scran::BuildSNNGraph::run().">BuildSNNGraph_Result</a></code> containing the graph information. </dd></dl>
-
-</div>
-</div>
-<a id="a05b02cc7075d2d73b7106d9cfdc50f13" name="a05b02cc7075d2d73b7106d9cfdc50f13"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a05b02cc7075d2d73b7106d9cfdc50f13">&#9670;&nbsp;</a></span>build_snn_graph_from_index()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="structBuildSNNGraph__Result.html">BuildSNNGraph_Result</a> build_snn_graph_from_index </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="structNeighborIndex.html">NeighborIndex</a> &amp;&#160;</td>
-          <td class="paramname"><em>index</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>k</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>scheme</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p >Build an shared nearest neighbor graph from an existing nearest neighbor index.</p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">index</td><td>A pre-built nearest neighbor index for the dataset. </td></tr>
-    <tr><td class="paramname">k</td><td>Number of neighbors to use in the graph. </td></tr>
-    <tr><td class="paramname">scheme</td><td>Weighting scheme to use for the edges. This can be 0 (by highest shared rank), 1 (by number of shared neighbors) or 2 (by the Jaccard index of neighbor sets).</td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>A <code><a class="el" href="structBuildSNNGraph__Result.html" title="Javascript-visible wrapper around the result of scran::BuildSNNGraph::run().">BuildSNNGraph_Result</a></code> containing the graph information. </dd></dl>
-
-</div>
-</div>
-<a id="ad1d0747ef7e59f48151f47f6e72e46b1" name="ad1d0747ef7e59f48151f47f6e72e46b1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad1d0747ef7e59f48151f47f6e72e46b1">&#9670;&nbsp;</a></span>build_snn_graph_from_neighbors()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="structBuildSNNGraph__Result.html">BuildSNNGraph_Result</a> build_snn_graph_from_neighbors </td>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="structNeighborResults.html">NeighborResults</a> &amp;&#160;</td>
           <td class="paramname"><em>neighbors</em>, </td>
@@ -269,78 +152,14 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a6706a215f7cc8e2cfc3f4e30ede99e11" name="a6706a215f7cc8e2cfc3f4e30ede99e11"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a6706a215f7cc8e2cfc3f4e30ede99e11">&#9670;&nbsp;</a></span>cluster_snn_graph()</h2>
+<a id="a4a3639798602da8d725c245d18a5c52d" name="a4a3639798602da8d725c245d18a5c52d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4a3639798602da8d725c245d18a5c52d">&#9670;&nbsp;</a></span>cluster_snn_graph()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
           <td class="memname"><a class="el" href="structClusterSNNGraphMultiLevel__Result.html">ClusterSNNGraphMultiLevel_Result</a> cluster_snn_graph </td>
-          <td>(</td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>ndim</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>ncells</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">uintptr_t&#160;</td>
-          <td class="paramname"><em>mat</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>k</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">double&#160;</td>
-          <td class="paramname"><em>resolution</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">bool&#160;</td>
-          <td class="paramname"><em>approximate</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir"></td><td class="paramname">ndim</td><td>Number of dimensions. </td></tr>
-    <tr><td class="paramdir"></td><td class="paramname">ncells</td><td>Number of cells. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">mat</td><td>Offset to an array of <code>double</code>s containing per-cell coordinates (usually PCs). Array should be column-major where rows are dimensions and columns are cells. </td></tr>
-    <tr><td class="paramdir"></td><td class="paramname">k</td><td>Number of neighbors to use to construct the nearest neighbor graph. </td></tr>
-    <tr><td class="paramdir"></td><td class="paramname">resolution</td><td>Resolution of the multi-level clustering, used in the modularity calculation. Larger values yield more fine-grained clusters. </td></tr>
-    <tr><td class="paramdir"></td><td class="paramname">approximate</td><td>Whether an approximate nearest neighbor search should be performed.</td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>A <code><a class="el" href="structClusterSNNGraphMultiLevel__Result.html" title="Javascript-visible wrapper around scran::ClusterSNNGraph::MultiLevelResult.">ClusterSNNGraphMultiLevel_Result</a></code> object. </dd></dl>
-
-</div>
-</div>
-<a id="a88a4b4f13f5bbb333357355fd454ae97" name="a88a4b4f13f5bbb333357355fd454ae97"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a88a4b4f13f5bbb333357355fd454ae97">&#9670;&nbsp;</a></span>cluster_snn_graph_from_graph()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="structClusterSNNGraphMultiLevel__Result.html">ClusterSNNGraphMultiLevel_Result</a> cluster_snn_graph_from_graph </td>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="structBuildSNNGraph__Result.html">BuildSNNGraph_Result</a> &amp;&#160;</td>
           <td class="paramname"><em>graph</em>, </td>
@@ -360,62 +179,12 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">graph</td><td>An existing SNN graph for the dataset, usually constructed by <code><a class="el" href="cluster__snn__graph_8cpp.html#ab0fd3169b2719d108e8a092b5d132216">build_snn_graph()</a></code> or related functions. </td></tr>
+    <tr><td class="paramname">graph</td><td>An existing SNN graph for the dataset, usually constructed by <code><a class="el" href="cluster__snn__graph_8cpp.html#a032b252eaeefcc890d83aa42d7df4a53">build_snn_graph()</a></code> or related functions. </td></tr>
     <tr><td class="paramname">resolution</td><td>Resolution of the multi-level clustering, used in the modularity calculation. Larger values yield more fine-grained clusters.</td></tr>
   </table>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>A <code><a class="el" href="structClusterSNNGraphMultiLevel__Result.html" title="Javascript-visible wrapper around scran::ClusterSNNGraph::MultiLevelResult.">ClusterSNNGraphMultiLevel_Result</a></code> object containing the... multi-level clustering results, obviously. </dd></dl>
-
-</div>
-</div>
-<a id="a2b003264803b459a68cdf33322ea46f2" name="a2b003264803b459a68cdf33322ea46f2"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2b003264803b459a68cdf33322ea46f2">&#9670;&nbsp;</a></span>cluster_snn_graph_from_index()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="structClusterSNNGraphMultiLevel__Result.html">ClusterSNNGraphMultiLevel_Result</a> cluster_snn_graph_from_index </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="structNeighborIndex.html">NeighborIndex</a> &amp;&#160;</td>
-          <td class="paramname"><em>index</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>k</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>scheme</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">double&#160;</td>
-          <td class="paramname"><em>resolution</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">index</td><td>An existing SNN graph for the dataset, usually constructed by <code><a class="el" href="cluster__snn__graph_8cpp.html#ab0fd3169b2719d108e8a092b5d132216">build_snn_graph()</a></code> or related functions. </td></tr>
-    <tr><td class="paramname">k</td><td>Number of neighbors to use in the graph. </td></tr>
-    <tr><td class="paramname">scheme</td><td>Weighting scheme to use for the edges. This can be 0 (by highest shared rank), 1 (by number of shared neighbors) or 2 (by the Jaccard index of neighbor sets). </td></tr>
-    <tr><td class="paramname">resolution</td><td>Resolution of the multi-level clustering, used in the modularity calculation. Larger values yield more fine-grained clusters.</td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>A <code><a class="el" href="structClusterSNNGraphMultiLevel__Result.html" title="Javascript-visible wrapper around scran::ClusterSNNGraph::MultiLevelResult.">ClusterSNNGraphMultiLevel_Result</a></code> object. </dd></dl>
 
 </div>
 </div>

@@ -114,163 +114,22 @@ Classes</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a4010be279de065f80e0b0cacc8c4b38e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structUmapStatus.html">UmapStatus</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="run__umap_8cpp.html#a4010be279de065f80e0b0cacc8c4b38e">initialize_umap_from_neighbors</a> (const <a class="el" href="structNeighborResults.html">NeighborResults</a> &amp;neighbors, int num_epochs, double min_dist, uintptr_t Y)</td></tr>
-<tr class="separator:a4010be279de065f80e0b0cacc8c4b38e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae750ff00596347d1a345d92e2a2a23ca"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structUmapStatus.html">UmapStatus</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="run__umap_8cpp.html#ae750ff00596347d1a345d92e2a2a23ca">initialize_umap_from_index</a> (const <a class="el" href="structNeighborIndex.html">NeighborIndex</a> &amp;index, int num_neighbors, int num_epochs, double min_dist, uintptr_t Y)</td></tr>
-<tr class="separator:ae750ff00596347d1a345d92e2a2a23ca"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad6b0266ac1ebfbe0ff27970af27b7ecc"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structUmapStatus.html">UmapStatus</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="run__umap_8cpp.html#ad6b0266ac1ebfbe0ff27970af27b7ecc">initialize_umap</a> (uintptr_t mat, int nr, int nc, int num_neighbors, int num_epochs, double min_dist, bool approximate, uintptr_t Y)</td></tr>
-<tr class="separator:ad6b0266ac1ebfbe0ff27970af27b7ecc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3d645dfc308e6f66477eba3bc765ac6f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structUmapStatus.html">UmapStatus</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="run__umap_8cpp.html#a3d645dfc308e6f66477eba3bc765ac6f">initialize_umap</a> (const <a class="el" href="structNeighborResults.html">NeighborResults</a> &amp;neighbors, int num_epochs, double min_dist, uintptr_t Y)</td></tr>
+<tr class="separator:a3d645dfc308e6f66477eba3bc765ac6f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aed48c871b2d43d7b2a6aeacba599451f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="run__umap_8cpp.html#aed48c871b2d43d7b2a6aeacba599451f">run_umap</a> (<a class="el" href="structUmapStatus.html">UmapStatus</a> &amp;status, int runtime, uintptr_t Y)</td></tr>
 <tr class="separator:aed48c871b2d43d7b2a6aeacba599451f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p >Visualize cells with UMAP. </p>
 </div><h2 class="groupheader">Function Documentation</h2>
-<a id="ad6b0266ac1ebfbe0ff27970af27b7ecc" name="ad6b0266ac1ebfbe0ff27970af27b7ecc"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad6b0266ac1ebfbe0ff27970af27b7ecc">&#9670;&nbsp;</a></span>initialize_umap()</h2>
+<a id="a3d645dfc308e6f66477eba3bc765ac6f" name="a3d645dfc308e6f66477eba3bc765ac6f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3d645dfc308e6f66477eba3bc765ac6f">&#9670;&nbsp;</a></span>initialize_umap()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
           <td class="memname"><a class="el" href="structUmapStatus.html">UmapStatus</a> initialize_umap </td>
-          <td>(</td>
-          <td class="paramtype">uintptr_t&#160;</td>
-          <td class="paramname"><em>mat</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>nr</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>nc</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>num_neighbors</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>num_epochs</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">double&#160;</td>
-          <td class="paramname"><em>min_dist</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">bool&#160;</td>
-          <td class="paramname"><em>approximate</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">uintptr_t&#160;</td>
-          <td class="paramname"><em>Y</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p >Initialize the UMAP on an input matrix, usually containing principal components for all cells.</p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">mat</td><td>An offset to a 2D array with dimensions (e.g., principal components) in rows and cells in columns. </td></tr>
-    <tr><td class="paramdir"></td><td class="paramname">nr</td><td>Number of rows in <code>mat</code>. </td></tr>
-    <tr><td class="paramdir"></td><td class="paramname">nc</td><td>Number of columns in <code>mat</code>. </td></tr>
-    <tr><td class="paramdir"></td><td class="paramname">num_neighbors</td><td>Number of neighbors to use to construct the fuzzy sets. Larger values focus on global structure more than the local structure. </td></tr>
-    <tr><td class="paramdir"></td><td class="paramname">num_epochs</td><td>Maximum number of epochs to compute. Larger values improve the likelihood of convergence. </td></tr>
-    <tr><td class="paramdir"></td><td class="paramname">min_dist</td><td>Minimum distance between neighboring points in the output embedding. Larger values generate a more even distribution of points. </td></tr>
-    <tr><td class="paramdir"></td><td class="paramname">approximate</td><td>Whether to use an approximate neighbor search. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">Y</td><td>Offset to a 2-by-<code>nc</code> array containing the initial coordinates. Each row corresponds to a dimension, each column corresponds to a cell, and the matrix is in column-major format. This is filled with the first two rows of <code>mat</code>, i.e., the first and second PCs.</td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>A <code><a class="el" href="structUmapStatus.html" title="Status of the UMAP algorithm.">UmapStatus</a></code> object that can be passed to <code><a class="el" href="run__umap_8cpp.html#aed48c871b2d43d7b2a6aeacba599451f">run_umap()</a></code> to update <code>Y</code>. </dd></dl>
-
-</div>
-</div>
-<a id="ae750ff00596347d1a345d92e2a2a23ca" name="ae750ff00596347d1a345d92e2a2a23ca"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae750ff00596347d1a345d92e2a2a23ca">&#9670;&nbsp;</a></span>initialize_umap_from_index()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="structUmapStatus.html">UmapStatus</a> initialize_umap_from_index </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="structNeighborIndex.html">NeighborIndex</a> &amp;&#160;</td>
-          <td class="paramname"><em>index</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>num_neighbors</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>num_epochs</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">double&#160;</td>
-          <td class="paramname"><em>min_dist</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">uintptr_t&#160;</td>
-          <td class="paramname"><em>Y</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p >Initialize the UMAP from a prebuilt neighbor index.</p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir"></td><td class="paramname">index</td><td>Pre-build neighbor search index, <code><a class="el" href="NeighborIndex_8cpp.html#ad18ff23ea88755b16f82fe79497f9c68">build_neighbor_index()</a></code>. </td></tr>
-    <tr><td class="paramdir"></td><td class="paramname">num_neighbors</td><td>Number of neighbors to use to construct the fuzzy sets. Larger values focus on global structure more than the local structure. </td></tr>
-    <tr><td class="paramdir"></td><td class="paramname">num_epochs</td><td>Maximum number of epochs to compute. Larger values improve the likelihood of convergence. </td></tr>
-    <tr><td class="paramdir"></td><td class="paramname">min_dist</td><td>Minimum distance between neighboring points in the output embedding. Larger values generate a more even distribution of points. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">Y</td><td>Offset to a 2-by-<code>nc</code> array containing the initial coordinates. Each row corresponds to a dimension, each column corresponds to a cell, and the matrix is in column-major format. This is filled with the first two rows of <code>mat</code>, i.e., the first and second PCs.</td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>A <code><a class="el" href="structUmapStatus.html" title="Status of the UMAP algorithm.">UmapStatus</a></code> object that can be passed to <code><a class="el" href="run__umap_8cpp.html#aed48c871b2d43d7b2a6aeacba599451f">run_umap()</a></code> to update <code>Y</code>. </dd></dl>
-
-</div>
-</div>
-<a id="a4010be279de065f80e0b0cacc8c4b38e" name="a4010be279de065f80e0b0cacc8c4b38e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4010be279de065f80e0b0cacc8c4b38e">&#9670;&nbsp;</a></span>initialize_umap_from_neighbors()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="structUmapStatus.html">UmapStatus</a> initialize_umap_from_neighbors </td>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="structNeighborResults.html">NeighborResults</a> &amp;&#160;</td>
           <td class="paramname"><em>neighbors</em>, </td>
@@ -345,7 +204,6 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p >Initialize the UMAP on an input matrix, usually containing principal components for all cells.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir"></td><td class="paramname">status</td><td>A <code><a class="el" href="structUmapStatus.html" title="Status of the UMAP algorithm.">UmapStatus</a></code> object created by <code>initialize_status()</code>. </td></tr>
