@@ -65,6 +65,7 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
+<a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-static-methods">Static Public Member Functions</a> &#124;
 <a href="structNeighborIndex-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">NeighborIndex Struct Reference</div></div>
@@ -76,6 +77,11 @@ $(function() {
 
 <p><code>#include &lt;<a class="el" href="NeighborIndex_8h_source.html">NeighborIndex.h</a>&gt;</code></p>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
+Public Member Functions</h2></td></tr>
+<tr class="memitem:abcff91730ec1285b7840d223fd4702c4"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structNeighborIndex.html#abcff91730ec1285b7840d223fd4702c4">num_obs</a> () const</td></tr>
+<tr class="separator:abcff91730ec1285b7840d223fd4702c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
 <tr class="memitem:a7a2582126b4986f8501085afcacc191f"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="structNeighborIndex.html">NeighborIndex</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structNeighborIndex.html#a7a2582126b4986f8501085afcacc191f">rebind</a> (uintptr_t offset)</td></tr>
@@ -84,6 +90,32 @@ Static Public Member Functions</h2></td></tr>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p >Prebuilt nearest neighbor index. </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
+<a id="abcff91730ec1285b7840d223fd4702c4" name="abcff91730ec1285b7840d223fd4702c4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abcff91730ec1285b7840d223fd4702c4">&#9670;&nbsp;</a></span>num_obs()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">size_t NeighborIndex::num_obs </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="section return"><dt>Returns</dt><dd>Number of observations in the dataset. </dd></dl>
+
+</div>
+</div>
 <a id="a7a2582126b4986f8501085afcacc191f" name="a7a2582126b4986f8501085afcacc191f"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a7a2582126b4986f8501085afcacc191f">&#9670;&nbsp;</a></span>rebind()</h2>
 
@@ -110,10 +142,11 @@ Static Public Member Functions</h2></td></tr>
 <p >Bind a <code><a class="el" href="structNeighborIndex.html" title="Prebuilt nearest neighbor index.">NeighborIndex</a></code> to an existing object in the Wasm heap.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">offset</td><td>Offset in the Wasm heap. </td></tr>
+    <tr><td class="paramname">offset</td><td>Offset in the Wasm heap.</td></tr>
   </table>
   </dd>
 </dl>
+<dl class="section return"><dt>Returns</dt><dd>A shallow copy of this <code><a class="el" href="structNeighborIndex.html" title="Prebuilt nearest neighbor index.">NeighborIndex</a></code> object. </dd></dl>
 
 </div>
 </div>
