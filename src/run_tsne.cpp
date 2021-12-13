@@ -70,37 +70,32 @@ struct TsneStatus {
  *
  * @return A `TsneStatus` object that can be passed to `run_tsne()` to create 
  */
-TsneStatus initialize_tsne_from_index(const NeighborIndex& index, double perplexity, uintptr_t Y) {
-    size_t nc = index.search->nobs();
-    qdtsne::initialize_random(reinterpret_cast<double*>(Y), nc);
-
+TsneStatus initialize_tsne(const NeighborResults& neighbors, double perplexity) {
     qdtsne::Tsne factory;
     factory.set_perplexity(perplexity);
-
-    int k = std::ceil(perplexity * 3);
-    auto nns = find_nearest_neighbors(index, k);
-
-    return TsneStatus(factory.template initialize<>(std::move(nns.neighbors)));
+    return TsneStatus(factory.template initialize<>(neighbors.neighbors));
 }
 
 /**
- * Initialize the t-SNE on an input matrix, usually containing principal components for all cells.
+ * Randomize the starting t-SNE coordinates.
+ * 
+ * @param n Number of observations.
+ * @param[out] Y Offset to an array of length `n * 2`.
+ * @param seed Random seed for the PRNG.
  *
- * @param[in] mat An offset to a 2D array with dimensions (e.g., principal components) in rows and cells in columns.
- * @param nr Number of rows in `mat`.
- * @param nc Number of columns in `mat`.
- * @param perplexity t-SNE perplexity, controlling the trade-off between preservation of local and global structure.
- * Larger values focus on global structure more than the local structure.
- * @param approximate Whether to use an approximate neighbor search.
- * @param[out] Y Offset to a 2-by-`nc` array containing the initial coordinates.
- * Each row corresponds to a dimension, each column corresponds to a cell, and the matrix is in column-major format.
- * This is filled with the first two rows of `mat`, i.e., the first and second PCs.
- *
- * @return A `TsneStatus` object that can be passed to `run_tsne()` to create 
+ * @return `Y` is filled with random draws from a Normal distribution.
  */
-TsneStatus initialize_tsne(uintptr_t mat, int nr, int nc, double perplexity, bool approximate, uintptr_t Y) {
-    NeighborIndex index = build_neighbor_index(mat, nr, nc, approximate);
-    return initialize_tsne_from_index(index, perplexity, Y);
+void randomize_tsne_start(size_t n, uintptr_t Y, int seed) {
+    qdtsne::initialize_random(reinterpret_cast<double*>(Y), n, seed);
+    return;
+}
+
+/**
+ * @param perplexity Desired t-SNE perplexity.
+ * @return Number of neighbors corresponding to `perplexity`.
+ */
+int perplexity_to_k(double perplexity) {
+    return std::ceil(perplexity * 3);
 }
 
 /**
@@ -122,6 +117,7 @@ void run_tsne(TsneStatus& status, int runtime, int maxiter, uintptr_t Y) {
     double* ptr = reinterpret_cast<double*>(Y);
     int iter = status.iterations();
 
+
     auto end = std::chrono::steady_clock::now() + std::chrono::milliseconds(runtime);
     do {
         ++iter;
@@ -135,9 +131,11 @@ void run_tsne(TsneStatus& status, int runtime, int maxiter, uintptr_t Y) {
  * @cond
  */
 EMSCRIPTEN_BINDINGS(run_tsne) {
-    emscripten::function("initialize_tsne_from_index", &initialize_tsne_from_index);
+    emscripten::function("perplexity_to_k", &perplexity_to_k);
 
     emscripten::function("initialize_tsne", &initialize_tsne);
+
+    emscripten::function("randomize_tsne_start", &randomize_tsne_start);
 
     emscripten::function("run_tsne", &run_tsne);
 

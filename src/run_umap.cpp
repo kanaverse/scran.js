@@ -80,7 +80,7 @@ struct UmapStatus {
  *
  * @return A `UmapStatus` object that can be passed to `run_umap()` to update `Y`.
  */
-UmapStatus initialize_umap_from_neighbors(const NeighborResults& neighbors, int num_epochs, double min_dist, uintptr_t Y) {
+UmapStatus initialize_umap(const NeighborResults& neighbors, int num_epochs, double min_dist, uintptr_t Y) {
     umappp::Umap factory;
     factory.set_min_dist(min_dist).set_num_epochs(num_epochs);
     double* embedding = reinterpret_cast<double*>(Y);
@@ -91,56 +91,6 @@ UmapStatus initialize_umap_from_neighbors(const NeighborResults& neighbors, int 
 }
 
 /**
- * Initialize the UMAP from a prebuilt neighbor index.
- *
- * @param index Pre-build neighbor search index, `build_neighbor_index()`.
- * @param num_neighbors Number of neighbors to use to construct the fuzzy sets.
- * Larger values focus on global structure more than the local structure.
- * @param num_epochs Maximum number of epochs to compute.
- * Larger values improve the likelihood of convergence.
- * @param min_dist Minimum distance between neighboring points in the output embedding.
- * Larger values generate a more even distribution of points.
- * @param[out] Y Offset to a 2-by-`nc` array containing the initial coordinates.
- * Each row corresponds to a dimension, each column corresponds to a cell, and the matrix is in column-major format.
- * This is filled with the first two rows of `mat`, i.e., the first and second PCs.
- *
- * @return A `UmapStatus` object that can be passed to `run_umap()` to update `Y`.
- */
-UmapStatus initialize_umap_from_index(const NeighborIndex& index, int num_neighbors, int num_epochs, double min_dist, uintptr_t Y) {
-    auto neighbors = find_nearest_neighbors(index, num_neighbors);
-    umappp::Umap factory;
-    factory.set_min_dist(min_dist).set_num_epochs(num_epochs);
-    double* embedding = reinterpret_cast<double*>(Y);
-    return UmapStatus(factory.initialize(std::move(neighbors.neighbors), 2, embedding));
-}
-
-/**
- * Initialize the UMAP on an input matrix, usually containing principal components for all cells.
- *
- * @param[in] mat An offset to a 2D array with dimensions (e.g., principal components) in rows and cells in columns.
- * @param nr Number of rows in `mat`.
- * @param nc Number of columns in `mat`.
- * @param num_neighbors Number of neighbors to use to construct the fuzzy sets.
- * Larger values focus on global structure more than the local structure.
- * @param num_epochs Maximum number of epochs to compute.
- * Larger values improve the likelihood of convergence.
- * @param min_dist Minimum distance between neighboring points in the output embedding.
- * Larger values generate a more even distribution of points.
- * @param approximate Whether to use an approximate neighbor search.
- * @param[out] Y Offset to a 2-by-`nc` array containing the initial coordinates.
- * Each row corresponds to a dimension, each column corresponds to a cell, and the matrix is in column-major format.
- * This is filled with the first two rows of `mat`, i.e., the first and second PCs.
- *
- * @return A `UmapStatus` object that can be passed to `run_umap()` to update `Y`.
- */
-UmapStatus initialize_umap(uintptr_t mat, int nr, int nc, int num_neighbors, int num_epochs, double min_dist, bool approximate, uintptr_t Y) {
-    auto index = build_neighbor_index(mat, nr, nc, approximate);
-    return initialize_umap_from_index(index, num_neighbors, num_epochs, min_dist, Y);
- }
-
-/**
- * Initialize the UMAP on an input matrix, usually containing principal components for all cells.
- *
  * @param status A `UmapStatus` object created by `initialize_status()`.
  * @param runtime Number of milliseconds to run before returning. 
  * Iterations are performed until the specified `runtime` is exceeded.
@@ -168,10 +118,6 @@ void run_umap(UmapStatus& status, int runtime, uintptr_t Y) {
  * @cond
  */
 EMSCRIPTEN_BINDINGS(run_umap) {
-    emscripten::function("initialize_umap_from_neighbors", &initialize_umap_from_neighbors);
-
-    emscripten::function("initialize_umap_from_index", &initialize_umap_from_index);
-
     emscripten::function("initialize_umap", &initialize_umap);
 
     emscripten::function("run_umap", &run_umap);

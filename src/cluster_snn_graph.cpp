@@ -41,7 +41,7 @@ struct BuildSNNGraph_Result {
  *
  * @return A `BuildSNNGraph_Result` containing the graph information.
  */
-BuildSNNGraph_Result build_snn_graph_from_neighbors(const NeighborResults& neighbors, int scheme) {
+BuildSNNGraph_Result build_snn_graph(const NeighborResults& neighbors, int scheme) {
     size_t nc = neighbors.neighbors.size();
     std::vector<std::vector<int > > indices(nc);
     int k = 0;
@@ -58,58 +58,6 @@ BuildSNNGraph_Result build_snn_graph_from_neighbors(const NeighborResults& neigh
     scran::BuildSNNGraph builder;
     builder.set_neighbors(k).set_weighting_scheme(static_cast<scran::BuildSNNGraph::Scheme>(scheme));
     return BuildSNNGraph_Result(nc, builder.run(indices));
-}
-
-/**
- * Build an shared nearest neighbor graph from an existing nearest neighbor index.
- *
- * @param index A pre-built nearest neighbor index for the dataset.
- * @param k Number of neighbors to use in the graph.
- * @param scheme Weighting scheme to use for the edges.
- * This can be 0 (by highest shared rank), 1 (by number of shared neighbors) or 2 (by the Jaccard index of neighbor sets).
- *
- * @return A `BuildSNNGraph_Result` containing the graph information.
- */
-BuildSNNGraph_Result build_snn_graph_from_index(const NeighborIndex& index, int k, int scheme) {
-    scran::BuildSNNGraph builder;
-    builder.set_neighbors(k).set_weighting_scheme(static_cast<scran::BuildSNNGraph::Scheme>(scheme));
-    size_t nc = index.search->nobs();
-
-#ifdef __EMSCRIPTEN_PTHREADS__
-    std::vector<std::vector<int > > indices(nc);
-
-    run_parallel([&](int left, int right) -> void {
-        for (int i = left; i < right; ++i) {
-            auto current = index.search->find_nearest_neighbors(i, k);
-            auto& output = indices[i];
-            for (const auto& y : current) {
-                output.push_back(y.first);
-            }
-        }
-    }, nc);
-
-    return BuildSNNGraph_Result(nc, builder.run(indices));
-#else
-    return BuildSNNGraph_Result(nc, builder.run(index.search.get()));
-#endif
-}
-
-/**
- * Build an shared nearest neighbor graph from an input matrix.
- *
- * @param[in] mat Offset to an array of `double`s containing per-cell coordinates (usually PCs).
- * @param nr Number of dimensions.
- * @param nc Number of cells.
- * @param k Number of neighbors to use in the graph.
- * @param scheme Weighting scheme to use for the edges.
- * This can be 0 (by highest shared rank), 1 (by number of shared neighbors) or 2 (by the Jaccard index of neighbor sets).
- * @param approximate Whether an approximate nearest neighbor search should be performed.
- *
- * @return A `BuildSNNGraph_Result` containing the graph information.
- */
-BuildSNNGraph_Result build_snn_graph(uintptr_t mat, int nr, int nc, int k, int scheme, bool approximate) {
-    NeighborIndex index = build_neighbor_index(mat, nr, nc, approximate);
-    return build_snn_graph_from_index(index, k, scheme);                
 }
 
 /**
@@ -167,7 +115,7 @@ struct ClusterSNNGraphMultiLevel_Result {
  *
  * @return A `ClusterSNNGraphMultiLevel_Result` object containing the... multi-level clustering results, obviously.
  */
-ClusterSNNGraphMultiLevel_Result cluster_snn_graph_from_graph(const BuildSNNGraph_Result& graph, double resolution) {
+ClusterSNNGraphMultiLevel_Result cluster_snn_graph(const BuildSNNGraph_Result& graph, double resolution) {
     scran::ClusterSNNGraphMultiLevel clust;
     clust.set_resolution(resolution);
     auto output = clust.run(graph.ncells, graph.edges);
@@ -175,54 +123,10 @@ ClusterSNNGraphMultiLevel_Result cluster_snn_graph_from_graph(const BuildSNNGrap
 }
 
 /**
- * @param index An existing SNN graph for the dataset, usually constructed by `build_snn_graph()` or related functions.
- * @param k Number of neighbors to use in the graph.
- * @param scheme Weighting scheme to use for the edges.
- * This can be 0 (by highest shared rank), 1 (by number of shared neighbors) or 2 (by the Jaccard index of neighbor sets).
- * @param resolution Resolution of the multi-level clustering, used in the modularity calculation.
- * Larger values yield more fine-grained clusters.
- *
- * @return A `ClusterSNNGraphMultiLevel_Result` object.
- */
-ClusterSNNGraphMultiLevel_Result cluster_snn_graph_from_index(const NeighborIndex& index, int k, int scheme, double resolution) {
-    auto graph = build_snn_graph_from_index(index, k, scheme);
-    return cluster_snn_graph_from_graph(graph, resolution);
-}
-
-/**
- * @param ndim Number of dimensions.
- * @param ncells Number of cells.
- * @param[in] mat Offset to an array of `double`s containing per-cell coordinates (usually PCs).
- * Array should be column-major where rows are dimensions and columns are cells.
- * @param k Number of neighbors to use to construct the nearest neighbor graph.
- * @param resolution Resolution of the multi-level clustering, used in the modularity calculation.
- * Larger values yield more fine-grained clusters.
- * @param approximate Whether an approximate nearest neighbor search should be performed.
- *
- * @return A `ClusterSNNGraphMultiLevel_Result` object. 
- */
-ClusterSNNGraphMultiLevel_Result cluster_snn_graph(int ndim, int ncells, uintptr_t mat, int k, double resolution, bool approximate) {
-    scran::ClusterSNNGraphMultiLevel clust;
-    clust.set_neighbors(k).set_resolution(resolution).set_approximate(approximate);
-
-    const double* ptr = reinterpret_cast<const double*>(mat);
-    auto output = clust.run(ndim, ncells, ptr);
-    return ClusterSNNGraphMultiLevel_Result(std::move(output));
-}
-
-/**
  * @cond
  */
 EMSCRIPTEN_BINDINGS(cluster_snn_graph) {
-    emscripten::function("build_snn_graph_from_neighbors", &build_snn_graph_from_neighbors);
-
-    emscripten::function("build_snn_graph_from_index", &build_snn_graph_from_index);
-
     emscripten::function("build_snn_graph", &build_snn_graph);
-
-    emscripten::function("cluster_snn_graph_from_graph", &cluster_snn_graph_from_graph);
-
-    emscripten::function("cluster_snn_graph_from_index", &cluster_snn_graph_from_index);
 
     emscripten::function("cluster_snn_graph", &cluster_snn_graph);
 
