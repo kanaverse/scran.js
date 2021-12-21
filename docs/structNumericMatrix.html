@@ -88,10 +88,12 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:aca9949603c5969178a3d43eb1a352f63"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad21bf001b87002dcb346d9fcdd4e8a60"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structNumericMatrix.html#ad21bf001b87002dcb346d9fcdd4e8a60">ncol</a> () const</td></tr>
 <tr class="separator:ad21bf001b87002dcb346d9fcdd4e8a60"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a428afa5858a25c1c6b8861900e0dad7b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structNumericMatrix.html#a428afa5858a25c1c6b8861900e0dad7b">row</a> (int r, uintptr_t values)</td></tr>
-<tr class="separator:a428afa5858a25c1c6b8861900e0dad7b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6f0a43d05259f91bcbe5710ee8151922"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structNumericMatrix.html#a6f0a43d05259f91bcbe5710ee8151922">column</a> (int c, uintptr_t values)</td></tr>
-<tr class="separator:a6f0a43d05259f91bcbe5710ee8151922"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8b56c2bd09fea326c0c28a8a0add6a6e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structNumericMatrix.html#a8b56c2bd09fea326c0c28a8a0add6a6e">row</a> (int r, uintptr_t values) const</td></tr>
+<tr class="separator:a8b56c2bd09fea326c0c28a8a0add6a6e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3501cce20e99fa6d4a1ea61c8878c141"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structNumericMatrix.html#a3501cce20e99fa6d4a1ea61c8878c141">column</a> (int c, uintptr_t values) const</td></tr>
+<tr class="separator:a3501cce20e99fa6d4a1ea61c8878c141"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7dff448fade2ac23b35252674f8ac63e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structNumericMatrix.html#a7dff448fade2ac23b35252674f8ac63e">perm</a> (uintptr_t values) const</td></tr>
+<tr class="separator:a7dff448fade2ac23b35252674f8ac63e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p >Javascript-visible interface for a matrix of <code>double</code>s. </p>
@@ -190,8 +192,8 @@ Public Member Functions</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a id="a6f0a43d05259f91bcbe5710ee8151922" name="a6f0a43d05259f91bcbe5710ee8151922"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a6f0a43d05259f91bcbe5710ee8151922">&#9670;&nbsp;</a></span>column()</h2>
+<a id="a3501cce20e99fa6d4a1ea61c8878c141" name="a3501cce20e99fa6d4a1ea61c8878c141"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3501cce20e99fa6d4a1ea61c8878c141">&#9670;&nbsp;</a></span>column()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -211,7 +213,7 @@ Public Member Functions</h2></td></tr>
         <tr>
           <td></td>
           <td>)</td>
-          <td></td><td></td>
+          <td></td><td> const</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -262,8 +264,33 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a428afa5858a25c1c6b8861900e0dad7b" name="a428afa5858a25c1c6b8861900e0dad7b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a428afa5858a25c1c6b8861900e0dad7b">&#9670;&nbsp;</a></span>row()</h2>
+<a id="a7dff448fade2ac23b35252674f8ac63e" name="a7dff448fade2ac23b35252674f8ac63e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7dff448fade2ac23b35252674f8ac63e">&#9670;&nbsp;</a></span>perm()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void NumericMatrix::perm </td>
+          <td>(</td>
+          <td class="paramtype">uintptr_t&#160;</td>
+          <td class="paramname"><em>values</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">values</td><td>Offset to the start of an output array of <code>int</code>s of length equal to <code><a class="el" href="structNumericMatrix.html#aca9949603c5969178a3d43eb1a352f63">nrow()</a></code>.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The array in <code>values</code> is filled with the permutation vector. </dd></dl>
+
+</div>
+</div>
+<a id="a8b56c2bd09fea326c0c28a8a0add6a6e" name="a8b56c2bd09fea326c0c28a8a0add6a6e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8b56c2bd09fea326c0c28a8a0add6a6e">&#9670;&nbsp;</a></span>row()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -283,7 +310,7 @@ Public Member Functions</h2></td></tr>
         <tr>
           <td></td>
           <td>)</td>
-          <td></td><td></td>
+          <td></td><td> const</td>
         </tr>
       </table>
 </div><div class="memdoc">

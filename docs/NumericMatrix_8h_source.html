@@ -84,20 +84,23 @@ $(function() {
 <div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span> </div>
 <div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>    <span class="keywordtype">int</span> <a class="code hl_function" href="structNumericMatrix.html#ad21bf001b87002dcb346d9fcdd4e8a60">ncol</a>() <span class="keyword">const</span>;</div>
 <div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span> </div>
-<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>    <span class="keywordtype">void</span> <a class="code hl_function" href="structNumericMatrix.html#a428afa5858a25c1c6b8861900e0dad7b">row</a>(<span class="keywordtype">int</span> r, uintptr_t values);</div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>    <span class="keywordtype">void</span> <a class="code hl_function" href="structNumericMatrix.html#a8b56c2bd09fea326c0c28a8a0add6a6e">row</a>(<span class="keywordtype">int</span> r, uintptr_t values) <span class="keyword">const</span>;</div>
 <div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span> </div>
-<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>    <span class="keywordtype">void</span> <a class="code hl_function" href="structNumericMatrix.html#a6f0a43d05259f91bcbe5710ee8151922">column</a>(<span class="keywordtype">int</span> c, uintptr_t values);</div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>    <span class="keywordtype">void</span> <a class="code hl_function" href="structNumericMatrix.html#a3501cce20e99fa6d4a1ea61c8878c141">column</a>(<span class="keywordtype">int</span> c, uintptr_t values) <span class="keyword">const</span>;</div>
 <div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span> </div>
-<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>    std::shared_ptr&lt;const tatami::NumericMatrix&gt; ptr;</div>
-<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span> </div>
-<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>    std::vector&lt;size_t&gt; permutation;</div>
-<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>};</div>
-<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span> </div>
-<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>    <span class="keywordtype">void</span> <a class="code hl_function" href="structNumericMatrix.html#a7dff448fade2ac23b35252674f8ac63e">perm</a>(uintptr_t values) <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span> </div>
+<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>    std::shared_ptr&lt;const tatami::NumericMatrix&gt; ptr;</div>
+<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span> </div>
+<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>    std::vector&lt;size_t&gt; permutation;</div>
+<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>};</div>
+<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span> </div>
+<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span><span class="preprocessor">#endif</span></div>
 <div class="ttc" id="aJSVector_8h_html"><div class="ttname"><a href="JSVector_8h.html">JSVector.h</a></div></div>
 <div class="ttc" id="astructNumericMatrix_html"><div class="ttname"><a href="structNumericMatrix.html">NumericMatrix</a></div><div class="ttdoc">Javascript-visible interface for a matrix of doubles.</div><div class="ttdef"><b>Definition:</b> NumericMatrix.h:16</div></div>
-<div class="ttc" id="astructNumericMatrix_html_a428afa5858a25c1c6b8861900e0dad7b"><div class="ttname"><a href="structNumericMatrix.html#a428afa5858a25c1c6b8861900e0dad7b">NumericMatrix::row</a></div><div class="ttdeci">void row(int r, uintptr_t values)</div><div class="ttdef"><b>Definition:</b> NumericMatrix.cpp:23</div></div>
-<div class="ttc" id="astructNumericMatrix_html_a6f0a43d05259f91bcbe5710ee8151922"><div class="ttname"><a href="structNumericMatrix.html#a6f0a43d05259f91bcbe5710ee8151922">NumericMatrix::column</a></div><div class="ttdeci">void column(int c, uintptr_t values)</div><div class="ttdef"><b>Definition:</b> NumericMatrix.cpp:32</div></div>
+<div class="ttc" id="astructNumericMatrix_html_a3501cce20e99fa6d4a1ea61c8878c141"><div class="ttname"><a href="structNumericMatrix.html#a3501cce20e99fa6d4a1ea61c8878c141">NumericMatrix::column</a></div><div class="ttdeci">void column(int c, uintptr_t values) const</div><div class="ttdef"><b>Definition:</b> NumericMatrix.cpp:29</div></div>
+<div class="ttc" id="astructNumericMatrix_html_a7dff448fade2ac23b35252674f8ac63e"><div class="ttname"><a href="structNumericMatrix.html#a7dff448fade2ac23b35252674f8ac63e">NumericMatrix::perm</a></div><div class="ttdeci">void perm(uintptr_t values) const</div><div class="ttdef"><b>Definition:</b> NumericMatrix.cpp:35</div></div>
+<div class="ttc" id="astructNumericMatrix_html_a8b56c2bd09fea326c0c28a8a0add6a6e"><div class="ttname"><a href="structNumericMatrix.html#a8b56c2bd09fea326c0c28a8a0add6a6e">NumericMatrix::row</a></div><div class="ttdeci">void row(int r, uintptr_t values) const</div><div class="ttdef"><b>Definition:</b> NumericMatrix.cpp:23</div></div>
 <div class="ttc" id="astructNumericMatrix_html_aca9949603c5969178a3d43eb1a352f63"><div class="ttname"><a href="structNumericMatrix.html#aca9949603c5969178a3d43eb1a352f63">NumericMatrix::nrow</a></div><div class="ttdeci">int nrow() const</div><div class="ttdef"><b>Definition:</b> NumericMatrix.cpp:15</div></div>
 <div class="ttc" id="astructNumericMatrix_html_ad21bf001b87002dcb346d9fcdd4e8a60"><div class="ttname"><a href="structNumericMatrix.html#ad21bf001b87002dcb346d9fcdd4e8a60">NumericMatrix::ncol</a></div><div class="ttdeci">int ncol() const</div><div class="ttdef"><b>Definition:</b> NumericMatrix.cpp:19</div></div>
 <div class="ttc" id="astructNumericMatrix_html_ad2a44d614c57a6bf2a3e400167ebb3e8"><div class="ttname"><a href="structNumericMatrix.html#ad2a44d614c57a6bf2a3e400167ebb3e8">NumericMatrix::NumericMatrix</a></div><div class="ttdeci">NumericMatrix(const tatami::NumericMatrix *p)</div><div class="ttdef"><b>Definition:</b> NumericMatrix.cpp:5</div></div>

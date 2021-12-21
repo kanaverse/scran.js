@@ -10,5 +10,6 @@ var searchData=
   ['percellqcfilters_5fresults_7',['PerCellQCFilters_Results',['../structPerCellQCFilters__Results.html',1,'']]],
   ['percellqcmetrics_5fresults_8',['PerCellQCMetrics_Results',['../structPerCellQCMetrics__Results.html',1,'']]],
   ['percellqcmetrics_5fresults_2eh_9',['PerCellQCMetrics_Results.h',['../PerCellQCMetrics__Results_8h.html',1,'']]],
-  ['perplexity_5fto_5fk_10',['perplexity_to_k',['../run__tsne_8cpp.html#a70e669cf0eff6584006d032073ea4571',1,'run_tsne.cpp']]]
+  ['perm_10',['perm',['../structNumericMatrix.html#a7dff448fade2ac23b35252674f8ac63e',1,'NumericMatrix']]],
+  ['perplexity_5fto_5fk_11',['perplexity_to_k',['../run__tsne_8cpp.html#a70e669cf0eff6584006d032073ea4571',1,'run_tsne.cpp']]]
 ];
