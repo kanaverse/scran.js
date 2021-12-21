@@ -51,7 +51,7 @@ struct NumericMatrix {
      *
      * @return The array in `values` is filled with the values of row `r`.
      */
-    void row(int r, uintptr_t values);
+    void row(int r, uintptr_t values) const;
 
     /** 
      * @param c Requested column.
@@ -59,7 +59,14 @@ struct NumericMatrix {
      *
      * @return The array in `values` is filled with the values of column `c`.
      */
-    void column(int c, uintptr_t values);
+    void column(int c, uintptr_t values) const;
+
+    /** 
+     * @param values Offset to the start of an output array of `int`s of length equal to `nrow()`.
+     *
+     * @return The array in `values` is filled with the permutation vector.
+     */
+    void perm(uintptr_t values) const;
 
     /** 
      * @cond

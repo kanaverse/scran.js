@@ -20,21 +20,21 @@ int NumericMatrix::ncol() const {
     return ptr->ncol();
 }
 
-void NumericMatrix::row(int r, uintptr_t values) {
+void NumericMatrix::row(int r, uintptr_t values) const {
     double* buffer = reinterpret_cast<double*>(values);
-    auto out = ptr->row(r, buffer);
-    if (out != buffer) {
-        std::copy(out, out + ptr->ncol(), buffer);
-    }
+    ptr->row_copy(r, buffer);
     return;
 }
 
-void NumericMatrix::column(int c, uintptr_t values) {
+void NumericMatrix::column(int c, uintptr_t values) const {
     double* buffer = reinterpret_cast<double*>(values);
-    auto out = ptr->column(c, buffer);
-    if (out != buffer) {
-        std::copy(out, out + ptr->nrow(), buffer);
-    }
+    ptr->column_copy(c, buffer);
+    return;
+}
+
+void NumericMatrix::perm(uintptr_t values) const {
+    int* buffer = reinterpret_cast<int*>(values);
+    std::copy(permutation.begin(), permutation.end(), buffer);
     return;
 }
 
@@ -48,6 +48,7 @@ EMSCRIPTEN_BINDINGS(my_class_example) {
         .function("ncol", &NumericMatrix::ncol)
         .function("row", &NumericMatrix::row)
         .function("column", &NumericMatrix::column)
+        .function("permutation", &NumericMatrix::perm)
         ;
 }
 /**
