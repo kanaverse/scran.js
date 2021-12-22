@@ -6,6 +6,10 @@ NumericMatrix::NumericMatrix(const tatami::NumericMatrix* p) : ptr(std::shared_p
 
 NumericMatrix::NumericMatrix(std::shared_ptr<const tatami::NumericMatrix> p) : ptr(std::move(p)) {}
 
+NumericMatrix::NumericMatrix(const tatami::NumericMatrix* p, std::vector<size_t> perm) : ptr(std::shared_ptr<const tatami::NumericMatrix>(p)), permutation(std::move(perm)) {}
+
+NumericMatrix::NumericMatrix(std::shared_ptr<const tatami::NumericMatrix> p, std::vector<size_t> perm) : ptr(std::move(p)), permutation(std::move(perm)) {}
+
 NumericMatrix::NumericMatrix(int nr, int nc, uintptr_t values) {
     JSVector<double> thing(reinterpret_cast<const double*>(values), nr*nc);
     ptr = std::shared_ptr<tatami::NumericMatrix>(new tatami::DenseRowMatrix<double, int, decltype(thing)>(nr, nc, thing));

@@ -22,12 +22,6 @@
  * @return A `NumericMatrix` object containing the file contents.
  */
 NumericMatrix read_matrix_market(uintptr_t buffer, int size, bool compressed) {
-    auto process = [&](auto& stuff) {
-        NumericMatrix output(std::move(stuff.matrix));
-        output.permutation = stuff.permutation;
-        return output;
-    };
-
 #ifdef PROGRESS_PRINTER
     PROGRESS_PRINTER("read_matrix_market", 1, 2, "Loading Matrix Market file")
 #endif 
@@ -40,7 +34,7 @@ NumericMatrix read_matrix_market(uintptr_t buffer, int size, bool compressed) {
         PROGRESS_PRINTER("read_matrix_market", 2, 2, "Done")
 #endif
 
-        return process(stuff);
+        return NumericMatrix(std::move(stuff.matrix), std::move(stuff.permutation));
     } else {
         auto stuff = tatami::MatrixMarket::load_layered_sparse_matrix_from_buffer(bufptr, size);
 
@@ -48,7 +42,7 @@ NumericMatrix read_matrix_market(uintptr_t buffer, int size, bool compressed) {
         PROGRESS_PRINTER("read_matrix_market", 2, 2, "Done")
 #endif
 
-        return process(stuff);
+        return NumericMatrix(std::move(stuff.matrix), std::move(stuff.permutation));
     }
 }
 

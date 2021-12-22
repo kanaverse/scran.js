@@ -26,6 +26,20 @@ struct NumericMatrix {
      */
     NumericMatrix(std::shared_ptr<const tatami::NumericMatrix> p);
 
+    /** Construct a `NumericMatrix` from an existing pointer to a `tatami::NumericMatrix`.
+     *
+     * @param p Pointer to a `tatami::NumericMatrix`.
+     * @param perm Vector of length equal to the number of rows of `p`, containing the permutation vector.
+     */
+    NumericMatrix(const tatami::NumericMatrix* p, std::vector<size_t> perm);
+
+    /** Construct a `NumericMatrix` from an existing pointer to a `tatami::NumericMatrix`.
+     *
+     * @param p Pointer to a `tatami::NumericMatrix`.
+     * @param perm Vector of length equal to the number of rows of `p`, containing the permutation vector.
+     */
+    NumericMatrix(std::shared_ptr<const tatami::NumericMatrix> p, std::vector<size_t> perm);
+
     /**
      * Construct a `NumericMatrix` from a row-major dense array.
      *
