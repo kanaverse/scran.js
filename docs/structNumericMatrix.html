@@ -82,6 +82,10 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:ad2a44d614c57a6bf2a3e400167ebb3e8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a03837f6ccdc2da8a2caa7e2772a2a0fd"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structNumericMatrix.html#a03837f6ccdc2da8a2caa7e2772a2a0fd">NumericMatrix</a> (std::shared_ptr&lt; const tatami::NumericMatrix &gt; p)</td></tr>
 <tr class="separator:a03837f6ccdc2da8a2caa7e2772a2a0fd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2c87cad3beb7a2447351e0563570eea9"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structNumericMatrix.html#a2c87cad3beb7a2447351e0563570eea9">NumericMatrix</a> (const tatami::NumericMatrix *p, std::vector&lt; size_t &gt; <a class="el" href="structNumericMatrix.html#a7dff448fade2ac23b35252674f8ac63e">perm</a>)</td></tr>
+<tr class="separator:a2c87cad3beb7a2447351e0563570eea9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acff718fae5aef63dccf615f0333dfedd"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structNumericMatrix.html#acff718fae5aef63dccf615f0333dfedd">NumericMatrix</a> (std::shared_ptr&lt; const tatami::NumericMatrix &gt; p, std::vector&lt; size_t &gt; <a class="el" href="structNumericMatrix.html#a7dff448fade2ac23b35252674f8ac63e">perm</a>)</td></tr>
+<tr class="separator:acff718fae5aef63dccf615f0333dfedd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af316832630f2a6bd5bd815ffce78018c"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structNumericMatrix.html#af316832630f2a6bd5bd815ffce78018c">NumericMatrix</a> (int nr, int nc, uintptr_t values)</td></tr>
 <tr class="separator:af316832630f2a6bd5bd815ffce78018c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aca9949603c5969178a3d43eb1a352f63"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structNumericMatrix.html#aca9949603c5969178a3d43eb1a352f63">nrow</a> () const</td></tr>
@@ -99,7 +103,7 @@ Public Member Functions</h2></td></tr>
 <div class="textblock"><p >Javascript-visible interface for a matrix of <code>double</code>s. </p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="ad2a44d614c57a6bf2a3e400167ebb3e8" name="ad2a44d614c57a6bf2a3e400167ebb3e8"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad2a44d614c57a6bf2a3e400167ebb3e8">&#9670;&nbsp;</a></span>NumericMatrix() <span class="overload">[1/3]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#ad2a44d614c57a6bf2a3e400167ebb3e8">&#9670;&nbsp;</a></span>NumericMatrix() <span class="overload">[1/5]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -124,7 +128,7 @@ Public Member Functions</h2></td></tr>
 </div>
 </div>
 <a id="a03837f6ccdc2da8a2caa7e2772a2a0fd" name="a03837f6ccdc2da8a2caa7e2772a2a0fd"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a03837f6ccdc2da8a2caa7e2772a2a0fd">&#9670;&nbsp;</a></span>NumericMatrix() <span class="overload">[2/3]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a03837f6ccdc2da8a2caa7e2772a2a0fd">&#9670;&nbsp;</a></span>NumericMatrix() <span class="overload">[2/5]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -148,8 +152,80 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
+<a id="a2c87cad3beb7a2447351e0563570eea9" name="a2c87cad3beb7a2447351e0563570eea9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2c87cad3beb7a2447351e0563570eea9">&#9670;&nbsp;</a></span>NumericMatrix() <span class="overload">[3/5]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">NumericMatrix::NumericMatrix </td>
+          <td>(</td>
+          <td class="paramtype">const tatami::NumericMatrix *&#160;</td>
+          <td class="paramname"><em>p</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::vector&lt; size_t &gt;&#160;</td>
+          <td class="paramname"><em>perm</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p >Construct a <code><a class="el" href="structNumericMatrix.html" title="Javascript-visible interface for a matrix of doubles.">NumericMatrix</a></code> from an existing pointer to a <code>tatami::NumericMatrix</code>.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">p</td><td>Pointer to a <code>tatami::NumericMatrix</code>. </td></tr>
+    <tr><td class="paramname">perm</td><td>Vector of length equal to the number of rows of <code>p</code>, containing the permutation vector. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="acff718fae5aef63dccf615f0333dfedd" name="acff718fae5aef63dccf615f0333dfedd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acff718fae5aef63dccf615f0333dfedd">&#9670;&nbsp;</a></span>NumericMatrix() <span class="overload">[4/5]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">NumericMatrix::NumericMatrix </td>
+          <td>(</td>
+          <td class="paramtype">std::shared_ptr&lt; const tatami::NumericMatrix &gt;&#160;</td>
+          <td class="paramname"><em>p</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::vector&lt; size_t &gt;&#160;</td>
+          <td class="paramname"><em>perm</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p >Construct a <code><a class="el" href="structNumericMatrix.html" title="Javascript-visible interface for a matrix of doubles.">NumericMatrix</a></code> from an existing pointer to a <code>tatami::NumericMatrix</code>.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">p</td><td>Pointer to a <code>tatami::NumericMatrix</code>. </td></tr>
+    <tr><td class="paramname">perm</td><td>Vector of length equal to the number of rows of <code>p</code>, containing the permutation vector. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a id="af316832630f2a6bd5bd815ffce78018c" name="af316832630f2a6bd5bd815ffce78018c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af316832630f2a6bd5bd815ffce78018c">&#9670;&nbsp;</a></span>NumericMatrix() <span class="overload">[3/3]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#af316832630f2a6bd5bd815ffce78018c">&#9670;&nbsp;</a></span>NumericMatrix() <span class="overload">[5/5]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
