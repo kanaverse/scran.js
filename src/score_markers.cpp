@@ -115,6 +115,7 @@ EMSCRIPTEN_BINDINGS(score_markers) {
         .function("means", &ScoreMarkers_Results::means)
         .function("detected", &ScoreMarkers_Results::detected)
         .function("cohen", &ScoreMarkers_Results::cohen)
+        .function("auc", &ScoreMarkers_Results::auc)
         ;
 }
 /**
