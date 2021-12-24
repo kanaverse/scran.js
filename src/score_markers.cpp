@@ -55,8 +55,8 @@ struct ScoreMarkers_Results {
 
     /**
      * @param g Group of interest.
-     * @param s Summary statistic of interest for the per-gene Cohen's D from the pairwise comparisons between `g` and every other group.
-     * This can be the minimum across comparisons (0), mean (1), median (2), maximum (3) or min-rank (4).
+     * @param s Summary statistic of interest for the per-gene Cohen's d from the pairwise comparisons between `g` and every other group.
+     * This can be the minimum across comparisons (0), mean (1) or min-rank (4).
      * 
      * @return `Float64Array` view of length equal to the number of genes.
      * Each entry contains the summarized Cohen's D across all pairwise comparisons between `g` and every other group for a particular gene.
@@ -68,14 +68,40 @@ struct ScoreMarkers_Results {
 
     /**
      * @param g Group of interest.
-     * @param s Summary statistic of interest for the per-gene AUC from the pairwise comparisons between `g` and every other group.
-     * This can be the minimum across comparisons (0), mean (1), median (2), maximum (3) or min-rank (4).
+     * @param s Summary statistic of interest for the per-gene log-fold change from the pairwise comparisons between `g` and every other group.
+     * This can be the minimum across comparisons (0), mean (1) or min-rank (4).
      * 
      * @return `Float64Array` view of length equal to the number of genes.
      * Each entry contains the summarized AUC across all pairwise comparisons between `g` and every other group for a particular gene.
      */
     emscripten::val auc(int g, int s=1) const {
         const auto& current = store.auc[s][g];
+        return emscripten::val(emscripten::typed_memory_view(current.size(), current.data()));
+    }
+
+    /**
+     * @param g Group of interest.
+     * @param s Summary statistic of interest for the per-gene log-fold change from the pairwise comparisons between `g` and every other group.
+     * This can be the minimum across comparisons (0), mean (1) or min-rank (4).
+     * 
+     * @return `Float64Array` view of length equal to the number of genes.
+     * Each entry contains the summarized log-fold change across all pairwise comparisons between `g` and every other group for a particular gene.
+     */
+    emscripten::val lfc(int g, int s=1) const {
+        const auto& current = store.lfc[s][g];
+        return emscripten::val(emscripten::typed_memory_view(current.size(), current.data()));
+    }
+
+    /**
+     * @param g Group of interest.
+     * @param s Summary statistic of interest for the per-gene delta-detected from the pairwise comparisons between `g` and every other group.
+     * This can be the minimum across comparisons (0), mean (1) or min-rank (4).
+     * 
+     * @return `Float64Array` view of length equal to the number of genes.
+     * Each entry contains the summarized delta-detected across all pairwise comparisons between `g` and every other group for a particular gene.
+     */
+    emscripten::val delta_detected(int g, int s=1) const {
+        const auto& current = store.delta_detected[s][g];
         return emscripten::val(emscripten::typed_memory_view(current.size(), current.data()));
     }
 };
@@ -95,6 +121,9 @@ struct ScoreMarkers_Results {
  */
 ScoreMarkers_Results score_markers(const NumericMatrix& mat, uintptr_t groups, bool use_blocks, uintptr_t blocks) {
     scran::ScoreMarkers mrk;
+    mrk.set_summary_max(false);
+    mrk.set_summary_min_rank(false);
+
     const int32_t* gptr = reinterpret_cast<const int32_t*>(groups);
     const int32_t* bptr = NULL;
     if (use_blocks) {
@@ -116,6 +145,8 @@ EMSCRIPTEN_BINDINGS(score_markers) {
         .function("detected", &ScoreMarkers_Results::detected)
         .function("cohen", &ScoreMarkers_Results::cohen)
         .function("auc", &ScoreMarkers_Results::auc)
+        .function("lfc", &ScoreMarkers_Results::lfc)
+        .function("delta_detected", &ScoreMarkers_Results::delta_detected)
         ;
 }
 /**
