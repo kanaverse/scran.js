@@ -122,7 +122,7 @@ struct ScoreMarkers_Results {
 ScoreMarkers_Results score_markers(const NumericMatrix& mat, uintptr_t groups, bool use_blocks, uintptr_t blocks) {
     scran::ScoreMarkers mrk;
     mrk.set_summary_max(false);
-    mrk.set_summary_min_rank(false);
+    mrk.set_summary_median(false);
 
     const int32_t* gptr = reinterpret_cast<const int32_t*>(groups);
     const int32_t* bptr = NULL;
