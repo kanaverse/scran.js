@@ -84,6 +84,10 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a77ce6eb68fd05cff4a5218e4a6fb549c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa9fe11b699db98e8f65f02b29ba30975"><td class="memItemLeft" align="right" valign="top">emscripten::val&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structScoreMarkers__Results.html#aa9fe11b699db98e8f65f02b29ba30975">auc</a> (int g, int s=1) const</td></tr>
 <tr class="separator:aa9fe11b699db98e8f65f02b29ba30975"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6b82560ee5ce8461e0b4ccf9649c1f47"><td class="memItemLeft" align="right" valign="top">emscripten::val&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structScoreMarkers__Results.html#a6b82560ee5ce8461e0b4ccf9649c1f47">lfc</a> (int g, int s=1) const</td></tr>
+<tr class="separator:a6b82560ee5ce8461e0b4ccf9649c1f47"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0d15fe0a83ecec71078cb6c891797518"><td class="memItemLeft" align="right" valign="top">emscripten::val&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structScoreMarkers__Results.html#a0d15fe0a83ecec71078cb6c891797518">delta_detected</a> (int g, int s=1) const</td></tr>
+<tr class="separator:a0d15fe0a83ecec71078cb6c891797518"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p >Javascript-visible wrapper for <code>scran::ScoreMarkers::Results</code>. </p>
@@ -124,7 +128,7 @@ Public Member Functions</h2></td></tr>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">g</td><td>Group of interest. </td></tr>
-    <tr><td class="paramname">s</td><td>Summary statistic of interest for the per-gene AUC from the pairwise comparisons between <code>g</code> and every other group. This can be the minimum across comparisons (0), mean (1), median (2), maximum (3) or min-rank (4).</td></tr>
+    <tr><td class="paramname">s</td><td>Summary statistic of interest for the per-gene log-fold change from the pairwise comparisons between <code>g</code> and every other group. This can be the minimum across comparisons (0), mean (1) or min-rank (4).</td></tr>
   </table>
   </dd>
 </dl>
@@ -168,11 +172,55 @@ Public Member Functions</h2></td></tr>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">g</td><td>Group of interest. </td></tr>
-    <tr><td class="paramname">s</td><td>Summary statistic of interest for the per-gene Cohen's D from the pairwise comparisons between <code>g</code> and every other group. This can be the minimum across comparisons (0), mean (1), median (2), maximum (3) or min-rank (4).</td></tr>
+    <tr><td class="paramname">s</td><td>Summary statistic of interest for the per-gene Cohen's d from the pairwise comparisons between <code>g</code> and every other group. This can be the minimum across comparisons (0), mean (1) or min-rank (4).</td></tr>
   </table>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><code>Float64Array</code> view of length equal to the number of genes. Each entry contains the summarized Cohen's D across all pairwise comparisons between <code>g</code> and every other group for a particular gene. </dd></dl>
+
+</div>
+</div>
+<a id="a0d15fe0a83ecec71078cb6c891797518" name="a0d15fe0a83ecec71078cb6c891797518"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0d15fe0a83ecec71078cb6c891797518">&#9670;&nbsp;</a></span>delta_detected()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">emscripten::val ScoreMarkers_Results::delta_detected </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>g</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>s</em> = <code>1</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">g</td><td>Group of interest. </td></tr>
+    <tr><td class="paramname">s</td><td>Summary statistic of interest for the per-gene delta-detected from the pairwise comparisons between <code>g</code> and every other group. This can be the minimum across comparisons (0), mean (1) or min-rank (4).</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><code>Float64Array</code> view of length equal to the number of genes. Each entry contains the summarized delta-detected across all pairwise comparisons between <code>g</code> and every other group for a particular gene. </dd></dl>
 
 </div>
 </div>
@@ -217,6 +265,50 @@ Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><code>Float64Array</code> view containing the proportion of cells with detected expression for each gene for group <code>g</code> in block <code>b</code>. </dd></dl>
+
+</div>
+</div>
+<a id="a6b82560ee5ce8461e0b4ccf9649c1f47" name="a6b82560ee5ce8461e0b4ccf9649c1f47"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6b82560ee5ce8461e0b4ccf9649c1f47">&#9670;&nbsp;</a></span>lfc()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">emscripten::val ScoreMarkers_Results::lfc </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>g</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>s</em> = <code>1</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">g</td><td>Group of interest. </td></tr>
+    <tr><td class="paramname">s</td><td>Summary statistic of interest for the per-gene log-fold change from the pairwise comparisons between <code>g</code> and every other group. This can be the minimum across comparisons (0), mean (1) or min-rank (4).</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><code>Float64Array</code> view of length equal to the number of genes. Each entry contains the summarized log-fold change across all pairwise comparisons between <code>g</code> and every other group for a particular gene. </dd></dl>
 
 </div>
 </div>
