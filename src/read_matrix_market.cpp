@@ -8,7 +8,7 @@
 #define TATAMI_PROGRESS_PRINTER(name, state, total, message) PROGRESS_PRINTER(name, state, total, message)
 #endif
 
-#include "tatami/ext/MatrixMarket.hpp"
+#include "tatami/ext/MatrixMarket_layered.hpp"
 
 /**
  * Read a (possibly compressed) Matrix Market file into a sparse `NumericMatrix` object.
