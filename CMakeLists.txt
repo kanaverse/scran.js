@@ -22,6 +22,7 @@ add_executable(
     src/run_umap.cpp
     src/cluster_snn_graph.cpp
     src/score_markers.cpp
+    src/run_singlepp.cpp
     src/NumericMatrix.cpp
     src/NeighborIndex.cpp
 )
@@ -35,6 +36,7 @@ target_link_libraries(
     scran
     qdtsne
     umappp
+    singlepp
 )
 
 target_compile_definitions(scran_wasm PRIVATE TATAMI_USE_ZLIB=1)

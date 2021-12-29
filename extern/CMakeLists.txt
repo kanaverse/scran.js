@@ -57,3 +57,10 @@ FetchContent_Declare(
   GIT_TAG master
 )
 FetchContent_MakeAvailable(umappp)
+
+FetchContent_Declare(
+  singlepp
+  GIT_REPOSITORY https://github.com/clusterfork/singlepp
+  GIT_TAG a95f2c35fd36194af5517c07ebb29bd7ae132d66
+)
+FetchContent_MakeAvailable(singlepp)
