@@ -1,21 +1,24 @@
 #include <emscripten/bind.h>
 
+#include "NumericMatrix.h"
+
+#define SINGLEPP_USE_ZLIB
 #include "singlepp/SinglePP.hpp"
 #include "singlepp/load_references.hpp"
 
-#include "tatami/DenseMatrix.hpp"
+#include "tatami/tatami.hpp"
 #include <vector>
 #include <string>
 #include <unordered_map>
 #include <memory>
 
 class Reference {
+public:
     Reference(
         size_t nfeat,
         std::vector<int> rankings,
         singlepp::Markers marks,
-        const std::vector<std::string>& labs) :
-        markers(std::move(marks));
+        const std::vector<std::string>& labs) : markers(std::move(marks))
     {
         size_t nprof = labs.size();
         matrix.reset(new tatami::DenseColumnMatrix<double, int, std::vector<int> >(nfeat, nprof, std::move(rankings)));
@@ -60,11 +63,11 @@ Reference load_reference(
     size_t nfeatures,
     uintptr_t labels_buffer, size_t labels_len,
     uintptr_t markers_buffer, size_t markers_len,
-    uintptr_t ranking_buffer, size_t ranking_len_
+    uintptr_t rankings_buffer, size_t rankings_len)
 { 
     auto lab = singlepp::load_labels_from_zlib_buffer(reinterpret_cast<unsigned char*>(labels_buffer), labels_len);
     auto mark = singlepp::load_markers_from_zlib_buffer(reinterpret_cast<unsigned char*>(markers_buffer), markers_len);
-    auto rank = singlepp::load_rankings_from_zlib_buffer(reinterpret_cast<unsigned char*>(rankings_buffer), nfeatures, lab.size());
+    auto rank = singlepp::load_rankings_from_zlib_buffer(reinterpret_cast<unsigned char*>(rankings_buffer), rankings_len, nfeatures, lab.size());
     return Reference(nfeatures, std::move(rank), std::move(mark), lab);
 }
 
@@ -76,8 +79,11 @@ void run_singlepp(const NumericMatrix& mat, uintptr_t mat_id, const Reference& r
         reinterpret_cast<const int*>(mat_id), 
         ref.matrix.get(), 
         reinterpret_cast<const int*>(ref_id),
+        ref.labels.data(),
         ref.markers,
-        reinterpret_cast<int*>(output)
+        reinterpret_cast<int*>(output),
+        empty,
+        nullptr
     );
     
     return;
@@ -88,7 +94,7 @@ EMSCRIPTEN_BINDINGS(run_singlepp) {
 
     emscripten::function("load_reference", &load_reference);
     
-    emscripten::class_<Reference>("Reference");
+    emscripten::class_<Reference>("Reference")
         .function("nlabels", &Reference::nlabels)
         .function("label", &Reference::label)
         ;
