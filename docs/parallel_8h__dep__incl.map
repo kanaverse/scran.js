@@ -1,9 +1,10 @@
 <map id="parallel.h" name="parallel.h">
-<area shape="rect" id="node1" title=" " alt="" coords="417,5,491,32"/>
+<area shape="rect" id="node1" title=" " alt="" coords="492,5,565,32"/>
 <area shape="rect" id="node2" href="$NeighborIndex_8cpp.html" title=" " alt="" coords="5,80,135,107"/>
 <area shape="rect" id="node3" href="$cluster__snn__graph_8cpp.html" title="Identify clusters from a shared nearest&#45;neighbor graph." alt="" coords="159,80,311,107"/>
 <area shape="rect" id="node4" href="$parallel_8cpp.html" title=" " alt="" coords="336,80,423,107"/>
 <area shape="rect" id="node5" href="$per__cell__qc__metrics_8cpp.html" title="Compute per&#45;cell QC metrics from the count matrix." alt="" coords="447,80,610,107"/>
 <area shape="rect" id="node6" href="$run__tsne_8cpp.html" title="Visualize cells with t&#45;SNE." alt="" coords="634,80,730,107"/>
 <area shape="rect" id="node7" href="$run__umap_8cpp.html" title="Visualize cells with UMAP." alt="" coords="755,80,857,107"/>
+<area shape="rect" id="node8" href="$score__markers_8cpp.html" title="Compute marker scores for each gene in each group of cells." alt="" coords="881,80,1013,107"/>
 </map>
