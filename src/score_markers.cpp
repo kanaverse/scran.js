@@ -2,8 +2,10 @@
 
 #include "NumericMatrix.h"
 #include "utils.h"
+#include "parallel.h"
 
 #include "scran/differential_analysis/ScoreMarkers.hpp"
+#include "tatami/base/DelayedSubsetBlock.hpp"
 
 #include <vector>
 #include <algorithm>
@@ -107,6 +109,24 @@ struct ScoreMarkers_Results {
 };
 
 /**
+ * @cond
+ */
+template<typename Stat>
+std::vector<std::vector<Stat*> > vector_to_pointers2(std::vector<std::vector<std::vector<Stat> > >& input, size_t offset) {
+    std::vector<std::vector<Stat*> > ptrs;
+    for (auto& current : input) {
+        ptrs.push_back(scran::vector_to_pointers(current));
+        for (auto& p : ptrs.back()) {
+            p += offset;
+        }
+    }
+    return ptrs;
+}
+/**
+ * @endcond
+ */
+
+/**
  * Identify potential markers for groups of cells with a range of effect size statistics.
  *
  * @param mat An input log-expression matrix containing features in rows and cells in columns.
@@ -120,17 +140,43 @@ struct ScoreMarkers_Results {
  * @return A `ScoreMarkers_Results` containing summary statistics from comparisons between groups of cells.
  */
 ScoreMarkers_Results score_markers(const NumericMatrix& mat, uintptr_t groups, bool use_blocks, uintptr_t blocks) {
-    scran::ScoreMarkers mrk;
-    mrk.set_summary_max(false);
-    mrk.set_summary_median(false);
-
     const int32_t* gptr = reinterpret_cast<const int32_t*>(groups);
     const int32_t* bptr = NULL;
     if (use_blocks) {
         bptr = reinterpret_cast<const int32_t*>(blocks);
     }
+
+#ifdef __EMSCRIPTEN_PTHREADS__
+    size_t ngroups = *std::max_element(gptr, gptr + mat.ncol()) + 1;
+    size_t nblocks = (use_blocks ? nblocks = *std::max_element(bptr, bptr + mat.ncol()) : 0) + 1;
+
+    // Setting up the output spaces.
+    auto do_effects = scran::ScoreMarkers::Defaults::compute_all_summaries();
+    do_effects[scran::differential_analysis::MAX] = false;
+    do_effects[scran::differential_analysis::MEDIAN] = false;
+    scran::ScoreMarkers::Results<double> store(mat.nrow(), ngroups, nblocks, do_effects, do_effects, do_effects, do_effects);
     
+    // Parallelizing.
+    run_parallel([&](int left, int right) -> void {
+        auto mean_ptrs = vector_to_pointers2(store.means, left);
+        auto detect_ptrs = vector_to_pointers2(store.detected, left);
+
+        auto cohen_ptrs = vector_to_pointers2(store.cohen, left);
+        auto auc_ptrs = vector_to_pointers2(store.auc, left);
+        auto lfc_ptrs = vector_to_pointers2(store.lfc, left);
+        auto delta_ptrs = vector_to_pointers2(store.delta_detected, left);
+
+        auto sub = tatami::make_DelayedSubsetBlock<0>(mat.ptr, left, right);
+        scran::ScoreMarkers runner;
+        runner.run_blocked(sub.get(), gptr, bptr, mean_ptrs, detect_ptrs, cohen_ptrs, auc_ptrs, lfc_ptrs, delta_ptrs);
+    }, mat.nrow());
+#else
+    scran::ScoreMarkers mrk;
+    mrk.set_summary_max(false);
+    mrk.set_summary_median(false);
     auto store = mrk.run_blocked(mat.ptr.get(), gptr, bptr);
+#endif
+
     return ScoreMarkers_Results(std::move(store));
 }
 

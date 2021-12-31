@@ -94,6 +94,20 @@ class WasmBuffer {
         return WasmBuffer.toArray(this.wasm, ptr, this.size, this.type);
     }
 
+    fill(x) {
+        this.array().fill(x);
+        return;
+    }
+
+    set(x) {
+        this.array().set(x);
+        return;
+    }
+
+    clone() {
+        return this.array().slice();
+    }
+
     free() {
         this.wasm._free(this.ptr);
         this.ptr = null;
