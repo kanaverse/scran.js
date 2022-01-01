@@ -8,7 +8,7 @@
 
 template<typename T>
 struct SuperNakedArray {
-    SuperNakedArray(uintptr_t x, size_t len, std::string type) {
+    SuperNakedArray(uintptr_t x, size_t n, std::string type) : len(n) {
         if (type == "Int8Array") {
             current = I8;
             i8 = spawn<int8_t>(x, len);
@@ -48,6 +48,7 @@ struct SuperNakedArray {
     enum IntType { I8, U8, I16, U16, I32, U32, I64, U64, F32, F64 };
 
     IntType current;
+    size_t len;
     tatami::NakedArray<int8_t> i8;
     tatami::NakedArray<uint8_t> u8;
     tatami::NakedArray<int16_t> i16;
@@ -91,28 +92,7 @@ public:
     }
 
     size_t size() const {
-        switch (current) {
-            case I8:
-                return i8.size();
-            case U8:
-                return u8.size();
-            case I16:
-                return i16.size();
-            case U16:
-                return u16.size();
-            case I32:
-                return i32.size();
-            case U32:
-                return u32.size();
-            case I64:
-                return i64.size();
-            case U64:
-                return u64.size();
-            case F32:
-                return f32.size();
-            case F64:
-                return f64.size();
-        }
+        return len;
     }
 
 public:
@@ -282,4 +262,15 @@ NumericMatrix initialize_sparse_matrix(size_t nrows, size_t ncols, size_t neleme
     auto output = tatami::convert_to_layered_sparse(mat.get()); 
     return NumericMatrix(std::move(output.matrix), std::move(output.permutation));
 }
-    
+
+/**
+ * @cond
+ */
+EMSCRIPTEN_BINDINGS(initialize_sparse_matrix) {
+    emscripten::function("initialize_sparse_matrix", &initialize_sparse_matrix);
+
+    emscripten::function("initialize_sparse_matrix_from_dense_vector", &initialize_sparse_matrix_from_dense_vector);
+}
+/**
+ * @endcond
+ */
