@@ -238,7 +238,8 @@ NumericMatrix initialize_sparse_matrix_from_dense_vector(size_t nrows, size_t nc
  * @param index_type Type of the `indices` array, as the name of a TypedArray subclass.
  * @param[in] indptrs Offset to an integer array of length `nelements` containing the index pointers for each row/column in the compressed sparse format.
  * @param indptr_type Type of the `indptrs` array, as the name of a TypedArray subclass.
- * @param csc Are the inputs in column-sparse compressed format?
+ * @param csc Are the inputs in compressed sparse column format?
+ * Set to `false` for data in the compressed sparse row format.
  *
  * @return A `NumericMatrix` containing a layered sparse matrix.
  */
@@ -250,12 +251,13 @@ NumericMatrix initialize_sparse_matrix(size_t nrows, size_t ncols, size_t neleme
 {
     SuperNakedArray<int> val(values, nelements, value_type);
     SuperNakedArray<int> idx(indices, nelements, index_type);
-    SuperNakedArray<size_t> ind(indptrs, nelements, indptr_type);
 
     std::shared_ptr<tatami::Matrix<double, int> > mat; 
     if (csc) {
+        SuperNakedArray<size_t> ind(indptrs, ncols + 1, indptr_type);
         mat.reset(new tatami::CompressedSparseColumnMatrix<double, int, decltype(val), decltype(idx), decltype(ind)>(nrows, ncols, val, idx, ind));
     } else {
+        SuperNakedArray<size_t> ind(indptrs, nrows + 1, indptr_type);
         mat.reset(new tatami::CompressedSparseRowMatrix<double, int, decltype(val), decltype(idx), decltype(ind)>(nrows, ncols, val, idx, ind));
     }
 
