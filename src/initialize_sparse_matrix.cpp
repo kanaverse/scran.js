@@ -117,15 +117,23 @@ public:
 
 public:
     struct Iterator {
+        Iterator() : parent(NULL), index(0) {}
+
         Iterator(const SuperNakedArray* p, size_t i) : parent(p), index(i) {}
 
         const SuperNakedArray* parent;
-        size_t index = 0;
+        size_t index;
 
+    public:
         T operator*() const {
             return (*parent)[index];
         }
 
+        T operator[](size_t i) const {
+            return (*parent)[index + i];
+        }
+
+    public:
         bool operator==(const Iterator& right) const {
             return index == right.index;
         }
@@ -134,6 +142,23 @@ public:
             return !(*this == right);
         }
 
+        bool operator<(const Iterator& right) const {
+            return index < right.index;
+        }
+
+        bool operator>=(const Iterator& right) const {
+            return !(*this < right);
+        }
+
+        bool operator>(const Iterator& right) const {
+            return index > right.index;
+        }
+
+        bool operator<=(const Iterator& right) const {
+            return !(*this > right);
+        }
+
+    public:
         Iterator& operator+=(size_t n) {
             index += n;
             return *this;
@@ -144,12 +169,39 @@ public:
             return *this;
         }
 
+        Iterator operator++(int) {
+            auto copy = *this;
+            ++(*this);
+            return copy;
+        }
+
+        Iterator& operator-=(size_t n) {
+            index -= n;
+            return *this;
+        }
+
+        Iterator& operator--() {
+            *this -= 1;
+            return *this;
+        }
+
+        Iterator operator--(int) {
+            auto copy = *this;
+            --(*this);
+            return copy;
+        }
+
+    public:
         Iterator operator+(size_t n) const {
             return Iterator(parent, index + n);
         }
 
         Iterator operator-(size_t n) const {
             return Iterator(parent, index - n);
+        }
+
+        friend Iterator operator+(size_t n, const Iterator& it) {
+            return Iterator(it.parent, it.index + n);
         }
 
         ptrdiff_t operator-(const Iterator& right) const {
@@ -163,12 +215,13 @@ public:
             return out;
         }
 
+    public:
         // Tags to pretend it's an iterator, at least enough for tatami to work.
-        using iterator_category = std::forward_iterator_tag;
+        using iterator_category = std::random_access_iterator_tag;
         using difference_type = std::ptrdiff_t;
         using value_type = T;
-        using pointer = T*;  
-        using reference = T&; 
+        using pointer = const T*;  
+        using reference = const T&; 
     };
 
     Iterator begin() const {
