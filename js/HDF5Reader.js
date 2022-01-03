@@ -55,10 +55,43 @@ function cloneIntoWasmBuffer(wasm, arr) {
     return output;
 }
 
-function readMatrix(wasm, buffer, path) {
+function readMatrixFromHDF5(wasm, buffer, path = null) {
     var f = new hdf5.File(buffer, "HDF5");
-    let entity = f.get(path);
 
+    // Let's try to guess the path.
+    if (path === null) {
+      if (f.keys.indexOf("X") != -1) {
+        path = "X";
+      } else if (f.keys.indexOf("matrix") != -1) {
+        path = "matrix";
+      } else {
+        var sparse_opts = [];
+        var dense_opts = [];
+
+        // Try to pick out sparse formats.
+        for (var i = 0; i < f.keys.length; i++) {
+          var current = f.values[i];
+          if (current instanceof hdf5.Group) {
+            var cur_keys = current.keys;
+            if (cur_keys.indexOf("data") != -1 && cur_keys.indexOf("indices") && cur_keys.indexOf("indptr")) {
+              sparse_opts.push(f.keys[i]);
+            }
+          } else if (current instanceof hdf5.Dataset && current.shape.length == 2) {
+            dense_opts.push(f.keys[i]);
+          }
+        }
+
+        if (sparse_opts.length) {
+          path = sparse_opts[0];
+        } else if (dense_opts.length) {
+          path = dense_opts[0];
+        } else {
+          throw "could not automatically find a suitable 'path' inside the HDF5 file";
+        }
+      }
+    }
+
+    let entity = f.get(path);
     var output;
     if (entity instanceof hdf5.Dataset) {
         // i.e., we're dealing with a dense dataset.
