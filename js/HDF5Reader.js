@@ -179,3 +179,65 @@ function readMatrixFromHDF5(wasm, buffer, path = null) {
 
     return output;
 }
+
+function guessGenesFromHDF5(buffer) {
+  var f = new hdf5.File(buffer, "HDF5");
+
+  // Does it have a 'var' group?
+  var index = f.keys.indexOf("var");
+  if (index != -1) {
+    var vars = f.values[index];
+    if (! (vars instanceof hdf5.Group)) {
+      throw "expected 'var' to be a HDF5 group";
+    }
+
+    var index2 = vars.keys.indexOf("_index");
+    if (index2 == -1 || ! (vars.values[index2] instanceof hdf5.Dataset)) {
+      throw "expected 'var' to contain an '_index' dataset";
+    }
+
+    var output = {};
+    output._index = vars.values[index2].value;
+
+    // Also include anything else that might be a gene symbol.
+    for (var i = 0; i < vars.keys.length; i++) {
+      if (i == index2) {
+        continue;
+      }
+
+      var field = vars.keys[i];
+      if (field.match(/name/i) || field.match(/symbol/i)) {
+        output[field] = vars.values[i].value;            
+      }
+    }
+
+    return output;
+  } 
+
+  // Does it have a 'features' group?
+  var index = f.keys.indexOf("features");
+  if (index != -1) {
+    var feats = f.values[index];
+    if (! (feats instanceof hdf5.Group)) {
+      throw "expected 'features' to be a HDF5 group";
+    }
+
+    var id_index = feats.keys.indexOf("id");
+    if (id_index == -1 || ! (feats.values[id_index] instanceof hdf5.Dataset)) {
+      throw "expected 'features' to contain a 'id' dataset";
+    }
+
+    var name_index = feats.keys.indexOf("name");
+    if (name_index == -1 || ! (feats.values[name_index] instanceof hdf5.Dataset)) {
+      throw "expected 'features' to contain a 'name' dataset";
+    }
+
+    var output = {};
+    output.id = feats.values[id_index].value;
+    output.name = feats.values[name_index].value;
+    return output;
+  }
+
+  return null;
+}
+
