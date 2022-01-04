@@ -106,6 +106,25 @@ struct ScoreMarkers_Results {
         const auto& current = store.delta_detected[s][g];
         return emscripten::val(emscripten::typed_memory_view(current.size(), current.data()));
     }
+
+    /**
+     * @return Number of groups in the marker results.
+     */
+    size_t num_groups() const {
+        return store.detected.size();
+    }
+
+    /**
+     * @return Number of blocks used, see `b` in `means()` and `detected()`.
+     * If no groups are available, zero is returned regardless of whether more blocks were used in `score_markers()`.
+     */
+    size_t num_blocks() const {
+        if (num_groups()) {
+          return store.detected.front().size();
+        } else {
+           return 0;
+        }
+    }
 };
 
 /**
@@ -193,6 +212,8 @@ EMSCRIPTEN_BINDINGS(score_markers) {
         .function("auc", &ScoreMarkers_Results::auc)
         .function("lfc", &ScoreMarkers_Results::lfc)
         .function("delta_detected", &ScoreMarkers_Results::delta_detected)
+        .function("num_groups", &ScoreMarkers_Results::num_groups)
+        .function("num_blocks", &ScoreMarkers_Results::num_blocks)
         ;
 }
 /**
