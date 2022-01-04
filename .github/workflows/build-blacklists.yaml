@@ -1,0 +1,50 @@
+on:
+  push:
+    branches:
+      - master
+
+name: "Build blacklists"
+
+jobs:
+  build:
+    name: Build blacklists
+    runs-on: ubuntu-latest
+    container: bioconductor/bioconductor_docker:devel
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set directories
+      run: |
+        echo "R_PKG_DIR=${R_HOME}/site-library" >> $GITHUB_ENV
+        R --slave -e 'cat(paste0("R_CACHE_DIR=", dirname(tools::R_user_dir("asdasd", "cache")), "\n"))' >> $GITHUB_ENV
+
+    - name: Restore the package directory
+      uses: actions/cache@v2
+      with:
+        path: ${{ env.R_PKG_DIR }}
+        key: preinstalled-packages
+
+    - name: Restore the Hub directories
+      uses: actions/cache@v2
+      with:
+        path: ${{ env.R_CACHE_DIR }}
+        key: hub-cache2
+
+    - name: Install dependencies
+      shell: Rscript {0}
+      run: BiocManager::install(c("AnnotationHub", "ensembldb"))
+
+    - name: Run the formatter
+      shell: Rscript {0}
+      run: source("js/blacklists.js.R")
+
+    - name: Publish human reference datasets
+      uses: ncipollo/release-action@v1
+      with:
+        allowUpdates: true
+        removeArtifacts: true
+        artifactErrorsFailBuild: true
+        artifacts: "blacklists/*"
+        name: blacklists
+        tag: blacklists
+        body: "Various blacklists for problematic genes."
