@@ -13,7 +13,7 @@ int find_num_threads();
 }
 
 template<class Function>
-void run_parallel(Function fun, int total) { 
+void run_parallel(int total, Function fun) {
     int nworkers = find_num_threads();
     int jobs_per_worker = std::ceil(static_cast<double>(total)/nworkers);
     std::vector<std::thread> workers;
@@ -29,6 +29,8 @@ void run_parallel(Function fun, int total) {
         wrk.join();
     }
 }
+
+#define TATAMI_CUSTOM_PARALLEL run_parallel
 
 #endif
 #endif

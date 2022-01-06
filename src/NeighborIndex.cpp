@@ -36,11 +36,11 @@ NeighborResults find_nearest_neighbors(const NeighborIndex& index, int k) {
     auto& x = output.neighbors;
 
 #ifdef __EMSCRIPTEN_PTHREADS__
-    run_parallel([&](int left, int right) -> void {
+    run_parallel(nc, [&](int left, int right) -> void {
         for (int i = left; i < right; ++i) {
             x[i] = search->find_nearest_neighbors(i, k);
         }
-    }, nc);
+    });
 #else
     for (size_t i = 0; i < nc; ++i) {
         x[i] = search->find_nearest_neighbors(i, k);

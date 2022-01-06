@@ -1,7 +1,5 @@
 #include <emscripten/bind.h>
 #include "NumericMatrix.h"
-
-#include "tatami/tatami.hpp"
 #include "tatami/ext/convert_to_layered_sparse.hpp"
 #include "tatami/ext/SomeNumericArray.hpp"
 
