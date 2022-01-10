@@ -22,10 +22,10 @@ tatami::SomeNumericArray<T> create_SomeNumericArray(uintptr_t ptr, size_t len, s
         t = tatami::SomeNumericArray<T>::I32;
     } else if (type == "Uint32Array") {
         t = tatami::SomeNumericArray<T>::U32;
-    } else if (type == "Int64Array") {
-        t = tatami::SomeNumericArray<T>::I64;
-    } else if (type == "Uint64Array") {
-        t = tatami::SomeNumericArray<T>::U64;
+    } else if (type == "BigInt64Array") {
+        t = tatami::SomeNumericArray<T>::F64; // Aliasing these for the time being, as there is no BigInt support in the Wasm heap.
+    } else if (type == "BigUint64Array") {
+        t = tatami::SomeNumericArray<T>::F64; // See above.
     } else if (type == "Float32Array") {
         t = tatami::SomeNumericArray<T>::F32;
     } else if (type == "Float64Array") {
