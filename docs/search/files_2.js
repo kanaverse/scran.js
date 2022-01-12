@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['initialize_5fsparse_5fmatrix_2ecpp_0',['initialize_sparse_matrix.cpp',['../initialize__sparse__matrix_8cpp.html',1,'']]]
+  ['get_5ferror_5fmessage_2ecpp_0',['get_error_message.cpp',['../get__error__message_8cpp.html',1,'']]]
 ];
