@@ -25,6 +25,7 @@ add_executable(
     src/score_markers.cpp
     src/NumericMatrix.cpp
     src/NeighborIndex.cpp
+    src/get_error_message.cpp
 )
 
 target_compile_options(
@@ -42,7 +43,7 @@ target_compile_definitions(scran_wasm PRIVATE TATAMI_USE_ZLIB=1)
 
 set_target_properties(scran_wasm PROPERTIES 
     OUTPUT_NAME scran
-    LINK_FLAGS "-O2 --bind -s ALLOW_MEMORY_GROWTH=1 -s MAXIMUM_MEMORY=4GB -s FORCE_FILESYSTEM=1 -s USE_ZLIB=1 -s MODULARIZE=1 -s EXPORT_NAME=loadScran -s EXPORT_ES6=1"
+    LINK_FLAGS "-O2 --bind -s ALLOW_MEMORY_GROWTH=1 -s MAXIMUM_MEMORY=4GB -s FORCE_FILESYSTEM=1 -s USE_ZLIB=1 -s MODULARIZE=1 -s EXPORT_NAME=loadScran"
 )
 
 set(COMPILE_NODE OFF CACHE BOOL "Compile for Node.js")
