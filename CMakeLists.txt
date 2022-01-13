@@ -43,7 +43,7 @@ target_compile_definitions(scran_wasm PRIVATE TATAMI_USE_ZLIB=1)
 
 set_target_properties(scran_wasm PROPERTIES 
     OUTPUT_NAME scran
-    LINK_FLAGS "-O2 --bind -s ALLOW_MEMORY_GROWTH=1 -s MAXIMUM_MEMORY=4GB -s FORCE_FILESYSTEM=1 -s USE_ZLIB=1 -s MODULARIZE=1 -s EXPORT_NAME=loadScran"
+    LINK_FLAGS "-O2 --bind -s ALLOW_MEMORY_GROWTH=1 -s MAXIMUM_MEMORY=4GB -s USE_ZLIB=1 -s MODULARIZE=1 -s EXPORT_NAME=loadScran -s EXPORT_ES6"
 )
 
 set(COMPILE_NODE OFF CACHE BOOL "Compile for Node.js")
