@@ -4,7 +4,8 @@ library(AnnotationHub)
 ahub <- AnnotationHub()
 tag <- c(
     "AH95775", # Ensembl mouse v104
-    "AH95744"  # Ensembl human v104
+    "AH95744", # Ensembl human v104
+    "AH95683"  # Ensembl C. elegans v104
 )
 
 blacklists <- list(
@@ -17,7 +18,7 @@ for (e in tag) {
     ens <- ahub[[e]]
     info <- select(ens, keys=keys(ens), keytype="GENEID", columns=c("GENEID", "SYMBOL", "SEQNAME", "GENEBIOTYPE"))
 
-    is.mito <- info$SEQNAME %in% c("MT", "M", "chrM", "chrMT")
+    is.mito <- info$SEQNAME %in% c("MT", "M", "chrM", "chrMT", "MtDNA")
     blacklists$mito$ensembl <- c(blacklists$mito$ensembl, info$GENEID[is.mito])
     blacklists$mito$symbol <- c(blacklists$mito$symbol, info$SYMBOL[is.mito])
 
