@@ -1,24 +1,4 @@
-/* 
- * Copyright 2021 Aaron Lun and Jayaram Kancherla
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the "Software"), to deal in
- * the Software without restriction, including without limitation the rights to
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
- * of the Software, and to permit persons to whom the Software is furnished to do
- * so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
+import { Module } from "./Module.js";
 
 /** 
  * Manage an array allocation on the Wasm heap.
@@ -71,22 +51,19 @@ export class WasmArray {
     /**
      * Create an allocation on the Wasm heap.
      *
-     * @param {object} wasm The Wasm module object.
      * @param {number} size Size of the array in terms of the number of elements.
      * @param {number} type Type of the array, as the name of a `TypedArray` subclass.
      */
-    constructor(wasm, size, type) {
-        const curtype = WasmBuffer.mapping[type];
-        this.ptr = wasm._malloc(size * curtype.size);
+    constructor(size, type) {
+        const curtype = WasmArray.mapping[type];
+        this.ptr = Module._malloc(size * curtype.size);
         this.size = size;
         this.type = type;
-        this.wasm = wasm;
     }
 
     /** 
      * Convert a Wasm heap allocation into a `TypedArray`.
      *
-     * @param {object} wasm The Wasm module object.
      * @param {number} ptr Offset to the start of the array on the Wasm heap.
      * @param {number} size Size of the array in terms of the number of elements.
      * @param {number} type Type of the array, as the name of a `TypedArray` subclass.
@@ -95,9 +72,9 @@ export class WasmArray {
      *
      * We generally recommend re-obtaining the view after any Wasm allocations as these may be invalidated if the heap moves.
      */
-    static toTypedArray(wasm, ptr, size, type) {
-        const curtype = WasmBuffer.mapping[type];
-        const buffer = wasm[curtype["wasm"]].buffer;
+    static toTypedArray(ptr, size, type) {
+        const curtype = WasmArray.mapping[type];
+        const buffer = Module[curtype["wasm"]].buffer;
 
         let arr;
         if (type == "Float64Array") {
@@ -124,7 +101,6 @@ export class WasmArray {
 
         return arr;
     }
-
     
     /** 
      * Obtain a `TypedArray` view on the current allocation.
@@ -138,7 +114,7 @@ export class WasmArray {
         if (ptr === null) {
             throw "cannot create TypedArray from a null pointer";
         }
-        return WasmBuffer.toArray(this.wasm, ptr, this.size, this.type);
+        return WasmArray.toTypedArray(ptr, this.size, this.type);
     }
 
     /**
@@ -181,7 +157,9 @@ export class WasmArray {
      * @return Memory is freed and this allocation is invalidated.
      */
     free() {
-        this.wasm._free(this.ptr);
+        Module._free(this.ptr);
         this.ptr = null;
     }
 }
+
+export default WasmArray;
