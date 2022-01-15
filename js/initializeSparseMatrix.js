@@ -1,6 +1,5 @@
-import { WasmArray } from "./WasmArray.js";
-
-import { Module } from "./Module.js";
+import WasmArray from "./WasmArray.js";
+import Module from "./Module.js";
 
 /**
  * Initialize a sparse matrix from its compressed components.
@@ -18,11 +17,11 @@ import { Module } from "./Module.js";
  *
  * @return A `NumericMatrix` object (see the Wasm documentation) containing a layered sparse matrix.
  */ 
-function initializeSparseMatrixFromCompressed(nrow, ncol, values, indices, indptrs, csc) {
+export function initializeSparseMatrixFromCompressed(nrow, ncol, values, indices, indptrs, csc = true) {
     if (values.size != indices.size) {
         throw "'values' and 'indices' should have the same length";
     }
-    if (indptrs.length != (csc ? ncol : nrow) + 1) {
+    if (indptrs.size != (csc ? ncol : nrow) + 1) {
         throw "'indptrs' does not have an appropriate length";
     }
     

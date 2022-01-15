@@ -1,3 +1,5 @@
 import loadScran from "../build/scran.js";
 
-export const Module = await loadScran();
+const Module = await loadScran({ "locateFile": (x) => import.meta.url.substring(7) + "/../../build/" + x });
+
+export default Module;

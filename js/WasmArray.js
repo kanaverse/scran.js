@@ -1,10 +1,10 @@
-import { Module } from "./Module.js";
+import Module from "./Module.js";
 
 /** 
  * Manage an array allocation on the Wasm heap.
  * This wraps the Wasm `_malloc` and `free` commands and provides a simple method to obtain a `TypedArray` view.
  */
-export class WasmArray {
+class WasmArray {
     static mapping =  {
         Float64Array: {
             size: 8,
