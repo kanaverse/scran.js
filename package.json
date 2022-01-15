@@ -1,0 +1,12 @@
+{
+    "type": "module",
+    "scripts": {
+        "test": "node --experimental-vm-modules --experimental-wasm-threads --experimental-wasm-bulk-memory node_modules/jest/bin/jest.js"
+    },
+    "devDependencies": {
+        "@babel/plugin-transform-modules-commonjs": "^7.16.8"
+    },
+    "dependencies": {
+        "jest": "^27.4.7"
+    }
+}
