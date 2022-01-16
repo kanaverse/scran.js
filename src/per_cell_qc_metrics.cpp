@@ -43,6 +43,7 @@ EMSCRIPTEN_BINDINGS(per_cell_qc_metrics) {
         .function("sums", &PerCellQCMetrics_Results::sums)
         .function("detected", &PerCellQCMetrics_Results::detected)
         .function("subset_proportions", &PerCellQCMetrics_Results::subset_proportions)
+        .function("num_subsets", &PerCellQCMetrics_Results::num_subsets)
         ;
 }
 /**
