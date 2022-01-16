@@ -104,4 +104,3 @@ test("initialization from Gzipped MatrixMarket works correctly with Gzip", () =>
     mat2.free();
     buffer.free();
 })
-

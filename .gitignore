@@ -3,3 +3,5 @@ docs/html/
 docs/latex/
 *.swp
 testing
+tests-data
+node_modules/
