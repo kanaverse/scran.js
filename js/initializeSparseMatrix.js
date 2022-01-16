@@ -1,5 +1,5 @@
-import WasmArray from "./WasmArray.js";
 import Module from "./Module.js";
+import { LayeredSparseMatrix } from "./SparseMatrix.js";
 
 /**
  * Initialize a sparse matrix from its compressed components.
@@ -15,7 +15,7 @@ import Module from "./Module.js";
  * @param {bool} csc Whether the supplied arrays refer to compressed sparse column format.
  * If `false`, `indices` should contain column indices and `indptrs` should specify the start of each row.
  *
- * @return A `NumericMatrix` object (see the Wasm documentation) containing a layered sparse matrix.
+ * @return A `LayeredSparseMatrix` object containing a layered sparse matrix.
  */ 
 export function initializeSparseMatrixFromCompressed(nrow, ncol, values, indices, indptrs, csc = true) {
     if (values.size != indices.size) {
@@ -24,7 +24,7 @@ export function initializeSparseMatrixFromCompressed(nrow, ncol, values, indices
     if (indptrs.size != (csc ? ncol : nrow) + 1) {
         throw "'indptrs' does not have an appropriate length";
     }
-    
+
     var output;
     try {
         output = Module.initialize_sparse_matrix(
@@ -32,16 +32,16 @@ export function initializeSparseMatrixFromCompressed(nrow, ncol, values, indices
             ncol, 
             values.size, 
             values.ptr, 
-            values.type, 
+            values.constructor.name.replace("Wasm", ""), 
             indices.ptr, 
-            indices.type, 
+            indices.constructor.name.replace("Wasm", ""), 
             indptrs.ptr, 
-            indptrs.type, 
+            indptrs.constructor.name.replace("Wasm", ""), 
             csc
         );
     } catch(e) {
         throw Module.get_error_message(e);
     }
 
-    return output;
+    return new LayeredSparseMatrix(output);
 }

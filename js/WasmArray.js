@@ -4,119 +4,18 @@ import Module from "./Module.js";
  * Manage an array allocation on the Wasm heap.
  * This wraps the Wasm `_malloc` and `free` commands and provides a simple method to obtain a `TypedArray` view.
  */
-class WasmArray {
-    static mapping =  {
-        Float64Array: {
-            size: 8,
-            wasm: "HEAPF64",
-        },
-        Float32Array: {
-            size: 4,
-            wasm: "HEAPF32",
-        },
-        Int8Array: {
-            size: 1,
-            wasm: "HEAP8",
-        },
-        Uint8Array: {
-            size: 1,
-            wasm: "HEAPU8",
-        },
-        Int16Array: {
-            size: 2,
-            wasm: "HEAP16",
-        },
-        Uint16Array: {
-            size: 2,
-            wasm: "HEAPU16",
-        },
-        Int32Array: {
-            size: 4,
-            wasm: "HEAP32",
-        },
-        Uint32Array: {
-            size: 4,
-            wasm: "HEAPU32",
-        },
-        Int64Array: {
-            size: 8,
-            wasm: "HEAP64",
-        },
-        Uint64Array: {
-            size: 8,
-            wasm: "HEAPU64",
-        }
-    };
-
+export class WasmArray {
     /**
      * Create an allocation on the Wasm heap.
      *
-     * @param {number} size Size of the array in terms of the number of elements.
-     * @param {number} type Type of the array, as the name of a `TypedArray` subclass.
+     * @param {number} size Length of the array in terms of the number of elements.
+     * @param {number} type Size of the data type, usually one of 1, 2, 4 or 8.
      */
     constructor(size, type) {
-        const curtype = WasmArray.mapping[type];
-        this.ptr = Module._malloc(size * curtype.size);
+        this.ptr = Module._malloc(size * type);
         this.size = size;
-        this.type = type;
     }
-
-    /** 
-     * Convert a Wasm heap allocation into a `TypedArray`.
-     *
-     * @param {number} ptr Offset to the start of the array on the Wasm heap.
-     * @param {number} size Size of the array in terms of the number of elements.
-     * @param {number} type Type of the array, as the name of a `TypedArray` subclass.
-     *
-     * @return A `TypedArray` view of the data at the specified offset.
-     *
-     * We generally recommend re-obtaining the view after any Wasm allocations as these may be invalidated if the heap moves.
-     */
-    static toTypedArray(ptr, size, type) {
-        const curtype = WasmArray.mapping[type];
-        const buffer = Module[curtype["wasm"]].buffer;
-
-        let arr;
-        if (type == "Float64Array") {
-            arr = new Float64Array(buffer, ptr, size);
-        } else if (type == "Float32Array") {
-            arr = new Float32Array(buffer, ptr, size);
-        } else if (type == "Int8Array") {
-            arr = new Int8Array(buffer, ptr, size);
-        } else if (type == "Uint8Array") {
-            arr = new Uint8Array(buffer, ptr, size);
-        } else if (type == "Int16Array") {
-            arr = new Int16Array(buffer, ptr, size);
-        } else if (type == "Uint16Array") {
-            arr = new Uint16Array(buffer, ptr, size);
-        } else if (type == "Int32Array") {
-            arr = new Int32Array(buffer, ptr, size);
-        } else if (type == "Uint32Array") {
-            arr = new Uint32Array(buffer, ptr, size);
-        } else if (type == "Int64Array") {
-            arr = new Int64Array(buffer, ptr, size);
-        } else if (type == "Uint64Array") {
-            arr = new Uint64Array(buffer, ptr, size);
-        }
-
-        return arr;
-    }
-    
-    /** 
-     * Obtain a `TypedArray` view on the current allocation.
-     *
-     * @return A `TypedArray` view of the data in this allocation.
-     *
-     * We generally recommend re-obtaining the view after any Wasm allocations as these may be invalidated if the heap moves.
-     */
-    array() {
-        const ptr = this.ptr;
-        if (ptr === null) {
-            throw "cannot create TypedArray from a null pointer";
-        }
-        return WasmArray.toTypedArray(ptr, this.size, this.type);
-    }
-
+   
     /**
      * Fill the allocation with the contents of an existing array.
      *
@@ -162,4 +61,186 @@ class WasmArray {
     }
 }
 
-export default WasmArray;
+/** 
+ * Manage an unsigned 8-bit array allocation on the Wasm heap.
+ */
+export class Uint8WasmArray extends WasmArray {
+    /**
+     * Create an unsigned 8-bit allocation on the Wasm heap.
+     *
+     * @param {number} size Number of elements to allocate.
+     */ 
+    constructor(size) {
+        super(size, 1);
+        return;
+    }
+
+    /**
+     * @return A `Uint8Array` view of the allocated memory.
+     */
+    array() {
+        const buffer = Module["HEAPU8"].buffer;
+        return new Uint8Array(buffer, this.ptr, this.size);
+    }
+}
+
+/** 
+ * Manage a signed 8-bit array allocation on the Wasm heap.
+ */
+export class Int8WasmArray extends WasmArray {
+    /**
+     * Create a signed 8-bit allocation on the Wasm heap.
+     *
+     * @param {number} size Number of elements to allocate.
+     */ 
+    constructor(size) {
+        super(size, 1);
+        return;
+    }
+
+    /**
+     * @return A `Int8Array` view of the allocated memory.
+     */
+    array() {
+        const buffer = Module["HEAP8"].buffer;
+        return new Int8Array(buffer, this.ptr, this.size);
+    }
+}
+
+/** 
+ * Manage an unsigned 16-bit array allocation on the Wasm heap.
+ */
+export class Uint16WasmArray extends WasmArray {
+    /**
+     * Create an unsigned 16-bit allocation on the Wasm heap.
+     *
+     * @param {number} size Number of elements to allocate.
+     */ 
+    constructor(size) {
+        super(size, 2);
+        return;
+    }
+
+    /**
+     * @return A `Uint16Array` view of the allocated memory.
+     */
+    array() {
+        const buffer = Module["HEAPU16"].buffer;
+        return new Uint16Array(buffer, this.ptr, this.size);
+    }
+}
+
+/** 
+ * Manage a signed 16-bit array allocation on the Wasm heap.
+ */
+export class Int16WasmArray extends WasmArray {
+    /**
+     * Create a signed 16-bit allocation on the Wasm heap.
+     *
+     * @param {number} size Number of elements to allocate.
+     */ 
+    constructor(size) {
+        super(size, 2);
+        return;
+    }
+
+    /**
+     * @return A `Int16Array` view of the allocated memory.
+     */
+    array() {
+        const buffer = Module["HEAP16"].buffer;
+        return new Int16Array(buffer, this.ptr, this.size);
+    }
+}
+
+/** 
+ * Manage an unsigned 32-bit array allocation on the Wasm heap.
+ */
+export class Uint32WasmArray extends WasmArray {
+    /**
+     * Create an unsigned 32-bit allocation on the Wasm heap.
+     *
+     * @param {number} size Number of elements to allocate.
+     */ 
+    constructor(size) {
+        super(size, 4);
+        return;
+    }
+
+    /**
+     * @return A `Uint32Array` view of the allocated memory.
+     */
+    array() {
+        const buffer = Module["HEAPU32"].buffer;
+        return new Uint32Array(buffer, this.ptr, this.size);
+    }
+}
+
+/** 
+ * Manage a signed 32-bit array allocation on the Wasm heap.
+ */
+export class Int32WasmArray extends WasmArray {
+    /**
+     * Create a signed 32-bit allocation on the Wasm heap.
+     *
+     * @param {number} size Number of elements to allocate.
+     */ 
+    constructor(size) {
+        super(size, 4);
+        return;
+    }
+
+    /**
+     * @return A `Int32Array` view of the allocated memory.
+     */
+    array() {
+        const buffer = Module["HEAP32"].buffer;
+        return new Int32Array(buffer, this.ptr, this.size);
+    }
+}
+
+/** 
+ * Manage a 32-bit float array allocation on the Wasm heap.
+ */
+export class Float32WasmArray extends WasmArray {
+    /**
+     * Create a 32-bit float allocation on the Wasm heap.
+     *
+     * @param {number} size Number of elements to allocate.
+     */ 
+    constructor(size) {
+        super(size, 4);
+        return;
+    }
+
+    /**
+     * @return A `Float32Array` view of the allocated memory.
+     */
+    array() {
+        const buffer = Module["HEAPF32"].buffer;
+        return new Float32Array(buffer, this.ptr, this.size);
+    }
+}
+
+/** 
+ * Manage a 64-bit float array allocation on the Wasm heap.
+ */
+export class Float64WasmArray extends WasmArray {
+    /**
+     * Create a 64-bit float allocation on the Wasm heap.
+     *
+     * @param {number} size Number of elements to allocate.
+     */ 
+    constructor(size) {
+        super(size, 8);
+        return;
+    }
+
+    /**
+     * @return A `Float64Array` view of the allocated memory.
+     */
+    array() {
+        const buffer = Module["HEAPF64"].buffer;
+        return new Float64Array(buffer, this.ptr, this.size);
+    }
+}
