@@ -2,6 +2,20 @@ import * as scran from "../js/index.js";
 import * as compare from "./compare.js";
 import * as pako from "pako";
 
+test("initialization from dense array works correctly", () => {
+    var vals = new scran.Int32WasmArray(15);
+    vals.set([1, 5, 0, 0, 7, 0, 0, 10, 4, 2, 0, 0, 0, 5, 8]);
+    var mat = scran.initializeSparseMatrixFromDenseArray(3, 5, vals);
+    expect(mat.nrow()).toBe(3);
+    expect(mat.ncol()).toBe(5);
+
+    // Properly column-major.
+    expect(compare.equalArrays(mat.column(0), [1, 5, 0])).toBe(true);
+    expect(compare.equalArrays(mat.column(4), [0, 5, 8])).toBe(true);
+    expect(compare.equalArrays(mat.row(0), [1, 0, 0, 2, 0])).toBe(true);
+    expect(compare.equalArrays(mat.row(2), [0, 0, 4, 0, 8])).toBe(true);
+})
+
 test("initialization from compressed values works correctly", () => {
     var vals = new scran.Int32WasmArray(15);
     vals.set([1, 5, 2, 3, 7, 8, 9, 10, 4, 2, 1, 1, 3, 5, 8]);

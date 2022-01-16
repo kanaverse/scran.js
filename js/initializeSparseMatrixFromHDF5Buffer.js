@@ -1,7 +1,7 @@
 import Module from "./Module.js";
 import { LayeredSparseMatrix } from "./SparseMatrix.js";
 import { Int8WasmArray, Int16WasmArray, Int32WasmArray, Uint8WasmArray, Uint16WasmArray, Uint32WasmArray, Float64WasmArray } from "./WasmArray.js";
-import { initializeSparseMatrixFromCompressedVectors } from "./initializeSparseMatrix.js";
+import { initializeSparseMatrixFromDenseArray, initializeSparseMatrixFromCompressedVectors } from "./initializeSparseMatrix.js";
 import * as hdf5 from "jsfive";
 
 // Given a random array of Javascript numbers, let's try to cast it to some
@@ -79,22 +79,11 @@ export function initializeSparseMatrixFromHDF5Buffer(buffer, path) {
         let dims = entity.shape;
 
         var vals = cloneIntoWasmArray(entity.value);
-        var raw;
         try {
-            raw = Module.initialize_sparse_matrix_from_dense_vector(
-                dims[1], 
-                dims[0], 
-                vals.ptr, 
-                vals.constructor.name.replace(/Wasm/, "")
-            );
-        } catch (e) {
-            throw Module.get_error_message(e);
+            output = initializeSparseMatrixFromDenseArray(dims[1], dims[0], vals);
         } finally {
             vals.free();
         }
-
-        output = new LayeredSparseMatrix(raw); 
-
     } else if (entity instanceof hdf5.Group) {
         var shape_dex = entity.keys.indexOf("shape");
         var dims;

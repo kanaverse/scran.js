@@ -6,6 +6,31 @@ import { LayeredSparseMatrix } from "./SparseMatrix.js";
  *
  * @param {number} nrow Number of rows in the matrix.
  * @param {number} ncol Number of columns in the matrix.
+ * @param {WasmArray} values Values of all elements in the matrix, stored in column-major order.
+ * These should all be non-negative integers, even if they are stored in floating-point.
+ *
+ * @return A `LayeredSparseMatrix` object containing a layered sparse matrix.
+ */
+export function initializeSparseMatrixFromDenseArray(nrow, ncol, values) {
+    var raw;
+    try {
+        raw = Module.initialize_sparse_matrix_from_dense_vector(
+            nrow, 
+            ncol, 
+            values.ptr, 
+            values.constructor.name.replace("Wasm", "")
+        );
+    } catch (e) {
+        throw Module.get_error_message(e);
+    }
+    return new LayeredSparseMatrix(raw); 
+}
+
+/**
+ * Initialize a sparse matrix from its compressed components.
+ *
+ * @param {number} nrow Number of rows in the matrix.
+ * @param {number} ncol Number of columns in the matrix.
  * @param {WasmArray} values Values of the non-zero elements.
  * These should all be non-negative integers, even if they are stored in floating-point.
  * @param {WasmArray} indices Row indices of the non-zero elements.
