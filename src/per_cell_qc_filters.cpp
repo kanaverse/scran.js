@@ -83,6 +83,13 @@ struct PerCellQCFilters_Results {
     emscripten::val thresholds_proportions(int i) const {
         return emscripten::val(emscripten::typed_memory_view(store.thresholds.subset_proportions[i].size(), store.thresholds.subset_proportions[i].data()));
     }
+
+    /**
+     * @return Number of feature subsets for which proportion filters were computed.
+     */
+    int num_subsets() const {
+        return store.thresholds.subset_proportions.size();
+    }
 };
 
 /**
@@ -101,9 +108,9 @@ PerCellQCFilters_Results per_cell_qc_filters(PerCellQCMetrics_Results& metrics, 
     scran::PerCellQCFilters qc;
     qc.set_nmads(nmads);
 
-    const uint32_t* bptr = NULL;
+    const int32_t* bptr = NULL;
     if (use_blocks) {
-        bptr = reinterpret_cast<const uint32_t*>(blocks);
+        bptr = reinterpret_cast<const int32_t*>(blocks);
     }
 
     auto thresholds = qc.run_blocked(metrics.store, bptr);
@@ -124,6 +131,7 @@ EMSCRIPTEN_BINDINGS(per_cell_qc_filters) {
         .function("discard_detected", &PerCellQCFilters_Results::discard_detected)
         .function("discard_proportions", &PerCellQCFilters_Results::discard_proportions)
         .function("discard_overall", &PerCellQCFilters_Results::discard_overall)
+        .function("num_subsets", &PerCellQCFilters_Results::num_subsets)
         ;
 }
 /**
