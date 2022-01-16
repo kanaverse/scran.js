@@ -12,12 +12,12 @@ import { LayeredSparseMatrix } from "./SparseMatrix.js";
  * This should be of the same length as `values`.
  * @param {WasmArray} indptrs Pointers specifying the start of each column in `indices`.
  * This should have length equal to `ncol + 1`.
- * @param {bool} csc Whether the supplied arrays refer to compressed sparse column format.
+ * @param {boolean} csc Whether the supplied arrays refer to compressed sparse column format.
  * If `false`, `indices` should contain column indices and `indptrs` should specify the start of each row.
  *
  * @return A `LayeredSparseMatrix` object containing a layered sparse matrix.
  */ 
-export function initializeSparseMatrixFromCompressed(nrow, ncol, values, indices, indptrs, csc = true) {
+export function initializeSparseMatrixFromCompressedVectors(nrow, ncol, values, indices, indptrs, csc = true) {
     if (values.size != indices.size) {
         throw "'values' and 'indices' should have the same length";
     }
@@ -39,6 +39,32 @@ export function initializeSparseMatrixFromCompressed(nrow, ncol, values, indices
             indptrs.constructor.name.replace("Wasm", ""), 
             csc
         );
+    } catch(e) {
+        throw Module.get_error_message(e);
+    }
+
+    return new LayeredSparseMatrix(output);
+}
+
+/** 
+ * Initialize a sparse matrix from a buffer containing a MatrixMarket file.
+ *
+ * @param {Uint8WasmArray} buffer Byte array containing the contents of a Matrix Market file with non-negative counts.
+ * This can be raw text or Gzip-compressed.
+ * @param {boolean} compressed Whether the buffer is Gzip-compressed.
+ * If `null`, we detect this automatically from the magic number in the header.
+ *
+ * @return A `LayeredSparseMatrix` object containing a layered sparse matrix.
+ */
+export function initializeSparseMatrixFromMatrixMarketBuffer(buffer, compressed = null) {
+    if (compressed === null) {
+        const arr = buffer.array();
+        compressed = (arr.length >= 3 && arr[0] == 0x1F && arr[1] == 0x8B && arr[2] == 0x08);
+    }
+    
+    var output;
+    try {
+        output = Module.read_matrix_market(buffer.ptr, buffer.size, compressed) 
     } catch(e) {
         throw Module.get_error_message(e);
     }

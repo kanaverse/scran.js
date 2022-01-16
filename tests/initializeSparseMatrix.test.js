@@ -1,5 +1,6 @@
 import * as scran from "../js/index.js";
 import * as compare from "./compare.js";
+import * as pako from "pako";
 
 test("initialization from compressed values works correctly", () => {
     var vals = new scran.Int32WasmArray(15);
@@ -9,33 +10,27 @@ test("initialization from compressed values works correctly", () => {
     var indptrs = new scran.Int32WasmArray(11);
     indptrs.set([0, 2, 3, 6, 9, 11, 11, 12, 12, 13, 15]);
 
-    var thing = scran.initializeSparseMatrixFromCompressed(11, 10, vals, indices, indptrs);
-    expect(thing.nrow()).toBe(11);
-    expect(thing.ncol()).toBe(10);
+    var mat = scran.initializeSparseMatrixFromCompressedVectors(11, 10, vals, indices, indptrs);
+    expect(mat.nrow()).toBe(11);
+    expect(mat.ncol()).toBe(10);
 
     // Extracting the row permutations.
-    var perm = thing.permutation();
+    var perm = mat.permutation();
     expect(compare.equalArrays(perm, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10])).toBe(true);
 
     // Extracting the first and last columns to check for correctness.
-    var col0 = thing.column(0);
-    expect(compare.equalArrays(col0, [0, 0, 0, 1, 0, 5, 0, 0, 0, 0, 0])).toBe(true);
-
-    var col9 = thing.column(9);
-    expect(compare.equalArrays(col9, [0, 0, 0, 0, 0, 0, 5, 0, 0, 8, 0])).toBe(true);
+    expect(compare.equalArrays(mat.column(0), [0, 0, 0, 1, 0, 5, 0, 0, 0, 0, 0])).toBe(true);
+    expect(compare.equalArrays(mat.column(9), [0, 0, 0, 0, 0, 0, 5, 0, 0, 8, 0])).toBe(true);
 
     // Doing the same for the rows.
-    var row0 = thing.row(0);
-    expect(compare.equalArrays(row0, [0, 0, 3, 0, 0, 0, 0, 0, 0, 0])).toBe(true);
-
-    var row9 = thing.row(9);
-    expect(compare.equalArrays(row9, [0, 0, 8, 0, 0, 0, 0, 0, 0, 8])).toBe(true);
+    expect(compare.equalArrays(mat.row(0), [0, 0, 3, 0, 0, 0, 0, 0, 0, 0])).toBe(true);
+    expect(compare.equalArrays(mat.row(9), [0, 0, 8, 0, 0, 0, 0, 0, 0, 8])).toBe(true);
 
     // Cleaning up.
     vals.free();
     indices.free();
     indptrs.free();
-    thing.free();
+    mat.free();
 })
 
 test("initialization from compressed values works with permutations", () => {
@@ -46,26 +41,67 @@ test("initialization from compressed values works with permutations", () => {
     var indptrs = new scran.Int32WasmArray(11);
     indptrs.set([0, 2, 3, 6, 9, 11, 11, 12, 12, 13, 15]);
 
-    var thing = scran.initializeSparseMatrixFromCompressed(11, 10, vals, indices, indptrs);
-    expect(thing.nrow()).toBe(11);
-    expect(thing.ncol()).toBe(10);
+    var mat = scran.initializeSparseMatrixFromCompressedVectors(11, 10, vals, indices, indptrs);
+    expect(mat.nrow()).toBe(11);
+    expect(mat.ncol()).toBe(10);
 
     // Extracting the row permutations.
-    var permutation = thing.permutation();
+    var permutation = mat.permutation();
     expect(compare.equalArrays(permutation, [10, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8])).toBe(true);
 
-    var row0 = thing.row(0); // basically gets row 2, which has been promoted to the first row.
-    expect(compare.equalArrays(row0, [0, 0, 10, 10, 0, 0, 0, 0, 0, 0])).toBe(true);
-
-    var row9 = thing.row(9); // gets row 1, which has been demoted to the second-last row.
-    expect(compare.equalArrays(row9, [0, 0, 0, 1000, 0, 0, 0, 0, 0, 0])).toBe(true);
-
-    var row10 = thing.row(10); // gets row 0, which has been demoted to the last row.
-    expect(compare.equalArrays(row10, [0, 0, 1000000, 0, 0, 0, 0, 0, 0, 0])).toBe(true);
+    expect(compare.equalArrays(mat.row(0), [0, 0, 10, 10, 0, 0, 0, 0, 0, 0])).toBe(true); // basically gets row 2, which has been promoted to the first row.
+    expect(compare.equalArrays(mat.row(9), [0, 0, 0, 1000, 0, 0, 0, 0, 0, 0])).toBe(true); // gets row 1, which has been demoted to the second-last row.
+    expect(compare.equalArrays(mat.row(10), [0, 0, 1000000, 0, 0, 0, 0, 0, 0, 0])).toBe(true); // gets row 0, which has been demoted to the last row.
 
     // Cleaning up.
     vals.free();
     indices.free();
     indptrs.free();
-    thing.free();
+    mat.free();
 })
+
+test("initialization from MatrixMarket works correctly", () => {
+    var content = "%%\n11 5 6\n1 2 5\n10 3 2\n7 4 22\n5 1 12\n6 3 2\n1 5 8\n";
+    const converter = new TextEncoder();
+    var raw_buffer = converter.encode(content);
+
+    var buffer = new scran.Uint8WasmArray(raw_buffer.length);
+    buffer.set(raw_buffer);
+
+    var mat = scran.initializeSparseMatrixFromMatrixMarketBuffer(buffer);
+    expect(mat.nrow()).toBe(11);
+    expect(mat.ncol()).toBe(5);
+
+    expect(compare.equalArrays(mat.row(0), [0, 5, 0, 0, 8]));
+    expect(compare.equalArrays(mat.column(4), [0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0]));
+
+    // Cleaning up.
+    mat.free();
+    buffer.free();
+})
+
+test("initialization from Gzipped MatrixMarket works correctly with Gzip", () => {
+    var content = "%%\n11 5 6\n1 2 5\n10 3 2\n7 4 22\n5 1 12\n6 3 2\n1 5 8\n";
+    const raw_buffer = pako.gzip(content);
+
+    var buffer = new scran.Uint8WasmArray(raw_buffer.length);
+    buffer.set(raw_buffer);
+
+    var mat = scran.initializeSparseMatrixFromMatrixMarketBuffer(buffer);
+    expect(mat.nrow()).toBe(11);
+    expect(mat.ncol()).toBe(5);
+
+    expect(compare.equalArrays(mat.row(0), [0, 5, 0, 0, 8]));
+    expect(compare.equalArrays(mat.column(4), [0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0]));
+    
+    // Just checking that the it's actually compressed.
+    var mat2 = scran.initializeSparseMatrixFromMatrixMarketBuffer(buffer, true);
+    expect(mat2.nrow()).toBe(11);
+    expect(mat2.ncol()).toBe(5);
+
+    // Cleaning up.
+    mat.free();
+    mat2.free();
+    buffer.free();
+})
+
