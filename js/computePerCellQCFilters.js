@@ -167,7 +167,7 @@ export function computePerCellQCFilters(metrics, nmads = 3, block = null) {
     try {
         output = Module.per_cell_qc_filters(metrics.results, use_blocks, bptr, nmads);
     } catch(e) {
-        throw Module.get_error_message(e);        
+        throw utils.processErrorMessage(e);
     }
 
     return new PerCellQCFilters(output);

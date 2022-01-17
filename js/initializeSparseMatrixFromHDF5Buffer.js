@@ -123,11 +123,7 @@ export function initializeSparseMatrixFromHDF5Buffer(buffer, path) {
             sparse_data = loader("data");
             sparse_indices = loader("indices");
             sparse_indptrs = loader("indptr");
-            try {
-                output = initializeSparseMatrixFromCompressedVectors(dims[0], dims[1], sparse_data, sparse_indices, sparse_indptrs, csc);
-            } catch (e) {
-                throw Module.get_error_message(e);
-            }
+            output = initializeSparseMatrixFromCompressedVectors(dims[0], dims[1], sparse_data, sparse_indices, sparse_indptrs, csc);
         } finally {
             if (sparse_data !== null) {
                 sparse_data.free();

@@ -1,4 +1,5 @@
 import Module from "./Module.js";
+import * as utils from "./utils.js"; 
 import { LayeredSparseMatrix } from "./SparseMatrix.js";
 
 /**
@@ -21,7 +22,7 @@ export function initializeSparseMatrixFromDenseArray(nrow, ncol, values) {
             values.constructor.name.replace("Wasm", "")
         );
     } catch (e) {
-        throw Module.get_error_message(e);
+        throw utils.processErrorMessage(e);
     }
     return new LayeredSparseMatrix(raw); 
 }
@@ -65,7 +66,7 @@ export function initializeSparseMatrixFromCompressedVectors(nrow, ncol, values, 
             csc
         );
     } catch(e) {
-        throw Module.get_error_message(e);
+        throw utils.processErrorMessage(e);
     }
 
     return new LayeredSparseMatrix(output);
@@ -91,7 +92,7 @@ export function initializeSparseMatrixFromMatrixMarketBuffer(buffer, compressed 
     try {
         output = Module.read_matrix_market(buffer.ptr, buffer.size, compressed) 
     } catch(e) {
-        throw Module.get_error_message(e);
+        throw utils.processErrorMessage(e);
     }
 
     return new LayeredSparseMatrix(output);

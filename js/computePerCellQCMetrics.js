@@ -1,4 +1,5 @@
 import Module from "./Module.js";
+import * as utils from "./utils.js"; 
 import { Uint8WasmArray } from "./WasmArray.js";
 
 /**
@@ -106,7 +107,7 @@ export function computePerCellQCMetrics(x, subsets) {
         try { 
             output = Module.per_cell_qc_metrics(x.matrix, nsubsets, ptr);
         } catch (e) {
-            throw Module.get_error_message(e);
+            throw utils.processErrorMessage(e);
         }
 
     } else if (subsets instanceof Array) {
@@ -125,7 +126,7 @@ export function computePerCellQCMetrics(x, subsets) {
             try { 
                 output = Module.per_cell_qc_metrics(x.matrix, subsets.length, tmp.ptr);
             } catch (e) {
-                throw Module.get_error_message(e);
+                throw utils.processErrorMessage(e);
             }
         } finally {
             tmp.free();
