@@ -2,6 +2,7 @@ import Module from "./Module.js";
 import { LayeredSparseMatrix } from "./SparseMatrix.js";
 import { Int8WasmArray, Int16WasmArray, Int32WasmArray, Uint8WasmArray, Uint16WasmArray, Uint32WasmArray, Float64WasmArray } from "./WasmArray.js";
 import { initializeSparseMatrixFromDenseArray, initializeSparseMatrixFromCompressedVectors } from "./initializeSparseMatrix.js";
+import * as utils from "./utils.js";
 import * as hdf5 from "jsfive";
 
 // Given a random array of Javascript numbers, let's try to cast it to some
@@ -84,6 +85,7 @@ export function initializeSparseMatrixFromHDF5Buffer(buffer, path) {
         } finally {
             vals.free();
         }
+
     } else if (entity instanceof hdf5.Group) {
         var shape_dex = entity.keys.indexOf("shape");
         var dims;
@@ -125,16 +127,12 @@ export function initializeSparseMatrixFromHDF5Buffer(buffer, path) {
             sparse_indptrs = loader("indptr");
             output = initializeSparseMatrixFromCompressedVectors(dims[0], dims[1], sparse_data, sparse_indices, sparse_indptrs, csc);
         } finally {
-            if (sparse_data !== null) {
-                sparse_data.free();
-            }
-            if (sparse_indices !== null) {
-                sparse_indices.free();
-            }
-            if (sparse_indptrs !== null) {
-                sparse_indptrs.free();
-            }
+            utils.free(sparse_data);
+            utils.free(sparse_indices);
+            utils.free(sparse_indptrs);
         }
+    } else {
+        throw "unknown HDF5 element at the specified path";
     }
 
     return output;

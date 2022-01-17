@@ -33,7 +33,7 @@ export class SparseMatrix {
      * @param {Number} i Index of the row to extract.
      * This should be a non-negative integer less than `nrow()`.
      * @param {Float64WasmArray} [buffer] Buffer to extract into.
-     * If supplied, this should have size equal to `ncol()`. 
+     * If supplied, this should have length equal to `ncol()`. 
      *
      * @return
      * If `buffer` is not supplied, a `Float64Array` is returned containing the contents of row `i`.
@@ -41,13 +41,13 @@ export class SparseMatrix {
      */
     row(i, buffer = null) {
         if (buffer != null) {
-            this.matrix.row(i, buffer.ptr);
+            this.matrix.row(i, buffer.offset);
             return;
         } else {
             var output;
             buffer = new Float64WasmArray(this.matrix.ncol());
             try {
-                this.matrix.row(i, buffer.ptr);
+                this.matrix.row(i, buffer.offset);
                 output = buffer.clone();
             } finally {
                 buffer.free();
@@ -60,7 +60,7 @@ export class SparseMatrix {
      * @param {Number} i Index of the column to extract.
      * This should be a non-negative integer less than `ncol()`.
      * @param {Float64WasmArray} [buffer] Buffer to extract into.
-     * If supplied, this should have size equal to `nrow()`. 
+     * If supplied, this should have length equal to `nrow()`. 
      *
      * @return
      * If `buffer` is not supplied, a `Float64Array` is returned containing the contents of column `i`.
@@ -68,13 +68,13 @@ export class SparseMatrix {
      */
     column(i, buffer = null) {
         if (buffer != null) {
-            this.matrix.column(i, buffer.ptr);
+            this.matrix.column(i, buffer.offset);
             return;
         } else {
             var output;
             buffer = new Float64WasmArray(this.matrix.nrow());
             try {
-                this.matrix.column(i, buffer.ptr);
+                this.matrix.column(i, buffer.offset);
                 output = buffer.clone();
             } finally {
                 buffer.free();
@@ -112,7 +112,7 @@ export class LayeredSparseMatrix extends SparseMatrix {
 
     /**
      * @param {Int32WasmArray} [buffer] Buffer to extract into.
-     * If supplied, this should have size equal to `nrow()`. 
+     * If supplied, this should have length equal to `nrow()`. 
      *
      * @return 
      * If `buffer` is not supplied, a `Int32Array` is returned containing the permutation vector.
@@ -123,13 +123,13 @@ export class LayeredSparseMatrix extends SparseMatrix {
      */
     permutation(buffer = null) {
         if (buffer != null) {
-            this.matrix.permutation(buffer.ptr);
+            this.matrix.permutation(buffer.offset);
             return;
         } else {
             var output;
             buffer = new Int32WasmArray(this.matrix.nrow());
             try {
-                this.matrix.permutation(buffer.ptr);
+                this.matrix.permutation(buffer.offset);
                 output = buffer.clone();
             } finally {
                 buffer.free();

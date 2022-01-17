@@ -8,12 +8,21 @@ export class WasmArray {
     /**
      * Create an allocation on the Wasm heap.
      *
-     * @param {number} size Length of the array in terms of the number of elements.
-     * @param {number} type Size of the data type, usually one of 1, 2, 4 or 8.
+     * @param {number} length Length of the array in terms of the number of elements.
+     * @param {number} offset Offset from the start of the Wasm heap.
+     * If supplied, we create a view on the specified memory allocation, but do not assume ownership.
+     * If `null`, the constructor will allocate the required memory from the heap and assume ownership.
+     * @param {number} size Size of the data type, usually one of 1, 2, 4 or 8.
      */
-    constructor(size, type) {
-        this.ptr = Module._malloc(size * type);
-        this.size = size;
+    constructor(length, offset, size) {
+        if (offset === null) {
+            this.owner = true;
+            this.offset = Module._malloc(size * length);
+        } else {
+            this.owner = false;
+            this.offset = offset;
+        }
+        this.length = length;
     }
    
     /**
@@ -90,13 +99,16 @@ export class WasmArray {
     }
 
     /**
-     * Free the memory in this allocation.
+     * Free the memory in this allocation, if the object owns that memory.
+     * If an offset was provided in the constructor, this is a no-op.
      *
      * @return Memory is freed and this allocation is invalidated.
      */
     free() {
-        Module._free(this.ptr);
-        this.ptr = null;
+        if (this.owner) {
+            Module._free(this.offset);
+            this.offset = null;
+        }
     }
 }
 
@@ -107,10 +119,12 @@ export class Uint8WasmArray extends WasmArray {
     /**
      * Create an unsigned 8-bit allocation on the Wasm heap.
      *
-     * @param {number} size Number of elements to allocate.
+     * @param {number} length Number of elements to allocate.
+     * @param {number} offset Offset from the start of the Wasm heap, for an existing allocated array.
+     * If `null`, the constructor will allocate the required memory.
      */ 
-    constructor(size) {
-        super(size, 1);
+    constructor(length, offset = null) {
+        super(length, offset, 1);
         return;
     }
 
@@ -119,7 +133,7 @@ export class Uint8WasmArray extends WasmArray {
      */
     array() {
         const buffer = Module["HEAPU8"].buffer;
-        return new Uint8Array(buffer, this.ptr, this.size);
+        return new Uint8Array(buffer, this.offset, this.length);
     }
 }
 
@@ -130,10 +144,12 @@ export class Int8WasmArray extends WasmArray {
     /**
      * Create a signed 8-bit allocation on the Wasm heap.
      *
-     * @param {number} size Number of elements to allocate.
+     * @param {number} length Number of elements to allocate.
+     * @param {number} offset Offset from the start of the Wasm heap, for an existing allocated array.
+     * If `null`, the constructor will allocate the required memory.
      */ 
-    constructor(size) {
-        super(size, 1);
+    constructor(length, offset = null) {
+        super(length, offset, 1);
         return;
     }
 
@@ -142,7 +158,7 @@ export class Int8WasmArray extends WasmArray {
      */
     array() {
         const buffer = Module["HEAP8"].buffer;
-        return new Int8Array(buffer, this.ptr, this.size);
+        return new Int8Array(buffer, this.offset, this.length);
     }
 }
 
@@ -153,10 +169,12 @@ export class Uint16WasmArray extends WasmArray {
     /**
      * Create an unsigned 16-bit allocation on the Wasm heap.
      *
-     * @param {number} size Number of elements to allocate.
+     * @param {number} length Number of elements to allocate.
+     * @param {number} offset Offset from the start of the Wasm heap, for an existing allocated array.
+     * If `null`, the constructor will allocate the required memory.
      */ 
-    constructor(size) {
-        super(size, 2);
+    constructor(length, offset = null) {
+        super(length, offset, 2);
         return;
     }
 
@@ -165,7 +183,7 @@ export class Uint16WasmArray extends WasmArray {
      */
     array() {
         const buffer = Module["HEAPU16"].buffer;
-        return new Uint16Array(buffer, this.ptr, this.size);
+        return new Uint16Array(buffer, this.offset, this.length);
     }
 }
 
@@ -176,10 +194,12 @@ export class Int16WasmArray extends WasmArray {
     /**
      * Create a signed 16-bit allocation on the Wasm heap.
      *
-     * @param {number} size Number of elements to allocate.
+     * @param {number} length Number of elements to allocate.
+     * @param {number} offset Offset from the start of the Wasm heap, for an existing allocated array.
+     * If `null`, the constructor will allocate the required memory.
      */ 
-    constructor(size) {
-        super(size, 2);
+    constructor(length, offset = null) {
+        super(length, offset, 2);
         return;
     }
 
@@ -188,7 +208,7 @@ export class Int16WasmArray extends WasmArray {
      */
     array() {
         const buffer = Module["HEAP16"].buffer;
-        return new Int16Array(buffer, this.ptr, this.size);
+        return new Int16Array(buffer, this.offset, this.length);
     }
 }
 
@@ -199,10 +219,12 @@ export class Uint32WasmArray extends WasmArray {
     /**
      * Create an unsigned 32-bit allocation on the Wasm heap.
      *
-     * @param {number} size Number of elements to allocate.
+     * @param {number} length Number of elements to allocate.
+     * @param {number} offset Offset from the start of the Wasm heap, for an existing allocated array.
+     * If `null`, the constructor will allocate the required memory.
      */ 
-    constructor(size) {
-        super(size, 4);
+    constructor(length, offset = null) {
+        super(length, offset, 4);
         return;
     }
 
@@ -211,7 +233,7 @@ export class Uint32WasmArray extends WasmArray {
      */
     array() {
         const buffer = Module["HEAPU32"].buffer;
-        return new Uint32Array(buffer, this.ptr, this.size);
+        return new Uint32Array(buffer, this.offset, this.length);
     }
 }
 
@@ -222,10 +244,12 @@ export class Int32WasmArray extends WasmArray {
     /**
      * Create a signed 32-bit allocation on the Wasm heap.
      *
-     * @param {number} size Number of elements to allocate.
+     * @param {number} length Number of elements to allocate.
+     * @param {number} offset Offset from the start of the Wasm heap, for an existing allocated array.
+     * If `null`, the constructor will allocate the required memory.
      */ 
-    constructor(size) {
-        super(size, 4);
+    constructor(length, offset = null) {
+        super(length, offset, 4);
         return;
     }
 
@@ -234,7 +258,7 @@ export class Int32WasmArray extends WasmArray {
      */
     array() {
         const buffer = Module["HEAP32"].buffer;
-        return new Int32Array(buffer, this.ptr, this.size);
+        return new Int32Array(buffer, this.offset, this.length);
     }
 }
 
@@ -245,10 +269,12 @@ export class Float32WasmArray extends WasmArray {
     /**
      * Create a 32-bit float allocation on the Wasm heap.
      *
-     * @param {number} size Number of elements to allocate.
+     * @param {number} length Number of elements to allocate.
+     * @param {number} offset Offset from the start of the Wasm heap, for an existing allocated array.
+     * If `null`, the constructor will allocate the required memory.
      */ 
-    constructor(size) {
-        super(size, 4);
+    constructor(length, offset = null) {
+        super(length, offset, 4);
         return;
     }
 
@@ -257,7 +283,7 @@ export class Float32WasmArray extends WasmArray {
      */
     array() {
         const buffer = Module["HEAPF32"].buffer;
-        return new Float32Array(buffer, this.ptr, this.size);
+        return new Float32Array(buffer, this.offset, this.length);
     }
 }
 
@@ -268,10 +294,12 @@ export class Float64WasmArray extends WasmArray {
     /**
      * Create a 64-bit float allocation on the Wasm heap.
      *
-     * @param {number} size Number of elements to allocate.
+     * @param {number} length Number of elements to allocate.
+     * @param {number} offset Offset from the start of the Wasm heap, for an existing allocated array.
+     * If `null`, the constructor will allocate the required memory.
      */ 
-    constructor(size) {
-        super(size, 8);
+    constructor(length, offset = null) {
+        super(length, offset, 8);
         return;
     }
 
@@ -280,6 +308,6 @@ export class Float64WasmArray extends WasmArray {
      */
     array() {
         const buffer = Module["HEAPF64"].buffer;
-        return new Float64Array(buffer, this.ptr, this.size);
+        return new Float64Array(buffer, this.offset, this.length);
     }
 }

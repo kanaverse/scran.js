@@ -1,4 +1,5 @@
 import Module from "./Module.js";
+import * as utils from "./utils.js";
 
 /**
  * Wrapper class for the filtering results.
@@ -144,31 +145,41 @@ export class PerCellQCFilters {
  *
  * @param {PerCellQCMetrics} metrics Per-cell QC metrics, usually computed by `computePerCellQCMetrics()`.
  * @param {number} nmads Number of median absolute deviations to use to define low-quality outliers.
- * @param {?Int32WasmArray} block Array containing the block assignment for each cell.
- * If not `null`, this should have length equal to the number of cells and contain all values from 0 to `n - 1` at least once, where `n` is the number of blocks.
- * This is used to compute filters within each block.
- * If `null`, all cells are assumed to be in the same block.
+ * @param {?(Int32WasmArray|Array|TypedArray)} block Array containing the block assignment for each cell.
+ * This should have length equal to the number of cells and contain all values from 0 to `n - 1` at least once, where `n` is the number of blocks.
+ * This is used to segregate cells in order to compute filters within each block.
+ * Alternatively, this may be `null`, in which case all cells are assumed to be in the same block.
  *
  * @return A `PerCellQCFilters` object containing the filtering results.
  */
 export function computePerCellQCFilters(metrics, nmads = 3, block = null) {
-    var bptr = 0;
-    var use_blocks = false;
-
-    if (block !== null) {
-        if (block.size != metrics.sums().length) {
-            throw "'block' must be of length equal to the number of cells in 'metrics'";
-        }
-        use_blocks = true;
-        bptr = block.ptr;
-    }
-
+    var block_data;
+    var raw;
     var output;
+
     try {
-        output = Module.per_cell_qc_filters(metrics.results, use_blocks, bptr, nmads);
-    } catch(e) {
-        throw utils.processErrorMessage(e);
+        var bptr = 0;
+        var use_blocks = false;
+
+        if (block !== null) {
+            block_data = utils.wasmifyArray(block, "Int32WasmArray");
+            if (block_data.length != metrics.sums().length) {
+                throw "'block' must be of length equal to the number of cells in 'metrics'";
+            }
+            use_blocks = true;
+            bptr = block_data.offset;
+        }
+
+        raw = utils.wrapModuleCall(() => Module.per_cell_qc_filters(metrics.results, use_blocks, bptr, nmads));
+        output = new PerCellQCFilters(raw);
+
+    } catch (e) {
+        utils.free(raw);
+        throw e;
+
+    } finally {
+        utils.free(block_data);
     }
 
-    return new PerCellQCFilters(output);
+    return output;
 }

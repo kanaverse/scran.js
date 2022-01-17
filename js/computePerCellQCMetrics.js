@@ -84,56 +84,61 @@ export class PerCellQCMetrics {
  * Compute the per-cell QC metrics.
  *
  * @param {SparseMatrix} x The count matrix.
- * @param {(Array|Uint8WasmArray)} subsets 
+ * @param {?(Array|Uint8WasmArray)} subsets 
  * An array of arrays of boolean values specifying the feature subsets.
  * Each internal array corresponds to a subset and should be of length equal to the number of rows.
  * Each entry of each internal array specifies whether the corresponding row of `x` belongs to that subset; 
  * any value interpretable as a boolean can be used here.
+ * 
  * Alternatively, a `Uint8WasmArray` can be supplied containing the concatenated contents of all arrays;
  * this should be of length equal to the product of the number of subsets and the number of rows in `x`.
  *
+ * Alternatively, a `null` may be supplied, which is taken to mean that there are no subsets.
+ *
  * @return A `PerCellQCMetrics` object containing the QC metrics.
  */
-export function computePerCellQCMetrics(x, subsets) {
+export function computePerCellQCMetrics(x, subsets = null) {
     var output;
+    var raw;
 
-    if (subsets instanceof Uint8WasmArray) {
-        let ptr = subsets.ptr;
-        let nsubsets = Math.round(subsets.size / x.nrow());
-        if (nsubsets * x.nrow() != subsets.size) {
-            throw "length of 'subsets' should be a multiple of the matrix rows";
-        }
+    try {
+        if (subsets instanceof Uint8WasmArray) {
+            let ptr = subsets.offset;
+            let nsubsets = Math.round(subsets.length / x.nrow());
+            if (nsubsets * x.nrow() != subsets.length) {
+                throw "length of 'subsets' should be a multiple of the matrix rows";
+            }
+            raw = utils.wrapModuleCall(() => Module.per_cell_qc_metrics(x.matrix, nsubsets, ptr));
 
-        try { 
-            output = Module.per_cell_qc_metrics(x.matrix, nsubsets, ptr);
-        } catch (e) {
-            throw utils.processErrorMessage(e);
-        }
-
-    } else if (subsets instanceof Array) {
-        let tmp = new Uint8WasmArray(x.nrow() * subsets.length);
-        try {
-            let offset = 0;
-            for (var i = 0; i < subsets.length; i++) {
-                let current = subsets[i];
-                if (current.length != x.nrow()) {
-                    throw "length of each array in 'subsets' should be equal to the matrix rows";
+        } else if (subsets instanceof Array) {
+            let tmp = new Uint8WasmArray(x.nrow() * subsets.length);
+            try {
+                let offset = 0;
+                for (var i = 0; i < subsets.length; i++) {
+                    let current = subsets[i];
+                    if (current.length != x.nrow()) {
+                        throw "length of each array in 'subsets' should be equal to the matrix rows";
+                    }
+                    tmp.array().set(current, offset);
+                    offset += current.length;
                 }
-                tmp.array().set(current, offset);
-                offset += current.length;
+                raw = utils.wrapModuleCall(() => Module.per_cell_qc_metrics(x.matrix, subsets.length, tmp.offset));
+            } finally {
+                tmp.free();
             }
 
-            try { 
-                output = Module.per_cell_qc_metrics(x.matrix, subsets.length, tmp.ptr);
-            } catch (e) {
-                throw utils.processErrorMessage(e);
-            }
-        } finally {
-            tmp.free();
+        } else if (subsets === null) {
+            raw = utils.wrapModuleCall(() => Module.per_cell_qc_metrics(x.matrix, 0, 0));
+
+        } else {
+            throw "'subsets' should be an Array or Uint8WasmArray";
         }
-    } else {
-        throw "'subsets' should be an Array or Uint8WasmArray";
+
+        output = new PerCellQCMetrics(raw);
+    } catch (e) {
+        utils.free(raw);
+        throw e;
     }
 
-    return new PerCellQCMetrics(output);
+    return output;
 }
