@@ -20,13 +20,17 @@ export function wasmifyArray(x, expected = null) {
         return new x.constructor(x.length, x.offset); // when offset is supplied, this is a view.
     }
 
-    if (ArrayBuffer.isView(x) && expected === null) {
-        expected = x.constructor.name.replace("Array", "WasmArray");
+    if (expected == null) {
+        if (ArrayBuffer.isView(x)) {
+            expected = x.constructor.name.replace("Array", "WasmArray");
+        } else {
+            expected = "Float64WasmArray";
+        }
     }
 
     let y = null;
     try {
-        switch (x.constructor.name) {
+        switch (expected) {
             case "Uint8WasmArray":
                 y = new wa.Uint8WasmArray(x.length);
                 break;
@@ -48,8 +52,13 @@ export function wasmifyArray(x, expected = null) {
             case "Float32WasmArray":
                 y = new wa.Float32WasmArray(x.length);
                 break;
+            case "BigInt64WasmArray":
+            case "BigUint64WasmArray":
+            case "Float64WasmArray":
+                y = new wa.Float64WasmArray(x.length); // no HEAP64 as of time of writing.
+                break;
             default:
-                y = new wa.Float64WasmArray(x.length);
+                throw "unknown expected type '" + expected + "'";
         }
 
         if (expected.startsWith("BigInt") || expected.startsWith("BigUint")) {
