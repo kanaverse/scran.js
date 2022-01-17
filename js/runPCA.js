@@ -4,7 +4,7 @@ import * as utils from "./utils.js";
 /** 
  * Wrapper for the PCA results on the Wasm heap.
  */
-class PCAResults {
+export class PCAResults {
     /**
      * @param {Object} raw Raw results allocated on the Wasm heap.
      *
@@ -53,6 +53,23 @@ class PCAResults {
      */
     totalVariance () {
         return this.results.total_variance();
+    }
+
+    /**
+     * @return Number of PCs available in these results.
+     */
+    numberOfPCs() {
+        // TODO: switch to this.results.num_pcs();
+        return this.varianceExplained(false).length;
+    }
+
+    /**
+     * @return Number of cells used to compute these results.
+     */
+    numberOfCells() {
+        // TODO: switch to this.results.num_cells();
+        return this.principalComponents(false).length / this.numberOfPCs();
+
     }
 
     /**

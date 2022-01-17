@@ -23,7 +23,7 @@ export function wasmifyArray(x, expected = null) {
         return new x.constructor(x.length, x.offset); // when offset is supplied, this is a view.
     }
 
-    if (expected == null) {
+    if (expected === null) {
         if (ArrayBuffer.isView(x)) {
             expected = x.constructor.name.replace("Array", "WasmArray");
         } else {
