@@ -68,10 +68,11 @@ export function wasmifyArray(x, expected = null) {
         } else {
             y.set(x);
         }
-    } finally {
+    } catch(e) {
         if (y !== null) {
             y.free();
         }
+        throw e;
     }
 
     return y;

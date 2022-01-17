@@ -10,7 +10,7 @@ import { PerCellQCFilters } from "./computePerCellQCFilters.js";
  * If a `PerCellQCFilters` object is supplied, the overall filter (in `filters.discard_overall()`) is used.
  * Otherwise, an array should be supplied where `true` elements specify the cells to be discarded.
  *
- * @param A matrix of the same type as `x` containing the filtered count matrix.
+ * @param A matrix of the same type as `x`, filtered by column to remove all cells specified in `filters`. 
  */
 export function filterCells(x, filters) {
     var filter_data;
