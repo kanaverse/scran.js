@@ -6,14 +6,17 @@ export function simulateMatrix(nrow, ncol, density = 0.2, maxValue = 10) {
 
     try {
         var x = buffer.array();
-        for (var r = 0; r < nrow; r++) {
-            for (var c = 0; c < ncol; c++) {
+        for (var c = 0; c < ncol; c++) {
+            for (var r = 0; r < nrow; r++) {
                 if (Math.random() <= density) {
                     x[r + c * nrow] = Math.random() * maxValue;
+                } else {
+                    x[r + c * nrow] = 0; // need this, otherwise it would be uninitialized.
                 }
             }
         }
 
+        console.log(buffer.array());
         output = scran.initializeSparseMatrixFromDenseArray(nrow, ncol, buffer);
     } finally {
         buffer.free();
