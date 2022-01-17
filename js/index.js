@@ -7,3 +7,8 @@ export * from "./filterCells.js";
 export * from "./logNormCounts.js";
 export * from "./modelGeneVar.js";
 export * from "./runPCA.js";
+
+export * from "./buildNeighborSearchIndex.js";
+export * from "./findNearestNeighbors.js";
+export * from "./buildSNNGraph.js";
+export * from "./clusterSNNGraph.js";
