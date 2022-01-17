@@ -17,27 +17,66 @@ export class WasmArray {
     }
    
     /**
-     * Fill the allocation with the contents of an existing array.
+     * Fill the allocation with a number.
      *
-     * @param {array} x An array or `TypedArray` containing the values to use for filling.
+     * @param {number} x Number to use to fill the array.
+     * @param {?number} start Position on the array to start filling.
+     * Defaults to the start of the array.
+     * @param {?number} end Position on the array to stop filling.
+     * Defaults to the end of the array.
+     * Only used if `start` is specified.
      *
      * @return The allocation is filled with values from `x`.
      */
-    fill(x) {
-        this.array().fill(x);
+    fill(x = 0, start = null, end = null) {
+        if (start === null) {
+            this.array().fill(x);
+        } else if (end === null) {
+            this.array().fill(x, start);
+        } else {
+            this.array().fill(x, start, end);
+        }
         return;
     }
 
     /**
-     * Set all values of the allocation to a number.
+     * Set the allocation with the contents of an existing array.
      *
-     * @param {number} x Number fo use to set the values of the array.
+     * @param {array} x An array or `TypedArray` containing the values to use for filling.
+     * @param {?number} offset Position on the array allocation to start setting to `x`.
+     * Defaults to the start of the array.
      *
      * @return All entries of the array allocation is set to `x`.
      */
-    set(x = 0) {
-        this.array().set(x);
+    set(x, offset = null) {
+        if (offset === null) {
+            this.array().set(x);
+        } else {
+            this.array().set(x, offset);
+        }
         return;
+    }
+
+    /**
+     * Create a `TypedArray` slice of the data in the array allocation.
+     *
+     * @param {?number} start Position on this array to start slicing.
+     * Defaults to the start of the array.
+     * @param {?number} end Position on the array to end slicing.
+     * Defaults to the end of the array.
+     * Only used if `start` is specified.
+     *
+     * @return A `TypedArray` containing the specified subarray.
+     * This is not a view on the Wasm heap and thus can continue to be used after Wasm allocations.
+     */
+    slice(start = null, end = null) {
+        if (start === null) {
+            return this.array().slice();
+        } else if (end === null) {
+            return this.array().slice(start);
+        } else {
+            return this.array().slice(start, end);
+        }
     }
 
     /**
