@@ -4,7 +4,7 @@ var searchData=
   ['read_5fmatrix_5fmarket_1',['read_matrix_market',['../read__matrix__market_8cpp.html#ae97d4b17f48f6d25070f7e6dc91e20b3',1,'read_matrix_market.cpp']]],
   ['read_5fmatrix_5fmarket_2ecpp_2',['read_matrix_market.cpp',['../read__matrix__market_8cpp.html',1,'']]],
   ['readme_2emd_3',['README.md',['../README_8md.html',1,'']]],
-  ['residuals_4',['residuals',['../structModelGeneVar__Results.html#a3237bf6fab7d0570849f8febccdcabb5',1,'ModelGeneVar_Results']]],
+  ['residuals_4',['residuals',['../structModelGeneVar__Results.html#afb80eb6a019e26e128e5114dadb0c42e',1,'ModelGeneVar_Results']]],
   ['row_5',['row',['../structNumericMatrix.html#a8b56c2bd09fea326c0c28a8a0add6a6e',1,'NumericMatrix']]],
   ['run_5fpca_6',['run_pca',['../run__pca_8cpp.html#a02ea0870e6d0c9f18277d43aa1f9e028',1,'run_pca.cpp']]],
   ['run_5fpca_2ecpp_7',['run_pca.cpp',['../run__pca_8cpp.html',1,'']]],
