@@ -17,6 +17,9 @@ export function wrapModuleCall(fun) {
 
 export function wasmifyArray(x, expected = null) {
     if (x instanceof wa.WasmArray) {
+        if (expected !== null && expected != x.constructor.name) {
+            throw "expected '" + expected + "', got '" + x.constructor.name + "'";
+        }
         return new x.constructor(x.length, x.offset); // when offset is supplied, this is a view.
     }
 
