@@ -16,7 +16,6 @@ export function simulateMatrix(nrow, ncol, density = 0.2, maxValue = 10) {
             }
         }
 
-        console.log(buffer.array());
         output = scran.initializeSparseMatrixFromDenseArray(nrow, ncol, buffer);
     } finally {
         buffer.free();
