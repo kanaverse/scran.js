@@ -11,7 +11,7 @@ test("per-cell QC metrics can be computed", () => {
     var qc = scran.computePerCellQCMetrics(mat, subs);
     expect(qc.sums().length).toBe(ncells);
     expect(qc.detected().length).toBe(ncells);
-    expect(qc.subset_proportions(0).length).toBe(ncells);
+    expect(qc.subsetProportions(0).length).toBe(ncells);
 
     mat.free();
     qc.free();
@@ -31,8 +31,8 @@ test("per-cell QC metrics gets the same results with an input WasmArray", () => 
 
     expect(compare.equalArrays(qc1.sums(), qc2.sums())).toBe(true);
     expect(compare.equalArrays(qc1.detected(), qc2.detected())).toBe(true);
-    expect(compare.equalArrays(qc1.subset_proportions(0), qc2.subset_proportions(0))).toBe(true);
-    expect(compare.equalArrays(qc1.subset_proportions(1), qc2.subset_proportions(1))).toBe(true);
+    expect(compare.equalArrays(qc1.subsetProportions(0), qc2.subsetProportions(0))).toBe(true);
+    expect(compare.equalArrays(qc1.subsetProportions(1), qc2.subsetProportions(1))).toBe(true);
 
     mat.free();
     qc1.free();

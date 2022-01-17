@@ -7,12 +7,12 @@ import { Uint8WasmArray } from "./WasmArray.js";
  */
 export class PerCellQCMetrics {
     /**
-     * @param {Object} cpp_results Results allocated on the Wasm heap.
+     * @param {Object} raw Raw results allocated on the Wasm heap.
      *
      * This should not be called directly; use `computePerCellQCMetrics` instead to create an instance of this object.
      */
-    constructor(cpp_results) {
-        this.results = cpp_results;
+    constructor(raw) {
+        this.results = raw;
         return;
     }
 
@@ -53,7 +53,7 @@ export class PerCellQCMetrics {
      *
      * @return A `Float64Array` (or a view thereof) containing the proportion of counts in the subset `i` for each cell.
      */
-    subset_proportions(i, copy = true) {
+    subsetProportions(i, copy = true) {
         var output = this.results.subset_proportions(i);
         if (copy) {
             return output.slice();
@@ -65,7 +65,7 @@ export class PerCellQCMetrics {
     /**
      * @return Number of feature subsets in this object.
      */
-    num_subsets() {
+    numberOfSubsets() {
         return this.results.num_subsets();
     }
 

@@ -5,13 +5,13 @@ import { Float64WasmArray, Int32WasmArray } from "./WasmArray.js";
  */
 export class SparseMatrix {
     /**
-     * @param {Object} cpp_matrix Matrix object created on the Wasm heap.
+     * @param {Object} raw Raw matrix object created on the Wasm heap.
      *
      * This should not be called directly by developers.
      * Rather it is called by functions that initialize a sparse matrix, e.g., `initializeSparseMatrixFromCompressed()`.
      */
-    constructor(cpp_matrix) {
-        this.matrix = cpp_matrix;
+    constructor(raw) {
+        this.matrix = raw;
         return;
     }
 
@@ -100,13 +100,13 @@ export class SparseMatrix {
  */
 export class LayeredSparseMatrix extends SparseMatrix {
     /**
-     * @param {Object} cpp_matrix Matrix object created on the Wasm heap.
+     * @param {Object} raw Raw matrix object created on the Wasm heap.
      *
      * This should not be called directly by developers.
      * Rather it is called by functions that initialize a sparse matrix, e.g., `initializeSparseMatrixFromCompressed()`.
      */
-    constructor(cpp_matrix) {
-        super(cpp_matrix);
+    constructor(raw) {
+        super(raw);
         return;
     }
 

@@ -20,7 +20,7 @@ export function filterCells(x, filters) {
     try {
         var ptr;
         if (filters instanceof PerCellQCFilters) {
-            var tmp = filters.discard_overall(false);
+            var tmp = filters.discardOverall(false);
             ptr = tmp.byteOffset;
         } else {
             filter_data = utils.wasmifyArray(filters, "Uint8WasmArray");

@@ -6,12 +6,12 @@ import * as utils from "./utils.js";
  */
 export class PerCellQCFilters {
     /**
-     * @param {Object} cpp_results Results allocated on the Wasm heap.
+     * @param {Object} raw Raw results allocated on the Wasm heap.
      *
      * This should not be called directly; use `computePerCellQCFilters` instead to create an instance of this object.
      */
-    constructor(cpp_results) {
-        this.results = cpp_results;
+    constructor(raw) {
+        this.results = raw;
         return;
     }
 
@@ -21,7 +21,7 @@ export class PerCellQCFilters {
      *
      * @return A `Uint8Array` (or a view thereof) indicating whether each cell was filtered out due to low counts.
      */
-    discard_sums(copy = true) {
+    discardSums(copy = true) {
         var output = this.results.discard_sums();
         if (copy) {
             return output.slice();
@@ -36,7 +36,7 @@ export class PerCellQCFilters {
      *
      * @return A `Uint8Array` (or a view thereof) indicating whether each cell was filtered out due to low numbers of detected genes.
      */
-    discard_detected(copy = true) {
+    discardDetected(copy = true) {
         var output = this.results.discard_detected();
         if (copy) {
             return output.slice();
@@ -52,7 +52,7 @@ export class PerCellQCFilters {
      *
      * @return A `Uint8Array` (or a view thereof) indicating whether each cell was filtered out due to high proportions for subset `i`.
      */
-    discard_subset_proportions(i, copy = true) {
+    discardSubsetProportions(i, copy = true) {
         var output = this.results.discard_proportions(i);
         if (copy) {
             return output.slice();
@@ -67,7 +67,7 @@ export class PerCellQCFilters {
      *
      * @return A `Uint8Array` (or a view thereof) indicating whether each cell was filtered out for any reason.
      */
-   discard_overall(copy = true) {
+   discardOverall(copy = true) {
        var output = this.results.discard_overall();
        if (copy) {
            return output.slice();
@@ -82,7 +82,7 @@ export class PerCellQCFilters {
      *
      * @return A `Float64Array` (or a view thereof) containing the filtering threshold on the sums for each batch.
      */
-    thresholds_sums(copy = true) {
+    thresholdsSums(copy = true) {
         var output = this.results.thresholds_sums();
         if (copy) {
             return output.slice();
@@ -97,7 +97,7 @@ export class PerCellQCFilters {
      *
      * @return A `Float64Array` (or a view thereof) containing the filtering threshold on the number of detected genes for each batch.
      */
-    thresholds_detected(copy = true) {
+    thresholdsDetected(copy = true) {
         var output = this.results.thresholds_detected();
         if (copy) {
             return output.slice();
@@ -113,7 +113,7 @@ export class PerCellQCFilters {
      *
      * @return A `Float64Array` (or a view thereof) indicating containing the filtering threshold on the proportions for subset `i` in each batch.
      */
-    thresholds_subset_proportions(i, copy = true) {
+    thresholdsSubsetProportions(i, copy = true) {
         var output = this.results.thresholds_proportions(i);
         if (copy) {
             return output.slice();
@@ -125,7 +125,7 @@ export class PerCellQCFilters {
     /**
      * @return Number of feature subsets in this object.
      */
-    num_subsets() {
+    numberOfSubsets() {
         return this.results.num_subsets();
     }
 

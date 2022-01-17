@@ -10,7 +10,7 @@ test("filtered matrix is constructed as expected", () => {
     var qc = scran.computePerCellQCMetrics(mat, subs);
     var filt = scran.computePerCellQCFilters(qc);
 
-    var discard = filt.discard_overall();
+    var discard = filt.discardOverall();
     var sum = 0;
     discard.forEach(x => { sum += x; });
 
