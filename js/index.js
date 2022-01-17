@@ -5,3 +5,4 @@ export * from "./computePerCellQCMetrics.js";
 export * from "./computePerCellQCFilters.js";
 export * from "./filterCells.js";
 export * from "./logNormCounts.js";
+export * from "./modelGeneVar.js";
