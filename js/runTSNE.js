@@ -1,7 +1,6 @@
 import * as utils from "./utils.js";
 import Module from "./Module.js";
-import { NeighborSearchIndex } from "./buildNeighborSearchIndex.js";
-import { findNearestNeighbors } from "./findNearestNeighbors.js";
+import { NeighborSearchIndex, findNearestNeighbors } from "./findNearestNeighbors.js";
 import { Float64WasmArray } from "./WasmArray.js";
 
 /**

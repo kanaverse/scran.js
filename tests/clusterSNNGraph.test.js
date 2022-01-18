@@ -1,16 +1,15 @@
 import * as scran from "../js/index.js";
+import * as simulate from "./simulate.js";
 
 test("clusterSNNGraph works as expected", () => {
     var ndim = 5;
     var ncells = 100;
-    var buffer = new scran.Float64WasmArray(ndim * ncells);
-    var arr = buffer.array();
-    arr.forEach((x, i) => arr[i] = Math.random());
+    var index = simulate.simulateIndex(ndim, ncells);
 
-    var index = scran.buildNeighborSearchIndex(buffer, ndim, ncells);
     var k = 5;
     var res = scran.findNearestNeighbors(index, k);
     var graph = scran.buildSNNGraph(res);
+    expect(graph instanceof scran.SNNGraph).toBe(true);
 
     var clusters = scran.clusterSNNGraph(graph);
     var clust = clusters.membership();
@@ -19,7 +18,6 @@ test("clusterSNNGraph works as expected", () => {
     expect(clusters.modularity() > 0).toBe(true);
 
     // Cleaning up.
-    buffer.free();
     index.free();
     res.free();
     graph.free();
