@@ -16,110 +16,82 @@ export class PerCellQCFilters {
     }
 
     /**
-     * @param {boolean} copy Whether to copy the results from the Wasm heap.
+     * @param {Object} [options] - Optional parameters.
+     * @param {boolean} [options.copy] - Whether to copy the results from the Wasm heap.
      * This incurs a copy but has safer lifetime management.
      *
      * @return A `Uint8Array` (or a view thereof) indicating whether each cell was filtered out due to low counts.
      */
-    discardSums(copy = true) {
-        var output = this.results.discard_sums();
-        if (copy) {
-            return output.slice();
-        } else {
-            return output;
-        }
+    discardSums({ copy = true } = {}) {
+        return utils.possibleCopy(this.results.discard_sums(), copy);
     }
 
     /**
-     * @param {boolean} copy Whether to copy the results from the Wasm heap.
+     * @param {Object} [options] - Optional parameters.
+     * @param {boolean} [options.copy] - Whether to copy the results from the Wasm heap.
      * This incurs a copy but has safer lifetime management.
      *
      * @return A `Uint8Array` (or a view thereof) indicating whether each cell was filtered out due to low numbers of detected genes.
      */
-    discardDetected(copy = true) {
-        var output = this.results.discard_detected();
-        if (copy) {
-            return output.slice();
-        } else {
-            return output;
-        }
+    discardDetected({ copy = true } = {}) {
+        return utils.possibleCopy(this.results.discard_detected(), copy);
     }
 
     /**
-     * @param {number} i Index of the feature subset of interest.
-     * @param {boolean} copy Whether to copy the results from the Wasm heap.
+     * @param {number} i - Index of the feature subset of interest.
+     * @param {Object} [options] - Optional parameters.
+     * @param {boolean} [options.copy] - Whether to copy the results from the Wasm heap.
      * This incurs a copy but has safer lifetime management.
      *
      * @return A `Uint8Array` (or a view thereof) indicating whether each cell was filtered out due to high proportions for subset `i`.
      */
-    discardSubsetProportions(i, copy = true) {
-        var output = this.results.discard_proportions(i);
-        if (copy) {
-            return output.slice();
-        } else {
-            return output;
-        }
+    discardSubsetProportions(i, { copy = true } = {}) {
+        return utils.possibleCopy(this.results.discard_proportions(i), copy);
     }
 
     /**
-     * @param {boolean} copy Whether to copy the results from the Wasm heap.
+     * @param {Object} [options] - Optional parameters.
+     * @param {boolean} [options.copy] - Whether to copy the results from the Wasm heap.
      * This incurs a copy but has safer lifetime management.
      *
      * @return A `Uint8Array` (or a view thereof) indicating whether each cell was filtered out for any reason.
      */
-   discardOverall(copy = true) {
-       var output = this.results.discard_overall();
-       if (copy) {
-           return output.slice();
-       } else {
-           return output;
-       }
+   discardOverall({ copy = true } = {}) {
+       return utils.possibleCopy(this.results.discard_overall(), copy);
    }
 
     /**
-     * @param {boolean} copy Whether to copy the results from the Wasm heap.
+     * @param {Object} [options] - Optional parameters.
+     * @param {boolean} [options.copy] - Whether to copy the results from the Wasm heap.
      * This incurs a copy but has safer lifetime management.
      *
      * @return A `Float64Array` (or a view thereof) containing the filtering threshold on the sums for each batch.
      */
-    thresholdsSums(copy = true) {
-        var output = this.results.thresholds_sums();
-        if (copy) {
-            return output.slice();
-        } else {
-            return output;
-        }
+    thresholdsSums({ copy = true } = {}) {
+        return utils.possibleCopy(this.results.thresholds_sums(), copy);
     }
 
     /**
-     * @param {boolean} copy Whether to copy the results from the Wasm heap.
+     * @param {Object} [options] - Optional parameters.
+     * @param {boolean} [options.copy] - Whether to copy the results from the Wasm heap.
      * This incurs a copy but has safer lifetime management.
      *
      * @return A `Float64Array` (or a view thereof) containing the filtering threshold on the number of detected genes for each batch.
      */
-    thresholdsDetected(copy = true) {
-        var output = this.results.thresholds_detected();
-        if (copy) {
-            return output.slice();
-        } else {
-            return output;
-        }
+    thresholdsDetected({ copy = true } = {}) {
+        return utils.possibleCopy(this.results.thresholds_detected(), copy);
     }
 
     /**
-     * @param {number} i Index of the feature subset of interest.
-     * @param {boolean} copy Whether to copy the results from the Wasm heap.
+     * @param {number} i - Index of the feature subset of interest.
+     * @param {Object} [options] - Optional parameters.
+     * @param {boolean} [options.copy] - Whether to copy the results from the Wasm heap.
      * This incurs a copy but has safer lifetime management.
      *
      * @return A `Float64Array` (or a view thereof) indicating containing the filtering threshold on the proportions for subset `i` in each batch.
      */
-    thresholdsSubsetProportions(i, copy = true) {
-        var output = this.results.thresholds_proportions(i);
-        if (copy) {
-            return output.slice();
-        } else {
-            return output;
-        }
+    thresholdsSubsetProportions(i, { copy = true } = {}) {
+        return utils.possibleCopy(this.results.thresholds_proportions(i), copy);
     }
 
     /**
@@ -143,16 +115,17 @@ export class PerCellQCFilters {
 /**
  * Define filters based on the per-cell QC metrics.
  *
- * @param {PerCellQCMetrics} metrics Per-cell QC metrics, usually computed by `computePerCellQCMetrics()`.
- * @param {number} nmads Number of median absolute deviations to use to define low-quality outliers.
- * @param {?(Int32WasmArray|Array|TypedArray)} block Array containing the block assignment for each cell.
+ * @param {PerCellQCMetrics} metrics - Per-cell QC metrics, usually computed by `computePerCellQCMetrics()`.
+ * @param {Object} [options] - Optional parameters.
+ * @param {number} [options.nmads] - Number of median absolute deviations to use to define low-quality outliers.
+ * @param {?(Int32WasmArray|Array|TypedArray)} [options.block] - Array containing the block assignment for each cell.
  * This should have length equal to the number of cells and contain all values from 0 to `n - 1` at least once, where `n` is the number of blocks.
  * This is used to segregate cells in order to compute filters within each block.
  * Alternatively, this may be `null`, in which case all cells are assumed to be in the same block.
  *
  * @return A `PerCellQCFilters` object containing the filtering results.
  */
-export function computePerCellQCFilters(metrics, nmads = 3, block = null) {
+export function computePerCellQCFilters(metrics, { nmads = 3, block = null } = {}) {
     var block_data;
     var raw;
     var output;

@@ -112,7 +112,7 @@ test("initialization from Gzipped MatrixMarket works correctly with Gzip", () =>
     expect(compare.equalArrays(mat.column(4), [0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0]));
     
     // Just checking that the it's actually compressed.
-    var mat2 = scran.initializeSparseMatrixFromMatrixMarketBuffer(buffer, true);
+    var mat2 = scran.initializeSparseMatrixFromMatrixMarketBuffer(buffer, { compressed: true });
     expect(mat2.nrow()).toBe(11);
     expect(mat2.ncol()).toBe(5);
 

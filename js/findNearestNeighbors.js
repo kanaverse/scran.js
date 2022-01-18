@@ -32,18 +32,19 @@ export class NeighborSearchIndex {
 /**
  * Build the nearest neighbor search index.
  *
- * @param {(PCAResults|Float64WasmArray|Array|TypedArray)} x Numeric coordinates of each cell in the dataset.
+ * @param {(PCAResults|Float64WasmArray|Array|TypedArray)} x - Numeric coordinates of each cell in the dataset.
  * For array inputs, this is expected to be in column-major format where the rows are the variables and the columns are the cells.
- * For a `PCAResults` input, we use the principal components directly.
- * @param {number} ndim Number of variables/dimensions per cell.
- * Only used for array-like `x`.
- * @param {number} ncells Number of cells.
- * Only used for array-like `x`.
- * @param {boolean} approximate Whether to build an index for an approximate neighbor search.
+ * For a `PCAResults` input, we extract the principal components.
+ * @param {Object} [options] - Optional parameters.
+ * @param {number} [options.ndim] - Number of variables/dimensions per cell.
+ * Only used (and required) for array-like `x`.
+ * @param {number} [options.ncells] - Number of cells.
+ * Only used (and required) for array-like `x`.
+ * @param {boolean} [options.approximate] - Whether to build an index for an approximate neighbor search.
  *
  * @return A `NeighborSearchIndex` object to use for neighbor searches.
  */
-export function buildNeighborSearchIndex(x, ndim = null, ncells = null, approximate = true) {
+export function buildNeighborSearchIndex(x, { ndim = null, ncells = null, approximate = true } = {}) {
     var buffer;
     var raw;
     var output;
@@ -54,7 +55,7 @@ export function buildNeighborSearchIndex(x, ndim = null, ncells = null, approxim
         if (x instanceof PCAResults) {
             ndim = x.numberOfPCs();
             ncells = x.numberOfCells();
-            let pcs = x.principalComponents(false);
+            let pcs = x.principalComponents({ copy: false });
             pptr = pcs.byteOffset;
 
         } else {
@@ -115,11 +116,12 @@ export class NeighborSearchResults {
     }
 
     /**
-     * @param {?Int32WasmArray} runs An allocation of length equal to `numberOfCells()`,
+     * @param {Object} [options] - Optional parameters.
+     * @param {?Int32WasmArray} [options.runs] - A Wasm-allocated array of length equal to `numberOfCells()`,
      * to be used to store the number of neighbors per cell.
-     * @param {?Int32WasmArray} indices An allocation of length equal to `size()`,
+     * @param {?Int32WasmArray} [options.indices] - A Wasm-allocated array of length equal to `size()`,
      * to be used to store the indices of the neighbors of each cell.
-     * @param {?Float64WasmArray} indices An allocation of length equal to `size()`,
+     * @param {?Float64WasmArray} [options.distances] - A Wasm-allocated array of length equal to `size()`,
      * to be used to store the distances to the neighbors of each cell.
      *
      * @return 
@@ -127,7 +129,7 @@ export class NeighborSearchResults {
      * If all of the arguments are `null`, a object is returned with `TypedArray` entries for each component.
      * Otherwise, an error is raised.
      */
-    serialize(runs = null, indices = null, distances = null) {
+    serialize({ runs = null, indices = null, distances = null } = {}) {
         var copy = (runs === null) + (indices === null) + (distances === null);
         if (copy != 3 && copy != 0) {
             throw "either all or none of 'runs', 'indices' and 'distances' can be 'null'";

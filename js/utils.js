@@ -4,7 +4,7 @@ import { WasmArray,
          Int32WasmArray, Uint32WasmArray,
          Float32WasmArray, Float64WasmArray } from "./WasmArray.js";
 
-export function wasmifyArray(x, expected = null) {
+export function wasmifyArray(x, expected) {
     if (x instanceof WasmArray) {
         if (expected !== null && expected != x.constructor.name) {
             throw "expected '" + expected + "', got '" + x.constructor.name + "'";

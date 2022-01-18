@@ -75,14 +75,15 @@ export class UMAPStatus {
  * @param {(NeighborSearchIndex|NeighborSearchResults)} x 
  * Either a pre-built neighbor search index for the dataset (see `buildNeighborSearchIndex()`),
  * or a pre-computed set of neighbor search results for all cells (see `findNearestNeighbors()`).
- * @param {number} neighbors Number of neighbors to use in the UMAP algorithm.
+ * @param {Object} [options] - Optional parameters.
+ * @param {number} [options.neighbors] - Number of neighbors to use in the UMAP algorithm.
  * Ignored if `x` is a `NeighborSearchResults` object.
- * @param {number} epochs Number of epochs to run the UMAP algorithm.
- * @param {number} minDist Minimum distance between points in the UMAP algorithm.
+ * @param {number} [options.epochs] - Number of epochs to run the UMAP algorithm.
+ * @param {number} [options.minDist] - Minimum distance between points in the UMAP algorithm.
  *
  * @return A `UMAPStatus` object containing the initial status of the UMAP algorithm.
  */
-export function initializeUMAP(x, neighbors = 15, epochs = 500, minDist = 0.01) {
+export function initializeUMAP(x, { neighbors = 15, epochs = 500, minDist = 0.01 } = {}) {
     var my_neighbors;
     var raw_status;
     var raw_coords;
@@ -119,13 +120,14 @@ export function initializeUMAP(x, neighbors = 15, epochs = 500, minDist = 0.01) 
  *
  * @param {UMAPStatus} x A previously initialized status object.
  * This may be passed through `runUMAP()` any number of times.
- * @param {?number} runTime Number of milliseconds for which the algorithm is allowed to run before returning.
+ * @param {Object} [options] - Optional parameters.
+ * @param {?number} [options.runTime] - Number of milliseconds for which the algorithm is allowed to run before returning.
  * If `null`, no limit is imposed on the runtime.
  *
  * @return The algorithm status in `x` is advanced up to the total number of epochs used to initialize `x`,
  * or until the requested run time is exceeded, whichever comes first.
  */
-export function runUMAP(x, runTime = null) {
+export function runUMAP(x, { runTime = null } = {}) {
     if (runTime === null) {
         runTime = 100000000; // TODO: need a better solution here.
     }

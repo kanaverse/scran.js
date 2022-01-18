@@ -47,7 +47,7 @@ test("scoreMarkers works as expected with blocking", () => {
     var half = ncells / 2;
     block.fill(0, 0, half);
     block.fill(1, half, ncells);
-    var res = scran.scoreMarkers(norm, groups, block);
+    var res = scran.scoreMarkers(norm, groups, { block: block });
 
     // Comparing to manual blocking.
     var discard1 = new Array(ncells);
@@ -64,10 +64,10 @@ test("scoreMarkers works as expected with blocking", () => {
 
     // Comparing the results.
     for (var group = 0; group < 3; group++) {
-        expect(compare.equalArrays(res.means(group, 0), res1.means(group))).toBe(true);
-        expect(compare.equalArrays(res.means(group, 1), res2.means(group))).toBe(true);
-        expect(compare.equalArrays(res.detected(group, 0), res1.detected(group))).toBe(true);
-        expect(compare.equalArrays(res.detected(group, 1), res2.detected(group))).toBe(true);
+        expect(compare.equalArrays(res.means(group, { block: 0 }), res1.means(group))).toBe(true);
+        expect(compare.equalArrays(res.means(group, { block: 1 }), res2.means(group))).toBe(true);
+        expect(compare.equalArrays(res.detected(group, { block: 0 }), res1.detected(group))).toBe(true);
+        expect(compare.equalArrays(res.detected(group, { block: 1 }), res2.detected(group))).toBe(true);
     }
 
     // Cleaning up.

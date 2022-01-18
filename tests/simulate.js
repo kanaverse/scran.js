@@ -42,7 +42,7 @@ export function simulateIndex(ndim, ncells) {
     try {
         var arr = buffer.array();
         arr.forEach((x, i) => arr[i] = Math.random());
-        index = scran.buildNeighborSearchIndex(buffer, ndim, ncells);
+        index = scran.buildNeighborSearchIndex(buffer, { ndim: ndim, ncells: ncells });
     } finally {
         buffer.free();
     }

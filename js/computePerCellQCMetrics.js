@@ -17,12 +17,13 @@ export class PerCellQCMetrics {
     }
 
     /**
-     * @param {boolean} copy Whether to copy the results from the Wasm heap.
+     * @param {Object} [options] - Optional parameters.
+     * @param {boolean} [options.copy] - Whether to copy the results from the Wasm heap.
      * This incurs a copy but has safer lifetime management.
      *
      * @return A `Float64Array` (or a view thereof) containing the total count for each cell.
      */
-    sums(copy = true) {
+    sums({ copy = true } = {}) {
         var output = this.results.sums();
         if (copy) {
             return output.slice();
@@ -32,12 +33,13 @@ export class PerCellQCMetrics {
     }
 
     /**
-     * @param {boolean} copy Whether to copy the results from the Wasm heap.
+     * @param {Object} [options] - Optional parameters.
+     * @param {boolean} [options.copy] - Whether to copy the results from the Wasm heap.
      * This incurs a copy but has safer lifetime management.
      *
      * @return An `Int32Array` (or a view thereof) containing the total number of detected genes for each cell.
      */
-    detected(copy = true) {
+    detected({ copy = true } = {}) {
         var output = this.results.detected();
         if (copy) {
             return output.slice();
@@ -47,13 +49,14 @@ export class PerCellQCMetrics {
     }
 
     /**
-     * @param {number} i Index of the feature subset of interest.
-     * @param {boolean} copy Whether to copy the results from the Wasm heap.
+     * @param {number} i - Index of the feature subset of interest.
+     * @param {Object} [options] - Optional parameters.
+     * @param {boolean} [options.copy] - Whether to copy the results from the Wasm heap.
      * This incurs a copy but has safer lifetime management.
      *
      * @return A `Float64Array` (or a view thereof) containing the proportion of counts in the subset `i` for each cell.
      */
-    subsetProportions(i, copy = true) {
+    subsetProportions(i, { copy = true } = {}) {
         var output = this.results.subset_proportions(i);
         if (copy) {
             return output.slice();
@@ -83,9 +86,8 @@ export class PerCellQCMetrics {
 /**
  * Compute the per-cell QC metrics.
  *
- * @param {SparseMatrix} x The count matrix.
- * @param {?(Array|Uint8WasmArray)} subsets 
- * An array of arrays of boolean values specifying the feature subsets.
+ * @param {SparseMatrix} x - The count matrix.
+ * @param {?(Array|Uint8WasmArray)} subsets - Array of arrays of boolean values specifying the feature subsets.
  * Each internal array corresponds to a subset and should be of length equal to the number of rows.
  * Each entry of each internal array specifies whether the corresponding row of `x` belongs to that subset; 
  * any value interpretable as a boolean can be used here.
@@ -93,11 +95,11 @@ export class PerCellQCMetrics {
  * Alternatively, a `Uint8WasmArray` can be supplied containing the concatenated contents of all arrays;
  * this should be of length equal to the product of the number of subsets and the number of rows in `x`.
  *
- * Alternatively, a `null` may be supplied, which is taken to mean that there are no subsets.
+ * Alternatively `null`, which is taken to mean that there are no subsets.
  *
  * @return A `PerCellQCMetrics` object containing the QC metrics.
  */
-export function computePerCellQCMetrics(x, subsets = null) {
+export function computePerCellQCMetrics(x, subsets) {
     var output;
     var raw;
 

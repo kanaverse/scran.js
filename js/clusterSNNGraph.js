@@ -30,15 +30,16 @@ export class SNNGraph {
 /**
  * Build a shared nearest graph.
  *
- * @param {NeighborSearchResults} x Neighbor search results from `findNearestNeighbors()`.
- * @param {number} scheme Weighting scheme for the edges between cells.
+ * @param {NeighborSearchResults} x - Neighbor search results from `findNearestNeighbors()`.
+ * @param {Object} [options] - Optional parameters.
+ * @param {number} [options.scheme] - Weighting scheme for the edges between cells.
  * This can be based on the top ranks of the shared neighbors (0),
  * the number of shared neighbors (1) 
  * or the Jaccard index of the neighbor sets between cells (2).
  *
  * @return A `SNNGraph` object containing the graph.
  */
-export function buildSNNGraph(x, scheme = 0) {
+export function buildSNNGraph(x, { scheme = 0 } = {}) {
     var raw;
     var output;
 
@@ -83,12 +84,13 @@ export class SNNGraphMultilevelClusters {
     }
 
     /**
-     * @param {?number} level The clustering level for which to obtain the modularity.
+     * @param {Object} [options] - Optional parameters.
+     * @param {?number} [options.level] - The clustering level for which to obtain the modularity.
      * Defaults to the best clustering level from `best()`.
      *
      * @return The modularity at the specified level.
      */
-    modularity(level = null) {
+    modularity({ level = null } = {}) {
         if (level === null) {
             level = this.best();
         }
@@ -96,14 +98,15 @@ export class SNNGraphMultilevelClusters {
     }
 
     /**
-     * @param {?number} level The clustering level for which to obtain the cluster membership.
+     * @param {Object} [options] - Optional parameters.
+     * @param {?number} [options.level] - The clustering level for which to obtain the cluster membership.
      * Defaults to the best clustering level from `best()`.
-     * @param {boolean} copy Whether to copy the results from the Wasm heap.
+     * @param {boolean} [options.copy] - Whether to copy the results from the Wasm heap.
      * This incurs a copy but has safer lifetime management.
      *
      * @return An `Int32Array` (or view thereof) containing the cluster membership for each cell.
      */
-    membership(level = null, copy = true) {
+    membership({ level = null, copy = true } = {}) {
         if (level === null) {
             level = this.best();
         }
@@ -129,12 +132,13 @@ export class SNNGraphMultilevelClusters {
 /**
  * Cluster cells using community detection on the SNN graph.
  *
- * @param {SNNGraph} x The shared nearest neighbor graph constructed by `buildSNNGraph()`.
- * @param {number} resolution The resolution of the multi-level clustering.
+ * @param {SNNGraph} x - The shared nearest neighbor graph constructed by `buildSNNGraph()`.
+ * @param {Object} [options] - Optional parameters.
+ * @param {number} [options.resolution] - The resolution of the multi-level clustering.
  *
  * @return A `SNNGraphMultilevelClusters` object containing the clustering results.
  */
-export function clusterSNNGraph(x, resolution = 1) {
+export function clusterSNNGraph(x, { resolution = 1 } = {}) {
     var raw;
     var output;
 

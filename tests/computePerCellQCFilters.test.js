@@ -40,7 +40,7 @@ test("per-cell QC filters can be computed with blocking", () => {
 
     // Computing with blocks.
     var qc = scran.computePerCellQCMetrics(mat, subs);
-    var filt = scran.computePerCellQCFilters(qc, 3, block);
+    var filt = scran.computePerCellQCFilters(qc, { block: block });
 
     // Computing manually.
     var dense_buffer = new scran.Float64WasmArray(ngenes * half);

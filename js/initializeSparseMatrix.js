@@ -18,7 +18,7 @@ export function initializeSparseMatrixFromDenseArray(nrow, ncol, values) {
     var output;
 
     try {
-        val_data = utils.wasmifyArray(values);
+        val_data = utils.wasmifyArray(values, null);
         if (val_data.length !== nrow * ncol) {
             throw "length of 'values' is not consistent with supplied dimensions";
         }
@@ -56,12 +56,13 @@ export function initializeSparseMatrixFromDenseArray(nrow, ncol, values) {
  * This should be of the same length as `values`.
  * @param {WasmArray} indptrs Pointers specifying the start of each column in `indices`.
  * This should have length equal to `ncol + 1`.
- * @param {boolean} csc Whether the supplied arrays refer to compressed sparse column format.
+ * @param {Object} [options] - Optional parameters.
+ * @param {boolean} [options.csc] - Whether the supplied arrays refer to compressed sparse column format.
  * If `false`, `indices` should contain column indices and `indptrs` should specify the start of each row.
  *
  * @return A `LayeredSparseMatrix` object containing a layered sparse matrix.
  */ 
-export function initializeSparseMatrixFromCompressedVectors(nrow, ncol, values, indices, indptrs, csc = true) {
+export function initializeSparseMatrixFromCompressedVectors(nrow, ncol, values, indices, indptrs, { csc = true } = {}) {
     var val_data;
     var ind_data;
     var indp_data;
@@ -69,9 +70,9 @@ export function initializeSparseMatrixFromCompressedVectors(nrow, ncol, values, 
     var output;
 
     try {
-        val_data = utils.wasmifyArray(values);
-        ind_data = utils.wasmifyArray(indices);
-        indp_data = utils.wasmifyArray(indptrs);
+        val_data = utils.wasmifyArray(values, null);
+        ind_data = utils.wasmifyArray(indices, null);
+        indp_data = utils.wasmifyArray(indptrs, null);
         if (val_data.length != ind_data.length) {
             throw "'values' and 'indices' should have the same length";
         }
@@ -114,12 +115,13 @@ export function initializeSparseMatrixFromCompressedVectors(nrow, ncol, values, 
  *
  * @param {Uint8WasmArray|Array|TypedArray} buffer Byte array containing the contents of a Matrix Market file with non-negative counts.
  * This can be raw text or Gzip-compressed.
- * @param {boolean} compressed Whether the buffer is Gzip-compressed.
+ * @param {Object} [options] - Optional parameters.
+ * @param {boolean} [options.compressed] - Whether the buffer is Gzip-compressed.
  * If `null`, we detect this automatically from the magic number in the header.
  *
  * @return A `LayeredSparseMatrix` object containing a layered sparse matrix.
  */
-export function initializeSparseMatrixFromMatrixMarketBuffer(buffer, compressed = null) {
+export function initializeSparseMatrixFromMatrixMarketBuffer(buffer, { compressed = null } = {}) {
     var buf_data;
     var raw;
     var output;

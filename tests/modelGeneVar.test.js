@@ -36,7 +36,7 @@ test("Variance modelling works as expected with blocking", () => {
     var half = ncells / 2;
     block.fill(0, 0, half);
     block.fill(1, half, ncells);
-    var res = scran.modelGeneVar(norm, block);
+    var res = scran.modelGeneVar(norm, { block: block });
 
     var discard1 = new Array(ncells);
     discard1.fill(0, 0, half);
@@ -51,15 +51,15 @@ test("Variance modelling works as expected with blocking", () => {
     var res2 = scran.modelGeneVar(sub2);
 
     // Comparing results.
-    expect(compare.equalFloatArrays(res.means(0), res1.means())).toBe(true);
-    expect(compare.equalFloatArrays(res.variances(0), res1.variances())).toBe(true);
-    expect(compare.equalFloatArrays(res.fitted(0), res1.fitted())).toBe(true);
-    expect(compare.equalFloatArrays(res.residuals(0), res1.residuals())).toBe(true);
+    expect(compare.equalFloatArrays(res.means({ block: 0 }), res1.means())).toBe(true);
+    expect(compare.equalFloatArrays(res.variances({ block: 0 }), res1.variances())).toBe(true);
+    expect(compare.equalFloatArrays(res.fitted({ block: 0 }), res1.fitted())).toBe(true);
+    expect(compare.equalFloatArrays(res.residuals({ block: 0 }), res1.residuals())).toBe(true);
 
-    expect(compare.equalFloatArrays(res.means(1), res2.means())).toBe(true);
-    expect(compare.equalFloatArrays(res.variances(1), res2.variances())).toBe(true);
-    expect(compare.equalFloatArrays(res.fitted(1), res2.fitted())).toBe(true);
-    expect(compare.equalFloatArrays(res.residuals(1), res2.residuals())).toBe(true);
+    expect(compare.equalFloatArrays(res.means({ block: 1 }), res2.means())).toBe(true);
+    expect(compare.equalFloatArrays(res.variances({ block: 1 }), res2.variances())).toBe(true);
+    expect(compare.equalFloatArrays(res.fitted({ block: 1 }), res2.fitted())).toBe(true);
+    expect(compare.equalFloatArrays(res.residuals({ block: 1 }), res2.residuals())).toBe(true);
 
 
     // Cleaning up.

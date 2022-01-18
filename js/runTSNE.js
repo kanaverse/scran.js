@@ -68,13 +68,14 @@ export class TSNEStatus {
  * @param {(NeighborSearchIndex|NeighborSearchResults)} x 
  * Either a pre-built neighbor search index for the dataset (see `buildNeighborSearchIndex()`),
  * or a pre-computed set of neighbor search results for all cells (see `findNearestNeighbors()`).
- * @param {number} perplexity Perplexity to use when computing neighbor probabilities in the t-SNE.
- * @param {boolean} checkMismatch Whether to check for a mismatch between the perplexity and the number of searched neighbors.
+ * @param {Object} [options] - Optional parameters.
+ * @param {number} [options.perplexity] - Perplexity to use when computing neighbor probabilities in the t-SNE.
+ * @param {boolean} [options.checkMismatch] - Whether to check for a mismatch between the perplexity and the number of searched neighbors.
  * Only relevant if `x` is a `NeighborSearchResults` object.
  *
  * @return A `TSNEStatus` object containing the initial status of the t-SNE algorithm.
  */
-export function initializeTSNE(x, perplexity = 30, checkMismatch = true) {
+export function initializeTSNE(x, { perplexity = 30, checkMismatch = true } = {}) {
     var my_neighbors;
     var raw_status;
     var raw_coords;
@@ -120,15 +121,16 @@ export function initializeTSNE(x, perplexity = 30, checkMismatch = true) {
  *
  * @param {TSNEStatus} x A previously initialized status object.
  * This may be passed through `runTSNE()` any number of times.
- * @param {number} maxIterations Maximum number of iterations to perform.
+ * @param {Object} [options] - Optional parameters.
+ * @param {number} [options.maxIterations] - Maximum number of iterations to perform.
  * This will also count all existing iterations from previous calls to `runTSNE()`.
- * @param {?number} runTime Number of milliseconds for which the algorithm is allowed to run before returning.
+ * @param {?number} [options.runTime] - Number of milliseconds for which the algorithm is allowed to run before returning.
  * If `null`, no limit is imposed on the runtime.
  *
  * @return The algorithm status in `x` is advanced up to the requested number of iterations,
  * or until the requested run time is exceeded, whichever comes first.
  */
-export function runTSNE(x, maxIterations = 1000, runTime = null) {
+export function runTSNE(x, { maxIterations = 1000, runTime = null } = {}) {
     if (runTime === null) {
         runTime = 100000000; // TODO: need a better solution here.
     }

@@ -16,15 +16,16 @@ export class ModelGeneVarResults {
     }
 
     /**
-     * @param {number} batch Batch number.
-     * @param {boolean} copy Whether to copy the results from the Wasm heap.
+     * @param {Object} [options] - Optional parameters.
+     * @param {number} [options.block] - Block number.
+     * @param {boolean} [options.copy] - Whether to copy the results from the Wasm heap.
      * This incurs a copy but has safer lifetime management.
      *
      * @return A `Float64Array` (or a view thereof) of length equal to the number of genes,
-     * containing the mean log-expression across all cells in the specified `batch`. 
+     * containing the mean log-expression across all cells in the specified `block`. 
      */
-    means(batch = 0, copy = true) {
-        var output = this.results.means(batch);
+    means({ block = 0, copy = true } = {}) {
+        var output = this.results.means(block);
         if (copy) {
             return output.slice();
         } else {
@@ -33,15 +34,16 @@ export class ModelGeneVarResults {
     }
 
     /**
-     * @param {number} batch Batch number.
-     * @param {boolean} copy Whether to copy the results from the Wasm heap.
+     * @param {Object} [options] - Optional parameters.
+     * @param {number} [options.block] - Block number.
+     * @param {boolean} [options.copy] - Whether to copy the results from the Wasm heap.
      * This incurs a copy but has safer lifetime management.
      *
      * @return A `Float64Array` (or a view thereof) of length equal to the number of genes,
-     * containing the variance of log-expression across all cells in the specified `batch`. 
+     * containing the variance of log-expression across all cells in the specified `block`. 
      */
-    variances(batch = 0, copy = true) {
-        var output = this.results.variances(batch);
+    variances({ block = 0, copy = true } = {}) {
+        var output = this.results.variances(block);
         if (copy) {
             return output.slice();
         } else {
@@ -50,15 +52,16 @@ export class ModelGeneVarResults {
     }
 
     /**
-     * @param {number} batch Batch number.
-     * @param {boolean} copy Whether to copy the results from the Wasm heap.
+     * @param {Object} [options] - Optional parameters.
+     * @param {number} [options.block] - Block number.
+     * @param {boolean} [options.copy] - Whether to copy the results from the Wasm heap.
      * This incurs a copy but has safer lifetime management.
      *
      * @return A `Float64Array` (or a view thereof) of length equal to the number of genes,
-     * containing the fitted value of the mean-variance trend for the specified `batch`. 
+     * containing the fitted value of the mean-variance trend for the specified `block`. 
      */
-    fitted(batch = 0, copy = true) {
-        var output = this.results.fitted(batch);
+    fitted({ block = 0, copy = true } = {}) {
+        var output = this.results.fitted(block);
         if (copy) {
             return output.slice();
         } else {
@@ -67,15 +70,16 @@ export class ModelGeneVarResults {
     }
 
     /**
-     * @param {number} batch Batch number.
-     * @param {boolean} copy Whether to copy the results from the Wasm heap.
+     * @param {Object} [options] - Optional parameters.
+     * @param {number} [options.block] - Block number.
+     * @param {boolean} [options.copy] - Whether to copy the results from the Wasm heap.
      * This incurs a copy but has safer lifetime management.
      *
      * @return A `Float64Array` (or a view thereof) of length equal to the number of genes,
-     * containing the residuals from the mean-variance trend for the specified `batch`. 
+     * containing the residuals from the mean-variance trend for the specified `block`. 
      */
-    residuals(batch = 0, copy = true) {
-        var output = this.results.residuals(batch);
+    residuals({ block = 0, copy = true } = {}) {
+        var output = this.results.residuals(block);
         if (copy) {
             return output.slice();
         } else {
@@ -97,16 +101,17 @@ export class ModelGeneVarResults {
 /**
  * Model the mean-variance trend across genes.
  *
- * @param {SparseMatrix} The normalized log-expression matrix.
- * @param {?(Int32WasmArray|Array|TypedArray)} block Array containing the block assignment for each cell.
+ * @param {SparseMatrix} x - The normalized log-expression matrix.
+ * @param {Object} [options] - Optional parameters.
+ * @param {?(Int32WasmArray|Array|TypedArray)} [options.block] - Array containing the block assignment for each cell.
  * This should have length equal to the number of cells and contain all values from 0 to `n - 1` at least once, where `n` is the number of blocks.
  * This is used to segregate cells in order to fit the mean-variance trend within each block.
  * Alternatively, this may be `null`, in which case all cells are assumed to be in the same block.
- * @param {number} span Span to use for the LOWESS trend fitting.
+ * @param {number} [options.span] - Span to use for the LOWESS trend fitting.
  *
  * @return A `ModelGeneVarResults` object containing the variance modelling results.
  */
-export function modelGeneVar(x, block = null, span = 0.3) {
+export function modelGeneVar(x, { block = null, span = 0.3 } = {}) {
     var block_data;
     var raw;
     var output;

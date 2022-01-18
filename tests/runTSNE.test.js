@@ -16,7 +16,7 @@ test("runTSNE works as expected", () => {
     expect(init.iterations()).toBe(0);
     expect(init.numberOfCells()).toBe(ncells);
 
-    scran.runTSNE(init, 1000);
+    scran.runTSNE(init, { maxIterations: 1000 });
     var finished = init.extractCoordinates();
     expect(init.iterations()).toBe(1000);
 
@@ -63,18 +63,18 @@ test("runTSNE restarts work as expected", () => {
     // Full run.
     var init = scran.initializeTSNE(index);
     var init2 = init.clone();
-    scran.runTSNE(init, 1000);
+    scran.runTSNE(init, { maxIterations: 1000 });
     var finished = init.extractCoordinates();
 
     // Half run.
-    scran.runTSNE(init2, 100);
+    scran.runTSNE(init2, { maxIterations: 100 });
     var halfway = init2.extractCoordinates();
     expect(init2.iterations()).toBe(100);
     expect(compare.equalArrays(halfway.x, finished.x)).toBe(false);
     expect(compare.equalArrays(halfway.y, finished.y)).toBe(false);
 
     // Completed run.
-    scran.runTSNE(init2, 1000);
+    scran.runTSNE(init2, { maxIterations: 1000 });
     var full = init2.extractCoordinates();
     expect(init2.iterations()).toBe(1000);
     expect(compare.equalArrays(full.x, finished.x)).toBe(true);

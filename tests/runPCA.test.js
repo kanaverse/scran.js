@@ -9,7 +9,7 @@ test("PCA works as expected", () => {
     var ncells = 100;
     var mat = simulate.simulateMatrix(ngenes, ncells);
 
-    var pca = scran.runPCA(mat, null, 20);
+    var pca = scran.runPCA(mat, { numberOfPCs: 20 });
     expect(pca.principalComponents().length).toBe(ncells * 20);
     expect(pca.varianceExplained().length).toBe(20);
     expect(pca.totalVariance() > 0).toBe(true);
@@ -29,7 +29,7 @@ test("PCA works as expected with feature subsetting", () => {
         feat[i] = Math.random() < 0.05;
     }
 
-    var pca = scran.runPCA(mat, feat, 15);
+    var pca = scran.runPCA(mat, { features: feat, numberOfPCs: 15 });
     expect(pca.principalComponents().length).toBe(ncells * 15);
     expect(pca.varianceExplained().length).toBe(15);
     expect(pca.totalVariance() > 0).toBe(true);

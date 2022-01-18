@@ -30,7 +30,7 @@ test("Log-normalization works as expected with pre-supplied size factors", () =>
         sf[i] = Math.random();
     }
 
-    var norm = scran.logNormCounts(mat, sf);
+    var norm = scran.logNormCounts(mat, { sizeFactors: sf });
     expect(norm.constructor.name).toBe(mat.constructor.name);
     expect(norm.nrow()).toBe(mat.nrow());
     expect(norm.ncol()).toBe(mat.ncol());
@@ -57,7 +57,7 @@ test("Log-normalization works as expected with blocking", () => {
     var half = ncells / 2;
     block.fill(0, 0, half);
     block.fill(1, half, ncells);
-    var normed_full = scran.logNormCounts(mat, null, block);
+    var normed_full = scran.logNormCounts(mat, { block: block });
 
     var discard1 = new Array(ncells);
     discard1.fill(0, 0, half);

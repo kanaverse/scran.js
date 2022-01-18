@@ -11,7 +11,7 @@ test("runUMAP works as expected", () => {
     var index = simulate.simulateIndex(ndim, ncells);
 
     // Initializing and running the algorithm.
-    var init = scran.initializeUMAP(index);
+    var init = scran.initializeUMAP(index, { epochs: 500 });
     var start = init.extractCoordinates();
     expect(init.currentEpoch()).toBe(0);
     expect(init.numberOfCells()).toBe(ncells);
@@ -61,13 +61,13 @@ test("runUMAP restarts work as expected", () => {
     var index = simulate.simulateIndex(ndim, ncells);
 
     // Full run.
-    var init = scran.initializeUMAP(index);
+    var init = scran.initializeUMAP(index, { epochs: 500 });
     var init2 = init.clone();
     scran.runUMAP(init);
     var finished = init.extractCoordinates();
 
     // Truncated run.
-    scran.runUMAP(init2, 1);
+    scran.runUMAP(init2, { runTime: 1 });
     var halfway = init2.extractCoordinates();
     expect(init2.currentEpoch() < 500).toBe(true);
     expect(compare.equalArrays(halfway.x, finished.x)).toBe(false);
