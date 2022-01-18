@@ -1,4 +1,4 @@
-import Module from "./Module.js";
+import * as wasm from "./wasm.js";
 import * as utils from "./utils.js";
 
 /**
@@ -46,7 +46,7 @@ export function logNormCounts(x, sizeFactors = null, block = null) {
             bptr = block_data.offset;
         }
 
-        raw = utils.wrapModuleCall(() => Module.log_norm_counts(x.matrix, use_sf, sfptr, use_blocks, bptr));
+        raw = wasm.call(module => module.log_norm_counts(x.matrix, use_sf, sfptr, use_blocks, bptr));
         output = new x.constructor(raw);
 
     } catch (e) {

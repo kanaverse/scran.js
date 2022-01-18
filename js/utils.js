@@ -1,22 +1,11 @@
-import Module from "./Module.js";
-import * as wa from "./WasmArray.js";
-
-export function wrapModuleCall(fun) {
-    var output;
-    try {
-        output = fun();
-    } catch (e) {
-        if (e instanceof Number) {
-            throw Module.get_error_message(e);
-        } else {
-            throw e;
-        }
-    }
-    return output;
-}
+import { WasmArray, 
+         Int8WasmArray,  Uint8WasmArray, 
+         Int16WasmArray, Uint16WasmArray,
+         Int32WasmArray, Uint32WasmArray,
+         Float32WasmArray, Float64WasmArray } from "./WasmArray.js";
 
 export function wasmifyArray(x, expected = null) {
-    if (x instanceof wa.WasmArray) {
+    if (x instanceof WasmArray) {
         if (expected !== null && expected != x.constructor.name) {
             throw "expected '" + expected + "', got '" + x.constructor.name + "'";
         }
@@ -35,30 +24,30 @@ export function wasmifyArray(x, expected = null) {
     try {
         switch (expected) {
             case "Uint8WasmArray":
-                y = new wa.Uint8WasmArray(x.length);
+                y = new Uint8WasmArray(x.length);
                 break;
             case "Int8WasmArray":
-                y = new wa.Int8WasmArray(x.length);
+                y = new Int8WasmArray(x.length);
                 break;
             case "Uint16WasmArray":
-                y = new wa.Uint16WasmArray(x.length);
+                y = new Uint16WasmArray(x.length);
                 break;
             case "Int16WasmArray":
-                y = new wa.Int16WasmArray(x.length);
+                y = new Int16WasmArray(x.length);
                 break;
             case "Uint32WasmArray":
-                y = new wa.Uint32WasmArray(x.length);
+                y = new Uint32WasmArray(x.length);
                 break;
             case "Int32WasmArray":
-                y = new wa.Int32WasmArray(x.length);
+                y = new Int32WasmArray(x.length);
                 break;
             case "Float32WasmArray":
-                y = new wa.Float32WasmArray(x.length);
+                y = new Float32WasmArray(x.length);
                 break;
             case "BigInt64WasmArray":
             case "BigUint64WasmArray":
             case "Float64WasmArray":
-                y = new wa.Float64WasmArray(x.length); // no HEAP64 as of time of writing.
+                y = new Float64WasmArray(x.length); // no HEAP64 as of time of writing.
                 break;
             default:
                 throw "unknown expected type '" + expected + "'";
@@ -83,9 +72,7 @@ export function wasmifyArray(x, expected = null) {
 
 export function free(x) {
     if (x !== null && x !== undefined) {
-        if (x instanceof wa.WasmArray) {
-            x.free();
-        } else if ("free" in x) {
+        if ("free" in x) {
             x.free();
         } else if ("delete" in x) {
             x.delete(); // i.e., one of the raw C++ classes.

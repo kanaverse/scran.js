@@ -1,4 +1,4 @@
-import Module from "./Module.js";
+import * as wasm from "./wasm.js";
 import * as utils from "./utils.js";
 
 /**
@@ -124,7 +124,7 @@ export function modelGeneVar(x, block = null, span = 0.3) {
             bptr = block_data.offset;
         }
 
-        raw = utils.wrapModuleCall(() => Module.model_gene_var(x.matrix, use_blocks, bptr, span));
+        raw = wasm.call(module => module.model_gene_var(x.matrix, use_blocks, bptr, span));
         output = new ModelGeneVarResults(raw);
 
     } catch (e) {

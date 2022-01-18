@@ -1,4 +1,4 @@
-import Module from "./Module.js";
+import * as wasm from "./wasm.js";
 import * as utils from "./utils.js"; 
 import { Uint8WasmArray } from "./WasmArray.js";
 
@@ -108,7 +108,7 @@ export function computePerCellQCMetrics(x, subsets = null) {
             if (nsubsets * x.nrow() != subsets.length) {
                 throw "length of 'subsets' should be a multiple of the matrix rows";
             }
-            raw = utils.wrapModuleCall(() => Module.per_cell_qc_metrics(x.matrix, nsubsets, ptr));
+            raw = wasm.call(module => module.per_cell_qc_metrics(x.matrix, nsubsets, ptr));
 
         } else if (subsets instanceof Array) {
             let tmp = new Uint8WasmArray(x.nrow() * subsets.length);
@@ -122,13 +122,13 @@ export function computePerCellQCMetrics(x, subsets = null) {
                     tmp.array().set(current, offset);
                     offset += current.length;
                 }
-                raw = utils.wrapModuleCall(() => Module.per_cell_qc_metrics(x.matrix, subsets.length, tmp.offset));
+                raw = wasm.call(module => module.per_cell_qc_metrics(x.matrix, subsets.length, tmp.offset));
             } finally {
                 tmp.free();
             }
 
         } else if (subsets === null) {
-            raw = utils.wrapModuleCall(() => Module.per_cell_qc_metrics(x.matrix, 0, 0));
+            raw = wasm.call(module => module.per_cell_qc_metrics(x.matrix, 0, 0));
 
         } else {
             throw "'subsets' should be an Array or Uint8WasmArray";

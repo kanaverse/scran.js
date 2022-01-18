@@ -1,5 +1,5 @@
 import * as utils from "./utils.js";
-import Module from "./Module.js";
+import * as wasm from "./wasm.js";
 import { NeighborSearchIndex, findNearestNeighbors } from "./findNearestNeighbors.js";
 import { Float64WasmArray } from "./WasmArray.js";
 
@@ -84,13 +84,13 @@ export function initializeTSNE(x, perplexity = 30, checkMismatch = true) {
         let neighbors;
 
         if (x instanceof NeighborSearchIndex) {
-            let k = utils.wrapModuleCall(() => Module.perplexity_to_k(perplexity));
+            let k = wasm.call(module => module.perplexity_to_k(perplexity));
             my_neighbors = findNearestNeighbors(x, k);
             neighbors = my_neighbors;
 
         } else {
             if (checkMismatch) {
-                let k = utils.wrapModuleCall(() => Module.perplexity_to_k(perplexity));
+                let k = wasm.call(module => module.perplexity_to_k(perplexity));
                 if (k * x.numberOfCells() != x.size()) {
                     throw "number of neighbors in 'x' does not match '3 * perplexity'";
                 }
@@ -98,9 +98,9 @@ export function initializeTSNE(x, perplexity = 30, checkMismatch = true) {
             neighbors = x;
         }
 
-        raw_status = utils.wrapModuleCall(() => Module.initialize_tsne(neighbors.results, perplexity));
+        raw_status = wasm.call(module => module.initialize_tsne(neighbors.results, perplexity));
         raw_coords = new Float64WasmArray(2 * neighbors.numberOfCells());
-        utils.wrapModuleCall(() => Module.randomize_tsne_start(neighbors.numberOfCells(), raw_coords.offset, 42));
+        wasm.call(module => module.randomize_tsne_start(neighbors.numberOfCells(), raw_coords.offset, 42));
         output = new TSNEStatus(raw_status, raw_coords);
 
     } catch(e) {
@@ -132,6 +132,6 @@ export function runTSNE(x, maxIterations = 1000, runTime = null) {
     if (runTime === null) {
         runTime = 100000000; // TODO: need a better solution here.
     }
-    utils.wrapModuleCall(() => Module.run_tsne(x.status, runTime, maxIterations, x.coordinates.offset));
+    wasm.call(module => module.run_tsne(x.status, runTime, maxIterations, x.coordinates.offset));
     return;
 }

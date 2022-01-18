@@ -1,4 +1,4 @@
-import Module from "./Module.js";
+import * as wasm from "./wasm.js";
 
 /** 
  * Manage an array allocation on the Wasm heap.
@@ -17,7 +17,7 @@ export class WasmArray {
     constructor(length, offset, size) {
         if (offset === null) {
             this.owner = true;
-            this.offset = Module._malloc(size * length);
+            this.offset = wasm.call(module => module._malloc(size * length));
         } else {
             this.owner = false;
             this.offset = offset;
@@ -109,7 +109,7 @@ export class WasmArray {
      */
     free() {
         if (this.owner) {
-            Module._free(this.offset);
+            wasm.call(module => module._free(this.offset));
             this.offset = null;
         }
     }
@@ -135,8 +135,7 @@ export class Uint8WasmArray extends WasmArray {
      * @return A `Uint8Array` view of the allocated memory.
      */
     array() {
-        const buffer = Module["HEAPU8"].buffer;
-        return new Uint8Array(buffer, this.offset, this.length);
+        return new Uint8Array(wasm.buffer(), this.offset, this.length);
     }
 }
 
@@ -160,8 +159,7 @@ export class Int8WasmArray extends WasmArray {
      * @return A `Int8Array` view of the allocated memory.
      */
     array() {
-        const buffer = Module["HEAP8"].buffer;
-        return new Int8Array(buffer, this.offset, this.length);
+        return new Int8Array(wasm.buffer(), this.offset, this.length);
     }
 }
 
@@ -185,8 +183,7 @@ export class Uint16WasmArray extends WasmArray {
      * @return A `Uint16Array` view of the allocated memory.
      */
     array() {
-        const buffer = Module["HEAPU16"].buffer;
-        return new Uint16Array(buffer, this.offset, this.length);
+        return new Uint16Array(wasm.buffer(), this.offset, this.length);
     }
 }
 
@@ -210,8 +207,7 @@ export class Int16WasmArray extends WasmArray {
      * @return A `Int16Array` view of the allocated memory.
      */
     array() {
-        const buffer = Module["HEAP16"].buffer;
-        return new Int16Array(buffer, this.offset, this.length);
+        return new Int16Array(wasm.buffer(), this.offset, this.length);
     }
 }
 
@@ -235,8 +231,7 @@ export class Uint32WasmArray extends WasmArray {
      * @return A `Uint32Array` view of the allocated memory.
      */
     array() {
-        const buffer = Module["HEAPU32"].buffer;
-        return new Uint32Array(buffer, this.offset, this.length);
+        return new Uint32Array(wasm.buffer(), this.offset, this.length);
     }
 }
 
@@ -260,8 +255,7 @@ export class Int32WasmArray extends WasmArray {
      * @return A `Int32Array` view of the allocated memory.
      */
     array() {
-        const buffer = Module["HEAP32"].buffer;
-        return new Int32Array(buffer, this.offset, this.length);
+        return new Int32Array(wasm.buffer(), this.offset, this.length);
     }
 }
 
@@ -285,8 +279,7 @@ export class Float32WasmArray extends WasmArray {
      * @return A `Float32Array` view of the allocated memory.
      */
     array() {
-        const buffer = Module["HEAPF32"].buffer;
-        return new Float32Array(buffer, this.offset, this.length);
+        return new Float32Array(wasm.buffer(), this.offset, this.length);
     }
 }
 
@@ -310,7 +303,6 @@ export class Float64WasmArray extends WasmArray {
      * @return A `Float64Array` view of the allocated memory.
      */
     array() {
-        const buffer = Module["HEAPF64"].buffer;
-        return new Float64Array(buffer, this.offset, this.length);
+        return new Float64Array(wasm.buffer(), this.offset, this.length);
     }
 }

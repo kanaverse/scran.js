@@ -1,6 +1,9 @@
 import * as scran from "../js/index.js";
 import * as simulate from "./simulate.js";
 
+beforeAll(async () => { await scran.initialize() });
+afterAll(async () => { await scran.terminate() });
+
 test("filtered matrix is constructed as expected", () => {
     var ngenes = 100;
     var ncells = 20;

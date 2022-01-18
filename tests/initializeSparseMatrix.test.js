@@ -2,6 +2,9 @@ import * as scran from "../js/index.js";
 import * as compare from "./compare.js";
 import * as pako from "pako";
 
+beforeAll(async () => { await scran.initialize() });
+afterAll(async () => { await scran.terminate() });
+
 test("initialization from dense array works correctly", () => {
     var vals = new scran.Int32WasmArray(15);
     vals.set([1, 5, 0, 0, 7, 0, 0, 10, 4, 2, 0, 0, 0, 5, 8]);

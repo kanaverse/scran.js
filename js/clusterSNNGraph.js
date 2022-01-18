@@ -1,4 +1,4 @@
-import Module from "./Module.js";
+import * as wasm from "./wasm.js";
 import * as utils from "./utils.js";
 
 /**
@@ -43,7 +43,7 @@ export function buildSNNGraph(x, scheme = 0) {
     var output;
 
     try {
-        raw = utils.wrapModuleCall(() => Module.build_snn_graph(x.results, scheme));
+        raw = wasm.call(module => module.build_snn_graph(x.results, scheme));
         output = new SNNGraph(raw);
     } catch(e) {
         utils.free(raw);
@@ -139,7 +139,7 @@ export function clusterSNNGraph(x, resolution = 1) {
     var output;
 
     try {
-        raw = utils.wrapModuleCall(() => Module.cluster_snn_graph(x.graph, resolution));
+        raw = wasm.call(module => module.cluster_snn_graph(x.graph, resolution));
         output = new SNNGraphMultilevelClusters(raw);
     } catch (e) {
         utils.free(raw);

@@ -1,4 +1,4 @@
-import Module from "./Module.js";
+import * as wasm from "./wasm.js";
 import * as utils from "./utils.js";
 
 /**
@@ -170,7 +170,7 @@ export function computePerCellQCFilters(metrics, nmads = 3, block = null) {
             bptr = block_data.offset;
         }
 
-        raw = utils.wrapModuleCall(() => Module.per_cell_qc_filters(metrics.results, use_blocks, bptr, nmads));
+        raw = wasm.call(module => module.per_cell_qc_filters(metrics.results, use_blocks, bptr, nmads));
         output = new PerCellQCFilters(raw);
 
     } catch (e) {

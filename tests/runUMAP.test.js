@@ -2,6 +2,9 @@ import * as scran from "../js/index.js";
 import * as compare from "./compare.js";
 import * as simulate from "./simulate.js";
 
+beforeAll(async () => { await scran.initialize() });
+afterAll(async () => { await scran.terminate() });
+
 test("runUMAP works as expected", () => {
     var ndim = 5;
     var ncells = 100;

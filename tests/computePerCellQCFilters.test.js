@@ -2,6 +2,9 @@ import * as simulate from "./simulate.js";
 import * as compare from "./compare.js";
 import * as scran from "../js/index.js";
 
+beforeAll(async () => { await scran.initialize() });
+afterAll(async () => { await scran.terminate() });
+
 test("per-cell QC filters can be computed", () => {
     var ngenes = 100;
     var ncells = 20;

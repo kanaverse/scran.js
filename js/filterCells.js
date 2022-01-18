@@ -1,4 +1,4 @@
-import Module from "./Module.js";
+import * as wasm from "./wasm.js";
 import * as utils from "./utils.js";
 import { PerCellQCFilters } from "./computePerCellQCFilters.js";
 
@@ -27,7 +27,7 @@ export function filterCells(x, filters) {
             ptr = filter_data.offset;
         }
 
-        raw = utils.wrapModuleCall(() => Module.filter_cells(x.matrix, ptr, false));
+        raw = wasm.call(module => module.filter_cells(x.matrix, ptr, false));
         output = new x.constructor(raw);
 
     } catch(e) {

@@ -1,6 +1,9 @@
 import * as scran from "../js/index.js";
 import * as simulate from "./simulate.js";
 
+beforeAll(async () => { await scran.initialize() });
+afterAll(async () => { await scran.terminate() });
+
 test("clusterSNNGraph works as expected", () => {
     var ndim = 5;
     var ncells = 100;

@@ -1,4 +1,4 @@
-import Module from "./Module.js";
+import * as wasm from "./wasm.js";
 import * as utils from "./utils.js";
 
 /** 
@@ -113,7 +113,7 @@ export function runPCA(x, features = null, numberOfPCs = 25, scale = false) {
             fptr = feat_data.offset;
         }
 
-        raw = utils.wrapModuleCall(() => Module.run_pca(x.matrix, numberOfPCs, use_feat, fptr, scale));
+        raw = wasm.call(module => module.run_pca(x.matrix, numberOfPCs, use_feat, fptr, scale));
         output = new PCAResults(raw);
 
     } catch (e) {

@@ -1,4 +1,4 @@
-import Module from "./Module.js";
+import * as wasm from "./wasm.js";
 import * as utils from "./utils.js"; 
 import { LayeredSparseMatrix } from "./SparseMatrix.js";
 
@@ -23,8 +23,8 @@ export function initializeSparseMatrixFromDenseArray(nrow, ncol, values) {
             throw "length of 'values' is not consistent with supplied dimensions";
         }
 
-        raw = utils.wrapModuleCall(() =>         
-            Module.initialize_sparse_matrix_from_dense_vector(
+        raw = wasm.call(module => 
+            module.initialize_sparse_matrix_from_dense_vector(
                 nrow, 
                 ncol, 
                 val_data.offset, 
@@ -79,17 +79,19 @@ export function initializeSparseMatrixFromCompressedVectors(nrow, ncol, values, 
             throw "'indptrs' does not have an appropriate length";
         }
 
-        raw = Module.initialize_sparse_matrix(
-            nrow, 
-            ncol, 
-            val_data.length, 
-            val_data.offset, 
-            val_data.constructor.name.replace("Wasm", ""), 
-            ind_data.offset, 
-            ind_data.constructor.name.replace("Wasm", ""), 
-            indp_data.offset, 
-            indp_data.constructor.name.replace("Wasm", ""), 
-            csc
+        raw = wasm.call(module => 
+            module.initialize_sparse_matrix(
+                nrow, 
+                ncol, 
+                val_data.length, 
+                val_data.offset, 
+                val_data.constructor.name.replace("Wasm", ""), 
+                ind_data.offset, 
+                ind_data.constructor.name.replace("Wasm", ""), 
+                indp_data.offset, 
+                indp_data.constructor.name.replace("Wasm", ""), 
+                csc
+            )
         );
 
         output = new LayeredSparseMatrix(raw);
@@ -129,7 +131,7 @@ export function initializeSparseMatrixFromMatrixMarketBuffer(buffer, compressed 
             compressed = (arr.length >= 3 && arr[0] == 0x1F && arr[1] == 0x8B && arr[2] == 0x08);
         }
         
-        raw = utils.wrapModuleCall(() => Module.read_matrix_market(buf_data.offset, buf_data.length, compressed)); 
+        raw = wasm.call(module => module.read_matrix_market(buf_data.offset, buf_data.length, compressed)); 
         output = new LayeredSparseMatrix(raw);
 
     } catch(e) {

@@ -1,5 +1,5 @@
 import * as utils from "./utils.js";
-import Module from "./Module.js";
+import * as wasm from "./wasm.js";
 import { Int32WasmArray, Float64WasmArray } from "./WasmArray.js";
 import { PCAResults } from "./runPCA.js";
 
@@ -70,7 +70,7 @@ export function buildNeighborSearchIndex(x, ndim = null, ncells = null, approxim
             pptr = buffer.offset;
         }
 
-        raw = utils.wrapModuleCall(() => Module.build_neighbor_index(pptr, ndim, ncells, approximate)); 
+        raw = wasm.call(module => module.build_neighbor_index(pptr, ndim, ncells, approximate)); 
         output = new NeighborSearchIndex(raw);
 
     } catch (e) {
@@ -184,7 +184,7 @@ export class NeighborSearchResults {
             run_data = utils.wasmifyArray(runs, "Int32WasmArray");
             ind_data = utils.wasmifyArray(indices, "Int32WasmArray");
             dist_data = utils.wasmifyArray(distances, "Float64WasmArray");
-            raw = utils.wrapModuleCall(() => new Module.NeighborResults(runs.length, run_data.offset, ind_data.offset, dist_data.offset));
+            raw = wasm.call(module => new module.NeighborResults(runs.length, run_data.offset, ind_data.offset, dist_data.offset));
             output = new NeighborSearchResults(raw);
         } catch (e) {
             utils.free(raw);
@@ -222,7 +222,7 @@ export function findNearestNeighbors(x, k) {
     var output;
 
     try {
-        raw = utils.wrapModuleCall(() => Module.find_nearest_neighbors(x.index, k));
+        raw = wasm.call(module => module.find_nearest_neighbors(x.index, k));
         output = new NeighborSearchResults(raw);
     } catch (e) {
         utils.free(raw);

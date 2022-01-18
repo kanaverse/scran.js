@@ -1,6 +1,9 @@
-import Module from "./Module.js";
+import * as wasm from "./wasm.js";
 import { LayeredSparseMatrix } from "./SparseMatrix.js";
-import { Int8WasmArray, Int16WasmArray, Int32WasmArray, Uint8WasmArray, Uint16WasmArray, Uint32WasmArray, Float64WasmArray } from "./WasmArray.js";
+import { Int8WasmArray,  Uint8WasmArray, 
+         Int16WasmArray, Uint16WasmArray,  
+         Int32WasmArray, Uint32WasmArray,  
+         Float64WasmArray } from "./WasmArray.js";
 import { initializeSparseMatrixFromDenseArray, initializeSparseMatrixFromCompressedVectors } from "./initializeSparseMatrix.js";
 import * as utils from "./utils.js";
 import * as hdf5 from "jsfive";

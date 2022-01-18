@@ -2,6 +2,9 @@ import * as scran from "../js/index.js";
 import * as simulate from "./simulate.js";
 import * as compare from "./compare.js";
 
+beforeAll(async () => { await scran.initialize() });
+afterAll(async () => { await scran.terminate() });
+
 test("Variance modelling works as expected", () => {
     var ngenes = 1000;
     var ncells = 100;
