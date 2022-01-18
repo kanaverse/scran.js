@@ -16,3 +16,5 @@ export * from "./findNearestNeighbors.js";
 export * from "./clusterSNNGraph.js";
 export * from "./runTSNE.js";
 export * from "./runUMAP.js";
+ 
+export * from "./scoreMarkers.js";

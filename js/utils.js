@@ -91,3 +91,11 @@ export function extractXY(ncells, coordinates) {
 
     return { "x": x, "y": y };
 }
+
+export function possibleCopy(x, copy) {
+    if (copy) {
+        return x.slice();
+    } else {
+        return x;
+    }
+}
