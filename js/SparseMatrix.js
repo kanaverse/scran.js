@@ -48,7 +48,7 @@ export class SparseMatrix {
             buffer = new Float64WasmArray(this.matrix.ncol());
             try {
                 this.matrix.row(i, buffer.offset);
-                output = buffer.clone();
+                output = buffer.slice();
             } finally {
                 buffer.free();
             }
@@ -75,7 +75,7 @@ export class SparseMatrix {
             buffer = new Float64WasmArray(this.matrix.nrow());
             try {
                 this.matrix.column(i, buffer.offset);
-                output = buffer.clone();
+                output = buffer.slice();
             } finally {
                 buffer.free();
             }
@@ -130,7 +130,7 @@ export class LayeredSparseMatrix extends SparseMatrix {
             buffer = new Int32WasmArray(this.matrix.nrow());
             try {
                 this.matrix.permutation(buffer.offset);
-                output = buffer.clone();
+                output = buffer.slice();
             } finally {
                 buffer.free();
             }

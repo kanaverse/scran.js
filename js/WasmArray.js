@@ -89,13 +89,16 @@ export class WasmArray {
     }
 
     /**
-     * Create a `TypedArray` copy of the data in the array allocation.
+     * Create a new `WasmArray` containing a copy of the data in this object.
      *
-     * @return A copy of the data in a new `TypedArray`.
-     * This is not a view on the Wasm heap and thus can continue to be used after Wasm allocations.
+     * @return A copy of the data in a new `WasmArray`.
+     *
+     * Use `slice()` instead if you want to obtain a copy in a new `TypedArray`.
      */
     clone() {
-        return this.array().slice();
+        let copy = new this.constructor(this.length);
+        copy.set(this.array());
+        return copy;
     }
 
     /**

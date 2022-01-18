@@ -25,9 +25,7 @@ export class UMAPStatus {
      * @return A deep copy of the status object.
      */
     clone() {
-        let coords = new Float64WasmArray(this.coordinates.length);
-        coords.set(this.coordinates.array());
-        return new UMAPStatus(this.status.deepcopy(), coords);
+        return new UMAPStatus(this.status.deepcopy(), this.coordinates.clone());
     }
 
     /**

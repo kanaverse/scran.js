@@ -10,7 +10,7 @@ export class NeighborSearchResults {
      * @param {Object} raw Search results on the Wasm heap.
      *
      * Not to be called directly by developers;
-     * use `findNearestNeighbors()` instead.
+     * use `findNearestNeighbors()` or `unserialize()` instead.
      */
     constructor(raw) {
         this.results = raw;
@@ -41,7 +41,7 @@ export class NeighborSearchResults {
      * to be used to store the distances to the neighbors of each cell.
      *
      * @return 
-     * If all of the arguments are non-`null`, the buffers in `runs`, `indices` and `distances` are filled with their respective contents.
+     * If all of the arguments are non-`null`, the buffers in `runs`, `indices` and `distances` are filled with their respective contents, and nothing is returned.
      * If all of the arguments are `null`, a object is returned with `TypedArray` entries for each component.
      * Otherwise, an error is raised.
      */
@@ -65,9 +65,9 @@ export class NeighborSearchResults {
                 this.results.serialize(run_data.offset, ind_data.offset, dist_data.offset);
 
                 output = { 
-                    "runs": run_data.clone(), 
-                    "indices": ind_data.clone(), 
-                    "distances": dist_data.clone() 
+                    "runs": run_data.slice(), 
+                    "indices": ind_data.slice(), 
+                    "distances": dist_data.slice() 
                 };
             } finally {
                 utils.free(run_data);

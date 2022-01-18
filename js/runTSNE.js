@@ -25,9 +25,7 @@ export class TSNEStatus {
      * @return A deep copy of the status object.
      */
     clone() {
-        let coords = new Float64WasmArray(this.coordinates.length);
-        coords.set(this.coordinates.array());
-        return new TSNEStatus(this.status.deepcopy(), coords);
+        return new TSNEStatus(this.status.deepcopy(), this.coordinates.clone());
     }
 
     /**
