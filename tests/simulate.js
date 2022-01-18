@@ -35,3 +35,16 @@ export function simulateSubsets(nrow, nsubsets, density = 0.05) {
     }
     return output;
 }
+
+export function simulateIndex(ndim, ncells) {
+    var index;
+    var buffer = new scran.Float64WasmArray(ndim * ncells);
+    try {
+        var arr = buffer.array();
+        arr.forEach((x, i) => arr[i] = Math.random());
+        index = scran.buildNeighborSearchIndex(buffer, ndim, ncells);
+    } finally {
+        buffer.free();
+    }
+    return index;
+}

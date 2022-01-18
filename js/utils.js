@@ -85,8 +85,22 @@ export function free(x) {
     if (x !== null && x !== undefined) {
         if (x instanceof wa.WasmArray) {
             x.free();
-        } else {
+        } else if ("free" in x) {
+            x.free();
+        } else if ("delete" in x) {
             x.delete(); // i.e., one of the raw C++ classes.
         }
     }
+}
+
+export function extractXY(ncells, coordinates) {
+    let x = new Float64Array(ncells);
+    let y = new Float64Array(ncells);
+
+    for (var i = 0; i < ncells; i++) {
+        x[i] = coordinates[2 * i];
+        y[i] = coordinates[2 * i + 1];
+    }
+
+    return { "x": x, "y": y };
 }
