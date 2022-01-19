@@ -12,8 +12,8 @@ test("Log-normalization works as expected", () => {
 
     var norm = scran.logNormCounts(mat);
     expect(norm.constructor.name).toBe(mat.constructor.name);
-    expect(norm.nrow()).toBe(mat.nrow());
-    expect(norm.ncol()).toBe(mat.ncol());
+    expect(norm.numberOfRows()).toBe(mat.numberOfRows());
+    expect(norm.numberOfColumns()).toBe(mat.numberOfColumns());
 
     // Cleaning up.
     mat.free();
@@ -32,8 +32,8 @@ test("Log-normalization works as expected with pre-supplied size factors", () =>
 
     var norm = scran.logNormCounts(mat, { sizeFactors: sf });
     expect(norm.constructor.name).toBe(mat.constructor.name);
-    expect(norm.nrow()).toBe(mat.nrow());
-    expect(norm.ncol()).toBe(mat.ncol());
+    expect(norm.numberOfRows()).toBe(mat.numberOfRows());
+    expect(norm.numberOfColumns()).toBe(mat.numberOfColumns());
     
     // Checking values.
     var mean_sf = 0;

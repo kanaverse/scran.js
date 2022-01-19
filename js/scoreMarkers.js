@@ -159,7 +159,7 @@ export function scoreMarkers(x, groups, { block = null } = {}) {
 
     try {
         group_data = utils.wasmifyArray(groups, "Int32WasmArray");
-        if (group_data.length != x.ncol()) {
+        if (group_data.length != x.numberOfColumns()) {
             throw "length of 'groups' should be equal to number of columns in 'x'";
         }
 
@@ -167,7 +167,7 @@ export function scoreMarkers(x, groups, { block = null } = {}) {
         var use_blocks = false;
         if (block !== null) {
             block_data = utils.wasmifyArray(block, "Int32WasmArray");
-            if (block_data.length != x.ncol()) {
+            if (block_data.length != x.numberOfColumns()) {
                 throw "'block' must be of length equal to the number of columns in 'x'";
             }
             use_blocks = true;

@@ -122,7 +122,7 @@ export function modelGeneVar(x, { block = null, span = 0.3 } = {}) {
 
         if (block !== null) {
             block_data = utils.wasmifyArray(block, "Int32WasmArray");
-            if (block_data.length != x.ncol()) {
+            if (block_data.length != x.numberOfColumns()) {
                 throw "'block' must be of length equal to the number of columns in 'x'";
             }
             use_blocks = true;

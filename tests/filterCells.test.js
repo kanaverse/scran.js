@@ -19,7 +19,7 @@ test("filtered matrix is constructed as expected", () => {
 
     var filtered = scran.filterCells(mat, filt);
     expect(filtered.constructor.name).toBe("LayeredSparseMatrix");
-    expect(filtered.ncol()).toBe(ncells - sum);
+    expect(filtered.numberOfColumns()).toBe(ncells - sum);
 
     mat.free();
     qc.free();
@@ -43,7 +43,7 @@ test("filtered matrix is constructed as expected from a supplied array", () => {
 
     var filtered = scran.filterCells(mat, discard);
     expect(filtered.constructor.name).toBe("LayeredSparseMatrix");
-    expect(filtered.ncol()).toBe(keep);
+    expect(filtered.numberOfColumns()).toBe(keep);
 
     mat.free();
     discard.free();

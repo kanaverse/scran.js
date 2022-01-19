@@ -7,6 +7,7 @@ import * as utils from "./utils.js";
  * @param {SparseMatrix} x The count matrix, usually after filtering.
  * @param {Object} [options] - Optional parameters.
  * @param {?(Float64WasmArray|Array|TypedArray)} [options.sizeFactors] - Array of positive numbers containing the size factor for each cell in `x`.
+ * This should have length equal to the number of columns in `x`.
  * If `null`, size factors are computed from the column sums of `x`.
  * @param {?(Int32WasmArray|Array|TypedArray)} [options.block] - Array containing the block assignment for each cell.
  * This should have length equal to the number of cells and contain all values from 0 to `n - 1` at least once, where `n` is the number of blocks.
@@ -27,7 +28,7 @@ export function logNormCounts(x, { sizeFactors = null, block = null } = {}) {
 
         if (sizeFactors !== null) {
             sf_data = utils.wasmifyArray(sizeFactors, "Float64WasmArray");
-            if (sf_data.length != x.ncol()) {
+            if (sf_data.length != x.numberOfColumns()) {
                 throw "length of 'sizeFactors' must be equal to number of columns in 'x'";
             }
             sfptr = sf_data.offset;
@@ -39,7 +40,7 @@ export function logNormCounts(x, { sizeFactors = null, block = null } = {}) {
 
         if (block !== null) {
             block_data = utils.wasmifyArray(block, "Int32WasmArray");
-            if (block_data.length != x.ncol()) {
+            if (block_data.length != x.numberOfColumns()) {
                 throw "'block' must be of length equal to the number of columns in 'x'";
             }
             use_blocks = true;

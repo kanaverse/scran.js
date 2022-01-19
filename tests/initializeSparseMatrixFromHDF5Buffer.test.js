@@ -14,8 +14,8 @@ testIfExists("zeisel.dense.sub.h5")("initialization from HDF5 works correctly wi
     var buffer = fs.readFileSync(path);
 
     var mat = scran.initializeSparseMatrixFromHDF5Buffer(buffer.buffer, "matrix");
-    expect(mat.nrow()).toBe(1000);
-    expect(mat.ncol()).toBe(3005);
+    expect(mat.numberOfRows()).toBe(1000);
+    expect(mat.numberOfColumns()).toBe(3005);
 
     var first_col = mat.column(0);
     expect(compare.equalArrays(first_col.slice(0, 5), [0, 3, 3, 0, 1])).toBe(true);
@@ -27,8 +27,8 @@ testIfExists("zeisel.tenx.sub.h5")("initialization from HDF5 works correctly wit
     var buffer = fs.readFileSync(path);
 
     var mat = scran.initializeSparseMatrixFromHDF5Buffer(buffer.buffer, "matrix");
-    expect(mat.nrow()).toBe(1000);
-    expect(mat.ncol()).toBe(3005);
+    expect(mat.numberOfRows()).toBe(1000);
+    expect(mat.numberOfColumns()).toBe(3005);
 
     var first_col = mat.column(0);
     expect(compare.equalArrays(first_col.slice(0, 5), [0, 3, 3, 0, 1])).toBe(true);
@@ -40,8 +40,8 @@ testIfExists("zeisel.csc.sub.h5ad")("initialization from HDF5 works correctly wi
     var buffer = fs.readFileSync(path);
 
     var mat = scran.initializeSparseMatrixFromHDF5Buffer(buffer.buffer, "X");
-    expect(mat.nrow()).toBe(1000);
-    expect(mat.ncol()).toBe(3005);
+    expect(mat.numberOfRows()).toBe(1000);
+    expect(mat.numberOfColumns()).toBe(3005);
 
     var first_col = mat.column(0);
     expect(compare.equalArrays(first_col.slice(0, 5), [0, 3, 3, 0, 1])).toBe(true);

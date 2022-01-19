@@ -117,7 +117,7 @@ export class PerCellQCFilters {
  *
  * @param {PerCellQCMetrics} metrics - Per-cell QC metrics, usually computed by `computePerCellQCMetrics()`.
  * @param {Object} [options] - Optional parameters.
- * @param {number} [options.nmads] - Number of median absolute deviations to use to define low-quality outliers.
+ * @param {number} [options.numberOfMADs] - Number of median absolute deviations to use to define low-quality outliers.
  * @param {?(Int32WasmArray|Array|TypedArray)} [options.block] - Array containing the block assignment for each cell.
  * This should have length equal to the number of cells and contain all values from 0 to `n - 1` at least once, where `n` is the number of blocks.
  * This is used to segregate cells in order to compute filters within each block.
@@ -125,7 +125,7 @@ export class PerCellQCFilters {
  *
  * @return A `PerCellQCFilters` object containing the filtering results.
  */
-export function computePerCellQCFilters(metrics, { nmads = 3, block = null } = {}) {
+export function computePerCellQCFilters(metrics, { numberOfMADs = 3, block = null } = {}) {
     var block_data;
     var raw;
     var output;
@@ -143,7 +143,7 @@ export function computePerCellQCFilters(metrics, { nmads = 3, block = null } = {
             bptr = block_data.offset;
         }
 
-        raw = wasm.call(module => module.per_cell_qc_filters(metrics.results, use_blocks, bptr, nmads));
+        raw = wasm.call(module => module.per_cell_qc_filters(metrics.results, use_blocks, bptr, numberOfMADs));
         output = new PerCellQCFilters(raw);
 
     } catch (e) {

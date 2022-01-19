@@ -36,15 +36,15 @@ export class NeighborSearchIndex {
  * For array inputs, this is expected to be in column-major format where the rows are the variables and the columns are the cells.
  * For a `PCAResults` input, we extract the principal components.
  * @param {Object} [options] - Optional parameters.
- * @param {number} [options.ndim] - Number of variables/dimensions per cell.
+ * @param {number} [options.numberOfDims] - Number of variables/dimensions per cell.
  * Only used (and required) for array-like `x`.
- * @param {number} [options.ncells] - Number of cells.
+ * @param {number} [options.numberOfCells] - Number of cells.
  * Only used (and required) for array-like `x`.
  * @param {boolean} [options.approximate] - Whether to build an index for an approximate neighbor search.
  *
  * @return A `NeighborSearchIndex` object to use for neighbor searches.
  */
-export function buildNeighborSearchIndex(x, { ndim = null, ncells = null, approximate = true } = {}) {
+export function buildNeighborSearchIndex(x, { numberOfDims = null, numberOfCells = null, approximate = true } = {}) {
     var buffer;
     var raw;
     var output;
@@ -53,25 +53,25 @@ export function buildNeighborSearchIndex(x, { ndim = null, ncells = null, approx
         let pptr;
 
         if (x instanceof PCAResults) {
-            ndim = x.numberOfPCs();
-            ncells = x.numberOfCells();
+            numberOfDims = x.numberOfPCs();
+            numberOfCells = x.numberOfCells();
             let pcs = x.principalComponents({ copy: false });
             pptr = pcs.byteOffset;
 
         } else {
-            if (ndim === null || ncells === null) {
-                throw "'ndim' and 'ncells' must be specified when 'x' is an Array";
+            if (numberOfDims === null || numberOfCells === null) {
+                throw "'numberOfDims' and 'numberOfCells' must be specified when 'x' is an Array";
             }
 
             buffer = utils.wasmifyArray(x, "Float64WasmArray");
-            if (buffer.length != ndim * ncells) {
-                throw "length of 'x' must be the product of 'ndim' and 'ncells'";
+            if (buffer.length != numberOfDims * numberOfCells) {
+                throw "length of 'x' must be the product of 'numberOfDims' and 'numberOfCells'";
             }
 
             pptr = buffer.offset;
         }
 
-        raw = wasm.call(module => module.build_neighbor_index(pptr, ndim, ncells, approximate)); 
+        raw = wasm.call(module => module.build_neighbor_index(pptr, numberOfDims, numberOfCells, approximate)); 
         output = new NeighborSearchIndex(raw);
 
     } catch (e) {

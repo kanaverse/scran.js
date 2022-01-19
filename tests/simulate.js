@@ -1,22 +1,22 @@
 import * as scran from "../js/index.js";
 
-export function simulateMatrix(nrow, ncol, density = 0.2, maxValue = 10) {
-    var buffer = new scran.Int32WasmArray(nrow * ncol);
+export function simulateMatrix(numberOfRows, numberOfColumns, density = 0.2, maxValue = 10) {
+    var buffer = new scran.Int32WasmArray(numberOfRows * numberOfColumns);
     let output;
 
     try {
         var x = buffer.array();
-        for (var c = 0; c < ncol; c++) {
-            for (var r = 0; r < nrow; r++) {
+        for (var c = 0; c < numberOfColumns; c++) {
+            for (var r = 0; r < numberOfRows; r++) {
                 if (Math.random() <= density) {
-                    x[r + c * nrow] = Math.random() * maxValue;
+                    x[r + c * numberOfRows] = Math.random() * maxValue;
                 } else {
-                    x[r + c * nrow] = 0; // need this, otherwise it would be uninitialized.
+                    x[r + c * numberOfRows] = 0; // need this, otherwise it would be uninitialized.
                 }
             }
         }
 
-        output = scran.initializeSparseMatrixFromDenseArray(nrow, ncol, buffer);
+        output = scran.initializeSparseMatrixFromDenseArray(numberOfRows, numberOfColumns, buffer);
     } finally {
         buffer.free();
     }
@@ -24,11 +24,11 @@ export function simulateMatrix(nrow, ncol, density = 0.2, maxValue = 10) {
     return output;
 }
 
-export function simulateSubsets(nrow, nsubsets, density = 0.05) {
+export function simulateSubsets(numberOfRows, nsubsets, density = 0.05) {
     var output = new Array(nsubsets);
     for (var s = 0; s < nsubsets; s++) {
-        var current = new Array(nrow);
-        for (var i = 0; i < nrow; i++) {
+        var current = new Array(numberOfRows);
+        for (var i = 0; i < numberOfRows; i++) {
             current[i] = Math.random() < density;
         }
         output[s] = current;
@@ -42,7 +42,7 @@ export function simulateIndex(ndim, ncells) {
     try {
         var arr = buffer.array();
         arr.forEach((x, i) => arr[i] = Math.random());
-        index = scran.buildNeighborSearchIndex(buffer, { ndim: ndim, ncells: ncells });
+        index = scran.buildNeighborSearchIndex(buffer, { numberOfDims: ndim, numberOfCells: ncells });
     } finally {
         buffer.free();
     }

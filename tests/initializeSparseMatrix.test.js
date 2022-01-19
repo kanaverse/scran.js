@@ -9,8 +9,8 @@ test("initialization from dense array works correctly", () => {
     var vals = new scran.Int32WasmArray(15);
     vals.set([1, 5, 0, 0, 7, 0, 0, 10, 4, 2, 0, 0, 0, 5, 8]);
     var mat = scran.initializeSparseMatrixFromDenseArray(3, 5, vals);
-    expect(mat.nrow()).toBe(3);
-    expect(mat.ncol()).toBe(5);
+    expect(mat.numberOfRows()).toBe(3);
+    expect(mat.numberOfColumns()).toBe(5);
 
     // Properly column-major.
     expect(compare.equalArrays(mat.column(0), [1, 5, 0])).toBe(true);
@@ -28,8 +28,8 @@ test("initialization from compressed values works correctly", () => {
     indptrs.set([0, 2, 3, 6, 9, 11, 11, 12, 12, 13, 15]);
 
     var mat = scran.initializeSparseMatrixFromCompressedVectors(11, 10, vals, indices, indptrs);
-    expect(mat.nrow()).toBe(11);
-    expect(mat.ncol()).toBe(10);
+    expect(mat.numberOfRows()).toBe(11);
+    expect(mat.numberOfColumns()).toBe(10);
 
     // Extracting the row permutations.
     var perm = mat.permutation();
@@ -59,8 +59,8 @@ test("initialization from compressed values works with permutations", () => {
     indptrs.set([0, 2, 3, 6, 9, 11, 11, 12, 12, 13, 15]);
 
     var mat = scran.initializeSparseMatrixFromCompressedVectors(11, 10, vals, indices, indptrs);
-    expect(mat.nrow()).toBe(11);
-    expect(mat.ncol()).toBe(10);
+    expect(mat.numberOfRows()).toBe(11);
+    expect(mat.numberOfColumns()).toBe(10);
 
     // Extracting the row permutations.
     var permutation = mat.permutation();
@@ -86,8 +86,8 @@ test("initialization from MatrixMarket works correctly", () => {
     buffer.set(raw_buffer);
 
     var mat = scran.initializeSparseMatrixFromMatrixMarketBuffer(buffer);
-    expect(mat.nrow()).toBe(11);
-    expect(mat.ncol()).toBe(5);
+    expect(mat.numberOfRows()).toBe(11);
+    expect(mat.numberOfColumns()).toBe(5);
 
     expect(compare.equalArrays(mat.row(0), [0, 5, 0, 0, 8]));
     expect(compare.equalArrays(mat.column(4), [0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0]));
@@ -105,16 +105,16 @@ test("initialization from Gzipped MatrixMarket works correctly with Gzip", () =>
     buffer.set(raw_buffer);
 
     var mat = scran.initializeSparseMatrixFromMatrixMarketBuffer(buffer);
-    expect(mat.nrow()).toBe(11);
-    expect(mat.ncol()).toBe(5);
+    expect(mat.numberOfRows()).toBe(11);
+    expect(mat.numberOfColumns()).toBe(5);
 
     expect(compare.equalArrays(mat.row(0), [0, 5, 0, 0, 8]));
     expect(compare.equalArrays(mat.column(4), [0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0]));
     
     // Just checking that the it's actually compressed.
     var mat2 = scran.initializeSparseMatrixFromMatrixMarketBuffer(buffer, { compressed: true });
-    expect(mat2.nrow()).toBe(11);
-    expect(mat2.ncol()).toBe(5);
+    expect(mat2.numberOfRows()).toBe(11);
+    expect(mat2.numberOfColumns()).toBe(5);
 
     // Cleaning up.
     mat.free();

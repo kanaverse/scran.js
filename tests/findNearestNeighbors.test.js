@@ -18,7 +18,7 @@ test("neighbor index building works with various inputs", () => {
     // Trying again with a buffer.
     var buffer = new scran.Float64WasmArray(pca.numberOfPCs() * ncells);
     buffer.set(pca.principalComponents(false));
-    var index2 = scran.buildNeighborSearchIndex(buffer, { ndim: pca.numberOfPCs(), ncells: ncells });
+    var index2 = scran.buildNeighborSearchIndex(buffer, { numberOfDims: pca.numberOfPCs(), numberOfCells: ncells });
 
     // Extracting data.
     var k = 5;
@@ -52,7 +52,7 @@ test("neighbor search works with serialization", () => {
     var arr = buffer.array();
     arr.forEach((x, i) => arr[i] = Math.random());
 
-    var index = scran.buildNeighborSearchIndex(buffer, { ndim: ndim, ncells: ncells });
+    var index = scran.buildNeighborSearchIndex(buffer, { numberOfDims: ndim, numberOfCells: ncells });
     var k = 5;
     var res = scran.findNearestNeighbors(index, k);
 

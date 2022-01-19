@@ -99,7 +99,7 @@ export function runPCA(x, { features = null, numberOfPCs = 25, scale = false } =
 
         if (features !== null) {
             feat_data = utils.wasmifyArray(features, "Uint8WasmArray");
-            if (feat_data.length != x.nrow()) {
+            if (feat_data.length != x.numberOfRows()) {
                 throw "length of 'features' should be equal to number of rows in 'x'";
             }
             use_feat = true;

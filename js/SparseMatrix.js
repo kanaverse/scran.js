@@ -18,23 +18,23 @@ export class SparseMatrix {
     /**
      * @return Number of rows in the matrix.
      */
-    nrow() {
+    numberOfRows() {
         return this.matrix.nrow();
     }
 
     /**
      * @return Number of columns in the matrix.
      */
-    ncol() {
+    numberOfColumns() {
         return this.matrix.ncol();
     }
 
     /**
      * @param {number} i - Index of the row to extract.
-     * This should be a non-negative integer less than `nrow()`.
+     * This should be a non-negative integer less than `numberOfRows()`.
      * @param {Object} [options] - Optional parameters.
      * @param {Float64WasmArray} [options.buffer] - Buffer to extract into.
-     * If supplied, this should have length equal to `ncol()`. 
+     * If supplied, this should have length equal to `numberOfColumns()`. 
      *
      * @return
      * If `buffer` is not supplied, a `Float64Array` is returned containing the contents of row `i`.
@@ -59,10 +59,10 @@ export class SparseMatrix {
 
     /**
      * @param {number} i - Index of the column to extract.
-     * This should be a non-negative integer less than `ncol()`.
+     * This should be a non-negative integer less than `numberOfColumns()`.
      * @param {Object} [options] - Optional parameters.
      * @param {Float64WasmArray} [options.buffer] - Buffer to extract into.
-     * If supplied, this should have length equal to `nrow()`. 
+     * If supplied, this should have length equal to `numberOfRows()`. 
      *
      * @return
      * If `buffer` is not supplied, a `Float64Array` is returned containing the contents of column `i`.
@@ -117,7 +117,7 @@ export class LayeredSparseMatrix extends SparseMatrix {
     /**
      * @param {Object} [options] - Optional parameters.
      * @param {Int32WasmArray} [options.buffer] Buffer to extract into.
-     * If supplied, this should have length equal to `nrow()`. 
+     * If supplied, this should have length equal to `numberOfRows()`. 
      *
      * @return 
      * If `buffer` is not supplied, a `Int32Array` is returned containing the permutation vector.

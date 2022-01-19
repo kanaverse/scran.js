@@ -106,19 +106,19 @@ export function computePerCellQCMetrics(x, subsets) {
     try {
         if (subsets instanceof Uint8WasmArray) {
             let ptr = subsets.offset;
-            let nsubsets = Math.round(subsets.length / x.nrow());
-            if (nsubsets * x.nrow() != subsets.length) {
+            let nsubsets = Math.round(subsets.length / x.numberOfRows());
+            if (nsubsets * x.numberOfRows() != subsets.length) {
                 throw "length of 'subsets' should be a multiple of the matrix rows";
             }
             raw = wasm.call(module => module.per_cell_qc_metrics(x.matrix, nsubsets, ptr));
 
         } else if (subsets instanceof Array) {
-            let tmp = new Uint8WasmArray(x.nrow() * subsets.length);
+            let tmp = new Uint8WasmArray(x.numberOfRows() * subsets.length);
             try {
                 let offset = 0;
                 for (var i = 0; i < subsets.length; i++) {
                     let current = subsets[i];
-                    if (current.length != x.nrow()) {
+                    if (current.length != x.numberOfRows()) {
                         throw "length of each array in 'subsets' should be equal to the matrix rows";
                     }
                     tmp.array().set(current, offset);
