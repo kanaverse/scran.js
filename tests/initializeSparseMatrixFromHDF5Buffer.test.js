@@ -34,7 +34,7 @@ testIfExists("zeisel.tenx.sub.h5")("initialization from HDF5 works correctly wit
     expect(compare.equalArrays(first_col.slice(0, 5), [0, 3, 3, 0, 1])).toBe(true);
 })
 
-testIfExists("zeisel.csc.sub.h5ad")("initialization from HDF5 works correctly with 10x inputs", () => {
+testIfExists("zeisel.csc.sub.h5ad")("initialization from HDF5 works correctly with H5AD inputs", () => {
     const name = "zeisel.csc.sub.h5ad";
     const path = datadir + "/" + name;
     var buffer = fs.readFileSync(path);

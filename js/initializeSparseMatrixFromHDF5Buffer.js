@@ -128,7 +128,7 @@ export function initializeSparseMatrixFromHDF5Buffer(buffer, path) {
             sparse_data = loader("data");
             sparse_indices = loader("indices");
             sparse_indptrs = loader("indptr");
-            output = initializeSparseMatrixFromCompressedVectors(dims[0], dims[1], sparse_data, sparse_indices, sparse_indptrs, csc);
+            output = initializeSparseMatrixFromCompressedVectors(dims[0], dims[1], sparse_data, sparse_indices, sparse_indptrs, { byColumn: csc });
         } finally {
             utils.free(sparse_data);
             utils.free(sparse_indices);
