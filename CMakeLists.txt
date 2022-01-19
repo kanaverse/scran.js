@@ -64,12 +64,6 @@ endif()
 
 set(COMPILE_PTHREADS ON CACHE BOOL "Compile with pthreads")
 if (COMPILE_PTHREADS)
-    if (COMPILE_NODE)
-        set(EM_NTHREADS "Math.ceil(require('os').cpus().length*2/3)")
-    else()
-        set(EM_NTHREADS "Math.ceil(navigator.hardwareConcurrency*2/3)")
-    endif()
-
-    set_property(TARGET scran_wasm APPEND APPEND_STRING PROPERTY LINK_FLAGS " -s USE_PTHREADS=1 -s PTHREAD_POOL_SIZE=\"${EM_NTHREADS}\"")
+    set_property(TARGET scran_wasm APPEND APPEND_STRING PROPERTY LINK_FLAGS " -s USE_PTHREADS=1 -s PTHREAD_POOL_SIZE=\"Module.scran_custom_nthreads\"")
     target_sources(scran_wasm PRIVATE src/parallel.cpp)
 endif()
