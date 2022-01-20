@@ -56,8 +56,10 @@ jobs:
         tag: latest-node
         body: "JS library for Node.js deployments."
 
-    - name: Publish to Github package registry
+    - name: Setup node
       uses: actions/setup-node@v2
+
+    - name: Publish to Github package registry
       with:
           node-version: 16
           registry-url: https://npm.pkg.github.com/
