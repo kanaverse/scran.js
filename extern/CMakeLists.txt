@@ -33,27 +33,20 @@ include(FetchContent)
 FetchContent_Declare(
   scran 
   GIT_REPOSITORY https://github.com/LTLA/libscran
-  GIT_TAG master
+  GIT_TAG 12faf62c42c388f26db3b03d322c5f430e2c5080
 )
 FetchContent_MakeAvailable(scran)
 
 FetchContent_Declare(
-  irlba 
-  GIT_REPOSITORY https://github.com/LTLA/CppIrlba
-  GIT_TAG master
-)
-FetchContent_MakeAvailable(irlba)
-
-FetchContent_Declare(
   qdtsne 
   GIT_REPOSITORY https://github.com/LTLA/qdtsne
-  GIT_TAG master
+  GIT_TAG e189c57980b36a6f337af8e562804f97963bb26f
 )
 FetchContent_MakeAvailable(qdtsne)
 
 FetchContent_Declare(
   umappp 
   GIT_REPOSITORY https://github.com/LTLA/umappp
-  GIT_TAG master
+  GIT_TAG 46e169b8df80725abca76e8007840ec17c54c819
 )
 FetchContent_MakeAvailable(umappp)
