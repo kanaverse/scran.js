@@ -1,4 +1,8 @@
-import loadScran from "../build/scran.js";
+if ((typeof process !== 'undefined') && (process.release.name === 'node')) {
+    import loadScran from "../wasm_node/scran.js";
+} else {
+    import loadScran from "../wasm/scran.js";
+}
 
 const cache = {};
 

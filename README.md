@@ -62,4 +62,37 @@ emcmake cmake -S . -B build
 (cd build && emmake make)
 ```
 
+As a npm package
+
+```sh
+emcmake cmake -S . -B build
+(cd build && emmake make)
+```
+
 This will build the `.js` and `.wasm` file within the `build/` subdirectory.
+
+## Developer notes
+
+Make sure emscripten and cmake are installed on your machine
+
+To build the node version o the library
+
+```
+bash build.node.sh
+```
+
+To build normal version of the library
+
+```
+bash build.sh
+```
+
+### Tests
+
+```
+# install dev dependencies
+npm install --include=dev
+npm run test
+```
+
+***Note: This dev notes is tested with node v17.2.0***
