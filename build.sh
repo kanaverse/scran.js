@@ -12,6 +12,7 @@ fi
 
 # Copying over the Javascript files.
 destdir=$mode
+mkdir -p ${destdir}
 cp js/*.js $destdir
 rm $destdir/for_node.js
 
