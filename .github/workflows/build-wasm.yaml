@@ -1,6 +1,6 @@
 on: [push, pull_request]
 
-name: Build wasm
+name: Build wasm & Publish
 
 jobs:
   build:
@@ -56,7 +56,22 @@ jobs:
         tag: latest-node
         body: "JS library for Node.js deployments."
 
-    - name: Setup node
+    - name: Setup node for npm
+      uses: actions/setup-node@v2
+      with:
+        node-version: 16
+        registry-url: https://registry.npmjs.org
+
+    - name: Publish to NPM
+      run: |
+        npm ci
+        bash build.sh main
+        bash build.sh module
+        npm publish
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+    - name: Setup node for gpr
       uses: actions/setup-node@v2
       with:
         node-version: 16
@@ -64,6 +79,7 @@ jobs:
 
     - name: Publish to Github package registry
       run: |
+        mv package.gpr.json package.json
         npm ci
         bash build.sh main
         bash build.sh module

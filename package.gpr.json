@@ -1,5 +1,5 @@
 {
-    "name": "scran.js",
+    "name": "@jkanche/scran.js",
     "version": "0.0.1",
     "description": "Single cell RNA-seq analysis in Javascript",
     "main": "main/index.js",
@@ -8,6 +8,9 @@
     "type": "module",
     "scripts": {
         "test": "NODE_OPTIONS='--experimental-vm-modules' npx jest"
+    },
+    "publishConfig": {
+        "@jkanche:registry": "https://npm.pkg.github.com"
     },
     "devDependencies": {
         "@babel/plugin-transform-modules-commonjs": "^7.16.8",
