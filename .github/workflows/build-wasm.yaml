@@ -58,11 +58,11 @@ jobs:
 
     - name: Setup node
       uses: actions/setup-node@v2
+      with:
+        node-version: 16
+        registry-url: https://npm.pkg.github.com/
 
     - name: Publish to Github package registry
-      with:
-          node-version: 16
-          registry-url: https://npm.pkg.github.com/
       run: |
         npm ci
         bash build.sh main
