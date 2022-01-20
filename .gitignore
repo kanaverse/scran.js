@@ -1,7 +1,10 @@
-build
+build_*
 docs/html/
 docs/latex/
 *.swp
 testing
 tests-data
 node_modules/
+main/
+module/
+js/wasm/
