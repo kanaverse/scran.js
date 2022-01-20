@@ -1,7 +1,7 @@
 name: Node.js Package
 
-# TODO: uncomment before merging with master
-# on:
+# TODO: only push on releases later
+on: [push, pull_request]
 #   release:
 #     types: [created]
 
