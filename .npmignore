@@ -1,0 +1,6 @@
+build*
+js/
+docs/
+extern/
+src/
+tests/
