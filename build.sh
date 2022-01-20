@@ -3,7 +3,7 @@
 set -e
 set -u
 
-mode=$1
+mode=$(echo $1 | sed "s/\/$//")
 if [ $mode != "module" ] && [ $mode != "main" ]
 then
     echo "need to specify 'module' or 'main' as the first argument"
