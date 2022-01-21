@@ -16,10 +16,10 @@ jobs:
         git fetch --all
         git checkout $GITHUB_SHA
 
-    - name: Generate node build 
+    - name: Update node build 
       run: bash build.sh main
 
-    - name: Generate module build
+    - name: Update module build
       run: bash build.sh module
 
     - name: Parcellize build
@@ -27,24 +27,9 @@ jobs:
         npm i --include=dev
         npm run build
 
-    - name: Setup node for npm
-      uses: actions/setup-node@v2
-      with:
-        registry-url: https://registry.npmjs.org
-
     - name: Publish to NPM
-      run: npm publish
+      run: |
+        npm config set registry https://registry.npmjs.org
+        npm publish || true
       env:
         NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-    - name: Setup node for gpr
-      uses: actions/setup-node@v2
-      with:
-        registry-url: https://npm.pkg.github.com/
-
-    - name: Publish to Github package registry
-      run: |
-        mv package.gpr.json package.json
-        npm publish
-      env:
-        NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
