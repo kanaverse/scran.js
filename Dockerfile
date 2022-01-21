@@ -21,8 +21,6 @@ RUN git clone https://github.com/jkanche/scran.js
 
 WORKDIR scran.js
 
-RUN git checkout es6-npm-ghaction
-
 # Grabbing the node modules (happily enough, npm is installed along with emscripten).
 RUN npm i --include=dev
 
