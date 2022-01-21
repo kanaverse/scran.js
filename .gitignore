@@ -1,4 +1,4 @@
-build_*
+build*
 docs/html/
 docs/latex/
 *.swp
@@ -8,3 +8,5 @@ node_modules/
 main/
 module/
 js/wasm/
+.parcel-cache
+dist/

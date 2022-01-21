@@ -1,0 +1,39 @@
+on: 
+  push:
+    branches:
+      - master
+
+name: Publish to NPM 
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: ghcr.io/jkanche/scran.js/builder:latest
+    defaults:
+      run:
+        working-directory: /scran.js
+
+    steps:
+    - name: Get to the right branch
+      run: |
+        git fetch --all
+        git checkout $GITHUB_SHA
+
+    - name: Update node build 
+      run: bash build.sh main
+
+    - name: Update module build
+      run: bash build.sh module
+
+    - name: Update NPM packages
+      run: npm i --include=dev
+
+    - name: Parcellize build
+      run: npm run build
+
+    - name: Publish to NPM
+      run: |
+        npm config set registry https://registry.npmjs.org
+        npm publish || true
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
