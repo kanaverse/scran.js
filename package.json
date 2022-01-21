@@ -8,7 +8,7 @@
     "license": "MIT",
     "type": "module",
     "scripts": {
-        "test": "NODE_OPTIONS='--experimental-vm-modules --experimental-wasm-threads --experimental-wasm-bulk-memory' npx jest",
+        "test": "NODE_OPTIONS='--experimental-vm-modules' npx jest",
         "build": "npx parcel build"
     },
     "devDependencies": {

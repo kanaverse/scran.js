@@ -15,13 +15,18 @@ jobs:
     - name: Get emscripten
       uses: mymindstorm/setup-emsdk@v9
 
+    - name: Setup node for npm
+      uses: actions/setup-node@v2
+      with:
+        node-version: 16
+
     - name: Install deps
       run: npm i --include=dev
 
-    # - name: Generate node build and run test
-    #   run: |
-    #     bash build.sh main
-    #     npm run test
+    - name: Generate node build and run test
+      run: |
+        bash build.sh main
+        npm run test
 
     - name: Generate wasm build
       run: bash build.sh module
