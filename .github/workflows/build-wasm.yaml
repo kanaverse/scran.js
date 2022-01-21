@@ -17,8 +17,8 @@ jobs:
 
     - name: Test builds
       run: |
-      bash build.sh main
-      npm run test
+        bash build.sh main
+        npm run test
 
     - name: Generate wasm build
       run: |
