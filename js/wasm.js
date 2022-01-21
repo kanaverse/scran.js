@@ -1,4 +1,4 @@
-import loadScran from "../build/scran.js";
+import loadScran from "./wasm/scran.js";
 
 const cache = {};
 
@@ -18,7 +18,7 @@ export async function initialize({ numberOfThreads = 4 } = {}) {
 
     let options = {
         // TODO: figure out a more portable way of finding the Wasm file.
-        locateFile: (x) => import.meta.url.substring(7) + "/../../build/" + x,
+        locateFile: (x) => import.meta.url.substring(7) + "/../wasm/" + x,
 
         scran_custom_nthreads: numberOfThreads
     }

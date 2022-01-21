@@ -1,7 +1,12 @@
-build
+build*
 docs/html/
 docs/latex/
 *.swp
 testing
 tests-data
 node_modules/
+main/
+module/
+js/wasm/
+.parcel-cache
+dist/
