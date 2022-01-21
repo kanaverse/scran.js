@@ -28,10 +28,10 @@ jobs:
     - name: Install deps
       run: npm i --include=dev
 
-    - name: Generate node build and run test
-      run: |
-        bash build.sh main
-        NODE_OPTIONS='--experimental-vm-modules --experimental-wasm-threads --experimental-wasm-bulk-memory' npx jest
+    # - name: Generate node build and run test
+    #   run: |
+    #     bash build.sh main
+    #     NODE_OPTIONS='--experimental-vm-modules --experimental-wasm-threads --experimental-wasm-bulk-memory' npx jest
 
     - name: Generate wasm module build
       run: bash build.sh module
