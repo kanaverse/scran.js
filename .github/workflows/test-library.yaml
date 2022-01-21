@@ -1,0 +1,42 @@
+on: [push, pull_request]
+
+name: Test library
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2.4.0
+
+    - name: Cache build artifacts
+      id: cache-cpp
+      uses: actions/cache@v2
+      with:
+        path: build_main
+        key: cpp-${{ hashFiles('**/CMakeLists.txt') }}-${{ hashFiles('**.cpp') }}
+
+    - name: Get latest CMake
+      if: steps.cache-cpp.outputs.cache-hit != 'true'
+      uses: lukka/get-cmake@latest
+
+    - name: Get emscripten
+      if: steps.cache-cpp.outputs.cache-hit != 'true'
+      uses: mymindstorm/setup-emsdk@v9
+    
+    - name: Generate node build 
+      run: bash build.sh main     
+
+    - name: Cache node modules
+      id: cache-node
+      uses: actions/cache@v2
+      with:
+        path: node_modules
+        key: node-${{ hashFiles('**/package*.json') }}
+
+    - name: Install deps
+      if: steps.cache-node.outputs.cache-hit != 'true'
+      run: npm i --include=dev
+
+    - name: Run tests
+      run: node --experimental-vm-modules --experimental-wasm-threads --experimental-wasm-bulk-memory node_modules/jest/bin/jest.js
