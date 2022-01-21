@@ -20,6 +20,11 @@ jobs:
       with:
         node-version: '16'
 
+    - name: Test node version
+      run: | 
+        node -v
+        npm -v
+
     - name: Install deps
       run: npm i --include=dev
 
