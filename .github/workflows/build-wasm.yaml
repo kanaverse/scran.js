@@ -15,15 +15,16 @@ jobs:
     - name: Get emscripten
       uses: mymindstorm/setup-emsdk@v9
 
-    - name: Test builds
+    - name: Install deps
+      run: npm i --include=dev
+
+    - name: Generate node build and run test
       run: |
         bash build.sh main
         npm run test
 
     - name: Generate wasm build
-      run: |
-        npm i --include=dev
-        bash build.sh module
+      run: bash build.sh module
 
     - name: Parcellize build
       run: npm run build
