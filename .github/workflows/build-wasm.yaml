@@ -37,7 +37,9 @@ jobs:
       run: bash build.sh module
 
     - name: Parcellize build
-      run: npm run build
+      run: |
+        npm i --include=dev
+        npm run build
 
     - name: Setup node for npm
       uses: actions/setup-node@v2
