@@ -1,6 +1,6 @@
 on: [push, pull_request]
 
-name: Build wasm & Publish
+name: Publish to NPM 
 
 jobs:
   build:
@@ -22,10 +22,11 @@ jobs:
     - name: Update module build
       run: bash build.sh module
 
+    - name: Update NPM packages
+      run: npm i --include=dev
+
     - name: Parcellize build
-      run: |
-        npm i --include=dev
-        npm run build
+      run: npm run build
 
     - name: Publish to NPM
       run: |

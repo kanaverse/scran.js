@@ -19,6 +19,9 @@ jobs:
     - name: Update node build 
       run: bash build.sh main
 
+    - name: Update NPM packages
+      run: npm i --include=dev
+
     - name: Run tests
       run: node --experimental-vm-modules --experimental-wasm-threads node_modules/jest/bin/jest.js
 
