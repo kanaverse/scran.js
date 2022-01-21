@@ -5,35 +5,18 @@ name: Build wasm & Publish
 jobs:
   build:
     runs-on: ubuntu-latest
+    container: ghcr.io/jkanche/scran.js/builder:latest
 
     steps:
-    - uses: actions/checkout@v2.4.0
+    - name: Get to the right branch
+      run: |
+        git fetch --all
+        git checkout $GITHUB_SHA
 
-    - name: Setup node for npm
-      uses: actions/setup-node@v2
-      with:
-        node-version: '14'
+    - name: Generate node build 
+      run: bash build.sh main
 
-    - name: Get latest CMake
-      uses: lukka/get-cmake@latest
-
-    - name: Get emscripten
-      uses: mymindstorm/setup-emsdk@v9
-
-    - name: Test node version
-      run: | 
-        node -v
-        npm -v
-
-    - name: Install deps
-      run: npm i --include=dev
-
-    # - name: Generate node build and run test
-    #   run: |
-    #     bash build.sh main
-    #     NODE_OPTIONS='--experimental-vm-modules --experimental-wasm-threads --experimental-wasm-bulk-memory' npx jest
-
-    - name: Generate wasm module build
+    - name: Generate module build
       run: bash build.sh module
 
     - name: Parcellize build

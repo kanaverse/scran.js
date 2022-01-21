@@ -1,0 +1,21 @@
+on: [push, pull_request]
+
+name: Test JS bindings
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: ghcr.io/jkanche/scran.js/builder:latest
+
+    steps:
+    - name: Get to the right branch
+      run: |
+        git fetch --all
+        git checkout $GITHUB_SHA
+
+    - name: Update node build 
+      run: bash build.sh main
+
+    - name: Run tests
+      run: node --experimental-vm-modules --experimental-wasm-threads node_modules/jest/bin/jest.js
+
