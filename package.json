@@ -1,0 +1,49 @@
+{
+    "name": "scran.js",
+    "version": "0.0.1",
+    "description": "Single cell RNA-seq analysis in Javascript",
+    "main": "dist/scran.module.js",
+    "browser": "dist/scran.web.module.js",
+    "source": "js/index.js",
+    "license": "MIT",
+    "type": "module",
+    "scripts": {
+        "test": "NODE_OPTIONS='--experimental-vm-modules' npx jest",
+        "build": "npx parcel build"
+    },
+    "devDependencies": {
+        "@babel/plugin-transform-modules-commonjs": "^7.16.8",
+        "jest": "^27.4.7",
+        "parcel": "^2.2.1"
+    },
+    "dependencies": {
+        "jsfive": "^0.3.5",
+        "pako": "^2.0.4"
+    },
+    "targets": {
+        "main": {
+            "outputFormat": "esmodule"
+        },
+        "browser": {
+            "includeNodeModules": true,
+            "outputFormat": "esmodule",
+            "engines": {
+                "browsers": [
+                    "> 1%",
+                    "not dead"
+                ]
+            }
+        },
+        "web": {
+            "includeNodeModules": true,
+            "isLibrary": false,
+            "outputFormat": "global",
+            "engines": {
+                "browsers": [
+                    "> 1%",
+                    "not dead"
+                ]
+            }
+        }
+    }
+}

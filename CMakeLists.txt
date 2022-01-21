@@ -43,24 +43,27 @@ target_compile_definitions(scran_wasm PRIVATE TATAMI_USE_ZLIB=1)
 
 set_target_properties(scran_wasm PROPERTIES 
     OUTPUT_NAME scran
-    LINK_FLAGS "-O2 --bind -s ALLOW_MEMORY_GROWTH=1 -s MAXIMUM_MEMORY=4GB -s FORCE_FILESYSTEM=1 -s USE_ZLIB=1 -s MODULARIZE=1 -s EXPORT_NAME=loadScran"
+    LINK_FLAGS "-O2 --bind -s ALLOW_MEMORY_GROWTH=1 -s MAXIMUM_MEMORY=4GB -s USE_ZLIB=1 -s MODULARIZE=1 -s EXPORT_NAME=loadScran -s EXPORT_ES6"
 )
 
 set(COMPILE_NODE OFF CACHE BOOL "Compile for Node.js")
 if (COMPILE_NODE)
     set_property(TARGET scran_wasm APPEND APPEND_STRING PROPERTY LINK_FLAGS " -s ENVIRONMENT=node")
+
+    add_custom_command(TARGET scran_wasm POST_BUILD
+        COMMAND cat ../js/for_node.js scran.js > tmp.js
+        COMMAND mv tmp.js scran.js
+        COMMAND cat ../js/for_node.js scran.worker.js > tmp.js
+        COMMAND mv tmp.js scran.worker.js
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+        COMMENT "Adding ES6 preamble for Node"
+    )
 else ()
     set_property(TARGET scran_wasm APPEND APPEND_STRING PROPERTY LINK_FLAGS " -s ENVIRONMENT=web,worker")
 endif()
 
 set(COMPILE_PTHREADS ON CACHE BOOL "Compile with pthreads")
 if (COMPILE_PTHREADS)
-    if (COMPILE_NODE)
-        set(EM_NTHREADS "Math.ceil(require('os').cpus().length*2/3)")
-    else()
-        set(EM_NTHREADS "Math.ceil(navigator.hardwareConcurrency*2/3)")
-    endif()
-
-    set_property(TARGET scran_wasm APPEND APPEND_STRING PROPERTY LINK_FLAGS " -s USE_PTHREADS=1 -s PTHREAD_POOL_SIZE=\"${EM_NTHREADS}\"")
+    set_property(TARGET scran_wasm APPEND APPEND_STRING PROPERTY LINK_FLAGS " -s USE_PTHREADS=1 -s PTHREAD_POOL_SIZE=\"Module.scran_custom_nthreads\"")
     target_sources(scran_wasm PRIVATE src/parallel.cpp)
 endif()
