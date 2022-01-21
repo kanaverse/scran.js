@@ -19,42 +19,16 @@ jobs:
     - name: Get emscripten
       uses: mymindstorm/setup-emsdk@v9
 
-    - name: Configure the build for web
-      if: matrix.mode == 'web'
-      run: emcmake cmake -S . -B build
-
-    - name: Configure the build for Node.js
-      if: matrix.mode == 'node'
-      run: emcmake cmake -S . -B build -D COMPILE_NODE=ON
-
-    - name: Run the build
+    - name: Generate wasm build
       run: |
-        cd build
-        emmake make
+        npm i --include=dev
+        bash build.sh module
 
-    - name: Publish library for web
-      uses: ncipollo/release-action@v1
-      if: github.ref == 'refs/heads/master' && matrix.mode == 'web' 
-      with:
-        allowUpdates: true
-        removeArtifacts: true
-        artifactErrorsFailBuild: true
-        artifacts: "build/scran.js,build/scran.wasm,build/scran.worker.js"
-        name: latest-web
-        tag: latest-web
-        body: "JS library for web deployments."
+    - name: Test builds
+      run: npm run test
 
-    - name: Publish library for Node.js
-      uses: ncipollo/release-action@v1
-      if: github.ref == 'refs/heads/master' && matrix.mode == 'node' 
-      with:
-        allowUpdates: true
-        removeArtifacts: true
-        artifactErrorsFailBuild: true
-        artifacts: "build/scran.js,build/scran.wasm,build/scran.worker.js"
-        name: latest-node
-        tag: latest-node
-        body: "JS library for Node.js deployments."
+    - name: Parcellize build
+      run: npm run build
 
     - name: Setup node for npm
       uses: actions/setup-node@v2
@@ -63,11 +37,7 @@ jobs:
         registry-url: https://registry.npmjs.org
 
     - name: Publish to NPM
-      run: |
-        npm ci
-        bash build.sh main
-        bash build.sh module
-        npm publish
+      run: npm publish
       env:
         NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
@@ -80,9 +50,6 @@ jobs:
     - name: Publish to Github package registry
       run: |
         mv package.gpr.json package.json
-        npm ci
-        bash build.sh main
-        bash build.sh module
         npm publish
       env:
         NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
