@@ -18,7 +18,7 @@ jobs:
     - name: Setup node for npm
       uses: actions/setup-node@v2
       with:
-        node-version: 16
+        node-version: '16'
 
     - name: Install deps
       run: npm i --include=dev
@@ -28,7 +28,7 @@ jobs:
         bash build.sh main
         npm run test
 
-    - name: Generate wasm build
+    - name: Generate wasm module build
       run: bash build.sh module
 
     - name: Parcellize build
@@ -37,7 +37,6 @@ jobs:
     - name: Setup node for npm
       uses: actions/setup-node@v2
       with:
-        node-version: 16
         registry-url: https://registry.npmjs.org
 
     - name: Publish to NPM
@@ -48,7 +47,6 @@ jobs:
     - name: Setup node for gpr
       uses: actions/setup-node@v2
       with:
-        node-version: 16
         registry-url: https://npm.pkg.github.com/
 
     - name: Publish to Github package registry
