@@ -37,9 +37,6 @@ final=../${destdir}/wasm
 mkdir -p ${final}
 cp -r scran.* ${final}
 
-if [ $mode == "main" ]
-then
-    # For easier testing.
-    mkdir -p ../js/wasm
-    cp -r scran.* ../js/wasm
-fi
+# For easier testing.
+mkdir -p ../js/wasm
+cp -r scran.* ../js/wasm
