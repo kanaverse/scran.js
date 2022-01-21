@@ -6,6 +6,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     container: ghcr.io/jkanche/scran.js/builder:latest
+    defaults:
+      run:
+        working-directory: /scran.js
 
     steps:
     - name: Get to the right branch
