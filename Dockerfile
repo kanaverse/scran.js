@@ -17,7 +17,8 @@ RUN wget https://github.com/Kitware/CMake/releases/download/v3.21.1/cmake-3.21.1
 
 ENV PATH="/emsdk:/emsdk/node/14.18.2_64bit/bin:/emsdk/upstream/emscripten:/cmake/bin:${PATH}"
 
-RUN git clone https://github.com/jkanche/scran.js
+RUN git clone https://github.com/jkanche/scran.js && \
+    git checkout es6-npm-ghaction
 
 WORKDIR scran.js
 
