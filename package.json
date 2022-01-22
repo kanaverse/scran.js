@@ -1,5 +1,5 @@
 {
-    "name": "scran.js",
+    "name": "scranjs",
     "version": "0.0.1",
     "description": "Single cell RNA-seq analysis in Javascript",
     "main": "dist/scran.module.js",
