@@ -2,7 +2,7 @@ import * as scran from "../js/index.js";
 import * as compare from "./compare.js";
 import * as simulate from "./simulate.js";
 
-beforeAll(async () => { await scran.initialize() });
+beforeAll(async () => { await scran.initialize({ localFile: true }) });
 afterAll(async () => { await scran.terminate() });
 
 test("runTSNE works as expected", () => {

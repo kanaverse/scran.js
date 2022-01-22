@@ -1,26 +1,28 @@
 import loadScran from "./wasm/scran.js";
-
 const cache = {};
 
 /**
  * @param {Object} [options] - Optional parameters.
  * @param {number} [numberOfThreads] - Number of threads to use for calculations.
  * This will spin up the requested number of Web Workers during module initialization.
+ * @param {boolean} [localFile] - Whether or not to look for the Wasm and worker scripts locally.
+ * Should only be `true` when using old versions of Node where file URLs are not supported.
  *
  * @return 
  * The Wasm bindings are initialized and `true` is returned.
  * If the bindings were already initialized (e.g., by a previous call), nothing is done and `false` is returned.
  */
-export async function initialize({ numberOfThreads = 4 } = {}) {
+export async function initialize({ numberOfThreads = 4, localFile = false } = {}) {
     if ("module" in cache) {
         return false;
     }
 
     let options = {
-        // TODO: figure out a more portable way of finding the Wasm file.
-        locateFile: (x) => import.meta.url.substring(7) + "/../wasm/" + x,
-
         scran_custom_nthreads: numberOfThreads
+    }
+
+    if (localFile) {
+        options.locateFile = (x) => import.meta.url.substring(7) + "/../wasm/" + x;
     }
 
     // TODO: figure out how to add the thing for service workers.

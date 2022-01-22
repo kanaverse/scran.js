@@ -51,9 +51,9 @@ if (COMPILE_NODE)
     set_property(TARGET scran_wasm APPEND APPEND_STRING PROPERTY LINK_FLAGS " -s ENVIRONMENT=node")
 
     add_custom_command(TARGET scran_wasm POST_BUILD
-        COMMAND cat ../js/for_node.js scran.js > tmp.js
+        COMMAND cat ../js/node/preamble.js scran.js > tmp.js
         COMMAND mv tmp.js scran.js
-        COMMAND cat ../js/for_node.js scran.worker.js > tmp.js
+        COMMAND cat ../js/node/preamble.js scran.worker.js > tmp.js
         COMMAND mv tmp.js scran.worker.js
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
         COMMENT "Adding ES6 preamble for Node"
