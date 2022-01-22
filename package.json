@@ -1,6 +1,6 @@
 {
-    "name": "scranjs",
-    "version": "0.0.1",
+    "name": "scran.js",
+    "version": "0.0.2",
     "description": "Single cell RNA-seq analysis in Javascript",
     "main": "dist/scran.module.js",
     "browser": "dist/scran.web.module.js",
