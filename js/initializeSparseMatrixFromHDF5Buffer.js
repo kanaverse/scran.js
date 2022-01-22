@@ -67,16 +67,22 @@ function cloneIntoWasmArray(x) {
 /**
  * Initialize a layered sparse matrix from a HDF5 file.
  *
- * @param {ArrayBuffer} buffer Buffer containing the contents of a HDF5 file.
+ * @param {(ArrayBuffer|hdf5.File)} x Buffer containing the contents of a HDF5 file.
+ * Alternatively, the HDF5 File object created from said buffer.
  * @param {string} path Path to the dataset inside the file.
  * This can be a HDF5 Dataset for dense matrices or a HDF5 Group for sparse matrices.
  * For the latter, both H5AD and 10X-style sparse formats are supported.
  *
  * @return A `LayeredSparseMatrix` containing the layered sparse matrix.
  */
-export function initializeSparseMatrixFromHDF5Buffer(buffer, path) {
+export function initializeSparseMatrixFromHDF5Buffer(x, path) {
     var output;
-    let f = new hdf5.File(buffer, "temp.h5");
+    let f;
+    if (x instanceof ArrayBuffer) {
+        f = new hdf5.File(x, "temp.h5");
+    } else {
+        f = x;
+    }
 
     let entity = f.get(path);
     if (entity instanceof hdf5.Dataset) {
