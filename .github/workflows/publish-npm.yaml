@@ -1,7 +1,8 @@
-on: 
-  push:
-    branches:
-      - master
+# on: 
+#   push:
+#     branches:
+#       - master
+on: [push]
 
 name: Publish to NPM 
 
@@ -31,9 +32,11 @@ jobs:
     - name: Parcellize build
       run: npm run build
 
+    - uses: actions/setup-node@v2
+      with:
+        registry-url: 'https://npm.pkg.github.com'
+
     - name: Publish to NPM
-      run: |
-        npm config set registry https://registry.npmjs.org
-        npm publish || true
+      run: npm publish || true
       env:
         NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
