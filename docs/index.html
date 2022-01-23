@@ -103,20 +103,20 @@ $(function() {
 <p >This directory contains the files required to create the <b>scran.js</b> Wasm binary. We use CMake to manage the compilation process as well as the dependencies, namely the <a href="https://github.com/LTLA/libscran"><b>scran</b> C++ library</a>. Compilation of the Wasm binary is done using Emscripten:</p>
 <div class="fragment"><div class="line">emcmake cmake -S . -B build</div>
 <div class="line">(cd build &amp;&amp; emmake make)</div>
-</div><!-- fragment --><p >As a npm package</p>
-<div class="fragment"><div class="line">emcmake cmake -S . -B build</div>
-<div class="line">(cd build &amp;&amp; emmake make)</div>
-</div><!-- fragment --><p >This will build the <code>.js</code> and <code>.wasm</code> file within the <code>build/</code> subdirectory.</p>
+</div><!-- fragment --><p >To build node compatible library, add option <code>-DCCOMPILE_NODE=1</code> to the command. (check dev notes below)</p>
+<p >This will build the <code>.js</code> and <code>.wasm</code> file within the <code>build/</code> subdirectory.</p>
 <h1>Developer notes</h1>
-<p >Make sure emscripten and cmake are installed on your machine</p>
-<p >To build the node version o the library</p>
-<div class="fragment"><div class="line">bash build.node.sh</div>
-</div><!-- fragment --><p >To build normal version of the library</p>
-<div class="fragment"><div class="line">bash build.sh</div>
+<p >Make sure emscripten and cmake are installed on your machine, <code>build.sh</code> script generates ES6 and node compatible builds.</p>
+<p >To build node version of the library,</p>
+<div class="fragment"><div class="line">bash build.sh main</div>
+</div><!-- fragment --><p >To build ES6 version of the library,</p>
+<div class="fragment"><div class="line">bash build.sh module</div>
 </div><!-- fragment --><h2>Tests</h2>
 <div class="fragment"><div class="line"># install dev dependencies</div>
 <div class="line">npm install --include=dev</div>
 <div class="line">npm run test</div>
+</div><!-- fragment --><p >If you are using node 16 or 14, add run tests using</p>
+<div class="fragment"><div class="line">node --experimental-vm-modules --experimental-wasm-threads node_modules/jest/bin/jest.js</div>
 </div><!-- fragment --><p ><em><b>Note: This dev notes is tested with node v17.2.0</b></em> </p>
 </div></div><!-- PageDoc -->
 </div><!-- contents -->
