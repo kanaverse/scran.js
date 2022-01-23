@@ -14,6 +14,7 @@ test("neighbor index building works with various inputs", () => {
     // Trying with the PCs.
     var index = scran.buildNeighborSearchIndex(pca);
     expect(index instanceof scran.NeighborSearchIndex).toBe(true);
+    expect(index.numberOfCells()).toBe(ncells);
 
     // Trying again with a buffer.
     var buffer = new scran.Float64WasmArray(pca.numberOfPCs() * ncells);

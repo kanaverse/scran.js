@@ -19,6 +19,13 @@ export class NeighborSearchIndex {
     }
 
     /**
+     * @return Number of cells in the index.
+     */
+    numberOfCells() {
+        return this.index.num_obs();
+    }
+
+    /**
      * @return Frees the memory allocated on the Wasm heap for this object.
      * This invalidates this object and all references to it.
      */
