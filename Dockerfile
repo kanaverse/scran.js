@@ -25,7 +25,7 @@ WORKDIR scran.js
 RUN npm i --include=dev
 
 # Revert any NPM-induced changes to these files.
-RUN git checkout -- package.json package-lock.json
+RUN git checkout -- package.json
 
 # Running the builds.
 RUN ./build.sh main
