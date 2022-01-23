@@ -65,6 +65,14 @@ export class TSNEStatus {
 }
 
 /**
+ * @param {number} perplexity - Perplexity to use in the t-SNE algorithm.
+ * @return Appropriate number of neighbors to use in the nearest neighbor search.
+ */
+export function perplexityToNeighbors(perplexity) {
+    return wasm.call(module => module.perplexity_to_k(perplexity));
+}
+
+/**
  * @param {(NeighborSearchIndex|NeighborSearchResults)} x 
  * Either a pre-built neighbor search index for the dataset (see `buildNeighborSearchIndex()`),
  * or a pre-computed set of neighbor search results for all cells (see `findNearestNeighbors()`).
@@ -85,13 +93,13 @@ export function initializeTSNE(x, { perplexity = 30, checkMismatch = true } = {}
         let neighbors;
 
         if (x instanceof NeighborSearchIndex) {
-            let k = wasm.call(module => module.perplexity_to_k(perplexity));
+            let k = perplexityToNeighbors(perplexity);
             my_neighbors = findNearestNeighbors(x, k);
             neighbors = my_neighbors;
 
         } else {
             if (checkMismatch) {
-                let k = wasm.call(module => module.perplexity_to_k(perplexity));
+                let k = perplexityToNeighbors(perplexity);
                 if (k * x.numberOfCells() != x.size()) {
                     throw "number of neighbors in 'x' does not match '3 * perplexity'";
                 }
@@ -132,7 +140,7 @@ export function initializeTSNE(x, { perplexity = 30, checkMismatch = true } = {}
  */
 export function runTSNE(x, { maxIterations = 1000, runTime = null } = {}) {
     if (runTime === null) {
-        runTime = 100000000; // TODO: need a better solution here.
+        runTime = -1;
     }
     wasm.call(module => module.run_tsne(x.status, runTime, maxIterations, x.coordinates.offset));
     return;
