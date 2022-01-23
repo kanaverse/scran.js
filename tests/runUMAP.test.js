@@ -14,6 +14,7 @@ test("runUMAP works as expected", () => {
     var init = scran.initializeUMAP(index, { epochs: 500 });
     var start = init.extractCoordinates();
     expect(init.currentEpoch()).toBe(0);
+    expect(init.totalEpochs()).toBe(500);
     expect(init.numberOfCells()).toBe(ncells);
 
     scran.runUMAP(init);

@@ -46,7 +46,7 @@ export class UMAPStatus {
      * @return Total number of epochs used to initialize this object.
      */
     totalEpochs() {
-        return this.status.total_epochs();
+        return this.status.num_epochs();
     }
 
     /**
