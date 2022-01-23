@@ -62,29 +62,24 @@ emcmake cmake -S . -B build
 (cd build && emmake make)
 ```
 
-As a npm package
-
-```sh
-emcmake cmake -S . -B build
-(cd build && emmake make)
-```
+To build node compatible library, add option `-DCCOMPILE_NODE=1` to the command. (check dev notes below)
 
 This will build the `.js` and `.wasm` file within the `build/` subdirectory.
 
 ## Developer notes
 
-Make sure emscripten and cmake are installed on your machine
+Make sure emscripten and cmake are installed on your machine, `build.sh` script generates ES6 and node compatible builds.
 
-To build the node version o the library
-
-```
-bash build.node.sh
-```
-
-To build normal version of the library
+To build node version of the library,
 
 ```
-bash build.sh
+bash build.sh main
+```
+
+To build ES6 version of the library,
+
+```
+bash build.sh module
 ```
 
 ### Tests
@@ -93,6 +88,12 @@ bash build.sh
 # install dev dependencies
 npm install --include=dev
 npm run test
+```
+
+If you are using node 16 or 14, add run tests using
+
+```
+node --experimental-vm-modules --experimental-wasm-threads node_modules/jest/bin/jest.js
 ```
 
 ***Note: This dev notes is tested with node v17.2.0***
