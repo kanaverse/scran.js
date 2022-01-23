@@ -5,7 +5,7 @@ import * as compare from "./compare.js";
 const datadir = "tests-data";
 const testIfExists = (name) => fs.existsSync(datadir + "/" + name) ? test : test.skip;
 
-beforeAll(async () => { await scran.initialize() });
+beforeAll(async () => { await scran.initialize({ localFile: true }) });
 afterAll(async () => { await scran.terminate() });
 
 testIfExists("zeisel.dense.sub.h5")("initialization from HDF5 works correctly with dense inputs", () => {

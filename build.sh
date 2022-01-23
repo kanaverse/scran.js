@@ -12,9 +12,14 @@ fi
 
 # Copying over the Javascript files.
 destdir=$mode
+rm -rf ${destdir}
 mkdir -p ${destdir}
 cp js/*.js $destdir
-rm $destdir/for_node.js
+
+if [ $mode != "main" ]
+then
+    cat js/wasm.js | grep -v "NODE ONLY" > $destdir/wasm.js
+fi
 
 # Building the Wasm files.
 builddir=build_$mode
@@ -37,6 +42,9 @@ final=../${destdir}/wasm
 mkdir -p ${final}
 cp -r scran.* ${final}
 
-# For easier testing.
-mkdir -p ../js/wasm
-cp -r scran.* ../js/wasm
+if [ $mode == "main" ]
+then
+    # For easier testing.
+    mkdir -p ../js/wasm
+    cp -r scran.* ../js/wasm
+fi

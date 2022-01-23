@@ -7,5 +7,3 @@ tests/
 .github
 jest.config.js
 CMakeLists.txt
-module
-main
