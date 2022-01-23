@@ -273,7 +273,7 @@ Functions</h2></td></tr>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir"></td><td class="paramname">status</td><td>A <code><a class="el" href="structTsneStatus.html" title="Status of the t-SNE algorithm.">TsneStatus</a></code> object created by <code>initialize_status()</code>. </td></tr>
-    <tr><td class="paramdir"></td><td class="paramname">runtime</td><td>Number of milliseconds to run before returning. Iterations are performed until the specified <code>runtime</code> is exceeded. </td></tr>
+    <tr><td class="paramdir"></td><td class="paramname">runtime</td><td>Number of milliseconds to run before returning. Iterations are performed until the specified <code>runtime</code> is exceeded. If <code>runtime</code> is not positive, it is ignored and the algorithm runs to <code>maxiter</code>. </td></tr>
     <tr><td class="paramdir"></td><td class="paramname">maxiter</td><td>Maximum number of iterations to perform. The function will return even if <code>runtime</code> has not been exceeded. </td></tr>
     <tr><td class="paramdir">[in,out]</td><td class="paramname">Y</td><td>Offset to a two-dimensional array containing the initial coordinates. Each row corresponds to a dimension, each column corresponds to a cell, and the matrix is in column-major format. On output, this will be filled with the updated coordinates.</td></tr>
   </table>
