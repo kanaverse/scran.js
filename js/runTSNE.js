@@ -140,7 +140,7 @@ export function initializeTSNE(x, { perplexity = 30, checkMismatch = true } = {}
  */
 export function runTSNE(x, { maxIterations = 1000, runTime = null } = {}) {
     if (runTime === null) {
-        runTime = 100000000; // TODO: need a better solution here.
+        runTime = -1;
     }
     wasm.call(module => module.run_tsne(x.status, runTime, maxIterations, x.coordinates.offset));
     return;

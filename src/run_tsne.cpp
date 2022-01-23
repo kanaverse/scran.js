@@ -104,6 +104,7 @@ int perplexity_to_k(double perplexity) {
  * @param status A `TsneStatus` object created by `initialize_status()`.
  * @param runtime Number of milliseconds to run before returning. 
  * Iterations are performed until the specified `runtime` is exceeded.
+ * If `runtime` is not positive, it is ignored and the algorithm runs to `maxiter`.
  * @param maxiter Maximum number of iterations to perform.
  * The function will return even if `runtime` has not been exceeded.
  * @param[in, out] Y Offset to a two-dimensional array containing the initial coordinates.
@@ -117,13 +118,15 @@ void run_tsne(TsneStatus& status, int runtime, int maxiter, uintptr_t Y) {
     double* ptr = reinterpret_cast<double*>(Y);
     int iter = status.iterations();
 
-
-    auto end = std::chrono::steady_clock::now() + std::chrono::milliseconds(runtime);
-    do {
-        ++iter;
-        factory.set_max_iter(iter).run(status.status, ptr);
-    } while (iter < maxiter && std::chrono::steady_clock::now() < end);
-
+    if (runtime <= 0) {
+        factory.set_max_iter(maxiter).run(status.status, ptr);
+    } else {
+        auto end = std::chrono::steady_clock::now() + std::chrono::milliseconds(runtime);
+        do {
+            ++iter;
+            factory.set_max_iter(iter).run(status.status, ptr);
+        } while (iter < maxiter && std::chrono::steady_clock::now() < end);
+    }
     return;
 }
     

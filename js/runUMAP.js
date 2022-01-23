@@ -129,7 +129,7 @@ export function initializeUMAP(x, { neighbors = 15, epochs = 500, minDist = 0.01
  */
 export function runUMAP(x, { runTime = null } = {}) {
     if (runTime === null) {
-        runTime = 100000000; // TODO: need a better solution here.
+        runTime = -1;
     }
     wasm.call(module => module.run_umap(x.status, runTime, x.coordinates.offset));
     return;
