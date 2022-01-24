@@ -1,6 +1,6 @@
 {
     "name": "scran.js",
-    "version": "0.0.3",
+    "version": "0.0.4",
     "description": "Single cell RNA-seq analysis in Javascript",
     "license": "MIT",
     "main": "main/index.js",
@@ -32,5 +32,23 @@
                 ]
             }
         }
-    }
+    },
+    "author": {
+        "name": "Jayaram Kancherla",
+        "email": "jayaram.kancherla@gmail.com",
+        "url": "https://www.jkanche.com"
+    },
+    "contributors": [
+        {
+            "name": "Aaron Lun",
+            "email": "infinite.monkeys.with.keyboards@gmail.com"
+        }
+    ],
+    "bugs": "https://github.com/jkanche/scran.js/issues",
+    "keywords": [
+        "bioinformatics",
+        "scRNA-seq",
+        "webassembly"
+    ],
+    "repository": "github:jkanche/scran.js"
 }
