@@ -139,6 +139,14 @@ export class Uint8WasmArray extends WasmArray {
     array() {
         return new Uint8Array(wasm.buffer(), this.offset, this.length);
     }
+
+    /**
+     * Name of the class.
+     */
+    static name = "Uint8WasmArray";
+    // We're returning the name explicitly here instead of relying
+    // on the constructor.name trick, as the name of the class can
+    // change during minification.
 }
 
 /** 
@@ -165,6 +173,11 @@ export class Int8WasmArray extends WasmArray {
     array() {
         return new Int8Array(wasm.buffer(), this.offset, this.length);
     }
+
+    /**
+     * Name of the class.
+     */
+    static name = "Int8WasmArray";
 }
 
 /** 
@@ -191,6 +204,11 @@ export class Uint16WasmArray extends WasmArray {
     array() {
         return new Uint16Array(wasm.buffer(), this.offset, this.length);
     }
+
+    /**
+     * Name of the class.
+     */
+    static name = "Uint16WasmArray";
 }
 
 /** 
@@ -217,6 +235,11 @@ export class Int16WasmArray extends WasmArray {
     array() {
         return new Int16Array(wasm.buffer(), this.offset, this.length);
     }
+
+    /**
+     * Name of the class.
+     */
+    static name = "Int16WasmArray";
 }
 
 /** 
@@ -241,6 +264,11 @@ export class Uint32WasmArray extends WasmArray {
     array() {
         return new Uint32Array(wasm.buffer(), this.offset, this.length);
     }
+
+    /**
+     * Name of the class.
+     */
+    static name = "Uint32WasmArray";
 }
 
 /** 
@@ -267,6 +295,11 @@ export class Int32WasmArray extends WasmArray {
     array() {
         return new Int32Array(wasm.buffer(), this.offset, this.length);
     }
+
+    /**
+     * @return Name of the class.
+     */
+    static name = "Int32WasmArray";
 }
 
 /** 
@@ -293,6 +326,11 @@ export class Float32WasmArray extends WasmArray {
     array() {
         return new Float32Array(wasm.buffer(), this.offset, this.length);
     }
+
+    /**
+     * @return Name of the class.
+     */
+    static name = "Float32WasmArray";
 }
 
 /** 
@@ -319,4 +357,9 @@ export class Float64WasmArray extends WasmArray {
     array() {
         return new Float64Array(wasm.buffer(), this.offset, this.length);
     }
+
+    /**
+     * @return Name of the class.
+     */
+    static name = "Float64WasmArray";
 }
