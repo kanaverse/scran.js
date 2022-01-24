@@ -6,8 +6,8 @@ import { WasmArray,
 
 export function wasmifyArray(x, expected) {
     if (x instanceof WasmArray) {
-        if (expected !== null && expected != x.constructor.name) {
-            throw "expected '" + expected + "', got '" + x.constructor.name + "'";
+        if (expected !== null && expected != x.constructor.className) {
+            throw "expected '" + expected + "', got '" + x.constructor.className + "'";
         }
         if (x.owner) {
             return new x.constructor(x.length, x.offset); // when offset is supplied, this is a view.

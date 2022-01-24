@@ -143,7 +143,7 @@ export class Uint8WasmArray extends WasmArray {
     /**
      * Name of the class.
      */
-    static name = "Uint8WasmArray";
+    static className = "Uint8WasmArray";
     // We're returning the name explicitly here instead of relying
     // on the constructor.name trick, as the name of the class can
     // change during minification.
@@ -177,7 +177,7 @@ export class Int8WasmArray extends WasmArray {
     /**
      * Name of the class.
      */
-    static name = "Int8WasmArray";
+    static className = "Int8WasmArray";
 }
 
 /** 
@@ -208,7 +208,7 @@ export class Uint16WasmArray extends WasmArray {
     /**
      * Name of the class.
      */
-    static name = "Uint16WasmArray";
+    static className = "Uint16WasmArray";
 }
 
 /** 
@@ -239,7 +239,7 @@ export class Int16WasmArray extends WasmArray {
     /**
      * Name of the class.
      */
-    static name = "Int16WasmArray";
+    static className = "Int16WasmArray";
 }
 
 /** 
@@ -268,7 +268,7 @@ export class Uint32WasmArray extends WasmArray {
     /**
      * Name of the class.
      */
-    static name = "Uint32WasmArray";
+    static className = "Uint32WasmArray";
 }
 
 /** 
@@ -299,7 +299,7 @@ export class Int32WasmArray extends WasmArray {
     /**
      * @return Name of the class.
      */
-    static name = "Int32WasmArray";
+    static className = "Int32WasmArray";
 }
 
 /** 
@@ -330,7 +330,7 @@ export class Float32WasmArray extends WasmArray {
     /**
      * @return Name of the class.
      */
-    static name = "Float32WasmArray";
+    static className = "Float32WasmArray";
 }
 
 /** 
@@ -361,5 +361,5 @@ export class Float64WasmArray extends WasmArray {
     /**
      * @return Name of the class.
      */
-    static name = "Float64WasmArray";
+    static className = "Float64WasmArray";
 }

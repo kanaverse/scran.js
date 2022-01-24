@@ -28,7 +28,7 @@ export function initializeSparseMatrixFromDenseArray(numberOfRows, numberOfColum
                 numberOfRows, 
                 numberOfColumns, 
                 val_data.offset, 
-                val_data.constructor.name.replace("Wasm", "")
+                val_data.constructor.className.replace("Wasm", "")
             )
         );
 
@@ -86,11 +86,11 @@ export function initializeSparseMatrixFromCompressedVectors(numberOfRows, number
                 numberOfColumns, 
                 val_data.length, 
                 val_data.offset, 
-                val_data.constructor.name.replace("Wasm", ""), 
+                val_data.constructor.className.replace("Wasm", ""), 
                 ind_data.offset, 
-                ind_data.constructor.name.replace("Wasm", ""), 
+                ind_data.constructor.className.replace("Wasm", ""), 
                 indp_data.offset, 
-                indp_data.constructor.name.replace("Wasm", ""), 
+                indp_data.constructor.className.replace("Wasm", ""), 
                 byColumn 
             )
         );
