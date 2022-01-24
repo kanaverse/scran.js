@@ -9,7 +9,11 @@ export function wasmifyArray(x, expected) {
         if (expected !== null && expected != x.constructor.name) {
             throw "expected '" + expected + "', got '" + x.constructor.name + "'";
         }
-        return new x.constructor(x.length, x.offset); // when offset is supplied, this is a view.
+        if (x.owner) {
+            return new x.constructor(x.length, x.offset); // when offset is supplied, this is a view.
+        } else {
+            return x; // it's already a view, so we just pass it along.
+        }
     }
 
     if (expected === null) {
