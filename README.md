@@ -51,6 +51,17 @@ This includes quality control, normalization, feature selection, PCA, clustering
 For each step, we use Emscripten to compile the associated C++ functions into Wasm and generate Javascript-visible bindings.
 We can then load the Wasm binary into a web application and call the desired functions on user-supplied data.
 
+## Installation
+
+scran.js is available as an [npm package](https://www.npmjs.com/package/scran.js)
+
+```
+npm install scran.js
+```
+
+Checkout our [Kana Application](https://github.com/jkanche/kana) on how scran.js package is used
+in an interactive scRNA-seq analysis application.
+
 ## Building the Wasm binary
 
 This directory contains the files required to create the **scran.js** Wasm binary.
