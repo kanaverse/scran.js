@@ -99,6 +99,10 @@ $(function() {
 <li><a href="https://github.com/LTLA/umappp">umappp</a> contains a refactored C++ implementation of the UMAP dimensionality reduction algorithm.</li>
 </ul>
 <p >For each step, we use Emscripten to compile the associated C++ functions into Wasm and generate Javascript-visible bindings. We can then load the Wasm binary into a web application and call the desired functions on user-supplied data.</p>
+<h1>Installation</h1>
+<p >scran.js is available as an <a href="https://www.npmjs.com/package/scran.js">npm package</a></p>
+<div class="fragment"><div class="line">npm install scran.js</div>
+</div><!-- fragment --><p >Checkout our <a href="https://github.com/jkanche/kana">Kana Application</a> on how scran.js package is used in an interactive scRNA-seq analysis application.</p>
 <h1>Building the Wasm binary</h1>
 <p >This directory contains the files required to create the <b>scran.js</b> Wasm binary. We use CMake to manage the compilation process as well as the dependencies, namely the <a href="https://github.com/LTLA/libscran"><b>scran</b> C++ library</a>. Compilation of the Wasm binary is done using Emscripten:</p>
 <div class="fragment"><div class="line">emcmake cmake -S . -B build</div>
