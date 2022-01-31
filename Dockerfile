@@ -10,7 +10,7 @@ RUN git clone https://github.com/emscripten-core/emsdk.git && \
     ./emsdk activate latest
 
 # Grabbing CMake.
-RUN wget https://github.com/Kitware/CMake/releases/download/v3.21.1/cmake-3.21.1-linux-x86_64.sh -O cmake_install.sh && \
+RUN wget https://github.com/Kitware/CMake/releases/download/v3.22.2/cmake-3.22.2-linux-x86_64.sh -O cmake_install.sh && \
     mkdir cmake && \
     bash cmake_install.sh --prefix=cmake --skip-license && \
     rm cmake_install.sh
