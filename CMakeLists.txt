@@ -29,7 +29,7 @@ add_executable(
 )
 
 target_compile_options(
-    scran_wasm PUBLIC -O2 -s USE_PTHREADS=1
+    scran_wasm PUBLIC -O3 -s USE_PTHREADS=1
 )
 
 target_link_libraries(
@@ -43,7 +43,7 @@ target_compile_definitions(scran_wasm PRIVATE TATAMI_USE_ZLIB=1)
 
 set_target_properties(scran_wasm PROPERTIES 
     OUTPUT_NAME scran
-    LINK_FLAGS "-O2 --bind -s ALLOW_MEMORY_GROWTH=1 -s MAXIMUM_MEMORY=4GB -s USE_ZLIB=1 -s MODULARIZE=1 -s EXPORT_NAME=loadScran -s EXPORT_ES6"
+    LINK_FLAGS "-O3 --bind -s ALLOW_MEMORY_GROWTH=1 -s MAXIMUM_MEMORY=4GB -s USE_ZLIB=1 -s MODULARIZE=1 -s EXPORT_NAME=loadScran -s EXPORT_ES6"
 )
 
 set(COMPILE_NODE OFF CACHE BOOL "Compile for Node.js")

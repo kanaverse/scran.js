@@ -32,7 +32,7 @@ fi
 
 if [ ! -e $builddir ]
 then
-    emcmake cmake -S . -B $builddir -DCOMPILE_NODE=${node_flag}
+    emcmake cmake -S . -B $builddir -DCOMPILE_NODE=${node_flag} -DCMAKE_BUILD_TYPE=Release
 fi
 
 cd $builddir
