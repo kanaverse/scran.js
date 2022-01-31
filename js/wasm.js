@@ -65,3 +65,10 @@ export function terminate() {
     delete cache.module;
     return;
 }
+
+/**
+ * @return The current size of the Wasm heap, typically used for diagnostic reporting.
+ */
+export function heapSize() {
+    return buffer().byteLength;
+}

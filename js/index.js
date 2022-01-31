@@ -1,4 +1,4 @@
-export { initialize, terminate } from "./wasm.js";
+export { initialize, terminate, heapSize } from "./wasm.js";
 export * from "./WasmArray.js";
 
 export * from "./initializeSparseMatrix.js";
