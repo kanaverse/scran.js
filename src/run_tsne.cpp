@@ -115,6 +115,7 @@ int perplexity_to_k(double perplexity) {
  */
 void run_tsne(TsneStatus& status, int runtime, int maxiter, uintptr_t Y) {
     qdtsne::Tsne factory;
+    factory.set_max_depth(7); // speed up iterations, avoid problems with duplicates.
     double* ptr = reinterpret_cast<double*>(Y);
     int iter = status.iterations();
 
