@@ -3,6 +3,7 @@ import { WasmArray,
          Int16WasmArray, Uint16WasmArray,
          Int32WasmArray, Uint32WasmArray,
          Float32WasmArray, Float64WasmArray } from "./WasmArray.js";
+import { buffer } from "./wasm.js";
 
 export function wasmifyArray(x, expected) {
     if (x instanceof WasmArray) {
@@ -97,8 +98,46 @@ export function extractXY(ncells, coordinates) {
 }
 
 export function possibleCopy(x, copy) {
-    if (copy) {
+    if (copy === "view") {
+        if (x.buffer !== buffer()) {
+            throw "cannot use copy = \"WasmArray\" for non-Wasm TypedArrays";
+        }
+
+        let y;
+        switch (x.constructor.name) {
+            case "Uint8Array":
+                y = new Uint8WasmArray(x.length, x.byteOffset);
+                break;
+            case "Int8Array":
+                y = new Int8WasmArray(x.length, x.byteOffset);
+                break;
+            case "Uint16Array":
+                y = new Uint16WasmArray(x.length, x.byteOffset);
+                break;
+            case "Int16Array":
+                y = new Int16WasmArray(x.length, x.byteOffset);
+                break;
+            case "Uint32Array":
+                y = new Uint32WasmArray(x.length, x.byteOffset);
+                break;
+            case "Int32Array":
+                y = new Int32WasmArray(x.length, x.byteOffset);
+                break;
+            case "Float32Array":
+                y = new Float32WasmArray(x.length, x.byteOffset);
+                break;
+            case "Float64Array":
+                y = new Float64WasmArray(x.length, x.byteOffset); 
+                break;
+            default:
+                throw "unknown expected type '" + x.constructor.name + "'";
+        }
+        y.set(x);
+        return y;
+
+    } else if (copy) {
         return x.slice();
+
     } else {
         return x;
     }
