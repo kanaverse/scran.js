@@ -51,7 +51,7 @@ await scran.initialize({ numberOfThreads: 4 }); // for old Node versions, set lo
 ```
 
 After that, you can run the remaining steps synchronously.
-Here is an example using the Node.js API with one of our example [Matrix Market files](https://github.com/jkanche/random-test-files):
+Below is an example using the Node.js API with one of our example [Matrix Market files](https://github.com/jkanche/random-test-files).
 
 ```js
 // Reading the file in.
@@ -109,6 +109,8 @@ On Node.js, it is also necessary to terminate the workers after all analyses are
 This is achieved by calling `scran.terminate()` once all operations are finished.
 Otherwise, the Node.js process will hang indefinitely as it waits for the workers to return.
 
+Reference documentation for the Javascript API is available [here](https://jkanche.github.io/scran.js).
+
 ## Developer notes
 
 ### Introducing WebAssembly 
@@ -128,6 +130,7 @@ This includes quality control, normalization, feature selection, PCA, clustering
 
 For each step, we use Emscripten to compile the associated C++ functions into Wasm and generate Javascript-visible bindings.
 We can then load the Wasm binary into a web application and call the desired functions on user-supplied data.
+Reference documentation for the Wasm bindings is available [here](https://jkanche.github.io/scran.js/wasm).
 
 ### Building the Wasm binary
 
@@ -158,7 +161,7 @@ npm install --include=dev
 npm run test
 ```
 
-If you are using earlier versions of Node, instead run tests using:
+If you are using earlier versions of Node, you may instead need to do:
 
 ```
 node --experimental-vm-modules --experimental-wasm-threads node_modules/jest/bin/jest.js
@@ -166,4 +169,7 @@ node --experimental-vm-modules --experimental-wasm-threads node_modules/jest/bin
 
 ## Links
 
-Check out our [Kana Application](https://github.com/jkanche/kana) to see how **scran.js** package is used in an interactive scRNA-seq analysis application.
+Check out [kana](https://github.com/jkanche/kana) to see how **scran.js** is used in an interactive scRNA-seq analysis application.
+
+The [**scran.chan**](https://github.com/LTLA/scran.chan) R package and [**scran**](https://github.com/LTLA/scran-cli) executable 
+are based on the same C++ libraries and allow the same analysis to be performed in different environments.
