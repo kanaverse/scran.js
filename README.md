@@ -47,7 +47,7 @@ we suggest using a top-level `await` for convenience.
 
 ```js
 import * as scran from "scran.js";
-await scran.initialize({ numberOfThreads: 4 }); // TODO: for node, set localFile: true
+await scran.initialize({ numberOfThreads: 4 }); // for old Node versions, set localFile: true
 ```
 
 After that, you can run the remaining steps synchronously.
