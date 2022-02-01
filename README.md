@@ -89,8 +89,25 @@ let umap_status = scran.initializeUMAP(index);
 let umap_res = scran.runUMAP(umap_status);
 ```
 
-On Node.js, it may also be necessary to terminate the workers so that the process can shut down properly;
-this is achieved by calling `scran.terminate()` once all operations are finished.
+All custom classes returned by **scran.js** functions refer to allocations on the Wasm heap and are not subject to garbage collection by Javascript.
+If you intend to perform more **scran.js** operations after your analysis is complete, you will need to manually free your existing objects to make space for new ones.
+We suggest using the pattern below to catch all objects and free them.
+
+```js
+var things = {};
+things.mat = scran.initializeSparseMatrixFromMatrixMarketBuffer(buffer);
+
+/** some work here, possibly adding more objects to 'things' **/
+
+// Once the analysis is complete and results have been saved to file.
+for (const [key, val] of Object.entries(things)) {
+    val.free();
+}
+```
+
+On Node.js, it is also necessary to terminate the workers after all analyses are complete.
+This is achieved by calling `scran.terminate()` once all operations are finished.
+Otherwise, the Node.js process will hang indefinitely as it waits for the workers to return.
 
 ## Developer notes
 
