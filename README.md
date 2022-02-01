@@ -8,7 +8,7 @@ Users can then directly analyze their data without needing to manage any depende
 **scran.js** is heavily inspired by the [**scran** R package](https://bioconductor.org/packages/scran) and contains most of its related methods.
 Indeed, much of the implementation in this repository is taken directly from **scran** and its related R packages.
 
-## Key scRNA-seq analysis steps
+## Analysis overview
 
 Currently, the library and web app supports the key steps in a typical scRNA-seq analysis:
 
@@ -28,12 +28,40 @@ This is performed on the top PCs.
 Coming soon:
 
 - Clustering using k-means.
-- Dimensionality reduction by uniform map and approximate projection (UMAP).
 - Batch correction via the mutual nearest neighbors method.
+- Cell type annotation with **SingleR**.
 
 The theory behind these methods is described in more detail in the [**Orchestrating Single Cell Analysis with Bioconductor**](https://bioconductor.org/books/release/OSCA/) book. 
 
-## Efficient analysis with WebAssembly 
+## Quick start
+
+**scran.js** is available as an [npm package](https://www.npmjs.com/package/scran.js), so installation can be performed via the usual procedure:
+
+```sh
+npm install scran.js
+```
+
+Then you can import and initialize the library using the standard ES6 notation.
+Before any actual analysis steps are performed, the `initialize()` function must be run and its promise resolved;
+we suggest using a top-level `await` for convenience.
+
+```js
+import * as scran from "scran.js";
+await scran.initialize({ numberOfThreads: 4 });
+```
+
+After that, you can run the remaining steps synchronously.
+Here is an example using Node APIs: 
+
+```js
+let mat = scran.loadMatrixMarketFromBuffer();
+
+// To add...
+```
+
+## Developer notes
+
+### Introducing WebAssembly 
 
 We use WebAssembly (Wasm) to enable efficient client-side execution of common steps in a scRNA-seq analysis.
 Code to perform each step is written in C++ and compiled to Wasm using the [Emscripten toolchain](https://emscripten.org/).
@@ -51,49 +79,28 @@ This includes quality control, normalization, feature selection, PCA, clustering
 For each step, we use Emscripten to compile the associated C++ functions into Wasm and generate Javascript-visible bindings.
 We can then load the Wasm binary into a web application and call the desired functions on user-supplied data.
 
-## Installation
+### Building the Wasm binary
 
-scran.js is available as an [npm package](https://www.npmjs.com/package/scran.js)
-
-```
-npm install scran.js
-```
-
-Checkout our [Kana Application](https://github.com/jkanche/kana) on how scran.js package is used
-in an interactive scRNA-seq analysis application.
-
-## Building the Wasm binary
-
-This directory contains the files required to create the **scran.js** Wasm binary.
-We use CMake to manage the compilation process as well as the dependencies, namely the [**scran** C++ library](https://github.com/LTLA/libscran).
-Compilation of the Wasm binary is done using Emscripten:
+Make sure [Emscripten](https://emscripten.org/docs/getting_started/downloads.html) and [CMake](https://cmake.org/download/) are installed on your machine.
+Running the `build.sh` script will then generate ES6 and Node.js-compatible builds.
+To build the Node.js version:
 
 ```sh
-emcmake cmake -S . -B build
-(cd build && emmake make)
-```
-
-To build node compatible library, add option `-DCCOMPILE_NODE=1` to the command. (check dev notes below)
-
-This will build the `.js` and `.wasm` file within the `build/` subdirectory.
-
-## Developer notes
-
-Make sure emscripten and cmake are installed on your machine, `build.sh` script generates ES6 and node compatible builds.
-
-To build node version of the library,
-
-```
 bash build.sh main
 ```
 
-To build ES6 version of the library,
+To build the ES6 version:
 
-```
+```sh
 bash build.sh module
 ```
 
+This will create the `main` and `module` directories respectively,
+containing the Wasm file in the `wasm` subdirectory as well as copying all the relevant Javascript bindings.
+
 ### Tests
+
+Run the test suite by calling:
 
 ```
 # install dev dependencies
@@ -101,10 +108,12 @@ npm install --include=dev
 npm run test
 ```
 
-If you are using node 16 or 14, add run tests using
+If you are using earlier versions of Node, instead run tests using:
 
 ```
 node --experimental-vm-modules --experimental-wasm-threads node_modules/jest/bin/jest.js
 ```
 
-***Note: This dev notes is tested with node v17.2.0***
+## Links
+
+Check out our [Kana Application](https://github.com/jkanche/kana) to see how **scran.js** package is used in an interactive scRNA-seq analysis application.
