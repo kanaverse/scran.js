@@ -20,7 +20,7 @@ We use scaling normalization with size factors defined from the library size for
 This is based on residuals from a trend fitted to the means and variances of the log-normalized data for each gene.
 - Principal components analysis (PCA) on the highly variable genes, to compress and denoise the data.
 We use an approximate method to quickly obtain the top few PCs.
-- Clustering using multi-level community detection (a.k.a., "Louvain clustering").
+- Clustering using multi-level community detection (a.k.a., "Louvain clustering") on a shared nearest neighbor graph.
 This is performed on the top PCs.
 - Dimensionality reduction with t-stochastic neighbor embedding (t-SNE), again using the top PCs.
 - Marker detection using a variety of effect sizes such as Cohen's d and the area under the curve (AUC).
@@ -47,17 +47,58 @@ we suggest using a top-level `await` for convenience.
 
 ```js
 import * as scran from "scran.js";
-await scran.initialize({ numberOfThreads: 4 });
+await scran.initialize({ numberOfThreads: 4 }); // TODO: for node, set localFile: true
 ```
 
 After that, you can run the remaining steps synchronously.
-Here is an example using Node APIs: 
+Here is an example using the Node.js API with one of our example [Matrix Market files](https://github.com/jkanche/random-test-files):
 
 ```js
-let mat = scran.loadMatrixMarketFromBuffer();
+// Reading the file in.
+import * as fs from "fs";
+let buffer = fs.readFileSync("matrix.mtx.gz");
+let mat = scran.initializeSparseMatrixFromMatrixMarketBuffer(buffer);
 
-// To add...
+// Performing the QC.
+let qc_metrics = scran.computePerCellQCMetrics(mat, [ /* specify mito subset here */ ]);
+let qc_thresholds = scran.computePerCellQCThresholds(qc_metrics);
+let filtered = scran.filterCells(mat, qc_thresholds.discardOverall());
+
+// Log-normalizing.
+let normalized = scran.logNormCounts(filtered);
+
+// Modelling per-gene variance and selecting top HVGs (TODO: make this easier).
+let varmodel = scran.modelGeneVar(normalized);
+
+let resid_copy = varmodel.residuals().slice();
+resid_copy.sort();
+let threshold = resid_copy[resid_copy.length - 4000]; // top 4000 HVGs.
+let features = new Uint8Array(resid_copy.length);
+varmodel.residuals().forEach((x, i) => {
+    features[i] = x >= threshold;
+});
+
+// Performing the PCA.
+let pcs = scran.runPCA(normalized, { features: features });
+
+// Building the neighbor search index on the PCs.
+let index = scran.buildNeighborSearchIndex(pcs);
+
+// Performing the clustering. (TODO: allow direct use of index in buildSNNGraph).
+let cluster_nns = scran.findNearestNeighbors(index, 10);
+let cluster_graph = scran.buildSNNGraph(cluster_nns);
+let clustering  = scran.clusterSNNGraph(cluster_graph);
+
+// Performing the t-SNE and UMAP.
+let tsne_status = scran.initializeTSNE(index);
+let tsne_res = scran.runTSNE(tsne_status);
+
+let umap_status = scran.initializeUMAP(index);
+let umap_res = scran.runUMAP(umap_status);
 ```
+
+On Node.js, it may also be necessary to terminate the workers so that the process can shut down properly;
+this is achieved by calling `scran.terminate()` once all operations are finished.
 
 ## Developer notes
 
