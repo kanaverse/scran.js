@@ -10,6 +10,7 @@ export * from "./filterCells.js";
 
 export * from "./logNormCounts.js";
 export * from "./modelGeneVar.js";
+export * from "./chooseHVGs.js";
 export * from "./runPCA.js";
 
 export * from "./findNearestNeighbors.js";

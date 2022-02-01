@@ -67,19 +67,12 @@ let filtered = scran.filterCells(mat, qc_thresholds.discardOverall());
 // Log-normalizing.
 let normalized = scran.logNormCounts(filtered);
 
-// Modelling per-gene variance and selecting top HVGs (TODO: make this easier).
+// Modelling per-gene variance and selecting top HVGs. 
 let varmodel = scran.modelGeneVar(normalized);
-
-let resid_copy = varmodel.residuals().slice();
-resid_copy.sort();
-let threshold = resid_copy[resid_copy.length - 4000]; // top 4000 HVGs.
-let features = new Uint8Array(resid_copy.length);
-varmodel.residuals().forEach((x, i) => {
-    features[i] = x >= threshold;
-});
+let hvgs = scran.chooseHVGs(varmodel, { number: 4000 });
 
 // Performing the PCA.
-let pcs = scran.runPCA(normalized, { features: features });
+let pcs = scran.runPCA(normalized, { features: hvgs });
 
 // Building the neighbor search index on the PCs.
 let index = scran.buildNeighborSearchIndex(pcs);
