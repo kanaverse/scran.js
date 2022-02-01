@@ -84,9 +84,8 @@ let pcs = scran.runPCA(normalized, { features: features });
 // Building the neighbor search index on the PCs.
 let index = scran.buildNeighborSearchIndex(pcs);
 
-// Performing the clustering. (TODO: allow direct use of index in buildSNNGraph).
-let cluster_nns = scran.findNearestNeighbors(index, 10);
-let cluster_graph = scran.buildSNNGraph(cluster_nns);
+// Performing the clustering. 
+let cluster_graph = scran.buildSNNGraph(index, { neighbors: 10 });
 let clustering  = scran.clusterSNNGraph(cluster_graph);
 
 // Performing the t-SNE and UMAP.

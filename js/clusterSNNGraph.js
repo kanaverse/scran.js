@@ -1,5 +1,6 @@
 import * as wasm from "./wasm.js";
 import * as utils from "./utils.js";
+import { NeighborSearchResults, findNearestNeighbors } from "./findNearestNeighbors.js";
 
 /**
  * Wrapper around the SNN graph object on the Wasm heap.
@@ -30,25 +31,42 @@ export class SNNGraph {
 /**
  * Build a shared nearest graph.
  *
- * @param {NeighborSearchResults} x - Neighbor search results from `findNearestNeighbors()`.
+ * @param {(NeighborSearchIndex|NeighborSearchResults)} x 
+ * Either a pre-built neighbor search index for the dataset (see `buildNeighborSearchIndex()`),
+ * or a pre-computed set of neighbor search results for all cells (see `findNearestNeighbors()`).
  * @param {Object} [options] - Optional parameters.
  * @param {number} [options.scheme] - Weighting scheme for the edges between cells.
  * This can be based on the top ranks of the shared neighbors (0),
  * the number of shared neighbors (1) 
  * or the Jaccard index of the neighbor sets between cells (2).
+ * @param {number} [options.neighbors] - Number of nearest neighbors to use to construct the graph.
+ * Ignored if `x` is a `NeighborSearchResults` object.
  *
  * @return A `SNNGraph` object containing the graph.
  */
-export function buildSNNGraph(x, { scheme = 0 } = {}) {
+export function buildSNNGraph(x, { scheme = 0, neighbors = 10 } = {}) {
     var raw;
     var output;
+    var my_neighbors;
 
     try {
-        raw = wasm.call(module => module.build_snn_graph(x.results, scheme));
+        let ref;
+        if (x instanceof NeighborSearchResults) {
+            ref = x;
+        } else {
+            my_neighbors = findNearestNeighbors(x, neighbors); 
+            ref = my_neighbors ; // separate assignment is necessary for only 'my_neighbors' but not 'x' to be freed.
+        }
+
+        raw = wasm.call(module => module.build_snn_graph(ref.results, scheme));
         output = new SNNGraph(raw);
+
     } catch(e) {
         utils.free(raw);
         throw e;
+
+    } finally {
+        utils.free(my_neighbors);
     }
 
     return output;
