@@ -93,7 +93,7 @@ $(function() {
 </div><!-- fragment --><p >Then you can import and initialize the library using the standard ES6 notation. Before any actual analysis steps are performed, the <code>initialize()</code> function must be run and its promise resolved; we suggest using a top-level <code>await</code> for convenience.</p>
 <div class="fragment"><div class="line">import * as scran from &quot;scran.js&quot;;</div>
 <div class="line">await scran.initialize({ numberOfThreads: 4 }); // for old Node versions, set localFile: true</div>
-</div><!-- fragment --><p >After that, you can run the remaining steps synchronously. Here is an example using the Node.js API with one of our example <a href="https://github.com/jkanche/random-test-files">Matrix Market files</a>:</p>
+</div><!-- fragment --><p >After that, you can run the remaining steps synchronously. Below is an example using the Node.js API with one of our example <a href="https://github.com/jkanche/random-test-files">Matrix Market files</a>.</p>
 <div class="fragment"><div class="line">// Reading the file in.</div>
 <div class="line">import * as fs from &quot;fs&quot;;</div>
 <div class="line">let buffer = fs.readFileSync(&quot;matrix.mtx.gz&quot;);</div>
@@ -138,6 +138,7 @@ $(function() {
 <div class="line">    val.free();</div>
 <div class="line">}</div>
 </div><!-- fragment --><p >On Node.js, it is also necessary to terminate the workers after all analyses are complete. This is achieved by calling <code>scran.terminate()</code> once all operations are finished. Otherwise, the Node.js process will hang indefinitely as it waits for the workers to return.</p>
+<p >Reference documentation for the Javascript API is available <a href="https://jkanche.github.io/scran.js">here</a>.</p>
 <h1>Developer notes</h1>
 <h2>Introducing WebAssembly</h2>
 <p >We use WebAssembly (Wasm) to enable efficient client-side execution of common steps in a scRNA-seq analysis. Code to perform each step is written in C++ and compiled to Wasm using the <a href="https://emscripten.org/">Emscripten toolchain</a>. Some of the relevant C++ libraries are listed below:</p>
@@ -150,7 +151,7 @@ $(function() {
 <li><a href="https://github.com/LTLA/qdtsne">qdtsne</a> contains a refactored C++ implementation of the Barnes-Hut t-SNE dimensionality reduction algorithm.</li>
 <li><a href="https://github.com/LTLA/umappp">umappp</a> contains a refactored C++ implementation of the UMAP dimensionality reduction algorithm.</li>
 </ul>
-<p >For each step, we use Emscripten to compile the associated C++ functions into Wasm and generate Javascript-visible bindings. We can then load the Wasm binary into a web application and call the desired functions on user-supplied data.</p>
+<p >For each step, we use Emscripten to compile the associated C++ functions into Wasm and generate Javascript-visible bindings. We can then load the Wasm binary into a web application and call the desired functions on user-supplied data. Reference documentation for the Wasm bindings is available <a href="https://jkanche.github.io/scran.js/wasm">here</a>.</p>
 <h2>Building the Wasm binary</h2>
 <p >Make sure <a href="https://emscripten.org/docs/getting_started/downloads.html">Emscripten</a> and <a href="https://cmake.org/download/">CMake</a> are installed on your machine. Running the <code>build.sh</code> script will then generate ES6 and Node.js-compatible builds. To build the Node.js version:</p>
 <div class="fragment"><div class="line">bash build.sh main</div>
@@ -162,10 +163,11 @@ $(function() {
 <div class="fragment"><div class="line"># install dev dependencies</div>
 <div class="line">npm install --include=dev</div>
 <div class="line">npm run test</div>
-</div><!-- fragment --><p >If you are using earlier versions of Node, instead run tests using:</p>
+</div><!-- fragment --><p >If you are using earlier versions of Node, you may instead need to do:</p>
 <div class="fragment"><div class="line">node --experimental-vm-modules --experimental-wasm-threads node_modules/jest/bin/jest.js</div>
 </div><!-- fragment --><h1>Links</h1>
-<p >Check out our <a href="https://github.com/jkanche/kana">Kana Application</a> to see how <b>scran.js</b> package is used in an interactive scRNA-seq analysis application. </p>
+<p >Check out <a href="https://github.com/jkanche/kana">kana</a> to see how <b>scran.js</b> is used in an interactive scRNA-seq analysis application.</p>
+<p >The <a href="https://github.com/LTLA/scran.chan"><b>scran.chan</b></a> R package and <a href="https://github.com/LTLA/scran-cli"><b>scran</b></a> executable are based on the same C++ libraries and allow the same analysis to be performed in different environments. </p>
 </div></div><!-- PageDoc -->
 </div><!-- contents -->
 <!-- start footer part -->
