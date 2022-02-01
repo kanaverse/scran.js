@@ -22,10 +22,24 @@ jobs:
       with:
         working-directory: docs/
 
+    - name: Set up Node
+      uses: actions/setup-node@v2
+
+    - name: Install JSDoc
+      run: npm i jsdoc
+
+    - name: Run JSDoc
+      run: |
+        echo '{ "plugins": ["plugins/markdown"] }' > jsdoc.config.json
+        node_modules/jsdoc/jsdoc.js js/ README.md -d jsdocs/ -c jsdoc.config.json
+
+    - name: Organize files
+      run: sudo mv docs/html jsdocs/wasm
+
     - name: GH Pages Deployment
       uses: JamesIves/github-pages-deploy-action@4.1.3
       with:
         branch: gh-pages # The branch the action should deploy to.
-        folder: docs/html
+        folder: jsdocs 
         target-folder: docs
         clean: true # Automatically remove deleted files from the deploy branch
