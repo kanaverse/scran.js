@@ -76,7 +76,7 @@ $(function() {
 <li>Normalization and log-transformation, to remove biases and mitigate the mean-variance trend. We use scaling normalization with size factors defined from the library size for each cell.</li>
 <li>Feature selection to identify highly variable genes. This is based on residuals from a trend fitted to the means and variances of the log-normalized data for each gene.</li>
 <li>Principal components analysis (PCA) on the highly variable genes, to compress and denoise the data. We use an approximate method to quickly obtain the top few PCs.</li>
-<li>Clustering using multi-level community detection (a.k.a., "Louvain clustering"). This is performed on the top PCs.</li>
+<li>Clustering using multi-level community detection (a.k.a., "Louvain clustering") on a shared nearest neighbor graph. This is performed on the top PCs.</li>
 <li>Dimensionality reduction with t-stochastic neighbor embedding (t-SNE), again using the top PCs.</li>
 <li>Marker detection using a variety of effect sizes such as Cohen's d and the area under the curve (AUC).</li>
 </ul>
@@ -92,12 +92,51 @@ $(function() {
 <div class="fragment"><div class="line">npm install scran.js</div>
 </div><!-- fragment --><p >Then you can import and initialize the library using the standard ES6 notation. Before any actual analysis steps are performed, the <code>initialize()</code> function must be run and its promise resolved; we suggest using a top-level <code>await</code> for convenience.</p>
 <div class="fragment"><div class="line">import * as scran from &quot;scran.js&quot;;</div>
-<div class="line">await scran.initialize({ numberOfThreads: 4 });</div>
-</div><!-- fragment --><p >After that, you can run the remaining steps synchronously. Here is an example using Node APIs:</p>
-<div class="fragment"><div class="line">let mat = scran.loadMatrixMarketFromBuffer();</div>
+<div class="line">await scran.initialize({ numberOfThreads: 4 }); // TODO: for node, set localFile: true</div>
+</div><!-- fragment --><p >After that, you can run the remaining steps synchronously. Here is an example using the Node.js API with one of our example <a href="https://github.com/jkanche/random-test-files">Matrix Market files</a>:</p>
+<div class="fragment"><div class="line">// Reading the file in.</div>
+<div class="line">import * as fs from &quot;fs&quot;;</div>
+<div class="line">let buffer = fs.readFileSync(&quot;matrix.mtx.gz&quot;);</div>
+<div class="line">let mat = scran.initializeSparseMatrixFromMatrixMarketBuffer(buffer);</div>
 <div class="line"> </div>
-<div class="line">// To add...</div>
-</div><!-- fragment --><h1>Developer notes</h1>
+<div class="line">// Performing the QC.</div>
+<div class="line">let qc_metrics = scran.computePerCellQCMetrics(mat, [ /* specify mito subset here */ ]);</div>
+<div class="line">let qc_thresholds = scran.computePerCellQCThresholds(qc_metrics);</div>
+<div class="line">let filtered = scran.filterCells(mat, qc_thresholds.discardOverall());</div>
+<div class="line"> </div>
+<div class="line">// Log-normalizing.</div>
+<div class="line">let normalized = scran.logNormCounts(filtered);</div>
+<div class="line"> </div>
+<div class="line">// Modelling per-gene variance and selecting top HVGs (TODO: make this easier).</div>
+<div class="line">let varmodel = scran.modelGeneVar(normalized);</div>
+<div class="line"> </div>
+<div class="line">let resid_copy = varmodel.residuals().slice();</div>
+<div class="line">resid_copy.sort();</div>
+<div class="line">let threshold = resid_copy[resid_copy.length - 4000]; // top 4000 HVGs.</div>
+<div class="line">let features = new Uint8Array(resid_copy.length);</div>
+<div class="line">varmodel.residuals().forEach((x, i) =&gt; {</div>
+<div class="line">    features[i] = x &gt;= threshold;</div>
+<div class="line">});</div>
+<div class="line"> </div>
+<div class="line">// Performing the PCA.</div>
+<div class="line">let pcs = scran.runPCA(normalized, { features: features });</div>
+<div class="line"> </div>
+<div class="line">// Building the neighbor search index on the PCs.</div>
+<div class="line">let index = scran.buildNeighborSearchIndex(pcs);</div>
+<div class="line"> </div>
+<div class="line">// Performing the clustering. (TODO: allow direct use of index in buildSNNGraph).</div>
+<div class="line">let cluster_nns = scran.findNearestNeighbors(index, 10);</div>
+<div class="line">let cluster_graph = scran.buildSNNGraph(cluster_nns);</div>
+<div class="line">let clustering  = scran.clusterSNNGraph(cluster_graph);</div>
+<div class="line"> </div>
+<div class="line">// Performing the t-SNE and UMAP.</div>
+<div class="line">let tsne_status = scran.initializeTSNE(index);</div>
+<div class="line">let tsne_res = scran.runTSNE(tsne_status);</div>
+<div class="line"> </div>
+<div class="line">let umap_status = scran.initializeUMAP(index);</div>
+<div class="line">let umap_res = scran.runUMAP(umap_status);</div>
+</div><!-- fragment --><p >On Node.js, it may also be necessary to terminate the workers so that the process can shut down properly; this is achieved by calling <code>scran.terminate()</code> once all operations are finished.</p>
+<h1>Developer notes</h1>
 <h2>Introducing WebAssembly</h2>
 <p >We use WebAssembly (Wasm) to enable efficient client-side execution of common steps in a scRNA-seq analysis. Code to perform each step is written in C++ and compiled to Wasm using the <a href="https://emscripten.org/">Emscripten toolchain</a>. Some of the relevant C++ libraries are listed below:</p>
 <ul>
