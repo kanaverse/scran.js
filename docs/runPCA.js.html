@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: runPCA.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: runPCA.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import * as wasm from "./wasm.js";
+import * as utils from "./utils.js";
+
+/** 
+ * Wrapper for the PCA results on the Wasm heap.
+ */
+export class PCAResults {
+    /**
+     * @param {Object} raw Raw results allocated on the Wasm heap.
+     *
+     * This should not be called directly by developers.
+     * Instead, `PCAResults` objects should be created by calling `runPCA()`.
+     */
+    constructor(raw) {
+        this.results = raw;
+        return;
+    }
+
+    /**
+     * @param {Object} [options] - Optional parameters.
+     * @param {boolean} [options.copy] - Whether to copy the results from the Wasm heap.
+     * This incurs a copy but has safer lifetime management.
+     * 
+     * @return A `Float64Array` (or view thereof) containing the principal components for all cells.
+     * This should be treated as a column-major array where the rows are the PCs and columns are the cells.
+     */
+    principalComponents({ copy = true } = {}) {
+        return utils.possibleCopy(this.results.pcs(), copy);
+    }
+
+    /**
+     * @param {Object} [options] - Optional parameters.
+     * @param {boolean} [options.copy] - Whether to copy the results from the Wasm heap.
+     * This incurs a copy but has safer lifetime management.
+     * 
+     * @return A `Float64Array` (or view thereof) containing the variance explained for each requested PC.
+     */
+    varianceExplained({ copy = true } = {}) {
+        return utils.possibleCopy(this.results.variance_explained(), copy);
+    }
+
+    /**
+     * @return The total variance in the dataset,
+     * typically used with `varianceExplained()` to compute the proportion of variance explained.
+     */
+    totalVariance () {
+        return this.results.total_variance();
+    }
+
+    /**
+     * @return Number of PCs available in these results.
+     */
+    numberOfPCs() {
+        // TODO: switch to this.results.num_pcs();
+        return this.varianceExplained({ copy: false }).length;
+    }
+
+    /**
+     * @return Number of cells used to compute these results.
+     */
+    numberOfCells() {
+        // TODO: switch to this.results.num_cells();
+        return this.principalComponents({ copy: false }).length / this.numberOfPCs();
+
+    }
+
+    /**
+     * @return Frees the memory allocated on the Wasm heap for this object.
+     * This invalidates this object and all references to it.
+     */
+    free () {
+        this.results.delete();
+        this.results = null;
+        return;
+    }
+}
+
+/**
+ * Run a principal components analysis, possibly on a subset of features.
+ *
+ * @param {SparseMatrix} x - The log-normalized expression matrix.
+ * @param {Object} [options] - Optional parameters. 
+ * @param {?(Uint8WasmArray|Array|TypedArray)} [options.features] - Array specifying which features should be retained (e.g., HVGs).
+ * This should be of length equal to the number of rows in `x`; elements should be `true` to retain each row.
+ * If `null`, all features are retained.
+ * @param {number} [options.numberOfPCs] - Number of top principal components to compute.
+ * @param {boolean} [options.scale] - Whether to scale each feature to unit variance.
+ *
+ * @return A `PCAResults` object containing the computed PCs.
+ */
+export function runPCA(x, { features = null, numberOfPCs = 25, scale = false } = {}) {
+    var feat_data;
+    var raw;
+    var output;
+
+    try {
+        var use_feat = false;
+        var fptr = 0;
+
+        if (features !== null) {
+            feat_data = utils.wasmifyArray(features, "Uint8WasmArray");
+            if (feat_data.length != x.numberOfRows()) {
+                throw "length of 'features' should be equal to number of rows in 'x'";
+            }
+            use_feat = true;
+            fptr = feat_data.offset;
+        }
+
+        raw = wasm.call(module => module.run_pca(x.matrix, numberOfPCs, use_feat, fptr, scale));
+        output = new PCAResults(raw);
+
+    } catch (e) {
+        utils.free(raw);
+        throw e;
+
+    } finally {
+        utils.free(feat_data);
+    }
+
+    return output;
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Float32WasmArray.html">Float32WasmArray</a></li><li><a href="Float64WasmArray.html">Float64WasmArray</a></li><li><a href="Int8WasmArray.html">Int8WasmArray</a></li><li><a href="Int16WasmArray.html">Int16WasmArray</a></li><li><a href="Int32WasmArray.html">Int32WasmArray</a></li><li><a href="LayeredSparseMatrix.html">LayeredSparseMatrix</a></li><li><a href="ModelGeneVarResults.html">ModelGeneVarResults</a></li><li><a href="NeighborSearchIndex.html">NeighborSearchIndex</a></li><li><a href="NeighborSearchResults.html">NeighborSearchResults</a></li><li><a href="PCAResults.html">PCAResults</a></li><li><a href="PerCellQCFilters.html">PerCellQCFilters</a></li><li><a href="PerCellQCMetrics.html">PerCellQCMetrics</a></li><li><a href="ScoreMarkersResults.html">ScoreMarkersResults</a></li><li><a href="SNNGraph.html">SNNGraph</a></li><li><a href="SNNGraphMultilevelClusters.html">SNNGraphMultilevelClusters</a></li><li><a href="SparseMatrix.html">SparseMatrix</a></li><li><a href="TSNEStatus.html">TSNEStatus</a></li><li><a href="Uint8WasmArray.html">Uint8WasmArray</a></li><li><a href="Uint16WasmArray.html">Uint16WasmArray</a></li><li><a href="Uint32WasmArray.html">Uint32WasmArray</a></li><li><a href="UMAPStatus.html">UMAPStatus</a></li><li><a href="WasmArray.html">WasmArray</a></li></ul><h3>Global</h3><ul><li><a href="global.html#buildNeighborSearchIndex">buildNeighborSearchIndex</a></li><li><a href="global.html#buildSNNGraph">buildSNNGraph</a></li><li><a href="global.html#chooseHVGs">chooseHVGs</a></li><li><a href="global.html#clusterSNNGraph">clusterSNNGraph</a></li><li><a href="global.html#computePerCellQCFilters">computePerCellQCFilters</a></li><li><a href="global.html#computePerCellQCMetrics">computePerCellQCMetrics</a></li><li><a href="global.html#filterCells">filterCells</a></li><li><a href="global.html#findNearestNeighbors">findNearestNeighbors</a></li><li><a href="global.html#heapSize">heapSize</a></li><li><a href="global.html#initialize">initialize</a></li><li><a href="global.html#initializeSparseMatrixFromCompressedVectors">initializeSparseMatrixFromCompressedVectors</a></li><li><a href="global.html#initializeSparseMatrixFromDenseArray">initializeSparseMatrixFromDenseArray</a></li><li><a href="global.html#initializeSparseMatrixFromHDF5Buffer">initializeSparseMatrixFromHDF5Buffer</a></li><li><a href="global.html#initializeSparseMatrixFromMatrixMarketBuffer">initializeSparseMatrixFromMatrixMarketBuffer</a></li><li><a href="global.html#initializeTSNE">initializeTSNE</a></li><li><a href="global.html#initializeUMAP">initializeUMAP</a></li><li><a href="global.html#logNormCounts">logNormCounts</a></li><li><a href="global.html#modelGeneVar">modelGeneVar</a></li><li><a href="global.html#perplexityToNeighbors">perplexityToNeighbors</a></li><li><a href="global.html#runPCA">runPCA</a></li><li><a href="global.html#runTSNE">runTSNE</a></li><li><a href="global.html#runUMAP">runUMAP</a></li><li><a href="global.html#scoreMarkers">scoreMarkers</a></li><li><a href="global.html#terminate">terminate</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.10</a> on Tue Feb 01 2022 19:32:32 GMT+0000 (Coordinated Universal Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

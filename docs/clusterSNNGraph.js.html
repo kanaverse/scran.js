@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: clusterSNNGraph.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: clusterSNNGraph.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import * as wasm from "./wasm.js";
+import * as utils from "./utils.js";
+import { NeighborSearchResults, findNearestNeighbors } from "./findNearestNeighbors.js";
+
+/**
+ * Wrapper around the SNN graph object on the Wasm heap.
+ */
+export class SNNGraph {
+    /**
+     * @param {Object} raw Graph object allocated on the Wasm heap.
+     *
+     * This should not be called directly by developers,
+     * call `buildSNNGraph()` instead.
+     */
+    constructor(raw) {
+        this.graph = raw;
+        return;
+    }
+
+    /**
+     * @return Frees the memory allocated on the Wasm heap for this object.
+     * This invalidates this object and all references to it.
+     */
+    free() {
+        this.graph.delete();
+        this.graph = null;
+        return;
+    }
+}
+
+/**
+ * Build a shared nearest graph.
+ *
+ * @param {(NeighborSearchIndex|NeighborSearchResults)} x 
+ * Either a pre-built neighbor search index for the dataset (see `buildNeighborSearchIndex()`),
+ * or a pre-computed set of neighbor search results for all cells (see `findNearestNeighbors()`).
+ * @param {Object} [options] - Optional parameters.
+ * @param {number} [options.scheme] - Weighting scheme for the edges between cells.
+ * This can be based on the top ranks of the shared neighbors (0),
+ * the number of shared neighbors (1) 
+ * or the Jaccard index of the neighbor sets between cells (2).
+ * @param {number} [options.neighbors] - Number of nearest neighbors to use to construct the graph.
+ * Ignored if `x` is a `NeighborSearchResults` object.
+ *
+ * @return A `SNNGraph` object containing the graph.
+ */
+export function buildSNNGraph(x, { scheme = 0, neighbors = 10 } = {}) {
+    var raw;
+    var output;
+    var my_neighbors;
+
+    try {
+        let ref;
+        if (x instanceof NeighborSearchResults) {
+            ref = x;
+        } else {
+            my_neighbors = findNearestNeighbors(x, neighbors); 
+            ref = my_neighbors ; // separate assignment is necessary for only 'my_neighbors' but not 'x' to be freed.
+        }
+
+        raw = wasm.call(module => module.build_snn_graph(ref.results, scheme));
+        output = new SNNGraph(raw);
+
+    } catch(e) {
+        utils.free(raw);
+        throw e;
+
+    } finally {
+        utils.free(my_neighbors);
+    }
+
+    return output;
+}
+
+/**
+ * Wrapper around the SNN multi-level clustering results on the Wasm heap.
+ */
+export class SNNGraphMultilevelClusters {
+    /**
+     * @param {Object} raw Results allocated on the Wasm heap.
+     *
+     * This should not be called directly by developers,
+     * call `clusterSNNGraph()` instead.
+     */
+    constructor(raw) {
+        this.results = raw;
+        return;
+    }
+
+    /**
+     * @return The clustering level with the highest modularity.
+     */
+    best() {
+        return this.results.best();
+    }
+
+    /**
+     * @return Number of levels in the results.
+     */
+    numberOfLevels() {
+        return this.results.number();
+    }
+
+    /**
+     * @param {Object} [options] - Optional parameters.
+     * @param {?number} [options.level] - The clustering level for which to obtain the modularity.
+     * Defaults to the best clustering level from `best()`.
+     *
+     * @return The modularity at the specified level.
+     */
+    modularity({ level = null } = {}) {
+        if (level === null) {
+            level = this.best();
+        }
+        return this.results.modularity(level);
+    }
+
+    /**
+     * @param {Object} [options] - Optional parameters.
+     * @param {?number} [options.level] - The clustering level for which to obtain the cluster membership.
+     * Defaults to the best clustering level from `best()`.
+     * @param {boolean} [options.copy] - Whether to copy the results from the Wasm heap.
+     * This incurs a copy but has safer lifetime management.
+     *
+     * @return An `Int32Array` (or view thereof) containing the cluster membership for each cell.
+     */
+    membership({ level = null, copy = true } = {}) {
+        if (level === null) {
+            level = this.best();
+        }
+        var output = this.results.membership(level);
+        if (copy) {
+            return output.slice();
+        } else {
+            return output;
+        }
+    }
+
+    /**
+     * @return Frees the memory allocated on the Wasm heap for this object.
+     * This invalidates this object and all references to it.
+     */
+    free() {
+        this.results.delete();
+        this.results = null;
+        return;
+    }
+}
+
+/**
+ * Cluster cells using community detection on the SNN graph.
+ *
+ * @param {SNNGraph} x - The shared nearest neighbor graph constructed by `buildSNNGraph()`.
+ * @param {Object} [options] - Optional parameters.
+ * @param {number} [options.resolution] - The resolution of the multi-level clustering.
+ *
+ * @return A `SNNGraphMultilevelClusters` object containing the clustering results.
+ */
+export function clusterSNNGraph(x, { resolution = 1 } = {}) {
+    var raw;
+    var output;
+
+    try {
+        raw = wasm.call(module => module.cluster_snn_graph(x.graph, resolution));
+        output = new SNNGraphMultilevelClusters(raw);
+    } catch (e) {
+        utils.free(raw);
+        throw e;
+    }
+
+    return output;
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Float32WasmArray.html">Float32WasmArray</a></li><li><a href="Float64WasmArray.html">Float64WasmArray</a></li><li><a href="Int8WasmArray.html">Int8WasmArray</a></li><li><a href="Int16WasmArray.html">Int16WasmArray</a></li><li><a href="Int32WasmArray.html">Int32WasmArray</a></li><li><a href="LayeredSparseMatrix.html">LayeredSparseMatrix</a></li><li><a href="ModelGeneVarResults.html">ModelGeneVarResults</a></li><li><a href="NeighborSearchIndex.html">NeighborSearchIndex</a></li><li><a href="NeighborSearchResults.html">NeighborSearchResults</a></li><li><a href="PCAResults.html">PCAResults</a></li><li><a href="PerCellQCFilters.html">PerCellQCFilters</a></li><li><a href="PerCellQCMetrics.html">PerCellQCMetrics</a></li><li><a href="ScoreMarkersResults.html">ScoreMarkersResults</a></li><li><a href="SNNGraph.html">SNNGraph</a></li><li><a href="SNNGraphMultilevelClusters.html">SNNGraphMultilevelClusters</a></li><li><a href="SparseMatrix.html">SparseMatrix</a></li><li><a href="TSNEStatus.html">TSNEStatus</a></li><li><a href="Uint8WasmArray.html">Uint8WasmArray</a></li><li><a href="Uint16WasmArray.html">Uint16WasmArray</a></li><li><a href="Uint32WasmArray.html">Uint32WasmArray</a></li><li><a href="UMAPStatus.html">UMAPStatus</a></li><li><a href="WasmArray.html">WasmArray</a></li></ul><h3>Global</h3><ul><li><a href="global.html#buildNeighborSearchIndex">buildNeighborSearchIndex</a></li><li><a href="global.html#buildSNNGraph">buildSNNGraph</a></li><li><a href="global.html#chooseHVGs">chooseHVGs</a></li><li><a href="global.html#clusterSNNGraph">clusterSNNGraph</a></li><li><a href="global.html#computePerCellQCFilters">computePerCellQCFilters</a></li><li><a href="global.html#computePerCellQCMetrics">computePerCellQCMetrics</a></li><li><a href="global.html#filterCells">filterCells</a></li><li><a href="global.html#findNearestNeighbors">findNearestNeighbors</a></li><li><a href="global.html#heapSize">heapSize</a></li><li><a href="global.html#initialize">initialize</a></li><li><a href="global.html#initializeSparseMatrixFromCompressedVectors">initializeSparseMatrixFromCompressedVectors</a></li><li><a href="global.html#initializeSparseMatrixFromDenseArray">initializeSparseMatrixFromDenseArray</a></li><li><a href="global.html#initializeSparseMatrixFromHDF5Buffer">initializeSparseMatrixFromHDF5Buffer</a></li><li><a href="global.html#initializeSparseMatrixFromMatrixMarketBuffer">initializeSparseMatrixFromMatrixMarketBuffer</a></li><li><a href="global.html#initializeTSNE">initializeTSNE</a></li><li><a href="global.html#initializeUMAP">initializeUMAP</a></li><li><a href="global.html#logNormCounts">logNormCounts</a></li><li><a href="global.html#modelGeneVar">modelGeneVar</a></li><li><a href="global.html#perplexityToNeighbors">perplexityToNeighbors</a></li><li><a href="global.html#runPCA">runPCA</a></li><li><a href="global.html#runTSNE">runTSNE</a></li><li><a href="global.html#runUMAP">runUMAP</a></li><li><a href="global.html#scoreMarkers">scoreMarkers</a></li><li><a href="global.html#terminate">terminate</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.10</a> on Tue Feb 01 2022 19:32:32 GMT+0000 (Coordinated Universal Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
