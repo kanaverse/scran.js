@@ -92,7 +92,7 @@ $(function() {
 <div class="fragment"><div class="line">npm install scran.js</div>
 </div><!-- fragment --><p >Then you can import and initialize the library using the standard ES6 notation. Before any actual analysis steps are performed, the <code>initialize()</code> function must be run and its promise resolved; we suggest using a top-level <code>await</code> for convenience.</p>
 <div class="fragment"><div class="line">import * as scran from &quot;scran.js&quot;;</div>
-<div class="line">await scran.initialize({ numberOfThreads: 4 }); // TODO: for node, set localFile: true</div>
+<div class="line">await scran.initialize({ numberOfThreads: 4 }); // for old Node versions, set localFile: true</div>
 </div><!-- fragment --><p >After that, you can run the remaining steps synchronously. Here is an example using the Node.js API with one of our example <a href="https://github.com/jkanche/random-test-files">Matrix Market files</a>:</p>
 <div class="fragment"><div class="line">// Reading the file in.</div>
 <div class="line">import * as fs from &quot;fs&quot;;</div>
@@ -107,26 +107,18 @@ $(function() {
 <div class="line">// Log-normalizing.</div>
 <div class="line">let normalized = scran.logNormCounts(filtered);</div>
 <div class="line"> </div>
-<div class="line">// Modelling per-gene variance and selecting top HVGs (TODO: make this easier).</div>
+<div class="line">// Modelling per-gene variance and selecting top HVGs. </div>
 <div class="line">let varmodel = scran.modelGeneVar(normalized);</div>
-<div class="line"> </div>
-<div class="line">let resid_copy = varmodel.residuals().slice();</div>
-<div class="line">resid_copy.sort();</div>
-<div class="line">let threshold = resid_copy[resid_copy.length - 4000]; // top 4000 HVGs.</div>
-<div class="line">let features = new Uint8Array(resid_copy.length);</div>
-<div class="line">varmodel.residuals().forEach((x, i) =&gt; {</div>
-<div class="line">    features[i] = x &gt;= threshold;</div>
-<div class="line">});</div>
+<div class="line">let hvgs = scran.chooseHVGs(varmodel, { number: 4000 });</div>
 <div class="line"> </div>
 <div class="line">// Performing the PCA.</div>
-<div class="line">let pcs = scran.runPCA(normalized, { features: features });</div>
+<div class="line">let pcs = scran.runPCA(normalized, { features: hvgs });</div>
 <div class="line"> </div>
 <div class="line">// Building the neighbor search index on the PCs.</div>
 <div class="line">let index = scran.buildNeighborSearchIndex(pcs);</div>
 <div class="line"> </div>
-<div class="line">// Performing the clustering. (TODO: allow direct use of index in buildSNNGraph).</div>
-<div class="line">let cluster_nns = scran.findNearestNeighbors(index, 10);</div>
-<div class="line">let cluster_graph = scran.buildSNNGraph(cluster_nns);</div>
+<div class="line">// Performing the clustering. </div>
+<div class="line">let cluster_graph = scran.buildSNNGraph(index, { neighbors: 10 });</div>
 <div class="line">let clustering  = scran.clusterSNNGraph(cluster_graph);</div>
 <div class="line"> </div>
 <div class="line">// Performing the t-SNE and UMAP.</div>
