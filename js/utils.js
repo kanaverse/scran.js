@@ -58,10 +58,10 @@ export function wasmifyArray(x, expected) {
                 throw "unknown expected type '" + expected + "'";
         }
 
-        if (expected.startsWith("BigInt") || expected.startsWith("BigUint")) {
+        if (ArrayBuffer.isView(x) && (x.constructor.name.startsWith("BigInt") || x.constructor.name.startsWith("BigUint"))) {
             // Needs an explicit cast.
             var v = y.array();
-            expected.forEach((x, i) => { v[i] = Number(x) });
+            x.forEach((n, i) => { v[i] = Number(n); });
         } else {
             y.set(x);
         }

@@ -6,7 +6,7 @@ import { Int8WasmArray,  Uint8WasmArray,
          Float64WasmArray } from "./WasmArray.js";
 import { initializeSparseMatrixFromDenseArray, initializeSparseMatrixFromCompressedVectors } from "./initializeSparseMatrix.js";
 import * as utils from "./utils.js";
-import * as hdf5 from "jsfive";
+import * as hdf5 from "h5wasm";
 
 // Given a random array of Javascript numbers, let's try to cast it to some
 // meaningful type on the Wasm heap so that we can initialize the sparse matrix.
@@ -29,61 +29,46 @@ function cloneIntoWasmArray(x) {
     }
 
     // Choosing an appropriate type.
-    var output;
+    var target;
     if (is_float) {
-        output = new Float64WasmArray(x.length);
+        target = "Float64WasmArray";
     } else if (min_val < 0) {
         if (min_val >= -(2**7) && max_val < 2**7) {
-            output = new Int8WasmArray(x.length);
+            target = "Int8WasmArray";
         } else if (min_val >= -(2**15) && max_val < 2**15) {
-            output = new Int16WasmArray(x.length);
+            target = "Int16WasmArray";
         } else if (min_val >= -(2**31) && max_val < 2**31) {
-            output = new Int32WasmArray(x.length);
+            target = "Int32WasmArray";
         } else {
-            output = new Float64WasmArray(x.length); // no HEAP64.
+            target = "Float64WasmArray"; // no HEAP64 yet.
         }
     } else {
         if (max_val < 2**8) {
-            output = new Uint8WasmArray(x.length);
+            target = "Uint8WasmArray";
         } else if (max_val < 2**16) {
-            output = new Uint16WasmArray(x.length);
+            target = "Uint16WasmArray";
         } else if (max_val < 2**32) {
-            output = new Uint32WasmArray(x.length);
+            target = "Uint32WasmArray";
         } else {
-            output = new Float64WasmArray(x.length); // no HEAPU64.
+            target = "Float64WasmArray"; // no HEAPU64 yet.
         }
     }
 
-    try {
-        output.set(x);
-    } catch (e) {
-        output.free();
-        throw e;
-    }
-
-    return output;
+    return utils.wasmifyArray(x, target);
 }
 
 /**
  * Initialize a layered sparse matrix from a HDF5 file.
  *
- * @param {(ArrayBuffer|hdf5.File)} x Buffer containing the contents of a HDF5 file.
- * Alternatively, the HDF5 File object created from said buffer.
+ * @param {hdf5.File} f - A HDF5 File object, created using the **h5wasm** package.
  * @param {string} path Path to the dataset inside the file.
  * This can be a HDF5 Dataset for dense matrices or a HDF5 Group for sparse matrices.
  * For the latter, both H5AD and 10X-style sparse formats are supported.
  *
  * @return A `LayeredSparseMatrix` containing the layered sparse matrix.
  */
-export function initializeSparseMatrixFromHDF5Buffer(x, path) {
+export function initializeSparseMatrixFromHDF5Buffer(f, path) {
     var output;
-    let f;
-    if (x instanceof ArrayBuffer) {
-        f = new hdf5.File(x, "temp.h5");
-    } else {
-        f = x;
-    }
-
     let entity = f.get(path);
     if (entity instanceof hdf5.Dataset) {
         let dims = entity.shape;
@@ -96,23 +81,23 @@ export function initializeSparseMatrixFromHDF5Buffer(x, path) {
         }
 
     } else if (entity instanceof hdf5.Group) {
-        var shape_dex = entity.keys.indexOf("shape");
+        var ekeys = entity.keys();
         var dims;
         var csc;
 
-        if (shape_dex != -1) {
+        if (ekeys.indexOf("shape") != -1) {
             // i.e., a 10X-formatted sparse matrix.
-            dims = entity.values[shape_dex].value;
+            dims = entity.get("shape").value;
             csc = true;
 
         } else {
             // i.e., H5AD-style sparse matrices.
-            dims = entity.attrs["shape"].slice();
+            dims = entity.attrs["shape"].value;
             dims.reverse();
 
             // H5AD defines columns as genes, whereas we define columns as cells.
             // So if something is listed as CSC by H5AD, it's actually CSR from our perspective.
-            csc = !(entity.attrs["encoding-type"] === "csc_matrix"); 
+            csc = !(entity.attrs["encoding-type"].value === "csc_matrix"); 
         }
 
         if (dims.length != 2) {
@@ -120,11 +105,15 @@ export function initializeSparseMatrixFromHDF5Buffer(x, path) {
         }
 
         var loader = function(name) {
-            var dex = entity.keys.indexOf(name);
-            if (dex == -1 || ! (entity.values[dex] instanceof hdf5.Dataset)) {
-                throw "missing '" + name + "' dataset inside the '" + path + "' group";
+            if (ekeys.indexOf(name) != -1) {
+                var chosen = entity.get(name);
+                if (chosen instanceof hdf5.Dataset) {
+                    return cloneIntoWasmArray(chosen.value);
+                }
             }
-            return cloneIntoWasmArray(entity.values[dex].value);
+
+            throw "missing '" + name + "' dataset inside the '" + path + "' group";
+            return;
         };
 
         var sparse_data = null;
