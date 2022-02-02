@@ -29,39 +29,32 @@ function cloneIntoWasmArray(x) {
     }
 
     // Choosing an appropriate type.
-    var output;
+    var target;
     if (is_float) {
-        output = new Float64WasmArray(x.length);
+        target = "Float64WasmArray";
     } else if (min_val < 0) {
         if (min_val >= -(2**7) && max_val < 2**7) {
-            output = new Int8WasmArray(x.length);
+            target = "Int8WasmArray";
         } else if (min_val >= -(2**15) && max_val < 2**15) {
-            output = new Int16WasmArray(x.length);
+            target = "Int16WasmArray";
         } else if (min_val >= -(2**31) && max_val < 2**31) {
-            output = new Int32WasmArray(x.length);
+            target = "Int32WasmArray";
         } else {
-            output = new Float64WasmArray(x.length); // no HEAP64.
+            target = "Float64WasmArray"; // no HEAP64 yet.
         }
     } else {
         if (max_val < 2**8) {
-            output = new Uint8WasmArray(x.length);
+            target = "Uint8WasmArray";
         } else if (max_val < 2**16) {
-            output = new Uint16WasmArray(x.length);
+            target = "Uint16WasmArray";
         } else if (max_val < 2**32) {
-            output = new Uint32WasmArray(x.length);
+            target = "Uint32WasmArray";
         } else {
-            output = new Float64WasmArray(x.length); // no HEAPU64.
+            target = "Float64WasmArray"; // no HEAPU64 yet.
         }
     }
 
-    try {
-        output.set(x);
-    } catch (e) {
-        output.free();
-        throw e;
-    }
-
-    return output;
+    return utils.wasmifyArray(x, target);
 }
 
 /**
