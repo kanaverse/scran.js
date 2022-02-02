@@ -19,8 +19,7 @@
         "parcel": "^2.2.1"
     },
     "dependencies": {
-        "h5wasm": "^0.2.0",
-        "jsfive": "^0.3.5"
+        "h5wasm": "^0.2.0"
     },
     "targets": {
         "web": {
