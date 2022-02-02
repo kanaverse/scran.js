@@ -163,8 +163,8 @@ $(function() {
 <div class="fragment"><div class="line"># install dev dependencies</div>
 <div class="line">npm install --include=dev</div>
 <div class="line">npm run test</div>
-</div><!-- fragment --><p >If you are using earlier versions of Node, you may instead need to do:</p>
-<div class="fragment"><div class="line">node --experimental-vm-modules --experimental-wasm-threads node_modules/jest/bin/jest.js</div>
+</div><!-- fragment --><p >For earlier versions of Node, you may instead need to do some combination of the following options:</p>
+<div class="fragment"><div class="line">node --experimental-vm-modules --experimental-wasm-threads --experimental-wasm-bulk-memory --experimental-wasm-bigint node_modules/jest/bin/jest.js</div>
 </div><!-- fragment --><h1>Links</h1>
 <p >Check out <a href="https://github.com/jkanche/kana">kana</a> to see how <b>scran.js</b> is used in an interactive scRNA-seq analysis application.</p>
 <p >The <a href="https://github.com/LTLA/scran.chan"><b>scran.chan</b></a> R package and <a href="https://github.com/LTLA/scran-cli"><b>scran</b></a> executable are based on the same C++ libraries and allow the same analysis to be performed in different environments. </p>
