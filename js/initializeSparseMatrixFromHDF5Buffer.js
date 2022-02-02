@@ -6,7 +6,7 @@ import { Int8WasmArray,  Uint8WasmArray,
          Float64WasmArray } from "./WasmArray.js";
 import { initializeSparseMatrixFromDenseArray, initializeSparseMatrixFromCompressedVectors } from "./initializeSparseMatrix.js";
 import * as utils from "./utils.js";
-import * as hdf5 from "jsfive";
+import * as hdf5 from "h5wasm";
 
 // Given a random array of Javascript numbers, let's try to cast it to some
 // meaningful type on the Wasm heap so that we can initialize the sparse matrix.
@@ -76,72 +76,87 @@ function cloneIntoWasmArray(x) {
  * @return A `LayeredSparseMatrix` containing the layered sparse matrix.
  */
 export function initializeSparseMatrixFromHDF5Buffer(x, path) {
-    var output;
     let f;
+    let fpath;
     if (x instanceof ArrayBuffer) {
-        f = new hdf5.File(x, "temp.h5");
+        fpath = "temp.h5";
+        hdf5.FS.writeFile(fpath, new Uint8Array(x));
+        f = new hdf5.File(fpath, "r");
     } else {
         f = x;
     }
 
-    let entity = f.get(path);
-    if (entity instanceof hdf5.Dataset) {
-        let dims = entity.shape;
+    try {
+        var output;
+        let entity = f.get(path);
+        if (entity instanceof hdf5.Dataset) {
+            let dims = entity.shape;
 
-        var vals = cloneIntoWasmArray(entity.value);
-        try {
-            output = initializeSparseMatrixFromDenseArray(dims[1], dims[0], vals);
-        } finally {
-            vals.free();
-        }
-
-    } else if (entity instanceof hdf5.Group) {
-        var shape_dex = entity.keys.indexOf("shape");
-        var dims;
-        var csc;
-
-        if (shape_dex != -1) {
-            // i.e., a 10X-formatted sparse matrix.
-            dims = entity.values[shape_dex].value;
-            csc = true;
-
-        } else {
-            // i.e., H5AD-style sparse matrices.
-            dims = entity.attrs["shape"].slice();
-            dims.reverse();
-
-            // H5AD defines columns as genes, whereas we define columns as cells.
-            // So if something is listed as CSC by H5AD, it's actually CSR from our perspective.
-            csc = !(entity.attrs["encoding-type"] === "csc_matrix"); 
-        }
-
-        if (dims.length != 2) {
-            throw "dimensions for '" + path + "' should be an array of length 2";
-        }
-
-        var loader = function(name) {
-            var dex = entity.keys.indexOf(name);
-            if (dex == -1 || ! (entity.values[dex] instanceof hdf5.Dataset)) {
-                throw "missing '" + name + "' dataset inside the '" + path + "' group";
+            var vals = cloneIntoWasmArray(entity.value);
+            try {
+                output = initializeSparseMatrixFromDenseArray(dims[1], dims[0], vals);
+            } finally {
+                vals.free();
             }
-            return cloneIntoWasmArray(entity.values[dex].value);
-        };
 
-        var sparse_data = null;
-        var sparse_indices = null;
-        var sparse_indptrs = null;
-        try {
-            sparse_data = loader("data");
-            sparse_indices = loader("indices");
-            sparse_indptrs = loader("indptr");
-            output = initializeSparseMatrixFromCompressedVectors(dims[0], dims[1], sparse_data, sparse_indices, sparse_indptrs, { byColumn: csc });
-        } finally {
-            utils.free(sparse_data);
-            utils.free(sparse_indices);
-            utils.free(sparse_indptrs);
+        } else if (entity instanceof hdf5.Group) {
+            var ekeys = entity.keys();
+            var dims;
+            var csc;
+
+            if (ekeys.indexOf("shape") != -1) {
+                // i.e., a 10X-formatted sparse matrix.
+                dims = entity.get("shape").value;
+                csc = true;
+
+            } else {
+                // i.e., H5AD-style sparse matrices.
+                dims = entity.attrs["shape"].value;
+                dims.reverse();
+
+                // H5AD defines columns as genes, whereas we define columns as cells.
+                // So if something is listed as CSC by H5AD, it's actually CSR from our perspective.
+                csc = !(entity.attrs["encoding-type"].value === "csc_matrix"); 
+            }
+
+            if (dims.length != 2) {
+                throw "dimensions for '" + path + "' should be an array of length 2";
+            }
+
+            var loader = function(name) {
+                if (ekeys.indexOf(name) != -1) {
+                    var chosen = entity.get(name);
+                    if (chosen instanceof hdf5.Dataset) {
+                        return cloneIntoWasmArray(chosen.value);
+                    }
+                }
+
+                throw "missing '" + name + "' dataset inside the '" + path + "' group";
+                return;
+            };
+
+            var sparse_data = null;
+            var sparse_indices = null;
+            var sparse_indptrs = null;
+            try {
+                sparse_data = loader("data");
+                sparse_indices = loader("indices");
+                sparse_indptrs = loader("indptr");
+                output = initializeSparseMatrixFromCompressedVectors(dims[0], dims[1], sparse_data, sparse_indices, sparse_indptrs, { byColumn: csc });
+            } finally {
+                utils.free(sparse_data);
+                utils.free(sparse_indices);
+                utils.free(sparse_indptrs);
+            }
+        } else {
+            throw "unknown HDF5 element at the specified path";
         }
-    } else {
-        throw "unknown HDF5 element at the specified path";
+    } finally {
+        // Cleaning out the file.
+        if (fpath !== undefined) {
+            f.close();
+            hdf5.FS.unlink(fpath);
+        }
     }
 
     return output;
