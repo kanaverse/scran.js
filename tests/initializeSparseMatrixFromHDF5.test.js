@@ -32,8 +32,7 @@ test("initialization from HDF5 works correctly with dense inputs", () => {
     f.close();
 
     // Ingesting it.
-    f = new hdf5.File(path, "r");
-    var mat = scran.initializeSparseMatrixFromHDF5Buffer(f, "stuff");
+    var mat = scran.initializeSparseMatrixFromHDF5(path, "stuff");
     expect(mat.numberOfRows()).toBe(50); // Transposed; rows in HDF5 are typically samples.
     expect(mat.numberOfColumns()).toBe(20);
 
@@ -92,8 +91,7 @@ test("initialization from HDF5 works correctly with 10X inputs", () => {
     f.close();
 
     // Ingesting it.
-    f = new hdf5.File(path, "r");
-    var mat = scran.initializeSparseMatrixFromHDF5Buffer(f, "foobar");
+    var mat = scran.initializeSparseMatrixFromHDF5(path, "foobar");
     expect(mat.numberOfRows()).toBe(nr); 
     expect(mat.numberOfColumns()).toBe(nc);
 
@@ -127,8 +125,7 @@ test("initialization from HDF5 works correctly with H5AD inputs", () => {
     f.close();
 
     // Ingesting it.
-    f = new hdf5.File(path, "r");
-    var mat = scran.initializeSparseMatrixFromHDF5Buffer(f, "layers/counts");
+    var mat = scran.initializeSparseMatrixFromHDF5(path, "layers/counts");
     expect(mat.numberOfRows()).toBe(nr); 
     expect(mat.numberOfColumns()).toBe(nc);
 
