@@ -12,8 +12,15 @@ int find_num_threads();
 
 }
 
+extern bool enable_parallel;
+
 template<class Function>
 void run_parallel(int total, Function fun) {
+    if (!enable_parallel) {
+        fun(0, total);
+        return;
+    }
+
     int nworkers = find_num_threads();
     int jobs_per_worker = std::ceil(static_cast<double>(total)/nworkers);
     std::vector<std::thread> workers;

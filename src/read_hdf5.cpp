@@ -9,13 +9,10 @@
 #include "tatami/ext/HDF5CompressedSparseMatrix.hpp"
 #include "tatami/ext/convert_to_layered_sparse.hpp"
 
-#include <iostream>
-
 NumericMatrix read_hdf5(std::string path, std::string name) {
     bool is_dense;
     bool csc = true;
     size_t nr, nc;
-    std::cout << path << "\t" << name << std::endl;
 
     try {
         H5::H5File handle(path, H5F_ACC_RDONLY);
@@ -86,7 +83,20 @@ NumericMatrix read_hdf5(std::string path, std::string name) {
         throw std::runtime_error(e.getCDetailMsg());
     }
 
-    auto output = tatami::convert_to_layered_sparse<double, int>(mat.get()); 
+    // The HDF5 library can't handle parallelization, and in any case, it's
+    // probably inefficient to lock on each read (especially given that we'd
+    // need a large number of small reads to maintain memory usage below its
+    // limit across all threads). So we just disable it.
+    enable_parallel = false;
+    tatami::LayeredMatrixData<double, int> output;
+    try {
+        output = tatami::convert_to_layered_sparse<double, int>(mat.get()); 
+    } catch (std::exception& e) {
+        enable_parallel = true;
+        throw e;
+    }
+    enable_parallel = true;
+
     return NumericMatrix(std::move(output.matrix), std::move(output.permutation));
 }
 
