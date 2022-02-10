@@ -22,6 +22,7 @@ add_executable(
     src/run_tsne.cpp
     src/run_umap.cpp
     src/cluster_snn_graph.cpp
+    src/cluster_kmeans.cpp
     src/score_markers.cpp
     src/NumericMatrix.cpp
     src/NeighborIndex.cpp
