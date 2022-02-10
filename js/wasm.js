@@ -72,3 +72,31 @@ export function terminate() {
 export function heapSize() {
     return buffer().byteLength;
 }
+
+/**
+ * @param {string} path - Path to the output file on the virtual file system.
+ * @param {Uint8Array} buffer - Buffer to write to file.
+ *
+ * @return `buffer` is written to the binary file `path`.
+ *
+ * This is intended for use in web browsers to allow `initializeSparseMatrixFromHDF5` to work properly.
+ * Node applications should not call this function (and it probably won't work anyway); 
+ * rather, they can just read directly from the real file system.
+ */
+export function writeFile(path, buffer) {
+    cache.module.FS.writeFile(path, buffer);
+    return;
+}
+
+/**
+ * @param {string} path - Path to the output file on the virtual file system.
+ *
+ * @return Deletes the specified file from the virtual file system.
+ *
+ * This is intended for use in web browsers to clean up after `writeFile()`.
+ * Node applications should not call this function.
+ */
+export function removeFile(path) {
+    cache.module.FS.unlink(path);
+    return;
+}
