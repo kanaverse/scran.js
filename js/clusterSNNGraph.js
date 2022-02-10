@@ -128,12 +128,7 @@ export class SNNGraphMultilevelClusters {
         if (level === null) {
             level = this.best();
         }
-        var output = this.results.membership(level);
-        if (copy) {
-            return output.slice();
-        } else {
-            return output;
-        }
+        return utils.possibleCopy(this.results.membership(level), copy);
     }
 
     /**

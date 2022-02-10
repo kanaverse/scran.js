@@ -24,12 +24,7 @@ export class PerCellQCMetrics {
      * @return A `Float64Array` (or a view thereof) containing the total count for each cell.
      */
     sums({ copy = true } = {}) {
-        var output = this.results.sums();
-        if (copy) {
-            return output.slice();
-        } else {
-            return output;
-        }
+        return utils.possibleCopy(this.results.sums(), copy);
     }
 
     /**
@@ -40,12 +35,7 @@ export class PerCellQCMetrics {
      * @return An `Int32Array` (or a view thereof) containing the total number of detected genes for each cell.
      */
     detected({ copy = true } = {}) {
-        var output = this.results.detected();
-        if (copy) {
-            return output.slice();
-        } else {
-            return output;
-        }
+        return utils.possibleCopy(this.results.detected(), copy);
     }
 
     /**
@@ -57,12 +47,7 @@ export class PerCellQCMetrics {
      * @return A `Float64Array` (or a view thereof) containing the proportion of counts in the subset `i` for each cell.
      */
     subsetProportions(i, { copy = true } = {}) {
-        var output = this.results.subset_proportions(i);
-        if (copy) {
-            return output.slice();
-        } else {
-            return output;
-        }
+        return utils.possibleCopy(this.results.subset_proportions(i), copy);
     }
 
     /**

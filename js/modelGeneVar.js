@@ -25,12 +25,7 @@ export class ModelGeneVarResults {
      * containing the mean log-expression across all cells in the specified `block`. 
      */
     means({ block = 0, copy = true } = {}) {
-        var output = this.results.means(block);
-        if (copy) {
-            return output.slice();
-        } else {
-            return output;
-        }
+        return utils.possibleCopy(this.results.means(block), copy);
     }
 
     /**
@@ -43,12 +38,7 @@ export class ModelGeneVarResults {
      * containing the variance of log-expression across all cells in the specified `block`. 
      */
     variances({ block = 0, copy = true } = {}) {
-        var output = this.results.variances(block);
-        if (copy) {
-            return output.slice();
-        } else {
-            return output;
-        }
+        return utils.possibleCopy(this.results.variances(block), copy);
     }
 
     /**
@@ -61,12 +51,7 @@ export class ModelGeneVarResults {
      * containing the fitted value of the mean-variance trend for the specified `block`. 
      */
     fitted({ block = 0, copy = true } = {}) {
-        var output = this.results.fitted(block);
-        if (copy) {
-            return output.slice();
-        } else {
-            return output;
-        }
+        return utils.possibleCopy(this.results.fitted(block), copy);
     }
 
     /**
@@ -79,12 +64,7 @@ export class ModelGeneVarResults {
      * containing the residuals from the mean-variance trend for the specified `block`. 
      */
     residuals({ block = 0, copy = true } = {}) {
-        var output = this.results.residuals(block);
-        if (copy) {
-            return output.slice();
-        } else {
-            return output;
-        }
+        return utils.possibleCopy(this.results.residuals(block), copy);
     }
 
     /**
