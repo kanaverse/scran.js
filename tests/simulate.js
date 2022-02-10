@@ -36,6 +36,18 @@ export function simulateSubsets(numberOfRows, nsubsets, density = 0.05) {
     return output;
 }
 
+export function simulatePCs(ndim, ncells) {
+    var buffer = new scran.Float64WasmArray(ndim * ncells);
+    try {
+        var arr = buffer.array();
+        arr.forEach((x, i) => arr[i] = Math.random());
+    } catch (e) {
+        buffer.free();
+        throw e;
+    }
+    return buffer;
+}
+
 export function simulateIndex(ndim, ncells) {
     var index;
     var buffer = new scran.Float64WasmArray(ndim * ncells);
