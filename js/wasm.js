@@ -1,5 +1,4 @@
 import loadScran from "./wasm/scran.js";
-import * as hdf5 from "h5wasm";
 const cache = {};
 
 /**
@@ -27,7 +26,6 @@ export async function initialize({ numberOfThreads = 4, localFile = false } = {}
     }
 
     cache.module = await loadScran(options);
-    await hdf5.ready; // should start resolving on import, so no need to be concurrent with scran's load.
 
     return true;
 }
