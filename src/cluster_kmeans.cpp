@@ -60,7 +60,7 @@ struct ClusterKmeans_Result {
     /**
      * @return A view on a double-precision array containing the within-cluster sum of squares for each cluster.
      */
-    emscripten::val cluster_wcss() const {
+    emscripten::val wcss() const {
         const auto& s = store.details.withinss;
         return emscripten::val(emscripten::typed_memory_view(s.size(), s.data()));
     }
@@ -117,7 +117,7 @@ EMSCRIPTEN_BINDINGS(cluster_kmeans) {
         .function("num_obs", &ClusterKmeans_Result::num_obs)
         .function("num_clusters", &ClusterKmeans_Result::num_clusters)
         .function("cluster_sizes", &ClusterKmeans_Result::cluster_sizes)
-        .function("cluster_wcss", &ClusterKmeans_Result::cluster_wcss)
+        .function("wcss", &ClusterKmeans_Result::wcss)
         .function("clusters", &ClusterKmeans_Result::clusters)
         .function("centers", &ClusterKmeans_Result::centers)
         .function("iterations", &ClusterKmeans_Result::iterations)
