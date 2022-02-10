@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Class: LayeredSparseMatrix</title>
+    <title>JSDoc: Class: KmeansClusters</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Class: LayeredSparseMatrix</h1>
+    <h1 class="page-title">Class: KmeansClusters</h1>
 
     
 
@@ -28,10 +28,9 @@
 
 <header>
     
-        <h2><span class="attribs"><span class="type-signature"></span></span>LayeredSparseMatrix<span class="signature">(raw)</span><span class="type-signature"></span></h2>
+        <h2><span class="attribs"><span class="type-signature"></span></span>KmeansClusters<span class="signature">(raw)</span><span class="type-signature"></span></h2>
         
-            <div class="class-description"><p>Wrapper around a layered sparse matrix allocated on the Wasm heap.
-This permutes the rows to achieve a more memory-efficient representation.</p></div>
+            <div class="class-description"><p>Wrapper around the k-emans clustering results on the Wasm heap.</p></div>
         
     
 </header>
@@ -46,7 +45,7 @@ This permutes the rows to achieve a more memory-efficient representation.</p></d
     
 
     
-    <h4 class="name" id="LayeredSparseMatrix"><span class="type-signature"></span>new LayeredSparseMatrix<span class="signature">(raw)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="KmeansClusters"><span class="type-signature"></span>new KmeansClusters<span class="signature">(raw)</span><span class="type-signature"></span></h4>
     
 
     
@@ -102,9 +101,9 @@ This permutes the rows to achieve a more memory-efficient representation.</p></d
 
             
 
-            <td class="description last"><p>Raw matrix object created on the Wasm heap.</p>
-<p>This should not be called directly by developers.
-Rather it is called by functions that initialize a sparse matrix, e.g., <code>initializeSparseMatrixFromCompressed()</code>.</p></td>
+            <td class="description last"><p>Results allocated on the Wasm heap.</p>
+<p>This should not be called directly by developers,
+call <code>clusterKmeans()</code> instead.</p></td>
         </tr>
 
     
@@ -145,7 +144,7 @@ Rather it is called by functions that initialize a sparse matrix, e.g., <code>in
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="SparseMatrix.js.html">SparseMatrix.js</a>, <a href="SparseMatrix.js.html#line105">line 105</a>
+        <a href="clusterKmeans.js.html">clusterKmeans.js</a>, <a href="clusterKmeans.js.html#line8">line 8</a>
     </li></ul></dd>
     
 
@@ -179,17 +178,6 @@ Rather it is called by functions that initialize a sparse matrix, e.g., <code>in
     </div>
 
     
-        <h3 class="subsection-title">Extends</h3>
-
-        
-
-
-    <ul>
-        <li><a href="SparseMatrix.html">SparseMatrix</a></li>
-    </ul>
-
-
-    
 
     
 
@@ -197,7 +185,7 @@ Rather it is called by functions that initialize a sparse matrix, e.g., <code>in
         <h3 class="subsection-title">Classes</h3>
 
         <dl>
-            <dt><a href="LayeredSparseMatrix.html">LayeredSparseMatrix</a></dt>
+            <dt><a href="KmeansClusters.html">KmeansClusters</a></dt>
             <dd></dd>
         </dl>
     
@@ -219,7 +207,7 @@ Rather it is called by functions that initialize a sparse matrix, e.g., <code>in
     
 
     
-    <h4 class="name" id="column"><span class="type-signature"></span>column<span class="signature">(i, options<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="clusterCenters"><span class="type-signature"></span>clusterCenters<span class="signature">(options<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
     
 
     
@@ -257,38 +245,6 @@ Rather it is called by functions that initialize a sparse matrix, e.g., <code>in
     </thead>
 
     <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>i</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>Index of the column to extract.
-This should be a non-negative integer less than <code>numberOfColumns()</code>.</p></td>
-        </tr>
-
     
 
         <tr>
@@ -347,13 +303,13 @@ This should be a non-negative integer less than <code>numberOfColumns()</code>.<
 
         <tr>
             
-                <td class="name"><code>buffer</code></td>
+                <td class="name"><code>copy</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type"><a href="Float64WasmArray.html">Float64WasmArray</a></span>
+<span class="param-type">boolean</span>
 
 
             
@@ -373,8 +329,8 @@ This should be a non-negative integer less than <code>numberOfColumns()</code>.<
 
             
 
-            <td class="description last"><p>Buffer to extract into.
-If supplied, this should have length equal to <code>numberOfRows()</code>.</p></td>
+            <td class="description last"><p>Whether to copy the results from the Wasm heap.
+This incurs a copy but has safer lifetime management.</p></td>
         </tr>
 
     
@@ -402,11 +358,6 @@ If supplied, this should have length equal to <code>numberOfRows()</code>.</p></
     
 
     
-    <dt class="tag-overrides">Overrides:</dt>
-    <dd class="tag-overrides"><ul class="dummy"><li>
-        <a href="SparseMatrix.html#column">SparseMatrix#column</a>
-    </li></ul></dd>
-    
 
     
 
@@ -427,7 +378,7 @@ If supplied, this should have length equal to <code>numberOfRows()</code>.</p></
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="SparseMatrix.js.html">SparseMatrix.js</a>, <a href="SparseMatrix.js.html#line71">line 71</a>
+        <a href="clusterKmeans.js.html">clusterKmeans.js</a>, <a href="clusterKmeans.js.html#line75">line 75</a>
     </li></ul></dd>
     
 
@@ -456,8 +407,442 @@ If supplied, this should have length equal to <code>numberOfRows()</code>.</p></
 
         
 <div class="param-desc">
-    <p>If <code>buffer</code> is not supplied, a <code>Float64Array</code> is returned containing the contents of column <code>i</code>.
-Otherwise, <code>buffer</code> is filled with column <code>i</code> and nothing is returned.</p>
+    <p>A <code>Float64Array</code> (or a view thereof) containing the cluster centers in a column-major array,
+where rows are dimensions and columns are the clusters.</p>
+</div>
+
+
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="clusters"><span class="type-signature"></span>clusters<span class="signature">(options<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>options</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>Optional parameters.</p>
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>copy</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>Whether to copy the results from the Wasm heap.
+This incurs a copy but has safer lifetime management.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="clusterKmeans.js.html">clusterKmeans.js</a>, <a href="clusterKmeans.js.html#line41">line 41</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>An <code>Int32Array</code> (or a view thereof) containing the cluster assignment for each cell.</p>
+</div>
+
+
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="clusterSizes"><span class="type-signature"></span>clusterSizes<span class="signature">(options<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>options</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>Optional parameters.</p>
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>copy</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>Whether to copy the results from the Wasm heap.
+This incurs a copy but has safer lifetime management.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="clusterKmeans.js.html">clusterKmeans.js</a>, <a href="clusterKmeans.js.html#line52">line 52</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>An <code>Int32Array</code> (or a view thereof) containing the number of cells in each cluster.</p>
 </div>
 
 
@@ -481,100 +866,6 @@ Otherwise, <code>buffer</code> is filled with column <code>i</code> and nothing 
 
 
 
-<div class="description">
-    <p>Free the memory on the Wasm heap for this matrix.
-This invalidates this object and all of its references.</p>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-overrides">Overrides:</dt>
-    <dd class="tag-overrides"><ul class="dummy"><li>
-        <a href="SparseMatrix.html#free">SparseMatrix#free</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="SparseMatrix.js.html">SparseMatrix.js</a>, <a href="SparseMatrix.js.html#line92">line 92</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="numberOfColumns"><span class="type-signature"></span>numberOfColumns<span class="signature">()</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
 
 
 
@@ -596,11 +887,6 @@ This invalidates this object and all of its references.</p>
     
 
     
-    <dt class="tag-overrides">Overrides:</dt>
-    <dd class="tag-overrides"><ul class="dummy"><li>
-        <a href="SparseMatrix.html#numberOfColumns">SparseMatrix#numberOfColumns</a>
-    </li></ul></dd>
-    
 
     
 
@@ -621,7 +907,7 @@ This invalidates this object and all of its references.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="SparseMatrix.js.html">SparseMatrix.js</a>, <a href="SparseMatrix.js.html#line28">line 28</a>
+        <a href="clusterKmeans.js.html">clusterKmeans.js</a>, <a href="clusterKmeans.js.html#line97">line 97</a>
     </li></ul></dd>
     
 
@@ -650,7 +936,8 @@ This invalidates this object and all of its references.</p>
 
         
 <div class="param-desc">
-    <p>Number of columns in the matrix.</p>
+    <p>Frees the memory allocated on the Wasm heap for this object.
+This invalidates this object and all references to it.</p>
 </div>
 
 
@@ -667,7 +954,7 @@ This invalidates this object and all of its references.</p>
     
 
     
-    <h4 class="name" id="numberOfRows"><span class="type-signature"></span>numberOfRows<span class="signature">()</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="iterations"><span class="type-signature"></span>iterations<span class="signature">()</span><span class="type-signature"></span></h4>
     
 
     
@@ -695,11 +982,6 @@ This invalidates this object and all of its references.</p>
     
 
     
-    <dt class="tag-overrides">Overrides:</dt>
-    <dd class="tag-overrides"><ul class="dummy"><li>
-        <a href="SparseMatrix.html#numberOfRows">SparseMatrix#numberOfRows</a>
-    </li></ul></dd>
-    
 
     
 
@@ -720,7 +1002,7 @@ This invalidates this object and all of its references.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="SparseMatrix.js.html">SparseMatrix.js</a>, <a href="SparseMatrix.js.html#line21">line 21</a>
+        <a href="clusterKmeans.js.html">clusterKmeans.js</a>, <a href="clusterKmeans.js.html#line82">line 82</a>
     </li></ul></dd>
     
 
@@ -749,7 +1031,7 @@ This invalidates this object and all of its references.</p>
 
         
 <div class="param-desc">
-    <p>Number of rows in the matrix.</p>
+    <p>Number of refinement iterations performed by the algorithm.</p>
 </div>
 
 
@@ -766,7 +1048,289 @@ This invalidates this object and all of its references.</p>
     
 
     
-    <h4 class="name" id="permutation"><span class="type-signature"></span>permutation<span class="signature">(options<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="numberOfCells"><span class="type-signature"></span>numberOfCells<span class="signature">()</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="clusterKmeans.js.html">clusterKmeans.js</a>, <a href="clusterKmeans.js.html#line23">line 23</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>Number of cells in the results.</p>
+</div>
+
+
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="numberOfClusters"><span class="type-signature"></span>numberOfClusters<span class="signature">()</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="clusterKmeans.js.html">clusterKmeans.js</a>, <a href="clusterKmeans.js.html#line30">line 30</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>Number of clusters in the results.</p>
+</div>
+
+
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="status"><span class="type-signature"></span>status<span class="signature">()</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="clusterKmeans.js.html">clusterKmeans.js</a>, <a href="clusterKmeans.js.html#line89">line 89</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>Status of the algorithm - anything other than zero usually indicates a problem with convergence.</p>
+</div>
+
+
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="withinClusterSumSquares"><span class="type-signature"></span>withinClusterSumSquares<span class="signature">(options<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
     
 
     
@@ -862,13 +1426,13 @@ This invalidates this object and all of its references.</p>
 
         <tr>
             
-                <td class="name"><code>buffer</code></td>
+                <td class="name"><code>copy</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type"><a href="Int32WasmArray.html">Int32WasmArray</a></span>
+<span class="param-type">boolean</span>
 
 
             
@@ -888,8 +1452,8 @@ This invalidates this object and all of its references.</p>
 
             
 
-            <td class="description last"><p>Buffer to extract into.
-If supplied, this should have length equal to <code>numberOfRows()</code>.</p></td>
+            <td class="description last"><p>Whether to copy the results from the Wasm heap.
+This incurs a copy but has safer lifetime management.</p></td>
         </tr>
 
     
@@ -937,7 +1501,7 @@ If supplied, this should have length equal to <code>numberOfRows()</code>.</p></
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="SparseMatrix.js.html">SparseMatrix.js</a>, <a href="SparseMatrix.js.html#line129">line 129</a>
+        <a href="clusterKmeans.js.html">clusterKmeans.js</a>, <a href="clusterKmeans.js.html#line63">line 63</a>
     </li></ul></dd>
     
 
@@ -966,265 +1530,7 @@ If supplied, this should have length equal to <code>numberOfRows()</code>.</p></
 
         
 <div class="param-desc">
-    <p>If <code>buffer</code> is not supplied, a <code>Int32Array</code> is returned containing the permutation vector.
-Otherwise, <code>buffer</code> is filled with the permutation vector and nothing is returned.</p>
-<p>The permutation vector represents the permutation should be applied to the rows to obtain the original row order.
-That is, for a permutation array <code>x</code>, <code>x[i]</code> is the new row index for the old row <code>i</code>.</p>
-</div>
-
-
-
-    
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="row"><span class="type-signature"></span>row<span class="signature">(i, options<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Attributes</th>
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>i</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>Index of the row to extract.
-This should be a non-negative integer less than <code>numberOfRows()</code>.</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>options</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Object</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>Optional parameters.</p>
-                <h6>Properties</h6>
-                
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Attributes</th>
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>buffer</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="Float64WasmArray.html">Float64WasmArray</a></span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>Buffer to extract into.
-If supplied, this should have length equal to <code>numberOfColumns()</code>.</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-            </td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-overrides">Overrides:</dt>
-    <dd class="tag-overrides"><ul class="dummy"><li>
-        <a href="SparseMatrix.html#row">SparseMatrix#row</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="SparseMatrix.js.html">SparseMatrix.js</a>, <a href="SparseMatrix.js.html#line43">line 43</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>If <code>buffer</code> is not supplied, a <code>Float64Array</code> is returned containing the contents of row <code>i</code>.
-Otherwise, <code>buffer</code> is filled with row <code>i</code> and nothing is returned.</p>
+    <p>A <code>Float64Array</code> (or a view thereof) containing the within-cluster sum of squares in each cluster.</p>
 </div>
 
 
