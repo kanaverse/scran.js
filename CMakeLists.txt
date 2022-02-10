@@ -63,7 +63,7 @@ if (COMPILE_NODE)
     )
 else ()
     # Forcing filesystem inclusion for HDF5.
-    set_property(TARGET scran_wasm APPEND APPEND_STRING PROPERTY LINK_FLAGS " -s ENVIRONMENT=web,worker -s FORCE_FILESYSTEM=1")
+    set_property(TARGET scran_wasm APPEND APPEND_STRING PROPERTY LINK_FLAGS " -s ENVIRONMENT=web,worker -s FORCE_FILESYSTEM=1 -s 'EXPORTED_RUNTIME_METHODS=[\"FS\"]'")
 endif()
 
 set(COMPILE_PTHREADS ON CACHE BOOL "Compile with pthreads")
