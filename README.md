@@ -20,8 +20,8 @@ We use scaling normalization with size factors defined from the library size for
 This is based on residuals from a trend fitted to the means and variances of the log-normalized data for each gene.
 - Principal components analysis (PCA) on the highly variable genes, to compress and denoise the data.
 We use an approximate method to quickly obtain the top few PCs.
-- Clustering using multi-level community detection (a.k.a., "Louvain clustering") on a shared nearest neighbor graph.
-This is performed on the top PCs.
+- Clustering on the cells using the top PCs.
+This can either use k-means or multi-level community detection (a.k.a., "Louvain clustering") on a shared nearest neighbor graph.
 - Dimensionality reduction with t-stochastic neighbor embedding (t-SNE), again using the top PCs.
 - Marker detection using a variety of effect sizes such as Cohen's d and the area under the curve (AUC).
 
