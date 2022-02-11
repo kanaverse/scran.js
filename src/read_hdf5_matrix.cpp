@@ -9,7 +9,86 @@
 #include "tatami/ext/HDF5CompressedSparseMatrix.hpp"
 #include "tatami/ext/convert_to_layered_sparse.hpp"
 
-NumericMatrix read_hdf5(std::string path, std::string name) {
+struct ExtractedHDF5Names {
+    std::vector<char> buffer_;
+    std::vector<int> runs_;
+    std::vector<int> status_;
+
+    emscripten::val buffer() const {
+        return emscripten::val(emscripten::typed_memory_view(buffer_.size(), buffer_.data()));
+    }
+
+    emscripten::val lengths() const {
+        return emscripten::val(emscripten::typed_memory_view(runs_.size(), runs_.data()));
+    }
+    
+    emscripten::val status() const {
+        return emscripten::val(emscripten::typed_memory_view(status_.size(), status_.data()));
+    }
+};
+
+void extract_hdf5_names_(const H5::Group& current, 
+    std::string sofar, 
+    std::vector<std::string>& collected, 
+    std::vector<int>& status)
+{
+    size_t num = current.getNumObjs();
+    for (size_t i = 0; i < num; ++i) {
+        auto name = current.getObjnameByIdx(i);
+        auto type = current.childObjType(name);
+
+        if (type == H5O_TYPE_GROUP) {
+            auto gname = sofar + "/" + name;
+            collected.push_back(gname);
+            status.push_back(0);
+            auto handle = current.openGroup(name);
+            extract_hdf5_names_(handle, gname, collected, status);
+
+        } else if (type == H5O_TYPE_DATASET) {
+            auto gname = sofar + "/" + name;
+            collected.push_back(gname);
+
+            auto dhandle = current.openDataSet(name);
+            auto dclass = dhandle.getDataType().getClass();
+            if (dclass == H5T_INTEGER) {
+                status.push_back(1);
+            } else if (dclass == H5T_FLOAT) {
+                status.push_back(2);
+            } else if (dclass == H5T_STRING) {
+                status.push_back(3);
+            } else {
+                status.push_back(4);
+            }
+        }
+    }
+}
+
+ExtractedHDF5Names extract_hdf5_names(std::string path) {
+    H5::H5File handle(path, H5F_ACC_RDONLY);
+
+    ExtractedHDF5Names output;
+    std::vector<std::string> collected;
+    extract_hdf5_names_(handle, "", collected, output.status_);
+
+    size_t n = 0;
+    for (const auto& x : collected) {
+        n += x.size();
+        output.runs_.push_back(x.size());
+    }
+
+    output.buffer_.resize(n);
+    size_t i = 0;
+    for (const auto& x : collected) {
+        for (auto y : x) {
+            output.buffer_[i] = y;
+            ++i;
+        }
+    }
+
+    return output;
+}
+
+NumericMatrix read_hdf5_matrix(std::string path, std::string name) {
     bool is_dense;
     bool csc = true;
     size_t nr, nc;
@@ -103,8 +182,16 @@ NumericMatrix read_hdf5(std::string path, std::string name) {
 /**
  * @cond
  */
-EMSCRIPTEN_BINDINGS(read_hdf5) {
-    emscripten::function("read_hdf5", &read_hdf5);
+EMSCRIPTEN_BINDINGS(read_hdf5_matrix) {
+    emscripten::class_<ExtractedHDF5Names>("ExtractedHDF5Names")
+        .function("buffer", &ExtractedHDF5Names::buffer)
+        .function("lengths", &ExtractedHDF5Names::lengths)
+        .function("status", &ExtractedHDF5Names::status)
+        ;
+    
+    emscripten::function("extract_hdf5_names", &extract_hdf5_names);
+
+    emscripten::function("read_hdf5_matrix", &read_hdf5_matrix);
 }
 /**
  * @endcond

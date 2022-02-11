@@ -12,7 +12,7 @@ add_subdirectory(extern)
 add_executable(
     scran_wasm 
     src/read_matrix_market.cpp
-    src/read_hdf5.cpp
+    src/read_hdf5_matrix.cpp
     src/initialize_sparse_matrix.cpp
     src/per_cell_qc_metrics.cpp
     src/per_cell_qc_filters.cpp
