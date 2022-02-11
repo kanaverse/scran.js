@@ -3,7 +3,11 @@ import * as fs from "fs";
 import * as compare from "./compare.js";
 import * as hdf5 from "h5wasm";
 
-beforeAll(async () => { await scran.initialize({ localFile: true }) });
+beforeAll(async () => { 
+    await scran.initialize({ localFile: true });
+    await hdf5.ready;
+});
+
 afterAll(async () => { await scran.terminate() });
 
 const dir = "hdf5-test-files";
