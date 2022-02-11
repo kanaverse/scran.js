@@ -163,7 +163,7 @@ export function initializeSparseMatrixFromHDF5(file, name) {
     var output;
 
     try {
-        raw = wasm.call(module => module.read_hdf5(file, name));
+        raw = wasm.call(module => module.read_hdf5_matrix(file, name));
         output = new LayeredSparseMatrix(raw);
     } catch (e) {
         utils.free(raw);

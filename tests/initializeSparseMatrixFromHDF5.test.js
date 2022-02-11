@@ -30,6 +30,12 @@ test("initialization from HDF5 works correctly with dense inputs", () => {
     let f = new hdf5.File(path, "w");
     f.create_dataset("stuff", x, [20, 50]);
     f.close();
+    
+    // Checking we can extract the name correctly.
+    let n = scran.extractHDF5ObjectNames(path);
+    expect(n.names.length).toBe(1);
+    expect(n.names[0]).toBe("stuff");
+    expect(n.types[0]).toBe("float dataset");
 
     // Ingesting it.
     var mat = scran.initializeSparseMatrixFromHDF5(path, "stuff");
@@ -90,6 +96,13 @@ test("initialization from HDF5 works correctly with 10X inputs", () => {
     f.get("foobar").create_dataset("shape", [nr, nc], null, "<i");
     f.close();
 
+    // Checking we can extract the name correctly.
+    let n = scran.extractHDF5ObjectNames(path);
+    expect(n.names.length > 1).toBe(true);
+    expect(n.names[0]).toBe("foobar");
+    expect(n.types[0]).toBe("group");
+    expect(n.names.includes("foobar/data")).toBe(true);
+
     // Ingesting it.
     var mat = scran.initializeSparseMatrixFromHDF5(path, "foobar");
     expect(mat.numberOfRows()).toBe(nr); 
@@ -123,6 +136,14 @@ test("initialization from HDF5 works correctly with H5AD inputs", () => {
     f.get("layers/counts").create_dataset("indices", indices);
     f.get("layers/counts").create_dataset("indptr", indptrs);
     f.close();
+
+    // Checking we can extract the names correctly.
+    let n = scran.extractHDF5ObjectNames(path);
+    expect(n.names.length > 1).toBe(true);
+    expect(n.names[0]).toBe("layers");
+    expect(n.types[0]).toBe("group");
+    expect(n.names.includes("layers/counts")).toBe(true);
+    expect(n.names.includes("layers/counts/data")).toBe(true);
 
     // Ingesting it.
     var mat = scran.initializeSparseMatrixFromHDF5(path, "layers/counts");
