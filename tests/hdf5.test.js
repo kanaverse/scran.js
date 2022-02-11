@@ -45,13 +45,13 @@ test("HDF5 name queries work as expected (groups)", () => {
  
     // Checking we can extract the name correctly.
     let n = scran.extractHDF5ObjectNames(path);
-    expect(Object.keys(n).length).toBe(5);
+    expect(Object.keys(n).length).toBe(1);
+    expect(Object.keys(n["foobar"]).length).toBe(4);
 
-    expect(n["foobar"]).toBe("group");
-    expect(n["foobar/data"]).toBe("integer dataset");
-    expect(n["foobar/indices"]).toBe("integer dataset");
-    expect(n["foobar/indptr"]).toBe("integer dataset");
-    expect(n["foobar/shape"]).toBe("integer dataset");
+    expect(n["foobar"]["data"]).toBe("integer dataset");
+    expect(n["foobar"]["indices"]).toBe("integer dataset");
+    expect(n["foobar"]["indptr"]).toBe("integer dataset");
+    expect(n["foobar"]["shape"]).toBe("integer dataset");
 });
 
 test("HDF5 name queries work as expected (nested groups)", () => {
@@ -67,25 +67,24 @@ test("HDF5 name queries work as expected (nested groups)", () => {
 
     // Checking we can extract the name correctly.
     let n = scran.extractHDF5ObjectNames(path);
-    expect(n["foo"]).toBe("group");
-    expect(n["foo/bar"]).toBe("group");
-    expect(n["foo/whee"]).toBe("float dataset");
-    expect(n["foo/bar/stuff"]).toBe("string dataset");
+    expect(n["foo"] instanceof Object).toBe(true);
+    expect(n["foo"]["bar"] instanceof Object).toBe(true);
+    expect(n["foo"]["whee"]).toBe("float dataset");
+    expect(n["foo"]["bar"]["stuff"]).toBe("string dataset");
 
     // Extracting in a subgroup.
     let n2 = scran.extractHDF5ObjectNames(path, { group: "foo" });
-    expect(n2["bar"]).toBe("group");
     expect(n2["whee"]).toBe("float dataset");
-    expect(n2["bar/stuff"]).toBe("string dataset");
+    expect(n2["bar"]["stuff"]).toBe("string dataset");
 
     // Extracting non-recursively.
     let n3 = scran.extractHDF5ObjectNames(path, { recursive: false });
     expect(Object.keys(n3).length).toBe(1);
-    expect(n3["foo"]).toBe("group");
+    expect(Object.keys(n3["foo"]).length).toBe(0);
 
     let n4 = scran.extractHDF5ObjectNames(path, { recursive: false, group: "foo" });
     expect(Object.keys(n4).length).toBe(2);
-    expect(n4["bar"]).toBe("group");
+    expect(Object.keys(n4["bar"]).length).toBe(0);
     expect(n4["whee"]).toBe("float dataset");
 });
 

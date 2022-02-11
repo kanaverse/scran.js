@@ -22,10 +22,11 @@ function unpack_strings(buffer, lengths) {
  * @param {string} options.group - Group to use as the root of the search.
  * If an empty string is supplied, the file is used as the group.
  * @param {boolean} recursive - Whether to recursively extract names inside child groups.
- * If `true`, the output name consists of the parent and child name concatenated together with `/` as a delimiter.
  * 
- * @return Object where the keys are the names and the values are the types, i.e., group or integer/float/string/other dataset.
- * If `group` is supplied, the names are relative to it.
+ * @return Nested object where the keys are the names of the HDF5 objects and values are their types.
+ * HDF5 groups are represented by nested Javascript objects in the values;
+ * these nested objects are empty if `recursive = false`.
+ * HDF5 datasets are represented by strings specifying the data type - i.e., integer, float, string or other.
  */
 export function extractHDF5ObjectNames (path, { group = "", recursive = true } = {}) {
     var raw;
@@ -39,9 +40,26 @@ export function extractHDF5ObjectNames (path, { group = "", recursive = true } =
         let typ = raw.types();
         const ref = ["group", "integer dataset", "float dataset", "string dataset", "other dataset"];
 
+        // Organizing into an object.
+        let par = raw.parents();
         output = {};
+        let hosts = new Array(par.length);
+
         names.forEach((x, i) => {
-            output[x] = ref[typ[i]];
+            let curhost;
+            if (par[i] < 0) {
+                curhost = output;
+            } else {
+                curhost = hosts[par[i]];
+            }
+
+            let curtype = ref[typ[i]];
+            if (curtype === "group") {
+                curhost[x] = {};
+                hosts[i] = curhost[x];
+            } else {
+                curhost[x] = curtype;
+            }
         });
 
     } finally {

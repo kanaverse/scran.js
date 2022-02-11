@@ -15,14 +15,14 @@
  */
 struct ExtractedHDF5Names {
     /**
-     * @return A `Uint8Array` view containing the concatenated names of all objects inside the file.
+     * @return An `Uint8Array` view containing the concatenated names of all objects inside the file.
      */
     emscripten::val buffer() const {
         return emscripten::val(emscripten::typed_memory_view(buffer_.size(), buffer_.data()));
     }
 
     /**
-     * @return A `Int32Array` view containing the lengths of the names,
+     * @return An `Int32Array` view containing the lengths of the names,
      * to be used to index into the view returned by `buffer()`.
      */
     emscripten::val lengths() const {
@@ -30,7 +30,7 @@ struct ExtractedHDF5Names {
     }
 
     /**
-     * @return A `Int32Array` view containing the type of each object.
+     * @return An `Int32Array` view containing the type of each object.
      * This can be 0 (group), 1 (integer dataset), 2 (float dataset), 3 (string dataset) or 4 (other dataset).
      */
     emscripten::val types() const {
@@ -38,11 +38,20 @@ struct ExtractedHDF5Names {
     }
 
     /**
+     * @return An `Int32Array` view specifying the index of each element's parent group.
+     * Indices refer to positions on `lengths()`, `types()`, etc. 
+     * A value of -1 indicates that the root is the parent group.
+     */
+    emscripten::val parents() const {
+        return emscripten::val(emscripten::typed_memory_view(parents_.size(), parents_.data()));
+    }
+    /**
      * @cond
      */
     std::vector<char> buffer_;
     std::vector<int> runs_;
     std::vector<int> types_;
+    std::vector<int> parents_;
     /**
      * @endcond
      */
@@ -52,9 +61,10 @@ struct ExtractedHDF5Names {
  * @cond
  */
 void extract_hdf5_names_(const H5::Group& current, 
-    std::string sofar, 
+    int parent,
     std::vector<std::string>& collected, 
     std::vector<int>& types,
+    std::vector<int>& parents,
     bool recursive)
 {
     size_t num = current.getNumObjs();
@@ -63,17 +73,19 @@ void extract_hdf5_names_(const H5::Group& current,
         auto child_type = current.childObjType(child_name);
 
         if (child_type == H5O_TYPE_GROUP) {
-            auto gname = (sofar == "" ? child_name : sofar + "/" + child_name);
-            collected.push_back(gname);
+            int self_index = collected.size();
+            collected.push_back(child_name);
+            parents.push_back(parent);
             types.push_back(0);
+
             auto handle = current.openGroup(child_name);
             if (recursive) {
-                extract_hdf5_names_(handle, gname, collected, types, recursive);
+                extract_hdf5_names_(handle, self_index, collected, types, parents, recursive);
             }
 
         } else if (child_type == H5O_TYPE_DATASET) {
-            auto gname = (sofar == "" ? child_name : sofar + "/" + child_name);
-            collected.push_back(gname);
+            collected.push_back(child_name);
+            parents.push_back(parent);
 
             auto dhandle = current.openDataSet(child_name);
             auto dclass = dhandle.getDataType().getClass();
@@ -111,10 +123,10 @@ ExtractedHDF5Names extract_hdf5_names(std::string path, std::string group, bool 
     try {
         H5::H5File handle(path, H5F_ACC_RDONLY);
         if (group == "") {
-            extract_hdf5_names_(handle, "", collected, output.types_, recursive);
+            extract_hdf5_names_(handle, -1, collected, output.types_, output.parents_, recursive);
         } else {
             auto ghandle = handle.openGroup(group);
-            extract_hdf5_names_(ghandle, "", collected, output.types_, recursive);
+            extract_hdf5_names_(ghandle, -1, collected, output.types_, output.parents_, recursive);
         }
     } catch (H5::Exception& e) {
         throw std::runtime_error(e.getCDetailMsg());
@@ -288,6 +300,7 @@ EMSCRIPTEN_BINDINGS(hdf5_utils) {
         .function("buffer", &ExtractedHDF5Names::buffer)
         .function("lengths", &ExtractedHDF5Names::lengths)
         .function("types", &ExtractedHDF5Names::types)
+        .function("parents", &ExtractedHDF5Names::parents)
         ;
 
     emscripten::function("extract_hdf5_names", &extract_hdf5_names);
