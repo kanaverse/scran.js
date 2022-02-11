@@ -18,15 +18,21 @@ function unpack_strings(buffer, lengths) {
  *
  * @param {string} path - Path to a HDF5 file.
  * For web applications, this should be saved to the virtual filesystem with `writeFile()`.
+ * @param {Object} options - Optional parameters.
+ * @param {string} options.group - Group to use as the root of the search.
+ * If an empty string is supplied, the file is used as the group.
+ * @param {boolean} recursive - Whether to recursively extract names inside child groups.
+ * If `true`, the output name consists of the parent and child name concatenated together with `/` as a delimiter.
  * 
  * @return Object where the keys are the names and the values are the types, i.e., group or integer/float/string/other dataset.
+ * If `group` is supplied, the names are relative to it.
  */
-export function extractHDF5ObjectNames (path) {
+export function extractHDF5ObjectNames (path, { group = "", recursive = true } = {}) {
     var raw;
     var output;
 
     try {
-        raw = wasm.call(module => module.extract_hdf5_names(path));
+        raw = wasm.call(module => module.extract_hdf5_names(path, group, recursive));
         let names = unpack_strings(raw.buffer(), raw.lengths());
 
         // Registering the types.

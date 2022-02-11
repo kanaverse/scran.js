@@ -71,6 +71,22 @@ test("HDF5 name queries work as expected (nested groups)", () => {
     expect(n["foo/bar"]).toBe("group");
     expect(n["foo/whee"]).toBe("float dataset");
     expect(n["foo/bar/stuff"]).toBe("string dataset");
+
+    // Extracting in a subgroup.
+    let n2 = scran.extractHDF5ObjectNames(path, { group: "foo" });
+    expect(n2["bar"]).toBe("group");
+    expect(n2["whee"]).toBe("float dataset");
+    expect(n2["bar/stuff"]).toBe("string dataset");
+
+    // Extracting non-recursively.
+    let n3 = scran.extractHDF5ObjectNames(path, { recursive: false });
+    expect(Object.keys(n3).length).toBe(1);
+    expect(n3["foo"]).toBe("group");
+
+    let n4 = scran.extractHDF5ObjectNames(path, { recursive: false, group: "foo" });
+    expect(Object.keys(n4).length).toBe(2);
+    expect(n4["bar"]).toBe("group");
+    expect(n4["whee"]).toBe("float dataset");
 });
 
 test("HDF5 dataset loading works as expected", () => {

@@ -54,7 +54,8 @@ struct ExtractedHDF5Names {
 void extract_hdf5_names_(const H5::Group& current, 
     std::string sofar, 
     std::vector<std::string>& collected, 
-    std::vector<int>& types)
+    std::vector<int>& types,
+    bool recursive)
 {
     size_t num = current.getNumObjs();
     for (size_t i = 0; i < num; ++i) {
@@ -66,7 +67,9 @@ void extract_hdf5_names_(const H5::Group& current,
             collected.push_back(gname);
             types.push_back(0);
             auto handle = current.openGroup(child_name);
-            extract_hdf5_names_(handle, gname, collected, types);
+            if (recursive) {
+                extract_hdf5_names_(handle, gname, collected, types, recursive);
+            }
 
         } else if (child_type == H5O_TYPE_DATASET) {
             auto gname = (sofar == "" ? child_name : sofar + "/" + child_name);
@@ -94,16 +97,25 @@ void extract_hdf5_names_(const H5::Group& current,
  * Extract the names of objects inside a HDF5 file.
  *
  * @param path Path to the HDF5 file.
+ * @param group Group to use as the root of the search.
+ * If empty, the file is treated as a group.
+ * @param recursive Whether to recursively extract names inside child groups.
+ * If `true`, names of each parent and child are concatenated in the output, with `/` as a delimiter.
  *
  * @return A `ExtractedHDF5Names` object that can be queried for the relevant details.
  */
-ExtractedHDF5Names extract_hdf5_names(std::string path) {
+ExtractedHDF5Names extract_hdf5_names(std::string path, std::string group, bool recursive) {
     ExtractedHDF5Names output;
     std::vector<std::string> collected;
 
     try {
         H5::H5File handle(path, H5F_ACC_RDONLY);
-        extract_hdf5_names_(handle, "", collected, output.types_);
+        if (group == "") {
+            extract_hdf5_names_(handle, "", collected, output.types_, recursive);
+        } else {
+            auto ghandle = handle.openGroup(group);
+            extract_hdf5_names_(ghandle, "", collected, output.types_, recursive);
+        }
     } catch (H5::Exception& e) {
         throw std::runtime_error(e.getCDetailMsg());
     }
