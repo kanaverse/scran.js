@@ -3,7 +3,6 @@
 #include "H5Cpp.h"
 #include <vector>
 #include <string>
-#include <iostream>
 
 /**
  * @file hdf5_utils.cpp
@@ -234,7 +233,6 @@ LoadedHDF5Dataset load_hdf5_dataset(std::string path, std::string name) {
             output.lengths_.resize(full_length);
 
             if (dtype.isVariableStr()) {
-                std::cout << "Hitting me here" << std::endl;
                 std::vector<char*> buffer(full_length);
                 dhandle.read(buffer.data(), dtype);
 
