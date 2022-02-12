@@ -2019,6 +2019,253 @@ this should be of length equal to the product of the number of subsets and the n
     
 
     
+    <h4 class="name" id="extractHDF5ObjectNames"><span class="type-signature"></span>extractHDF5ObjectNames<span class="signature">(path, options, recursive)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Extract object names from a HDF5 file.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>path</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Path to a HDF5 file.
+For web applications, this should be saved to the virtual filesystem with <code>writeFile()</code>.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>options</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Optional parameters.</p>
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>group</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Group to use as the root of the search.
+If an empty string is supplied, the file is used as the group.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>recursive</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Whether to recursively extract names inside child groups.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="hdf5.js.html">hdf5.js</a>, <a href="hdf5.js.html#line31">line 31</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>Nested object where the keys are the names of the HDF5 objects and values are their types.
+HDF5 groups are represented by nested Javascript objects in the values;
+these nested objects are empty if <code>recursive = false</code>.
+HDF5 datasets are represented by strings specifying the data type - i.e., integer, float, string or other.</p>
+</div>
+
+
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
     <h4 class="name" id="filterCells"><span class="type-signature"></span>filterCells<span class="signature">(x, filters, A)</span><span class="type-signature"></span></h4>
     
 
@@ -2425,7 +2672,7 @@ Otherwise, an array should be supplied where <code>true</code> elements specify 
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wasm.js.html">wasm.js</a>, <a href="wasm.js.html#line74">line 74</a>
+        <a href="wasm.js.html">wasm.js</a>, <a href="wasm.js.html#line72">line 72</a>
     </li></ul></dd>
     
 
@@ -2648,7 +2895,7 @@ Should only be <code>true</code> when using old versions of Node where file URLs
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wasm.js.html">wasm.js</a>, <a href="wasm.js.html#line16">line 16</a>
+        <a href="wasm.js.html">wasm.js</a>, <a href="wasm.js.html#line15">line 15</a>
     </li></ul></dd>
     
 
@@ -3274,7 +3521,7 @@ These should all be non-negative integers, even if they are stored in floating-p
     
 
     
-    <h4 class="name" id="initializeSparseMatrixFromHDF5Buffer"><span class="type-signature"></span>initializeSparseMatrixFromHDF5Buffer<span class="signature">(f, path)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="initializeSparseMatrixFromHDF5"><span class="type-signature"></span>initializeSparseMatrixFromHDF5<span class="signature">(file, name)</span><span class="type-signature"></span></h4>
     
 
     
@@ -3318,30 +3565,7 @@ These should all be non-negative integers, even if they are stored in floating-p
 
         <tr>
             
-                <td class="name"><code>f</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">hdf5.File</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>A HDF5 File object, created using the <strong>h5wasm</strong> package.</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>path</code></td>
+                <td class="name"><code>file</code></td>
             
 
             <td class="type">
@@ -3357,7 +3581,31 @@ These should all be non-negative integers, even if they are stored in floating-p
 
             
 
-            <td class="description last"><p>Path to the dataset inside the file.
+            <td class="description last"><p>Path to the HDF5 file.
+For web contexts, this should be saved to the virtual filesystem.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>name</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Name of the dataset inside the file.
 This can be a HDF5 Dataset for dense matrices or a HDF5 Group for sparse matrices.
 For the latter, both H5AD and 10X-style sparse formats are supported.</p></td>
         </tr>
@@ -3400,7 +3648,7 @@ For the latter, both H5AD and 10X-style sparse formats are supported.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="initializeSparseMatrixFromHDF5Buffer.js.html">initializeSparseMatrixFromHDF5Buffer.js</a>, <a href="initializeSparseMatrixFromHDF5Buffer.js.html#line70">line 70</a>
+        <a href="initializeSparseMatrix.js.html">initializeSparseMatrix.js</a>, <a href="initializeSparseMatrix.js.html#line161">line 161</a>
     </li></ul></dd>
     
 
@@ -4308,6 +4556,178 @@ Ignored if <code>x</code> is a <code>NeighborSearchResults</code> object.</p></t
     
 
     
+    <h4 class="name" id="loadHDF5Dataset"><span class="type-signature"></span>loadHDF5Dataset<span class="signature">(path, name)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Load a dataset from a HDF5 file.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>path</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Path to a HDF5 file.
+For web applications, this should be saved to the virtual filesystem with <code>writeFile()</code>.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>name</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Name of a dataset inside the HDF5 file.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="hdf5.js.html">hdf5.js</a>, <a href="hdf5.js.html#line82">line 82</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>An object containing <code>dimensions</code>, an array containing the dimensions of the dataset;
+and <code>contents</code>, a <code>Int32Array</code>, <code>Float64Array</code> or array of strings, depending on the type of the dataset.</p>
+</div>
+
+
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
     <h4 class="name" id="logNormCounts"><span class="type-signature"></span>logNormCounts<span class="signature">(x, options<span class="signature-attributes">opt</span>, A)</span><span class="type-signature"></span></h4>
     
 
@@ -5051,6 +5471,151 @@ Alternatively, this may be <code>null</code>, in which case all cells are assume
         
 <div class="param-desc">
     <p>Appropriate number of neighbors to use in the nearest neighbor search.</p>
+</div>
+
+
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="removeFile"><span class="type-signature"></span>removeFile<span class="signature">(path)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>path</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Path to the output file on the virtual file system.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="wasm.js.html">wasm.js</a>, <a href="wasm.js.html#line99">line 99</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>Deletes the specified file from the virtual file system.</p>
+<p>This is intended for use in web browsers to clean up after <code>writeFile()</code>.
+Node applications should not call this function.</p>
 </div>
 
 
@@ -6288,7 +6853,7 @@ Alternatively, this may be <code>null</code>, in which case all cells are assume
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wasm.js.html">wasm.js</a>, <a href="wasm.js.html#line65">line 65</a>
+        <a href="wasm.js.html">wasm.js</a>, <a href="wasm.js.html#line63">line 63</a>
     </li></ul></dd>
     
 
@@ -6331,6 +6896,175 @@ otherwise the workers will be shut done ungracefully on program exit.</p>
 
 
         
+            
+
+    
+
+    
+    <h4 class="name" id="writeFile"><span class="type-signature"></span>writeFile<span class="signature">(path, buffer)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>path</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Path to the output file on the virtual file system.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>buffer</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Uint8Array</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Buffer to write to file.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="wasm.js.html">wasm.js</a>, <a href="wasm.js.html#line86">line 86</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p><code>buffer</code> is written to the binary file <code>path</code>.</p>
+<p>This is intended for use in web browsers to allow <code>initializeSparseMatrixFromHDF5</code> to work properly.
+Node applications should not call this function (and it probably won't work anyway);
+rather, they can just read directly from the real file system.</p>
+</div>
+
+
+
+    
+
+
+
+
+
+        
     
 
     
@@ -6346,13 +7080,13 @@ otherwise the workers will be shut done ungracefully on program exit.</p>
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Float32WasmArray.html">Float32WasmArray</a></li><li><a href="Float64WasmArray.html">Float64WasmArray</a></li><li><a href="Int8WasmArray.html">Int8WasmArray</a></li><li><a href="Int16WasmArray.html">Int16WasmArray</a></li><li><a href="Int32WasmArray.html">Int32WasmArray</a></li><li><a href="KmeansClusters.html">KmeansClusters</a></li><li><a href="LayeredSparseMatrix.html">LayeredSparseMatrix</a></li><li><a href="ModelGeneVarResults.html">ModelGeneVarResults</a></li><li><a href="NeighborSearchIndex.html">NeighborSearchIndex</a></li><li><a href="NeighborSearchResults.html">NeighborSearchResults</a></li><li><a href="PCAResults.html">PCAResults</a></li><li><a href="PerCellQCFilters.html">PerCellQCFilters</a></li><li><a href="PerCellQCMetrics.html">PerCellQCMetrics</a></li><li><a href="ScoreMarkersResults.html">ScoreMarkersResults</a></li><li><a href="SNNGraph.html">SNNGraph</a></li><li><a href="SNNGraphMultilevelClusters.html">SNNGraphMultilevelClusters</a></li><li><a href="SparseMatrix.html">SparseMatrix</a></li><li><a href="TSNEStatus.html">TSNEStatus</a></li><li><a href="Uint8WasmArray.html">Uint8WasmArray</a></li><li><a href="Uint16WasmArray.html">Uint16WasmArray</a></li><li><a href="Uint32WasmArray.html">Uint32WasmArray</a></li><li><a href="UMAPStatus.html">UMAPStatus</a></li><li><a href="WasmArray.html">WasmArray</a></li></ul><h3>Global</h3><ul><li><a href="global.html#buildNeighborSearchIndex">buildNeighborSearchIndex</a></li><li><a href="global.html#buildSNNGraph">buildSNNGraph</a></li><li><a href="global.html#chooseHVGs">chooseHVGs</a></li><li><a href="global.html#clusterKmeans">clusterKmeans</a></li><li><a href="global.html#clusterSNNGraph">clusterSNNGraph</a></li><li><a href="global.html#computePerCellQCFilters">computePerCellQCFilters</a></li><li><a href="global.html#computePerCellQCMetrics">computePerCellQCMetrics</a></li><li><a href="global.html#filterCells">filterCells</a></li><li><a href="global.html#findNearestNeighbors">findNearestNeighbors</a></li><li><a href="global.html#heapSize">heapSize</a></li><li><a href="global.html#initialize">initialize</a></li><li><a href="global.html#initializeSparseMatrixFromCompressedVectors">initializeSparseMatrixFromCompressedVectors</a></li><li><a href="global.html#initializeSparseMatrixFromDenseArray">initializeSparseMatrixFromDenseArray</a></li><li><a href="global.html#initializeSparseMatrixFromHDF5Buffer">initializeSparseMatrixFromHDF5Buffer</a></li><li><a href="global.html#initializeSparseMatrixFromMatrixMarketBuffer">initializeSparseMatrixFromMatrixMarketBuffer</a></li><li><a href="global.html#initializeTSNE">initializeTSNE</a></li><li><a href="global.html#initializeUMAP">initializeUMAP</a></li><li><a href="global.html#logNormCounts">logNormCounts</a></li><li><a href="global.html#modelGeneVar">modelGeneVar</a></li><li><a href="global.html#perplexityToNeighbors">perplexityToNeighbors</a></li><li><a href="global.html#runPCA">runPCA</a></li><li><a href="global.html#runTSNE">runTSNE</a></li><li><a href="global.html#runUMAP">runUMAP</a></li><li><a href="global.html#scoreMarkers">scoreMarkers</a></li><li><a href="global.html#terminate">terminate</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Float32WasmArray.html">Float32WasmArray</a></li><li><a href="Float64WasmArray.html">Float64WasmArray</a></li><li><a href="Int8WasmArray.html">Int8WasmArray</a></li><li><a href="Int16WasmArray.html">Int16WasmArray</a></li><li><a href="Int32WasmArray.html">Int32WasmArray</a></li><li><a href="KmeansClusters.html">KmeansClusters</a></li><li><a href="LayeredSparseMatrix.html">LayeredSparseMatrix</a></li><li><a href="ModelGeneVarResults.html">ModelGeneVarResults</a></li><li><a href="NeighborSearchIndex.html">NeighborSearchIndex</a></li><li><a href="NeighborSearchResults.html">NeighborSearchResults</a></li><li><a href="PCAResults.html">PCAResults</a></li><li><a href="PerCellQCFilters.html">PerCellQCFilters</a></li><li><a href="PerCellQCMetrics.html">PerCellQCMetrics</a></li><li><a href="ScoreMarkersResults.html">ScoreMarkersResults</a></li><li><a href="SNNGraph.html">SNNGraph</a></li><li><a href="SNNGraphMultilevelClusters.html">SNNGraphMultilevelClusters</a></li><li><a href="SparseMatrix.html">SparseMatrix</a></li><li><a href="TSNEStatus.html">TSNEStatus</a></li><li><a href="Uint8WasmArray.html">Uint8WasmArray</a></li><li><a href="Uint16WasmArray.html">Uint16WasmArray</a></li><li><a href="Uint32WasmArray.html">Uint32WasmArray</a></li><li><a href="UMAPStatus.html">UMAPStatus</a></li><li><a href="WasmArray.html">WasmArray</a></li></ul><h3>Global</h3><ul><li><a href="global.html#buildNeighborSearchIndex">buildNeighborSearchIndex</a></li><li><a href="global.html#buildSNNGraph">buildSNNGraph</a></li><li><a href="global.html#chooseHVGs">chooseHVGs</a></li><li><a href="global.html#clusterKmeans">clusterKmeans</a></li><li><a href="global.html#clusterSNNGraph">clusterSNNGraph</a></li><li><a href="global.html#computePerCellQCFilters">computePerCellQCFilters</a></li><li><a href="global.html#computePerCellQCMetrics">computePerCellQCMetrics</a></li><li><a href="global.html#extractHDF5ObjectNames">extractHDF5ObjectNames</a></li><li><a href="global.html#filterCells">filterCells</a></li><li><a href="global.html#findNearestNeighbors">findNearestNeighbors</a></li><li><a href="global.html#heapSize">heapSize</a></li><li><a href="global.html#initialize">initialize</a></li><li><a href="global.html#initializeSparseMatrixFromCompressedVectors">initializeSparseMatrixFromCompressedVectors</a></li><li><a href="global.html#initializeSparseMatrixFromDenseArray">initializeSparseMatrixFromDenseArray</a></li><li><a href="global.html#initializeSparseMatrixFromHDF5">initializeSparseMatrixFromHDF5</a></li><li><a href="global.html#initializeSparseMatrixFromMatrixMarketBuffer">initializeSparseMatrixFromMatrixMarketBuffer</a></li><li><a href="global.html#initializeTSNE">initializeTSNE</a></li><li><a href="global.html#initializeUMAP">initializeUMAP</a></li><li><a href="global.html#loadHDF5Dataset">loadHDF5Dataset</a></li><li><a href="global.html#logNormCounts">logNormCounts</a></li><li><a href="global.html#modelGeneVar">modelGeneVar</a></li><li><a href="global.html#perplexityToNeighbors">perplexityToNeighbors</a></li><li><a href="global.html#removeFile">removeFile</a></li><li><a href="global.html#runPCA">runPCA</a></li><li><a href="global.html#runTSNE">runTSNE</a></li><li><a href="global.html#runUMAP">runUMAP</a></li><li><a href="global.html#scoreMarkers">scoreMarkers</a></li><li><a href="global.html#terminate">terminate</a></li><li><a href="global.html#writeFile">writeFile</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.10</a> on Thu Feb 10 2022 16:25:42 GMT+0000 (Coordinated Universal Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.10</a> on Sat Feb 12 2022 08:03:37 GMT+0000 (Coordinated Universal Time)
 </footer>
 
 <script> prettyPrint(); </script>

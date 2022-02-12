@@ -1,16 +1,16 @@
 var searchData=
 [
-  ['randomize_5ftsne_5fstart_0',['randomize_tsne_start',['../run__tsne_8cpp.html#aa2655f4139c7fc61647f49a204635adc',1,'run_tsne.cpp']]],
-  ['read_5fmatrix_5fmarket_1',['read_matrix_market',['../read__matrix__market_8cpp.html#ae97d4b17f48f6d25070f7e6dc91e20b3',1,'read_matrix_market.cpp']]],
-  ['read_5fmatrix_5fmarket_2ecpp_2',['read_matrix_market.cpp',['../read__matrix__market_8cpp.html',1,'']]],
-  ['readme_2emd_3',['README.md',['../README_8md.html',1,'']]],
-  ['residuals_4',['residuals',['../structModelGeneVar__Results.html#afb80eb6a019e26e128e5114dadb0c42e',1,'ModelGeneVar_Results']]],
-  ['row_5',['row',['../structNumericMatrix.html#a8b56c2bd09fea326c0c28a8a0add6a6e',1,'NumericMatrix']]],
-  ['run_5fpca_6',['run_pca',['../run__pca_8cpp.html#a02ea0870e6d0c9f18277d43aa1f9e028',1,'run_pca.cpp']]],
-  ['run_5fpca_2ecpp_7',['run_pca.cpp',['../run__pca_8cpp.html',1,'']]],
-  ['run_5ftsne_8',['run_tsne',['../run__tsne_8cpp.html#ad29d8d3b48e3165dc7d8f0476a46119d',1,'run_tsne.cpp']]],
-  ['run_5ftsne_2ecpp_9',['run_tsne.cpp',['../run__tsne_8cpp.html',1,'']]],
-  ['run_5fumap_10',['run_umap',['../run__umap_8cpp.html#aed48c871b2d43d7b2a6aeacba599451f',1,'run_umap.cpp']]],
-  ['run_5fumap_2ecpp_11',['run_umap.cpp',['../run__umap_8cpp.html',1,'']]],
-  ['runpca_5fresults_12',['RunPCA_Results',['../structRunPCA__Results.html',1,'']]]
+  ['parallel_2ecpp_0',['parallel.cpp',['../parallel_8cpp.html',1,'']]],
+  ['parallel_2eh_1',['parallel.h',['../parallel_8h.html',1,'']]],
+  ['parents_2',['parents',['../structExtractedHDF5Names.html#a057373018eab9b885490d0b620dc8429',1,'ExtractedHDF5Names']]],
+  ['pcs_3',['pcs',['../structRunPCA__Results.html#ae3a8141dd4e9c9320a4c4fafb5c92c1c',1,'RunPCA_Results']]],
+  ['per_5fcell_5fqc_5ffilters_4',['per_cell_qc_filters',['../per__cell__qc__filters_8cpp.html#ab44d05e1ed906631e214a43bf3bc7d3c',1,'per_cell_qc_filters.cpp']]],
+  ['per_5fcell_5fqc_5ffilters_2ecpp_5',['per_cell_qc_filters.cpp',['../per__cell__qc__filters_8cpp.html',1,'']]],
+  ['per_5fcell_5fqc_5fmetrics_6',['per_cell_qc_metrics',['../per__cell__qc__metrics_8cpp.html#a32328fe460f166eb37cb07a23f19280a',1,'per_cell_qc_metrics.cpp']]],
+  ['per_5fcell_5fqc_5fmetrics_2ecpp_7',['per_cell_qc_metrics.cpp',['../per__cell__qc__metrics_8cpp.html',1,'']]],
+  ['percellqcfilters_5fresults_8',['PerCellQCFilters_Results',['../structPerCellQCFilters__Results.html',1,'']]],
+  ['percellqcmetrics_5fresults_9',['PerCellQCMetrics_Results',['../structPerCellQCMetrics__Results.html',1,'']]],
+  ['percellqcmetrics_5fresults_2eh_10',['PerCellQCMetrics_Results.h',['../PerCellQCMetrics__Results_8h.html',1,'']]],
+  ['perm_11',['perm',['../structNumericMatrix.html#a7dff448fade2ac23b35252674f8ac63e',1,'NumericMatrix']]],
+  ['perplexity_5fto_5fk_12',['perplexity_to_k',['../run__tsne_8cpp.html#a70e669cf0eff6584006d032073ea4571',1,'run_tsne.cpp']]]
 ];

@@ -1,15 +1,21 @@
 var searchData=
 [
-  ['parallel_2ecpp_0',['parallel.cpp',['../parallel_8cpp.html',1,'']]],
-  ['parallel_2eh_1',['parallel.h',['../parallel_8h.html',1,'']]],
-  ['pcs_2',['pcs',['../structRunPCA__Results.html#ae3a8141dd4e9c9320a4c4fafb5c92c1c',1,'RunPCA_Results']]],
-  ['per_5fcell_5fqc_5ffilters_3',['per_cell_qc_filters',['../per__cell__qc__filters_8cpp.html#ab44d05e1ed906631e214a43bf3bc7d3c',1,'per_cell_qc_filters.cpp']]],
-  ['per_5fcell_5fqc_5ffilters_2ecpp_4',['per_cell_qc_filters.cpp',['../per__cell__qc__filters_8cpp.html',1,'']]],
-  ['per_5fcell_5fqc_5fmetrics_5',['per_cell_qc_metrics',['../per__cell__qc__metrics_8cpp.html#a32328fe460f166eb37cb07a23f19280a',1,'per_cell_qc_metrics.cpp']]],
-  ['per_5fcell_5fqc_5fmetrics_2ecpp_6',['per_cell_qc_metrics.cpp',['../per__cell__qc__metrics_8cpp.html',1,'']]],
-  ['percellqcfilters_5fresults_7',['PerCellQCFilters_Results',['../structPerCellQCFilters__Results.html',1,'']]],
-  ['percellqcmetrics_5fresults_8',['PerCellQCMetrics_Results',['../structPerCellQCMetrics__Results.html',1,'']]],
-  ['percellqcmetrics_5fresults_2eh_9',['PerCellQCMetrics_Results.h',['../PerCellQCMetrics__Results_8h.html',1,'']]],
-  ['perm_10',['perm',['../structNumericMatrix.html#a7dff448fade2ac23b35252674f8ac63e',1,'NumericMatrix']]],
-  ['perplexity_5fto_5fk_11',['perplexity_to_k',['../run__tsne_8cpp.html#a70e669cf0eff6584006d032073ea4571',1,'run_tsne.cpp']]]
+  ['ncol_0',['ncol',['../structNumericMatrix.html#ad21bf001b87002dcb346d9fcdd4e8a60',1,'NumericMatrix']]],
+  ['neighborindex_1',['NeighborIndex',['../structNeighborIndex.html',1,'']]],
+  ['neighborindex_2ecpp_2',['NeighborIndex.cpp',['../NeighborIndex_8cpp.html',1,'']]],
+  ['neighborindex_2eh_3',['NeighborIndex.h',['../NeighborIndex_8h.html',1,'']]],
+  ['neighborresults_4',['NeighborResults',['../structNeighborResults.html',1,'NeighborResults'],['../structNeighborResults.html#a2c3e074e81b83989e165f0ead8c08d16',1,'NeighborResults::NeighborResults()']]],
+  ['nrow_5',['nrow',['../structNumericMatrix.html#aca9949603c5969178a3d43eb1a352f63',1,'NumericMatrix']]],
+  ['num_5fblocks_6',['num_blocks',['../structModelGeneVar__Results.html#a432df8968a08dbf17201463228edded1',1,'ModelGeneVar_Results::num_blocks()'],['../structScoreMarkers__Results.html#ad2a0a315a60b11f67960fdcd49e95363',1,'ScoreMarkers_Results::num_blocks()']]],
+  ['num_5fcells_7',['num_cells',['../structRunPCA__Results.html#aa42bde54798c52c04ac51de659761834',1,'RunPCA_Results']]],
+  ['num_5fclusters_8',['num_clusters',['../structClusterKmeans__Result.html#a2c4828b7fcdb0eb2f9a7e8373c79c22d',1,'ClusterKmeans_Result']]],
+  ['num_5fepochs_9',['num_epochs',['../structUmapStatus.html#a1ea0cca74dbc213ad1b402965b96417c',1,'UmapStatus']]],
+  ['num_5fgroups_10',['num_groups',['../structScoreMarkers__Results.html#ad42770681f2734426913ad8d8ac76261',1,'ScoreMarkers_Results']]],
+  ['num_5fobs_11',['num_obs',['../structClusterKmeans__Result.html#a28409133fe0c0fbc4c801d9d0fb37d7c',1,'ClusterKmeans_Result::num_obs()'],['../structNeighborIndex.html#abcff91730ec1285b7840d223fd4702c4',1,'NeighborIndex::num_obs()'],['../structNeighborResults.html#a345d6564debe0addc6690ca34217b8e3',1,'NeighborResults::num_obs()'],['../structTsneStatus.html#a445df79a036ee010bb34ba09a383cb60',1,'TsneStatus::num_obs()'],['../structUmapStatus.html#ac99bc66d67b16a8fe90a72319cd7243d',1,'UmapStatus::num_obs()']]],
+  ['num_5fpcs_12',['num_pcs',['../structRunPCA__Results.html#afd6d8d90fa9b44dbe8501b2f1b5d36c2',1,'RunPCA_Results']]],
+  ['num_5fsubsets_13',['num_subsets',['../structPerCellQCFilters__Results.html#af724cc3b9356bf4c462bdb799bf7bf1d',1,'PerCellQCFilters_Results::num_subsets()'],['../structPerCellQCMetrics__Results.html#aacfe140931a262f4e5980e0ce052de19',1,'PerCellQCMetrics_Results::num_subsets()']]],
+  ['number_14',['number',['../structClusterSNNGraphMultiLevel__Result.html#a351e31c8c57ab4dc50cb63a63598f4c8',1,'ClusterSNNGraphMultiLevel_Result']]],
+  ['numericmatrix_15',['NumericMatrix',['../structNumericMatrix.html#af316832630f2a6bd5bd815ffce78018c',1,'NumericMatrix::NumericMatrix(int nr, int nc, uintptr_t values)'],['../structNumericMatrix.html#acff718fae5aef63dccf615f0333dfedd',1,'NumericMatrix::NumericMatrix(std::shared_ptr&lt; const tatami::NumericMatrix &gt; p, std::vector&lt; size_t &gt; perm)'],['../structNumericMatrix.html#a2c87cad3beb7a2447351e0563570eea9',1,'NumericMatrix::NumericMatrix(const tatami::NumericMatrix *p, std::vector&lt; size_t &gt; perm)'],['../structNumericMatrix.html#a03837f6ccdc2da8a2caa7e2772a2a0fd',1,'NumericMatrix::NumericMatrix(std::shared_ptr&lt; const tatami::NumericMatrix &gt; p)'],['../structNumericMatrix.html#ad2a44d614c57a6bf2a3e400167ebb3e8',1,'NumericMatrix::NumericMatrix(const tatami::NumericMatrix *p)'],['../structNumericMatrix.html',1,'NumericMatrix']]],
+  ['numericmatrix_2ecpp_16',['NumericMatrix.cpp',['../NumericMatrix_8cpp.html',1,'']]],
+  ['numericmatrix_2eh_17',['NumericMatrix.h',['../NumericMatrix_8h.html',1,'']]]
 ];

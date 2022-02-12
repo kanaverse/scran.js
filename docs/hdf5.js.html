@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: hdf5.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: hdf5.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import * as utils from "./utils.js";
+import * as wasm from "./wasm.js";
+
+function unpack_strings(buffer, lengths) {
+    let dec = new TextDecoder();
+    let names = [];
+    let sofar = 0;
+    for (const l of lengths) {
+        let view = buffer.slice(sofar, sofar + l);
+        names.push(dec.decode(view));
+        sofar += l;
+    }
+    return names;
+}
+
+/**
+ * Extract object names from a HDF5 file.
+ *
+ * @param {string} path - Path to a HDF5 file.
+ * For web applications, this should be saved to the virtual filesystem with `writeFile()`.
+ * @param {Object} options - Optional parameters.
+ * @param {string} options.group - Group to use as the root of the search.
+ * If an empty string is supplied, the file is used as the group.
+ * @param {boolean} recursive - Whether to recursively extract names inside child groups.
+ * 
+ * @return Nested object where the keys are the names of the HDF5 objects and values are their types.
+ * HDF5 groups are represented by nested Javascript objects in the values;
+ * these nested objects are empty if `recursive = false`.
+ * HDF5 datasets are represented by strings specifying the data type - i.e., integer, float, string or other.
+ */
+export function extractHDF5ObjectNames (path, { group = "", recursive = true } = {}) {
+    var raw;
+    var output;
+
+    try {
+        raw = wasm.call(module => module.extract_hdf5_names(path, group, recursive));
+        let names = unpack_strings(raw.buffer(), raw.lengths());
+
+        // Registering the types.
+        let typ = raw.types();
+        const ref = ["group", "integer dataset", "float dataset", "string dataset", "other dataset"];
+
+        // Organizing into an object.
+        let par = raw.parents();
+        output = {};
+        let hosts = new Array(par.length);
+
+        names.forEach((x, i) => {
+            let curhost;
+            if (par[i] &lt; 0) {
+                curhost = output;
+            } else {
+                curhost = hosts[par[i]];
+            }
+
+            let curtype = ref[typ[i]];
+            if (curtype === "group") {
+                curhost[x] = {};
+                hosts[i] = curhost[x];
+            } else {
+                curhost[x] = curtype;
+            }
+        });
+
+    } finally {
+        utils.free(raw);
+    }
+
+    return output;
+}
+
+/**
+ * Load a dataset from a HDF5 file.
+ *
+ * @param {string} path - Path to a HDF5 file.
+ * For web applications, this should be saved to the virtual filesystem with `writeFile()`.
+ * @param {string} name - Name of a dataset inside the HDF5 file.
+ * 
+ * @return An object containing `dimensions`, an array containing the dimensions of the dataset;
+ * and `contents`, a `Int32Array`, `Float64Array` or array of strings, depending on the type of the dataset. 
+ */
+export function loadHDF5Dataset(path, name) {
+    var raw;
+    var output = {};
+
+    try {
+        raw = wasm.call(module => module.load_hdf5_dataset(path, name));
+        output.dimensions = Array.from(raw.dimensions());
+        if (raw.type() != 3) {
+            output.contents = raw.values().slice();
+        } else {
+            output.contents = unpack_strings(raw.values(), raw.lengths());
+        }
+    } finally {
+        utils.free(raw);
+    }
+
+    return output;
+}
+
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Float32WasmArray.html">Float32WasmArray</a></li><li><a href="Float64WasmArray.html">Float64WasmArray</a></li><li><a href="Int8WasmArray.html">Int8WasmArray</a></li><li><a href="Int16WasmArray.html">Int16WasmArray</a></li><li><a href="Int32WasmArray.html">Int32WasmArray</a></li><li><a href="KmeansClusters.html">KmeansClusters</a></li><li><a href="LayeredSparseMatrix.html">LayeredSparseMatrix</a></li><li><a href="ModelGeneVarResults.html">ModelGeneVarResults</a></li><li><a href="NeighborSearchIndex.html">NeighborSearchIndex</a></li><li><a href="NeighborSearchResults.html">NeighborSearchResults</a></li><li><a href="PCAResults.html">PCAResults</a></li><li><a href="PerCellQCFilters.html">PerCellQCFilters</a></li><li><a href="PerCellQCMetrics.html">PerCellQCMetrics</a></li><li><a href="ScoreMarkersResults.html">ScoreMarkersResults</a></li><li><a href="SNNGraph.html">SNNGraph</a></li><li><a href="SNNGraphMultilevelClusters.html">SNNGraphMultilevelClusters</a></li><li><a href="SparseMatrix.html">SparseMatrix</a></li><li><a href="TSNEStatus.html">TSNEStatus</a></li><li><a href="Uint8WasmArray.html">Uint8WasmArray</a></li><li><a href="Uint16WasmArray.html">Uint16WasmArray</a></li><li><a href="Uint32WasmArray.html">Uint32WasmArray</a></li><li><a href="UMAPStatus.html">UMAPStatus</a></li><li><a href="WasmArray.html">WasmArray</a></li></ul><h3>Global</h3><ul><li><a href="global.html#buildNeighborSearchIndex">buildNeighborSearchIndex</a></li><li><a href="global.html#buildSNNGraph">buildSNNGraph</a></li><li><a href="global.html#chooseHVGs">chooseHVGs</a></li><li><a href="global.html#clusterKmeans">clusterKmeans</a></li><li><a href="global.html#clusterSNNGraph">clusterSNNGraph</a></li><li><a href="global.html#computePerCellQCFilters">computePerCellQCFilters</a></li><li><a href="global.html#computePerCellQCMetrics">computePerCellQCMetrics</a></li><li><a href="global.html#extractHDF5ObjectNames">extractHDF5ObjectNames</a></li><li><a href="global.html#filterCells">filterCells</a></li><li><a href="global.html#findNearestNeighbors">findNearestNeighbors</a></li><li><a href="global.html#heapSize">heapSize</a></li><li><a href="global.html#initialize">initialize</a></li><li><a href="global.html#initializeSparseMatrixFromCompressedVectors">initializeSparseMatrixFromCompressedVectors</a></li><li><a href="global.html#initializeSparseMatrixFromDenseArray">initializeSparseMatrixFromDenseArray</a></li><li><a href="global.html#initializeSparseMatrixFromHDF5">initializeSparseMatrixFromHDF5</a></li><li><a href="global.html#initializeSparseMatrixFromMatrixMarketBuffer">initializeSparseMatrixFromMatrixMarketBuffer</a></li><li><a href="global.html#initializeTSNE">initializeTSNE</a></li><li><a href="global.html#initializeUMAP">initializeUMAP</a></li><li><a href="global.html#loadHDF5Dataset">loadHDF5Dataset</a></li><li><a href="global.html#logNormCounts">logNormCounts</a></li><li><a href="global.html#modelGeneVar">modelGeneVar</a></li><li><a href="global.html#perplexityToNeighbors">perplexityToNeighbors</a></li><li><a href="global.html#removeFile">removeFile</a></li><li><a href="global.html#runPCA">runPCA</a></li><li><a href="global.html#runTSNE">runTSNE</a></li><li><a href="global.html#runUMAP">runUMAP</a></li><li><a href="global.html#scoreMarkers">scoreMarkers</a></li><li><a href="global.html#terminate">terminate</a></li><li><a href="global.html#writeFile">writeFile</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.10</a> on Sat Feb 12 2022 08:03:37 GMT+0000 (Coordinated Universal Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
