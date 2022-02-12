@@ -16,10 +16,8 @@
         "jest": "^27.4.7",
         "jsdoc": "^3.6.10",
         "pako": "^2.0.4",
-        "parcel": "^2.2.1"
-    },
-    "dependencies": {
-        "h5wasm": "^0.2.0"
+        "parcel": "^2.2.1",
+        "h5wasm": "^0.2.1"
     },
     "targets": {
         "web": {

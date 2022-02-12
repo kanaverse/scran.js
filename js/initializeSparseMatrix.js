@@ -146,3 +146,29 @@ export function initializeSparseMatrixFromMatrixMarketBuffer(buffer, { compresse
 
     return output;
 }
+
+/**
+ * Initialize a layered sparse matrix from a HDF5 file.
+ *
+ * @param {string} file Path to the HDF5 file.
+ * For web contexts, this should be saved to the virtual filesystem.
+ * @param {string} name Name of the dataset inside the file.
+ * This can be a HDF5 Dataset for dense matrices or a HDF5 Group for sparse matrices.
+ * For the latter, both H5AD and 10X-style sparse formats are supported.
+ *
+ * @return A `LayeredSparseMatrix` containing the layered sparse matrix.
+ */
+export function initializeSparseMatrixFromHDF5(file, name) {
+    var raw;
+    var output;
+
+    try {
+        raw = wasm.call(module => module.read_hdf5_matrix(file, name));
+        output = new LayeredSparseMatrix(raw);
+    } catch (e) {
+        utils.free(raw);
+        throw e;
+    }
+
+    return output;
+}

@@ -32,6 +32,14 @@ endif()
 # Fetching all the other content.
 include(FetchContent)
 
+# TODO: update the dependency in libscran.
+FetchContent_Declare(
+  tatami 
+  GIT_REPOSITORY https://github.com/LTLA/tatami
+  GIT_TAG 2dc49a3cc71907eb276de6fecb70fe6f6e01a59a
+)
+FetchContent_MakeAvailable(tatami)
+
 FetchContent_Declare(
   scran 
   GIT_REPOSITORY https://github.com/LTLA/libscran
@@ -52,3 +60,10 @@ FetchContent_Declare(
   GIT_TAG 46e169b8df80725abca76e8007840ec17c54c819
 )
 FetchContent_MakeAvailable(umappp)
+
+FetchContent_Declare(
+  h5wasm
+  GIT_REPOSITORY https://github.com/LTLA/h5wasm-cmake-demo
+  GIT_TAG master
+)
+FetchContent_MakeAvailable(h5wasm)

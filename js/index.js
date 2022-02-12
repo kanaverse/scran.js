@@ -1,8 +1,8 @@
-export { initialize, terminate, heapSize } from "./wasm.js";
+export { initialize, terminate, heapSize, writeFile, removeFile } from "./wasm.js";
 export * from "./WasmArray.js";
 
 export * from "./initializeSparseMatrix.js";
-export * from "./initializeSparseMatrixFromHDF5Buffer.js";
+export * from "./hdf5.js";
 
 export * from "./computePerCellQCMetrics.js";
 export * from "./computePerCellQCFilters.js";

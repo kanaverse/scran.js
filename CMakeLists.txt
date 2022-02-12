@@ -12,6 +12,8 @@ add_subdirectory(extern)
 add_executable(
     scran_wasm 
     src/read_matrix_market.cpp
+    src/read_hdf5_matrix.cpp
+    src/hdf5_utils.cpp
     src/initialize_sparse_matrix.cpp
     src/per_cell_qc_metrics.cpp
     src/per_cell_qc_filters.cpp
@@ -38,6 +40,7 @@ target_link_libraries(
     scran
     qdtsne
     umappp
+    h5wasm_cpp
 )
 
 target_compile_definitions(scran_wasm PRIVATE TATAMI_USE_ZLIB=1)
@@ -49,7 +52,8 @@ set_target_properties(scran_wasm PROPERTIES
 
 set(COMPILE_NODE OFF CACHE BOOL "Compile for Node.js")
 if (COMPILE_NODE)
-    set_property(TARGET scran_wasm APPEND APPEND_STRING PROPERTY LINK_FLAGS " -s ENVIRONMENT=node")
+    # Using the Node FS API for HDF5 access.
+    set_property(TARGET scran_wasm APPEND APPEND_STRING PROPERTY LINK_FLAGS " -s ENVIRONMENT=node -s NODERAWFS=1 -s FORCE_FILESYSTEM=1")
 
     add_custom_command(TARGET scran_wasm POST_BUILD
         COMMAND cat ../js/node/preamble.js scran.js > tmp.js
@@ -60,7 +64,8 @@ if (COMPILE_NODE)
         COMMENT "Adding ES6 preamble for Node"
     )
 else ()
-    set_property(TARGET scran_wasm APPEND APPEND_STRING PROPERTY LINK_FLAGS " -s ENVIRONMENT=web,worker")
+    # Forcing filesystem inclusion for HDF5.
+    set_property(TARGET scran_wasm APPEND APPEND_STRING PROPERTY LINK_FLAGS " -s ENVIRONMENT=web,worker -s FORCE_FILESYSTEM=1 -s 'EXPORTED_RUNTIME_METHODS=[\"FS\"]'")
 endif()
 
 set(COMPILE_PTHREADS ON CACHE BOOL "Compile with pthreads")
