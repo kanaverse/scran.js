@@ -27,7 +27,6 @@ This can either use k-means or multi-level community detection (a.k.a., "Louvain
 
 Coming soon:
 
-- Clustering using k-means.
 - Batch correction via the mutual nearest neighbors method.
 - Cell type annotation with **SingleR**.
 
