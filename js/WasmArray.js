@@ -108,7 +108,7 @@ export class WasmArray {
      * @return If this object is the owner, memory is freed and this allocation is invalidated.
      */
     free() {
-        if (this.owner) {
+        if (this.owner && this.offset !== null) {
             wasm.call(module => module._free(this.offset));
             this.offset = null;
         }

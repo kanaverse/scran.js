@@ -30,8 +30,10 @@ export class NeighborSearchIndex {
      * This invalidates this object and all references to it.
      */
     free() {
-        this.index.delete();
-        this.index = null;
+        if (this.index !== null) {
+            this.index.delete();
+            this.index = null;
+        }
         return;
     }
 }
@@ -212,8 +214,10 @@ export class NeighborSearchResults {
      * This invalidates this object and all references to it.
      */
     free() {
-        this.results.delete();
-        this.results = null;
+        if (this.results !== null) {
+            this.results.delete();
+            this.results = null;
+        }
         return;
     }
 }

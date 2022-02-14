@@ -22,8 +22,10 @@ export class SNNGraph {
      * This invalidates this object and all references to it.
      */
     free() {
-        this.graph.delete();
-        this.graph = null;
+        if (this.graph !== null) {
+            this.graph.delete();
+            this.graph = null;
+        }
         return;
     }
 }
@@ -136,8 +138,10 @@ export class SNNGraphMultilevelClusters {
      * This invalidates this object and all references to it.
      */
     free() {
-        this.results.delete();
-        this.results = null;
+        if (this.results !== null) {
+            this.results.delete();
+            this.results = null;
+        }
         return;
     }
 }

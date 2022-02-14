@@ -90,8 +90,10 @@ export class SparseMatrix {
      * This invalidates this object and all of its references.
      */
     free() {
-        this.matrix.delete();
-        this.matrix = null;
+        if (this.matrix !== null) {
+            this.matrix.delete();
+            this.matrix = null;
+        }
         return;
     }
 }

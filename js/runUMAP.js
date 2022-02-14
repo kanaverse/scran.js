@@ -62,11 +62,15 @@ export class UMAPStatus {
      * @return Frees the memory allocated on the Wasm heap for this object.
      * This invalidates this object and all references to it.
      */   
-    free () {
-        this.status.delete();
-        this.coordinates.free();
-        this.status = null;
-        this.coordinates = null;
+    free() {
+        if (this.status !== null) {
+            this.status.delete();
+            this.status = null;
+        }
+        if (this.coordinates !== null) {
+            this.coordinates.free();
+            this.coordinates = null;
+        }
         return;
     }
 }
