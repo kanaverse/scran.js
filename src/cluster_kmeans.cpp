@@ -102,11 +102,12 @@ struct ClusterKmeans_Result {
  * Larger values yield more fine-grained clusters.
  * @param init_method Initialization method - random (0), kmeans++ (1) or PCA partitioning (2).
  * @param init_seed Random seed to use for initialization.
- * @param init_pca_cap Cap on the number of observations when choosing subclusters for further PCA partitioning.
+ * @param init_pca_adjust Adjustment factor to apply to the cluster sizes prior to the WCSS calculations in PCA partitioning.
+ * Values below 1 reduce the preference towards choosing larger clusters for further partitioning.
  *
  * @return A `ClusterKmeans_Result` object containing the... k-means clustering results, obviously.
  */
-ClusterKmeans_Result cluster_kmeans(uintptr_t mat, int nr, int nc, int k, int init_method, int init_seed, int init_pca_cap) {
+ClusterKmeans_Result cluster_kmeans(uintptr_t mat, int nr, int nc, int k, int init_method, int init_seed, double init_pca_adjust) {
     const double* ptr = reinterpret_cast<const double*>(mat);
 
     std::shared_ptr<kmeans::Initialize<> > iptr;
@@ -124,7 +125,7 @@ ClusterKmeans_Result cluster_kmeans(uintptr_t mat, int nr, int nc, int k, int in
         auto iptr2 = new kmeans::InitializePCAPartition<>;
         iptr.reset(iptr2);
         iptr2->set_seed(init_seed);
-        iptr2->set_cap(init_pca_cap);
+        iptr2->set_size_adjustment(init_pca_adjust);
     }
 
     kmeans::Kmeans clust;

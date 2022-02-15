@@ -121,12 +121,12 @@ export class KmeansClusters {
  * Setting `"kmeans++"` will use the weighted sampling approach of Arthur and Vassilvitskii (2007).
  * Setting `"pca-part"` will use PCA partitioning.
  * @param {number} [options.initSeed] - Seed to use for random number generation during initialization.
- * @param {number} [options.initPCACap] - Cap on the number of observations in PCA partitioning.
- * Larger values will favor selection and partitioning of clusters with more cells.
+ * @param {number} [options.initPCASizeAdjust] - Adjustment factor for the cluster sizes, used when `initMethod = "pca-part"`.
+ * Larger values (up to 1) will prioritize partitioning of clusters with more cells.
  *
  * @return A `KmeansClusters` object containing the clustering results.
  */
-export function clusterKmeans(x, clusters, { numberOfDims = null, numberOfCells = null, initMethod = "kmeans++", initSeed = 5768, initPCACap = 0 } = {}) {
+export function clusterKmeans(x, clusters, { numberOfDims = null, numberOfCells = null, initMethod = "kmeans++", initSeed = 5768, initPCASizeAdjust = 1 } = {}) {
     var buffer;
     var raw;
     var output;
@@ -159,7 +159,7 @@ export function clusterKmeans(x, clusters, { numberOfDims = null, numberOfCells 
             pptr = buffer.offset;
         }
 
-        raw = wasm.call(module => module.cluster_kmeans(pptr, numberOfDims, numberOfCells, clusters, init_chosen, initSeed, initPCACap));
+        raw = wasm.call(module => module.cluster_kmeans(pptr, numberOfDims, numberOfCells, clusters, init_chosen, initSeed, initPCASizeAdjust));
         output = new KmeansClusters(raw);
 
     } catch (e) {
