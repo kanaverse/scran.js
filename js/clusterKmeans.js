@@ -126,7 +126,7 @@ export class KmeansClusters {
  *
  * @return A `KmeansClusters` object containing the clustering results.
  */
-export function clusterKmeans(x, clusters, { numberOfDims = null, numberOfCells = null, initMethod = "kmeans++", initSeed = 5768, initPCACap = 100 } = {}) {
+export function clusterKmeans(x, clusters, { numberOfDims = null, numberOfCells = null, initMethod = "kmeans++", initSeed = 5768, initPCACap = 0 } = {}) {
     var buffer;
     var raw;
     var output;
