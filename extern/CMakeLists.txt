@@ -40,6 +40,14 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(tatami)
 
+# TODO: update the dependency in libscran, knncolle.
+FetchContent_Declare(
+  kmeans 
+  GIT_REPOSITORY https://github.com/LTLA/CppKmeans
+  GIT_TAG f612fc42066b44030adc5ea52373cfb39cdc33af
+)
+FetchContent_MakeAvailable(kmeans)
+
 FetchContent_Declare(
   scran 
   GIT_REPOSITORY https://github.com/LTLA/libscran

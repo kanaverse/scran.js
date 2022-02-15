@@ -5,18 +5,7 @@ import * as compare from "./compare.js";
 beforeAll(async () => { await scran.initialize({ localFile: true }) });
 afterAll(async () => { await scran.terminate() });
 
-test("clusterKmeans works as expected from an array", () => {
-    var ndim = 5;
-    var ncells = 100;
-    var pcs = simulate.simulatePCs(ndim, ncells);
-
-    var k = 5;
-    var res = scran.clusterKmeans(pcs, k, { numberOfCells: ncells, numberOfDims: ndim });
-
-    expect(res.numberOfCells()).toBe(ncells);
-    expect(res.numberOfClusters()).toBe(k);
-
-    // Checking consistency.
+function checkClusterConsistency(res, ncells, k) {
     var clust = res.clusters();
     expect(clust.length).toBe(ncells);
 
@@ -28,6 +17,19 @@ test("clusterKmeans works as expected from an array", () => {
     for (const c of counts) {
         expect(c).toBe(0);
     }
+}
+
+test("clusterKmeans works as expected from an array", () => {
+    var ndim = 5;
+    var ncells = 100;
+    var pcs = simulate.simulatePCs(ndim, ncells);
+
+    var k = 5;
+    var res = scran.clusterKmeans(pcs, k, { numberOfCells: ncells, numberOfDims: ndim });
+
+    expect(res.numberOfCells()).toBe(ncells);
+    expect(res.numberOfClusters()).toBe(k);
+    checkClusterConsistency(res, ncells, k);
 
     var wcss = res.withinClusterSumSquares();
     expect(wcss.length).toBe(k);
@@ -57,4 +59,17 @@ test("clusterKmeans works as expected from PCs", () => {
     expect(compare.equalArrays(auto.clusters(), manual.clusters())).toBe(true);
     expect(compare.equalArrays(auto.clusterCenters(), manual.clusterCenters())).toBe(true);
     expect(compare.equalArrays(auto.withinClusterSumSquares(), manual.withinClusterSumSquares())).toBe(true);
+});
+
+test("clusterKmeans works with other options", () => {
+    var ndim = 5;
+    var ncells = 100;
+    var pcs = simulate.simulatePCs(ndim, ncells);
+
+    var k = 5;
+    var res = scran.clusterKmeans(pcs, k, { numberOfCells: ncells, numberOfDims: ndim, initMethod: "pca-part" });
+    checkClusterConsistency(res, ncells, k);
+
+    var res2 = scran.clusterKmeans(pcs, k, { numberOfCells: ncells, numberOfDims: ndim, initMethod: "random" });
+    checkClusterConsistency(res2, ncells, k);
 });

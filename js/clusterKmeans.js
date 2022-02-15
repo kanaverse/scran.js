@@ -116,13 +116,26 @@ export class KmeansClusters {
  * Only used (and required) for array-like `x`.
  * @param {number} [options.numberOfCells] - Number of cells.
  * Only used (and required) for array-like `x`.
-
+ * @param {string} [options.initMethod] - Initialization method.
+ * Setting `"random"` will randomly select `clusters` cells as centers.
+ * Setting `"kmeans++"` will use the weighted sampling approach of Arthur and Vassilvitskii (2007).
+ * Setting `"pca-part"` will use PCA partitioning.
+ * @param {number} [options.initSeed] - Seed to use for random number generation during initialization.
+ * @param {number} [options.initPCACap] - Cap on the number of observations in PCA partitioning.
+ * Larger values will favor selection and partitioning of clusters with more cells.
+ *
  * @return A `KmeansClusters` object containing the clustering results.
  */
-export function clusterKmeans(x, clusters, { numberOfDims = null, numberOfCells = null } = {}) {
+export function clusterKmeans(x, clusters, { numberOfDims = null, numberOfCells = null, initMethod = "kmeans++", initSeed = 5768, initPCACap = 100 } = {}) {
     var buffer;
     var raw;
     var output;
+
+    const init_choices = ["random", "kmeans++", "pca-part"]
+    let init_chosen = init_choices.indexOf(initMethod);
+    if (init_chosen == -1) {
+        throw "'initMethod' should be one of 'random', 'kmeans++' or 'pca-part'";
+    }
 
     try {
         let pptr;
@@ -146,7 +159,7 @@ export function clusterKmeans(x, clusters, { numberOfDims = null, numberOfCells 
             pptr = buffer.offset;
         }
 
-        raw = wasm.call(module => module.cluster_kmeans(pptr, numberOfDims, numberOfCells, clusters));
+        raw = wasm.call(module => module.cluster_kmeans(pptr, numberOfDims, numberOfCells, clusters, init_chosen, initSeed, initPCACap));
         output = new KmeansClusters(raw);
 
     } catch (e) {
