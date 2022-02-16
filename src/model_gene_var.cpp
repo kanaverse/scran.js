@@ -35,7 +35,7 @@ struct ModelGeneVar_Results {
      * @param b Block of interest.
      * @return A `Float64Array` view containing the mean log-expression for each gene in block `b`.
      */
-    emscripten::val means(int b=0) {
+    emscripten::val means(int b=0) const {
         // TODO: fix this so it refers to the arrays properly.
         return emscripten::val(emscripten::typed_memory_view(store.means[b].size(), store.means[b].data()));
     }
@@ -44,7 +44,7 @@ struct ModelGeneVar_Results {
      * @param b Block of interest.
      * @return A `Float64Array` view containing the variance of the log-expression for each gene in block `b`.
      */
-    emscripten::val variances(int b=0) {
+    emscripten::val variances(int b=0) const {
         return emscripten::val(emscripten::typed_memory_view(store.variances[b].size(), store.variances[b].data()));
     }
 
@@ -52,7 +52,7 @@ struct ModelGeneVar_Results {
      * @param b Block of interest.
      * @return A `Float64Array` view containing the fitted value of the trend for each gene in block `b`.
      */
-    emscripten::val fitted(int b=0) {
+    emscripten::val fitted(int b=0) const {
         return emscripten::val(emscripten::typed_memory_view(store.fitted[b].size(), store.fitted[b].data()));
     }
 
@@ -60,8 +60,15 @@ struct ModelGeneVar_Results {
      * @param b Block of interest.
      * @return A `Float64Array` view containing the residual from the trend for each gene in block `b`.
      */
-    emscripten::val residuals(int b=0) {
+    emscripten::val residuals(int b=0) const {
         return emscripten::val(emscripten::typed_memory_view(store.residuals[b].size(), store.residuals[b].data()));
+    }
+
+    /**
+     * @return Number of blocks used during the calculations.
+     */
+    int num_blocks () const {
+        return store.means.size();
     }
 };
 
@@ -101,6 +108,7 @@ EMSCRIPTEN_BINDINGS(model_gene_var) {
         .function("variances", &ModelGeneVar_Results::variances)
         .function("fitted", &ModelGeneVar_Results::fitted)
         .function("residuals", &ModelGeneVar_Results::residuals)
+        .function("num_blocks", &ModelGeneVar_Results::num_blocks)
         ;
 }
 /**

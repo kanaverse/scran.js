@@ -1,0 +1,53 @@
+{
+    "name": "scran.js",
+    "version": "0.0.12",
+    "description": "Single cell RNA-seq analysis in Javascript",
+    "license": "MIT",
+    "main": "main/index.js",
+    "browser": "module/index.js",
+    "web": "dist/scran.web.js",
+    "type": "module",
+    "scripts": {
+        "test": "NODE_OPTIONS='--experimental-vm-modules' npx jest",
+        "build": "npx parcel build"
+    },
+    "devDependencies": {
+        "@babel/plugin-transform-modules-commonjs": "^7.16.8",
+        "jest": "^27.4.7",
+        "jsdoc": "^3.6.10",
+        "pako": "^2.0.4",
+        "parcel": "^2.2.1",
+        "h5wasm": "^0.2.1"
+    },
+    "targets": {
+        "web": {
+            "source": "module/index.js",
+            "includeNodeModules": true,
+            "outputFormat": "esmodule",
+            "engines": {
+                "browsers": [
+                    "> 1%",
+                    "not dead"
+                ]
+            }
+        }
+    },
+    "author": {
+        "name": "Jayaram Kancherla",
+        "email": "jayaram.kancherla@gmail.com",
+        "url": "https://www.jkanche.com"
+    },
+    "contributors": [
+        {
+            "name": "Aaron Lun",
+            "email": "infinite.monkeys.with.keyboards@gmail.com"
+        }
+    ],
+    "bugs": "https://github.com/jkanche/scran.js/issues",
+    "keywords": [
+        "bioinformatics",
+        "scRNA-seq",
+        "webassembly"
+    ],
+    "repository": "github:jkanche/scran.js"
+}

@@ -50,6 +50,20 @@ struct RunPCA_Results {
     double total_variance() const {
         return store.total_variance;
     }
+
+    /**
+     * @return Number of cells.
+     */
+    int num_cells() const {
+        return store.pcs.cols();
+    }
+
+    /**
+     * @return Number of PCs.
+     */
+    int num_pcs() const {
+        return store.variance_explained.size();
+    }
 };
 
 /**
@@ -71,8 +85,13 @@ RunPCA_Results run_pca(const NumericMatrix& mat, int number, bool use_subset, ui
     auto ptr = mat.ptr;
     auto NR = ptr->nrow();
     auto NC = ptr->ncol();
-    assert(NC > 1);
-    assert(NC > number);
+
+    if (number < 1) {
+        throw std::runtime_error("requested number of PCs should be positive");
+    }
+    if (NC < number) {
+        throw std::runtime_error("fewer cells than the requested number of PCs");
+    }
 
     scran::RunPCA pca;
     pca.set_rank(number).set_scale(scale);
@@ -99,6 +118,8 @@ EMSCRIPTEN_BINDINGS(run_pca) {
         .function("pcs", &RunPCA_Results::pcs)
         .function("variance_explained", &RunPCA_Results::variance_explained)
         .function("total_variance", &RunPCA_Results::total_variance)
+        .function("num_cells", &RunPCA_Results::num_cells)
+        .function("num_pcs", &RunPCA_Results::num_pcs)
         ;
 }
 /**

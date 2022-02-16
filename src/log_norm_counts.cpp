@@ -42,7 +42,7 @@ NumericMatrix log_norm_counts(const NumericMatrix& mat,
     }
 
     if (use_blocks) {
-        return NumericMatrix(norm.run_blocked(mat.ptr, std::move(sf), reinterpret_cast<const uint32_t*>(blocks)), mat.permutation);
+        return NumericMatrix(norm.run_blocked(mat.ptr, std::move(sf), reinterpret_cast<const int32_t*>(blocks)), mat.permutation);
     } else {
         return NumericMatrix(norm.run(mat.ptr, std::move(sf)), mat.permutation);
     }

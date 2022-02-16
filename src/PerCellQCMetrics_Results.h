@@ -48,6 +48,13 @@ struct PerCellQCMetrics_Results {
         const auto& current = store.subset_proportions[i];
         return emscripten::val(emscripten::typed_memory_view(current.size(), current.data()));
     }
+
+    /**
+     * @return Number of feature subsets for which proportions were computed.
+     */
+    int num_subsets() const {
+        return store.subset_proportions.size();
+    }
 };
 
 #endif

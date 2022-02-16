@@ -1,5 +1,12 @@
-build
+build*
 docs/html/
 docs/latex/
 *.swp
 testing
+tests/hdf5-test-files
+node_modules/
+main/
+module/
+js/wasm/
+.parcel-cache
+dist/

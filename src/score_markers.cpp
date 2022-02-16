@@ -106,6 +106,25 @@ struct ScoreMarkers_Results {
         const auto& current = store.delta_detected[s][g];
         return emscripten::val(emscripten::typed_memory_view(current.size(), current.data()));
     }
+
+    /**
+     * @return Number of groups in the marker results.
+     */
+    size_t num_groups() const {
+        return store.detected.size();
+    }
+
+    /**
+     * @return Number of blocks used, see `b` in `means()` and `detected()`.
+     * If no groups are available, zero is returned regardless of whether more blocks were used in `score_markers()`.
+     */
+    size_t num_blocks() const {
+        if (num_groups()) {
+          return store.detected.front().size();
+        } else {
+           return 0;
+        }
+    }
 };
 
 /**
@@ -146,36 +165,10 @@ ScoreMarkers_Results score_markers(const NumericMatrix& mat, uintptr_t groups, b
         bptr = reinterpret_cast<const int32_t*>(blocks);
     }
 
-#ifdef __EMSCRIPTEN_PTHREADS__
-    size_t ngroups = *std::max_element(gptr, gptr + mat.ncol()) + 1;
-    size_t nblocks = (use_blocks ? nblocks = *std::max_element(bptr, bptr + mat.ncol()) : 0) + 1;
-
-    // Setting up the output spaces.
-    auto do_effects = scran::ScoreMarkers::Defaults::compute_all_summaries();
-    do_effects[scran::differential_analysis::MAX] = false;
-    do_effects[scran::differential_analysis::MEDIAN] = false;
-    scran::ScoreMarkers::Results<double> store(mat.nrow(), ngroups, nblocks, do_effects, do_effects, do_effects, do_effects);
-    
-    // Parallelizing.
-    run_parallel([&](int left, int right) -> void {
-        auto mean_ptrs = vector_to_pointers2(store.means, left);
-        auto detect_ptrs = vector_to_pointers2(store.detected, left);
-
-        auto cohen_ptrs = vector_to_pointers2(store.cohen, left);
-        auto auc_ptrs = vector_to_pointers2(store.auc, left);
-        auto lfc_ptrs = vector_to_pointers2(store.lfc, left);
-        auto delta_ptrs = vector_to_pointers2(store.delta_detected, left);
-
-        auto sub = tatami::make_DelayedSubsetBlock<0>(mat.ptr, left, right);
-        scran::ScoreMarkers runner;
-        runner.run_blocked(sub.get(), gptr, bptr, mean_ptrs, detect_ptrs, cohen_ptrs, auc_ptrs, lfc_ptrs, delta_ptrs);
-    }, mat.nrow());
-#else
     scran::ScoreMarkers mrk;
     mrk.set_summary_max(false);
     mrk.set_summary_median(false);
     auto store = mrk.run_blocked(mat.ptr.get(), gptr, bptr);
-#endif
 
     return ScoreMarkers_Results(std::move(store));
 }
@@ -193,6 +186,8 @@ EMSCRIPTEN_BINDINGS(score_markers) {
         .function("auc", &ScoreMarkers_Results::auc)
         .function("lfc", &ScoreMarkers_Results::lfc)
         .function("delta_detected", &ScoreMarkers_Results::delta_detected)
+        .function("num_groups", &ScoreMarkers_Results::num_groups)
+        .function("num_blocks", &ScoreMarkers_Results::num_blocks)
         ;
 }
 /**

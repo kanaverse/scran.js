@@ -2,7 +2,6 @@
 
 #include "NumericMatrix.h"
 #include "utils.h"
-#include "parallel.h"
 #include "PerCellQCMetrics_Results.h"
 
 #include "scran/quality_control/PerCellQCMetrics.hpp"
@@ -29,34 +28,9 @@
  * @return A `PerCellQCMetrics_Results` object that can be interrogated to obtain each QC metric.
  */
 PerCellQCMetrics_Results per_cell_qc_metrics(const NumericMatrix& mat, int nsubsets, uintptr_t subsets) {
-#ifdef __EMSCRIPTEN_PTHREADS__
-    scran::PerCellQCMetrics::Results full_output(mat.ncol(), nsubsets);
-    double* outsum = full_output.sums.data();
-    int* outdet = full_output.detected.data();
-
-    std::vector<double*> outprop(nsubsets);
-    for (int i = 0; i < nsubsets; ++i) {
-        outprop[i] = full_output.subset_proportions[i].data();
-    }
-
-    auto subptrs = extract_column_pointers<const uint8_t*>(subsets, mat.nrow(), nsubsets);
-
-    run_parallel([&](int left, int right) -> void {
-        auto propcopy = outprop;
-        for (auto& p : propcopy) { 
-            p += left;
-        }
-        auto current = tatami::make_DelayedSubsetBlock<1>(mat.ptr, left, right);
-        scran::PerCellQCMetrics qc;
-        qc.run(current.get(), subptrs, outsum + left, outdet + left, std::move(propcopy));
-    }, mat.ncol());
-
-    return PerCellQCMetrics_Results(std::move(full_output));
-#else
     scran::PerCellQCMetrics qc;
     auto store = qc.run(mat.ptr.get(), extract_column_pointers<const uint8_t*>(subsets, mat.nrow(), nsubsets));
     return PerCellQCMetrics_Results(std::move(store));
-#endif
 }
 
 /**
@@ -69,6 +43,7 @@ EMSCRIPTEN_BINDINGS(per_cell_qc_metrics) {
         .function("sums", &PerCellQCMetrics_Results::sums)
         .function("detected", &PerCellQCMetrics_Results::detected)
         .function("subset_proportions", &PerCellQCMetrics_Results::subset_proportions)
+        .function("num_subsets", &PerCellQCMetrics_Results::num_subsets)
         ;
 }
 /**

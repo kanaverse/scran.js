@@ -1,0 +1,9 @@
+build*
+docs/
+extern/
+src/
+tests/
+.parcel-cache
+.github
+jest.config.js
+CMakeLists.txt
