@@ -15,23 +15,19 @@
 /**
  * @brief A reference dataset for **singlepp** annotation.
  */
-class Reference {
+class SinglePPReference {
 public:
     /**
      * @cond
      */
-    Reference(
-        size_t nfeat,
-        std::vector<int> rankings,
+    SinglePPReference(
+        std::shared_ptr<tatami::NumericMatrix> ranks,
         singlepp::Markers marks,
-        std::vector<int> labs) : 
+        std::vector<int> labs) :
+        matrix(std::move(ranks)),
         markers(std::move(marks)),
         labels(std::move(labs))
-    {
-        size_t nprof = labels.size();
-        matrix.reset(new tatami::DenseColumnMatrix<double, int, std::vector<int> >(nfeat, nprof, std::move(rankings)));
-
-    }
+    {}
 
     std::shared_ptr<tatami::NumericMatrix> matrix;
     singlepp::Markers markers;
@@ -39,6 +35,27 @@ public:
     /**
      * @endcond
      */
+
+    /**
+     * @return Number of samples in this reference dataset.
+     */
+    size_t num_samples() const {
+        return matrix->ncol();
+    }
+
+    /**
+     * @return Number of features in this reference dataset.
+     */
+    size_t num_features() const {
+        return matrix->nrow();
+    }
+
+    /**
+     * @return Number of labels in this reference dataset.
+     */
+    size_t num_labels() const {
+        return markers.size();
+    }
 };
 
 /**
@@ -54,17 +71,20 @@ public:
  *
  * See the documentation at https://github.com/clusterfork/singlepp-references for details on the expected format of each file.
  */
-Reference load_reference(
-    size_t nfeatures,
+SinglePPReference load_reference(
     uintptr_t labels_buffer, size_t labels_len,
     uintptr_t markers_buffer, size_t markers_len,
     uintptr_t rankings_buffer, size_t rankings_len)
 { 
     auto lab = singlepp::load_labels_from_zlib_buffer(reinterpret_cast<unsigned char*>(labels_buffer), labels_len);
     size_t nlabels = (lab.size() ? *std::max_element(lab.begin(), lab.end()) + 1 : 0);
-    auto mark = singlepp::load_markers_from_zlib_buffer(reinterpret_cast<unsigned char*>(markers_buffer), markers_len, nfeatures, nlabels);
-    auto rank = singlepp::load_rankings_from_zlib_buffer(reinterpret_cast<unsigned char*>(rankings_buffer), rankings_len, nfeatures, lab.size());
-    return Reference(nfeatures, std::move(rank), std::move(mark), lab);
+
+    std::shared_ptr<tatami::NumericMatrix> rank(new 
+        singlepp::RankMatrix<double, int>(singlepp::load_rankings_from_zlib_buffer(reinterpret_cast<unsigned char*>(rankings_buffer), rankings_len, lab.size())));
+
+    auto mark = singlepp::load_markers_from_zlib_buffer(reinterpret_cast<unsigned char*>(markers_buffer), markers_len, rank->nrow(), nlabels);
+
+    return SinglePPReference(std::move(rank), std::move(mark), std::move(lab));
 }
 
 /**
@@ -79,7 +99,7 @@ Reference load_reference(
  *
  * @return `output` is filled with the label assignments from the reference dataset.
  */
-void run_singlepp(const NumericMatrix& mat, uintptr_t mat_id, const Reference& ref, uintptr_t ref_id, uintptr_t output) {
+void run_singlepp(const NumericMatrix& mat, uintptr_t mat_id, const SinglePPReference& ref, uintptr_t ref_id, uintptr_t output) {
     std::vector<double*> empty(ref.markers.size(), nullptr);
 
     singlepp::SinglePP runner;
@@ -97,11 +117,20 @@ void run_singlepp(const NumericMatrix& mat, uintptr_t mat_id, const Reference& r
     return;
 }
 
+/**
+ * @cond
+ */
 EMSCRIPTEN_BINDINGS(run_singlepp) {
     emscripten::function("run_singlepp", &run_singlepp);
 
     emscripten::function("load_reference", &load_reference);
     
-    emscripten::class_<Reference>("Reference");
+    emscripten::class_<SinglePPReference>("SinglePPReference")
+        .function("num_samples", &SinglePPReference::num_samples)
+        .function("num_features", &SinglePPReference::num_features)
+        .function("num_labels", &SinglePPReference::num_labels)
+        ;
 }
-
+/**
+ * @endcond
+ */

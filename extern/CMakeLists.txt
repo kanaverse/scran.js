@@ -71,6 +71,6 @@ FetchContent_MakeAvailable(h5wasm)
 FetchContent_Declare(
   singlepp
   GIT_REPOSITORY https://github.com/clusterfork/singlepp
-  GIT_TAG 9ae4795ef24d18835e22d67df9f9f9c3950ecc87
+  GIT_TAG d37500ade756b78d1ed509ce4c841ec91dd16eb7
 )
 FetchContent_MakeAvailable(singlepp)
