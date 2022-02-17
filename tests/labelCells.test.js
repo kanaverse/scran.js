@@ -54,13 +54,67 @@ function mockReferenceData(nlabels, nperlabel, nfeatures, nmarkers) {
     };
 };
 
-test("labelCells works correctly", () => {
-    let ref = mockReferenceData(5, 10, 1000, 20); 
-    let refinfo = scran.loadLabelledReferenceFromBuffers(ref.ranks, ref.markers, ref.labels);
-    expect(refinfo.numberOfLabels()).toBe(5);
-    expect(refinfo.numberOfSamples()).toBe(50);
-    expect(refinfo.numberOfFeatures()).toBe(1000);
+const nlabels = 5;
+const profiles_per_label = 10;
+const nfeatures = 1000;
 
+test("labelCells works correctly", () => {
+    let ref = mockReferenceData(nlabels, profiles_per_label, nfeatures, 20); 
+    let refinfo = scran.loadLabelledReferenceFromBuffers(ref.ranks, ref.markers, ref.labels);
+    expect(refinfo.numberOfLabels()).toBe(nlabels);
+    expect(refinfo.numberOfSamples()).toBe(nlabels * profiles_per_label);
+    expect(refinfo.numberOfFeatures()).toBe(nfeatures);
+
+    // The simple case, no intersections.
+    let mat = simulate.simulateMatrix(nfeatures, 20);
+    let labels = scran.labelCells(mat, refinfo);
+    expect(labels.length).toBe(20);
+
+    let min = Infinity, max = -1;
+    labels.forEach(x => {
+        if (x < min) { min = x; }
+        if (x > max) { max = x; }
+    });
+    expect(min >= 0).toBe(true);
+    expect(max < 5).toBe(true);
+
+    // Works with a buffer.
+    let buf = new scran.Int32WasmArray(20);
+    let labels2 = scran.labelCells(mat, refinfo, { buffer: buf });
+    expect(compare.equalArrays(labels, labels2.array())).toBe(true);
+
+    // Freeing the objects.
     refinfo.free();
+    mat.free();
+})
+
+test("labelCells works correctly with intersections", () => {
+    let ref = mockReferenceData(nlabels, profiles_per_label, nfeatures, 20); 
+    let refinfo = scran.loadLabelledReferenceFromBuffers(ref.ranks, ref.markers, ref.labels);
+
+    let mat = simulate.simulateMatrix(nfeatures, 20);
+    let labels = scran.labelCells(mat, refinfo); // no intersection reference.
+
+    // Throwing in some intersections.
+    var inter = [];
+    for (var i = 0; i < nfeatures; i++) {
+        inter.push("Gene" + i);
+    }
+
+    let labels2 = scran.labelCells(mat, refinfo, { geneNames: inter, referenceGeneNames: inter });
+    expect(compare.equalArrays(labels, labels2)).toBe(true);
+
+    // Shuffling the genes and checking we get a different result.
+    var stat = inter.map(x => Math.random());
+    var indices = inter.map((x, i) => i);
+    indices.sort((a, b) => stat[a] - stat[b]);
+    var inter2 = indices.map(i => inter[i]);
+
+    let labels3 = scran.labelCells(mat, refinfo, { geneNames: inter, referenceGeneNames: inter2 });
+    expect(compare.equalArrays(labels, labels3)).toBe(false);
+
+    // Freeing the objects.
+    refinfo.free();
+    mat.free();
 });
 

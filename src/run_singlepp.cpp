@@ -91,30 +91,47 @@ SinglePPReference load_singlepp_reference(
 
 /**
  * @param mat Matrix containing the test dataset, with cells in columns and features in rows.
+ * @param ref The reference dataset to use for annotation.
+ * @param use_ids Whether to intersect on the feature identifiers.
+ * If `false`, `mat` and `ref` should have the same number and order of features, and `mat_id` and `ref_id` are ignored.
  * @param[in] mat_id Offset to an integer array of length equal to the number of rows in `mat`,
  * Each element contains a feature identifier for the corresponding row.
- * @param ref The reference dataset to use for annotation.
  * @param[in] ref_id Offset to an integer array of length equal to the number of features in the reference dataset.
  * This should contain the feature identifier for each feature in the reference, to be intersected with those in `mat_id`.
+ * @param top Number of top marker genes to use from each pairwise comparison between labels.
+ * @param quantile Quantile on the correlations to use when computing a score for each label.
  * @param[out] output Offset to an integer array of length equal to the number of columns in `mat`.
  * This will be filled with the index of the assigned label for each cell in the test dataset.
  *
  * @return `output` is filled with the label assignments from the reference dataset.
  */
-void run_singlepp(const NumericMatrix& mat, uintptr_t mat_id, const SinglePPReference& ref, uintptr_t ref_id, uintptr_t output) {
+void run_singlepp(const NumericMatrix& mat, const SinglePPReference& ref, bool use_ids, uintptr_t mat_id, uintptr_t ref_id, int top, double quantile, uintptr_t output) {
     std::vector<double*> empty(ref.markers.size(), nullptr);
 
     singlepp::SinglePP runner;
-    runner.run(mat.ptr.get(), 
-        reinterpret_cast<const int*>(mat_id), 
-        ref.matrix.get(), 
-        reinterpret_cast<const int*>(ref_id),
-        ref.labels.data(),
-        ref.markers,
-        reinterpret_cast<int*>(output),
-        empty,
-        nullptr
-    );
+    runner.set_top(top).set_quantile(quantile);
+
+    if (use_ids) {
+        runner.run(mat.ptr.get(), 
+            reinterpret_cast<const int*>(mat_id), 
+            ref.matrix.get(), 
+            reinterpret_cast<const int*>(ref_id),
+            ref.labels.data(),
+            ref.markers,
+            reinterpret_cast<int*>(output),
+            empty,
+            nullptr
+        );
+    } else {
+        runner.run(mat.ptr.get(), 
+            ref.matrix.get(), 
+            ref.labels.data(),
+            ref.markers,
+            reinterpret_cast<int*>(output),
+            empty,
+            nullptr
+        );
+    }
     
     return;
 }
