@@ -72,7 +72,7 @@ class LabelledReference {
  * The number of lines should be equal to the number of rows in `matrix`.
  * The actual names of the labels are usually held elsewhere.
  */
-export function loadReferenceFromBuffers(matrix, markers, labels) {
+export function loadLabelledReferenceFromBuffers(matrix, markers, labels) {
     var raw;
     var output;
     var matbuf;
@@ -83,7 +83,8 @@ export function loadReferenceFromBuffers(matrix, markers, labels) {
         matbuf = utils.wasmifyArray(matrix, "Uint8WasmArray");
         markbuf = utils.wasmifyArray(markers, "Uint8WasmArray");
         labbuf = utils.wasmifyArray(labels, "Uint8WasmArray");
-        var ref = wasm.load_reference(labtmp.ptr, labtmp.size, marktmp.ptr, marktmp.size, mattmp.ptr, mattmp.size);
+        raw = wasm.call(module => module.load_singlepp_reference(labbuf.offset, labbuf.length, markbuf.offset, markbuf.length, matbuf.offset, matbuf.length));
+        output = new LabelledReference(raw);
     } catch (e) {
         utils.free(raw);
         throw e;

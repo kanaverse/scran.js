@@ -29,6 +29,8 @@ public:
         labels(std::move(labs))
     {}
 
+    SinglePPReference() {};
+
     std::shared_ptr<tatami::NumericMatrix> matrix;
     singlepp::Markers markers;
     std::vector<int> labels;
@@ -71,7 +73,7 @@ public:
  *
  * See the documentation at https://github.com/clusterfork/singlepp-references for details on the expected format of each file.
  */
-SinglePPReference load_reference(
+SinglePPReference load_singlepp_reference(
     uintptr_t labels_buffer, size_t labels_len,
     uintptr_t markers_buffer, size_t markers_len,
     uintptr_t rankings_buffer, size_t rankings_len)
@@ -79,8 +81,8 @@ SinglePPReference load_reference(
     auto lab = singlepp::load_labels_from_zlib_buffer(reinterpret_cast<unsigned char*>(labels_buffer), labels_len);
     size_t nlabels = (lab.size() ? *std::max_element(lab.begin(), lab.end()) + 1 : 0);
 
-    std::shared_ptr<tatami::NumericMatrix> rank(new 
-        singlepp::RankMatrix<double, int>(singlepp::load_rankings_from_zlib_buffer(reinterpret_cast<unsigned char*>(rankings_buffer), rankings_len, lab.size())));
+    auto mat = singlepp::load_rankings_from_zlib_buffer(reinterpret_cast<unsigned char*>(rankings_buffer), rankings_len);
+    std::shared_ptr<tatami::NumericMatrix> rank(new decltype(mat)(std::move(mat)));
 
     auto mark = singlepp::load_markers_from_zlib_buffer(reinterpret_cast<unsigned char*>(markers_buffer), markers_len, rank->nrow(), nlabels);
 
@@ -123,7 +125,7 @@ void run_singlepp(const NumericMatrix& mat, uintptr_t mat_id, const SinglePPRefe
 EMSCRIPTEN_BINDINGS(run_singlepp) {
     emscripten::function("run_singlepp", &run_singlepp);
 
-    emscripten::function("load_reference", &load_reference);
+    emscripten::function("load_singlepp_reference", &load_singlepp_reference);
     
     emscripten::class_<SinglePPReference>("SinglePPReference")
         .function("num_samples", &SinglePPReference::num_samples)
