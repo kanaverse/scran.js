@@ -107,6 +107,7 @@ export function loadLabelledReferenceFromBuffers(ranks, markers, labels) {
  * @param {Object} options - Optional parameters.
  * @param {Int32WasmArray} buffer - A buffer to store the output labels, of length equal to the number of columns in `x`.
  * @param {Array} geneNames - An array of gene identifiers (usually strings) of length equal to the number of rows in `x`.
+ * Each entry should contain the identifier for the corresponding row of `x`.
  * @param {Array} referenceGeneNames - An array of gene identifiers (usually strings) of length equal to the number of features in `reference`.
  * This is expected to exhibit some overlap with those in `geneNames`.
  * @param {number} top - Number of top marker genes to use from each pairwise comparison between labels.
@@ -115,6 +116,10 @@ export function loadLabelledReferenceFromBuffers(ranks, markers, labels) {
  * @return An object is returned containing `usedMarkers`, the number of markers used for classification;
  * and `labels`, an `Int32Array` is returned containing the labels for each cell in `x`.
  * If `buffer` is supplied, `labels` is an array view into it.
+ *
+ * If `x` is a `LayeredSparseMatrix`, the ordering of the rows of `x` should include the permutation that was applied during the layering process.
+ * This means that if `geneNames` and `referenceGeneNames` are not supplied, the rows of `reference` should be subjected to the same permutation;
+ * or if `geneNames` and `referenceGeneNames` are supplied, the ordering of `geneNames` should be permuted.
  */
 export function labelCells(x, reference, { buffer = null, geneNames = null, referenceGeneNames = null, top = 20, quantile = 0.8 } = {}) {
     var ngenes;
@@ -152,22 +157,11 @@ export function labelCells(x, reference, { buffer = null, geneNames = null, refe
 
             let available = {};
             let counter = 0;
-            if (x instanceof LayeredSparseMatrix) {
-                // Remember, the 'permutation' does not describe the permutation to get _to_ 'x';
-                // it describes the permutation to recover the original ordering _from_ 'x'.
-                let permutation = x.permutation();
-                permutation.forEach((p, i) => {
-                    available[geneNames[i]] = counter;
-                    mat_id_array[p] = counter;
-                    counter++;
-                });
-            } else {
-                geneNames.forEach(y => {
-                    available[y] = counter;
-                    mat_id_array[counter] = counter;
-                    counter++;
-                });
-            }
+            geneNames.forEach(y => {
+                available[y] = counter;
+                mat_id_array[counter] = counter;
+                counter++;
+            });
 
             referenceGeneNames.forEach((y, i) => {
                 if (y in available) {
@@ -177,30 +171,6 @@ export function labelCells(x, reference, { buffer = null, geneNames = null, refe
                     ref_id_array[i] = counter;
                     counter++;
                 }
-            });
-
-            use_ids = true;
-            mat_id_offset = mat_id_buffer.offset;
-            ref_id_offset = ref_id_buffer.offset;
-
-        } else if (x instanceof LayeredSparseMatrix) {
-            // This'll get free'd by the ref_id_buffer free.
-            let tmp = new Int32WasmArray(reference.numberOfFeatures());
-
-            // Getting the identity of the permuted rows in 'x'.
-            mat_id_buffer = new Int32WasmArray(x.numberOfRows());
-            let mat_id_array = mat_id_buffer.array();
-            let permutation = x.permutation({ buffer: tmp });
-            let tmp_array = tmp.array();
-            tmp_array.forEach((p, i) => {
-                mat_id_array[p] = i;
-            }); 
-
-            // Mocking up a counterpart for the reference dataset.
-            ref_id_buffer = tmp;
-            let ref_id_array = ref_id_buffer.array();
-            ref_id_array.forEach((x, i) => {
-                ref_id_array[i] = i;
             });
 
             use_ids = true;
