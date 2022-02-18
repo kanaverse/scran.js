@@ -3,7 +3,10 @@
 #include "NeighborIndex.h"
 #include "parallel.h"
 
-#include "scran/clustering/ClusterSNNGraph.hpp"
+#include "kmeans/Kmeans.hpp"
+#include "kmeans/InitializeRandom.hpp"
+#include "kmeans/InitializeKmeansPP.hpp"
+#include "kmeans/InitializePCAPartition.hpp"
 #include <algorithm>
 #include <memory>
 
@@ -97,13 +100,37 @@ struct ClusterKmeans_Result {
  * @param nr Number of rows in `mat`.
  * @param nc Number of columns in `mat`.
  * Larger values yield more fine-grained clusters.
+ * @param init_method Initialization method - random (0), kmeans++ (1) or PCA partitioning (2).
+ * @param init_seed Random seed to use for initialization.
+ * @param init_pca_adjust Adjustment factor to apply to the cluster sizes prior to the WCSS calculations in PCA partitioning.
+ * Values below 1 reduce the preference towards choosing larger clusters for further partitioning.
  *
  * @return A `ClusterKmeans_Result` object containing the... k-means clustering results, obviously.
  */
-ClusterKmeans_Result cluster_kmeans(uintptr_t mat, int nr, int nc, int k) {
-    kmeans::Kmeans clust;
+ClusterKmeans_Result cluster_kmeans(uintptr_t mat, int nr, int nc, int k, int init_method, int init_seed, double init_pca_adjust) {
     const double* ptr = reinterpret_cast<const double*>(mat);
-    auto output = clust.run(nr, nc, ptr, k);
+
+    std::shared_ptr<kmeans::Initialize<> > iptr;
+    if (init_method == 0) {
+        auto iptr2 = new kmeans::InitializeRandom<>;
+        iptr.reset(iptr2);
+        iptr2->set_seed(init_seed);
+
+    } else if (init_method == 1) {
+        auto iptr2 = new kmeans::InitializeKmeansPP<>;
+        iptr.reset(iptr2);
+        iptr2->set_seed(init_seed);
+
+    } else {
+        auto iptr2 = new kmeans::InitializePCAPartition<>;
+        iptr.reset(iptr2);
+        iptr2->set_seed(init_seed);
+        iptr2->set_size_adjustment(init_pca_adjust);
+    }
+
+    kmeans::Kmeans clust;
+    auto output = clust.run(nr, nc, ptr, k, iptr.get());
+
     return ClusterKmeans_Result(std::move(output));
 }
 
