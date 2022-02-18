@@ -67,7 +67,9 @@ test("labelCells works correctly", () => {
 
     // The simple case, no intersections.
     let mat = simulate.simulateMatrix(nfeatures, 20);
-    let labels = scran.labelCells(mat, refinfo);
+    let output = scran.labelCells(mat, refinfo);
+    expect(output.usedMarkers > 0).toBe(true);
+    let labels = output.labels;
     expect(labels.length).toBe(20);
 
     let min = Infinity, max = -1;
@@ -80,8 +82,9 @@ test("labelCells works correctly", () => {
 
     // Works with a buffer.
     let buf = new scran.Int32WasmArray(20);
-    let labels2 = scran.labelCells(mat, refinfo, { buffer: buf });
-    expect(compare.equalArrays(labels, labels2.array())).toBe(true);
+    let output2 = scran.labelCells(mat, refinfo, { buffer: buf });
+    let labels2 = output2.labels;
+    expect(compare.equalArrays(labels, labels2)).toBe(true);
 
     // Freeing the objects.
     refinfo.free();
@@ -93,7 +96,9 @@ test("labelCells works correctly with intersections", () => {
     let refinfo = scran.loadLabelledReferenceFromBuffers(ref.ranks, ref.markers, ref.labels);
 
     let mat = simulate.simulateMatrix(nfeatures, 20);
-    let labels = scran.labelCells(mat, refinfo); // no intersection reference.
+    let output = scran.labelCells(mat, refinfo); // no intersection reference.
+    expect(output.usedMarkers > 0).toBe(true);
+    let labels = output.labels;
 
     // Throwing in some intersections.
     var inter = [];
@@ -101,7 +106,9 @@ test("labelCells works correctly with intersections", () => {
         inter.push("Gene" + i);
     }
 
-    let labels2 = scran.labelCells(mat, refinfo, { geneNames: inter, referenceGeneNames: inter });
+    let output2 = scran.labelCells(mat, refinfo, { geneNames: inter, referenceGeneNames: inter });
+    expect(output2.usedMarkers > 0).toBe(true);
+    let labels2 = output2.labels;
     expect(compare.equalArrays(labels, labels2)).toBe(true);
 
     // Shuffling the genes and checking we get a different result.
@@ -110,7 +117,8 @@ test("labelCells works correctly with intersections", () => {
     indices.sort((a, b) => stat[a] - stat[b]);
     var inter2 = indices.map(i => inter[i]);
 
-    let labels3 = scran.labelCells(mat, refinfo, { geneNames: inter, referenceGeneNames: inter2 });
+    let output3 = scran.labelCells(mat, refinfo, { geneNames: inter, referenceGeneNames: inter2 });
+    let labels3 = output3.labels;
     expect(compare.equalArrays(labels, labels3)).toBe(false);
 
     // Freeing the objects.

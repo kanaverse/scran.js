@@ -108,14 +108,15 @@ export function loadLabelledReferenceFromBuffers(ranks, markers, labels) {
  * @param {Array} geneNames - An array of gene identifiers (usually strings) of length equal to the number of rows in `x`.
  * @param {Array} referenceGeneNames - An array of gene identifiers (usually strings) of length equal to the number of features in `reference`.
  * This is expected to exhibit some overlap with those in `geneNames`.
- * @param {number} top - Number of marker genes to use from each pairwise comparison between labels.
+ * @param {number} top - Number of top marker genes to use from each pairwise comparison between labels.
  * @param {number} quantile - Quantile on the correlations to use to compute the score for each label.
  *
- * @return If `buffer` is not supplied, an `Int32Array` is returned containing the labels for each cell in `x`.
- * Otherwise, `buffer` is returned after being filled with the labels.
+ * @return An object is returned containing `usedMarkers`, the number of markers used for classification;
+ * and `labels`, an `Int32Array` is returned containing the labels for each cell in `x`.
+ * If `buffer` is supplied, `labels` is an array view into it.
  */
 export function labelCells(x, reference, { buffer = null, geneNames = null, referenceGeneNames = null, top = 20, quantile = 0.8 } = {}) {
-    var raw;
+    var ngenes;
     var output;
     let use_buffer = (buffer instanceof Int32WasmArray);
     var mat_id_buffer;
@@ -171,14 +172,14 @@ export function labelCells(x, reference, { buffer = null, geneNames = null, refe
             ref_id_offset = ref_id_buffer.offset;
         }
 
-        raw = wasm.call(module => module.run_singlepp(x.matrix, reference.reference, use_ids, mat_id_offset, ref_id_offset, top, quantile, buffer.offset));
+        ngenes = wasm.call(module => module.run_singlepp(x.matrix, reference.reference, use_ids, mat_id_offset, ref_id_offset, top, quantile, buffer.offset));
         if (!use_buffer) {
             output = buffer.slice();
         } else {
-            output = buffer;
+            output = buffer.array();
         }
+
     } finally {
-        utils.free(raw);
         utils.free(mat_id_buffer);
         utils.free(ref_id_buffer);
         if (!use_buffer) {
@@ -186,5 +187,8 @@ export function labelCells(x, reference, { buffer = null, geneNames = null, refe
         }
     }
     
-    return output;
+    return {
+        "usedMarkers": ngenes,
+        "labels": output        
+    };
 }

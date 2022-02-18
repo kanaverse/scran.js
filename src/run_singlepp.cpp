@@ -104,36 +104,51 @@ SinglePPReference load_singlepp_reference(
  * This will be filled with the index of the assigned label for each cell in the test dataset.
  *
  * @return `output` is filled with the label assignments from the reference dataset.
+ * The number of markers used in the classification is returned.
  */
-void run_singlepp(const NumericMatrix& mat, const SinglePPReference& ref, bool use_ids, uintptr_t mat_id, uintptr_t ref_id, int top, double quantile, uintptr_t output) {
+int run_singlepp(const NumericMatrix& mat, const SinglePPReference& ref, bool use_ids, uintptr_t mat_id, uintptr_t ref_id, int top, double quantile, uintptr_t output) {
     std::vector<double*> empty(ref.markers.size(), nullptr);
 
     singlepp::SinglePP runner;
     runner.set_top(top).set_quantile(quantile);
 
     if (use_ids) {
-        runner.run(mat.ptr.get(), 
+        auto built = runner.build(
+            mat.ptr->nrow(),
             reinterpret_cast<const int*>(mat_id), 
             ref.matrix.get(), 
             reinterpret_cast<const int*>(ref_id),
             ref.labels.data(),
-            ref.markers,
+            ref.markers
+        );
+
+        runner.run(
+            mat.ptr.get(), 
+            built,
             reinterpret_cast<int*>(output),
             empty,
             nullptr
         );
+
+        return built.mat_subset.size();
+
     } else {
-        runner.run(mat.ptr.get(), 
+        auto built = runner.build(
             ref.matrix.get(), 
             ref.labels.data(),
-            ref.markers,
+            ref.markers
+        );
+
+        runner.run(
+            mat.ptr.get(), 
+            built,
             reinterpret_cast<int*>(output),
             empty,
             nullptr
         );
+
+        return built.subset.size();
     }
-    
-    return;
 }
 
 /**
