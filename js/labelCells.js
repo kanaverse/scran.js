@@ -1,6 +1,7 @@
 import * as wasm from "./wasm.js";
 import * as utils from "./utils.js";
 import { Int32WasmArray } from "./WasmArray.js";
+import { LayeredSparseMatrix } from "./SparseMatrix.js";
 
 /**
  * Wrapper around a labelled reference dataset on the Wasm heap.
@@ -151,11 +152,22 @@ export function labelCells(x, reference, { buffer = null, geneNames = null, refe
 
             let available = {};
             let counter = 0;
-            geneNames.forEach(y => {
-                available[y] = counter;
-                mat_id_array[counter] = counter;
-                counter++;
-            });
+            if (x instanceof LayeredSparseMatrix) {
+                // Remember, the 'permutation' does not describe the permutation to get _to_ 'x';
+                // it describes the permutation to recover the original ordering _from_ 'x'.
+                let permutation = x.permutation();
+                permutation.forEach((p, i) => {
+                    available[geneNames[i]] = counter;
+                    mat_id_array[p] = counter;
+                    counter++;
+                });
+            } else {
+                geneNames.forEach(y => {
+                    available[y] = counter;
+                    mat_id_array[counter] = counter;
+                    counter++;
+                });
+            }
 
             referenceGeneNames.forEach((y, i) => {
                 if (y in available) {
@@ -165,6 +177,30 @@ export function labelCells(x, reference, { buffer = null, geneNames = null, refe
                     ref_id_array[i] = counter;
                     counter++;
                 }
+            });
+
+            use_ids = true;
+            mat_id_offset = mat_id_buffer.offset;
+            ref_id_offset = ref_id_buffer.offset;
+
+        } else if (x instanceof LayeredSparseMatrix) {
+            // This'll get free'd by the ref_id_buffer free.
+            let tmp = new Int32WasmArray(reference.numberOfFeatures());
+
+            // Getting the identity of the permuted rows in 'x'.
+            mat_id_buffer = new Int32WasmArray(x.numberOfRows());
+            let mat_id_array = mat_id_buffer.array();
+            let permutation = x.permutation({ buffer: tmp });
+            let tmp_array = tmp.array();
+            tmp_array.forEach((p, i) => {
+                mat_id_array[p] = i;
+            }); 
+
+            // Mocking up a counterpart for the reference dataset.
+            ref_id_buffer = tmp;
+            let ref_id_array = ref_id_buffer.array();
+            ref_id_array.forEach((x, i) => {
+                ref_id_array[i] = i;
             });
 
             use_ids = true;
