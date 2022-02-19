@@ -65,6 +65,8 @@ test("initialization from compressed values works with permutations", () => {
     // Extracting the row permutations.
     var permutation = mat.permutation();
     expect(compare.equalArrays(permutation, [10, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8])).toBe(true);
+    var revpermutation = mat.permutation({ restore: false });
+    expect(compare.equalArrays(revpermutation, [2, 3, 4, 5, 6, 7, 8, 9, 10, 1, 0])).toBe(true);
 
     expect(compare.equalArrays(mat.row(0), [0, 0, 10, 10, 0, 0, 0, 0, 0, 0])).toBe(true); // basically gets row 2, which has been promoted to the first row.
     expect(compare.equalArrays(mat.row(9), [0, 0, 0, 1000, 0, 0, 0, 0, 0, 0])).toBe(true); // gets row 1, which has been demoted to the second-last row.
