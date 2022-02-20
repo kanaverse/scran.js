@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: logNormCounts.js</title>
+    <title>JSDoc: Source: features.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Source: logNormCounts.js</h1>
+    <h1 class="page-title">Source: features.js</h1>
 
     
 
@@ -26,68 +26,87 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>import * as wasm from "./wasm.js";
-import * as utils from "./utils.js";
+            <pre class="prettyprint source linenums"><code>/**
+ * Permute the genes to match the permutation in a `LayeredSparseMatrix`.
+ *
+ * @param {LayeredSparseMatrix} layered - A `LayeredSparseMatrix` where the rows are permuted for a more memory-efficient storage order.
+ * @param {object} info - A collection of arrays containing per-feature information (e.g., identifiers).
+ * Each array should have length equal to the number of rows in `layered`, but values should refer to features in their original order.
+ *
+ * @return All vectors in `geneInfo` are replaced by their permuted counterparts,
+ * such that entries match the corresponding row in `layered`.
+ */
+export function permuteFeatures(layered, featureInfo) {
+    let perm = layered.permutation();
+    for (const [key, val] of Object.entries(featureInfo)) {
+        let copy = val.slice();
+        perm.forEach((x, i) => {
+            copy[x] = val[i];
+        });
+        featureInfo[key] = copy;
+    }
+    return;
+}
 
 /**
- * Compute log-transformed normalized expression values.
+ * Guess the identity of the features from their names.
  *
- * @param {SparseMatrix} x The count matrix, usually after filtering.
- * @param {Object} [options] - Optional parameters.
- * @param {?(Float64WasmArray|Array|TypedArray)} [options.sizeFactors] - Array of positive numbers containing the size factor for each cell in `x`.
- * This should have length equal to the number of columns in `x`.
- * If `null`, size factors are computed from the column sums of `x`.
- * @param {?(Int32WasmArray|Array|TypedArray)} [options.block] - Array containing the block assignment for each cell.
- * This should have length equal to the number of cells and contain all values from 0 to `n - 1` at least once, where `n` is the number of blocks.
- * This is used to segregate cells in order to perform normalization within each block.
- * Alternatively, this may be `null`, in which case all cells are assumed to be in the same block.
+ * @param {Array} features - Array containing feature identifiers, typically Ensembl IDs or gene symbols.
  *
- * @param A matrix of the same type as `x` containing log-transformed normalized expression values.
+ * @return An object containing the inferred `species`, which can be either `"human"` or `"mouse"`;
+ * and the identifier `type`, which can be either `"ensembl"` or `"symbol"`.
+ * A `confidence` value is reported which defines the percentage of entries in `x` that are consistent with the inferred identity.
  */
-export function logNormCounts(x, { sizeFactors = null, block = null } = {}) {
-    var sf_data;
-    var block_data;
-    var raw;
-    var output;
-
-    try {
-        var sfptr = 0;
-        var use_sf = false;
-
-        if (sizeFactors !== null) {
-            sf_data = utils.wasmifyArray(sizeFactors, "Float64WasmArray");
-            if (sf_data.length != x.numberOfColumns()) {
-                throw "length of 'sizeFactors' must be equal to number of columns in 'x'";
-            }
-            sfptr = sf_data.offset;
-            use_sf = true;
+export function guessFeatures(features) {
+    // Human Ensembl.
+    let human_ens = 0
+    features.forEach(x => {
+        if (x.match(/^ENSG[0-9]{11}$/)) {
+            human_ens++;
         }
+    });
 
-        var bptr = 0;
-        var use_blocks = false;
-
-        if (block !== null) {
-            block_data = utils.wasmifyArray(block, "Int32WasmArray");
-            if (block_data.length != x.numberOfColumns()) {
-                throw "'block' must be of length equal to the number of columns in 'x'";
-            }
-            use_blocks = true;
-            bptr = block_data.offset;
+    // Human symbol; starts with upper case, no lower case, and not an Ensembl of any kind.
+    let human_sym = 0
+    features.forEach(x => {
+        if (x.match(/^[A-Z][^a-z]+$/) &amp;&amp; !x.match(/^ENS[A-Z]+[0-9]{11}/)) {
+            human_sym++;
         }
+    });
 
-        raw = wasm.call(module => module.log_norm_counts(x.matrix, use_sf, sfptr, use_blocks, bptr));
-        output = new x.constructor(raw);
+    // Mouse Ensembl.
+    let mouse_ens = 0
+    features.forEach(x => {
+        if (x.match(/^ENSMUSG[0-9]{11}$/)) {
+            mouse_ens++;
+        }
+    });
 
-    } catch (e) {
-        utils.free(raw);
-        throw e;
+    // Mouse symbol; starts with upper case, but no upper case after that.
+    let mouse_sym = 0
+    features.forEach(x => {
+        if (x.match(/^[A-Z][^A-Z]+$/)) {
+            mouse_sym++;
+        }
+    });
 
-    } finally {
-        utils.free(sf_data);
-        utils.free(block_data);
+    // Who's the highest?
+    let output = [
+        { "species": "human", "type": "ensembl", "confidence": human_ens},
+        { "species": "human", "type": "symbol", "confidence": human_sym},
+        { "species": "mouse", "type": "ensembl", "confidence": mouse_ens},
+        { "species": "mouse", "type": "symbol", "confidence": mouse_sym}
+    ];
+
+    let highest = output[0];
+    for (var i = 1; i &lt; output.length; i++) {
+        if (output[i].confidence > highest.confidence) {
+            highest = output[i];
+        }
     }
-    
-    return output;
+
+    highest.confidence /= features.length;
+    return highest;
 }
 </code></pre>
         </article>
