@@ -120,21 +120,22 @@ public:
 };
 
 /**
- * @param ngenes Total number of genes in the test dataset.
+ * @param nfeatures Total number of features in the test dataset.
  * @param ref The reference dataset to use for annotation, see `load_singlepp_reference()`.
- * @param[in] mat_id Offset to an integer array of length equal to `ngenes`.
+ * @param[in] mat_id Offset to an integer array of length equal to `nfeatures`.
  * Each element contains a feature identifier for the corresponding row.
  * @param[in] ref_id Offset to an integer array of length equal to the number of features in the reference dataset.
  * This should contain the feature identifier for each feature in the reference, to be intersected with those in `mat_id`.
- * @param top Number of top marker genes to use from each pairwise comparison between labels.
+ * @param top Number of top markers to use.
+ * These features are taken from each pairwise comparison between labels.
  *
  * @return A `BuiltSinglePPReference` object that can be immediately used for classification of any matrix with row identities corresponding to `mat_id`.
  */
-BuiltSinglePPReference build_singlepp_reference(size_t ngenes, const SinglePPReference& ref, uintptr_t mat_id, uintptr_t ref_id, int top) {
+BuiltSinglePPReference build_singlepp_reference(size_t nfeatures, const SinglePPReference& ref, uintptr_t mat_id, uintptr_t ref_id, int top) {
     singlepp::SinglePP runner;
     runner.set_top(top);
     auto built = runner.build(
-        ngenes, 
+        nfeatures, 
         reinterpret_cast<const int*>(mat_id), 
         ref.matrix.get(), 
         reinterpret_cast<const int*>(ref_id),

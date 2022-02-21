@@ -67,7 +67,7 @@ class LabelledReference {
  *
  * For `markers`, the GMT format is a tab-separated file with possibly variable numbers of fields for each line.
  * Each line corresponds to a pairwise comparison between labels, defined by the first two fields.
- * The remaining fields should contain indices of marker genes (referring to columns of `matrix`) that are upregulated in the first label when compared to the second.
+ * The remaining fields should contain indices of marker features (referring to columns of `matrix`) that are upregulated in the first label when compared to the second.
  * Markers should be sorted in order of decreasing strength.
  *
  * For `labels`, each line should contain an integer representing a particular label, from `[0, N)` where `N` is the number of unique labels.
@@ -136,50 +136,51 @@ class BuiltLabelledReference {
 /**
  * Build the reference dataset for annotation.
  *
- * @param {Array} geneNames - An array of gene identifiers (usually strings) of length equal to the number of rows in the test matrix.
+ * @param {Array} features - An array of feature identifiers (usually strings) of length equal to the number of rows in the test matrix.
  * Each entry should contain the identifier for the corresponding row of the test matrix.
  * @param {LabelledReference} loaded - A reference dataset, typically loaded with `loadLabelledReferenceFromBuffers`.
- * @param {Array} referenceGeneNames - An array of gene identifiers (usually strings) of length equal to the number of features in `reference`.
- * This is expected to exhibit some overlap with those in `geneNames`.
+ * @param {Array} referenceFeatures - An array of feature identifiers (usually strings) of length equal to the number of features in `reference`.
+ * This is expected to exhibit some overlap with those in `features`.
  * @param {Object} [options] - Optional parameters.
- * @param {number} [options.top] - Number of top marker genes to use from each pairwise comparison between labels.
+ * @param {number} [options.top] - Number of top marker features to use.
+ * These features are taken from each pairwise comparison between labels.
  *
  * @return A `BuiltLabelledReference` object containing the built reference dataset.
  *
- * The build process involves harmonizing the identities of the genes available in the test dataset compared to the reference.
- * Specifically, a gene must be present in both datasets in order to be retained. 
- * Of those genes in the intersection, only the `top` markers from each pairwise comparison are ultimately used for classification.
+ * The build process involves harmonizing the identities of the features available in the test dataset compared to the reference.
+ * Specifically, a feature must be present in both datasets in order to be retained. 
+ * Of those features in the intersection, only the `top` markers from each pairwise comparison are ultimately used for classification.
  *
- * Needless to say, the genes in `geneNames` should match up to the rows of the matrix that is actually used for annotation in `labelCells()`.
- * If the test dataset is a `LayeredSparseMatrix`, the ordering of `geneNames` should include the permutation that was applied during the layering process.
+ * Needless to say, `features` should match up to the rows of the matrix that is actually used for annotation in `labelCells()`.
+ * If the test dataset is a `LayeredSparseMatrix`, the ordering of `features` should include the permutation that was applied during the layering process.
  * Otherwise the row indices will not be correct in subsequent calls to `labelCells()` with a `LayeredSparseMatrix` input. 
  */
-export function buildLabelledReference(geneNames, loaded, referenceGeneNames, { top = 20 } = {}) {
+export function buildLabelledReference(features, loaded, referenceFeatures, { top = 20 } = {}) {
     var mat_id_buffer;
     var ref_id_buffer;
     var raw;
     var output;
 
     try {
-        var ngenes = geneNames.length;
-        mat_id_buffer = new Int32WasmArray(ngenes);
+        var nfeat = features.length;
+        mat_id_buffer = new Int32WasmArray(nfeat);
         ref_id_buffer = new Int32WasmArray(loaded.numberOfFeatures());
         let mat_id_array = mat_id_buffer.array();
         let ref_id_array = ref_id_buffer.array();
 
-        if (referenceGeneNames.length != ref_id_buffer.length) {
-            throw "length of 'referenceGeneNames' should be equal to the number of features in 'reference'";
+        if (referenceFeatures.length != ref_id_buffer.length) {
+            throw "length of 'referenceFeatures' should be equal to the number of features in 'reference'";
         }
 
         let available = {};
         let counter = 0;
-        geneNames.forEach(y => {
+        features.forEach(y => {
             available[y] = counter;
             mat_id_array[counter] = counter;
             counter++;
         });
 
-        referenceGeneNames.forEach((y, i) => {
+        referenceFeatures.forEach((y, i) => {
             if (y in available) {
                 ref_id_array[i] = available[y];
             } else {
@@ -189,9 +190,9 @@ export function buildLabelledReference(geneNames, loaded, referenceGeneNames, { 
             }
         });
 
-        raw = wasm.call(module => module.build_singlepp_reference(ngenes, loaded.reference, mat_id_buffer.offset, ref_id_buffer.offset, top));
+        raw = wasm.call(module => module.build_singlepp_reference(nfeat, loaded.reference, mat_id_buffer.offset, ref_id_buffer.offset, top));
         output = new BuiltLabelledReference(raw);
-        output.expectedNumberOfGenes = ngenes;
+        output.expectedNumberOfFeatures = nfeat;
 
     } catch (e) {
         utils.free(raw);
@@ -213,14 +214,14 @@ export function buildLabelledReference(geneNames, loaded, referenceGeneNames, { 
  * @param {BuiltLabelledReference} reference - A built reference dataset, typically generated by `buildLabelledReference()`.
  * @param {Object} [options] - Optional parameters.
  * @param {Int32WasmArray} [options.buffer] - A buffer to store the output labels, of length equal to the number of columns in `x`.
- * @param {number} [options.numberOfGenes] - Number of genes, used when `x` is a `Float64WasmArray`.
+ * @param {number} [options.numberOfFeatures] - Number of features, used when `x` is a `Float64WasmArray`.
  * @param {number} [options.numberOfCells] - Number of cells, used when `x` is a `Float64WasmArray`.
  * @param {number} [options.quantile] - Quantile on the correlations to use to compute the score for each label.
  *
  * @return An `Int32Array` is returned containing the labels for each cell in `x`.
  * If `buffer` is supplied, the returned array is a view into it.
  */
-export function labelCells(x, reference, { buffer = null, numberOfGenes = null, numberOfCells = null, quantile = 0.8 } = {}) {
+export function labelCells(x, reference, { buffer = null, numberOfFeatures = null, numberOfCells = null, quantile = 0.8 } = {}) {
     var output;
     var tempmat;
     var tempbuf;
@@ -231,17 +232,17 @@ export function labelCells(x, reference, { buffer = null, numberOfGenes = null, 
         if (x instanceof SparseMatrix) {
             target = x.matrix;
         } else if (x instanceof Float64WasmArray) {
-            if (x.length !== numberOfGenes * numberOfCells) {
-                throw "length of 'x' must be equal to the product of 'numberOfGenes' and 'numberOfCells'";
+            if (x.length !== numberOfFeatures * numberOfCells) {
+                throw "length of 'x' must be equal to the product of 'numberOfFeatures' and 'numberOfCells'";
             }
-            tempmat = wasm.call(module => module.initialize_dense_matrix(numberOfGenes, numberOfCells, x.offset, "Float64Array"));
+            tempmat = wasm.call(module => module.initialize_dense_matrix(numberOfFeatures, numberOfCells, x.offset, "Float64Array"));
             target = tempmat;
         } else {
             throw "unknown type for 'x'";
         }
 
-        if (target.nrow() != reference.expectedNumberOfGenes) {
-            throw "number of rows in 'x' should be equal to length of 'geneNames' used to build 'reference'";
+        if (target.nrow() != reference.expectedNumberOfFeatures) {
+            throw "number of rows in 'x' should be equal to length of 'features' used to build 'reference'";
         }
 
         let ptr;

@@ -156,7 +156,7 @@ test("labelCells works correctly with a dense matrix", () => {
         buffer.set(mat.column(i), i * nfeatures);
     }
 
-    let labels2 = scran.labelCells(buffer, built, { numberOfGenes: nfeatures, numberOfCells: 30 }); 
+    let labels2 = scran.labelCells(buffer, built, { numberOfFeatures: nfeatures, numberOfCells: 30 }); 
     expect(compare.equalArrays(labels, labels2)).toBe(true);
 
     // Freeing the objects.
