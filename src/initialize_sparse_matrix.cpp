@@ -44,6 +44,7 @@ tatami::SomeNumericArray<T> create_SomeNumericArray(uintptr_t ptr, size_t len, s
  * @param nrows Number of rows.
  * @param ncols Number of columns.
  * @param[in] values Offset to an integer array of length `nrows*ncols` containing the contents of the matrix.
+ * This is assumed to be in column-major format.
  * @param type Type of the `values` array, as the name of a TypedArray subclass.
  *
  * @return A `NumericMatrix` containing a layered sparse matrix.
@@ -93,12 +94,31 @@ NumericMatrix initialize_sparse_matrix(size_t nrows, size_t ncols, size_t neleme
 }
 
 /**
+ * @param nrows Number of rows.
+ * @param ncols Number of columns.
+ * @param[in] values Offset to an integer array of length `nrows*ncols` containing the contents of the matrix.
+ * This is assumed to be in column-major format.
+ * @param type Type of the `values` array, as the name of a TypedArray subclass.
+ *
+ * @return A `NumericMatrix` containing a dense matrix.
+ */
+NumericMatrix initialize_dense_matrix(size_t nrows, size_t ncols, uintptr_t values, std::string type) {
+    std::vector<double> tmp(nrows* ncols);
+    auto vals = create_SomeNumericArray<double>(values, nrows*ncols, type);
+    std::copy(vals.begin(), vals.end(), tmp.begin());
+    auto ptr = std::shared_ptr<const tatami::NumericMatrix>(new tatami::DenseColumnMatrix<double, int>(nrows, ncols, std::move(tmp)));
+    return NumericMatrix(std::move(ptr));
+}
+
+/**
  * @cond
  */
 EMSCRIPTEN_BINDINGS(initialize_sparse_matrix) {
     emscripten::function("initialize_sparse_matrix", &initialize_sparse_matrix);
 
     emscripten::function("initialize_sparse_matrix_from_dense_vector", &initialize_sparse_matrix_from_dense_vector);
+
+    emscripten::function("initialize_dense_matrix", &initialize_dense_matrix);
 }
 /**
  * @endcond

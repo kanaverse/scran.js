@@ -1,7 +1,7 @@
 import * as wasm from "./wasm.js";
 import * as utils from "./utils.js";
-import { Int32WasmArray } from "./WasmArray.js";
-import { LayeredSparseMatrix } from "./SparseMatrix.js";
+import { Int32WasmArray, Float64WasmArray } from "./WasmArray.js";
+import { SparseMatrix } from "./SparseMatrix.js";
 
 /**
  * Wrapper around a labelled reference dataset on the Wasm heap.
@@ -52,7 +52,7 @@ class LabelledReference {
 }
 
 /**
- * Load a reference dataset for downstream annotation.
+ * Load a reference dataset for annotation.
  *
  * @param {Uint8Array} ranks - Buffer containing the Gzipped CSV file containing a matrix of ranks.
  * @param {Uint8Array} markers - Buffer containing the Gzipped GMT file containing the markers for each pairwise comparison between labels.
@@ -100,101 +100,169 @@ export function loadLabelledReferenceFromBuffers(ranks, markers, labels) {
 }
 
 /**
- * Label cells based on similarity in expression to a reference dataset.
+ * Wrapper around a built labelled reference dataset on the Wasm heap.
+ */
+class BuiltLabelledReference {
+    /**
+     * @param {Object} raw Results allocated on the Wasm heap.
+     *
+     * This should not be called directly by developers,
+     * call `buildLabelledReference()` instead.
+     */
+    constructor(raw) {
+        this.reference = raw;
+        return;
+    }
+
+    /**
+     * @return Number of shared features between the test and reference datasets.
+     */
+    sharedFeatures() {
+        return this.reference.shared_features();
+    }
+
+    /**
+     * @return Frees the memory allocated on the Wasm heap for this object.
+     * This invalidates this object and all references to it.
+     */
+    free() {
+        if (this.reference !== null) {
+            this.reference.delete();
+            this.reference = null;
+        }
+    }
+}
+
+/**
+ * Build the reference dataset for annotation.
  *
- * @param {SparseMatrix} x - The count matrix, or log-normalized matrix, containing features in the rows and cells in the columns.
- * @param {LabelledReference} reference - A reference dataset, typically constructed with `loadLabelledReferenceFromBuffers`.
- * @param {Object} options - Optional parameters.
- * @param {Int32WasmArray} buffer - A buffer to store the output labels, of length equal to the number of columns in `x`.
- * @param {Array} geneNames - An array of gene identifiers (usually strings) of length equal to the number of rows in `x`.
- * Each entry should contain the identifier for the corresponding row of `x`.
+ * @param {Array} geneNames - An array of gene identifiers (usually strings) of length equal to the number of rows in the test matrix.
+ * Each entry should contain the identifier for the corresponding row of the test matrix.
+ * @param {LabelledReference} loaded - A reference dataset, typically loaded with `loadLabelledReferenceFromBuffers`.
  * @param {Array} referenceGeneNames - An array of gene identifiers (usually strings) of length equal to the number of features in `reference`.
  * This is expected to exhibit some overlap with those in `geneNames`.
- * @param {number} top - Number of top marker genes to use from each pairwise comparison between labels.
- * @param {number} quantile - Quantile on the correlations to use to compute the score for each label.
+ * @param {Object} [options] - Optional parameters.
+ * @param {number} [options.top] - Number of top marker genes to use from each pairwise comparison between labels.
  *
- * @return An object is returned containing `usedMarkers`, the number of markers used for classification;
- * and `labels`, an `Int32Array` is returned containing the labels for each cell in `x`.
- * If `buffer` is supplied, `labels` is an array view into it.
+ * @return A `BuiltLabelledReference` object containing the built reference dataset.
  *
- * If `x` is a `LayeredSparseMatrix`, the ordering of the rows of `x` should include the permutation that was applied during the layering process.
- * This means that if `geneNames` and `referenceGeneNames` are not supplied, the rows of `reference` should be subjected to the same permutation;
- * or if `geneNames` and `referenceGeneNames` are supplied, the ordering of `geneNames` should be permuted.
+ * The build process involves harmonizing the identities of the genes available in the test dataset compared to the reference.
+ * Specifically, a gene must be present in both datasets in order to be retained. 
+ * Of those genes in the intersection, only the `top` markers from each pairwise comparison are ultimately used for classification.
+ *
+ * Needless to say, the genes in `geneNames` should match up to the rows of the matrix that is actually used for annotation in `labelCells()`.
+ * If the test dataset is a `LayeredSparseMatrix`, the ordering of `geneNames` should include the permutation that was applied during the layering process.
+ * Otherwise the row indices will not be correct in subsequent calls to `labelCells()` with a `LayeredSparseMatrix` input. 
  */
-export function labelCells(x, reference, { buffer = null, geneNames = null, referenceGeneNames = null, top = 20, quantile = 0.8 } = {}) {
-    var ngenes;
-    var output;
-    let use_buffer = (buffer instanceof Int32WasmArray);
+export function buildLabelledReference(geneNames, loaded, referenceGeneNames, { top = 20 } = {}) {
     var mat_id_buffer;
     var ref_id_buffer;
+    var raw;
+    var output;
 
     try {
-        if (!use_buffer) {
-            buffer = new Int32WasmArray(x.numberOfColumns());
+        var ngenes = geneNames.length;
+        mat_id_buffer = new Int32WasmArray(ngenes);
+        ref_id_buffer = new Int32WasmArray(loaded.numberOfFeatures());
+        let mat_id_array = mat_id_buffer.array();
+        let ref_id_array = ref_id_buffer.array();
+
+        if (referenceGeneNames.length != ref_id_buffer.length) {
+            throw "length of 'referenceGeneNames' should be equal to the number of features in 'reference'";
         }
 
-        // Building the set of indices.
-        var use_ids = false;
-        var mat_id_offset = 0;
-        var ref_id_offset = 0;
+        let available = {};
+        let counter = 0;
+        geneNames.forEach(y => {
+            available[y] = counter;
+            mat_id_array[counter] = counter;
+            counter++;
+        });
 
-        if (geneNames !== null || referenceGeneNames !== null) {
-            if ((geneNames !== null) != (referenceGeneNames !== null)) {
-                throw "both or neither 'geneNames' and 'referenceGeneNames' should be specified";
-            }
-
-            mat_id_buffer = new Int32WasmArray(x.numberOfRows());
-            ref_id_buffer = new Int32WasmArray(reference.numberOfFeatures());
-            let mat_id_array = mat_id_buffer.array();
-            let ref_id_array = ref_id_buffer.array();
-
-            if (geneNames.length != mat_id_buffer.length) {
-                throw "length of 'geneNames' should be equal to the number of rows in 'x'";
-            }
-            if (referenceGeneNames.length != ref_id_buffer.length) {
-                throw "length of 'referenceGeneNames' should be equal to the number of features in 'reference'";
-            }
-
-            let available = {};
-            let counter = 0;
-            geneNames.forEach(y => {
+        referenceGeneNames.forEach((y, i) => {
+            if (y in available) {
+                ref_id_array[i] = available[y];
+            } else {
                 available[y] = counter;
-                mat_id_array[counter] = counter;
+                ref_id_array[i] = counter;
                 counter++;
-            });
+            }
+        });
 
-            referenceGeneNames.forEach((y, i) => {
-                if (y in available) {
-                    ref_id_array[i] = available[y];
-                } else {
-                    available[y] = counter;
-                    ref_id_array[i] = counter;
-                    counter++;
-                }
-            });
+        raw = wasm.call(module => module.build_singlepp_reference(ngenes, loaded.reference, mat_id_buffer.offset, ref_id_buffer.offset, top));
+        output = new BuiltLabelledReference(raw);
+        output.expectedNumberOfGenes = ngenes;
 
-            use_ids = true;
-            mat_id_offset = mat_id_buffer.offset;
-            ref_id_offset = ref_id_buffer.offset;
+    } catch (e) {
+        utils.free(raw);
+        throw e;
+
+    } finally {
+        utils.free(mat_id_buffer);
+        utils.free(ref_id_buffer);
+    }
+
+    return output;
+}
+
+/**
+ * Label cells based on similarity in expression to a reference dataset.
+ *
+ * @param {(SparseMatrix|Float64WasmArray)} x - The count matrix, or log-normalized matrix, containing features in the rows and cells in the columns.
+ * If a `Float64WasmArray` is supplied, it is assumed to contain a column-major dense matrix.
+ * @param {BuiltLabelledReference} reference - A built reference dataset, typically generated by `buildLabelledReference()`.
+ * @param {Object} [options] - Optional parameters.
+ * @param {Int32WasmArray} [options.buffer] - A buffer to store the output labels, of length equal to the number of columns in `x`.
+ * @param {number} [options.numberOfGenes] - Number of genes, used when `x` is a `Float64WasmArray`.
+ * @param {number} [options.numberOfCells] - Number of cells, used when `x` is a `Float64WasmArray`.
+ * @param {number} [options.quantile] - Quantile on the correlations to use to compute the score for each label.
+ *
+ * @return An `Int32Array` is returned containing the labels for each cell in `x`.
+ * If `buffer` is supplied, the returned array is a view into it.
+ */
+export function labelCells(x, reference, { buffer = null, numberOfGenes = null, numberOfCells = null, quantile = 0.8 } = {}) {
+    var output;
+    var tempmat;
+    var tempbuf;
+    let use_buffer = (buffer instanceof Int32WasmArray);
+
+    try {
+        let target;
+        if (x instanceof SparseMatrix) {
+            target = x.matrix;
+        } else if (x instanceof Float64WasmArray) {
+            if (x.length !== numberOfGenes * numberOfCells) {
+                throw "length of 'x' must be equal to the product of 'numberOfGenes' and 'numberOfCells'";
+            }
+            tempmat = wasm.call(module => module.initialize_dense_matrix(numberOfGenes, numberOfCells, x.offset, "Float64Array"));
+            target = tempmat;
+        } else {
+            throw "unknown type for 'x'";
         }
 
-        ngenes = wasm.call(module => module.run_singlepp(x.matrix, reference.reference, use_ids, mat_id_offset, ref_id_offset, top, quantile, buffer.offset));
+        if (target.nrow() != reference.expectedNumberOfGenes) {
+            throw "number of rows in 'x' should be equal to length of 'geneNames' used to build 'reference'";
+        }
+
+        let ptr;
         if (!use_buffer) {
-            output = buffer.slice();
+            tempbuf = new Int32WasmArray(target.ncol());
+            ptr = tempbuf.offset;
+        } else {
+            ptr = buffer.offset;
+        }
+
+        wasm.call(module => module.run_singlepp(target, reference.reference, quantile, ptr));
+        if (!use_buffer) {
+            output = tempbuf.slice();
         } else {
             output = buffer.array();
         }
 
     } finally {
-        utils.free(mat_id_buffer);
-        utils.free(ref_id_buffer);
-        if (!use_buffer) {
-            utils.free(buffer);
-        }
+        utils.free(tempmat);
+        utils.free(tempbuf);
     }
     
-    return {
-        "usedMarkers": ngenes,
-        "labels": output        
-    };
+    return output;
 }

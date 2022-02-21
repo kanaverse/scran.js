@@ -54,6 +54,14 @@ function mockReferenceData(nlabels, nperlabel, nfeatures, nmarkers) {
     };
 };
 
+function mockIDs(nfeatures) {
+    var mockids = new Array(nfeatures);
+    for (var i = 0; i < nfeatures; i++) {
+        mockids[i] = i;
+    }
+    return mockids;
+}
+
 const nlabels = 5;
 const profiles_per_label = 10;
 const nfeatures = 1000;
@@ -67,9 +75,12 @@ test("labelCells works correctly", () => {
 
     // The simple case, no intersections.
     let mat = simulate.simulateMatrix(nfeatures, 20);
-    let output = scran.labelCells(mat, refinfo);
-    expect(output.usedMarkers > 0).toBe(true);
-    let labels = output.labels;
+    let mockids = mockIDs(nfeatures);
+
+    let built = scran.buildLabelledReference(mockids, refinfo, mockids);
+    expect(built.sharedFeatures() > 0).toBe(true);
+
+    let labels = scran.labelCells(mat, built);
     expect(labels.length).toBe(20);
 
     let min = Infinity, max = -1;
@@ -82,12 +93,12 @@ test("labelCells works correctly", () => {
 
     // Works with a buffer.
     let buf = new scran.Int32WasmArray(20);
-    let output2 = scran.labelCells(mat, refinfo, { buffer: buf });
-    let labels2 = output2.labels;
+    let labels2 = scran.labelCells(mat, built, { buffer: buf });
     expect(compare.equalArrays(labels, labels2)).toBe(true);
 
     // Freeing the objects.
     refinfo.free();
+    built.free();
     mat.free();
 })
 
@@ -96,9 +107,12 @@ test("labelCells works correctly with intersections", () => {
     let refinfo = scran.loadLabelledReferenceFromBuffers(ref.ranks, ref.markers, ref.labels);
 
     let mat = simulate.simulateMatrix(nfeatures, 20);
-    let output = scran.labelCells(mat, refinfo); // no intersection reference.
-    expect(output.usedMarkers > 0).toBe(true);
-    let labels = output.labels;
+    let mockids = mockIDs(nfeatures);
+
+    // No intersection reference.
+    let built = scran.buildLabelledReference(mockids, refinfo, mockids);
+    expect(built.sharedFeatures() > 0).toBe(true);
+    let labels = scran.labelCells(mat, built); 
 
     // Throwing in some intersections.
     var inter = [];
@@ -106,23 +120,48 @@ test("labelCells works correctly with intersections", () => {
         inter.push("Gene" + i);
     }
 
-    let output2 = scran.labelCells(mat, refinfo, { geneNames: inter, referenceGeneNames: inter });
-    expect(output2.usedMarkers > 0).toBe(true);
-    let labels2 = output2.labels;
-    expect(compare.equalArrays(labels, labels2)).toBe(true);
-
-    // Shuffling the genes and checking we get a different result.
-    var stat = inter.map(x => Math.random());
+    var stat = inter.map(x => Math.random()); // shuffling
     var indices = inter.map((x, i) => i);
     indices.sort((a, b) => stat[a] - stat[b]);
     var inter2 = indices.map(i => inter[i]);
 
-    let output3 = scran.labelCells(mat, refinfo, { geneNames: inter, referenceGeneNames: inter2 });
-    let labels3 = output3.labels;
-    expect(compare.equalArrays(labels, labels3)).toBe(false);
+    let built2 = scran.buildLabelledReference(inter, refinfo, inter2);
+    let labels2 = scran.labelCells(mat, built2);
+
+    // There should be some difference!
+    expect(compare.equalArrays(labels, labels2)).toBe(false);
 
     // Freeing the objects.
     refinfo.free();
     mat.free();
+    built.free();
+    built2.free();
 });
 
+test("labelCells works correctly with a dense matrix", () => {
+    let ref = mockReferenceData(nlabels, profiles_per_label, nfeatures, 20); 
+    let refinfo = scran.loadLabelledReferenceFromBuffers(ref.ranks, ref.markers, ref.labels);
+
+    let mockids = mockIDs(nfeatures);
+    let built = scran.buildLabelledReference(mockids, refinfo, mockids);
+    expect(built.sharedFeatures() > 0).toBe(true);
+
+    // Sparse reference.
+    let mat = simulate.simulateMatrix(nfeatures, 30);
+    let labels = scran.labelCells(mat, built); 
+
+    // Densifying it.
+    let buffer = new scran.Float64WasmArray(nfeatures * 30);
+    for (var i = 0; i < 30; i++) {
+        buffer.set(mat.column(i), i * nfeatures);
+    }
+
+    let labels2 = scran.labelCells(buffer, built, { numberOfGenes: nfeatures, numberOfCells: 30 }); 
+    expect(compare.equalArrays(labels, labels2)).toBe(true);
+
+    // Freeing the objects.
+    refinfo.free();
+    mat.free();
+    built.free();
+    buffer.free();
+});
