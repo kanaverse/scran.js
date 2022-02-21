@@ -4,6 +4,8 @@ export * from "./WasmArray.js";
 export * from "./initializeSparseMatrix.js";
 export * from "./hdf5.js";
 
+export * from "./features.js";
+
 export * from "./computePerCellQCMetrics.js";
 export * from "./computePerCellQCFilters.js";
 export * from "./filterCells.js";

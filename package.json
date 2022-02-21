@@ -1,6 +1,6 @@
 {
     "name": "scran.js",
-    "version": "0.0.12",
+    "version": "0.0.13",
     "description": "Single cell RNA-seq analysis in Javascript",
     "license": "MIT",
     "main": "main/index.js",
@@ -13,11 +13,12 @@
     },
     "devDependencies": {
         "@babel/plugin-transform-modules-commonjs": "^7.16.8",
+        "h5wasm": "^0.2.1",
         "jest": "^27.4.7",
         "jsdoc": "^3.6.10",
         "pako": "^2.0.4",
-        "parcel": "^2.2.1",
-        "h5wasm": "^0.2.1"
+        "parcel": "^2.3.2",
+        "process": "^0.11.10"
     },
     "targets": {
         "web": {
