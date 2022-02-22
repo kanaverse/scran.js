@@ -65,11 +65,11 @@ We use an approximate method to quickly obtain the top few PCs.</li>
 This can either use k-means or multi-level community detection (a.k.a., &quot;Louvain clustering&quot;) on a shared nearest neighbor graph.</li>
 <li>Dimensionality reduction with t-stochastic neighbor embedding (t-SNE), again using the top PCs.</li>
 <li>Marker detection using a variety of effect sizes such as Cohen's d and the area under the curve (AUC).</li>
+<li>Cell type annotation with a port of the <a href="https://bioconductor.org/packages/SingleR"><strong>SingleR</strong></a> algorithm.</li>
 </ul>
 <p>Coming soon:</p>
 <ul>
 <li>Batch correction via the mutual nearest neighbors method.</li>
-<li>Cell type annotation with <strong>SingleR</strong>.</li>
 </ul>
 <p>The theory behind these methods is described in more detail in the <a href="https://bioconductor.org/books/release/OSCA/"><strong>Orchestrating Single Cell Analysis with Bioconductor</strong></a> book.</p>
 <h2>Quick start</h2>
@@ -82,14 +82,23 @@ we suggest using a top-level <code>await</code> for convenience.</p>
 <pre class="prettyprint source lang-js"><code>import * as scran from &quot;scran.js&quot;;
 await scran.initialize({ numberOfThreads: 4 }); // for old Node versions, set localFile: true
 </code></pre>
-<p>After that, you can run the remaining steps synchronously.
-Below is an example using the Node.js API with one of our example <a href="https://github.com/jkanche/random-test-files">Matrix Market files</a>.</p>
-<pre class="prettyprint source lang-js"><code>// Reading the file in.
+<p>After that, you can run the remaining steps synchronously - for example, using the Node.js API:</p>
+<pre class="prettyprint source lang-js"><code>// Reading in the count matrix.
+import * as fs from &quot;fs&quot;;
+let buffer = fs.readFileSync(&quot;matrix.mtx.gz&quot;);
+let mat = scran.initializeSparseMatrixFromMatrixMarketBuffer(buffer);
+</code></pre>
+<p>Reference documentation for the Javascript API is available <a href="https://jkanche.github.io/scran.js">here</a>.</p>
+<h2>Basic analyses</h2>
+<p>The code chunk below implements a basic analysis, starting from count matrix loading and terminating at the markers for each cluster.
+This uses the Node.js API to read in one of our example <a href="https://github.com/jkanche/random-test-files">Matrix Market files</a>,
+but the same approach can be used on the buffer created from a <code>File</code> input in the browser.</p>
+<pre class="prettyprint source lang-js"><code>// Reading in the count matrix.
 import * as fs from &quot;fs&quot;;
 let buffer = fs.readFileSync(&quot;matrix.mtx.gz&quot;);
 let mat = scran.initializeSparseMatrixFromMatrixMarketBuffer(buffer);
 
-// Performing the QC.
+// Performing QC.
 let qc_metrics = scran.computePerCellQCMetrics(mat, [ /* specify mito subset here */ ]);
 let qc_thresholds = scran.computePerCellQCThresholds(qc_metrics);
 let filtered = scran.filterCells(mat, qc_thresholds.discardOverall());
@@ -109,7 +118,7 @@ let index = scran.buildNeighborSearchIndex(pcs);
 
 // Performing the clustering. 
 let cluster_graph = scran.buildSNNGraph(index, { neighbors: 10 });
-let clustering  = scran.clusterSNNGraph(cluster_graph);
+let clustering = scran.clusterSNNGraph(cluster_graph);
 
 // Performing the t-SNE and UMAP.
 let tsne_status = scran.initializeTSNE(index);
@@ -117,24 +126,77 @@ let tsne_res = scran.runTSNE(tsne_status);
 
 let umap_status = scran.initializeUMAP(index);
 let umap_res = scran.runUMAP(umap_status);
+
+// Detecting some markers.
+let markers = scran.scoreMarkers(normalized, clustering.membership());
 </code></pre>
+<p>Note that the order of rows is permuted on input - see <a href="#permuting-the-row-order">below</a> for details.</p>
+<h2>Further details</h2>
+<h3>Permuting the row order</h3>
+<p>Of particular interest is the fact that the rows of the input matrix are permuted to achieve a memory-efficient permutation in <code>mat</code>.
+The permutation to restore the original row order can be obtained with:</p>
+<pre class="prettyprint source lang-js"><code>let perm1 = mat.permutation();
+</code></pre>
+<p>This can be used to permute the results of per-gene analyses like <code>modelGeneVar()</code> and <code>scoreMarkers()</code> to match the original row order.
+Alternatively, we can use:</p>
+<pre class="prettyprint source lang-js"><code>let perm2 = mat.permutation({ restore: false });
+</code></pre>
+<p>if we want to permute something in the original order to match the row order of <code>mat</code>.</p>
+<h3>Memory management</h3>
 <p>All custom classes returned by <strong>scran.js</strong> functions refer to allocations on the Wasm heap and are not subject to garbage collection by Javascript.
-If you intend to perform more <strong>scran.js</strong> operations after your analysis is complete, you will need to manually free your existing objects to make space for new ones.
+If you intend to perform more <strong>scran.js</strong> operations after your analysis is complete, you will need to manually free existing objects to make space for new ones.
 We suggest using the pattern below to catch all objects and free them.</p>
 <pre class="prettyprint source lang-js"><code>var things = {};
 things.mat = scran.initializeSparseMatrixFromMatrixMarketBuffer(buffer);
 
-/** some work here, possibly adding more objects to 'things' **/
-
-// Once the analysis is complete and results have been saved to file.
-for (const [key, val] of Object.entries(things)) {
-    val.free();
+try {
+    /** some work here, possibly adding more objects to 'things' **/
+} finally {
+    // Once the analysis is complete and results have been saved to file.
+    for (const [key, val] of Object.entries(things)) {
+        val.free();
+    }
 }
 </code></pre>
-<p>On Node.js, it is also necessary to terminate the workers after all analyses are complete.
+<h3>Terminating workers</h3>
+<p>On Node.js, it is necessary to terminate the workers after all analyses are complete.
 This is achieved by calling <code>scran.terminate()</code> once all operations are finished.
-Otherwise, the Node.js process will hang indefinitely as it waits for the workers to return.</p>
-<p>Reference documentation for the Javascript API is available <a href="https://jkanche.github.io/scran.js">here</a>.</p>
+Otherwise, the Node.js process will hang indefinitely as it waits for the workers to return.
+Browsers do not have this problem as the session ends when a user closes the relevant tab.</p>
+<h3>k-means clustering</h3>
+<p>For a faster alternative to the graph-based clustering algorithms, we can try using the k-means options instead.
+We perform k-means clustering on the PC matrix, so the output of <code>runPCA()</code> can be directly passed to the function.
+We need to specify the number of clusters - in this case, 20.</p>
+<pre class="prettyprint source lang-js"><code>let clustering = scran.clusterKmeans(pcs, 20);
+</code></pre>
+<p>We use PCA partitioning as the default initialization approach, which is more-or-less deterministic.
+However, advanced users can play around with other initialization methods and seeds:</p>
+<pre class="prettyprint source lang-js"><code>let clustpp = scran.clusterKmeans(pcs, 20, { initMethod: &quot;kmeans++&quot;, initSeed: 42 });
+</code></pre>
+<h3>Cell type classification</h3>
+<p>We use the same algorithm as <strong>SingleR</strong> for cell type classification from reference datasets (available <a href="https://github.com/clusterfork/singlepp-references">here</a>).
+This assumes that we have several files describing each reference dataset:</p>
+<ol>
+<li>A matrix of ranks as a Gzipped CSV file.</li>
+<li>Markers from pairwise comparisons as a Gzipped GMT file.</li>
+<li>Labels for each reference sample as a Gzipped CSV file.</li>
+<li>Feature names for the matrix as a Gzipped CSV file.</li>
+<li>Names for all labels as a Gzipped CSV file.</li>
+</ol>
+<p>Assuming the files have been downloaded and are available as <code>ArrayBuffer</code>s, we load the reference:</p>
+<pre class="prettyprint source lang-js"><code>let loaded = scran.loadLabelledReferenceFromBuffers(rankbuf, markbuf, labbuf); // files 1, 2 and 3, respectively.
+</code></pre>
+<p>We then build the reference given <code>testfeatures</code>, an array with the names of the features in our test dataset;
+and <code>reffeatures</code>, an array with the names of the features in our reference (extracted from file <strong>4</strong>).
+Note that <code>testfeatures</code> needs to be permuted to match the row order in our permuted matrix.</p>
+<pre class="prettyprint source lang-js"><code>let built = scran.buildLabelledReference(testfeatures, loaded, reffeatures);
+</code></pre>
+<p>Finally, we can generate labels from our input matrix.
+This returns indices that can be cross-referenced to the actual names of the labels in file <strong>5</strong>.</p>
+<pre class="prettyprint source lang-js"><code>let labels = scran.labelCells(mat, built);
+</code></pre>
+<p>For interactive use, we may prefer to generate per-cluster labels rather than per-cell labels, as the former is much faster.
+This is easily done by computing the cluster means, storing them in a dense array and passing that array to <code>labelCells</code>.</p>
 <h2>Developer notes</h2>
 <h3>Introducing WebAssembly</h3>
 <p>We use WebAssembly (Wasm) to enable efficient client-side execution of common steps in a scRNA-seq analysis.
@@ -193,7 +255,7 @@ are based on the same C++ libraries and allow the same analysis to be performed 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.10</a> on Tue Feb 22 2022 19:08:22 GMT+0000 (Coordinated Universal Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.10</a> on Tue Feb 22 2022 20:39:16 GMT+0000 (Coordinated Universal Time)
 </footer>
 
 <script> prettyPrint(); </script>

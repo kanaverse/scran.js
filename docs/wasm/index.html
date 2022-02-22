@@ -79,11 +79,11 @@ $(function() {
 <li>Clustering on the cells using the top PCs. This can either use k-means or multi-level community detection (a.k.a., "Louvain clustering") on a shared nearest neighbor graph.</li>
 <li>Dimensionality reduction with t-stochastic neighbor embedding (t-SNE), again using the top PCs.</li>
 <li>Marker detection using a variety of effect sizes such as Cohen's d and the area under the curve (AUC).</li>
+<li>Cell type annotation with a port of the <a href="https://bioconductor.org/packages/SingleR"><b>SingleR</b></a> algorithm.</li>
 </ul>
 <p >Coming soon:</p>
 <ul>
 <li>Batch correction via the mutual nearest neighbors method.</li>
-<li>Cell type annotation with <b>SingleR</b>.</li>
 </ul>
 <p >The theory behind these methods is described in more detail in the <a href="https://bioconductor.org/books/release/OSCA/"><b>Orchestrating Single Cell Analysis with Bioconductor</b></a> book.</p>
 <h1>Quick start</h1>
@@ -92,13 +92,20 @@ $(function() {
 </div><!-- fragment --><p >Then you can import and initialize the library using the standard ES6 notation. Before any actual analysis steps are performed, the <code>initialize()</code> function must be run and its promise resolved; we suggest using a top-level <code>await</code> for convenience.</p>
 <div class="fragment"><div class="line">import * as scran from &quot;scran.js&quot;;</div>
 <div class="line">await scran.initialize({ numberOfThreads: 4 }); // for old Node versions, set localFile: true</div>
-</div><!-- fragment --><p >After that, you can run the remaining steps synchronously. Below is an example using the Node.js API with one of our example <a href="https://github.com/jkanche/random-test-files">Matrix Market files</a>.</p>
-<div class="fragment"><div class="line">// Reading the file in.</div>
+</div><!-- fragment --><p >After that, you can run the remaining steps synchronously - for example, using the Node.js API:</p>
+<div class="fragment"><div class="line">// Reading in the count matrix.</div>
+<div class="line">import * as fs from &quot;fs&quot;;</div>
+<div class="line">let buffer = fs.readFileSync(&quot;matrix.mtx.gz&quot;);</div>
+<div class="line">let mat = scran.initializeSparseMatrixFromMatrixMarketBuffer(buffer);</div>
+</div><!-- fragment --><p >Reference documentation for the Javascript API is available <a href="https://jkanche.github.io/scran.js">here</a>.</p>
+<h1>Basic analyses</h1>
+<p >The code chunk below implements a basic analysis, starting from count matrix loading and terminating at the markers for each cluster. This uses the Node.js API to read in one of our example <a href="https://github.com/jkanche/random-test-files">Matrix Market files</a>, but the same approach can be used on the buffer created from a <code>File</code> input in the browser.</p>
+<div class="fragment"><div class="line">// Reading in the count matrix.</div>
 <div class="line">import * as fs from &quot;fs&quot;;</div>
 <div class="line">let buffer = fs.readFileSync(&quot;matrix.mtx.gz&quot;);</div>
 <div class="line">let mat = scran.initializeSparseMatrixFromMatrixMarketBuffer(buffer);</div>
 <div class="line"> </div>
-<div class="line">// Performing the QC.</div>
+<div class="line">// Performing QC.</div>
 <div class="line">let qc_metrics = scran.computePerCellQCMetrics(mat, [ /* specify mito subset here */ ]);</div>
 <div class="line">let qc_thresholds = scran.computePerCellQCThresholds(qc_metrics);</div>
 <div class="line">let filtered = scran.filterCells(mat, qc_thresholds.discardOverall());</div>
@@ -118,7 +125,7 @@ $(function() {
 <div class="line"> </div>
 <div class="line">// Performing the clustering. </div>
 <div class="line">let cluster_graph = scran.buildSNNGraph(index, { neighbors: 10 });</div>
-<div class="line">let clustering  = scran.clusterSNNGraph(cluster_graph);</div>
+<div class="line">let clustering = scran.clusterSNNGraph(cluster_graph);</div>
 <div class="line"> </div>
 <div class="line">// Performing the t-SNE and UMAP.</div>
 <div class="line">let tsne_status = scran.initializeTSNE(index);</div>
@@ -126,18 +133,53 @@ $(function() {
 <div class="line"> </div>
 <div class="line">let umap_status = scran.initializeUMAP(index);</div>
 <div class="line">let umap_res = scran.runUMAP(umap_status);</div>
-</div><!-- fragment --><p >All custom classes returned by <b>scran.js</b> functions refer to allocations on the Wasm heap and are not subject to garbage collection by Javascript. If you intend to perform more <b>scran.js</b> operations after your analysis is complete, you will need to manually free your existing objects to make space for new ones. We suggest using the pattern below to catch all objects and free them.</p>
+<div class="line"> </div>
+<div class="line">// Detecting some markers.</div>
+<div class="line">let markers = scran.scoreMarkers(normalized, clustering.membership());</div>
+</div><!-- fragment --><p >Note that the order of rows is permuted on input - see below for details.</p>
+<h1>Further details</h1>
+<h2>Permuting the row order</h2>
+<p >Of particular interest is the fact that the rows of the input matrix are permuted to achieve a memory-efficient permutation in <code>mat</code>. The permutation to restore the original row order can be obtained with:</p>
+<div class="fragment"><div class="line">let perm1 = mat.permutation();</div>
+</div><!-- fragment --><p >This can be used to permute the results of per-gene analyses like <code>modelGeneVar()</code> and <code>scoreMarkers()</code> to match the original row order. Alternatively, we can use:</p>
+<div class="fragment"><div class="line">let perm2 = mat.permutation({ restore: false });</div>
+</div><!-- fragment --><p >if we want to permute something in the original order to match the row order of <code>mat</code>.</p>
+<h2>Memory management</h2>
+<p >All custom classes returned by <b>scran.js</b> functions refer to allocations on the Wasm heap and are not subject to garbage collection by Javascript. If you intend to perform more <b>scran.js</b> operations after your analysis is complete, you will need to manually free existing objects to make space for new ones. We suggest using the pattern below to catch all objects and free them.</p>
 <div class="fragment"><div class="line">var things = {};</div>
 <div class="line">things.mat = scran.initializeSparseMatrixFromMatrixMarketBuffer(buffer);</div>
 <div class="line"> </div>
-<div class="line">/** some work here, possibly adding more objects to &#39;things&#39; **/</div>
-<div class="line"> </div>
-<div class="line">// Once the analysis is complete and results have been saved to file.</div>
-<div class="line">for (const [key, val] of Object.entries(things)) {</div>
-<div class="line">    val.free();</div>
+<div class="line">try {</div>
+<div class="line">    /** some work here, possibly adding more objects to &#39;things&#39; **/</div>
+<div class="line">} finally {</div>
+<div class="line">    // Once the analysis is complete and results have been saved to file.</div>
+<div class="line">    for (const [key, val] of Object.entries(things)) {</div>
+<div class="line">        val.free();</div>
+<div class="line">    }</div>
 <div class="line">}</div>
-</div><!-- fragment --><p >On Node.js, it is also necessary to terminate the workers after all analyses are complete. This is achieved by calling <code>scran.terminate()</code> once all operations are finished. Otherwise, the Node.js process will hang indefinitely as it waits for the workers to return.</p>
-<p >Reference documentation for the Javascript API is available <a href="https://jkanche.github.io/scran.js">here</a>.</p>
+</div><!-- fragment --><h2>Terminating workers</h2>
+<p >On Node.js, it is necessary to terminate the workers after all analyses are complete. This is achieved by calling <code>scran.terminate()</code> once all operations are finished. Otherwise, the Node.js process will hang indefinitely as it waits for the workers to return. Browsers do not have this problem as the session ends when a user closes the relevant tab.</p>
+<h2>k-means clustering</h2>
+<p >For a faster alternative to the graph-based clustering algorithms, we can try using the k-means options instead. We perform k-means clustering on the PC matrix, so the output of <code>runPCA()</code> can be directly passed to the function. We need to specify the number of clusters - in this case, 20.</p>
+<div class="fragment"><div class="line">let clustering = scran.clusterKmeans(pcs, 20);</div>
+</div><!-- fragment --><p >We use PCA partitioning as the default initialization approach, which is more-or-less deterministic. However, advanced users can play around with other initialization methods and seeds:</p>
+<div class="fragment"><div class="line">let clustpp = scran.clusterKmeans(pcs, 20, { initMethod: &quot;kmeans++&quot;, initSeed: 42 });</div>
+</div><!-- fragment --><h2>Cell type classification</h2>
+<p >We use the same algorithm as <b>SingleR</b> for cell type classification from reference datasets (available <a href="https://github.com/clusterfork/singlepp-references">here</a>). This assumes that we have several files describing each reference dataset:</p>
+<ol type="1">
+<li>A matrix of ranks as a Gzipped CSV file.</li>
+<li>Markers from pairwise comparisons as a Gzipped GMT file.</li>
+<li>Labels for each reference sample as a Gzipped CSV file.</li>
+<li>Feature names for the matrix as a Gzipped CSV file.</li>
+<li>Names for all labels as a Gzipped CSV file.</li>
+</ol>
+<p >Assuming the files have been downloaded and are available as <code>ArrayBuffer</code>s, we load the reference:</p>
+<div class="fragment"><div class="line">let loaded = scran.loadLabelledReferenceFromBuffers(rankbuf, markbuf, labbuf); // files 1, 2 and 3, respectively.</div>
+</div><!-- fragment --><p >We then build the reference given <code>testfeatures</code>, an array with the names of the features in our test dataset; and <code>reffeatures</code>, an array with the names of the features in our reference (extracted from file <b>4</b>). Note that <code>testfeatures</code> needs to be permuted to match the row order in our permuted matrix.</p>
+<div class="fragment"><div class="line">let built = scran.buildLabelledReference(testfeatures, loaded, reffeatures);</div>
+</div><!-- fragment --><p >Finally, we can generate labels from our input matrix. This returns indices that can be cross-referenced to the actual names of the labels in file <b>5</b>.</p>
+<div class="fragment"><div class="line">let labels = scran.labelCells(mat, built);</div>
+</div><!-- fragment --><p >For interactive use, we may prefer to generate per-cluster labels rather than per-cell labels, as the former is much faster. This is easily done by computing the cluster means, storing them in a dense array and passing that array to <code>labelCells</code>.</p>
 <h1>Developer notes</h1>
 <h2>Introducing WebAssembly</h2>
 <p >We use WebAssembly (Wasm) to enable efficient client-side execution of common steps in a scRNA-seq analysis. Code to perform each step is written in C++ and compiled to Wasm using the <a href="https://emscripten.org/">Emscripten toolchain</a>. Some of the relevant C++ libraries are listed below:</p>
