@@ -70,7 +70,7 @@ $(function() {
 <div class="textblock"><p ><a class="anchor" id="md__github_workspace_README"></a> </p><h1>Overview</h1>
 <p >This repository contains <b>scran.js</b>, a Javascript library for single-cell RNA-seq (scRNA-seq) analysis in the browser. The various calculations are performed directly by the client, allowing us to take advantage of the ubiquity of the browser as a standalone analysis platform. Users can then directly analyze their data without needing to manage any dependencies or pay for access to a backend. <b>scran.js</b> is heavily inspired by the <a href="https://bioconductor.org/packages/scran"><b>scran</b> R package</a> and contains most of its related methods. Indeed, much of the implementation in this repository is taken directly from <b>scran</b> and its related R packages.</p>
 <h1>Analysis overview</h1>
-<p >Currently, the library and web app supports the key steps in a typical scRNA-seq analysis:</p>
+<p ><b>scran.js</b> implements key steps in a typical scRNA-seq analysis:</p>
 <ul>
 <li>Quality control (QC) to remove low-quality cells. This is done based on detection of outliers on QC metrics like the number of detected genes.</li>
 <li>Normalization and log-transformation, to remove biases and mitigate the mean-variance trend. We use scaling normalization with size factors defined from the library size for each cell.</li>
@@ -85,7 +85,7 @@ $(function() {
 <ul>
 <li>Batch correction via the mutual nearest neighbors method.</li>
 </ul>
-<p >The theory behind these methods is described in more detail in the <a href="https://bioconductor.org/books/release/OSCA/"><b>Orchestrating Single Cell Analysis with Bioconductor</b></a> book.</p>
+<p >The theory behind these methods is described in more detail in the <a href="https://bioconductor.org/books/release/OSCA/"><b>Orchestrating Single Cell Analysis with Bioconductor</b></a> book. All steps are implemented in C++ and compiled to WebAssembly for near-native performance - see the developer notes for details.</p>
 <h1>Quick start</h1>
 <p ><b>scran.js</b> is available as an <a href="https://www.npmjs.com/package/scran.js">npm package</a>, so installation can be performed via the usual procedure:</p>
 <div class="fragment"><div class="line">npm install scran.js</div>
@@ -139,7 +139,7 @@ $(function() {
 </div><!-- fragment --><p >Note that the order of rows is permuted on input - see below for details.</p>
 <h1>Further details</h1>
 <h2>Permuting the row order</h2>
-<p >Of particular interest is the fact that the rows of the input matrix are permuted to achieve a memory-efficient permutation in <code>mat</code>. The permutation to restore the original row order can be obtained with:</p>
+<p >Rows of the dataset are permuted by <code>initializeSparseMatrix*()</code> functions to achieve a memory-efficient layout in <code>mat</code>. The permutation to restore the original row order can be obtained with:</p>
 <div class="fragment"><div class="line">let perm1 = mat.permutation();</div>
 </div><!-- fragment --><p >This can be used to permute the results of per-gene analyses like <code>modelGeneVar()</code> and <code>scoreMarkers()</code> to match the original row order. Alternatively, we can use:</p>
 <div class="fragment"><div class="line">let perm2 = mat.permutation({ restore: false });</div>
