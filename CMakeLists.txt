@@ -26,6 +26,7 @@ add_executable(
     src/cluster_snn_graph.cpp
     src/cluster_kmeans.cpp
     src/score_markers.cpp
+    src/run_singlepp.cpp
     src/NumericMatrix.cpp
     src/NeighborIndex.cpp
     src/get_error_message.cpp
@@ -41,6 +42,7 @@ target_link_libraries(
     qdtsne
     umappp
     h5wasm_cpp
+    singlepp
 )
 
 target_compile_definitions(scran_wasm PRIVATE TATAMI_USE_ZLIB=1)

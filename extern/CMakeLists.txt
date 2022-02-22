@@ -75,3 +75,10 @@ FetchContent_Declare(
   GIT_TAG master
 )
 FetchContent_MakeAvailable(h5wasm)
+
+FetchContent_Declare(
+  singlepp
+  GIT_REPOSITORY https://github.com/LTLA/singlepp
+  GIT_TAG 01a21a060f6d1d0427cd1ce034ef2a709d6ce9e7
+)
+FetchContent_MakeAvailable(singlepp)
