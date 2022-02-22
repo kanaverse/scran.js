@@ -67,7 +67,7 @@ test("clusterKmeans works with other options", () => {
     var pcs = simulate.simulatePCs(ndim, ncells);
 
     var k = 5;
-    var res = scran.clusterKmeans(pcs, k, { numberOfCells: ncells, numberOfDims: ndim, initMethod: "pca-part" });
+    var res = scran.clusterKmeans(pcs, k, { numberOfCells: ncells, numberOfDims: ndim, initMethod: "kmeans++" });
     checkClusterConsistency(res, ncells, k);
 
     var res2 = scran.clusterKmeans(pcs, k, { numberOfCells: ncells, numberOfDims: ndim, initMethod: "random" });
