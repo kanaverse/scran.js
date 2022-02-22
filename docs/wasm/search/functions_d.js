@@ -6,6 +6,7 @@ var searchData=
   ['residuals_3',['residuals',['../structModelGeneVar__Results.html#afb80eb6a019e26e128e5114dadb0c42e',1,'ModelGeneVar_Results']]],
   ['row_4',['row',['../structNumericMatrix.html#a8b56c2bd09fea326c0c28a8a0add6a6e',1,'NumericMatrix']]],
   ['run_5fpca_5',['run_pca',['../run__pca_8cpp.html#a02ea0870e6d0c9f18277d43aa1f9e028',1,'run_pca.cpp']]],
-  ['run_5ftsne_6',['run_tsne',['../run__tsne_8cpp.html#ad29d8d3b48e3165dc7d8f0476a46119d',1,'run_tsne.cpp']]],
-  ['run_5fumap_7',['run_umap',['../run__umap_8cpp.html#aed48c871b2d43d7b2a6aeacba599451f',1,'run_umap.cpp']]]
+  ['run_5fsinglepp_6',['run_singlepp',['../run__singlepp_8cpp.html#a1262e14f9a85fad9c4e04290f48e1299',1,'run_singlepp.cpp']]],
+  ['run_5ftsne_7',['run_tsne',['../run__tsne_8cpp.html#ad29d8d3b48e3165dc7d8f0476a46119d',1,'run_tsne.cpp']]],
+  ['run_5fumap_8',['run_umap',['../run__umap_8cpp.html#aed48c871b2d43d7b2a6aeacba599451f',1,'run_umap.cpp']]]
 ];

@@ -96,8 +96,60 @@ Functions</h2></td></tr>
 <tr class="separator:ae308adf094b57f224db4bb1581b12959"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afc85e751aefae01dbd8aeac07701ea1d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structNumericMatrix.html">NumericMatrix</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="initialize__sparse__matrix_8cpp.html#afc85e751aefae01dbd8aeac07701ea1d">initialize_sparse_matrix</a> (size_t nrows, size_t ncols, size_t nelements, uintptr_t <a class="el" href="hdf5__utils_8cpp.html#aed017baaa7bf40e3e762e0786fb00bfc">values</a>, std::string value_type, uintptr_t indices, std::string index_type, uintptr_t indptrs, std::string indptr_type, bool csc)</td></tr>
 <tr class="separator:afc85e751aefae01dbd8aeac07701ea1d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa7464e42f428628321417cd26e0beb76"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structNumericMatrix.html">NumericMatrix</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="initialize__sparse__matrix_8cpp.html#aa7464e42f428628321417cd26e0beb76">initialize_dense_matrix</a> (size_t nrows, size_t ncols, uintptr_t <a class="el" href="hdf5__utils_8cpp.html#aed017baaa7bf40e3e762e0786fb00bfc">values</a>, std::string <a class="el" href="hdf5__utils_8cpp.html#ac7669d23a52243a270e53e53051bcd86">type</a>)</td></tr>
+<tr class="separator:aa7464e42f428628321417cd26e0beb76"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function Documentation</h2>
+<a id="aa7464e42f428628321417cd26e0beb76" name="aa7464e42f428628321417cd26e0beb76"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa7464e42f428628321417cd26e0beb76">&#9670;&nbsp;</a></span>initialize_dense_matrix()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structNumericMatrix.html">NumericMatrix</a> initialize_dense_matrix </td>
+          <td>(</td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>nrows</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>ncols</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uintptr_t&#160;</td>
+          <td class="paramname"><em>values</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>type</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir"></td><td class="paramname">nrows</td><td>Number of rows. </td></tr>
+    <tr><td class="paramdir"></td><td class="paramname">ncols</td><td>Number of columns. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">values</td><td>Offset to an integer array of length <code>nrows*ncols</code> containing the contents of the matrix. This is assumed to be in column-major format. </td></tr>
+    <tr><td class="paramdir"></td><td class="paramname">type</td><td>Type of the <code>values</code> array, as the name of a TypedArray subclass.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>A <code><a class="el" href="structNumericMatrix.html" title="Javascript-visible interface for a matrix of doubles.">NumericMatrix</a></code> containing a dense matrix. </dd></dl>
+
+</div>
+</div>
 <a id="afc85e751aefae01dbd8aeac07701ea1d" name="afc85e751aefae01dbd8aeac07701ea1d"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#afc85e751aefae01dbd8aeac07701ea1d">&#9670;&nbsp;</a></span>initialize_sparse_matrix()</h2>
 
@@ -231,7 +283,7 @@ Functions</h2></td></tr>
   <table class="params">
     <tr><td class="paramdir"></td><td class="paramname">nrows</td><td>Number of rows. </td></tr>
     <tr><td class="paramdir"></td><td class="paramname">ncols</td><td>Number of columns. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">values</td><td>Offset to an integer array of length <code>nrows*ncols</code> containing the contents of the matrix. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">values</td><td>Offset to an integer array of length <code>nrows*ncols</code> containing the contents of the matrix. This is assumed to be in column-major format. </td></tr>
     <tr><td class="paramdir"></td><td class="paramname">type</td><td>Type of the <code>values</code> array, as the name of a TypedArray subclass.</td></tr>
   </table>
   </dd>

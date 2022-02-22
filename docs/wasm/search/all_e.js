@@ -10,9 +10,11 @@ var searchData=
   ['row_7',['row',['../structNumericMatrix.html#a8b56c2bd09fea326c0c28a8a0add6a6e',1,'NumericMatrix']]],
   ['run_5fpca_8',['run_pca',['../run__pca_8cpp.html#a02ea0870e6d0c9f18277d43aa1f9e028',1,'run_pca.cpp']]],
   ['run_5fpca_2ecpp_9',['run_pca.cpp',['../run__pca_8cpp.html',1,'']]],
-  ['run_5ftsne_10',['run_tsne',['../run__tsne_8cpp.html#ad29d8d3b48e3165dc7d8f0476a46119d',1,'run_tsne.cpp']]],
-  ['run_5ftsne_2ecpp_11',['run_tsne.cpp',['../run__tsne_8cpp.html',1,'']]],
-  ['run_5fumap_12',['run_umap',['../run__umap_8cpp.html#aed48c871b2d43d7b2a6aeacba599451f',1,'run_umap.cpp']]],
-  ['run_5fumap_2ecpp_13',['run_umap.cpp',['../run__umap_8cpp.html',1,'']]],
-  ['runpca_5fresults_14',['RunPCA_Results',['../structRunPCA__Results.html',1,'']]]
+  ['run_5fsinglepp_10',['run_singlepp',['../run__singlepp_8cpp.html#a1262e14f9a85fad9c4e04290f48e1299',1,'run_singlepp.cpp']]],
+  ['run_5fsinglepp_2ecpp_11',['run_singlepp.cpp',['../run__singlepp_8cpp.html',1,'']]],
+  ['run_5ftsne_12',['run_tsne',['../run__tsne_8cpp.html#ad29d8d3b48e3165dc7d8f0476a46119d',1,'run_tsne.cpp']]],
+  ['run_5ftsne_2ecpp_13',['run_tsne.cpp',['../run__tsne_8cpp.html',1,'']]],
+  ['run_5fumap_14',['run_umap',['../run__umap_8cpp.html#aed48c871b2d43d7b2a6aeacba599451f',1,'run_umap.cpp']]],
+  ['run_5fumap_2ecpp_15',['run_umap.cpp',['../run__umap_8cpp.html',1,'']]],
+  ['runpca_5fresults_16',['RunPCA_Results',['../structRunPCA__Results.html',1,'']]]
 ];
