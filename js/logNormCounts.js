@@ -14,7 +14,7 @@ import * as utils from "./utils.js";
  * This is used to segregate cells in order to perform normalization within each block.
  * Alternatively, this may be `null`, in which case all cells are assumed to be in the same block.
  *
- * @param A matrix of the same type as `x` containing log-transformed normalized expression values.
+ * @return A matrix of the same type as `x` containing log-transformed normalized expression values.
  */
 export function logNormCounts(x, { sizeFactors = null, block = null } = {}) {
     var sf_data;

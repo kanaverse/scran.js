@@ -3,9 +3,9 @@ const cache = {};
 
 /**
  * @param {Object} [options] - Optional parameters.
- * @param {number} [numberOfThreads] - Number of threads to use for calculations.
+ * @param {number} [options.numberOfThreads] - Number of threads to use for calculations.
  * This will spin up the requested number of Web Workers during module initialization.
- * @param {boolean} [localFile] - Whether or not to look for the Wasm and worker scripts locally.
+ * @param {boolean} [options.localFile] - Whether or not to look for the Wasm and worker scripts locally.
  * Should only be `true` when using old versions of Node where file URLs are not supported.
  *
  * @return 

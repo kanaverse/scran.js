@@ -8,9 +8,10 @@ import { PerCellQCFilters } from "./computePerCellQCFilters.js";
  * @param {SparseMatrix} x The count matrix.
  * @param {(PerCellQCFilters|Uint8WasmArray|Array|TypedArray)} filters 
  * If a `PerCellQCFilters` object is supplied, the overall filter (in `filters.discard_overall()`) is used.
- * Otherwise, an array should be supplied where `true` elements specify the cells to be discarded.
+ * Otherwise, an array of length equal to the number of columns in `x` should be supplied,
+ * where `true` elements specify the cells to be discarded.
  *
- * @param A matrix of the same type as `x`, filtered by column to remove all cells specified in `filters`. 
+ * @return A matrix of the same type as `x`, filtered by column to remove all cells specified in `filters`. 
  */
 export function filterCells(x, filters) {
     var filter_data;
