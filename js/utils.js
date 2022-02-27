@@ -1,5 +1,5 @@
 import { buffer, wasmArraySpace } from "./wasm.js";
-import * as wa from "WasmArray";
+import * as wa from "wasmarrays.js";
 
 /**
  * Helper function to create a `Uint8WasmArray` from the **WasmArray** package.
@@ -57,36 +57,9 @@ export function wasmifyArray(x, expected) {
 
     let y = null;
     if (expected !== null) {
-        switch (expected) {
-            case "Uint8WasmArray":
-                y = wa.convertToUint8WasmArray(wasmArraySpace(), x);
-                break;
-            case "Int8WasmArray":
-                y = wa.convertToInt8WasmArray(wasmArraySpace(), x);
-                break;
-            case "Uint16WasmArray":
-                y = wa.convertToUint16WasmArray(wasmArraySpace(), x);
-                break;
-            case "Int16WasmArray":
-                y = wa.convertToInt16WasmArray(wasmArraySpace(), x);
-                break;
-            case "Uint32WasmArray":
-                y = wa.convertToUint32WasmArray(wasmArraySpace(), x);
-                break;
-            case "Int32WasmArray":
-                y = wa.convertToInt32WasmArray(wasmArraySpace(), x);
-                break;
-            case "Float32WasmArray":
-                y = wa.convertToFloat32WasmArray(wasmArraySpace(), x);
-                break;
-            case "Float64WasmArray":
-                y = wa.convertToFloat64WasmArray(wasmArraySpace(), x);
-                break;
-            default:
-                throw "unknown expected type '" + expected + "'";
-        }
+        y = wa.convertToWasmArray(wasmArraySpace(), x, wa.stringToClass(expected));
     } else {
-        y = wa.convertToWasmArray(wasmArraySpace());
+        y = wa.convertToWasmArray(wasmArraySpace(), x);
     }
 
     return y;
@@ -117,43 +90,15 @@ export function extractXY(ncells, coordinates) {
 export function possibleCopy(x, copy) {
     if (copy === "view") {
         if (x.buffer !== buffer()) {
-            throw "cannot use copy = \"WasmArray\" for non-Wasm TypedArrays";
+            throw "cannot use copy = \"view\" for non-Wasm TypedArrays";
         }
+
+        let view_class = x.constructor.name.replace("Array", "WasmArray");
 
         // This function should only be used for objects generated in the
         // buffer owned by scran.js, so we can assume that x's space is the
         // same as that of the wasmArraySpace().
-        let y;
-        switch (x.constructor.name) {
-            case "Uint8Array":
-                y = new wa.Uint8WasmArray(wasmArraySpace(), -1, x.length, x.byteOffset, {});
-                break;
-            case "Int8Array":
-                y = new wa.Int8WasmArray(wasmArraySpace(), -1, x.length, x.byteOffset, {});
-                break;
-            case "Uint16Array":
-                y = new wa.Uint16WasmArray(wasmArraySpace(), -1, x.length, x.byteOffset, {});
-                break;
-            case "Int16Array":
-                y = new wa.Int16WasmArray(wasmArraySpace(), -1, x.length, x.byteOffset, {});
-                break;
-            case "Uint32Array":
-                y = new wa.Uint32WasmArray(wasmArraySpace(), -1, x.length, x.byteOffset, {});
-                break;
-            case "Int32Array":
-                y = new wa.Int32WasmArray(wasmArraySpace(), -1, x.length, x.byteOffset, {});
-                break;
-            case "Float32Array":
-                y = new wa.Float32WasmArray(wasmArraySpace(), -1, x.length, x.byteOffset, {});
-                break;
-            case "Float64Array":
-                y = new wa.Float64WasmArray(wasmArraySpace(), -1, x.length, x.byteOffset, {}); 
-                break;
-            default:
-                throw "unknown expected type '" + x.constructor.name + "'";
-        }
-
-        return y;
+        return wa.createWasmArrayView(wasmArraySpace(), x.length, x.byteOffset, wa.stringToClass(view_class));
 
     } else if (copy) {
         return x.slice();

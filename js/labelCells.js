@@ -1,7 +1,7 @@
 import * as wasm from "./wasm.js";
 import * as utils from "./utils.js";
 import { SparseMatrix } from "./SparseMatrix.js";
-import * as wa from "WasmArray";
+import * as wa from "wasmarrays.js";
 
 /**
  * Wrapper around a labelled reference dataset on the Wasm heap.

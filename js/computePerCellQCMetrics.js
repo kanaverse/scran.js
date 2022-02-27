@@ -1,6 +1,6 @@
 import * as wasm from "./wasm.js";
 import * as utils from "./utils.js"; 
-import * as wa from "WasmArray";
+import * as wa from "wasmarrays.js";
 
 /**
  * Wrapper for the metrics allocated on the Wasm heap.

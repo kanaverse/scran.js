@@ -1,5 +1,5 @@
 import loadScran from "./wasm/scran.js";
-import { register } from "WasmArray";
+import { register } from "wasmarrays.js";
 
 const cache = {};
 

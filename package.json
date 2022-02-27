@@ -50,5 +50,8 @@
         "scRNA-seq",
         "webassembly"
     ],
-    "repository": "github:jkanche/scran.js"
+    "repository": "github:jkanche/scran.js",
+    "dependencies": {
+        "wasmarrays.js": "0.0.1"
+    }
 }
