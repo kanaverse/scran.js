@@ -1,7 +1,7 @@
 import * as scran from "../js/index.js";
 
 export function simulateMatrix(numberOfRows, numberOfColumns, density = 0.2, maxValue = 10) {
-    var buffer = new scran.Int32WasmArray(numberOfRows * numberOfColumns);
+    var buffer = scran.createInt32WasmArray(numberOfRows * numberOfColumns);
     let output;
 
     try {
@@ -37,7 +37,7 @@ export function simulateSubsets(numberOfRows, nsubsets, density = 0.05) {
 }
 
 export function simulatePCs(ndim, ncells) {
-    var buffer = new scran.Float64WasmArray(ndim * ncells);
+    var buffer = scran.createFloat64WasmArray(ndim * ncells);
     try {
         var arr = buffer.array();
         arr.forEach((x, i) => arr[i] = Math.random());
@@ -50,7 +50,7 @@ export function simulatePCs(ndim, ncells) {
 
 export function simulateIndex(ndim, ncells) {
     var index;
-    var buffer = new scran.Float64WasmArray(ndim * ncells);
+    var buffer = scran.createFloat64WasmArray(ndim * ncells);
     try {
         var arr = buffer.array();
         arr.forEach((x, i) => arr[i] = Math.random());

@@ -1,4 +1,4 @@
-import { Float64WasmArray, Int32WasmArray } from "./WasmArray.js";
+import * as utils from "./utils.js";
 
 /**
  * Wrapper around a sparse matrix allocated on the Wasm heap.
@@ -46,7 +46,7 @@ export class SparseMatrix {
             return;
         } else {
             var output;
-            buffer = new Float64WasmArray(this.matrix.ncol());
+            buffer = utils.createFloat64WasmArray(this.matrix.ncol());
             try {
                 this.matrix.row(i, buffer.offset);
                 output = buffer.slice();
@@ -74,7 +74,7 @@ export class SparseMatrix {
             return;
         } else {
             var output;
-            buffer = new Float64WasmArray(this.matrix.nrow());
+            buffer = utils.createFloat64WasmArray(this.matrix.nrow());
             try {
                 this.matrix.column(i, buffer.offset);
                 output = buffer.slice();
@@ -151,7 +151,7 @@ export class LayeredSparseMatrix extends SparseMatrix {
             return;
         } else {
             var output;
-            buffer = new Int32WasmArray(this.matrix.nrow());
+            buffer = utils.createInt32WasmArray(this.matrix.nrow());
             try {
                 this.matrix.permutation(buffer.offset);
                 OP();

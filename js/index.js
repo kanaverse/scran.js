@@ -1,5 +1,5 @@
-export { initialize, terminate, heapSize, writeFile, removeFile } from "./wasm.js";
-export * from "./WasmArray.js";
+export { initialize, terminate, wasmArraySpace, heapSize, writeFile, removeFile } from "./wasm.js";
+export { createUint8WasmArray, createInt32WasmArray, createFloat64WasmArray } from "./utils.js";
 
 export * from "./initializeSparseMatrix.js";
 export * from "./hdf5.js";

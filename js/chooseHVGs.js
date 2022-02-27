@@ -1,4 +1,4 @@
-import { Uint8WasmArray } from "./WasmArray.js";
+import * as utils from "./utils.js";
 import { ModelGeneVarResults } from "./modelGeneVar.js";
 
 /**
@@ -23,20 +23,26 @@ export function chooseHVGs(x, { number = 4000 } = {}) {
 
     stat.sort();
     let threshold = stat[Math.max(0, stat.length - number)]; 
-    let features = new Uint8WasmArray(stat.length);
 
-    // Do this AFTER the features allocation, so that
-    // we can set copy = false for the input array.
-    if (x instanceof ModelGeneVarResults) {
-        stat = x.residuals({ copy: false });
-    } else {
-        stat = x;
+    let features = utils.createUint8WasmArray(stat.length);
+    try {
+        // Do this AFTER the features allocation, so that
+        // we can set copy = false for the input array.
+        if (x instanceof ModelGeneVarResults) {
+            stat = x.residuals({ copy: false });
+        } else {
+            stat = x;
+        }
+
+        let farr = features.array();
+        stat.forEach((x, i) => {
+            farr[i] = x >= threshold;
+        });
+
+    } catch (e) {
+        features.free();
+        throw e;
     }
-
-    let farr = features.array();
-    stat.forEach((x, i) => {
-        farr[i] = x >= threshold;
-    });
 
     return features;
 }

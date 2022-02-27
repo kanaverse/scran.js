@@ -1,6 +1,5 @@
 import * as utils from "./utils.js";
 import * as wasm from "./wasm.js";
-import { Int32WasmArray, Float64WasmArray } from "./WasmArray.js";
 import { PCAResults } from "./runPCA.js";
 
 /** 
@@ -151,10 +150,10 @@ export class NeighborSearchResults {
             var output;
             
             try {
-                run_data = new Int32WasmArray(this.numberOfCells());
+                run_data = utils.createInt32WasmArray(this.numberOfCells());
                 let s = this.size();
-                ind_data = new Int32WasmArray(s);
-                dist_data = new Float64WasmArray(s);
+                ind_data = utils.createInt32WasmArray(s);
+                dist_data = utils.createFloat64WasmArray(s);
                 this.results.serialize(run_data.offset, ind_data.offset, dist_data.offset);
 
                 output = { 

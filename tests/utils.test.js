@@ -5,7 +5,7 @@ beforeAll(async () => { await scran.initialize({ localFile: true }) });
 afterAll(async () => { await scran.terminate() });
 
 test("possibleCopy works as expected", () => {
-    var basic = new scran.Int8WasmArray(100);
+    var basic = scran.createUint8WasmArray(100);
     var barray = basic.array();
     barray.forEach((x, i) => { barray[i] = i; });
 
@@ -20,13 +20,13 @@ test("possibleCopy works as expected", () => {
     expect(copy2[99]).toEqual(99);
 
     var copy3 = utils.possibleCopy(barray, "view");
-    expect(copy3.constructor.className).toBe("Int8WasmArray");
+    expect(copy3.constructor.className).toBe("Uint8WasmArray");
     expect(copy3.array()[0]).toEqual(0);
     expect(copy3.array()[99]).toEqual(99);
 });
 
 test("possibleCopy fails as expected", () => {
-    var basic = new Int8Array(100);
+    var basic = new Uint8Array(100);
     basic.forEach((x, i) => { basic[i] = i; });
 
     var copied = false;

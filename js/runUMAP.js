@@ -1,7 +1,6 @@
 import * as utils from "./utils.js";
 import * as wasm from "./wasm.js";
 import { NeighborSearchIndex, findNearestNeighbors } from "./findNearestNeighbors.js";
-import { Float64WasmArray } from "./WasmArray.js";
 
 /**
  * Wrapper around the UMAP status object on the Wasm heap.
@@ -103,7 +102,7 @@ export function initializeUMAP(x, { neighbors = 15, epochs = 500, minDist = 0.01
             nnres = x;
         }
 
-        raw_coords = new Float64WasmArray(2 * nnres.numberOfCells());
+        raw_coords = utils.createFloat64WasmArray(2 * nnres.numberOfCells());
         raw_status = wasm.call(module => module.initialize_umap(nnres.results, epochs, minDist, raw_coords.offset));
         output = new UMAPStatus(raw_status, raw_coords);
 

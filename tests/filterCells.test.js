@@ -32,7 +32,7 @@ test("filtered matrix is constructed as expected from a supplied array", () => {
     var ncells = 20;
     var mat = simulate.simulateMatrix(ngenes, ncells);
 
-    var discard = new scran.Uint8WasmArray(ncells);
+    var discard = scran.createUint8WasmArray(ncells);
     var arr = discard.array();
     var keep = 0;
     for (var i = 0; i < ncells; i++) {

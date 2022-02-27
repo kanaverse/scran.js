@@ -27,7 +27,7 @@ test("per-cell QC metrics gets the same results with an input WasmArray", () => 
     var subs = simulate.simulateSubsets(ngenes, 2);
     var qc1 = scran.computePerCellQCMetrics(mat, subs);
 
-    var wasmified = new scran.Uint8WasmArray(ngenes * 2);
+    var wasmified = scran.createUint8WasmArray(ngenes * 2);
     wasmified.array().set(subs[0]);
     wasmified.array().set(subs[1], ngenes);
     var qc2 = scran.computePerCellQCMetrics(mat, wasmified);

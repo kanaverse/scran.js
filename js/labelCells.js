@@ -1,7 +1,7 @@
 import * as wasm from "./wasm.js";
 import * as utils from "./utils.js";
-import { Int32WasmArray, Float64WasmArray } from "./WasmArray.js";
 import { SparseMatrix } from "./SparseMatrix.js";
+import * as wa from "WasmArray";
 
 /**
  * Wrapper around a labelled reference dataset on the Wasm heap.
@@ -163,8 +163,8 @@ export function buildLabelledReference(features, loaded, referenceFeatures, { to
 
     try {
         var nfeat = features.length;
-        mat_id_buffer = new Int32WasmArray(nfeat);
-        ref_id_buffer = new Int32WasmArray(loaded.numberOfFeatures());
+        mat_id_buffer = utils.createInt32WasmArray(nfeat);
+        ref_id_buffer = utils.createInt32WasmArray(loaded.numberOfFeatures());
         let mat_id_array = mat_id_buffer.array();
         let ref_id_array = ref_id_buffer.array();
 
@@ -223,19 +223,24 @@ export function buildLabelledReference(features, loaded, referenceFeatures, { to
  */
 export function labelCells(x, reference, { buffer = null, numberOfFeatures = null, numberOfCells = null, quantile = 0.8 } = {}) {
     var output;
+    var matbuf;
     var tempmat;
     var tempbuf;
-    let use_buffer = (buffer instanceof Int32WasmArray);
+    let use_buffer = (buffer instanceof wa.Int32WasmArray);
 
     try {
         let target;
         if (x instanceof SparseMatrix) {
             target = x.matrix;
-        } else if (x instanceof Float64WasmArray) {
+        } else if (x instanceof wa.Float64WasmArray) {
             if (x.length !== numberOfFeatures * numberOfCells) {
                 throw "length of 'x' must be equal to the product of 'numberOfFeatures' and 'numberOfCells'";
             }
-            tempmat = wasm.call(module => module.initialize_dense_matrix(numberOfFeatures, numberOfCells, x.offset, "Float64Array"));
+
+            // This will either create a cheap view, or it'll clone
+            // 'x' into the appropriate memory space.
+            matbuf = utils.wasmifyArray(x, null);
+            tempmat = wasm.call(module => module.initialize_dense_matrix(numberOfFeatures, numberOfCells, matbuf.offset, "Float64Array"));
             target = tempmat;
         } else {
             throw "unknown type for 'x'";
@@ -247,7 +252,7 @@ export function labelCells(x, reference, { buffer = null, numberOfFeatures = nul
 
         let ptr;
         if (!use_buffer) {
-            tempbuf = new Int32WasmArray(target.ncol());
+            tempbuf = utils.createInt32WasmArray(target.ncol());
             ptr = tempbuf.offset;
         } else {
             ptr = buffer.offset;
@@ -261,6 +266,7 @@ export function labelCells(x, reference, { buffer = null, numberOfFeatures = nul
         }
 
     } finally {
+        utils.free(matbuf);
         utils.free(tempmat);
         utils.free(tempbuf);
     }
