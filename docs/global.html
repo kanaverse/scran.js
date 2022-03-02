@@ -481,7 +481,7 @@ Otherwise the row indices will not be correct in subsequent calls to <code>label
 <span class="param-type"><a href="PCAResults.html">PCAResults</a></span>
 |
 
-<span class="param-type"><a href="Float64WasmArray.html">Float64WasmArray</a></span>
+<span class="param-type">Float64WasmArray</span>
 |
 
 <span class="param-type">Array</span>
@@ -710,7 +710,7 @@ Only used (and required) for array-like <code>x</code>.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="findNearestNeighbors.js.html">findNearestNeighbors.js</a>, <a href="findNearestNeighbors.js.html#line56">line 56</a>
+        <a href="findNearestNeighbors.js.html">findNearestNeighbors.js</a>, <a href="findNearestNeighbors.js.html#line55">line 55</a>
     </li></ul></dd>
     
 
@@ -1359,7 +1359,7 @@ where the chosen highly variable genes are marked with a value of 1 and all othe
 <span class="param-type"><a href="PCAResults.html">PCAResults</a></span>
 |
 
-<span class="param-type"><a href="Float64WasmArray.html">Float64WasmArray</a></span>
+<span class="param-type">Float64WasmArray</span>
 |
 
 <span class="param-type">Array</span>
@@ -2152,7 +2152,7 @@ Larger values (up to 1) will prioritize partitioning of clusters with more cells
             <td class="type">
             
                 
-<span class="param-type"><a href="Int32WasmArray.html">Int32WasmArray</a></span>
+<span class="param-type">Int32WasmArray</span>
 |
 
 <span class="param-type">Array</span>
@@ -2363,7 +2363,7 @@ Alternatively, this may be <code>null</code>, in which case all cells are assume
 <span class="param-type">Array</span>
 |
 
-<span class="param-type"><a href="Uint8WasmArray.html">Uint8WasmArray</a></span>
+<span class="param-type">Uint8WasmArray</span>
 
 
             
@@ -2460,6 +2460,447 @@ this should be of length equal to the product of the number of subsets and the n
         
 <div class="param-desc">
     <p>A <code>PerCellQCMetrics</code> object containing the QC metrics.</p>
+</div>
+
+
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="createFloat64WasmArray"><span class="type-signature"></span>createFloat64WasmArray<span class="signature">(length)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Helper function to create a <code>Float64WasmArray</code> from the <strong>WasmArray</strong> package.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>length</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Length of the array.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="utils.js.html">utils.js</a>, <a href="utils.js.html#line33">line 33</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>A <code>Float64WasmArray</code> on the <strong>scran.js</strong> Wasm heap.</p>
+</div>
+
+
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="createInt32WasmArray"><span class="type-signature"></span>createInt32WasmArray<span class="signature">(length)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Helper function to create a <code>Int32WasmArray</code> from the <strong>WasmArray</strong> package.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>length</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Length of the array.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="utils.js.html">utils.js</a>, <a href="utils.js.html#line22">line 22</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>A <code>Int32WasmArray</code> on the <strong>scran.js</strong> Wasm heap.</p>
+</div>
+
+
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="createUint8WasmArray"><span class="type-signature"></span>createUint8WasmArray<span class="signature">(length)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Helper function to create a <code>Uint8WasmArray</code> from the <strong>WasmArray</strong> package.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>length</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Length of the array.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="utils.js.html">utils.js</a>, <a href="utils.js.html#line11">line 11</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>A <code>Uint8WasmArray</code> on the <strong>scran.js</strong> Wasm heap.</p>
 </div>
 
 
@@ -2841,7 +3282,7 @@ HDF5 datasets are represented by strings specifying the data type - i.e., intege
 <span class="param-type"><a href="PerCellQCFilters.html">PerCellQCFilters</a></span>
 |
 
-<span class="param-type"><a href="Uint8WasmArray.html">Uint8WasmArray</a></span>
+<span class="param-type">Uint8WasmArray</span>
 |
 
 <span class="param-type">Array</span>
@@ -3070,7 +3511,7 @@ where <code>true</code> elements specify the cells to be discarded.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="findNearestNeighbors.js.html">findNearestNeighbors.js</a>, <a href="findNearestNeighbors.js.html#line233">line 233</a>
+        <a href="findNearestNeighbors.js.html">findNearestNeighbors.js</a>, <a href="findNearestNeighbors.js.html#line232">line 232</a>
     </li></ul></dd>
     
 
@@ -3313,7 +3754,7 @@ A <code>confidence</code> value is reported which defines the percentage of entr
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wasm.js.html">wasm.js</a>, <a href="wasm.js.html#line72">line 72</a>
+        <a href="wasm.js.html">wasm.js</a>, <a href="wasm.js.html#line83">line 83</a>
     </li></ul></dd>
     
 
@@ -3564,7 +4005,7 @@ Should only be <code>true</code> when using old versions of Node where file URLs
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wasm.js.html">wasm.js</a>, <a href="wasm.js.html#line15">line 15</a>
+        <a href="wasm.js.html">wasm.js</a>, <a href="wasm.js.html#line17">line 17</a>
     </li></ul></dd>
     
 
@@ -3725,7 +4166,7 @@ If the bindings were already initialized (e.g., by a previous call), nothing is 
             <td class="type">
             
                 
-<span class="param-type"><a href="WasmArray.html">WasmArray</a></span>
+<span class="param-type">WasmArray</span>
 
 
             
@@ -3757,7 +4198,7 @@ These should all be non-negative integers, even if they are stored in floating-p
             <td class="type">
             
                 
-<span class="param-type"><a href="WasmArray.html">WasmArray</a></span>
+<span class="param-type">WasmArray</span>
 
 
             
@@ -3789,7 +4230,7 @@ This should be of the same length as <code>values</code>.</p></td>
             <td class="type">
             
                 
-<span class="param-type"><a href="WasmArray.html">WasmArray</a></span>
+<span class="param-type">WasmArray</span>
 
 
             
@@ -4086,7 +4527,7 @@ If <code>false</code>, <code>indices</code> should contain column indices and <c
             <td class="type">
             
                 
-<span class="param-type"><a href="WasmArray.html">WasmArray</a></span>
+<span class="param-type">WasmArray</span>
 |
 
 <span class="param-type">Array</span>
@@ -4415,7 +4856,7 @@ For the latter, both H5AD and 10X-style sparse formats are supported.</p></td>
             <td class="type">
             
                 
-<span class="param-type"><a href="Uint8WasmArray.html">Uint8WasmArray</a></span>
+<span class="param-type">Uint8WasmArray</span>
 |
 
 <span class="param-type">Array</span>
@@ -4861,7 +5302,7 @@ Only relevant if <code>x</code> is a <code>NeighborSearchResults</code> object.<
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="runTSNE.js.html">runTSNE.js</a>, <a href="runTSNE.js.html#line90">line 90</a>
+        <a href="runTSNE.js.html">runTSNE.js</a>, <a href="runTSNE.js.html#line89">line 89</a>
     </li></ul></dd>
     
 
@@ -5179,7 +5620,7 @@ Ignored if <code>x</code> is a <code>NeighborSearchResults</code> object.</p></t
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="runUMAP.js.html">runUMAP.js</a>, <a href="runUMAP.js.html#line90">line 90</a>
+        <a href="runUMAP.js.html">runUMAP.js</a>, <a href="runUMAP.js.html#line89">line 89</a>
     </li></ul></dd>
     
 
@@ -5280,7 +5721,7 @@ Ignored if <code>x</code> is a <code>NeighborSearchResults</code> object.</p></t
 <span class="param-type"><a href="SparseMatrix.html">SparseMatrix</a></span>
 |
 
-<span class="param-type"><a href="Float64WasmArray.html">Float64WasmArray</a></span>
+<span class="param-type">Float64WasmArray</span>
 
 
             
@@ -5397,7 +5838,7 @@ If a <code>Float64WasmArray</code> is supplied, it is assumed to contain a colum
             <td class="type">
             
                 
-<span class="param-type"><a href="Int32WasmArray.html">Int32WasmArray</a></span>
+<span class="param-type">Int32WasmArray</span>
 
 
             
@@ -6124,7 +6565,7 @@ The actual names of the labels are usually held elsewhere.</p>
             <td class="type">
             
                 
-<span class="param-type"><a href="Float64WasmArray.html">Float64WasmArray</a></span>
+<span class="param-type">Float64WasmArray</span>
 |
 
 <span class="param-type">Array</span>
@@ -6167,7 +6608,7 @@ If <code>null</code>, size factors are computed from the column sums of <code>x<
             <td class="type">
             
                 
-<span class="param-type"><a href="Int32WasmArray.html">Int32WasmArray</a></span>
+<span class="param-type">Int32WasmArray</span>
 |
 
 <span class="param-type">Array</span>
@@ -6429,7 +6870,7 @@ Alternatively, this may be <code>null</code>, in which case all cells are assume
             <td class="type">
             
                 
-<span class="param-type"><a href="Int32WasmArray.html">Int32WasmArray</a></span>
+<span class="param-type">Int32WasmArray</span>
 |
 
 <span class="param-type">Array</span>
@@ -6856,7 +7297,7 @@ such that entries match the corresponding row in <code>layered</code>.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="runTSNE.js.html">runTSNE.js</a>, <a href="runTSNE.js.html#line75">line 75</a>
+        <a href="runTSNE.js.html">runTSNE.js</a>, <a href="runTSNE.js.html#line74">line 74</a>
     </li></ul></dd>
     
 
@@ -6999,7 +7440,7 @@ such that entries match the corresponding row in <code>layered</code>.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wasm.js.html">wasm.js</a>, <a href="wasm.js.html#line99">line 99</a>
+        <a href="wasm.js.html">wasm.js</a>, <a href="wasm.js.html#line110">line 110</a>
     </li></ul></dd>
     
 
@@ -7184,7 +7625,7 @@ Node applications should not call this function.</p>
             <td class="type">
             
                 
-<span class="param-type"><a href="Uint8WasmArray.html">Uint8WasmArray</a></span>
+<span class="param-type">Uint8WasmArray</span>
 |
 
 <span class="param-type">Array</span>
@@ -7617,7 +8058,7 @@ If <code>null</code>, no limit is imposed on the runtime.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="runTSNE.js.html">runTSNE.js</a>, <a href="runTSNE.js.html#line145">line 145</a>
+        <a href="runTSNE.js.html">runTSNE.js</a>, <a href="runTSNE.js.html#line144">line 144</a>
     </li></ul></dd>
     
 
@@ -7873,7 +8314,7 @@ If <code>null</code>, no limit is imposed on the runtime.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="runUMAP.js.html">runUMAP.js</a>, <a href="runUMAP.js.html#line134">line 134</a>
+        <a href="runUMAP.js.html">runUMAP.js</a>, <a href="runUMAP.js.html#line133">line 133</a>
     </li></ul></dd>
     
 
@@ -8003,7 +8444,7 @@ or until the requested run time is exceeded, whichever comes first.</p>
             <td class="type">
             
                 
-<span class="param-type"><a href="Int32WasmArray.html">Int32WasmArray</a></span>
+<span class="param-type">Int32WasmArray</span>
 |
 
 <span class="param-type">Array</span>
@@ -8095,7 +8536,7 @@ This should have length equal to the number of cells and contain all values from
             <td class="type">
             
                 
-<span class="param-type"><a href="Int32WasmArray.html">Int32WasmArray</a></span>
+<span class="param-type">Int32WasmArray</span>
 |
 
 <span class="param-type">Array</span>
@@ -8268,7 +8709,7 @@ Alternatively, this may be <code>null</code>, in which case all cells are assume
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wasm.js.html">wasm.js</a>, <a href="wasm.js.html#line63">line 63</a>
+        <a href="wasm.js.html">wasm.js</a>, <a href="wasm.js.html#line74">line 74</a>
     </li></ul></dd>
     
 
@@ -8300,6 +8741,101 @@ Alternatively, this may be <code>null</code>, in which case all cells are assume
     <p>All worker threads are terminated and the module is deleted from the cache.
 This is useful for cleaning up at the end of the analysis,
 otherwise the workers will be shut done ungracefully on program exit.</p>
+</div>
+
+
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="wasmArraySpace"><span class="type-signature"></span>wasmArraySpace<span class="signature">()</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="wasm.js.html">wasm.js</a>, <a href="wasm.js.html#line65">line 65</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>Integer containing the <strong>WasmArray</strong> identifier for <strong>scran.js</strong>'s memory space.
+This can be used with <code>WasmArray.createWasmArray()</code> and related functions.</p>
 </div>
 
 
@@ -8436,7 +8972,7 @@ otherwise the workers will be shut done ungracefully on program exit.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wasm.js.html">wasm.js</a>, <a href="wasm.js.html#line86">line 86</a>
+        <a href="wasm.js.html">wasm.js</a>, <a href="wasm.js.html#line97">line 97</a>
     </li></ul></dd>
     
 
@@ -8495,13 +9031,13 @@ rather, they can just read directly from the real file system.</p>
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="BuiltLabelledReference.html">BuiltLabelledReference</a></li><li><a href="Float32WasmArray.html">Float32WasmArray</a></li><li><a href="Float64WasmArray.html">Float64WasmArray</a></li><li><a href="Int8WasmArray.html">Int8WasmArray</a></li><li><a href="Int16WasmArray.html">Int16WasmArray</a></li><li><a href="Int32WasmArray.html">Int32WasmArray</a></li><li><a href="KmeansClusters.html">KmeansClusters</a></li><li><a href="LabelledReference.html">LabelledReference</a></li><li><a href="LayeredSparseMatrix.html">LayeredSparseMatrix</a></li><li><a href="ModelGeneVarResults.html">ModelGeneVarResults</a></li><li><a href="NeighborSearchIndex.html">NeighborSearchIndex</a></li><li><a href="NeighborSearchResults.html">NeighborSearchResults</a></li><li><a href="PCAResults.html">PCAResults</a></li><li><a href="PerCellQCFilters.html">PerCellQCFilters</a></li><li><a href="PerCellQCMetrics.html">PerCellQCMetrics</a></li><li><a href="ScoreMarkersResults.html">ScoreMarkersResults</a></li><li><a href="SNNGraph.html">SNNGraph</a></li><li><a href="SNNGraphMultilevelClusters.html">SNNGraphMultilevelClusters</a></li><li><a href="SparseMatrix.html">SparseMatrix</a></li><li><a href="TSNEStatus.html">TSNEStatus</a></li><li><a href="Uint8WasmArray.html">Uint8WasmArray</a></li><li><a href="Uint16WasmArray.html">Uint16WasmArray</a></li><li><a href="Uint32WasmArray.html">Uint32WasmArray</a></li><li><a href="UMAPStatus.html">UMAPStatus</a></li><li><a href="WasmArray.html">WasmArray</a></li></ul><h3>Global</h3><ul><li><a href="global.html#buildLabelledReference">buildLabelledReference</a></li><li><a href="global.html#buildNeighborSearchIndex">buildNeighborSearchIndex</a></li><li><a href="global.html#buildSNNGraph">buildSNNGraph</a></li><li><a href="global.html#chooseHVGs">chooseHVGs</a></li><li><a href="global.html#clusterKmeans">clusterKmeans</a></li><li><a href="global.html#clusterSNNGraph">clusterSNNGraph</a></li><li><a href="global.html#computePerCellQCFilters">computePerCellQCFilters</a></li><li><a href="global.html#computePerCellQCMetrics">computePerCellQCMetrics</a></li><li><a href="global.html#extractHDF5ObjectNames">extractHDF5ObjectNames</a></li><li><a href="global.html#filterCells">filterCells</a></li><li><a href="global.html#findNearestNeighbors">findNearestNeighbors</a></li><li><a href="global.html#guessFeatures">guessFeatures</a></li><li><a href="global.html#heapSize">heapSize</a></li><li><a href="global.html#initialize">initialize</a></li><li><a href="global.html#initializeSparseMatrixFromCompressedVectors">initializeSparseMatrixFromCompressedVectors</a></li><li><a href="global.html#initializeSparseMatrixFromDenseArray">initializeSparseMatrixFromDenseArray</a></li><li><a href="global.html#initializeSparseMatrixFromHDF5">initializeSparseMatrixFromHDF5</a></li><li><a href="global.html#initializeSparseMatrixFromMatrixMarketBuffer">initializeSparseMatrixFromMatrixMarketBuffer</a></li><li><a href="global.html#initializeTSNE">initializeTSNE</a></li><li><a href="global.html#initializeUMAP">initializeUMAP</a></li><li><a href="global.html#labelCells">labelCells</a></li><li><a href="global.html#loadHDF5Dataset">loadHDF5Dataset</a></li><li><a href="global.html#loadLabelledReferenceFromBuffers">loadLabelledReferenceFromBuffers</a></li><li><a href="global.html#logNormCounts">logNormCounts</a></li><li><a href="global.html#modelGeneVar">modelGeneVar</a></li><li><a href="global.html#permuteFeatures">permuteFeatures</a></li><li><a href="global.html#perplexityToNeighbors">perplexityToNeighbors</a></li><li><a href="global.html#removeFile">removeFile</a></li><li><a href="global.html#runPCA">runPCA</a></li><li><a href="global.html#runTSNE">runTSNE</a></li><li><a href="global.html#runUMAP">runUMAP</a></li><li><a href="global.html#scoreMarkers">scoreMarkers</a></li><li><a href="global.html#terminate">terminate</a></li><li><a href="global.html#writeFile">writeFile</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="BuiltLabelledReference.html">BuiltLabelledReference</a></li><li><a href="KmeansClusters.html">KmeansClusters</a></li><li><a href="LabelledReference.html">LabelledReference</a></li><li><a href="LayeredSparseMatrix.html">LayeredSparseMatrix</a></li><li><a href="ModelGeneVarResults.html">ModelGeneVarResults</a></li><li><a href="NeighborSearchIndex.html">NeighborSearchIndex</a></li><li><a href="NeighborSearchResults.html">NeighborSearchResults</a></li><li><a href="PCAResults.html">PCAResults</a></li><li><a href="PerCellQCFilters.html">PerCellQCFilters</a></li><li><a href="PerCellQCMetrics.html">PerCellQCMetrics</a></li><li><a href="ScoreMarkersResults.html">ScoreMarkersResults</a></li><li><a href="SNNGraph.html">SNNGraph</a></li><li><a href="SNNGraphMultilevelClusters.html">SNNGraphMultilevelClusters</a></li><li><a href="SparseMatrix.html">SparseMatrix</a></li><li><a href="TSNEStatus.html">TSNEStatus</a></li><li><a href="UMAPStatus.html">UMAPStatus</a></li></ul><h3>Global</h3><ul><li><a href="global.html#buildLabelledReference">buildLabelledReference</a></li><li><a href="global.html#buildNeighborSearchIndex">buildNeighborSearchIndex</a></li><li><a href="global.html#buildSNNGraph">buildSNNGraph</a></li><li><a href="global.html#chooseHVGs">chooseHVGs</a></li><li><a href="global.html#clusterKmeans">clusterKmeans</a></li><li><a href="global.html#clusterSNNGraph">clusterSNNGraph</a></li><li><a href="global.html#computePerCellQCFilters">computePerCellQCFilters</a></li><li><a href="global.html#computePerCellQCMetrics">computePerCellQCMetrics</a></li><li><a href="global.html#createFloat64WasmArray">createFloat64WasmArray</a></li><li><a href="global.html#createInt32WasmArray">createInt32WasmArray</a></li><li><a href="global.html#createUint8WasmArray">createUint8WasmArray</a></li><li><a href="global.html#extractHDF5ObjectNames">extractHDF5ObjectNames</a></li><li><a href="global.html#filterCells">filterCells</a></li><li><a href="global.html#findNearestNeighbors">findNearestNeighbors</a></li><li><a href="global.html#guessFeatures">guessFeatures</a></li><li><a href="global.html#heapSize">heapSize</a></li><li><a href="global.html#initialize">initialize</a></li><li><a href="global.html#initializeSparseMatrixFromCompressedVectors">initializeSparseMatrixFromCompressedVectors</a></li><li><a href="global.html#initializeSparseMatrixFromDenseArray">initializeSparseMatrixFromDenseArray</a></li><li><a href="global.html#initializeSparseMatrixFromHDF5">initializeSparseMatrixFromHDF5</a></li><li><a href="global.html#initializeSparseMatrixFromMatrixMarketBuffer">initializeSparseMatrixFromMatrixMarketBuffer</a></li><li><a href="global.html#initializeTSNE">initializeTSNE</a></li><li><a href="global.html#initializeUMAP">initializeUMAP</a></li><li><a href="global.html#labelCells">labelCells</a></li><li><a href="global.html#loadHDF5Dataset">loadHDF5Dataset</a></li><li><a href="global.html#loadLabelledReferenceFromBuffers">loadLabelledReferenceFromBuffers</a></li><li><a href="global.html#logNormCounts">logNormCounts</a></li><li><a href="global.html#modelGeneVar">modelGeneVar</a></li><li><a href="global.html#permuteFeatures">permuteFeatures</a></li><li><a href="global.html#perplexityToNeighbors">perplexityToNeighbors</a></li><li><a href="global.html#removeFile">removeFile</a></li><li><a href="global.html#runPCA">runPCA</a></li><li><a href="global.html#runTSNE">runTSNE</a></li><li><a href="global.html#runUMAP">runUMAP</a></li><li><a href="global.html#scoreMarkers">scoreMarkers</a></li><li><a href="global.html#terminate">terminate</a></li><li><a href="global.html#wasmArraySpace">wasmArraySpace</a></li><li><a href="global.html#writeFile">writeFile</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.10</a> on Wed Mar 02 2022 07:16:09 GMT+0000 (Coordinated Universal Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.10</a> on Wed Mar 02 2022 07:25:11 GMT+0000 (Coordinated Universal Time)
 </footer>
 
 <script> prettyPrint(); </script>
