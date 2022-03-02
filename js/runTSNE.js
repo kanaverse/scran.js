@@ -1,7 +1,6 @@
 import * as utils from "./utils.js";
 import * as wasm from "./wasm.js";
 import { NeighborSearchIndex, findNearestNeighbors } from "./findNearestNeighbors.js";
-import { Float64WasmArray } from "./WasmArray.js";
 
 /**
  * Wrapper around the t-SNE status object on the Wasm heap.
@@ -112,7 +111,7 @@ export function initializeTSNE(x, { perplexity = 30, checkMismatch = true } = {}
         }
 
         raw_status = wasm.call(module => module.initialize_tsne(neighbors.results, perplexity));
-        raw_coords = new Float64WasmArray(2 * neighbors.numberOfCells());
+        raw_coords = utils.createFloat64WasmArray(2 * neighbors.numberOfCells());
         wasm.call(module => module.randomize_tsne_start(neighbors.numberOfCells(), raw_coords.offset, 42));
         output = new TSNEStatus(raw_status, raw_coords);
 

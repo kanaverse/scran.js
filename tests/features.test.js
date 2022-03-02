@@ -7,11 +7,11 @@ afterAll(async () => { await scran.terminate() });
 test("permuteFeatures works as expected", () => {
     // First two rows contain elements beyond the range of the smaller integer,
     // and thus are shuffled to the back.
-    var vals = new scran.Int32WasmArray(15);
+    var vals = scran.createInt32WasmArray(15);
     vals.set([1, 5, 2, 1000000, 10, 8, 1000, 10, 4, 2, 1, 1, 3, 5, 8]); 
-    var indices = new scran.Int32WasmArray(15);
+    var indices = scran.createInt32WasmArray(15);
     indices.set([3, 5, 5, 0, 2, 9, 1, 2, 5, 5, 6, 8, 8, 6, 9]);
-    var indptrs = new scran.Int32WasmArray(11);
+    var indptrs = scran.createInt32WasmArray(11);
     indptrs.set([0, 2, 3, 6, 9, 11, 11, 12, 12, 13, 15]);
     var mat = scran.initializeSparseMatrixFromCompressedVectors(11, 10, vals, indices, indptrs);
 

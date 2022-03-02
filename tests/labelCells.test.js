@@ -92,7 +92,7 @@ test("labelCells works correctly", () => {
     expect(max < 5).toBe(true);
 
     // Works with a buffer.
-    let buf = new scran.Int32WasmArray(20);
+    let buf = scran.createInt32WasmArray(20);
     let labels2 = scran.labelCells(mat, built, { buffer: buf });
     expect(compare.equalArrays(labels, labels2)).toBe(true);
 
@@ -151,7 +151,7 @@ test("labelCells works correctly with a dense matrix", () => {
     let labels = scran.labelCells(mat, built); 
 
     // Densifying it.
-    let buffer = new scran.Float64WasmArray(nfeatures * 30);
+    let buffer = scran.createFloat64WasmArray(nfeatures * 30);
     for (var i = 0; i < 30; i++) {
         buffer.set(mat.column(i), i * nfeatures);
     }

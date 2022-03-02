@@ -33,7 +33,7 @@ test("per-cell QC filters can be computed with blocking", () => {
     var mat = simulate.simulateMatrix(ngenes, ncells);
     var subs = simulate.simulateSubsets(ngenes, 1);
    
-    var block = new scran.Int32WasmArray(ncells);
+    var block = scran.createInt32WasmArray(ncells);
     var half = ncells / 2;
     block.fill(0, 0, half);
     block.fill(1, half, ncells);
@@ -43,7 +43,7 @@ test("per-cell QC filters can be computed with blocking", () => {
     var filt = scran.computePerCellQCFilters(qc, { block: block });
 
     // Computing manually.
-    var dense_buffer = new scran.Float64WasmArray(ngenes * half);
+    var dense_buffer = scran.createFloat64WasmArray(ngenes * half);
 
     for (var c = 0; c < half; c++) {
         let out = mat.column(c);

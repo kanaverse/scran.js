@@ -1,4 +1,6 @@
 import loadScran from "./wasm/scran.js";
+import { register } from "wasmarrays.js";
+
 const cache = {};
 
 /**
@@ -26,6 +28,7 @@ export async function initialize({ numberOfThreads = 4, localFile = false } = {}
     }
 
     cache.module = await loadScran(options);
+    cache.space = register(cache.module);
 
     return true;
 }
@@ -53,6 +56,14 @@ export function buffer() {
         throw "Wasm module needs to be initialized via 'initialize()'";
     }
     return cache.module.wasmMemory.buffer;
+}
+
+/**
+ * @return Integer containing the **WasmArray** identifier for **scran.js**'s memory space.
+ * This can be used with `WasmArray.createWasmArray()` and related functions.
+ */
+export function wasmArraySpace() {
+    return cache.space;
 }
 
 /**

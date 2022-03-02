@@ -1,6 +1,6 @@
 import * as wasm from "./wasm.js";
 import * as utils from "./utils.js"; 
-import { Uint8WasmArray } from "./WasmArray.js";
+import * as wa from "wasmarrays.js";
 
 /**
  * Wrapper for the metrics allocated on the Wasm heap.
@@ -91,16 +91,24 @@ export function computePerCellQCMetrics(x, subsets) {
     var raw;
 
     try {
-        if (subsets instanceof Uint8WasmArray) {
-            let ptr = subsets.offset;
+        if (subsets instanceof wa.Uint8WasmArray) {
             let nsubsets = Math.round(subsets.length / x.numberOfRows());
             if (nsubsets * x.numberOfRows() != subsets.length) {
                 throw "length of 'subsets' should be a multiple of the matrix rows";
             }
-            raw = wasm.call(module => module.per_cell_qc_metrics(x.matrix, nsubsets, ptr));
+
+            // This will either create a cheap view, or it'll clone
+            // 'subsets' into the appropriate memory space.
+            let converted = utils.wasmifyArray(subsets, null);
+            try {
+                let ptr = subsets.offset;
+                raw = wasm.call(module => module.per_cell_qc_metrics(x.matrix, nsubsets, ptr));
+            } finally {
+                converted.free();
+            }
 
         } else if (subsets instanceof Array) {
-            let tmp = new Uint8WasmArray(x.numberOfRows() * subsets.length);
+            let tmp = utils.createUint8WasmArray(x.numberOfRows() * subsets.length);
             try {
                 let offset = 0;
                 for (var i = 0; i < subsets.length; i++) {

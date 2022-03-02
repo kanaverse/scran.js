@@ -6,9 +6,10 @@ beforeAll(async () => { await scran.initialize({ localFile: true }) });
 afterAll(async () => { await scran.terminate() });
 
 test("initialization from dense array works correctly", () => {
-    var vals = new scran.Int32WasmArray(15);
+    var vals = scran.createInt32WasmArray(15);
     vals.set([1, 5, 0, 0, 7, 0, 0, 10, 4, 2, 0, 0, 0, 5, 8]);
     var mat = scran.initializeSparseMatrixFromDenseArray(3, 5, vals);
+    console.log(mat);
     expect(mat.numberOfRows()).toBe(3);
     expect(mat.numberOfColumns()).toBe(5);
 
@@ -20,11 +21,11 @@ test("initialization from dense array works correctly", () => {
 })
 
 test("initialization from compressed values works correctly", () => {
-    var vals = new scran.Int32WasmArray(15);
+    var vals = scran.createInt32WasmArray(15);
     vals.set([1, 5, 2, 3, 7, 8, 9, 10, 4, 2, 1, 1, 3, 5, 8]);
-    var indices = new scran.Int32WasmArray(15);
+    var indices = scran.createInt32WasmArray(15);
     indices.set([3, 5, 5, 0, 2, 9, 1, 2, 5, 5, 6, 8, 8, 6, 9]);
-    var indptrs = new scran.Int32WasmArray(11);
+    var indptrs = scran.createInt32WasmArray(11);
     indptrs.set([0, 2, 3, 6, 9, 11, 11, 12, 12, 13, 15]);
 
     var mat = scran.initializeSparseMatrixFromCompressedVectors(11, 10, vals, indices, indptrs);
@@ -51,11 +52,11 @@ test("initialization from compressed values works correctly", () => {
 })
 
 test("initialization from compressed values works with permutations", () => {
-    var vals = new scran.Int32WasmArray(15);
+    var vals = scran.createInt32WasmArray(15);
     vals.set([1, 5, 2, 1000000, 10, 8, 1000, 10, 4, 2, 1, 1, 3, 5, 8]); // first two rows contain elements beyond the range.
-    var indices = new scran.Int32WasmArray(15);
+    var indices = scran.createInt32WasmArray(15);
     indices.set([3, 5, 5, 0, 2, 9, 1, 2, 5, 5, 6, 8, 8, 6, 9]);
-    var indptrs = new scran.Int32WasmArray(11);
+    var indptrs = scran.createInt32WasmArray(11);
     indptrs.set([0, 2, 3, 6, 9, 11, 11, 12, 12, 13, 15]);
 
     var mat = scran.initializeSparseMatrixFromCompressedVectors(11, 10, vals, indices, indptrs);
@@ -84,7 +85,7 @@ test("initialization from MatrixMarket works correctly", () => {
     const converter = new TextEncoder();
     var raw_buffer = converter.encode(content);
 
-    var buffer = new scran.Uint8WasmArray(raw_buffer.length);
+    var buffer = scran.createUint8WasmArray(raw_buffer.length);
     buffer.set(raw_buffer);
 
     var mat = scran.initializeSparseMatrixFromMatrixMarketBuffer(buffer);
@@ -103,7 +104,7 @@ test("initialization from Gzipped MatrixMarket works correctly with Gzip", () =>
     var content = "%%\n11 5 6\n1 2 5\n10 3 2\n7 4 22\n5 1 12\n6 3 2\n1 5 8\n";
     const raw_buffer = pako.gzip(content);
 
-    var buffer = new scran.Uint8WasmArray(raw_buffer.length);
+    var buffer = scran.createUint8WasmArray(raw_buffer.length);
     buffer.set(raw_buffer);
 
     var mat = scran.initializeSparseMatrixFromMatrixMarketBuffer(buffer);
