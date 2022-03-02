@@ -52,6 +52,6 @@
     ],
     "repository": "github:jkanche/scran.js",
     "dependencies": {
-        "wasmarrays.js": "0.0.1"
+        "wasmarrays.js": "0.0.2"
     }
 }
