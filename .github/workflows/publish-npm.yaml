@@ -1,12 +1,15 @@
-on: [push]
-
-# on: [push]
+on:
+  workflow_run:
+    workflows: [Test JS bindings]
+    types: [completed]
+    branches: [master]
 
 name: Build and publish to NPM 
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     container: ghcr.io/jkanche/scran.js/builder:latest
     defaults:
       run:
@@ -27,16 +30,11 @@ jobs:
     - name: Update NPM packages
       run: npm i --include=dev
 
-    - name: Parcellize build
-      run: npm run build
-
     - uses: actions/setup-node@v2
-      if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
       with:
         registry-url: 'https://registry.npmjs.org'
 
     - name: Publish to NPM
-      if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
       run: npm publish || true
       env:
         NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
