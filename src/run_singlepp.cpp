@@ -222,7 +222,7 @@ IntegratedSinglePPReferences integrate_singlepp_references(
     auto mid_ptr = reinterpret_cast<const int*>(mat_id);
     auto ref_ptrs = convert_array_of_offsets<const SinglePPReference*>(nref, refs);
     auto rid_ptrs = convert_array_of_offsets<const int*>(nref, ref_ids);
-    auto blt_ptrs = convert_array_of_offsets<const BuiltSinglePPReference*>(nref, refs);
+    auto blt_ptrs = convert_array_of_offsets<const BuiltSinglePPReference*>(nref, built);
 
     singlepp::IntegratedBuilder inter;
     for (size_t r = 0; r < nref; ++r) {
@@ -235,7 +235,7 @@ IntegratedSinglePPReferences integrate_singlepp_references(
             blt_ptrs[r]->built
         );
     }
-     
+
     return IntegratedSinglePPReferences(inter.finish());
 }
 
@@ -276,9 +276,9 @@ EMSCRIPTEN_BINDINGS(run_singlepp) {
 
     emscripten::function("build_singlepp_reference", &build_singlepp_reference);
 
-    emscripten::function("integrate_singlepp_references", &build_singlepp_reference);
+    emscripten::function("integrate_singlepp_references", &integrate_singlepp_references);
 
-    emscripten::function("integrate_singlepp", &build_singlepp_reference);
+    emscripten::function("integrate_singlepp", &integrate_singlepp);
     
     emscripten::class_<SinglePPReference>("SinglePPReference")
         .function("num_samples", &SinglePPReference::num_samples)

@@ -79,6 +79,6 @@ FetchContent_MakeAvailable(h5wasm)
 FetchContent_Declare(
   singlepp
   GIT_REPOSITORY https://github.com/LTLA/singlepp
-  GIT_TAG bfd24c3d87a9ac8de13d7f5074f159bffbd22f60
+  GIT_TAG e2cd7dc7fc2006c555a45e5d71edc5da711ff87b
 )
 FetchContent_MakeAvailable(singlepp)

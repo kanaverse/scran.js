@@ -4,6 +4,7 @@
 #include <vector>
 #include <cstdint>
 #include <cmath>
+#include <iostream>
 
 /**
  * Create a vector of pointers to the columns of a matrix.
