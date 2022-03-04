@@ -207,6 +207,9 @@ let labels = scran.labelCells(mat, built);
 For interactive use, we may prefer to generate per-cluster labels rather than per-cell labels, as the former is much faster.
 This is easily done by computing the cluster means, storing them in a dense array and passing that array to `labelCells`.
 
+Advanced users can integrate cell labels from multiple references with the `integrateCells` function.
+See the [tests](https://github.com/jkanche/scran.js/blob/master/tests/labelCells.test.js) for some working examples.
+
 ## Developer notes
 
 ### Introducing WebAssembly 
