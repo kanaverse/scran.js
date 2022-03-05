@@ -4,6 +4,7 @@
 #include <vector>
 #include <cstdint>
 #include <cmath>
+#include <iostream>
 
 /**
  * Create a vector of pointers to the columns of a matrix.
@@ -58,6 +59,27 @@ inline std::vector<std::vector<T> > extract_column_pointers_blocked(uintptr_t pt
         }
     }
     return store;
+}
+
+/**
+ * Create a vector of pointers from an offset into an array of offsets.
+ * This assumes that the offsets are represented as 64-bit unsigned integers on the Wasm heap.
+ * 
+ * @tparam Type of pointer to create.
+ * @param n Length of the array of offsets.
+ * @param x Offset to the array of offsets.
+ *
+ * @return Vector containing pointers of the desired type.
+ */
+template<typename T>
+std::vector<T> convert_array_of_offsets(size_t n, uintptr_t x) {
+    std::vector<T> output(n);
+    auto ptr = reinterpret_cast<const uint64_t*>(x); // using 64-bit offsets for future-proofing.
+    for (size_t i = 0; i < n; ++i) {
+        uintptr_t current = ptr[i];
+        output[i] = reinterpret_cast<T>(current);
+    }
+    return output;
 }
 
 #endif

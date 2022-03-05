@@ -165,3 +165,52 @@ test("labelCells works correctly with a dense matrix", () => {
     built.free();
     buffer.free();
 });
+
+test("multi-reference integration works correctly", () => {
+    let mockids = mockIDs(nfeatures);
+    let test = simulate.simulateMatrix(nfeatures, 30);
+
+    let refA = mockReferenceData(nlabels, profiles_per_label, nfeatures, 20); 
+    let refinfoA = scran.loadLabelledReferenceFromBuffers(refA.ranks, refA.markers, refA.labels);
+    let idsA = mockids.map(x => (Math.random() < 0.3 ? x : -1));
+    let builtA = scran.buildLabelledReference(mockids, refinfoA, idsA);
+
+    let refB = mockReferenceData(nlabels, profiles_per_label, nfeatures, 20); 
+    let refinfoB = scran.loadLabelledReferenceFromBuffers(refB.ranks, refB.markers, refB.labels);
+    let idsB = mockids.map(x => (Math.random() < 0.3 ? x : -1));
+    let builtB = scran.buildLabelledReference(mockids, refinfoB, idsB);
+
+    // Building the integrated reference.
+    let inter = scran.integrateLabelledReferences(mockids, [refinfoA, refinfoB], [idsA, idsB], [builtA, builtB]);
+    expect(inter.numberOfReferences()).toBe(2);
+
+    // Using the various objects for classification of the test matrix.
+    // Not much checks we can do here other than to verify that the ints are wihtin range.
+    let labA = scran.createInt32WasmArray(test.numberOfColumns());
+    scran.labelCells(test, builtA, { buffer: labA });
+    let labB = scran.labelCells(test, builtB);
+
+    let combined = scran.integrateCellLabels(test, [labA, labB], inter);
+    let min = 1000;
+    let max = -1;
+    combined.forEach(x => {
+        if (x < min) {
+            min = x;
+        }
+        if (x > max) {
+            max = x;
+        }
+    });
+    expect(min >= 0 && min <= 1).toBe(true);
+    expect(max >= 0 && max <= 1).toBe(true);
+    expect(combined.length).toBe(test.numberOfColumns());
+
+    // Freeing all the bits and pieces.
+    refinfoA.free();
+    builtA.free();
+    refinfoB.free();
+    builtB.free();
+    inter.free();
+    labA.free();
+});
+

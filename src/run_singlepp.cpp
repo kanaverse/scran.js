@@ -1,16 +1,18 @@
 #include <emscripten/bind.h>
 
 #include "NumericMatrix.h"
+#include "utils.h"
 
 #define SINGLEPP_USE_ZLIB
 #include "singlepp/SinglePP.hpp"
 #include "singlepp/load_references.hpp"
+#include "singlepp/IntegratedBuilder.hpp"
+#include "singlepp/IntegratedScorer.hpp"
 
 #include "tatami/tatami.hpp"
 #include <vector>
-#include <string>
-#include <unordered_map>
 #include <memory>
+#include <cstdint>
 
 /**
  * @brief A reference dataset for **singlepp** annotation.
@@ -121,9 +123,9 @@ public:
 
 /**
  * @param nfeatures Total number of features in the test dataset.
- * @param ref The reference dataset to use for annotation, see `load_singlepp_reference()`.
  * @param[in] mat_id Offset to an integer array of length equal to `nfeatures`.
  * Each element contains a feature identifier for the corresponding row.
+ * @param ref The reference dataset to use for annotation, see `load_singlepp_reference()`.
  * @param[in] ref_id Offset to an integer array of length equal to the number of features in the reference dataset.
  * This should contain the feature identifier for each feature in the reference, to be intersected with those in `mat_id`.
  * @param top Number of top markers to use.
@@ -131,7 +133,7 @@ public:
  *
  * @return A `BuiltSinglePPReference` object that can be immediately used for classification of any matrix with row identities corresponding to `mat_id`.
  */
-BuiltSinglePPReference build_singlepp_reference(size_t nfeatures, const SinglePPReference& ref, uintptr_t mat_id, uintptr_t ref_id, int top) {
+BuiltSinglePPReference build_singlepp_reference(size_t nfeatures, uintptr_t mat_id, const SinglePPReference& ref, uintptr_t ref_id, int top) {
     singlepp::SinglePP runner;
     runner.set_top(top);
     auto built = runner.build(
@@ -169,6 +171,102 @@ void run_singlepp(const NumericMatrix& mat, const BuiltSinglePPReference& built,
 }
 
 /**
+ * @brief Integrated references for **singlepp** annotation.
+ */
+class IntegratedSinglePPReferences {
+public:
+    /**
+     * @cond
+     */
+    IntegratedSinglePPReferences(std::vector<singlepp::IntegratedReference> x) : references(std::move(x)) {};
+
+    IntegratedSinglePPReferences() {};
+
+    std::vector<singlepp::IntegratedReference> references;
+    /**
+     * @endcond
+     */
+
+    /**
+     * @return Number of references in this integrated set.
+     */
+    size_t num_references() const {
+        return references.size();
+    }
+};
+
+/**
+ * @param nfeatures Total number of features in the test dataset.
+ * @param[in] mat_id Offset to an integer array of length equal to `nfeatures`.
+ * Each element contains a feature identifier for the corresponding row.
+ * @param nref Number of references.
+ * @param refs Offset to an array of 64-bit pointers to `SinglePPReference` objects.
+ * This array dshould be of length `nref`.
+ * @param[in] ref_ids Offset to an array of 64-bit pointers of length `nref`.
+ * Each entry points to an integer array of length equal to the number of features in the corresponding reference dataset.
+ * This should contain the feature identifier for each feature in the reference, to be intersected with those in `mat_id`.
+ * @param built Offset to an array of 64-bit pointers to `BuiltSinglePPReference` objects.
+ * This array dshould be of length `nref`.
+ * 
+ * @return An `IntegratedSinglePPReferences` object.
+ */
+IntegratedSinglePPReferences integrate_singlepp_references(
+    size_t nfeatures, 
+    uintptr_t mat_id, 
+    size_t nref, 
+    uintptr_t refs, 
+    uintptr_t ref_ids, 
+    uintptr_t built) 
+{
+    // Casting all the pointers.
+    auto mid_ptr = reinterpret_cast<const int*>(mat_id);
+    auto ref_ptrs = convert_array_of_offsets<const SinglePPReference*>(nref, refs);
+    auto rid_ptrs = convert_array_of_offsets<const int*>(nref, ref_ids);
+    auto blt_ptrs = convert_array_of_offsets<const BuiltSinglePPReference*>(nref, built);
+
+    singlepp::IntegratedBuilder inter;
+    for (size_t r = 0; r < nref; ++r) {
+        inter.add(
+            nfeatures, 
+            mid_ptr,
+            ref_ptrs[r]->matrix.get(),
+            rid_ptrs[r],
+            ref_ptrs[r]->labels.data(),
+            blt_ptrs[r]->built
+        );
+    }
+
+    return IntegratedSinglePPReferences(inter.finish());
+}
+
+/**
+ * @param mat Matrix containing the test dataset, with cells in columns and features in rows.
+ * @param integrated An integrated set of reference datasets, see `integrate_singlepp_references()`.
+ * @param quantile Quantile on the correlations to use when computing a score for each label.
+ * @param[out] output Offset to an integer array of length equal to the number of columns in `mat`.
+ * This will be filled with the index of the reference with the top-scoring label for each cell in the test dataset.
+ *
+ * @return `output` is filled with the reference indices.
+ */
+void integrate_singlepp(const NumericMatrix& mat, uintptr_t assigned, const IntegratedSinglePPReferences& integrated, double quantile, uintptr_t output) {
+    std::vector<double*> empty(integrated.num_references(), nullptr);
+    auto aptrs = convert_array_of_offsets<const int*>(integrated.num_references(), assigned);
+
+    singlepp::IntegratedScorer runner;
+    runner.set_quantile(quantile);
+    runner.run(
+        mat.ptr.get(), 
+        aptrs,
+        integrated.references,
+        reinterpret_cast<int*>(output),
+        empty,
+        nullptr
+    );
+
+    return;
+}
+
+/**
  * @cond
  */
 EMSCRIPTEN_BINDINGS(run_singlepp) {
@@ -177,6 +275,10 @@ EMSCRIPTEN_BINDINGS(run_singlepp) {
     emscripten::function("load_singlepp_reference", &load_singlepp_reference);
 
     emscripten::function("build_singlepp_reference", &build_singlepp_reference);
+
+    emscripten::function("integrate_singlepp_references", &integrate_singlepp_references);
+
+    emscripten::function("integrate_singlepp", &integrate_singlepp);
     
     emscripten::class_<SinglePPReference>("SinglePPReference")
         .function("num_samples", &SinglePPReference::num_samples)
@@ -187,6 +289,10 @@ EMSCRIPTEN_BINDINGS(run_singlepp) {
     emscripten::class_<BuiltSinglePPReference>("BuiltSinglePPReference")
         .function("shared_features", &BuiltSinglePPReference::shared_features)
         .function("num_labels", &BuiltSinglePPReference::num_labels)
+        ;
+
+    emscripten::class_<IntegratedSinglePPReferences>("IntegratedSinglePPReferences")
+        .function("num_references", &IntegratedSinglePPReferences::num_references)
         ;
 }
 /**
