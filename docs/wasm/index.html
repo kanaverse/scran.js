@@ -180,6 +180,7 @@ $(function() {
 </div><!-- fragment --><p >Finally, we can generate labels from our input matrix. This returns indices that can be cross-referenced to the actual names of the labels in file <b>5</b>.</p>
 <div class="fragment"><div class="line">let labels = scran.labelCells(mat, built);</div>
 </div><!-- fragment --><p >For interactive use, we may prefer to generate per-cluster labels rather than per-cell labels, as the former is much faster. This is easily done by computing the cluster means, storing them in a dense array and passing that array to <code>labelCells</code>.</p>
+<p >Advanced users can integrate cell labels from multiple references with the <code>integrateCells</code> function. See the <a href="https://github.com/jkanche/scran.js/blob/master/tests/labelCells.test.js">tests</a> for some working examples.</p>
 <h1>Developer notes</h1>
 <h2>Introducing WebAssembly</h2>
 <p >We use WebAssembly (Wasm) to enable efficient client-side execution of common steps in a scRNA-seq analysis. Code to perform each step is written in C++ and compiled to Wasm using the <a href="https://emscripten.org/">Emscripten toolchain</a>. Some of the relevant C++ libraries are listed below:</p>

@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['jsvector_0',['JSVector',['../classJSVector.html',1,'']]]
+  ['integratedsingleppreferences_0',['IntegratedSinglePPReferences',['../classIntegratedSinglePPReferences.html',1,'']]]
 ];
