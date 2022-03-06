@@ -367,6 +367,126 @@ struct LoadedH5DataSet {
 };
 
 /**
+ * Create a new HDF5 file, overwriting any existing file.
+ *
+ * @param path Path to the new file.
+ *
+ * @return An empty HDF5 file is created at `path`.
+ */
+void create_hdf5_file(std::string path) {
+    H5::H5File handle(path, H5F_ACC_TRUNC);
+    return;
+}
+
+void create_hdf5_group(std::string path, std::string name) {
+    H5::H5File handle(path, H5F_ACC_RDWR);
+    handle.createGroup(name);
+    return;
+}
+
+void create_hdf5_dataset(std::string path, std::string name, std::string type, int nshape, uintptr_t shape, int max_str_len, int deflate_level, uintptr_t chunks) {
+    H5::H5File handle(path, H5F_ACC_RDWR);
+
+    H5::DataSpace dspace;
+ 	H5::DSetCreatPropList plist;
+
+    if (nshape) { // if zero, it's a scalar.
+        std::vector<hsize_t> dims(nshape);
+        auto sptr = reinterpret_cast<const int32_t*>(shape);
+        std::copy(sptr, sptr + nshape, dims.begin());
+        dspace = H5::DataSpace(nshape, dims.data());
+
+        plist.setDeflate(deflate_level);
+        auto cptr = reinterpret_cast<const int32_t*>(chunks);
+        std::copy(cptr, cptr + nshape, dims.begin());
+        plist.setChunk(nshape, dims.data());
+    }
+
+    H5::DataType dtype(H5::PredType::NATIVE_INT);
+    if (type == "Uint8") {
+        dtype = H5::PredType::NATIVE_UINT8;
+    } else if (type == "Int8") {
+        dtype = H5::PredType::NATIVE_INT8;
+    } else if (type == "Uint16") {
+        dtype = H5::PredType::NATIVE_UINT16;
+    } else if (type == "Int16") {
+        dtype = H5::PredType::NATIVE_INT16;
+    } else if (type == "Uint32") {
+        dtype = H5::PredType::NATIVE_UINT32;
+    } else if (type == "Int32") {
+        dtype = H5::PredType::NATIVE_INT32;
+    } else if (type == "Uint64") {
+        dtype = H5::PredType::NATIVE_UINT64;
+    } else if (type == "Int64") {
+        dtype = H5::PredType::NATIVE_INT64;
+    } else if (type == "Float32") {
+        dtype = H5::PredType::NATIVE_FLOAT;
+   } else if (type == "Float64") {
+        dtype = H5::PredType::NATIVE_DOUBLE;
+    } else if (type == "String") {
+        dtype = H5::StrType(0, max_str_len);
+    }
+
+    handle.createDataSet(name, dtype, dspace, plist);
+    return;
+}
+
+void write_numeric_hdf5_dataset(std::string path, std::string name, std::string type, uintptr_t data) {
+    H5::H5File handle(path, H5F_ACC_RDWR);
+    auto dhandle = handle.openDataSet(name);
+
+    if (type == "Uint8WasmArray") {
+        dhandle.write(reinterpret_cast<const uint8_t*>(data), H5::PredType::NATIVE_UINT8);
+    } else if (type == "Int8WasmArray") {
+        dhandle.write(reinterpret_cast<const int8_t*>(data), H5::PredType::NATIVE_INT8);
+    } else if (type == "Uint16WasmArray") {
+        dhandle.write(reinterpret_cast<const uint16_t*>(data), H5::PredType::NATIVE_UINT16);
+    } else if (type == "Int16WasmArray") {
+        dhandle.write(reinterpret_cast<const int16_t*>(data), H5::PredType::NATIVE_INT16);
+    } else if (type == "Uint32WasmArray") {
+        dhandle.write(reinterpret_cast<const uint32_t*>(data), H5::PredType::NATIVE_UINT32);
+    } else if (type == "Int32WasmArray") {
+        dhandle.write(reinterpret_cast<const int32_t*>(data), H5::PredType::NATIVE_INT32);
+    } else if (type == "Uint64WasmArray") {
+        dhandle.write(reinterpret_cast<const uint64_t*>(data), H5::PredType::NATIVE_UINT64);
+    } else if (type == "Int64WasmArray") {
+        dhandle.write(reinterpret_cast<const int64_t*>(data), H5::PredType::NATIVE_INT64);
+    } else if (type == "Float32WasmArray") {
+        dhandle.write(reinterpret_cast<const float*>(data), H5::PredType::NATIVE_FLOAT);
+    } else if (type == "Float64WasmArray") {
+        dhandle.write(reinterpret_cast<const double*>(data), H5::PredType::NATIVE_DOUBLE);
+    } else {
+        throw std::runtime_error(std::string("unknown supported type '") + type + "' for HDF5 writing");
+    }
+
+    return;
+}
+
+void write_string_hdf5_dataset(std::string path, std::string name, size_t n, uintptr_t lengths, uintptr_t buffer) {
+    auto buf_ptr = reinterpret_cast<const uint8_t*>(buffer);
+    auto len_ptr = reinterpret_cast<const int32_t*>(lengths);
+
+    H5::H5File handle(path, H5F_ACC_RDWR);
+    auto dhandle = handle.openDataSet(name);
+
+    auto stype = dhandle.getStrType();
+    if (stype.isVariableStr()) {
+        throw std::runtime_error("writing variable-length strings is not yet supported");
+    }
+
+    int32_t max_len = stype.getSize();
+    std::vector<char> temp(max_len * n);
+    auto it = temp.data();
+    for (size_t i = 0; i < n; ++i, it += max_len) {
+        std::copy(buf_ptr, buf_ptr + std::min(len_ptr[i], max_len), it);
+        buf_ptr += len_ptr[i];
+    }
+
+    dhandle.write(temp.data(), stype);
+    return;
+}
+
+/**
  * @cond
  */
 EMSCRIPTEN_BINDINGS(hdf5_utils) {
