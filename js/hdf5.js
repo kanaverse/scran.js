@@ -13,27 +13,54 @@ function unpack_strings(buffer, lengths) {
     return names;
 }
 
+/**
+ * Base class for HDF5 objects.
+ */
 export class H5Base {
     #file;
     #name;
 
+    /**
+     * @param {string} file - Path to the HDF5 file.
+     * @param {string} name - Name of the object inside the file.
+     */
     constructor(file, name) {
         this.#file = file;
         this.#name = name;
     }
 
+    /**
+     * @member {string}
+     * @desc Path to the HDF5 file.
+     */
     get file() {
         return this.#file;
     }
 
+    /**
+     * @member {string}
+     * @desc Name of the object inside the file.
+     */
     get name() {
         return this.#name;
     }
 }
 
+/**
+ * Representation of a group inside a HDF5 file.
+ *
+ * @augments H5Base
+ */
 export class H5Group extends H5Base {
     #children;
 
+    /**
+     * @param {string} file - Path to the HDF5 file.
+     * @param {string} name - Name of the object inside the file.
+     * @param {object} [options] - Optional parameters.
+     * @param {object} [options.children] - For internal use, to set the immediate children of this group.
+     * If `null`, this is determined by reading the `file` at `name`.
+     */
     constructor(file, name, { children = null } = {}) {
         super(file, name);
 
@@ -56,6 +83,11 @@ export class H5Group extends H5Base {
         }
     }
 
+    /**
+     * @member {object}
+     * @desc An object where the keys are the names of the immediate children and the values are strings specifying the object type of each child.
+     * This can be `Group`, `DataSet` or `Other`.
+     */
     get children() {
         return this.#children;
     }
@@ -69,6 +101,11 @@ export class H5Group extends H5Base {
         return new_name;
     }
 
+    /**
+     * @param {string} name - Name of the child element to open.
+     *
+     * @return A {@linkplain H5Group} or {@linkplain H5DataSet} object representing the child element.
+     */
     open(name) {
         let new_name = this.#child_name(name);
         if (name in this.#children) {
@@ -84,6 +121,12 @@ export class H5Group extends H5Base {
         }
     }
 
+    /**
+     * @param {string} name - Name of the group to create.
+     *
+     * @return A group is created as an immediate child of the current group.
+     * A {@linkplain H5Group} object is returned representing this new group.
+     */
     createGroup(name) {
         let new_name = this.#child_name(name);
         wasm.call(module => module.create_hdf5_group(this.file, new_name));
@@ -91,6 +134,24 @@ export class H5Group extends H5Base {
         return new H5Group(this.file, new_name, { children: {} });
     }
 
+    /**
+     * @param {string} name - Name of the dataset to create.
+     * @param {string} type - Type of dataset to create.
+     * This can be `"IntX"` or `"UintX"` for `X` of 8, 16, 32, or 64;
+     * or `"FloatX"` for `X` of 32 or 64;
+     * or `"String"`.
+     * @param {Array} shape - Array containing the dimensions of the dataset to create.
+     * @param {object} [options] - Optional parameters.
+     * @param {number} [options.maxStringLength} - Maximum length of the strings to be saved.
+     * Only used when `type = "String"`.
+     * @param {number} [options.compression] - Deflate compression level.
+     * @param {Array} [options.chunks] - Array containing the chunk dimensions.
+     * This should have length equal to `shape`, with each value being no greater than the corresponding value of `shape`.
+     * If `null`, it defaults to `shape`.
+     *
+     * @return A dataset of the specified type and shape is created as an immediate child of the current group.
+     * A {@linkplain H5DataSet} object is returned representing this new dataset.
+     */
     createDataSet(name, type, shape, { maxStringLength = 10, compression = 6, chunks = null } = {}) {
         let new_name = this.#child_name(name);
 
@@ -118,17 +179,41 @@ export class H5Group extends H5Base {
     }
 }
 
+/**
+ * Representation of a HDF5 file as a top-level group.
+ *
+ * @augments H5Group
+ */
 export class H5File extends H5Group {
+    /**
+     * @param {string} file - Path to the HDF5 file.
+     * @param {object} [options] - Optional parameters.
+     * @param {object} [options.children] - For internal use, to set the immediate children of the file.
+     * If `null`, this is determined by reading the `file`.
+     */
     constructor(file, { children = null } = {}) {
         super(file, "/", { children: children });
     }
 }
 
-export function createNewHDF5File(name) {
-    wasm.call(module => module.create_hdf5_file(name));
-    return new H5File(name, { children: {} });
+/**
+ * Create a new HDF5 file.
+ *
+ * @param {string} path - Path to the file.
+ *
+ * @return A new file is created at `path`.
+ * A {@linkplain H5File} object is returned.
+ */
+export function createNewHDF5File(path) {
+    wasm.call(module => module.create_hdf5_file(path));
+    return new H5File(path, { children: {} });
 }
 
+/**
+ * Representation of a dataset inside a HDF5 file.
+ *
+ * @augments H5Base
+ */
 export class H5DataSet extends H5Base {
     #shape;
     #type;
@@ -161,6 +246,18 @@ export class H5DataSet extends H5Base {
         return { "values": vals, "type": type, "shape": shape };
     }
 
+    /**
+     * @param {string} file - Path to the HDF5 file.
+     * @param {string} name - Name of the object inside the file.
+     * @param {object} [options] - Optional parameters.
+     * @param {boolean} [options.load] - Whether or not to load the contents of the dataset in the constructor.
+     * If `false`, the contents can be loaded later with {@linkcode H5DataSet#load load}.
+     * @param {Array} [options.shape] - For internal use, to set the dimensions of the dataset.
+     * If `null`, this is determined by reading the `file` at `name`.
+     * @param {Array} [options.type] - For internal use, to set the type of the dataset.
+     * If `null`, this is determined by reading the `file` at `name`.
+     * @param {Array} [options.shape] - For internal use, to set the values of the dataset.
+     */
     constructor(file, name, { load = false, shape = null, type = null, values = null } = {}) {
         super(file, name);
 
@@ -189,22 +286,46 @@ export class H5DataSet extends H5Base {
         }
     }
 
+    /**
+     * @member {object}
+     * @desc String containing the type of the dataset.
+     * This may be `"IntX"` or `"UintX"` for `X` of 8, 16, 32, or 64;
+     * or `"FloatX"` for `X` of 32 or 64;
+     * `"String"`, or `"Other"`.
+     * 
+     */
     get type() {
         return this.#type;
     }
 
+    /**
+     * @member {Array}
+     * @desc Array of integers containing the dimensions of the dataset.
+     */
     get shape() {
         return this.#shape;
     }
 
+    /**
+     * @member {boolean}
+     * @desc Whether the contents of the dataset have already been loaded.
+     */
     get loaded() {
         return this.#loaded;
     }
 
+    /**
+     * @member {(Array|TypedArray)}
+     * @desc The contents of this dataset.
+     */
     get values() {
         return this.#values;
     }
 
+    /**
+     * @return The contents of this dataset are loaded and cached in this {@linkplain H5DataSet} object.
+     * A (Typed)Array is returned containing those contents.
+     */
     load() {
         if (!this.#loaded) {
             let deets = H5DataSet.#load(this.file, this.name);
@@ -214,6 +335,15 @@ export class H5DataSet extends H5Base {
         return this.#values;
     }
 
+    /**
+     * @param {(Array|TypedArray)} x - Values to write to the dataset.
+     * This should be of length equal to the product of {@linkcode H5DataSet#shape shape}.
+     * @param {object} [options] - Optional parameters.
+     * @param {boolean} [options.cache] - Whether to cache the written values in this {@linkplain H5DataSet} object.
+     *
+     * @return `x` is written to the dataset on file.
+     * No return value is provided.
+     */
     write(x, { cache = false } = {}) {
         let full_length = this.shape.reduce((a, b) => a * b);
         if (x.length != full_length) {
@@ -277,6 +407,8 @@ export class H5DataSet extends H5Base {
                 y.free();
             }
         }
+
+        return;
     }
 }
 
