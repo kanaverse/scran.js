@@ -510,6 +510,12 @@ EMSCRIPTEN_BINDINGS(hdf5_utils) {
         .function("values", &LoadedH5DataSet::values)
         .function("lengths", &LoadedH5DataSet::lengths)
         ;
+
+   emscripten::function("create_hdf5_file", &create_hdf5_file);
+   emscripten::function("create_hdf5_dataset", &create_hdf5_dataset);
+   emscripten::function("create_hdf5_group", &create_hdf5_group);
+   emscripten::function("write_numeric_hdf5_dataset", &write_numeric_hdf5_dataset);
+   emscripten::function("write_string_hdf5_dataset", &write_string_hdf5_dataset);
 }
 /**
  * @endcond

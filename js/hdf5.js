@@ -70,24 +70,29 @@ export class H5Group extends H5Base {
     }
 
     open(name) {
-        let new_name = #child_name(name);
-        if (this.#children[name] == "Group") {
-            return new H5Group(this.file, new_name);
-        } else if (this.#children[name] == "DataSet") {
-            return new H5DataSet(this.file, new_name);
+        let new_name = this.#child_name(name);
+        if (name in this.#children) {
+            if (this.#children[name] == "Group") {
+                return new H5Group(this.file, new_name);
+            } else if (this.#children[name] == "DataSet") {
+                return new H5DataSet(this.file, new_name);
+            } else {
+                throw "don't know how to open '" + name + "'";
+            }
         } else {
-            throw "don't know how to open '" + name + "'";
+            throw "no '" + name + "' child in this HDF5 Group";
         }
     }
 
     createGroup(name) {
-        let new_name = #child_name(name);
+        let new_name = this.#child_name(name);
         wasm.call(module => module.create_hdf5_group(this.file, new_name));
-        return new H5Group(this.file, name, { children: {} });
+        this.children[name] = "Group";
+        return new H5Group(this.file, new_name, { children: {} });
     }
 
-    createDataSet(name, type, shape, { maxStringLength = 0, compression = 6, chunks = null } = {}) {
-        let new_name = #child_name(name);
+    createDataSet(name, type, shape, { maxStringLength = 10, compression = 6, chunks = null } = {}) {
+        let new_name = this.#child_name(name);
 
         let shape_arr;
         let chunk_arr; 
@@ -98,16 +103,18 @@ export class H5Group extends H5Base {
             if (chunks !== null) {
                 chunk_arr = utils.wasmifyArray(chunks, "Int32WasmArray");
                 if (chunk_arr.length != shape_arr.length) {
-                    throw "'chunks' and 'shape' should have the same dimensions");
+                    throw "'chunks' and 'shape' should have the same dimensions";
                 }
                 chunk_offset = chunk_arr.offset;
             }
 
-            wasm.call(module => module.create_hdf5_dataset(this.file, name, type, shape_arr.length, shape_arr.offset, mxaStringLength, compression, chunk_offset));
+            wasm.call(module => module.create_hdf5_dataset(this.file, new_name, type, shape_arr.length, shape_arr.offset, maxStringLength, compression, chunk_offset));
         } finally {
             shape_arr.free();
         }
-        return new H5DataSet(this.file, name, { type: type, shape: shape });
+
+        this.children[name] = "DataSet";
+        return new H5DataSet(this.file, new_name, { type: type, shape: shape });
     }
 }
 
@@ -200,7 +207,7 @@ export class H5DataSet extends H5Base {
 
     load() {
         if (!this.#loaded) {
-            let deets = H5DataSet.#load(file, name);
+            let deets = H5DataSet.#load(this.file, this.name);
             this.#values = deets.values;
             this.#loaded = true;
         }
@@ -213,12 +220,12 @@ export class H5DataSet extends H5Base {
             throw "length of 'x' must be equal to the product of 'shape'";
         }
 
-        if (this.type != "String") {
+        if (this.type == "String") {
             let buffer;
             let lengths;
 
             try {
-                lengths = scran.createInt32WasmArray(x.length);
+                lengths = utils.createInt32WasmArray(x.length);
                 let lengths_arr = lengths.array();
 
                 let total = 0;
@@ -232,7 +239,7 @@ export class H5DataSet extends H5Base {
                     total += e.length;
                 });
 
-                buffer = scran.createUint8WasmArray(total);
+                buffer = utils.createUint8WasmArray(total);
                 let buffer_arr = buffer.array();
                 total = 0;
 
@@ -241,7 +248,7 @@ export class H5DataSet extends H5Base {
                     total += y.length;
                 });
 
-                wasm.call(module => module.write_string_hdf5_dataset(this.file, this.name, lengths_arr.length, lengths_arr.offset, buffer.offset));
+                wasm.call(module => module.write_string_hdf5_dataset(this.file, this.name, lengths.length, lengths.offset, buffer.offset));
 
             } finally {
                 utils.free(buffer);
