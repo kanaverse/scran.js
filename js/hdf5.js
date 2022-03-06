@@ -13,7 +13,7 @@ function unpack_strings(buffer, lengths) {
     return names;
 }
 
-class H5Base {
+export class H5Base {
     #file;
     #name;
 
@@ -31,24 +31,28 @@ class H5Base {
     }
 }
 
-class H5Group extends H5Base {
+export class H5Group extends H5Base {
     #children;
 
-    constructor(file, name) {
+    constructor(file, name, { children = null } = {}) {
         super(file, name);
 
-        let x = wasm.call(module => new module.H5GroupDetails(file, name));
-        try {
-            let child_names = unpack_strings(x.buffer(), x.lengths());
-            let child_types = x.types();
-            let type_options = [ "Group", "DataSet", "Other" ];
+        if (children === null) {
+            let x = wasm.call(module => new module.H5GroupDetails(file, name));
+            try {
+                let child_names = unpack_strings(x.buffer(), x.lengths());
+                let child_types = x.types();
+                let type_options = [ "Group", "DataSet", "Other" ];
 
-            this.#children = {};
-            for (var i = 0; i < child_names.length; i++) {
-                this.#children[child_names[i]] = type_options[child_types[i]];
+                this.#children = {};
+                for (var i = 0; i < child_names.length; i++) {
+                    this.#children[child_names[i]] = type_options[child_types[i]];
+                }
+            } finally {
+                x.delete();
             }
-        } finally {
-            x.delete();
+        } else {
+            this.#children = children;
         }
     }
 
@@ -71,15 +75,35 @@ class H5Group extends H5Base {
             throw "don't know how to open '" + child + "'";
         }
     }
-}
 
-class H5File extends H5Group {
-    constructor(file) {
-        super(file, "/");        
+    createGroup(name) {
+        wasm.call(module => module.create_hdf5_group(this.file, name));
+        return new H5Group(this.file, name, { children: {} });
+    }
+
+    createDataSet(name, type, shape) {
+        let shape_arr = utils.wasmifyArray(shape, "Int32WasmArray");
+        try {
+            wasm.call(module => module.create_hdf5_dataset(this.file, name, type, shape_arr.length, shape_arr.offset));
+        } finally {
+            shape_arr.free();
+        }
+        return new H5DataSet(this.file, name, { type: type, shape: shape });
     }
 }
 
-class H5DataSet extends H5Base {
+export class H5File extends H5Group {
+    constructor(file, { children = null } = {}) {
+        super(file, "/", { children: children });
+    }
+}
+
+export function createNewHDF5File(name) {
+    wasm.call(module => module.create_hdf5_file(name));
+    return new H5File(name, { children: {} });
+}
+
+export class H5DataSet extends H5Base {
     #shape;
     #type;
     #values;
@@ -97,12 +121,12 @@ class H5DataSet extends H5Base {
                 throw "cannot load dataset for an unsupported type";
             }
 
-            if (type == "string") {
+            if (type == "String") {
                 vals = unpack_strings(x.values(), x.lengths());
             } else {
                 vals = x.values().slice();
             }
-            
+
             shape = Array.from(x.shape());
         } finally {
             x.delete();
@@ -111,26 +135,32 @@ class H5DataSet extends H5Base {
         return { "values": vals, "type": type, "shape": shape };
     }
 
-    constructor(file, name, load = false) {
+    constructor(file, name, { load = false, shape = null, type = null, values = null } = {}) {
         super(file, name);
 
-        if (!load) {
-            let x = wasm.call(module => new module.H5DataSetDetails(file, name));
-            try {
-                this.#type = x.type();
-                this.#shape = Array.from(x.shape());
-                this.#values = null;
-            } finally {
-                x.delete();
+        if (shape === null && type === null) {
+            if (!load) {
+                let x = wasm.call(module => new module.H5DataSetDetails(file, name));
+                try {
+                    this.#type = x.type();
+                    this.#shape = Array.from(x.shape());
+                    this.#values = null;
+                } finally {
+                    x.delete();
+                }
+            } else {
+                let deets = H5DataSet.#load(file, name);
+                this.#type = deets.type;
+                this.#shape = deets.shape;
+                this.#values = deets.values;
             }
+            this.#loaded = load;
         } else {
-            let deets = H5DataSet.#load(file, name);
-            this.#type = deets.type;
-            this.#shape = deets.shape;
-            this.#values = deets.values;
+            this.#shape = shape;
+            this.#type = type;
+            this.#values = values;
+            this.#loaded = (values !== null);
         }
-
-        this.#loaded = load;
     }
 
     get type() {
@@ -157,6 +187,69 @@ class H5DataSet extends H5Base {
         }
         return this.#values;
     }
+
+    write(x, { cache = false } = {}) {
+        let full_length = this.shape.reduce((a, b) => a * b);
+        if (x.length != full_length) {
+            throw "length of 'x' must be equal to the product of 'shape'";
+        }
+
+        if (this.type != "String") {
+            let buffer;
+            let lengths;
+
+            try {
+                lengths = scran.createInt32WasmArray(x.length);
+                let lengths_arr = lengths.array();
+
+                let total = 0;
+                const enc = new TextEncoder;
+                let contents = new Array(x.length);
+
+                x.forEach((y, i) => {
+                    let e = enc.encode(y);
+                    lengths_arr[i] = e.length;
+                    contents[i] = e;
+                    total += e.length;
+                });
+
+                buffer = scran.createUint8WasmArray(total);
+                let buffer_arr = buffer.array();
+                total = 0;
+
+                contents.forEach(y => {
+                    buffer_arr.set(y, total);
+                    total += y.length;
+                });
+
+            } finally {
+                utils.free(buffer);
+                utils.free(lengths);
+            }
+
+            if (cache) {
+                this.#values = x.slice();
+                this.#loaded = true;
+            } else {
+                this.#loaded = false;
+                this.#values = null;
+            }
+        } else {
+            let y = utils.wasmifyArray(x, null); // take whatever the type is.
+            try {
+                wasm.call(module => module.write_hdf5_array(this.file, this.name, y.constructor.className, y.offset));
+                if (cache) {
+                    this.#values = y.slice();
+                    this.#loaded = true;
+                } else {
+                    this.#loaded = false;
+                    this.#values = null;
+                }
+            } finally {
+                y.free();
+            }
+        }
+    }
 }
 
 function extract_names(host, output, recursive = true) {
@@ -168,7 +261,17 @@ function extract_names(host, output, recursive = true) {
             }
         } else {
             let data = host.open(key);
-            output[key] = data.type + " dataset";
+
+            let dclass;
+            if (data.type.startsWith("Uint") || data.type.startsWith("Int")) {
+                dclass = "integer";
+            } else if (data.type.startsWith("Float")) {
+                dclass = "float";
+            } else {
+                dclass = data.type.toLowerCase();
+            }
+
+            output[key] = dclass + " dataset";
         }
     }
 }
@@ -211,7 +314,7 @@ export function extractHDF5ObjectNames (path, { group = "", recursive = true } =
  * and `contents`, a `Int32Array`, `Float64Array` or array of strings, depending on the type of the dataset. 
  */
 export function loadHDF5Dataset(path, name) {
-    var x = new H5DataSet(path, name, true);
+    var x = new H5DataSet(path, name, { load: true });
     return {
         "dimensions": x.shape,
         "contents": x.values
