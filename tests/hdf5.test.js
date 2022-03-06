@@ -126,7 +126,7 @@ test("HDF5 dataset loading works as expected", () => {
     expect(compare.equalArrays(z2.contents, z)).toBe(true);
 });
 
-test("HDF5 dataset writing works as expected", () => {
+test("HDF5 creation works as expected", () => {
     const path = dir + "/test.write.h5";
     purge(path)
 
@@ -145,10 +145,19 @@ test("HDF5 dataset writing works as expected", () => {
 
         let dhandle = ghandle2.createDataSet(name, type, shape);
         dhandle.write(src);
-        
+
         let vals = dhandle.load();
         expect(vals.constructor.name).toBe(constructor.name);
         expect(compare.equalArrays(vals, src)).toBe(true);
+
+        // Works for scalar datasets.
+        let scalar = name + "_scalar";
+        let dhandle2 = ghandle2.createDataSet(scalar, type, []);
+        dhandle2.write(100);
+
+        let vals2 = dhandle2.load();
+        expect(vals2.length).toBe(1);
+        expect(vals2[0]).toBe(100);
     };
 
     add_dataset("u8", Uint8Array, "Uint8", [20, 4]);
@@ -167,13 +176,25 @@ test("HDF5 dataset writing works as expected", () => {
     expect(ghandle_.children["bar"]).toBe("Group");
     let ghandle2_ = ghandle_.open("bar");
     expect(ghandle2_.children["u8"]).toBe("DataSet");
-    
+
+    let dhandle_ = ghandle2_.open("u8");
+    expect(dhandle_.type).toBe("Uint8");
+    expect(dhandle_.shape).toStrictEqual([20, 4]);
+    let shandle_ = ghandle2_.open("i8_scalar");
+    expect(shandle_.type).toBe("Int8");
+    expect(shandle_.shape).toStrictEqual([]);
+
     // Checking the writing of strings.
-    let dhandle = ghandle.createDataSet("stuff", "String", [5], { maxStringLength: 15 });
+    let str_dhandle = ghandle.createDataSet("stuff", "String", [5], { maxStringLength: 15 });
     let colleagues = ["Aaron", "Jayaram", "Michael", "Allison", "Sebastien"]; // ranked by amount of hair.
 
-    dhandle.write(colleagues);
-    let vals = dhandle.load();
+    str_dhandle.write(colleagues);
+    let vals = str_dhandle.load();
     expect(compare.equalArrays(vals, colleagues)).toBe(true);
+
+    let str_shandle = ghandle.createDataSet("whee", "String", [], { maxStringLength: 15 });
+    str_shandle.write("Bummer");
+    let content = str_shandle.load();
+    expect(compare.equalArrays(content[0], "Bummer")).toBe(true);
 })
 

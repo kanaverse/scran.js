@@ -141,6 +141,7 @@ export class H5Group extends H5Base {
      * or `"FloatX"` for `X` of 32 or 64;
      * or `"String"`.
      * @param {Array} shape - Array containing the dimensions of the dataset to create.
+     * This can be set to an empty array to create a scalar dataset.
      * @param {object} [options] - Optional parameters.
      * @param {number} [options.maxStringLength} - Maximum length of the strings to be saved.
      * Only used when `type = "String"`.
@@ -301,6 +302,7 @@ export class H5DataSet extends H5Base {
     /**
      * @member {Array}
      * @desc Array of integers containing the dimensions of the dataset.
+     * If this is empty, the dataset is a scalar.
      */
     get shape() {
         return this.#shape;
@@ -317,6 +319,8 @@ export class H5DataSet extends H5Base {
     /**
      * @member {(Array|TypedArray)}
      * @desc The contents of this dataset.
+     * This has length equal to the product of {@linkcode H5DataSet#shape shape};
+     * unless this dataset is scalar, in which case it has length 1.
      */
     get values() {
         return this.#values;
@@ -337,7 +341,8 @@ export class H5DataSet extends H5Base {
 
     /**
      * @param {(Array|TypedArray)} x - Values to write to the dataset.
-     * This should be of length equal to the product of {@linkcode H5DataSet#shape shape}.
+     * This should be of length equal to the product of {@linkcode H5DataSet#shape shape};
+     * unless `shape` is empty, in which case it should be of length 1.
      * @param {object} [options] - Optional parameters.
      * @param {boolean} [options.cache] - Whether to cache the written values in this {@linkplain H5DataSet} object.
      *
@@ -345,9 +350,19 @@ export class H5DataSet extends H5Base {
      * No return value is provided.
      */
     write(x, { cache = false } = {}) {
-        let full_length = this.shape.reduce((a, b) => a * b);
-        if (x.length != full_length) {
-            throw "length of 'x' must be equal to the product of 'shape'";
+        if (this.shape.length > 0) {
+            let full_length = this.shape.reduce((a, b) => a * b);
+            if (x.length != full_length) {
+                throw "length of 'x' must be equal to the product of 'shape'";
+            }
+        } else {
+            if (x instanceof Array || ArrayBuffer.isView(x)) {
+                if (x.length != 1) {
+                    throw "length of 'x' should be 1 for a scalar dataset";
+                }
+            } else {
+                x = [x];
+            }
         }
 
         if (this.type == "String") {
