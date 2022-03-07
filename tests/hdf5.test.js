@@ -125,3 +125,76 @@ test("HDF5 dataset loading works as expected", () => {
     expect(compare.equalArrays(z2.dimensions, [2, 2, 1])).toBe(true);
     expect(compare.equalArrays(z2.contents, z)).toBe(true);
 });
+
+test("HDF5 creation works as expected", () => {
+    const path = dir + "/test.write.h5";
+    purge(path)
+
+    // Nested group creation works.
+    let fhandle = scran.createNewHDF5File(path);
+    let ghandle = fhandle.createGroup("foo");
+    let ghandle2 = ghandle.createGroup("bar");
+
+    // Creation of numeric datasets works correctly.
+    let add_dataset = (name, constructor, type, shape) => {
+        let prod = shape.reduce((a, b) => a * b);
+        let src = new constructor(prod);
+        for (var i = 0; i < prod; i++) {
+            src[i] = i;
+        }
+
+        let dhandle = ghandle2.createDataSet(name, type, shape);
+        dhandle.write(src);
+
+        let vals = dhandle.load();
+        expect(vals.constructor.name).toBe(constructor.name);
+        expect(compare.equalArrays(vals, src)).toBe(true);
+
+        // Works for scalar datasets.
+        let scalar = name + "_scalar";
+        let dhandle2 = ghandle2.createDataSet(scalar, type, []);
+        dhandle2.write(100);
+
+        let vals2 = dhandle2.load();
+        expect(vals2.length).toBe(1);
+        expect(vals2[0]).toBe(100);
+    };
+
+    add_dataset("u8", Uint8Array, "Uint8", [20, 4]);
+    add_dataset("i8", Int8Array, "Int8", [5, 10, 4]);
+    add_dataset("u16", Uint16Array, "Uint16", [100]);
+    add_dataset("i16", Int16Array, "Int16", [5, 25]);
+    add_dataset("u32", Uint32Array, "Uint32", [52]);
+    add_dataset("i32", Int32Array, "Int32", [19, 13]);
+    add_dataset("f32", Float32Array, "Float32", [50, 2]);
+    add_dataset("f64", Float64Array, "Float64", [15, 20]);
+
+    // Verifying everything landed in the right place.
+    let fhandle_ = new scran.H5File(path);
+    expect(fhandle_.children["foo"]).toBe("Group");
+    let ghandle_ = fhandle_.open("foo");
+    expect(ghandle_.children["bar"]).toBe("Group");
+    let ghandle2_ = ghandle_.open("bar");
+    expect(ghandle2_.children["u8"]).toBe("DataSet");
+
+    let dhandle_ = ghandle2_.open("u8");
+    expect(dhandle_.type).toBe("Uint8");
+    expect(dhandle_.shape).toStrictEqual([20, 4]);
+    let shandle_ = ghandle2_.open("i8_scalar");
+    expect(shandle_.type).toBe("Int8");
+    expect(shandle_.shape).toStrictEqual([]);
+
+    // Checking the writing of strings.
+    let str_dhandle = ghandle.createDataSet("stuff", "String", [5], { maxStringLength: 15 });
+    let colleagues = ["Aaron", "Jayaram", "Michael", "Allison", "Sebastien"]; // ranked by amount of hair.
+
+    str_dhandle.write(colleagues);
+    let vals = str_dhandle.load();
+    expect(compare.equalArrays(vals, colleagues)).toBe(true);
+
+    let str_shandle = ghandle.createDataSet("whee", "String", [], { maxStringLength: 15 });
+    str_shandle.write("Bummer");
+    let content = str_shandle.load();
+    expect(compare.equalArrays(content[0], "Bummer")).toBe(true);
+})
+
