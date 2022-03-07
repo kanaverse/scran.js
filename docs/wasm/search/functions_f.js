@@ -1,9 +1,11 @@
 var searchData=
 [
-  ['thresholds_5fdetected_0',['thresholds_detected',['../structPerCellQCFilters__Results.html#a44514b1f5f5e44e94bfe0b40c5eeae59',1,'PerCellQCFilters_Results']]],
-  ['thresholds_5fproportions_1',['thresholds_proportions',['../structPerCellQCFilters__Results.html#a6b8886ed979da7419723922475dbf434',1,'PerCellQCFilters_Results']]],
-  ['thresholds_5fsums_2',['thresholds_sums',['../structPerCellQCFilters__Results.html#aa21b5e3fb3f85ee3e59a2b9559a3e45a',1,'PerCellQCFilters_Results']]],
-  ['total_5fvariance_3',['total_variance',['../structRunPCA__Results.html#a38a81c83462a601cc097912c9d32ec5a',1,'RunPCA_Results']]],
-  ['type_4',['type',['../hdf5__utils_8cpp.html#ac7669d23a52243a270e53e53051bcd86',1,'hdf5_utils.cpp']]],
-  ['types_5',['types',['../structExtractedHDF5Names.html#a85c374262bacb6b870f8eeb801c88e8c',1,'ExtractedHDF5Names']]]
+  ['score_5fmarkers_0',['score_markers',['../score__markers_8cpp.html#a96d5665269882aa23e30d033cd659973',1,'score_markers.cpp']]],
+  ['serialize_1',['serialize',['../structNeighborResults.html#af019e13656c3b08923316f07870c6729',1,'NeighborResults']]],
+  ['shape_2',['shape',['../structH5DataSetDetails.html#a01773edafddba4f46022427f8445b64f',1,'H5DataSetDetails::shape()'],['../structLoadedH5DataSet.html#a5e1e0adddab2e5ddac1605c4715941da',1,'LoadedH5DataSet::shape()']]],
+  ['shared_5ffeatures_3',['shared_features',['../classBuiltSinglePPReference.html#aa0e27c099cc5160b31d680d98591f6df',1,'BuiltSinglePPReference']]],
+  ['size_4',['size',['../classJSVector.html#a29628665d2589799afc3389ef06991aa',1,'JSVector::size()'],['../structNeighborResults.html#a210be834f21e0f20f5b373cf5489e5bd',1,'NeighborResults::size()']]],
+  ['status_5',['status',['../structClusterKmeans__Result.html#aade6046154f04e54083c4a4553e8c0c9',1,'ClusterKmeans_Result']]],
+  ['subset_5fproportions_6',['subset_proportions',['../structPerCellQCMetrics__Results.html#af8245c5a21f0aed9ba1a5b87031384f7',1,'PerCellQCMetrics_Results']]],
+  ['sums_7',['sums',['../structPerCellQCMetrics__Results.html#aed2914052ca302f343e852dfa7c5f7b3',1,'PerCellQCMetrics_Results']]]
 ];

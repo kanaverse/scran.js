@@ -7,5 +7,8 @@ var searchData=
   ['clusters_4',['clusters',['../structClusterKmeans__Result.html#a41d6c9c8579153b7611274f83e0ae18a',1,'ClusterKmeans_Result']]],
   ['cohen_5',['cohen',['../structScoreMarkers__Results.html#a77ce6eb68fd05cff4a5218e4a6fb549c',1,'ScoreMarkers_Results']]],
   ['column_6',['column',['../structNumericMatrix.html#a3501cce20e99fa6d4a1ea61c8878c141',1,'NumericMatrix']]],
-  ['convert_5farray_5fof_5foffsets_7',['convert_array_of_offsets',['../utils_8h.html#af054ae3b1991fa1a539d347086f00114',1,'utils.h']]]
+  ['convert_5farray_5fof_5foffsets_7',['convert_array_of_offsets',['../utils_8h.html#af054ae3b1991fa1a539d347086f00114',1,'utils.h']]],
+  ['create_5fhdf5_5fdataset_8',['create_hdf5_dataset',['../hdf5__utils_8cpp.html#afc422ca924c7427d4a0f6b4d13fd64ea',1,'hdf5_utils.cpp']]],
+  ['create_5fhdf5_5ffile_9',['create_hdf5_file',['../hdf5__utils_8cpp.html#ad9865cce9a0309fa8ce7648a3f56c4d0',1,'hdf5_utils.cpp']]],
+  ['create_5fhdf5_5fgroup_10',['create_hdf5_group',['../hdf5__utils_8cpp.html#a979d6d36d63ecc0f399a56b1f6e0281b',1,'hdf5_utils.cpp']]]
 ];

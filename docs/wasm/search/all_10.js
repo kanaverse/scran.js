@@ -5,6 +5,6 @@ var searchData=
   ['thresholds_5fsums_2',['thresholds_sums',['../structPerCellQCFilters__Results.html#aa21b5e3fb3f85ee3e59a2b9559a3e45a',1,'PerCellQCFilters_Results']]],
   ['total_5fvariance_3',['total_variance',['../structRunPCA__Results.html#a38a81c83462a601cc097912c9d32ec5a',1,'RunPCA_Results']]],
   ['tsnestatus_4',['TsneStatus',['../structTsneStatus.html',1,'']]],
-  ['type_5',['type',['../hdf5__utils_8cpp.html#ac7669d23a52243a270e53e53051bcd86',1,'hdf5_utils.cpp']]],
-  ['types_6',['types',['../structExtractedHDF5Names.html#a85c374262bacb6b870f8eeb801c88e8c',1,'ExtractedHDF5Names']]]
+  ['type_5',['type',['../structH5DataSetDetails.html#a7fc4fe99852aebe74c6c98315ca329df',1,'H5DataSetDetails::type()'],['../structLoadedH5DataSet.html#ae0924928e848819c2f42e13bb7e0919a',1,'LoadedH5DataSet::type()']]],
+  ['types_6',['types',['../structH5GroupDetails.html#a186d0eae4352c430d5c74de7e18716c5',1,'H5GroupDetails']]]
 ];

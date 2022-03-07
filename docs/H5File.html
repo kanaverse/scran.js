@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Class: ModelGeneVarResults</title>
+    <title>JSDoc: Class: H5File</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Class: ModelGeneVarResults</h1>
+    <h1 class="page-title">Class: H5File</h1>
 
     
 
@@ -28,9 +28,9 @@
 
 <header>
     
-        <h2><span class="attribs"><span class="type-signature"></span></span>ModelGeneVarResults<span class="signature">(raw)</span><span class="type-signature"></span></h2>
+        <h2><span class="attribs"><span class="type-signature"></span></span>H5File<span class="signature">(file, options<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h2>
         
-            <div class="class-description"><p>Wrapper for the variance modelling results.</p></div>
+            <div class="class-description"><p>Representation of a HDF5 file as a top-level group.</p></div>
         
     
 </header>
@@ -45,7 +45,7 @@
     
 
     
-    <h4 class="name" id="ModelGeneVarResults"><span class="type-signature"></span>new ModelGeneVarResults<span class="signature">(raw)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="H5File"><span class="type-signature"></span>new H5File<span class="signature">(file, options<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
     
 
     
@@ -73,6 +73,8 @@
         <th>Type</th>
 
         
+        <th>Attributes</th>
+        
 
         
 
@@ -85,24 +87,126 @@
 
         <tr>
             
-                <td class="name"><code>raw</code></td>
+                <td class="name"><code>file</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">Object</span>
+<span class="param-type">string</span>
 
 
             
             </td>
 
             
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
 
             
 
-            <td class="description last"><p>Raw results on the Wasm heap.</p>
-<p>This should not be called directly, but rather, instances should be created with <code>modelGeneVar()</code>.</p></td>
+            <td class="description last"><p>Path to the HDF5 file.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>options</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>Optional parameters.</p>
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>children</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>For internal use, to set the immediate children of the file.
+If <code>null</code>, this is determined by reading the <code>file</code>.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
         </tr>
 
     
@@ -143,7 +247,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="modelGeneVar.js.html">modelGeneVar.js</a>, <a href="modelGeneVar.js.html#line7">line 7</a>
+        <a href="hdf5.js.html">hdf5.js</a>, <a href="hdf5.js.html#line188">line 188</a>
     </li></ul></dd>
     
 
@@ -177,6 +281,17 @@
     </div>
 
     
+        <h3 class="subsection-title">Extends</h3>
+
+        
+
+
+    <ul>
+        <li><a href="H5Group.html">H5Group</a></li>
+    </ul>
+
+
+    
 
     
 
@@ -184,7 +299,7 @@
         <h3 class="subsection-title">Classes</h3>
 
         <dl>
-            <dt><a href="ModelGeneVarResults.html">ModelGeneVarResults</a></dt>
+            <dt><a href="H5File.html">H5File</a></dt>
             <dd></dd>
         </dl>
     
@@ -196,6 +311,242 @@
     
 
     
+        <h3 class="subsection-title">Members</h3>
+
+        
+            
+<h4 class="name" id="children"><span class="type-signature"></span>children<span class="type-signature"> :object</span></h4>
+
+
+
+
+<div class="description">
+    <p>An object where the keys are the names of the immediate children and the values are strings specifying the object type of each child.
+This can be <code>Group</code>, <code>DataSet</code> or <code>Other</code>.</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">object</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="H5Group.html#children">H5Group#children</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="hdf5.js.html">hdf5.js</a>, <a href="hdf5.js.html#line91">line 91</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="file"><span class="type-signature"></span>file<span class="type-signature"> :string</span></h4>
+
+
+
+
+<div class="description">
+    <p>Path to the HDF5 file.</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">string</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="H5Group.html#file">H5Group#file</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="hdf5.js.html">hdf5.js</a>, <a href="hdf5.js.html#line36">line 36</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="name"><span class="type-signature"></span>name<span class="type-signature"> :string</span></h4>
+
+
+
+
+<div class="description">
+    <p>Name of the object inside the file.</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">string</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="H5Group.html#name">H5Group#name</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="hdf5.js.html">hdf5.js</a>, <a href="hdf5.js.html#line44">line 44</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+    
 
     
         <h3 class="subsection-title">Methods</h3>
@@ -206,7 +557,7 @@
     
 
     
-    <h4 class="name" id="fitted"><span class="type-signature"></span>fitted<span class="signature">(options<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="createDataSet"><span class="type-signature"></span>createDataSet<span class="signature">(name, type, shape, options<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
     
 
     
@@ -248,13 +599,110 @@
 
         <tr>
             
+                <td class="name"><code>name</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>Name of the dataset to create.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>type</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>Type of dataset to create.
+This can be <code>&quot;IntX&quot;</code> or <code>&quot;UintX&quot;</code> for <code>X</code> of 8, 16, 32, or 64;
+or <code>&quot;FloatX&quot;</code> for <code>X</code> of 32 or 64;
+or <code>&quot;String&quot;</code>.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>shape</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>Array containing the dimensions of the dataset to create.
+This can be set to an empty array to create a scalar dataset.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
                 <td class="name"><code>options</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">Object</span>
+<span class="param-type">object</span>
 
 
             
@@ -302,7 +750,39 @@
 
         <tr>
             
-                <td class="name"><code>block</code></td>
+                <td class="name"><code>maxStringLength}</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>Maximum length of the strings to be saved.
+Only used when <code>type = &quot;String&quot;</code>.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>compression</code></td>
             
 
             <td class="type">
@@ -328,20 +808,20 @@
 
             
 
-            <td class="description last"><p>Block number.</p></td>
+            <td class="description last"><p>Deflate compression level.</p></td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>copy</code></td>
+                <td class="name"><code>chunks</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">boolean</span>
+<span class="param-type">Array</span>
 
 
             
@@ -361,8 +841,9 @@
 
             
 
-            <td class="description last"><p>Whether to copy the results from the Wasm heap.
-This incurs a copy but has safer lifetime management.</p></td>
+            <td class="description last"><p>Array containing the chunk dimensions.
+This should have length equal to <code>shape</code>, with each value being no greater than the corresponding value of <code>shape</code>.
+If <code>null</code>, it defaults to <code>shape</code>.</p></td>
         </tr>
 
     
@@ -390,6 +871,11 @@ This incurs a copy but has safer lifetime management.</p></td>
     
 
     
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="H5Group.html#createDataSet">H5Group#createDataSet</a>
+    </li></ul></dd>
+    
 
     
 
@@ -410,7 +896,7 @@ This incurs a copy but has safer lifetime management.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="modelGeneVar.js.html">modelGeneVar.js</a>, <a href="modelGeneVar.js.html#line53">line 53</a>
+        <a href="hdf5.js.html">hdf5.js</a>, <a href="hdf5.js.html#line156">line 156</a>
     </li></ul></dd>
     
 
@@ -439,8 +925,8 @@ This incurs a copy but has safer lifetime management.</p></td>
 
         
 <div class="param-desc">
-    <p>A <code>Float64Array</code> (or a view thereof) of length equal to the number of genes,
-containing the fitted value of the mean-variance trend for the specified <code>block</code>.</p>
+    <p>A dataset of the specified type and shape is created as an immediate child of the current group.
+A <a href="H5DataSet.html">H5DataSet</a> object is returned representing this new dataset.</p>
 </div>
 
 
@@ -457,102 +943,7 @@ containing the fitted value of the mean-variance trend for the specified <code>b
     
 
     
-    <h4 class="name" id="free"><span class="type-signature"></span>free<span class="signature">()</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="modelGeneVar.js.html">modelGeneVar.js</a>, <a href="modelGeneVar.js.html#line74">line 74</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>Frees the memory allocated on the Wasm heap for this object.
-This invalidates this object and all references to it.</p>
-</div>
-
-
-
-    
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="means"><span class="type-signature"></span>means<span class="signature">(options<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="createGroup"><span class="type-signature"></span>createGroup<span class="signature">(name)</span><span class="type-signature"></span></h4>
     
 
     
@@ -580,8 +971,6 @@ This invalidates this object and all references to it.</p>
         <th>Type</th>
 
         
-        <th>Attributes</th>
-        
 
         
 
@@ -594,128 +983,23 @@ This invalidates this object and all references to it.</p>
 
         <tr>
             
-                <td class="name"><code>options</code></td>
+                <td class="name"><code>name</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">Object</span>
+<span class="param-type">string</span>
 
 
             
             </td>
 
             
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
 
             
 
-            <td class="description last"><p>Optional parameters.</p>
-                <h6>Properties</h6>
-                
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Attributes</th>
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>block</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>Block number.</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>copy</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">boolean</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>Whether to copy the results from the Wasm heap.
-This incurs a copy but has safer lifetime management.</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-            </td>
+            <td class="description last"><p>Name of the group to create.</p></td>
         </tr>
 
     
@@ -735,6 +1019,11 @@ This incurs a copy but has safer lifetime management.</p></td>
 
     
 
+    
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="H5Group.html#createGroup">H5Group#createGroup</a>
+    </li></ul></dd>
     
 
     
@@ -756,7 +1045,7 @@ This incurs a copy but has safer lifetime management.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="modelGeneVar.js.html">modelGeneVar.js</a>, <a href="modelGeneVar.js.html#line27">line 27</a>
+        <a href="hdf5.js.html">hdf5.js</a>, <a href="hdf5.js.html#line130">line 130</a>
     </li></ul></dd>
     
 
@@ -785,8 +1074,8 @@ This incurs a copy but has safer lifetime management.</p></td>
 
         
 <div class="param-desc">
-    <p>A <code>Float64Array</code> (or a view thereof) of length equal to the number of genes,
-containing the mean log-expression across all cells in the specified <code>block</code>.</p>
+    <p>A group is created as an immediate child of the current group.
+A <a href="H5Group.html">H5Group</a> object is returned representing this new group.</p>
 </div>
 
 
@@ -803,7 +1092,7 @@ containing the mean log-expression across all cells in the specified <code>block
     
 
     
-    <h4 class="name" id="residuals"><span class="type-signature"></span>residuals<span class="signature">(options<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="open"><span class="type-signature"></span>open<span class="signature">(name)</span><span class="type-signature"></span></h4>
     
 
     
@@ -831,8 +1120,6 @@ containing the mean log-expression across all cells in the specified <code>block
         <th>Type</th>
 
         
-        <th>Attributes</th>
-        
 
         
 
@@ -845,128 +1132,23 @@ containing the mean log-expression across all cells in the specified <code>block
 
         <tr>
             
-                <td class="name"><code>options</code></td>
+                <td class="name"><code>name</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">Object</span>
+<span class="param-type">string</span>
 
 
             
             </td>
 
             
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
 
             
 
-            <td class="description last"><p>Optional parameters.</p>
-                <h6>Properties</h6>
-                
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Attributes</th>
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>block</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>Block number.</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>copy</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">boolean</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>Whether to copy the results from the Wasm heap.
-This incurs a copy but has safer lifetime management.</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-            </td>
+            <td class="description last"><p>Name of the child element to open.</p></td>
         </tr>
 
     
@@ -986,6 +1168,11 @@ This incurs a copy but has safer lifetime management.</p></td>
 
     
 
+    
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="H5Group.html#open">H5Group#open</a>
+    </li></ul></dd>
     
 
     
@@ -1007,7 +1194,7 @@ This incurs a copy but has safer lifetime management.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="modelGeneVar.js.html">modelGeneVar.js</a>, <a href="modelGeneVar.js.html#line66">line 66</a>
+        <a href="hdf5.js.html">hdf5.js</a>, <a href="hdf5.js.html#line109">line 109</a>
     </li></ul></dd>
     
 
@@ -1036,259 +1223,7 @@ This incurs a copy but has safer lifetime management.</p></td>
 
         
 <div class="param-desc">
-    <p>A <code>Float64Array</code> (or a view thereof) of length equal to the number of genes,
-containing the residuals from the mean-variance trend for the specified <code>block</code>.</p>
-</div>
-
-
-
-    
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="variances"><span class="type-signature"></span>variances<span class="signature">(options<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Attributes</th>
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>options</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Object</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>Optional parameters.</p>
-                <h6>Properties</h6>
-                
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Attributes</th>
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>block</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>Block number.</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>copy</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">boolean</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>Whether to copy the results from the Wasm heap.
-This incurs a copy but has safer lifetime management.</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-            </td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="modelGeneVar.js.html">modelGeneVar.js</a>, <a href="modelGeneVar.js.html#line40">line 40</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>A <code>Float64Array</code> (or a view thereof) of length equal to the number of genes,
-containing the variance of log-expression across all cells in the specified <code>block</code>.</p>
+    <p>A <a href="H5Group.html">H5Group</a> or <a href="H5DataSet.html">H5DataSet</a> object representing the child element.</p>
 </div>
 
 

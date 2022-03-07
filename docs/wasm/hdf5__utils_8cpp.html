@@ -71,93 +71,157 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 
-<p>Utilities for extracting data from a HDF5 file.  
+<p>Utilities for reading and writing a HDF5 file.  
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &lt;emscripten.h&gt;</code><br />
 <code>#include &lt;emscripten/bind.h&gt;</code><br />
 <code>#include &quot;H5Cpp.h&quot;</code><br />
 <code>#include &lt;vector&gt;</code><br />
 <code>#include &lt;string&gt;</code><br />
+<code>#include &lt;cstdint&gt;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for hdf5_utils.cpp:</div>
 <div class="dyncontent">
 <div class="center"><img src="hdf5__utils_8cpp__incl.png" border="0" usemap="#ahdf5__utils_8cpp" alt=""/></div>
 <map name="ahdf5__utils_8cpp" id="ahdf5__utils_8cpp">
-<area shape="rect" title="Utilities for extracting data from a HDF5 file." alt="" coords="259,5,362,32"/>
+<area shape="rect" title="Utilities for reading and writing a HDF5 file." alt="" coords="303,5,406,32"/>
 <area shape="rect" title=" " alt="" coords="5,80,101,107"/>
 <area shape="rect" title=" " alt="" coords="126,80,250,107"/>
 <area shape="rect" title=" " alt="" coords="275,80,347,107"/>
 <area shape="rect" title=" " alt="" coords="371,80,429,107"/>
 <area shape="rect" title=" " alt="" coords="454,80,509,107"/>
+<area shape="rect" title=" " alt="" coords="533,80,595,107"/>
 </map>
 </div>
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structExtractedHDF5Names.html">ExtractedHDF5Names</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Names of objects extracted from the HDF5 file.  <a href="structExtractedHDF5Names.html#details">More...</a><br /></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structH5GroupDetails.html">H5GroupDetails</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Details about a group, including its children.  <a href="structH5GroupDetails.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structH5DataSetDetails.html">H5DataSetDetails</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Details about a HDF5 dataset, without loading in the data.  <a href="structH5DataSetDetails.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structLoadedH5DataSet.html">LoadedH5DataSet</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Contents of a loaded HDF5 dataset.  <a href="structLoadedH5DataSet.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:ac7669d23a52243a270e53e53051bcd86"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="hdf5__utils_8cpp.html#ac7669d23a52243a270e53e53051bcd86">type</a> () const</td></tr>
-<tr class="separator:ac7669d23a52243a270e53e53051bcd86"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1a0c5da2f359a64225677dff6500b777"><td class="memItemLeft" align="right" valign="top">emscripten::val&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="hdf5__utils_8cpp.html#a1a0c5da2f359a64225677dff6500b777">dimensions</a> () const</td></tr>
-<tr class="separator:a1a0c5da2f359a64225677dff6500b777"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aed017baaa7bf40e3e762e0786fb00bfc"><td class="memItemLeft" align="right" valign="top">emscripten::val&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="hdf5__utils_8cpp.html#aed017baaa7bf40e3e762e0786fb00bfc">values</a> () const</td></tr>
-<tr class="separator:aed017baaa7bf40e3e762e0786fb00bfc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3400ac3b114e27fccb8fa9228f5d938d"><td class="memItemLeft" align="right" valign="top">emscripten::val&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="hdf5__utils_8cpp.html#a3400ac3b114e27fccb8fa9228f5d938d">lengths</a> () const</td></tr>
-<tr class="separator:a3400ac3b114e27fccb8fa9228f5d938d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4fcaef145848e6a81ed2c3616a3fef4e"><td class="memItemLeft" align="right" valign="top">LoadedHDF5Dataset&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="hdf5__utils_8cpp.html#a4fcaef145848e6a81ed2c3616a3fef4e">load_hdf5_dataset</a> (std::string path, std::string name)</td></tr>
-<tr class="separator:a4fcaef145848e6a81ed2c3616a3fef4e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a946eabb82850d4e93fbd51ea73b806b4"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="hdf5__utils_8cpp.html#a946eabb82850d4e93fbd51ea73b806b4">guess_hdf5_type</a> (const H5::DataSet &amp;dhandle, const H5::DataType &amp;dtype)</td></tr>
+<tr class="separator:a946eabb82850d4e93fbd51ea73b806b4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad9865cce9a0309fa8ce7648a3f56c4d0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="hdf5__utils_8cpp.html#ad9865cce9a0309fa8ce7648a3f56c4d0">create_hdf5_file</a> (std::string path)</td></tr>
+<tr class="separator:ad9865cce9a0309fa8ce7648a3f56c4d0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a979d6d36d63ecc0f399a56b1f6e0281b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="hdf5__utils_8cpp.html#a979d6d36d63ecc0f399a56b1f6e0281b">create_hdf5_group</a> (std::string path, std::string name)</td></tr>
+<tr class="separator:a979d6d36d63ecc0f399a56b1f6e0281b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afc422ca924c7427d4a0f6b4d13fd64ea"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="hdf5__utils_8cpp.html#afc422ca924c7427d4a0f6b4d13fd64ea">create_hdf5_dataset</a> (std::string path, std::string name, std::string type, int nshape, uintptr_t shape, int max_str_len, int deflate_level, uintptr_t chunks)</td></tr>
+<tr class="separator:afc422ca924c7427d4a0f6b4d13fd64ea"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1721b4670b0c3e3ed21b7fb6cc82064c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="hdf5__utils_8cpp.html#a1721b4670b0c3e3ed21b7fb6cc82064c">write_numeric_hdf5_dataset</a> (std::string path, std::string name, std::string type, uintptr_t data)</td></tr>
+<tr class="separator:a1721b4670b0c3e3ed21b7fb6cc82064c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a83718f1abc816b8144ca4b1ca36dd1cf"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="hdf5__utils_8cpp.html#a83718f1abc816b8144ca4b1ca36dd1cf">write_string_hdf5_dataset</a> (std::string path, std::string name, size_t n, uintptr_t lengths, uintptr_t buffer)</td></tr>
+<tr class="separator:a83718f1abc816b8144ca4b1ca36dd1cf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p >Utilities for extracting data from a HDF5 file. </p>
+<div class="textblock"><p >Utilities for reading and writing a HDF5 file. </p>
 </div><h2 class="groupheader">Function Documentation</h2>
-<a id="a1a0c5da2f359a64225677dff6500b777" name="a1a0c5da2f359a64225677dff6500b777"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1a0c5da2f359a64225677dff6500b777">&#9670;&nbsp;</a></span>dimensions()</h2>
+<a id="afc422ca924c7427d4a0f6b4d13fd64ea" name="afc422ca924c7427d4a0f6b4d13fd64ea"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afc422ca924c7427d4a0f6b4d13fd64ea">&#9670;&nbsp;</a></span>create_hdf5_dataset()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">emscripten::val dimensions </td>
+          <td class="memname">void create_hdf5_dataset </td>
           <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>path</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>name</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>type</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>nshape</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uintptr_t&#160;</td>
+          <td class="paramname"><em>shape</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>max_str_len</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>deflate_level</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uintptr_t&#160;</td>
+          <td class="paramname"><em>chunks</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
         </tr>
       </table>
 </div><div class="memdoc">
-<dl class="section return"><dt>Returns</dt><dd>An <code>Int32Array</code> view containing the dimensions of the dataset. </dd></dl>
 
 </div>
 </div>
-<a id="a3400ac3b114e27fccb8fa9228f5d938d" name="a3400ac3b114e27fccb8fa9228f5d938d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3400ac3b114e27fccb8fa9228f5d938d">&#9670;&nbsp;</a></span>lengths()</h2>
+<a id="ad9865cce9a0309fa8ce7648a3f56c4d0" name="ad9865cce9a0309fa8ce7648a3f56c4d0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad9865cce9a0309fa8ce7648a3f56c4d0">&#9670;&nbsp;</a></span>create_hdf5_file()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">emscripten::val lengths </td>
+          <td class="memname">void create_hdf5_file </td>
           <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>path</em></td><td>)</td>
+          <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
-<dl class="section return"><dt>Returns</dt><dd>An <code>Int32Array</code> view containing the lengths of strings in the concatenated buffer returned by <code><a class="el" href="hdf5__utils_8cpp.html#aed017baaa7bf40e3e762e0786fb00bfc">values()</a></code>. Only useful when <code><a class="el" href="hdf5__utils_8cpp.html#ac7669d23a52243a270e53e53051bcd86">type()</a></code> indicates a string dataset. </dd></dl>
+<p >Create a new HDF5 file, overwriting any existing file.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">path</td><td>Path to the new file.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>An empty HDF5 file is created at <code>path</code>. </dd></dl>
 
 </div>
 </div>
-<a id="a4fcaef145848e6a81ed2c3616a3fef4e" name="a4fcaef145848e6a81ed2c3616a3fef4e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4fcaef145848e6a81ed2c3616a3fef4e">&#9670;&nbsp;</a></span>load_hdf5_dataset()</h2>
+<a id="a979d6d36d63ecc0f399a56b1f6e0281b" name="a979d6d36d63ecc0f399a56b1f6e0281b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a979d6d36d63ecc0f399a56b1f6e0281b">&#9670;&nbsp;</a></span>create_hdf5_group()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">LoadedHDF5Dataset load_hdf5_dataset </td>
+          <td class="memname">void create_hdf5_group </td>
           <td>(</td>
           <td class="paramtype">std::string&#160;</td>
           <td class="paramname"><em>path</em>, </td>
@@ -175,51 +239,120 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p >Extract the contents of a dataset inside a HDF5 file.</p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">path</td><td>Path to the HDF5 file. </td></tr>
-    <tr><td class="paramname">name</td><td>Name of a dataset inside the HDF5 file.</td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>A <code>LoadedHDF5Dataset</code> object that can be queried for the dataset details. </dd></dl>
 
 </div>
 </div>
-<a id="ac7669d23a52243a270e53e53051bcd86" name="ac7669d23a52243a270e53e53051bcd86"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac7669d23a52243a270e53e53051bcd86">&#9670;&nbsp;</a></span>type()</h2>
+<a id="a946eabb82850d4e93fbd51ea73b806b4" name="a946eabb82850d4e93fbd51ea73b806b4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a946eabb82850d4e93fbd51ea73b806b4">&#9670;&nbsp;</a></span>guess_hdf5_type()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">int type </td>
+          <td class="memname">std::string guess_hdf5_type </td>
           <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
+          <td class="paramtype">const H5::DataSet &amp;&#160;</td>
+          <td class="paramname"><em>dhandle</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const H5::DataType &amp;&#160;</td>
+          <td class="paramname"><em>dtype</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
         </tr>
       </table>
 </div><div class="memdoc">
-<dl class="section return"><dt>Returns</dt><dd>Type of the dataset - 1 (integer), 2 (floating-point) or 3 (string). </dd></dl>
 
 </div>
 </div>
-<a id="aed017baaa7bf40e3e762e0786fb00bfc" name="aed017baaa7bf40e3e762e0786fb00bfc"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aed017baaa7bf40e3e762e0786fb00bfc">&#9670;&nbsp;</a></span>values()</h2>
+<a id="a1721b4670b0c3e3ed21b7fb6cc82064c" name="a1721b4670b0c3e3ed21b7fb6cc82064c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1721b4670b0c3e3ed21b7fb6cc82064c">&#9670;&nbsp;</a></span>write_numeric_hdf5_dataset()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">emscripten::val values </td>
+          <td class="memname">void write_numeric_hdf5_dataset </td>
           <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>path</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>name</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>type</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uintptr_t&#160;</td>
+          <td class="paramname"><em>data</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
         </tr>
       </table>
 </div><div class="memdoc">
-<dl class="section return"><dt>Returns</dt><dd>A <code>TypedArray</code> view containing an integer dataset, a floating-point dataset, or a <code>Uint8Array</code> buffer with concatenated strings (see <code><a class="el" href="hdf5__utils_8cpp.html#a3400ac3b114e27fccb8fa9228f5d938d">lengths()</a></code>). </dd></dl>
+
+</div>
+</div>
+<a id="a83718f1abc816b8144ca4b1ca36dd1cf" name="a83718f1abc816b8144ca4b1ca36dd1cf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a83718f1abc816b8144ca4b1ca36dd1cf">&#9670;&nbsp;</a></span>write_string_hdf5_dataset()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void write_string_hdf5_dataset </td>
+          <td>(</td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>path</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>name</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>n</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uintptr_t&#160;</td>
+          <td class="paramname"><em>lengths</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uintptr_t&#160;</td>
+          <td class="paramname"><em>buffer</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
 
 </div>
 </div>

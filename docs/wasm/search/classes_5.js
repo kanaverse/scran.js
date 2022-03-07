@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['modelgenevar_5fresults_0',['ModelGeneVar_Results',['../structModelGeneVar__Results.html',1,'']]]
+  ['loadedh5dataset_0',['LoadedH5DataSet',['../structLoadedH5DataSet.html',1,'']]]
 ];

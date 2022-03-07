@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: features.js</title>
+    <title>JSDoc: Class: H5Base</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,100 +17,364 @@
 
 <div id="main">
 
-    <h1 class="page-title">Source: features.js</h1>
+    <h1 class="page-title">Class: H5Base</h1>
 
     
 
 
 
+
+<section>
+
+<header>
     
-    <section>
-        <article>
-            <pre class="prettyprint source linenums"><code>/**
- * Permute the genes to match the permutation in a `LayeredSparseMatrix`.
- *
- * @param {LayeredSparseMatrix} layered - A `LayeredSparseMatrix` where the rows are permuted for a more memory-efficient storage order.
- * @param {object} info - A collection of arrays containing per-feature information (e.g., identifiers).
- * Each array should have length equal to the number of rows in `layered`, but values should refer to features in their original order.
- *
- * @return All vectors in `geneInfo` are replaced by their permuted counterparts,
- * such that entries match the corresponding row in `layered`.
- */
-export function permuteFeatures(layered, featureInfo) {
-    let perm = layered.permutation();
-    for (const [key, val] of Object.entries(featureInfo)) {
-        let copy = val.slice();
-        perm.forEach((x, i) => {
-            copy[x] = val[i];
-        });
-        featureInfo[key] = copy;
-    }
-    return;
-}
+        <h2><span class="attribs"><span class="type-signature"></span></span>H5Base<span class="signature">(file, name)</span><span class="type-signature"></span></h2>
+        
+            <div class="class-description"><p>Base class for HDF5 objects.</p></div>
+        
+    
+</header>
 
-/**
- * Guess the identity of the features from their names.
- *
- * @param {Array} features - Array containing feature identifiers, typically Ensembl IDs or gene symbols.
- *
- * @return An object containing the inferred `species`, which can be either `"human"` or `"mouse"`;
- * and the identifier `type`, which can be either `"ensembl"` or `"symbol"`.
- * A `confidence` value is reported which defines the percentage of entries in `x` that are consistent with the inferred identity.
- */
-export function guessFeatures(features) {
-    // Human Ensembl.
-    let human_ens = 0
-    features.forEach(x => {
-        if (x.match(/^ENSG[0-9]{11}$/)) {
-            human_ens++;
-        }
-    });
+<article>
+    <div class="container-overview">
+    
+        
 
-    // Human symbol; starts with upper case, no lower case, and not an Ensembl of any kind.
-    let human_sym = 0
-    features.forEach(x => {
-        if (x.match(/^[A-Z][^a-z]+$/) &amp;&amp; !x.match(/^ENS[A-Z]+[0-9]{11}/)) {
-            human_sym++;
-        }
-    });
+    
+    <h2>Constructor</h2>
+    
 
-    // Mouse Ensembl.
-    let mouse_ens = 0
-    features.forEach(x => {
-        if (x.match(/^ENSMUSG[0-9]{11}$/)) {
-            mouse_ens++;
-        }
-    });
+    
+    <h4 class="name" id="H5Base"><span class="type-signature"></span>new H5Base<span class="signature">(file, name)</span><span class="type-signature"></span></h4>
+    
 
-    // Mouse symbol; starts with upper case, but no upper case after that.
-    let mouse_sym = 0
-    features.forEach(x => {
-        if (x.match(/^[A-Z][^A-Z]+$/)) {
-            mouse_sym++;
-        }
-    });
+    
 
-    // Who's the highest?
-    let output = [
-        { "species": "human", "type": "ensembl", "confidence": human_ens},
-        { "species": "human", "type": "symbol", "confidence": human_sym},
-        { "species": "mouse", "type": "ensembl", "confidence": mouse_ens},
-        { "species": "mouse", "type": "symbol", "confidence": mouse_sym}
-    ];
 
-    let highest = output[0];
-    for (var i = 1; i &lt; output.length; i++) {
-        if (output[i].confidence > highest.confidence) {
-            highest = output[i];
-        }
-    }
 
-    highest.confidence /= features.length;
-    return highest;
-}
-</code></pre>
-        </article>
-    </section>
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>file</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Path to the HDF5 file.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>name</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Name of the object inside the file.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="hdf5.js.html">hdf5.js</a>, <a href="hdf5.js.html#line19">line 19</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+    </div>
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Classes</h3>
+
+        <dl>
+            <dt><a href="H5Base.html">H5Base</a></dt>
+            <dd></dd>
+        </dl>
+    
+
+    
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Members</h3>
+
+        
+            
+<h4 class="name" id="file"><span class="type-signature"></span>file<span class="type-signature"> :string</span></h4>
+
+
+
+
+<div class="description">
+    <p>Path to the HDF5 file.</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">string</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="hdf5.js.html">hdf5.js</a>, <a href="hdf5.js.html#line36">line 36</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="name"><span class="type-signature"></span>name<span class="type-signature"> :string</span></h4>
+
+
+
+
+<div class="description">
+    <p>Name of the object inside the file.</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">string</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="hdf5.js.html">hdf5.js</a>, <a href="hdf5.js.html#line44">line 44</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
 
 
 
@@ -124,7 +388,7 @@ export function guessFeatures(features) {
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.10</a> on Mon Mar 07 2022 02:08:48 GMT+0000 (Coordinated Universal Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.10</a> on Mon Mar 07 2022 02:08:49 GMT+0000 (Coordinated Universal Time)
 </footer>
 
 <script> prettyPrint(); </script>

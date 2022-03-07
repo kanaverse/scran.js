@@ -1,7 +1,8 @@
 var searchData=
 [
-  ['means_0',['means',['../structModelGeneVar__Results.html#ade61a7f6697f80e1d22e1af5f081d6de',1,'ModelGeneVar_Results::means()'],['../structScoreMarkers__Results.html#ace8ae48f96297598475fd5bfbfebeec6',1,'ScoreMarkers_Results::means()']]],
-  ['membership_1',['membership',['../structClusterSNNGraphMultiLevel__Result.html#a40d182a1859811ca6dbb85c0bb98559a',1,'ClusterSNNGraphMultiLevel_Result']]],
-  ['model_5fgene_5fvar_2',['model_gene_var',['../model__gene__var_8cpp.html#a293da11d683b41f396389ef742ac8fd5',1,'model_gene_var.cpp']]],
-  ['modularity_3',['modularity',['../structClusterSNNGraphMultiLevel__Result.html#a0ede340456cc20f3a82f1009d4fe898d',1,'ClusterSNNGraphMultiLevel_Result']]]
+  ['lengths_0',['lengths',['../structH5GroupDetails.html#a85ca3928690cf2c61b2a2220875c7bda',1,'H5GroupDetails::lengths()'],['../structLoadedH5DataSet.html#a1216bb6c3006b7d61b22b47732fa6b70',1,'LoadedH5DataSet::lengths()']]],
+  ['lfc_1',['lfc',['../structScoreMarkers__Results.html#a6b82560ee5ce8461e0b4ccf9649c1f47',1,'ScoreMarkers_Results']]],
+  ['load_5fsinglepp_5freference_2',['load_singlepp_reference',['../run__singlepp_8cpp.html#a5c22e638037333a0544e8176c25ac126',1,'run_singlepp.cpp']]],
+  ['loadedh5dataset_3',['LoadedH5DataSet',['../structLoadedH5DataSet.html#aba437a162cfdf6b33768deb6276c1e28',1,'LoadedH5DataSet']]],
+  ['log_5fnorm_5fcounts_4',['log_norm_counts',['../log__norm__counts_8cpp.html#a67c799ea48a1c508b5a8455a996df103',1,'log_norm_counts.cpp']]]
 ];
