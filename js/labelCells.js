@@ -459,9 +459,19 @@ export function integrateCellLabels(x, assigned, integrated, { buffer = null, nu
         let aptrs_arr = aptrs.array();
         for (var i = 0; i < assigned.length; i++) {
             let current = assigned[i];
-            if (current.length != x.numberOfColumns()) {
+
+            let fail = false;
+            if (x instanceof SparseMatrix) {
+                if (current.length != x.numberOfColumns()) {
+                    fail = true;
+                }
+            } else if (current.length != numberOfCells) {
+                fail = true;
+            }
+            if (fail) {
                 throw "length of each element 'assigned' should be equal to number of columns in 'x'";
             }
+
             assigned_arrs[i] = utils.wasmifyArray(current, "Int32WasmArray");
             aptrs_arr[i] = BigInt(assigned_arrs[i].offset);
         }
