@@ -183,6 +183,11 @@ test("HDF5 creation works as expected", () => {
     let shandle_ = ghandle2_.open("i8_scalar");
     expect(shandle_.type).toBe("Int8");
     expect(shandle_.shape).toStrictEqual([]);
+
+    // Checking that the quick writer works.
+    let qhandle = ghandle.writeDataSet("stuffX", "Int32", [], 12345);
+    let qscalar = qhandle.load();
+    expect(qscalar[0]).toBe(12345);
 })
 
 test("HDF5 creation works as expected", () => {
@@ -205,14 +210,14 @@ test("HDF5 creation works as expected", () => {
     let content = str_shandle.load();
     expect(content[0]).toBe("Bummer");
 
-    // Checking that the quick string writer works.
-    let str_dhandleX = ghandle.createStringDataSet("stuffX", [5], colleagues);
+    // Checking that the quick writer works.
+    let str_dhandleX = ghandle.writeDataSet("stuffX", "String", [5], colleagues);
     let valsX = str_dhandleX.load();
     expect(compare.equalArrays(valsX, colleagues)).toBe(true);
 
     // Checking that the quick string writer gets the lengths right with unicode. 
     let complicated = "β-globin";
-    let str_shandle2 = ghandle.createStringDataSet("whee2", [], complicated);
+    let str_shandle2 = ghandle.writeDataSet("whee2", "String", [], complicated);
     let content2 = str_shandle2.load();
     expect(content2[0]).toBe(complicated);
 })
