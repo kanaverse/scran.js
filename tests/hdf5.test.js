@@ -183,6 +183,14 @@ test("HDF5 creation works as expected", () => {
     let shandle_ = ghandle2_.open("i8_scalar");
     expect(shandle_.type).toBe("Int8");
     expect(shandle_.shape).toStrictEqual([]);
+})
+
+test("HDF5 creation works as expected", () => {
+    const path = dir + "/test.write.h5";
+    purge(path)
+
+    let fhandle = scran.createNewHDF5File(path);
+    let ghandle = fhandle.createGroup("foo");
 
     // Checking the writing of strings.
     let str_dhandle = ghandle.createDataSet("stuff", "String", [5], { maxStringLength: 15 });
@@ -195,6 +203,16 @@ test("HDF5 creation works as expected", () => {
     let str_shandle = ghandle.createDataSet("whee", "String", [], { maxStringLength: 15 });
     str_shandle.write("Bummer");
     let content = str_shandle.load();
-    expect(compare.equalArrays(content[0], "Bummer")).toBe(true);
-})
+    expect(content[0]).toBe("Bummer");
 
+    // Checking that the quick string writer works.
+    let str_dhandleX = ghandle.createStringDataSet("stuffX", [5], colleagues);
+    let valsX = str_dhandleX.load();
+    expect(compare.equalArrays(valsX, colleagues)).toBe(true);
+
+    // Checking that the quick string writer gets the lengths right with unicode. 
+    let complicated = "β-globin";
+    let str_shandle2 = ghandle.createStringDataSet("whee2", [], complicated);
+    let content2 = str_shandle2.load();
+    expect(content2[0]).toBe(complicated);
+})

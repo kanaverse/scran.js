@@ -13,6 +13,61 @@ function unpack_strings(buffer, lengths) {
     return names;
 }
 
+function repack_strings(x) {
+    let buffer;
+    let lengths;
+    
+    try {
+        lengths = utils.createInt32WasmArray(x.length);
+        let lengths_arr = lengths.array();
+
+        let total = 0;
+        const enc = new TextEncoder;
+        let contents = new Array(x.length);
+
+        x.forEach((y, i) => {
+            let e = enc.encode(y);
+            lengths_arr[i] = e.length;
+            contents[i] = e;
+            total += e.length;
+        });
+
+        buffer = utils.createUint8WasmArray(total);
+        let buffer_arr = buffer.array();
+        total = 0;
+
+        contents.forEach(y => {
+            buffer_arr.set(y, total);
+            total += y.length;
+        });
+    } catch (e) {
+        utils.free(buffer);
+        utils.free(lengths);
+        throw e;
+    }
+
+    return [lengths, buffer];
+}
+
+function check_shape(x, shape) {
+    if (shape.length > 0) {
+        let full_length = shape.reduce((a, b) => a * b);
+        if (x.length != full_length) {
+            throw "length of 'x' must be equal to the product of 'shape'";
+        }
+    } else {
+        if (x instanceof Array || ArrayBuffer.isView(x)) {
+            if (x.length != 1) {
+                throw "length of 'x' should be 1 for a scalar dataset";
+            }
+        } else {
+            x = [x];
+        }
+    }
+    return x;
+}
+
+
 /**
  * Base class for HDF5 objects.
  */
@@ -178,6 +233,49 @@ export class H5Group extends H5Base {
         this.children[name] = "DataSet";
         return new H5DataSet(this.file, new_name, { type: type, shape: shape });
     }
+
+    /**
+     * This method combines {@linkcode H5Group#createDataSet createDataSet} with {@linkcode H5DataSet#write write},
+     * avoiding the need for the user to specify the `maxStringLength` in the former based on the `x` suppleid to the latter.
+     * 
+     * @param {string} name - Name of the dataset to create.
+     * @param {Array} shape - Array containing the dimensions of the dataset to create.
+     * This can be set to an empty array to create a scalar dataset.
+     * @param {(Array|string)} x - Array of strings, of length equal to the product of `shape`.
+     * If shape is empty, the array should have length 1; alternatively, a single string can be supplied.
+     * @param {object} [options] - Optional parameters.
+     * @param {number} [options.compression] - Deflate compression level.
+     * @param {Array} [options.chunks] - Array containing the chunk dimensions.
+     * This should have length equal to `shape`, with each value being no greater than the corresponding value of `shape`.
+     * If `null`, it defaults to `shape`.
+     *
+     * @return A string dataset of the specified shape is created as an immediate child of the current group,
+     * and filled with the contents of `x`.
+     * A {@linkplain H5DataSet} object is returned representing this new dataset.
+     */
+    createStringDataSet(name, shape, x, { compression = 6, chunks = null } = {}) {
+        x = check_shape(x, shape);
+
+        let handle;
+        let [ lengths, buffer ] = repack_strings(x);
+        try {
+            let maxlen = 0;
+            lengths.array().forEach(y => {
+                if (maxlen < y) {
+                    maxlen = y;
+                }
+            });
+
+            handle = this.createDataSet(name, "String", shape, { maxStringLength: maxlen, compression: compression, chunks: chunks });
+            wasm.call(module => module.write_string_hdf5_dataset(handle.file, handle.name, lengths.length, lengths.offset, buffer.offset));
+
+        } finally {
+            utils.free(lengths);
+            utils.free(buffer);
+        }
+
+        return handle;
+    }
 }
 
 /**
@@ -340,9 +438,9 @@ export class H5DataSet extends H5Base {
     }
 
     /**
-     * @param {(Array|TypedArray)} x - Values to write to the dataset.
+     * @param {(Array|TypedArray|number|string)} x - Values to write to the dataset.
      * This should be of length equal to the product of {@linkcode H5DataSet#shape shape};
-     * unless `shape` is empty, in which case it should be of length 1.
+     * unless `shape` is empty, in which case it should either be of length 1, or a single number or string.
      * @param {object} [options] - Optional parameters.
      * @param {boolean} [options.cache] - Whether to cache the written values in this {@linkplain H5DataSet} object.
      *
@@ -350,51 +448,12 @@ export class H5DataSet extends H5Base {
      * No return value is provided.
      */
     write(x, { cache = false } = {}) {
-        if (this.shape.length > 0) {
-            let full_length = this.shape.reduce((a, b) => a * b);
-            if (x.length != full_length) {
-                throw "length of 'x' must be equal to the product of 'shape'";
-            }
-        } else {
-            if (x instanceof Array || ArrayBuffer.isView(x)) {
-                if (x.length != 1) {
-                    throw "length of 'x' should be 1 for a scalar dataset";
-                }
-            } else {
-                x = [x];
-            }
-        }
+        x = check_shape(x, this.shape);
 
         if (this.type == "String") {
-            let buffer;
-            let lengths;
-
+            let [ lengths, buffer ] = repack_strings(x);
             try {
-                lengths = utils.createInt32WasmArray(x.length);
-                let lengths_arr = lengths.array();
-
-                let total = 0;
-                const enc = new TextEncoder;
-                let contents = new Array(x.length);
-
-                x.forEach((y, i) => {
-                    let e = enc.encode(y);
-                    lengths_arr[i] = e.length;
-                    contents[i] = e;
-                    total += e.length;
-                });
-
-                buffer = utils.createUint8WasmArray(total);
-                let buffer_arr = buffer.array();
-                total = 0;
-
-                contents.forEach(y => {
-                    buffer_arr.set(y, total);
-                    total += y.length;
-                });
-
                 wasm.call(module => module.write_string_hdf5_dataset(this.file, this.name, lengths.length, lengths.offset, buffer.offset));
-
             } finally {
                 utils.free(buffer);
                 utils.free(lengths);
