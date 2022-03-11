@@ -100,7 +100,7 @@ export function writeFile(path, buffer) {
 }
 
 /**
- * @param {string} path - Path to the output file on the virtual file system.
+ * @param {string} path - Path to the file on the virtual file system.
  *
  * @return Deletes the specified file from the virtual file system.
  *
@@ -110,4 +110,15 @@ export function writeFile(path, buffer) {
 export function removeFile(path) {
     cache.module.FS.unlink(path);
     return;
+}
+
+/**
+ * @param {string} path - Path to the file on the virtual file system.
+ * @return Boolean indicating whether the file exists.
+ *
+ * This is intended for use in web browsers. 
+ * Node applications should not call this function.
+ */
+export function fileExists(path) {
+    return cache.module.FS.analyzePath(path).exists;
 }
