@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Class: LabelledReference</title>
+    <title>JSDoc: Source: permute.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,569 +17,124 @@
 
 <div id="main">
 
-    <h1 class="page-title">Class: LabelledReference</h1>
-
-    
-
-
-
-
-<section>
-
-<header>
-    
-        <h2><span class="attribs"><span class="type-signature"></span></span>LabelledReference<span class="signature">(raw)</span><span class="type-signature"></span></h2>
-        
-            <div class="class-description"><p>Wrapper around a labelled reference dataset on the Wasm heap.</p></div>
-        
-    
-</header>
-
-<article>
-    <div class="container-overview">
-    
-        
-
-    
-    <h2>Constructor</h2>
-    
-
-    
-    <h4 class="name" id="LabelledReference"><span class="type-signature"></span>new LabelledReference<span class="signature">(raw)</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>raw</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Object</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>Results allocated on the Wasm heap.</p>
-<p>This should not be called directly by developers,
-call <code>loadReferenceFromBuffers()</code> instead.</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="labelCells.js.html">labelCells.js</a>, <a href="labelCells.js.html#line9">line 9</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
-    </div>
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-        <h3 class="subsection-title">Methods</h3>
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="free"><span class="type-signature"></span>free<span class="signature">()</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="labelCells.js.html">labelCells.js</a>, <a href="labelCells.js.html#line46">line 46</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>Frees the memory allocated on the Wasm heap for this object.
-This invalidates this object and all references to it.</p>
-</div>
-
-
-
-    
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="numberOfFeatures"><span class="type-signature"></span>numberOfFeatures<span class="signature">()</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="labelCells.js.html">labelCells.js</a>, <a href="labelCells.js.html#line31">line 31</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>Number of features in this dataset.</p>
-</div>
-
-
-
-    
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="numberOfLabels"><span class="type-signature"></span>numberOfLabels<span class="signature">()</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="labelCells.js.html">labelCells.js</a>, <a href="labelCells.js.html#line38">line 38</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>Number of labels in this dataset.</p>
-</div>
-
-
-
-    
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="numberOfSamples"><span class="type-signature"></span>numberOfSamples<span class="signature">()</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="labelCells.js.html">labelCells.js</a>, <a href="labelCells.js.html#line24">line 24</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>Number of samples in this dataset.</p>
-</div>
-
-
-
-    
-
-
-
-
-
-        
-    
-
-    
-
-    
-</article>
-
-</section>
+    <h1 class="page-title">Source: permute.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import {LayeredSparseMatrix} from "./SparseMatrix.js";
+
+/**
+ * Permute a vector to match the row order of a {@linkplain LayeredSparseMatrix}.
+ * This is usually applied to annotations that match the original row order,
+ * but need to be permuted to be used in computation with a {@linkplain LayeredSparseMatrix}.
+ *
+ * @param {(LayeredSparseMatrix|Int32Array)} layered - A {@linkplain LayeredSparseMatrix} where the rows are permuted for a more memory-efficient storage order.
+ * Alternatively a permutation vector, generated by calling {@linkcode LayeredSparseMatrix#permutation permutation} with `restore: true` (the default).
+ * @param {(Array|TypedArray)} values - An array of values where each entry corresponds to a row in the original row order.
+ *
+ * @return A copy of `values` is returned, permuted so that each entry corresponds to a row of `layered`.
+ */
+export function permuteVector(layered, values) {
+    let copy = values.slice();
+
+    let perm;
+    if (layered instanceof LayeredSparseMatrix) {
+        perm = layered.permutation({ copy: false });
+    } else {
+        perm = layered;
+    }
+
+    perm.forEach((x, i) => {
+        copy[x] = values[i];
+    });
+    return copy;
+}
+
+/**
+ * Unpermute a vector to match the original row order.
+ * This is usually applied to per-feature results computed from a {@linkplain LayeredSparseMatrix}, 
+ * to get results corresponding to the original row order.
+ *
+ * @param {(LayeredSparseMatrix|Int32Array)} layered - A {@linkplain LayeredSparseMatrix} where the rows are permuted for a more memory-efficient storage order.
+ * Alternatively a permutation vector, generated by calling {@linkcode LayeredSparseMatrix#permutation permutation} with `restore: true` (the default).
+ * @param {(Array|TypedArray)} values - An array of values where each entry corresponds to a row of `layered` (i.e., including the permutation).
+ *
+ * @return A copy of `values` is returned, permuted so that each entry corresponds to the original row order.
+ */
+export function unpermuteVector(layered, values) {
+    let copy = values.slice();
+
+    let perm;
+    if (layered instanceof LayeredSparseMatrix) {
+        perm = layered.permutation({ copy: false });
+    } else {
+        perm = layered;
+    }
+
+    perm.forEach((x, i) => {
+        copy[i] = values[x];
+    });
+    return copy;
+}
+
+/**
+ * Compute a new permutation vector that modifies a vector to match the row order of a {@linkplain LayeredSparseMatrix}.
+ * This is provided as a safety measure to handle changes in the permutation across different versions of the {@linkplain LayeredSparseMatrix} initialization.
+ * The assumption is that there are some old results that are ordered to match the row order of an old version of a {@linkplain LayeredSparseMatrix}.
+ * Given the old permutation vector, this function will enable applications to update their result vectors to match the row order of a new object.
+ *
+ * @param {(LayeredSparseMatrix|Int32Array)} layered - A {@linkplain LayeredSparseMatrix} where the rows are permuted for a more memory-efficient storage order.
+ * Alternatively a permutation vector, generated by calling {@linkcode LayeredSparseMatrix#permutation permutation} with `restore: true` (the default).
+ * @param {TypedArray} old - A permutation vector for an older layered sparse matrix generated from the same dataset as `layered`. 
+ * This should have been generated by calling {@linkcode LayeredSparseMatrix#permutation permutation} with `restore: true` (the default).
+ *
+ * @return `null` if the permutations are the same, in which case no further action is required.
+ * Otherwise an `Int32Array` is returned containing a permutation that, when applied to a vector with {@linkcode permuteVector}, 
+ * permutes that vector to match the row order of `layered`.
+ */
+export function updatePermutation(layered, old) {
+    let spawnPerm;
+    if (layered instanceof LayeredSparseMatrix) {
+        if (old.length != layered.numberOfRows()) {
+            throw "number of rows in 'layered' should be the same as length of 'old'";
+        }
+        spawnPerm = () => layered.permutation({ copy: false });
+    } else {
+        if (old.length != layered.length) {
+            throw "length of 'layered' should be the same as length of 'old'";
+        }
+        spawnPerm = () => layered;
+    }
+
+    let same = true;
+    for (const [index, val] of spawnPerm().entries()) {
+        if (old[index] != val) {
+            same = false;
+            break;
+        }
+    }
+
+    // No-op.
+    if (same) {
+        return null;
+    }
+
+    // Figure out which row in the old permutation gets the desired identity.
+    // We respawn the permutation just in case there were any allocations.
+    let output = old.slice();
+    spawnPerm().forEach((x, i) => {
+        output[x] = old[i];
+    });
+    return output;
+}
+</code></pre>
+        </article>
+    </section>
 
 
 
