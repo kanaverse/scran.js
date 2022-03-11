@@ -4,6 +4,7 @@ export { createUint8WasmArray, createInt32WasmArray, createFloat64WasmArray } fr
 export * from "./initializeSparseMatrix.js";
 export * from "./hdf5.js";
 
+export * from "./permute.js";
 export * from "./features.js";
 
 export * from "./computePerCellQCMetrics.js";

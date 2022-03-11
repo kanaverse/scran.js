@@ -1,7 +1,9 @@
+import * as permute from "./permute.js";
+
 /**
- * Permute the genes to match the permutation in a `LayeredSparseMatrix`.
+ * Permute the features to match the permutation in a {@linkplain LayeredSparseMatrix}.
  *
- * @param {LayeredSparseMatrix} layered - A `LayeredSparseMatrix` where the rows are permuted for a more memory-efficient storage order.
+ * @param {LayeredSparseMatrix} layered - A {@linkplain LayeredSparseMatrix} where the rows are permuted for a more memory-efficient storage order.
  * @param {object} info - A collection of arrays containing per-feature information (e.g., identifiers).
  * Each array should have length equal to the number of rows in `layered`, but values should refer to features in their original order.
  *
@@ -9,13 +11,8 @@
  * such that entries match the corresponding row in `layered`.
  */
 export function permuteFeatures(layered, featureInfo) {
-    let perm = layered.permutation();
     for (const [key, val] of Object.entries(featureInfo)) {
-        let copy = val.slice();
-        perm.forEach((x, i) => {
-            copy[x] = val[i];
-        });
-        featureInfo[key] = copy;
+        featureInfo[key] = permute.permuteVector(layered, val);
     }
     return;
 }
