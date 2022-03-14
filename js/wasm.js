@@ -100,6 +100,19 @@ export function writeFile(path, buffer) {
 }
 
 /**
+ * @param {string} path - Path to a file on the virtual file system.
+ *
+ * @return A `Uint8Array` containing the binary contents of the file.
+ *
+ * This is intended for use in web browsers to load files written by the various HDF5 utilities.
+ * Node applications should not call this function (and it probably won't work anyway); 
+ * rather, they can just read directly from the real file system.
+ */
+export function readFile(path) {
+    return cache.module.FS.readFile(path, { encoding: 'binary' });
+}
+
+/**
  * @param {string} path - Path to the file on the virtual file system.
  *
  * @return Deletes the specified file from the virtual file system.
