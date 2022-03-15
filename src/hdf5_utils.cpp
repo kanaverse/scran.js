@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <cstdint>
+#include <algorithm>
 
 /**
  * @file hdf5_utils.cpp
@@ -396,10 +397,21 @@ void create_hdf5_dataset(std::string path, std::string name, std::string type, i
         std::copy(sptr, sptr + nshape, dims.begin());
         dspace = H5::DataSpace(nshape, dims.data());
 
-        plist.setDeflate(deflate_level);
-        auto cptr = reinterpret_cast<const int32_t*>(chunks);
-        std::copy(cptr, cptr + nshape, dims.begin());
-        plist.setChunk(nshape, dims.data());
+        // Checking for non-zero length, otherwise chunking will fail.
+        bool all_nonzero = true;
+        for (auto d : dims) {
+            if (d == 0) {
+                all_nonzero = false;
+                break;
+            }
+        }
+
+        if (deflate_level >= 0 && all_nonzero) {
+            plist.setDeflate(deflate_level);
+            auto cptr = reinterpret_cast<const int32_t*>(chunks);
+            std::copy(cptr, cptr + nshape, dims.begin());
+            plist.setChunk(nshape, dims.data());
+        }
     }
 
     H5::DataType dtype(H5::PredType::NATIVE_INT);
@@ -424,7 +436,8 @@ void create_hdf5_dataset(std::string path, std::string name, std::string type, i
    } else if (type == "Float64") {
         dtype = H5::PredType::NATIVE_DOUBLE;
     } else if (type == "String") {
-        dtype = H5::StrType(0, max_str_len);
+        // Make sure that it is at least of length 1.
+        dtype = H5::StrType(0, std::max(1, max_str_len));
     }
 
     handle.createDataSet(name, dtype, dspace, plist);

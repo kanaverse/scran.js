@@ -188,9 +188,15 @@ test("HDF5 creation works as expected", () => {
     let qhandle = ghandle.writeDataSet("stuffX", "Int32", [], 12345);
     let qscalar = qhandle.load();
     expect(qscalar[0]).toBe(12345);
+
+    // Checking that empty writers are sane.
+    let ehandle = ghandle.writeDataSet("stuffY", "Int32", [0], []);
+    let empty = ehandle.load();
+    expect(empty.constructor.name).toBe("Int32Array");
+    expect(empty.length).toBe(0);
 })
 
-test("HDF5 creation works as expected", () => {
+test("HDF5 creation works as expected (strings)", () => {
     const path = dir + "/test.write.h5";
     purge(path)
 
@@ -220,4 +226,12 @@ test("HDF5 creation works as expected", () => {
     let str_shandle2 = ghandle.writeDataSet("whee2", "String", [], complicated);
     let content2 = str_shandle2.load();
     expect(content2[0]).toBe(complicated);
+
+    // Checking that it works fine with empty strings.
+    let str_shandle3 = ghandle.writeDataSet("whee3", "String", [3], ["", "", ""]);
+    let content3 = str_shandle3.load();
+    expect(content3.length).toBe(3);
+    expect(content3[0]).toBe("");
+    expect(content3[1]).toBe("");
+    expect(content3[2]).toBe("");
 })
