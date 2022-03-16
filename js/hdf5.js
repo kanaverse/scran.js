@@ -158,16 +158,17 @@ export class H5Group extends H5Base {
 
     /**
      * @param {string} name - Name of the child element to open.
+     * @param {object} [options] - Further options to pass to the {@linkplain H5Group} or {@linkplain H5DataSet} constructors.
      *
      * @return A {@linkplain H5Group} or {@linkplain H5DataSet} object representing the child element.
      */
-    open(name) {
+    open(name, options = {}) {
         let new_name = this.#child_name(name);
         if (name in this.#children) {
             if (this.#children[name] == "Group") {
-                return new H5Group(this.file, new_name);
+                return new H5Group(this.file, new_name, options);
             } else if (this.#children[name] == "DataSet") {
-                return new H5DataSet(this.file, new_name);
+                return new H5DataSet(this.file, new_name, options); 
             } else {
                 throw "don't know how to open '" + name + "'";
             }
