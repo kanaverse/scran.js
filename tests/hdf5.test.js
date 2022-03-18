@@ -185,12 +185,17 @@ test("HDF5 creation works as expected", () => {
     expect(shandle_.shape).toStrictEqual([]);
 
     // Checking that the quick writer works.
-    let qhandle = ghandle.writeDataSet("stuffX", "Int32", [], 12345);
-    let qscalar = qhandle.load();
+    let qhandle = ghandle.writeDataSet("stuffX", "Int32", null, [1,2,3,4,5]);
+    let qvec = qhandle.load();
+    expect(qvec[0]).toBe(1);
+    expect(qvec[4]).toBe(5);
+
+    let qhandle2 = ghandle.writeDataSet("stuffY", "Int32", [], 12345);
+    let qscalar = qhandle2.load();
     expect(qscalar[0]).toBe(12345);
 
     // Checking that empty writers are sane.
-    let ehandle = ghandle.writeDataSet("stuffY", "Int32", [0], []);
+    let ehandle = ghandle.writeDataSet("stuffZ", "Int32", [0], []);
     let empty = ehandle.load();
     expect(empty.constructor.name).toBe("Int32Array");
     expect(empty.length).toBe(0);

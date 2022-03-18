@@ -241,7 +241,8 @@ export class H5Group extends H5Base {
      * 
      * @param {string} name - Name of the dataset to create.
      * @param {Array} shape - Array containing the dimensions of the dataset to create.
-     * This can be set to an empty array to create a scalar dataset.
+     * If set to an empty array, this will create a scalar dataset.
+     * If set to `null`, this is determined from `x`.
      * @param {(TypedArray|Array|string|number)} x - Values to be written to the new dataset, see {@linkcode H5DataSet#write write}.
      * @param {object} [options] - Optional parameters.
      * @param {number} [options.compression] - Deflate compression level.
@@ -254,7 +255,16 @@ export class H5Group extends H5Base {
      * A {@linkplain H5DataSet} object is returned representing this new dataset.
      */
      writeDataSet(name, type, shape, x, { compression = 6, chunks = null } = {}) {
-        x = check_shape(x, shape);
+        if (shape === null) {
+            if (typeof x == "string" || typeof x == "number") {
+                x = [x];
+                shape = []; // scalar, I guess.
+            } else {
+                shape = [x.length];
+            }
+        } else {
+            x = check_shape(x, shape);
+        }
 
         let handle;
         if (type == "String") {
