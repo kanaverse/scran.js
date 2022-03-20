@@ -19,6 +19,7 @@ export class ModelGeneVarResults {
      * @param {Object} [options] - Optional parameters.
      * @param {number} [options.block] - Number of the block for which to extract statistics.
      * If negative, the average across all blocks is returned.
+     * Otherwise, should be less than the value returned by {@linkcode ModelGeneVarResults#numberOfBlocks numberOfBlocks}.
      * @param {boolean} [options.copy] - Whether to copy the results from the Wasm heap.
      * This incurs a copy but has safer lifetime management.
      *
@@ -35,6 +36,7 @@ export class ModelGeneVarResults {
      * @param {Object} [options] - Optional parameters.
      * @param {number} [options.block] - Number of the block for which to extract statistics.
      * If negative, the average across all blocks is returned.
+     * Otherwise, should be less than the value returned by {@linkcode ModelGeneVarResults#numberOfBlocks numberOfBlocks}.
      * @param {boolean} [options.copy] - Whether to copy the results from the Wasm heap.
      * This incurs a copy but has safer lifetime management.
      *
@@ -50,6 +52,7 @@ export class ModelGeneVarResults {
      * @param {Object} [options] - Optional parameters.
      * @param {number} [options.block] - Number of the block for which to extract statistics.
      * If negative, the average across all blocks is returned.
+     * Otherwise, should be less than the value returned by {@linkcode ModelGeneVarResults#numberOfBlocks numberOfBlocks}.
      * @param {boolean} [options.copy] - Whether to copy the results from the Wasm heap.
      * This incurs a copy but has safer lifetime management.
      *
@@ -65,6 +68,7 @@ export class ModelGeneVarResults {
      * @param {Object} [options] - Optional parameters.
      * @param {number} [options.block] - Number of the block for which to extract statistics.
      * If negative, the average across all blocks is returned.
+     * Otherwise, should be less than the value returned by {@linkcode ModelGeneVarResults#numberOfBlocks numberOfBlocks}.
      * @param {boolean} [options.copy] - Whether to copy the results from the Wasm heap.
      * This incurs a copy but has safer lifetime management.
      *
