@@ -34,15 +34,16 @@ export class ScoreMarkersResults {
      * @param {number} group - Group of interest.
      * Should be non-negative and less than `numberOfGroups()`.
      * @param {Object} [options] - Optional parameters.
-     * @param {number} [options.block] - Block of interest.
-     * Should be non-negative and less than `numberOfBlocks()`.
+     * @param {number} [options.block] - Number of the block for which to extract statistics.
+     * If negative, the average across all blocks is returned.
+     * Otherwise, should be less than the value returned by {@linkcode ModelGeneVarResults#numberOfBlocks numberOfBlocks}.
      * @param {boolean} [options.copy] - Whether to copy the results from the Wasm heap.
      * This incurs a copy but has safer lifetime management.
      *
      * @return A `Float64Array` (or view thereof) of length equal to the number of genes,
      * containing the mean expression for the requested group in the requested block.
      */
-    means(group, { block = 0, copy = true } = {}) {
+    means(group, { block = -1, copy = true } = {}) {
         return utils.possibleCopy(this.results.means(group, block), copy);
     }
 
@@ -50,15 +51,16 @@ export class ScoreMarkersResults {
      * @param {number} group - Group of interest.
      * Should be non-negative and less than `numberOfGroups()`.
      * @param {Object} [options] - Optional parameters.
-     * @param {number} [options.block] - Block of interest.
-     * Should be non-negative and less than `numberOfBlocks()`.
+     * @param {number} [options.block] - Number of the block for which to extract statistics.
+     * If negative, the average across all blocks is returned.
+     * Otherwise, should be less than the value returned by {@linkcode ModelGeneVarResults#numberOfBlocks numberOfBlocks}.
      * @param {boolean} [options.copy] - Whether to copy the results from the Wasm heap.
      * This incurs a copy but has safer lifetime management.
      *
      * @return A `Float64Array` (or view thereof) of length equal to the number of genes,
      * containing the proportion of cells with detectable expression for the requested group in the requested block.
      */
-    detected(group, { block = 0, copy = true } = {}) {
+    detected(group, { block = -1, copy = true } = {}) {
         return utils.possibleCopy(this.results.detected(group, block), copy);
     }
 

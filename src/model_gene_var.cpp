@@ -3,6 +3,7 @@
 #include "NumericMatrix.h"
 #include "utils.h"
 
+#include "scran/utils/average_vectors.hpp"
 #include "scran/feature_selection/ModelGeneVar.hpp"
 
 #include <vector>
@@ -24,44 +25,85 @@ struct ModelGeneVar_Results {
      */
     typedef scran::ModelGeneVar::Results Store;
 
-    ModelGeneVar_Results(Store s) : store(std::move(s)) {}
+    ModelGeneVar_Results(Store s) : store(std::move(s)) {
+        if (store.means.size() > 1) {
+            auto compute_average = [](const std::vector<std::vector<double> >& inputs, std::vector<double>& output) -> void {
+                std::vector<const double*> ptrs;
+                for (const auto& i : inputs) {
+                    ptrs.push_back(i.data());
+                }
+                size_t n = inputs.front().size();
+                output.resize(n);
+                scran::average_vectors(n, std::move(ptrs), output.data());
+            };
+
+            compute_average(store.means, average_means);
+            compute_average(store.variances, average_variances);
+            compute_average(store.fitted, average_fitted);
+            compute_average(store.residuals, average_residuals);
+        }
+    }
 
     Store store;
+
+    std::vector<double> average_means,
+        average_variances,
+        average_fitted,
+        average_residuals;
+
+    static emscripten::val quick_wrap(int b, const std::vector<double>& ave, const std::vector<std::vector<double> >& store) {
+        if (b < 0) {
+            if (store.size() > 1) {
+                return emscripten::val(emscripten::typed_memory_view(ave.size(), ave.data()));
+            } else {
+                b = 0;
+            }
+        }
+        const auto& val = store[b];
+        return emscripten::val(emscripten::typed_memory_view(val.size(), val.data()));
+    }
     /**
      * @endcond
      */
 
     /** 
      * @param b Block of interest.
-     * @return A `Float64Array` view containing the mean log-expression for each gene in block `b`.
+     * If negative, the average across all blocks is returned.
+     *  
+     * @return A `Float64Array` view containing the mean log-expression for each gene in block `b`, or the average of the means across blocks if `b < 0`.
      */
     emscripten::val means(int b=0) const {
-        // TODO: fix this so it refers to the arrays properly.
-        return emscripten::val(emscripten::typed_memory_view(store.means[b].size(), store.means[b].data()));
+        return quick_wrap(b, average_means, store.means);
     }
 
     /** 
      * @param b Block of interest.
-     * @return A `Float64Array` view containing the variance of the log-expression for each gene in block `b`.
+     * If negative, the average across all blocks is returned.
+     *
+     * @return A `Float64Array` view containing the variance of the log-expression for each gene in block `b`, or the average variance across blocks if `b < 0`.
      */
     emscripten::val variances(int b=0) const {
-        return emscripten::val(emscripten::typed_memory_view(store.variances[b].size(), store.variances[b].data()));
+        return quick_wrap(b, average_variances, store.variances);
     }
 
     /** 
      * @param b Block of interest.
-     * @return A `Float64Array` view containing the fitted value of the trend for each gene in block `b`.
+     * If negative, the average across all blocks is returned.
+     *
+     * @return A `Float64Array` view containing the fitted value of the trend for each gene in block `b`, or the average fitted value across blocks if `b < 0`.
      */
     emscripten::val fitted(int b=0) const {
-        return emscripten::val(emscripten::typed_memory_view(store.fitted[b].size(), store.fitted[b].data()));
+        return quick_wrap(b, average_fitted, store.fitted);
     }
 
     /** 
      * @param b Block of interest.
-     * @return A `Float64Array` view containing the residual from the trend for each gene in block `b`.
+     * If negative, the average across all blocks is returned.
+     *
+     * @return A `Float64Array` view containing the residual from the trend for each gene in block `b`, or the average residual across blocks if `b < 0`.
      */
     emscripten::val residuals(int b=0) const {
-        return emscripten::val(emscripten::typed_memory_view(store.residuals[b].size(), store.residuals[b].data()));
+        return quick_wrap(b, average_residuals, store.residuals);
     }
 
     /**

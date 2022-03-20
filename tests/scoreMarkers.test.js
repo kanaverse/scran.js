@@ -68,6 +68,11 @@ test("scoreMarkers works as expected with blocking", () => {
         expect(compare.equalArrays(res.means(group, { block: 1 }), res2.means(group))).toBe(true);
         expect(compare.equalArrays(res.detected(group, { block: 0 }), res1.detected(group))).toBe(true);
         expect(compare.equalArrays(res.detected(group, { block: 1 }), res2.detected(group))).toBe(true);
+
+        // Checking that the average works as expected.
+        let averager = (x, y) => x.map((x, i) => (x + y[i])/2);
+        expect(compare.equalFloatArrays(res.means(group), averager(res1.means(group), res2.means(group)))).toBe(true);
+        expect(compare.equalFloatArrays(res.detected(group), averager(res1.detected(group), res2.detected(group)))).toBe(true);
     }
 
     // Cleaning up.

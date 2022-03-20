@@ -5,6 +5,7 @@
 #include "parallel.h"
 
 #include "scran/differential_analysis/ScoreMarkers.hpp"
+#include "scran/utils/average_vectors.hpp"
 #include "tatami/base/DelayedSubsetBlock.hpp"
 
 #include <vector>
@@ -26,9 +27,33 @@ struct ScoreMarkers_Results {
      */
     typedef scran::ScoreMarkers::Results<double> Store;
 
-    ScoreMarkers_Results(Store s) : store(std::move(s)) {}
+    ScoreMarkers_Results(Store s) : store(std::move(s)) {
+        if (num_blocks() > 1) {
+            for (size_t g = 0; g < store.means.size(); ++g) {
+                const auto& curmeans = store.means[g];
+                const auto& curdetected = store.detected[g];
+
+                std::vector<const double*> mptrs, dptrs; 
+                for (size_t b = 0; b < curmeans.size(); ++b) {
+                    mptrs.push_back(curmeans[b].data());
+                    dptrs.push_back(curdetected[b].data());
+                }
+
+                const size_t N = curmeans.front().size();
+                std::vector<double> out_means(N), out_detected(N);
+                scran::average_vectors(N, mptrs, out_means.data());
+                scran::average_vectors(N, dptrs, out_detected.data());
+
+                ave_means.emplace_back(std::move(out_means));
+                ave_detected.emplace_back(std::move(out_detected));
+            }
+        }
+    }
 
     Store store;
+
+    std::vector<std::vector<double> > ave_means;
+    std::vector<std::vector<double> > ave_detected;
     /**
      * @endcond
      */
@@ -36,10 +61,20 @@ struct ScoreMarkers_Results {
     /**
      * @param g Group of interest.
      * @param b Block of interest.
+     * If negative, the average across all blocks is returned.
      * 
-     * @return `Float64Array` view containing the mean log-expression of each gene for group `g` in block `b`.
+     * @return `Float64Array` view containing the mean log-expression of each gene for group `g` in block `b`
+     * (or the average of the means across all blocks, if `b < 0`).
      */
     emscripten::val means(int g, int b=0) const {
+        if (b < 0) {
+            if (num_blocks() > 1) {
+                const auto& current = ave_means[g];
+                return emscripten::val(emscripten::typed_memory_view(current.size(), current.data()));
+            } else {
+                b = 0;
+            }
+        }
         const auto& current = store.means[g][b];
         return emscripten::val(emscripten::typed_memory_view(current.size(), current.data()));
     }
@@ -47,10 +82,20 @@ struct ScoreMarkers_Results {
     /**
      * @param g Group of interest.
      * @param b Block of interest.
+     * If negative, the average across all blocks is returned.
      * 
-     * @return `Float64Array` view containing the proportion of cells with detected expression for each gene for group `g` in block `b`.
+     * @return `Float64Array` view containing the proportion of cells with detected expression for each gene for group `g` in block `b`
+     * (or the average proportion across all blocks, if `b < 0`).
      */
     emscripten::val detected(int g, int b=0) const {
+        if (b < 0) {
+            if (num_blocks() > 1) {
+                const auto& current = ave_detected[g];
+                return emscripten::val(emscripten::typed_memory_view(current.size(), current.data()));
+            } else {
+                b = 0;
+            }
+        }
         const auto& current = store.detected[g][b];
         return emscripten::val(emscripten::typed_memory_view(current.size(), current.data()));
     }
