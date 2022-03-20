@@ -139,7 +139,7 @@ using BlockedPCA_Results = PCA_Results<scran::BlockedPCA::Results>;
  * @param[in] blocks Offset to an array of `int32_t`s with `ncells` elements, containing the block assignment for each cell.
  * Block IDs should be consecutive and 0-based.
  *
- * @return A `RunPCA_Results` object is returned containing the PCA results.
+ * @return A `BlockedPCA_Results` object is returned containing the PCA results.
  */
 BlockedPCA_Results run_blocked_pca(const NumericMatrix& mat, int number, bool use_subset, uintptr_t subset, bool scale, uintptr_t blocks) {
     auto ptr = mat.ptr;
@@ -160,12 +160,55 @@ BlockedPCA_Results run_blocked_pca(const NumericMatrix& mat, int number, bool us
 }
 
 /**
+ * Realization of `PCA_Results` to wrap `scran::MultiBatchPCA` output.
+ */
+using MultiBatchPCA_Results = PCA_Results<scran::MultiBatchPCA::Results>;
+
+/**
+ * Perform a principal components analysis after equalizing the contribution of each batch to the rotation vectors.
+ * This ensures that larger batches to not solely determine the axes of the low-dimensional space.
+ *
+ * @param mat The input log-expression matrix, with features in rows and cells in columns.
+ * @param number Number of PCs to obtain.
+ * Must be less than the smaller dimension of `mat`.
+ * @param use_subset Whether to subset the matrix to features of interest in `subset`.
+ * @param[in] subset Offset to an input array of `uint8_t`s of length `mat.nrow()`,
+ * indicating which features should be used for the PCA.
+ * Only used if `use_subset = true`.
+ * @param scale Whether to standardize rows in `mat` to unit variance.
+ * If `true`, all rows in `mat` are assumed to have non-zero variance.
+ * @param[in] blocks Offset to an array of `int32_t`s with `ncells` elements, containing the block assignment for each cell.
+ * Block IDs should be consecutive and 0-based.
+ *
+ * @return A `MultiBatchPCA_Results` object is returned containing the PCA results.
+ */
+MultiBatchPCA_Results run_multibatch_pca(const NumericMatrix& mat, int number, bool use_subset, uintptr_t subset, bool scale, uintptr_t blocks) {
+    auto ptr = mat.ptr;
+    auto NR = ptr->nrow();
+    auto NC = ptr->ncol();
+
+    auto subptr = precheck_inputs(number, NC, use_subset, subset);
+    auto bptr = reinterpret_cast<const int32_t*>(blocks);
+
+    scran::MultiBatchPCA pca;
+    pca.set_rank(number).set_scale(scale);
+    auto result = pca.run(ptr.get(), bptr, subptr);
+
+    // Transposing PCs to get the right orientation.
+    result.pcs.adjointInPlace();
+
+    return MultiBatchPCA_Results(std::move(result)); 
+}
+
+/**
  * @cond
  */
 EMSCRIPTEN_BINDINGS(run_pca) {
     emscripten::function("run_pca", &run_pca);
 
-    emscripten::function("run_pca", &run_blocked_pca);
+    emscripten::function("run_blocked_pca", &run_blocked_pca);
+
+    emscripten::function("run_multibatch_pca", &run_multibatch_pca);
 
     emscripten::class_<RunPCA_Results>("RunPCA_Results")
         .function("pcs", &RunPCA_Results::pcs)
@@ -181,6 +224,14 @@ EMSCRIPTEN_BINDINGS(run_pca) {
         .function("total_variance", &BlockedPCA_Results::total_variance)
         .function("num_cells", &BlockedPCA_Results::num_cells)
         .function("num_pcs", &BlockedPCA_Results::num_pcs)
+        ;
+
+    emscripten::class_<MultiBatchPCA_Results>("MultiBatchPCA_Results")
+        .function("pcs", &MultiBatchPCA_Results::pcs)
+        .function("variance_explained", &MultiBatchPCA_Results::variance_explained)
+        .function("total_variance", &MultiBatchPCA_Results::total_variance)
+        .function("num_cells", &MultiBatchPCA_Results::num_cells)
+        .function("num_pcs", &MultiBatchPCA_Results::num_pcs)
         ;
 }
 /**

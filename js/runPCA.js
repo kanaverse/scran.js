@@ -51,8 +51,7 @@ export class PCAResults {
      * @return Number of PCs available in these results.
      */
     numberOfPCs() {
-        // TODO: switch to this.results.num_pcs();
-        return this.varianceExplained({ copy: false }).length;
+        return this.results.num_pcs();
     }
 
     /**
@@ -87,11 +86,19 @@ export class PCAResults {
  * If `null`, all features are retained.
  * @param {number} [options.numberOfPCs] - Number of top principal components to compute.
  * @param {boolean} [options.scale] - Whether to scale each feature to unit variance.
+ * @param {?(Int32WasmArray|Array|TypedArray)} [options.block] - Array containing the block assignment for each cell.
+ * This should have length equal to the number of cells and contain all values from 0 to `n - 1` at least once, where `n` is the number of blocks.
+ * This is used to segregate cells in order to compute filters within each block.
+ * Alternatively, this may be `null`, in which case all cells are assumed to be in the same block.
+ * @param {string} [blockMethod] - How to modify the PCA for the blocking factor.
+ * The default `"block"` will block on the factor, effectively performing a PCA on the residuals.
+ * Alternatively, `"weight"` will weight the contribution of each blocking level equally so that larger blocks do not dominate the PCA.
  *
  * @return A `PCAResults` object containing the computed PCs.
  */
-export function runPCA(x, { features = null, numberOfPCs = 25, scale = false } = {}) {
+export function runPCA(x, { features = null, numberOfPCs = 25, scale = false, block = null, blockMethod = "block" } = {}) {
     var feat_data;
+    var block_data;
     var raw;
     var output;
 
@@ -108,7 +115,19 @@ export function runPCA(x, { features = null, numberOfPCs = 25, scale = false } =
             fptr = feat_data.offset;
         }
 
-        raw = wasm.call(module => module.run_pca(x.matrix, numberOfPCs, use_feat, fptr, scale));
+        if (block === null) {
+            raw = wasm.call(module => module.run_pca(x.matrix, numberOfPCs, use_feat, fptr, scale));
+        } else {
+            block_data = utils.wasmifyArray(block, "Int32WasmArray");
+            if (block_data.length != x.numberOfColumns()) {
+                throw "length of 'block' should be equal to the number of columns in 'x'";
+            }
+            if (blockMethod == "block") {
+                raw = wasm.call(module => module.run_blocked_pca(x.matrix, numberOfPCs, use_feat, fptr, scale, block.offset));
+            } else {
+                raw = wasm.call(module => module.run_multibatch_pca(x.matrix, numberOfPCs, use_feat, fptr, scale, block.offset));
+            }
+        }
         output = new PCAResults(raw);
 
     } catch (e) {
@@ -117,6 +136,7 @@ export function runPCA(x, { features = null, numberOfPCs = 25, scale = false } =
 
     } finally {
         utils.free(feat_data);
+        utils.free(block_data);
     }
 
     return output;
