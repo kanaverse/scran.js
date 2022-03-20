@@ -17,54 +17,70 @@ export class ModelGeneVarResults {
 
     /**
      * @param {Object} [options] - Optional parameters.
-     * @param {number} [options.block] - Block number.
+     * @param {number} [options.block] - Number of the block for which to extract statistics.
+     * If negative, the average across all blocks is returned.
      * @param {boolean} [options.copy] - Whether to copy the results from the Wasm heap.
      * This incurs a copy but has safer lifetime management.
      *
      * @return A `Float64Array` (or a view thereof) of length equal to the number of genes,
-     * containing the mean log-expression across all cells in the specified `block`. 
+     * containing the mean log-expression across all cells in the specified `block` 
+     * (or the average across all blocks, if `block < 0`).
      */
-    means({ block = 0, copy = true } = {}) {
+    means({ block = -1, copy = true } = {}) {
+        return this.results.means(block);
         return utils.possibleCopy(this.results.means(block), copy);
     }
 
     /**
      * @param {Object} [options] - Optional parameters.
-     * @param {number} [options.block] - Block number.
+     * @param {number} [options.block] - Number of the block for which to extract statistics.
+     * If negative, the average across all blocks is returned.
      * @param {boolean} [options.copy] - Whether to copy the results from the Wasm heap.
      * This incurs a copy but has safer lifetime management.
      *
      * @return A `Float64Array` (or a view thereof) of length equal to the number of genes,
-     * containing the variance of log-expression across all cells in the specified `block`. 
+     * containing the variance of log-expression across all cells in the specified `block`
+     * (or the average across all blocks, if `block < 0`).
      */
-    variances({ block = 0, copy = true } = {}) {
+    variances({ block = -1, copy = true } = {}) {
         return utils.possibleCopy(this.results.variances(block), copy);
     }
 
     /**
      * @param {Object} [options] - Optional parameters.
-     * @param {number} [options.block] - Block number.
+     * @param {number} [options.block] - Number of the block for which to extract statistics.
+     * If negative, the average across all blocks is returned.
      * @param {boolean} [options.copy] - Whether to copy the results from the Wasm heap.
      * This incurs a copy but has safer lifetime management.
      *
      * @return A `Float64Array` (or a view thereof) of length equal to the number of genes,
-     * containing the fitted value of the mean-variance trend for the specified `block`. 
+     * containing the fitted value of the mean-variance trend for the specified `block`
+     * (or the average across all blocks, if `block < 0`).
      */
-    fitted({ block = 0, copy = true } = {}) {
+    fitted({ block = -1, copy = true } = {}) {
         return utils.possibleCopy(this.results.fitted(block), copy);
     }
 
     /**
      * @param {Object} [options] - Optional parameters.
-     * @param {number} [options.block] - Block number.
+     * @param {number} [options.block] - Number of the block for which to extract statistics.
+     * If negative, the average across all blocks is returned.
      * @param {boolean} [options.copy] - Whether to copy the results from the Wasm heap.
      * This incurs a copy but has safer lifetime management.
      *
      * @return A `Float64Array` (or a view thereof) of length equal to the number of genes,
-     * containing the residuals from the mean-variance trend for the specified `block`. 
+     * containing the residuals from the mean-variance trend for the specified `block`
+     * (or the average across all blocks, if `block < 0`).
      */
-    residuals({ block = 0, copy = true } = {}) {
+    residuals({ block = -1, copy = true } = {}) {
         return utils.possibleCopy(this.results.residuals(block), copy);
+    }
+
+    /**
+     * @return Number of blocks used.
+     */
+    numberOfBlocks() {
+        return this.results.num_blocks();
     }
 
     /**

@@ -14,6 +14,8 @@ test("Variance modelling works as expected", () => {
     var res = scran.modelGeneVar(norm);
 
     // Some cursory tests.
+    expect(res.numberOfBlocks()).toBe(1);
+
     expect(res.means()[0] > 0).toBe(true);
     expect(res.variances()[0] > 0).toBe(true);
     expect(res.fitted()[0] > 0).toBe(true);
@@ -61,6 +63,13 @@ test("Variance modelling works as expected with blocking", () => {
     expect(compare.equalFloatArrays(res.fitted({ block: 1 }), res2.fitted())).toBe(true);
     expect(compare.equalFloatArrays(res.residuals({ block: 1 }), res2.residuals())).toBe(true);
 
+    // Checking that the average works as expected.
+    let averager = (x, y) => x.map((x, i) => (x + y[i])/2);
+
+    expect(compare.equalFloatArrays(res.means(), averager(res1.means(), res2.means()))).toBe(true);
+    expect(compare.equalFloatArrays(res.variances(), averager(res1.variances(), res2.variances()))).toBe(true);
+    expect(compare.equalFloatArrays(res.fitted(), averager(res1.fitted(), res2.fitted()))).toBe(true);
+    expect(compare.equalFloatArrays(res.residuals(), averager(res1.residuals(), res2.residuals()))).toBe(true);
 
     // Cleaning up.
     mat.free();
