@@ -115,11 +115,11 @@ Public Member Functions</h2></td></tr>
 </div><div class="memdoc">
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">b</td><td>Block of interest. </td></tr>
+    <tr><td class="paramname">b</td><td>Block of interest. If negative, the average across all blocks is returned.</td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>A <code>Float64Array</code> view containing the fitted value of the trend for each gene in block <code>b</code>. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>A <code>Float64Array</code> view containing the fitted value of the trend for each gene in block <code>b</code>, or the average fitted value across blocks if <code>b &lt; 0</code>. </dd></dl>
 
 </div>
 </div>
@@ -148,11 +148,11 @@ Public Member Functions</h2></td></tr>
 </div><div class="memdoc">
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">b</td><td>Block of interest. </td></tr>
+    <tr><td class="paramname">b</td><td>Block of interest. If negative, the average across all blocks is returned.</td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>A <code>Float64Array</code> view containing the mean log-expression for each gene in block <code>b</code>. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>A <code>Float64Array</code> view containing the mean log-expression for each gene in block <code>b</code>, or the average of the means across blocks if <code>b &lt; 0</code>. </dd></dl>
 
 </div>
 </div>
@@ -207,11 +207,11 @@ Public Member Functions</h2></td></tr>
 </div><div class="memdoc">
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">b</td><td>Block of interest. </td></tr>
+    <tr><td class="paramname">b</td><td>Block of interest. If negative, the average across all blocks is returned.</td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>A <code>Float64Array</code> view containing the residual from the trend for each gene in block <code>b</code>. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>A <code>Float64Array</code> view containing the residual from the trend for each gene in block <code>b</code>, or the average residual across blocks if <code>b &lt; 0</code>. </dd></dl>
 
 </div>
 </div>
@@ -240,11 +240,11 @@ Public Member Functions</h2></td></tr>
 </div><div class="memdoc">
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">b</td><td>Block of interest. </td></tr>
+    <tr><td class="paramname">b</td><td>Block of interest. If negative, the average across all blocks is returned.</td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>A <code>Float64Array</code> view containing the variance of the log-expression for each gene in block <code>b</code>. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>A <code>Float64Array</code> view containing the variance of the log-expression for each gene in block <code>b</code>, or the average variance across blocks if <code>b &lt; 0</code>. </dd></dl>
 
 </div>
 </div>

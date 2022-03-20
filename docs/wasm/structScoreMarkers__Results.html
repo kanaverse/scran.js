@@ -264,11 +264,11 @@ Public Member Functions</h2></td></tr>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">g</td><td>Group of interest. </td></tr>
-    <tr><td class="paramname">b</td><td>Block of interest.</td></tr>
+    <tr><td class="paramname">b</td><td>Block of interest. If negative, the average across all blocks is returned.</td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd><code>Float64Array</code> view containing the proportion of cells with detected expression for each gene for group <code>g</code> in block <code>b</code>. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd><code>Float64Array</code> view containing the proportion of cells with detected expression for each gene for group <code>g</code> in block <code>b</code> (or the average proportion across all blocks, if <code>b &lt; 0</code>). </dd></dl>
 
 </div>
 </div>
@@ -352,11 +352,11 @@ Public Member Functions</h2></td></tr>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">g</td><td>Group of interest. </td></tr>
-    <tr><td class="paramname">b</td><td>Block of interest.</td></tr>
+    <tr><td class="paramname">b</td><td>Block of interest. If negative, the average across all blocks is returned.</td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd><code>Float64Array</code> view containing the mean log-expression of each gene for group <code>g</code> in block <code>b</code>. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd><code>Float64Array</code> view containing the mean log-expression of each gene for group <code>g</code> in block <code>b</code> (or the average of the means across all blocks, if <code>b &lt; 0</code>). </dd></dl>
 
 </div>
 </div>
