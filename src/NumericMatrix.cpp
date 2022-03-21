@@ -54,6 +54,10 @@ bool NumericMatrix::permuted() const {
     return is_permuted;
 }
 
+bool NumericMatrix::sparse() const {
+    return ptr->sparse(); 
+}
+
 /**
  * @cond 
  */
@@ -66,6 +70,7 @@ EMSCRIPTEN_BINDINGS(my_class_example) {
         .function("column", &NumericMatrix::column)
         .function("permutation", &NumericMatrix::perm)
         .function("permuted", &NumericMatrix::permuted)
+        .function("sparse", &NumericMatrix::sparse)
         ;
 }
 /**

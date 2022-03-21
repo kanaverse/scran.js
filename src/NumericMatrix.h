@@ -90,6 +90,11 @@ struct NumericMatrix {
      */
     bool permuted() const;
 
+    /**
+     * @return Whether the underlying matrix is sparse.
+     */
+    bool sparse() const;
+
     /** 
      * @cond
      */

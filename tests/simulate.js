@@ -24,6 +24,43 @@ export function simulateMatrix(numberOfRows, numberOfColumns, density = 0.2, max
     return output;
 }
 
+export function simulateDenseMatrix(numberOfRows, numberOfColumns) {
+    var buffer = scran.createFloat64WasmArray(numberOfRows * numberOfColumns);
+
+    let arr = buffer.array();
+    arr.forEach((x, i) => {
+        arr[i] = Math.random();
+    });
+
+    return scran.initializeDenseMatrixFromDenseArray(numberOfRows, numberOfColumns, buffer);
+}
+
+export function simulatePermutedMatrix(numberOfRows, numberOfColumns, density = 0.2) {
+    var buffer = scran.createInt32WasmArray(numberOfRows * numberOfColumns);
+    let output;
+
+    try {
+        var x = buffer.array();
+        for (var r = 0; r < numberOfRows; r++) {
+            let choice = [1, 1000, 1000000][Math.floor(Math.random() * 3)];
+
+            for (var c = 0; c < numberOfColumns; c++) {
+                if (Math.random() <= density) {
+                    x[r + c * numberOfRows] = choice;
+                } else {
+                    x[r + c * numberOfRows] = 0; // need this, otherwise it would be uninitialized.
+                }
+            }
+        }
+
+        output = scran.initializeSparseMatrixFromDenseArray(numberOfRows, numberOfColumns, buffer);
+    } finally {
+        buffer.free();
+    }
+
+    return output;
+}
+
 export function simulateSubsets(numberOfRows, nsubsets, density = 0.05) {
     var output = new Array(nsubsets);
     for (var s = 0; s < nsubsets; s++) {
