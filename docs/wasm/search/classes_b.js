@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['tsnestatus_0',['TsneStatus',['../structTsneStatus.html',1,'']]]
+  ['umapstatus_0',['UmapStatus',['../structUmapStatus.html',1,'']]]
 ];
