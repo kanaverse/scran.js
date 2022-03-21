@@ -10,7 +10,8 @@ var searchData=
   ['singlepp_5fuse_5fzlib_7',['SINGLEPP_USE_ZLIB',['../run__singlepp_8cpp.html#a7660d0a2103fd156b4de21c789b22db2',1,'run_singlepp.cpp']]],
   ['singleppreference_8',['SinglePPReference',['../classSinglePPReference.html',1,'']]],
   ['size_9',['size',['../classJSVector.html#a29628665d2589799afc3389ef06991aa',1,'JSVector::size()'],['../structNeighborResults.html#a210be834f21e0f20f5b373cf5489e5bd',1,'NeighborResults::size()']]],
-  ['status_10',['status',['../structClusterKmeans__Result.html#aade6046154f04e54083c4a4553e8c0c9',1,'ClusterKmeans_Result']]],
-  ['subset_5fproportions_11',['subset_proportions',['../structPerCellQCMetrics__Results.html#af8245c5a21f0aed9ba1a5b87031384f7',1,'PerCellQCMetrics_Results']]],
-  ['sums_12',['sums',['../structPerCellQCMetrics__Results.html#aed2914052ca302f343e852dfa7c5f7b3',1,'PerCellQCMetrics_Results']]]
+  ['sparse_10',['sparse',['../structNumericMatrix.html#a0972e2d156b0e63b625ee6565f6cea8c',1,'NumericMatrix']]],
+  ['status_11',['status',['../structClusterKmeans__Result.html#aade6046154f04e54083c4a4553e8c0c9',1,'ClusterKmeans_Result']]],
+  ['subset_5fproportions_12',['subset_proportions',['../structPerCellQCMetrics__Results.html#af8245c5a21f0aed9ba1a5b87031384f7',1,'PerCellQCMetrics_Results']]],
+  ['sums_13',['sums',['../structPerCellQCMetrics__Results.html#aed2914052ca302f343e852dfa7c5f7b3',1,'PerCellQCMetrics_Results']]]
 ];
