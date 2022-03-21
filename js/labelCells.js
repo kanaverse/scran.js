@@ -323,11 +323,6 @@ class IntegratedLabelledReferences {
     }
 }
 
-// For vectors of vectors.
-function createBigUint64WasmArray (length) {
-    return wa.createBigUint64WasmArray(wasm.wasmArraySpace(), length);
-}
-
 /**
  * Integrate multiple reference datasets.
  *
@@ -370,13 +365,13 @@ export function integrateLabelledReferences(features, loaded, referenceFeatures,
         id_arr = utils.createInt32WasmArray(features.length);
         let available = create_feature_availability(features, id_arr);
 
-        loaded_arr2 = createBigUint64WasmArray(nrefs);
+        loaded_arr2 = utils.createBigUint64WasmArray(nrefs);
         let la2 = loaded_arr2.array();
         for (var i = 0; i < nrefs; i++) {
             la2[i] = BigInt(loaded[i].reference.$$.ptr);
         }
 
-        ref_arr2 = createBigUint64WasmArray(nrefs);
+        ref_arr2 = utils.createBigUint64WasmArray(nrefs);
         let ra2 = ref_arr2.array();
         for (var i = 0; i < nrefs; i++) {
             let current = referenceFeatures[i];
@@ -389,7 +384,7 @@ export function integrateLabelledReferences(features, loaded, referenceFeatures,
             }
         }
 
-        built_arr2 = createBigUint64WasmArray(nrefs);
+        built_arr2 = utils.createBigUint64WasmArray(nrefs);
         let ba2 = built_arr2.array();
         for (var i = 0; i < nrefs; i++) {
             ba2[i] = BigInt(built[i].reference.$$.ptr);
@@ -455,7 +450,7 @@ export function integrateCellLabels(x, assigned, integrated, { buffer = null, nu
     let assigned_arrs = new Array(nrefs);
 
     try {
-        aptrs = createBigUint64WasmArray(nrefs);
+        aptrs = utils.createBigUint64WasmArray(nrefs);
         let aptrs_arr = aptrs.array();
         for (var i = 0; i < assigned.length; i++) {
             let current = assigned[i];
