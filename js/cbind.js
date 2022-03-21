@@ -48,8 +48,8 @@ function cbind(x, { rowNames = null } = {}) {
             mat_ptrs[i] = BigInt(x[i].matrix.$$.ptr);
         }
 
-        raw = wasm.call(module => module.cbind_with_rownames(x.length, mat_ptrs.offset, name_ptrs.offset));
-        output = LayeredSparseMatrix(raw);
+        raw = wasm.call(module => module.cbind_with_rownames(x.length, mat_ptrs.offset, use_rownames, name_ptrs_offset));
+        output = ScranMatrix(raw);
 
     } catch (e) {
         utils.free(raw);
