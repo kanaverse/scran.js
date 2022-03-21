@@ -77,7 +77,8 @@ export class PCAResults {
 }
 
 /**
- * Run a principal components analysis, possibly on a subset of features.
+ * Run a principal components analysis on the log-expression matrix.
+ * This is usually done on a subset of features, and possibly with some kind of blocking on a per-cell batch factor.
  *
  * @param {SparseMatrix} x - The log-normalized expression matrix.
  * @param {Object} [options] - Optional parameters. 
@@ -90,7 +91,7 @@ export class PCAResults {
  * This should have length equal to the number of cells and contain all values from 0 to `n - 1` at least once, where `n` is the number of blocks.
  * This is used to segregate cells in order to compute filters within each block.
  * Alternatively, this may be `null`, in which case all cells are assumed to be in the same block.
- * @param {string} [blockMethod] - How to modify the PCA for the blocking factor.
+ * @param {string} [options.blockMethod] - How to modify the PCA for the blocking factor.
  * The default `"block"` will block on the factor, effectively performing a PCA on the residuals.
  * Alternatively, `"weight"` will weight the contribution of each blocking level equally so that larger blocks do not dominate the PCA.
  *
