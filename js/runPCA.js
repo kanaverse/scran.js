@@ -123,9 +123,9 @@ export function runPCA(x, { features = null, numberOfPCs = 25, scale = false, bl
                 throw "length of 'block' should be equal to the number of columns in 'x'";
             }
             if (blockMethod == "block") {
-                raw = wasm.call(module => module.run_blocked_pca(x.matrix, numberOfPCs, use_feat, fptr, scale, block.offset));
+                raw = wasm.call(module => module.run_blocked_pca(x.matrix, numberOfPCs, use_feat, fptr, scale, block_data.offset));
             } else {
-                raw = wasm.call(module => module.run_multibatch_pca(x.matrix, numberOfPCs, use_feat, fptr, scale, block.offset));
+                raw = wasm.call(module => module.run_multibatch_pca(x.matrix, numberOfPCs, use_feat, fptr, scale, block_data.offset));
             }
         }
         output = new PCAResults(raw);
