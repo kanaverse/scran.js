@@ -80,7 +80,7 @@ export class PCAResults {
  * Run a principal components analysis on the log-expression matrix.
  * This is usually done on a subset of features, and possibly with some kind of blocking on a per-cell batch factor.
  *
- * @param {SparseMatrix} x - The log-normalized expression matrix.
+ * @param {ScranMatrix} x - The log-normalized expression matrix.
  * @param {Object} [options] - Optional parameters. 
  * @param {?(Uint8WasmArray|Array|TypedArray)} [options.features] - Array specifying which features should be retained (e.g., HVGs).
  * This should be of length equal to the number of rows in `x`; elements should be `true` to retain each row.

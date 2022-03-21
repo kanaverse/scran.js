@@ -3,12 +3,12 @@ import * as utils from "./utils.js";
 /**
  * Wrapper around a sparse matrix allocated on the Wasm heap.
  */
-export class SparseMatrix {
+export class ScranMatrix {
     /**
      * @param {Object} raw Raw matrix object created on the Wasm heap.
      *
      * This should not be called directly by developers,
-     * who should instead use functions that initialize a sparse matrix, e.g., `initializeSparseMatrixFromCompressedVectors()`.
+     * who should instead use functions that initialize an appropriate matrix, e.g., `initializeSparseMatrixFromCompressedVectors()`.
      */
     constructor(raw) {
         this.matrix = raw;
@@ -96,27 +96,17 @@ export class SparseMatrix {
         }
         return;
     }
-}
 
-/**
- * Wrapper around a layered sparse matrix allocated on the Wasm heap.
- * This permutes the rows to achieve a more memory-efficient representation.
- *
- * @augments SparseMatrix
- */
-export class LayeredSparseMatrix extends SparseMatrix {
     /**
-     * @param {Object} raw Raw matrix object created on the Wasm heap.
-     *
-     * This should not be called directly by developers.
-     * Rather it is called by functions that initialize a sparse matrix, e.g., `initializeSparseMatrixFromCompressed()`.
+     * @return Boolean indicating whether the matrix contains a permuted row order.
      */
-    constructor(raw) {
-        super(raw);
-        return;
+    isPermuted() {
+        return this.matrix.permuted();
     }
 
     /**
+     * Obtain the row permutation applied to the matrix, assuming {@linkcode ScranMatrix#hasPermutation hasPermutation} returns `true`.
+     *
      * @param {Object} [options] - Optional parameters.
      * @param {Int32WasmArray} [options.buffer] Buffer to extract into.
      * If supplied, this should have length equal to `numberOfRows()`. 

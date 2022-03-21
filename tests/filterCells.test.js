@@ -18,7 +18,8 @@ test("filtered matrix is constructed as expected", () => {
     discard.forEach(x => { sum += x; });
 
     var filtered = scran.filterCells(mat, filt);
-    expect(filtered.constructor.name).toBe("LayeredSparseMatrix");
+    expect(filtered.constructor.name).toBe("ScranMatrix");
+    expect(filtered.isPermuted()).toBe(true);
     expect(filtered.numberOfColumns()).toBe(ncells - sum);
 
     mat.free();
@@ -42,7 +43,7 @@ test("filtered matrix is constructed as expected from a supplied array", () => {
     }
 
     var filtered = scran.filterCells(mat, discard);
-    expect(filtered.constructor.name).toBe("LayeredSparseMatrix");
+    expect(filtered.constructor.name).toBe("ScranMatrix");
     expect(filtered.numberOfColumns()).toBe(keep);
 
     mat.free();

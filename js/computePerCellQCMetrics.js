@@ -73,7 +73,7 @@ export class PerCellQCMetrics {
 /**
  * Compute the per-cell QC metrics.
  *
- * @param {SparseMatrix} x - The count matrix.
+ * @param {ScranMatrix} x - The count matrix.
  * @param {?(Array|Uint8WasmArray)} subsets - Array of arrays of boolean values specifying the feature subsets.
  * Each internal array corresponds to a subset and should be of length equal to the number of rows.
  * Each entry of each internal array specifies whether the corresponding row of `x` belongs to that subset; 

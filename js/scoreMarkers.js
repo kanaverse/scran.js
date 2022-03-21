@@ -144,7 +144,7 @@ export class ScoreMarkersResults {
 /**
  * Score genes as potential markers for each group of cells.
  *
- * @param {SparseMatrix} x - Log-normalized expression matrix.
+ * @param {ScranMatrix} x - Log-normalized expression matrix.
  * @param {(Int32WasmArray|Array|TypedArray)} groups - Array containing the group assignment for each cell.
  * This should have length equal to the number of cells and contain all values from 0 to `n - 1` at least once, where `n` is the number of groups.
  * @param {Object} [options] - Optional parameters.

@@ -4,7 +4,7 @@ import * as utils from "./utils.js";
 /**
  * Compute log-transformed normalized expression values.
  *
- * @param {SparseMatrix} x The count matrix, usually after filtering.
+ * @param {ScranMatrix} x The count matrix, usually after filtering.
  * @param {Object} [options] - Optional parameters.
  * @param {?(Float64WasmArray|Array|TypedArray)} [options.sizeFactors] - Array of positive numbers containing the size factor for each cell in `x`.
  * This should have length equal to the number of columns in `x`.
