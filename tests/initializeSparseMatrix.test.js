@@ -8,10 +8,11 @@ afterAll(async () => { await scran.terminate() });
 test("initialization from dense array works correctly", () => {
     var vals = scran.createInt32WasmArray(15);
     vals.set([1, 5, 0, 0, 7, 0, 0, 10, 4, 2, 0, 0, 0, 5, 8]);
+
     var mat = scran.initializeSparseMatrixFromDenseArray(3, 5, vals);
-    console.log(mat);
     expect(mat.numberOfRows()).toBe(3);
     expect(mat.numberOfColumns()).toBe(5);
+    expect(mat.isPermuted()).toBe(true);
 
     // Properly column-major.
     expect(compare.equalArrays(mat.column(0), [1, 5, 0])).toBe(true);
@@ -31,6 +32,7 @@ test("initialization from compressed values works correctly", () => {
     var mat = scran.initializeSparseMatrixFromCompressedVectors(11, 10, vals, indices, indptrs);
     expect(mat.numberOfRows()).toBe(11);
     expect(mat.numberOfColumns()).toBe(10);
+    expect(mat.isPermuted()).toBe(true);
 
     // Extracting the row permutations.
     var perm = mat.permutation();
@@ -62,6 +64,7 @@ test("initialization from compressed values works with permutations", () => {
     var mat = scran.initializeSparseMatrixFromCompressedVectors(11, 10, vals, indices, indptrs);
     expect(mat.numberOfRows()).toBe(11);
     expect(mat.numberOfColumns()).toBe(10);
+    expect(mat.isPermuted()).toBe(true);
 
     // Extracting the row permutations.
     var permutation = mat.permutation();
@@ -91,6 +94,7 @@ test("initialization from MatrixMarket works correctly", () => {
     var mat = scran.initializeSparseMatrixFromMatrixMarketBuffer(buffer);
     expect(mat.numberOfRows()).toBe(11);
     expect(mat.numberOfColumns()).toBe(5);
+    expect(mat.isPermuted()).toBe(true);
 
     expect(compare.equalArrays(mat.row(0), [0, 5, 0, 0, 8]));
     expect(compare.equalArrays(mat.column(4), [0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0]));
@@ -110,6 +114,7 @@ test("initialization from Gzipped MatrixMarket works correctly with Gzip", () =>
     var mat = scran.initializeSparseMatrixFromMatrixMarketBuffer(buffer);
     expect(mat.numberOfRows()).toBe(11);
     expect(mat.numberOfColumns()).toBe(5);
+    expect(mat.isPermuted()).toBe(true);
 
     expect(compare.equalArrays(mat.row(0), [0, 5, 0, 0, 8]));
     expect(compare.equalArrays(mat.column(4), [0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0]));

@@ -80,8 +80,15 @@ struct NumericMatrix {
      * @param values Offset to the start of an output array of `int`s of length equal to `nrow()`.
      *
      * @return The array in `values` is filled with the permutation vector.
+     *
+     * This function only makes sense if `permuted()` returns `true`.
      */
     void perm(uintptr_t values) const;
+
+    /**
+     * @return Whether the underlying matrix contains a row permutation.
+     */
+    bool permuted() const;
 
     /** 
      * @cond
@@ -89,6 +96,8 @@ struct NumericMatrix {
     std::shared_ptr<const tatami::NumericMatrix> ptr;
 
     std::vector<size_t> permutation;
+
+    bool is_permuted;
     /**
      * @endcond
      */

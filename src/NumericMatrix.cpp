@@ -2,13 +2,21 @@
 #include "NumericMatrix.h"
 #include "JSVector.h"
 
-NumericMatrix::NumericMatrix(const tatami::NumericMatrix* p) : ptr(std::shared_ptr<const tatami::NumericMatrix>(p)) {}
+NumericMatrix::NumericMatrix(const tatami::NumericMatrix* p) : ptr(std::shared_ptr<const tatami::NumericMatrix>(p)), is_permuted(false) {}
 
-NumericMatrix::NumericMatrix(std::shared_ptr<const tatami::NumericMatrix> p) : ptr(std::move(p)) {}
+NumericMatrix::NumericMatrix(std::shared_ptr<const tatami::NumericMatrix> p) : ptr(std::move(p)), is_permuted(false) {}
 
-NumericMatrix::NumericMatrix(const tatami::NumericMatrix* p, std::vector<size_t> perm) : ptr(std::shared_ptr<const tatami::NumericMatrix>(p)), permutation(std::move(perm)) {}
+NumericMatrix::NumericMatrix(const tatami::NumericMatrix* p, std::vector<size_t> perm) : ptr(std::shared_ptr<const tatami::NumericMatrix>(p)), permutation(std::move(perm)), is_permuted(true) {
+    if (permutation.size() != ptr->nrow()) {
+        throw std::runtime_error("length of 'permutation' must be equal to the number of rows of 'p'");
+    }
+}
 
-NumericMatrix::NumericMatrix(std::shared_ptr<const tatami::NumericMatrix> p, std::vector<size_t> perm) : ptr(std::move(p)), permutation(std::move(perm)) {}
+NumericMatrix::NumericMatrix(std::shared_ptr<const tatami::NumericMatrix> p, std::vector<size_t> perm) : ptr(std::move(p)), permutation(std::move(perm)), is_permuted(true) {
+    if (permutation.size() != ptr->nrow()) {
+        throw std::runtime_error("length of 'permutation' must be equal to the number of rows of 'p'");
+    }
+}
 
 NumericMatrix::NumericMatrix(int nr, int nc, uintptr_t values) {
     JSVector<double> thing(reinterpret_cast<const double*>(values), nr*nc);
@@ -42,6 +50,10 @@ void NumericMatrix::perm(uintptr_t values) const {
     return;
 }
 
+bool NumericMatrix::permuted() const {
+    return is_permuted;
+}
+
 /**
  * @cond 
  */
@@ -53,6 +65,7 @@ EMSCRIPTEN_BINDINGS(my_class_example) {
         .function("row", &NumericMatrix::row)
         .function("column", &NumericMatrix::column)
         .function("permutation", &NumericMatrix::perm)
+        .function("permuted", &NumericMatrix::permuted)
         ;
 }
 /**

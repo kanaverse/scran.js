@@ -1,6 +1,6 @@
 import * as wasm from "./wasm.js";
 import * as utils from "./utils.js"; 
-import { LayeredSparseMatrix } from "./SparseMatrix.js";
+import { ScranMatrix } from "./ScranMatrix.js";
 
 /**
  * Initialize a sparse matrix from its compressed components.
@@ -10,7 +10,7 @@ import { LayeredSparseMatrix } from "./SparseMatrix.js";
  * @param {WasmArray|Array|TypedArray} values Values of all elements in the matrix, stored in column-major order.
  * These should all be non-negative integers, even if they are stored in floating-point.
  *
- * @return A `LayeredSparseMatrix` object containing a layered sparse matrix.
+ * @return A `ScranMatrix` object containing a layered sparse matrix.
  */
 export function initializeSparseMatrixFromDenseArray(numberOfRows, numberOfColumns, values) {
     var val_data; 
@@ -32,7 +32,7 @@ export function initializeSparseMatrixFromDenseArray(numberOfRows, numberOfColum
             )
         );
 
-        output = new LayeredSparseMatrix(raw); 
+        output = new ScranMatrix(raw); 
 
     } catch (e) {
         utils.free(raw);
@@ -60,7 +60,7 @@ export function initializeSparseMatrixFromDenseArray(numberOfRows, numberOfColum
  * @param {boolean} [options.byColumn] - Whether the supplied arrays refer to the compressed sparse column format.
  * If `false`, `indices` should contain column indices and `pointers` should specify the start of each row in `indices`.
  *
- * @return A `LayeredSparseMatrix` object containing a layered sparse matrix.
+ * @return A `ScranMatrix` object containing a layered sparse matrix.
  */ 
 export function initializeSparseMatrixFromCompressedVectors(numberOfRows, numberOfColumns, values, indices, pointers, { byColumn = true } = {}) {
     var val_data;
@@ -95,7 +95,7 @@ export function initializeSparseMatrixFromCompressedVectors(numberOfRows, number
             )
         );
 
-        output = new LayeredSparseMatrix(raw);
+        output = new ScranMatrix(raw);
 
     } catch (e) {
         utils.free(raw);
@@ -119,7 +119,7 @@ export function initializeSparseMatrixFromCompressedVectors(numberOfRows, number
  * @param {boolean} [options.compressed] - Whether the buffer is Gzip-compressed.
  * If `null`, we detect this automatically from the magic number in the header.
  *
- * @return A `LayeredSparseMatrix` object containing a layered sparse matrix.
+ * @return A `ScranMatrix` object containing a layered sparse matrix.
  */
 export function initializeSparseMatrixFromMatrixMarketBuffer(buffer, { compressed = null } = {}) {
     var buf_data;
@@ -134,7 +134,7 @@ export function initializeSparseMatrixFromMatrixMarketBuffer(buffer, { compresse
         }
         
         raw = wasm.call(module => module.read_matrix_market(buf_data.offset, buf_data.length, compressed)); 
-        output = new LayeredSparseMatrix(raw);
+        output = new ScranMatrix(raw);
 
     } catch(e) {
         utils.free(raw);
@@ -156,7 +156,7 @@ export function initializeSparseMatrixFromMatrixMarketBuffer(buffer, { compresse
  * This can be a HDF5 Dataset for dense matrices or a HDF5 Group for sparse matrices.
  * For the latter, both H5AD and 10X-style sparse formats are supported.
  *
- * @return A `LayeredSparseMatrix` containing the layered sparse matrix.
+ * @return A `ScranMatrix` containing the layered sparse matrix.
  */
 export function initializeSparseMatrixFromHDF5(file, name) {
     var raw;
@@ -164,7 +164,7 @@ export function initializeSparseMatrixFromHDF5(file, name) {
 
     try {
         raw = wasm.call(module => module.read_hdf5_matrix(file, name));
-        output = new LayeredSparseMatrix(raw);
+        output = new ScranMatrix(raw);
     } catch (e) {
         utils.free(raw);
         throw e;

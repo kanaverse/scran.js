@@ -5,7 +5,7 @@ import { PerCellQCFilters } from "./computePerCellQCFilters.js";
 /**
  * Filter out low-quality cells.
  *
- * @param {SparseMatrix} x The count matrix.
+ * @param {ScranMatrix} x The count matrix.
  * @param {(PerCellQCFilters|Uint8WasmArray|Array|TypedArray)} filters 
  * If a `PerCellQCFilters` object is supplied, the overall filter (in `filters.discard_overall()`) is used.
  * Otherwise, an array of length equal to the number of columns in `x` should be supplied,
