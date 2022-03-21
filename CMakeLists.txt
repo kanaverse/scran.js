@@ -29,6 +29,7 @@ add_executable(
     src/run_singlepp.cpp
     src/NumericMatrix.cpp
     src/NeighborIndex.cpp
+    src/cbind.cpp
     src/get_error_message.cpp
 )
 
