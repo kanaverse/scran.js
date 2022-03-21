@@ -98,6 +98,13 @@ export class ScranMatrix {
     }
 
     /**
+     * @return Boolean indicating whether the matrix is sparse.
+     */
+    isSparse() {
+        return this.matrix.sparse();
+    }
+
+    /**
      * @return Boolean indicating whether the matrix contains a permuted row order.
      */
     isPermuted() {

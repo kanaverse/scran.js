@@ -172,3 +172,36 @@ export function initializeSparseMatrixFromHDF5(file, name) {
 
     return output;
 }
+
+/**
+ * Initialize a dense matrix from a column-major array.
+ *
+ * @param {number} numberOfRows - Number of rows.
+ * @param {number} numberOfColumns - Number of columns.
+ * @param {(WasmArray|TypedArray|Array)} values - Array of length equal to the product of `numberOfRows` and `numberOfColumns`,
+ * containing the values to store in the array.
+ *
+ * @return A `ScranMatrix` containing the dense matrix, filled by column with the contents of `values`.
+ */
+export function initializeDenseMatrixFromDenseArray(numberOfRows, numberOfColumns, values) {
+    var tmp;
+    var raw;
+    var output;
+
+    try {
+        tmp = utils.wasmifyArray(values, null);
+        raw = wasm.call(module => module.initialize_dense_matrix(
+            numberOfRows, 
+            numberOfColumns, 
+            tmp.offset, 
+            tmp.constructor.className.replace("Wasm", "")
+        ));
+
+        output = new ScranMatrix(raw);
+    } finally {
+        utils.free(tmp);
+    }
+
+    return output;
+}
+

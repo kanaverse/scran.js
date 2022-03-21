@@ -31,11 +31,25 @@ test("permutation of a vector works", () => {
     // Checking whether it is consistent.
     let permuted2 = scran.permuteVector(permutation, original);
     expect(compare.equalArrays(permuted, permuted2)).toBe(true);
+})
 
-    // Handles array inputs, though no permutation is involved for the simulated matrices.
-    let mat = simulate.simulateMatrix(src.length, 20);
-    let noop = scran.permuteVector(mat, original);
-    expect(compare.equalArrays(noop, original)).toBe(true);
+test("permutation of a vector works with array inputs", () => {
+    // Handles array inputs.
+    let mat = simulate.simulatePermutedMatrix(50, 20);
+    expect(mat.isPermuted()).toBe(true);
+
+    let first = mat.column(0);
+    let original = mat.permutation().map(i => first[i]);
+    let redo = scran.permuteVector(mat, original);
+    expect(compare.equalArrays(redo, first)).toBe(true);
+
+    // No-op for non-permuted matrix.
+    let dense = simulate.simulateDenseMatrix(50, 20);
+    expect(dense.isPermuted()).toBe(false);
+
+    first = dense.column(0);
+    let noop = scran.permuteVector(dense, first);
+    expect(compare.equalArrays(noop, first)).toBe(true);
 });
 
 test("unpermutation of a vector works", () => {
@@ -56,11 +70,25 @@ test("unpermutation of a vector works", () => {
     // Checking whether it is consistent.
     let original2 = scran.unpermuteVector(permutation, permuted);
     expect(compare.equalArrays(original, original2)).toBe(true);
+})
 
-    // Handles array inputs, though no permutation is involved for the simulated matrices.
-    let mat = simulate.simulateMatrix(src.length, 20);
-    let noop = scran.unpermuteVector(mat, permuted);
-    expect(compare.equalArrays(noop, permuted)).toBe(true);
+test("unpermutation of a vector works with array inputs", () => {
+    // Handles array inputs.
+    let mat = simulate.simulatePermutedMatrix(50, 20);
+    expect(mat.isPermuted()).toBe(true);
+
+    let first = mat.column(0);
+    let original = mat.permutation().map(i => first[i]);
+    let redo = scran.unpermuteVector(mat, first);
+    expect(compare.equalArrays(redo, original)).toBe(true);
+
+    // No-op for non-permuted matrix.
+    let dense = simulate.simulateDenseMatrix(17, 20);
+    expect(dense.isPermuted()).toBe(false);
+
+    first = dense.column(0);
+    let noop = scran.unpermuteVector(dense, first);
+    expect(compare.equalArrays(noop, first)).toBe(true);
 });
 
 test("updating the permutation works", () => {
@@ -96,10 +124,26 @@ test("updating the permutation works", () => {
     // No-ops correctly.
     let updator2 = scran.updatePermutation(permutation1, permutation1);
     expect(updator2).toBe(null);
+})
 
-    // Handles array inputs, though no permutation is involved for the simulated matrices.
-    let mat = simulate.simulateMatrix(permutation1.length, 20);
-    let noop = scran.updatePermutation(mat, permutation2);
-    expect(compare.equalArrays(noop, permutation2)).toBe(true);
+test("updating the permutation works for array inputs", () => {
+    let mat = simulate.simulatePermutedMatrix(99, 20);
+    expect(mat.isPermuted()).toBe(true);
+
+    let linear = new Int32Array(mat.numberOfRows());
+    linear.forEach((x, i) => { linear[i] = i; });
+
+    let reperm = scran.updatePermutation(mat, linear);
+    let reverse_perm = mat.permutation({ restore: false });
+    expect(compare.equalArrays(reperm, reverse_perm)).toBe(true);
+
+    // No-op for non-permuted matrix.
+    let dense = simulate.simulateDenseMatrix(79, 20);
+    expect(dense.isPermuted()).toBe(false);
+
+    let linear2 = new Int32Array(dense.numberOfRows());
+    linear2.forEach((x, i) => { linear2[i] = i; });
+
+    let noop = scran.updatePermutation(dense, linear2);
+    expect(noop).toBe(null);
 });
-

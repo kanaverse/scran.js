@@ -13,12 +13,20 @@ test("initialization from dense array works correctly", () => {
     expect(mat.numberOfRows()).toBe(3);
     expect(mat.numberOfColumns()).toBe(5);
     expect(mat.isPermuted()).toBe(true);
+    expect(mat.isSparse()).toBe(true);
 
     // Properly column-major.
     expect(compare.equalArrays(mat.column(0), [1, 5, 0])).toBe(true);
     expect(compare.equalArrays(mat.column(4), [0, 5, 8])).toBe(true);
     expect(compare.equalArrays(mat.row(0), [1, 0, 0, 2, 0])).toBe(true);
     expect(compare.equalArrays(mat.row(2), [0, 0, 4, 0, 8])).toBe(true);
+
+    // Compare to a simple initialization.
+    var dense = scran.initializeDenseMatrixFromDenseArray(3, 5, vals);
+    expect(dense.numberOfRows()).toBe(3);
+    expect(dense.numberOfRows()).toBe(3);
+    expect(dense.isPermuted()).toBe(false);
+    expect(dense.isSparse()).toBe(false);
 })
 
 test("initialization from compressed values works correctly", () => {
