@@ -77,8 +77,8 @@ NumericMatrix cbind_with_rownames(int n, uintptr_t mats, uintptr_t names) {
     const auto& first = *(mat_ptrs.front());
 
     // Harvesting the commons.
-    auto name_ptrs = convert_array_of_offsets<const int*>(n, names);
-    const int* first_names = name_ptrs[0];
+    auto name_ptrs = convert_array_of_offsets<const int32_t*>(n, names);
+    auto first_names = name_ptrs[0];
     std::unordered_set<int> in_use(first_names, first_names + first.ptr->nrow());
 
     for (int i = 1; i < n; ++i) {
@@ -148,6 +148,8 @@ NumericMatrix cbind_with_rownames(int n, uintptr_t mats, uintptr_t names) {
  */
 EMSCRIPTEN_BINDINGS(cbind) {
     emscripten::function("cbind", &cbind);
+
+    emscripten::function("cbind_with_rownames", &cbind_with_rownames);
 }
 /**
  * @endcond
