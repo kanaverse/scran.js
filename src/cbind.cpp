@@ -8,7 +8,7 @@
 #include "utils.h"
 #include "tatami/tatami.hpp"
 
-NumericMatrix cbind(int n, uintptr_t mats) {
+NumericMatrix cbind(int n, uintptr_t mats, bool same_perm) {
     if (n == 0) {
         throw std::runtime_error("need at least one matrix to cbind");
     }
@@ -34,7 +34,9 @@ NumericMatrix cbind(int n, uintptr_t mats) {
 
         for (int i = 1; i < n; ++i) {
             const auto& current = *(mat_ptrs[i]);
-            if (current.is_permuted) {
+            if (same_perm) {
+                collected.push_back(current.ptr);
+            } else if (current.is_permuted) {
                 const auto& curperm = current.permutation;
                 std::vector<size_t> perm_to_first(NR);
                 for (size_t i = 0; i < NR; ++i) {
@@ -42,7 +44,7 @@ NumericMatrix cbind(int n, uintptr_t mats) {
                 }
                 collected.push_back(tatami::make_DelayedSubset<0>(current.ptr, std::move(perm_to_first)));
             } else {
-                if (reversi.size()) {
+                if (reversi.empty()) {
                     reversi.resize(NR);
                     for (size_t i = 0; i < NR; ++i) {
                         reversi[first_perm[i]] = i;
@@ -56,10 +58,10 @@ NumericMatrix cbind(int n, uintptr_t mats) {
     } else {
         for (int i = 1; i < n; ++i) {
             const auto& current = *(mat_ptrs[i]);
-            if (current.is_permuted) {
-                collected.push_back(tatami::make_DelayedSubset<0>(current.ptr, current.permutation));
-            } else {
+            if (same_perm || !current.is_permuted) {
                 collected.push_back(current.ptr);
+            } else {
+                collected.push_back(tatami::make_DelayedSubset<0>(current.ptr, current.permutation));
             }
         }
         return NumericMatrix(tatami::make_DelayedBind<1>(std::move(collected)));

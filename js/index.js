@@ -6,6 +6,7 @@ export * from "./hdf5.js";
 
 export * from "./permute.js";
 export * from "./features.js";
+export * from "./cbind.js";
 
 export * from "./computePerCellQCMetrics.js";
 export * from "./computePerCellQCFilters.js";
