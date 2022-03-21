@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: computePerCellQCMetrics.js</title>
+    <title>JSDoc: Source: ScranMatrix.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Source: computePerCellQCMetrics.js</h1>
+    <h1 class="page-title">Source: ScranMatrix.js</h1>
 
     
 
@@ -26,146 +26,160 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>import * as wasm from "./wasm.js";
-import * as utils from "./utils.js"; 
-import * as wa from "wasmarrays.js";
+            <pre class="prettyprint source linenums"><code>import * as utils from "./utils.js";
 
 /**
- * Wrapper for the metrics allocated on the Wasm heap.
+ * Wrapper around a sparse matrix allocated on the Wasm heap.
  */
-export class PerCellQCMetrics {
+export class ScranMatrix {
     /**
-     * @param {Object} raw Raw results allocated on the Wasm heap.
+     * @param {Object} raw Raw matrix object created on the Wasm heap.
      *
-     * This should not be called directly; use `computePerCellQCMetrics` instead to create an instance of this object.
+     * This should not be called directly by developers,
+     * who should instead use functions that initialize an appropriate matrix, e.g., `initializeSparseMatrixFromCompressedVectors()`.
      */
     constructor(raw) {
-        this.results = raw;
+        this.matrix = raw;
         return;
     }
 
     /**
+     * @return Number of rows in the matrix.
+     */
+    numberOfRows() {
+        return this.matrix.nrow();
+    }
+
+    /**
+     * @return Number of columns in the matrix.
+     */
+    numberOfColumns() {
+        return this.matrix.ncol();
+    }
+
+    /**
+     * @param {number} i - Index of the row to extract.
+     * This should be a non-negative integer less than `numberOfRows()`.
      * @param {Object} [options] - Optional parameters.
-     * @param {boolean} [options.copy] - Whether to copy the results from the Wasm heap.
-     * This incurs a copy but has safer lifetime management.
+     * @param {Float64WasmArray} [options.buffer] - Buffer to extract into.
+     * If supplied, this should have length equal to `numberOfColumns()`. 
      *
-     * @return A `Float64Array` (or a view thereof) containing the total count for each cell.
+     * @return
+     * If `buffer` is not supplied, a `Float64Array` is returned containing the contents of row `i`.
+     * Otherwise, `buffer` is filled with row `i` and nothing is returned.
      */
-    sums({ copy = true } = {}) {
-        return utils.possibleCopy(this.results.sums(), copy);
+    row(i, { buffer = null } = {}) {
+        if (buffer != null) {
+            this.matrix.row(i, buffer.offset);
+            return;
+        } else {
+            var output;
+            buffer = utils.createFloat64WasmArray(this.matrix.ncol());
+            try {
+                this.matrix.row(i, buffer.offset);
+                output = buffer.slice();
+            } finally {
+                buffer.free();
+            }
+            return output;
+        }
     }
 
     /**
+     * @param {number} i - Index of the column to extract.
+     * This should be a non-negative integer less than `numberOfColumns()`.
      * @param {Object} [options] - Optional parameters.
-     * @param {boolean} [options.copy] - Whether to copy the results from the Wasm heap.
-     * This incurs a copy but has safer lifetime management.
+     * @param {Float64WasmArray} [options.buffer] - Buffer to extract into.
+     * If supplied, this should have length equal to `numberOfRows()`. 
      *
-     * @return An `Int32Array` (or a view thereof) containing the total number of detected genes for each cell.
+     * @return
+     * If `buffer` is not supplied, a `Float64Array` is returned containing the contents of column `i`.
+     * Otherwise, `buffer` is filled with column `i` and nothing is returned.
      */
-    detected({ copy = true } = {}) {
-        return utils.possibleCopy(this.results.detected(), copy);
+    column(i, { buffer = null } = {}) {
+        if (buffer != null) {
+            this.matrix.column(i, buffer.offset);
+            return;
+        } else {
+            var output;
+            buffer = utils.createFloat64WasmArray(this.matrix.nrow());
+            try {
+                this.matrix.column(i, buffer.offset);
+                output = buffer.slice();
+            } finally {
+                buffer.free();
+            }
+            return output;
+        }
     }
 
-    /**
-     * @param {number} i - Index of the feature subset of interest.
-     * @param {Object} [options] - Optional parameters.
-     * @param {boolean} [options.copy] - Whether to copy the results from the Wasm heap.
-     * This incurs a copy but has safer lifetime management.
-     *
-     * @return A `Float64Array` (or a view thereof) containing the proportion of counts in the subset `i` for each cell.
-     */
-    subsetProportions(i, { copy = true } = {}) {
-        return utils.possibleCopy(this.results.subset_proportions(i), copy);
-    }
-
-    /**
-     * @return Number of feature subsets in this object.
-     */
-    numberOfSubsets() {
-        return this.results.num_subsets();
-    }
-
-    /**
-     * @return Frees the memory allocated on the Wasm heap for this object.
-     * This invalidates this object and all references to it.
+    /** 
+     * Free the memory on the Wasm heap for this matrix.
+     * This invalidates this object and all of its references.
      */
     free() {
-        if (this.results !== null) {
-            this.results.delete();
-            this.results = null;
+        if (this.matrix !== null) {
+            this.matrix.delete();
+            this.matrix = null;
         }
         return;
     }
-}
 
-/**
- * Compute the per-cell QC metrics.
- *
- * @param {ScranMatrix} x - The count matrix.
- * @param {?(Array|Uint8WasmArray)} subsets - Array of arrays of boolean values specifying the feature subsets.
- * Each internal array corresponds to a subset and should be of length equal to the number of rows.
- * Each entry of each internal array specifies whether the corresponding row of `x` belongs to that subset; 
- * any value interpretable as a boolean can be used here.
- * 
- * Alternatively, a `Uint8WasmArray` can be supplied containing the concatenated contents of all arrays;
- * this should be of length equal to the product of the number of subsets and the number of rows in `x`.
- *
- * Alternatively `null`, which is taken to mean that there are no subsets.
- *
- * @return A `PerCellQCMetrics` object containing the QC metrics.
- */
-export function computePerCellQCMetrics(x, subsets) {
-    var output;
-    var raw;
-
-    try {
-        if (subsets instanceof wa.Uint8WasmArray) {
-            let nsubsets = Math.round(subsets.length / x.numberOfRows());
-            if (nsubsets * x.numberOfRows() != subsets.length) {
-                throw "length of 'subsets' should be a multiple of the matrix rows";
-            }
-
-            // This will either create a cheap view, or it'll clone
-            // 'subsets' into the appropriate memory space.
-            let converted = utils.wasmifyArray(subsets, null);
-            try {
-                let ptr = subsets.offset;
-                raw = wasm.call(module => module.per_cell_qc_metrics(x.matrix, nsubsets, ptr));
-            } finally {
-                converted.free();
-            }
-
-        } else if (subsets instanceof Array) {
-            let tmp = utils.createUint8WasmArray(x.numberOfRows() * subsets.length);
-            try {
-                let offset = 0;
-                for (var i = 0; i &lt; subsets.length; i++) {
-                    let current = subsets[i];
-                    if (current.length != x.numberOfRows()) {
-                        throw "length of each array in 'subsets' should be equal to the matrix rows";
-                    }
-                    tmp.array().set(current, offset);
-                    offset += current.length;
-                }
-                raw = wasm.call(module => module.per_cell_qc_metrics(x.matrix, subsets.length, tmp.offset));
-            } finally {
-                tmp.free();
-            }
-
-        } else if (subsets === null) {
-            raw = wasm.call(module => module.per_cell_qc_metrics(x.matrix, 0, 0));
-
-        } else {
-            throw "'subsets' should be an Array or Uint8WasmArray";
-        }
-
-        output = new PerCellQCMetrics(raw);
-    } catch (e) {
-        utils.free(raw);
-        throw e;
+    /**
+     * @return Boolean indicating whether the matrix contains a permuted row order.
+     */
+    isPermuted() {
+        return this.matrix.permuted();
     }
 
-    return output;
+    /**
+     * Obtain the row permutation applied to the matrix, assuming {@linkcode ScranMatrix#hasPermutation hasPermutation} returns `true`.
+     *
+     * @param {Object} [options] - Optional parameters.
+     * @param {Int32WasmArray} [options.buffer] Buffer to extract into.
+     * If supplied, this should have length equal to `numberOfRows()`. 
+     *
+     * @return 
+     * If `buffer` is not supplied, a `Int32Array` is returned containing the permutation vector.
+     * Otherwise, `buffer` is filled with the permutation vector and nothing is returned.
+     *
+     * If `restore = true`, the permutation vector represents the permutation should be applied to the current rows to obtain the original row order.
+     * That is, for a permutation array `x`, `x[i]` is the current row index for the original row `i`.
+     *
+     * If `restore = false`, the permutation vector represents the permutation that _was_ applied to the original rows to obtain the permuted (i.e., current) row order.
+     * That is, for a permutation array `x`, `x[i]` is the original row index for the current row `i`.
+     */
+    permutation({ buffer = null, restore = true } = {}) {
+        let OP;
+        if (restore) {
+            OP = () => {};
+        } else {
+            OP = () => {
+                let tmp = new Int32Array(buffer.length);
+                buffer.array().forEach((x, i) => {
+                    tmp[x] = i;
+                });
+                buffer.set(tmp);
+            };
+        }
+
+        if (buffer != null) {
+            this.matrix.permutation(buffer.offset);
+            OP();
+            return;
+        } else {
+            var output;
+            buffer = utils.createInt32WasmArray(this.matrix.nrow());
+            try {
+                this.matrix.permutation(buffer.offset);
+                OP();
+                output = buffer.slice();
+            } finally {
+                buffer.free();
+            }
+            return output;
+        }
+    }
 }
 </code></pre>
         </article>

@@ -12,6 +12,7 @@ var searchData=
   ['percellqcmetrics_5fresults_9',['PerCellQCMetrics_Results',['../structPerCellQCMetrics__Results.html',1,'']]],
   ['percellqcmetrics_5fresults_2eh_10',['PerCellQCMetrics_Results.h',['../PerCellQCMetrics__Results_8h.html',1,'']]],
   ['perm_11',['perm',['../structNumericMatrix.html#a7dff448fade2ac23b35252674f8ac63e',1,'NumericMatrix']]],
-  ['perplexity_5fto_5fk_12',['perplexity_to_k',['../run__tsne_8cpp.html#a70e669cf0eff6584006d032073ea4571',1,'run_tsne.cpp']]],
-  ['precheck_5finputs_13',['precheck_inputs',['../run__pca_8cpp.html#a57b4a416b505500abd00894c2406a450',1,'run_pca.cpp']]]
+  ['permuted_12',['permuted',['../structNumericMatrix.html#ac09bc043d30fe5447a00990a0ea315e2',1,'NumericMatrix']]],
+  ['perplexity_5fto_5fk_13',['perplexity_to_k',['../run__tsne_8cpp.html#a70e669cf0eff6584006d032073ea4571',1,'run_tsne.cpp']]],
+  ['precheck_5finputs_14',['precheck_inputs',['../run__pca_8cpp.html#a57b4a416b505500abd00894c2406a450',1,'run_pca.cpp']]]
 ];

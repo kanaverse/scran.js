@@ -408,8 +408,8 @@ These features are taken from each pairwise comparison between labels.</p></td>
 Specifically, a feature must be present in both datasets in order to be retained.
 Of those features in the intersection, only the <code>top</code> markers from each pairwise comparison are ultimately used for classification.</p>
 <p>Needless to say, <code>features</code> should match up to the rows of the matrix that is actually used for annotation in <code>labelCells()</code>.
-If the test dataset is a <code>LayeredSparseMatrix</code>, the ordering of <code>features</code> should include the permutation that was applied during the layering process.
-Otherwise the row indices will not be correct in subsequent calls to <code>labelCells()</code> with a <code>LayeredSparseMatrix</code> input.</p>
+If the test dataset is a <code>ScranMatrix</code>, the ordering of <code>features</code> should include the permutation that was applied during the layering process.
+Otherwise the row indices will not be correct in subsequent calls to <code>labelCells()</code> with a <code>ScranMatrix</code> input.</p>
 </div>
 
 
@@ -2329,7 +2329,7 @@ Alternatively, this may be <code>null</code>, in which case all cells are assume
             <td class="type">
             
                 
-<span class="param-type"><a href="SparseMatrix.html">SparseMatrix</a></span>
+<span class="param-type"><a href="ScranMatrix.html">ScranMatrix</a></span>
 
 
             
@@ -3696,7 +3696,7 @@ Node applications should not call this function.</p>
             <td class="type">
             
                 
-<span class="param-type"><a href="SparseMatrix.html">SparseMatrix</a></span>
+<span class="param-type"><a href="ScranMatrix.html">ScranMatrix</a></span>
 
 
             
@@ -4854,7 +4854,7 @@ If <code>false</code>, <code>indices</code> should contain column indices and <c
 
         
 <div class="param-desc">
-    <p>A <code>LayeredSparseMatrix</code> object containing a layered sparse matrix.</p>
+    <p>A <code>ScranMatrix</code> object containing a layered sparse matrix.</p>
 </div>
 
 
@@ -5054,7 +5054,7 @@ These should all be non-negative integers, even if they are stored in floating-p
 
         
 <div class="param-desc">
-    <p>A <code>LayeredSparseMatrix</code> object containing a layered sparse matrix.</p>
+    <p>A <code>ScranMatrix</code> object containing a layered sparse matrix.</p>
 </div>
 
 
@@ -5227,7 +5227,7 @@ For the latter, both H5AD and 10X-style sparse formats are supported.</p></td>
 
         
 <div class="param-desc">
-    <p>A <code>LayeredSparseMatrix</code> containing the layered sparse matrix.</p>
+    <p>A <code>ScranMatrix</code> containing the layered sparse matrix.</p>
 </div>
 
 
@@ -5486,7 +5486,7 @@ If <code>null</code>, we detect this automatically from the magic number in the 
 
         
 <div class="param-desc">
-    <p>A <code>LayeredSparseMatrix</code> object containing a layered sparse matrix.</p>
+    <p>A <code>ScranMatrix</code> object containing a layered sparse matrix.</p>
 </div>
 
 
@@ -6158,7 +6158,7 @@ Ignored if <code>x</code> is a <code>NeighborSearchResults</code> object.</p></t
             <td class="type">
             
                 
-<span class="param-type"><a href="SparseMatrix.html">SparseMatrix</a></span>
+<span class="param-type"><a href="ScranMatrix.html">ScranMatrix</a></span>
 |
 
 <span class="param-type">Float64WasmArray</span>
@@ -6797,7 +6797,7 @@ This should have length equal to that of <code>loaded</code>.</p></td>
             <td class="type">
             
                 
-<span class="param-type"><a href="SparseMatrix.html">SparseMatrix</a></span>
+<span class="param-type"><a href="ScranMatrix.html">ScranMatrix</a></span>
 |
 
 <span class="param-type">Float64WasmArray</span>
@@ -7559,7 +7559,7 @@ The actual names of the labels are usually held elsewhere.</p>
             <td class="type">
             
                 
-<span class="param-type"><a href="SparseMatrix.html">SparseMatrix</a></span>
+<span class="param-type"><a href="ScranMatrix.html">ScranMatrix</a></span>
 
 
             
@@ -7864,7 +7864,7 @@ Alternatively, this may be <code>null</code>, in which case all cells are assume
             <td class="type">
             
                 
-<span class="param-type"><a href="SparseMatrix.html">SparseMatrix</a></span>
+<span class="param-type"><a href="ScranMatrix.html">ScranMatrix</a></span>
 
 
             
@@ -8107,7 +8107,7 @@ Alternatively, this may be <code>null</code>, in which case all cells are assume
     
 
     
-    <h4 class="name" id="permuteFeatures"><span class="type-signature"></span>permuteFeatures<span class="signature">(layered, info)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="permuteFeatures"><span class="type-signature"></span>permuteFeatures<span class="signature">(x, info)</span><span class="type-signature"></span></h4>
     
 
     
@@ -8115,7 +8115,7 @@ Alternatively, this may be <code>null</code>, in which case all cells are assume
 
 
 <div class="description">
-    <p>Permute the features to match the permutation in a <a href="LayeredSparseMatrix.html">LayeredSparseMatrix</a>.</p>
+    <p>Permute the features to match the permutation in a <a href="ScranMatrix.html">ScranMatrix</a>.</p>
 </div>
 
 
@@ -8151,13 +8151,13 @@ Alternatively, this may be <code>null</code>, in which case all cells are assume
 
         <tr>
             
-                <td class="name"><code>layered</code></td>
+                <td class="name"><code>x</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type"><a href="LayeredSparseMatrix.html">LayeredSparseMatrix</a></span>
+<span class="param-type"><a href="ScranMatrix.html">ScranMatrix</a></span>
 
 
             
@@ -8167,7 +8167,7 @@ Alternatively, this may be <code>null</code>, in which case all cells are assume
 
             
 
-            <td class="description last"><p>A <a href="LayeredSparseMatrix.html">LayeredSparseMatrix</a> where the rows are permuted for a more memory-efficient storage order.</p></td>
+            <td class="description last"><p>A <a href="ScranMatrix.html">ScranMatrix</a> where the rows are permuted for a more memory-efficient storage order.</p></td>
         </tr>
 
     
@@ -8191,7 +8191,7 @@ Alternatively, this may be <code>null</code>, in which case all cells are assume
             
 
             <td class="description last"><p>A collection of arrays containing per-feature information (e.g., identifiers).
-Each array should have length equal to the number of rows in <code>layered</code>, but values should refer to features in their original order.</p></td>
+Each array should have length equal to the number of rows in <code>x</code>, but values should refer to features in their original order.</p></td>
         </tr>
 
     
@@ -8262,7 +8262,7 @@ Each array should have length equal to the number of rows in <code>layered</code
         
 <div class="param-desc">
     <p>All vectors in <code>geneInfo</code> are replaced by their permuted counterparts,
-such that entries match the corresponding row in <code>layered</code>.</p>
+such that entries match the corresponding row in <code>x</code>.</p>
 </div>
 
 
@@ -8279,7 +8279,7 @@ such that entries match the corresponding row in <code>layered</code>.</p>
     
 
     
-    <h4 class="name" id="permuteVector"><span class="type-signature"></span>permuteVector<span class="signature">(layered, values)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="permuteVector"><span class="type-signature"></span>permuteVector<span class="signature">(x, values)</span><span class="type-signature"></span></h4>
     
 
     
@@ -8287,9 +8287,9 @@ such that entries match the corresponding row in <code>layered</code>.</p>
 
 
 <div class="description">
-    <p>Permute a vector to match the row order of a <a href="LayeredSparseMatrix.html">LayeredSparseMatrix</a>.
+    <p>Permute a vector to match the row order of a <a href="ScranMatrix.html">ScranMatrix</a>.
 This is usually applied to annotations that match the original row order,
-but need to be permuted to be used in computation with a <a href="LayeredSparseMatrix.html">LayeredSparseMatrix</a>.</p>
+but need to be permuted to be used in computation with a <a href="ScranMatrix.html">ScranMatrix</a>.</p>
 </div>
 
 
@@ -8325,13 +8325,13 @@ but need to be permuted to be used in computation with a <a href="LayeredSparseM
 
         <tr>
             
-                <td class="name"><code>layered</code></td>
+                <td class="name"><code>x</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type"><a href="LayeredSparseMatrix.html">LayeredSparseMatrix</a></span>
+<span class="param-type"><a href="ScranMatrix.html">ScranMatrix</a></span>
 |
 
 <span class="param-type">Int32Array</span>
@@ -8344,8 +8344,8 @@ but need to be permuted to be used in computation with a <a href="LayeredSparseM
 
             
 
-            <td class="description last"><p>A <a href="LayeredSparseMatrix.html">LayeredSparseMatrix</a> where the rows are permuted for a more memory-efficient storage order.
-Alternatively a permutation vector, generated by calling <a href="LayeredSparseMatrix.html#permutation"><code>permutation</code></a> with <code>restore: true</code> (the default).</p></td>
+            <td class="description last"><p>A <a href="ScranMatrix.html">ScranMatrix</a> where the rows are permuted for a more memory-efficient storage order.
+Alternatively a permutation vector, generated by calling <a href="ScranMatrix.html#permutation"><code>permutation</code></a> with <code>restore: true</code> (the default).</p></td>
         </tr>
 
     
@@ -8441,7 +8441,7 @@ Alternatively a permutation vector, generated by calling <a href="LayeredSparseM
 
         
 <div class="param-desc">
-    <p>A copy of <code>values</code> is returned, permuted so that each entry corresponds to a row of <code>layered</code>.</p>
+    <p>A copy of <code>values</code> is returned, permuted so that each entry corresponds to a row of <code>x</code>.</p>
 </div>
 
 
@@ -8945,7 +8945,7 @@ This is usually done on a subset of features, and possibly with some kind of blo
             <td class="type">
             
                 
-<span class="param-type"><a href="SparseMatrix.html">SparseMatrix</a></span>
+<span class="param-type"><a href="ScranMatrix.html">ScranMatrix</a></span>
 
 
             
@@ -9897,7 +9897,7 @@ or until the requested run time is exceeded, whichever comes first.</p>
             <td class="type">
             
                 
-<span class="param-type"><a href="SparseMatrix.html">SparseMatrix</a></span>
+<span class="param-type"><a href="ScranMatrix.html">ScranMatrix</a></span>
 
 
             
@@ -10241,7 +10241,7 @@ otherwise the workers will be shut done ungracefully on program exit.</p>
     
 
     
-    <h4 class="name" id="unpermuteVector"><span class="type-signature"></span>unpermuteVector<span class="signature">(layered, values)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="unpermuteVector"><span class="type-signature"></span>unpermuteVector<span class="signature">(x, values)</span><span class="type-signature"></span></h4>
     
 
     
@@ -10250,7 +10250,7 @@ otherwise the workers will be shut done ungracefully on program exit.</p>
 
 <div class="description">
     <p>Unpermute a vector to match the original row order.
-This is usually applied to per-feature results computed from a <a href="LayeredSparseMatrix.html">LayeredSparseMatrix</a>,
+This is usually applied to per-feature results computed from a <a href="ScranMatrix.html">ScranMatrix</a>,
 to get results corresponding to the original row order.</p>
 </div>
 
@@ -10287,13 +10287,13 @@ to get results corresponding to the original row order.</p>
 
         <tr>
             
-                <td class="name"><code>layered</code></td>
+                <td class="name"><code>x</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type"><a href="LayeredSparseMatrix.html">LayeredSparseMatrix</a></span>
+<span class="param-type"><a href="ScranMatrix.html">ScranMatrix</a></span>
 |
 
 <span class="param-type">Int32Array</span>
@@ -10306,8 +10306,8 @@ to get results corresponding to the original row order.</p>
 
             
 
-            <td class="description last"><p>A <a href="LayeredSparseMatrix.html">LayeredSparseMatrix</a> where the rows are permuted for a more memory-efficient storage order.
-Alternatively a permutation vector, generated by calling <a href="LayeredSparseMatrix.html#permutation"><code>permutation</code></a> with <code>restore: true</code> (the default).</p></td>
+            <td class="description last"><p>A <a href="ScranMatrix.html">ScranMatrix</a> where the rows are permuted for a more memory-efficient storage order.
+Alternatively a permutation vector, generated by calling <a href="ScranMatrix.html#permutation"><code>permutation</code></a> with <code>restore: true</code> (the default).</p></td>
         </tr>
 
     
@@ -10333,7 +10333,7 @@ Alternatively a permutation vector, generated by calling <a href="LayeredSparseM
 
             
 
-            <td class="description last"><p>An array of values where each entry corresponds to a row of <code>layered</code> (i.e., including the permutation).</p></td>
+            <td class="description last"><p>An array of values where each entry corresponds to a row of <code>x</code> (i.e., including the permutation).</p></td>
         </tr>
 
     
@@ -10374,7 +10374,7 @@ Alternatively a permutation vector, generated by calling <a href="LayeredSparseM
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="permute.js.html">permute.js</a>, <a href="permute.js.html#line41">line 41</a>
+        <a href="permute.js.html">permute.js</a>, <a href="permute.js.html#line46">line 46</a>
     </li></ul></dd>
     
 
@@ -10420,7 +10420,7 @@ Alternatively a permutation vector, generated by calling <a href="LayeredSparseM
     
 
     
-    <h4 class="name" id="updatePermutation"><span class="type-signature"></span>updatePermutation<span class="signature">(layered, old)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="updatePermutation"><span class="type-signature"></span>updatePermutation<span class="signature">(x, old)</span><span class="type-signature"></span></h4>
     
 
     
@@ -10428,9 +10428,9 @@ Alternatively a permutation vector, generated by calling <a href="LayeredSparseM
 
 
 <div class="description">
-    <p>Compute a new permutation vector that modifies a vector to match the row order of a <a href="LayeredSparseMatrix.html">LayeredSparseMatrix</a>.
-This is provided as a safety measure to handle changes in the permutation across different versions of the <a href="LayeredSparseMatrix.html">LayeredSparseMatrix</a> initialization.
-The assumption is that there are some old results that are ordered to match the row order of an old version of a <a href="LayeredSparseMatrix.html">LayeredSparseMatrix</a>.
+    <p>Compute a new permutation vector that modifies a vector to match the row order of a <a href="ScranMatrix.html">ScranMatrix</a>.
+This is provided as a safety measure to handle changes in the permutation across different versions of the <a href="ScranMatrix.html">ScranMatrix</a> initialization.
+The assumption is that there are some old results that are ordered to match the row order of an old version of a <a href="ScranMatrix.html">ScranMatrix</a>.
 Given the old permutation vector, this function will enable applications to update their result vectors to match the row order of a new object.</p>
 </div>
 
@@ -10467,13 +10467,13 @@ Given the old permutation vector, this function will enable applications to upda
 
         <tr>
             
-                <td class="name"><code>layered</code></td>
+                <td class="name"><code>x</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type"><a href="LayeredSparseMatrix.html">LayeredSparseMatrix</a></span>
+<span class="param-type"><a href="ScranMatrix.html">ScranMatrix</a></span>
 |
 
 <span class="param-type">Int32Array</span>
@@ -10486,8 +10486,8 @@ Given the old permutation vector, this function will enable applications to upda
 
             
 
-            <td class="description last"><p>A <a href="LayeredSparseMatrix.html">LayeredSparseMatrix</a> where the rows are permuted for a more memory-efficient storage order.
-Alternatively a permutation vector, generated by calling <a href="LayeredSparseMatrix.html#permutation"><code>permutation</code></a> with <code>restore: true</code> (the default).</p></td>
+            <td class="description last"><p>A <a href="ScranMatrix.html">ScranMatrix</a> where the rows are permuted for a more memory-efficient storage order.
+Alternatively a permutation vector, generated by calling <a href="ScranMatrix.html#permutation"><code>permutation</code></a> with <code>restore: true</code> (the default).</p></td>
         </tr>
 
     
@@ -10510,8 +10510,8 @@ Alternatively a permutation vector, generated by calling <a href="LayeredSparseM
 
             
 
-            <td class="description last"><p>A permutation vector for an older layered sparse matrix generated from the same dataset as <code>layered</code>.
-This should have been generated by calling <a href="LayeredSparseMatrix.html#permutation"><code>permutation</code></a> with <code>restore: true</code> (the default).</p></td>
+            <td class="description last"><p>A permutation vector for an older sparse matrix generated from the same dataset as <code>x</code>.
+This vector should have been created by calling <a href="ScranMatrix.html#permutation"><code>permutation</code></a> with <code>restore: true</code> (the default).</p></td>
         </tr>
 
     
@@ -10552,7 +10552,7 @@ This should have been generated by calling <a href="LayeredSparseMatrix.html#per
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="permute.js.html">permute.js</a>, <a href="permute.js.html#line72">line 72</a>
+        <a href="permute.js.html">permute.js</a>, <a href="permute.js.html#line82">line 82</a>
     </li></ul></dd>
     
 
@@ -10583,7 +10583,7 @@ This should have been generated by calling <a href="LayeredSparseMatrix.html#per
 <div class="param-desc">
     <p><code>null</code> if the permutations are the same, in which case no further action is required.
 Otherwise an <code>Int32Array</code> is returned containing a permutation that, when applied to a vector with <a href="global.html#permuteVector"><code>permuteVector</code></a>,
-permutes that vector to match the row order of <code>layered</code>.</p>
+permutes that vector to match the row order of <code>x</code>.</p>
 </div>
 
 
@@ -10874,13 +10874,13 @@ rather, they can just read directly from the real file system.</p>
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="BuiltLabelledReference.html">BuiltLabelledReference</a></li><li><a href="H5Base.html">H5Base</a></li><li><a href="H5DataSet.html">H5DataSet</a></li><li><a href="H5File.html">H5File</a></li><li><a href="H5Group.html">H5Group</a></li><li><a href="IntegratedLabelledReferences.html">IntegratedLabelledReferences</a></li><li><a href="KmeansClusters.html">KmeansClusters</a></li><li><a href="LabelledReference.html">LabelledReference</a></li><li><a href="LayeredSparseMatrix.html">LayeredSparseMatrix</a></li><li><a href="ModelGeneVarResults.html">ModelGeneVarResults</a></li><li><a href="NeighborSearchIndex.html">NeighborSearchIndex</a></li><li><a href="NeighborSearchResults.html">NeighborSearchResults</a></li><li><a href="PCAResults.html">PCAResults</a></li><li><a href="PerCellQCFilters.html">PerCellQCFilters</a></li><li><a href="PerCellQCMetrics.html">PerCellQCMetrics</a></li><li><a href="ScoreMarkersResults.html">ScoreMarkersResults</a></li><li><a href="SNNGraph.html">SNNGraph</a></li><li><a href="SNNGraphMultilevelClusters.html">SNNGraphMultilevelClusters</a></li><li><a href="SparseMatrix.html">SparseMatrix</a></li><li><a href="TSNEStatus.html">TSNEStatus</a></li><li><a href="UMAPStatus.html">UMAPStatus</a></li></ul><h3>Global</h3><ul><li><a href="global.html#buildLabelledReference">buildLabelledReference</a></li><li><a href="global.html#buildNeighborSearchIndex">buildNeighborSearchIndex</a></li><li><a href="global.html#buildSNNGraph">buildSNNGraph</a></li><li><a href="global.html#chooseHVGs">chooseHVGs</a></li><li><a href="global.html#clusterKmeans">clusterKmeans</a></li><li><a href="global.html#clusterSNNGraph">clusterSNNGraph</a></li><li><a href="global.html#computePerCellQCFilters">computePerCellQCFilters</a></li><li><a href="global.html#computePerCellQCMetrics">computePerCellQCMetrics</a></li><li><a href="global.html#createBigUint64WasmArray">createBigUint64WasmArray</a></li><li><a href="global.html#createFloat64WasmArray">createFloat64WasmArray</a></li><li><a href="global.html#createInt32WasmArray">createInt32WasmArray</a></li><li><a href="global.html#createNewHDF5File">createNewHDF5File</a></li><li><a href="global.html#createUint8WasmArray">createUint8WasmArray</a></li><li><a href="global.html#extractHDF5ObjectNames">extractHDF5ObjectNames</a></li><li><a href="global.html#fileExists">fileExists</a></li><li><a href="global.html#filterCells">filterCells</a></li><li><a href="global.html#findNearestNeighbors">findNearestNeighbors</a></li><li><a href="global.html#guessFeatures">guessFeatures</a></li><li><a href="global.html#heapSize">heapSize</a></li><li><a href="global.html#initialize">initialize</a></li><li><a href="global.html#initializeSparseMatrixFromCompressedVectors">initializeSparseMatrixFromCompressedVectors</a></li><li><a href="global.html#initializeSparseMatrixFromDenseArray">initializeSparseMatrixFromDenseArray</a></li><li><a href="global.html#initializeSparseMatrixFromHDF5">initializeSparseMatrixFromHDF5</a></li><li><a href="global.html#initializeSparseMatrixFromMatrixMarketBuffer">initializeSparseMatrixFromMatrixMarketBuffer</a></li><li><a href="global.html#initializeTSNE">initializeTSNE</a></li><li><a href="global.html#initializeUMAP">initializeUMAP</a></li><li><a href="global.html#integrateCellLabels">integrateCellLabels</a></li><li><a href="global.html#integrateLabelledReferences">integrateLabelledReferences</a></li><li><a href="global.html#labelCells">labelCells</a></li><li><a href="global.html#loadHDF5Dataset">loadHDF5Dataset</a></li><li><a href="global.html#loadLabelledReferenceFromBuffers">loadLabelledReferenceFromBuffers</a></li><li><a href="global.html#logNormCounts">logNormCounts</a></li><li><a href="global.html#modelGeneVar">modelGeneVar</a></li><li><a href="global.html#permuteFeatures">permuteFeatures</a></li><li><a href="global.html#permuteVector">permuteVector</a></li><li><a href="global.html#perplexityToNeighbors">perplexityToNeighbors</a></li><li><a href="global.html#readFile">readFile</a></li><li><a href="global.html#removeFile">removeFile</a></li><li><a href="global.html#runPCA">runPCA</a></li><li><a href="global.html#runTSNE">runTSNE</a></li><li><a href="global.html#runUMAP">runUMAP</a></li><li><a href="global.html#scoreMarkers">scoreMarkers</a></li><li><a href="global.html#terminate">terminate</a></li><li><a href="global.html#unpermuteVector">unpermuteVector</a></li><li><a href="global.html#updatePermutation">updatePermutation</a></li><li><a href="global.html#wasmArraySpace">wasmArraySpace</a></li><li><a href="global.html#writeFile">writeFile</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="BuiltLabelledReference.html">BuiltLabelledReference</a></li><li><a href="H5Base.html">H5Base</a></li><li><a href="H5DataSet.html">H5DataSet</a></li><li><a href="H5File.html">H5File</a></li><li><a href="H5Group.html">H5Group</a></li><li><a href="IntegratedLabelledReferences.html">IntegratedLabelledReferences</a></li><li><a href="KmeansClusters.html">KmeansClusters</a></li><li><a href="LabelledReference.html">LabelledReference</a></li><li><a href="ModelGeneVarResults.html">ModelGeneVarResults</a></li><li><a href="NeighborSearchIndex.html">NeighborSearchIndex</a></li><li><a href="NeighborSearchResults.html">NeighborSearchResults</a></li><li><a href="PCAResults.html">PCAResults</a></li><li><a href="PerCellQCFilters.html">PerCellQCFilters</a></li><li><a href="PerCellQCMetrics.html">PerCellQCMetrics</a></li><li><a href="ScoreMarkersResults.html">ScoreMarkersResults</a></li><li><a href="ScranMatrix.html">ScranMatrix</a></li><li><a href="SNNGraph.html">SNNGraph</a></li><li><a href="SNNGraphMultilevelClusters.html">SNNGraphMultilevelClusters</a></li><li><a href="TSNEStatus.html">TSNEStatus</a></li><li><a href="UMAPStatus.html">UMAPStatus</a></li></ul><h3>Global</h3><ul><li><a href="global.html#buildLabelledReference">buildLabelledReference</a></li><li><a href="global.html#buildNeighborSearchIndex">buildNeighborSearchIndex</a></li><li><a href="global.html#buildSNNGraph">buildSNNGraph</a></li><li><a href="global.html#chooseHVGs">chooseHVGs</a></li><li><a href="global.html#clusterKmeans">clusterKmeans</a></li><li><a href="global.html#clusterSNNGraph">clusterSNNGraph</a></li><li><a href="global.html#computePerCellQCFilters">computePerCellQCFilters</a></li><li><a href="global.html#computePerCellQCMetrics">computePerCellQCMetrics</a></li><li><a href="global.html#createBigUint64WasmArray">createBigUint64WasmArray</a></li><li><a href="global.html#createFloat64WasmArray">createFloat64WasmArray</a></li><li><a href="global.html#createInt32WasmArray">createInt32WasmArray</a></li><li><a href="global.html#createNewHDF5File">createNewHDF5File</a></li><li><a href="global.html#createUint8WasmArray">createUint8WasmArray</a></li><li><a href="global.html#extractHDF5ObjectNames">extractHDF5ObjectNames</a></li><li><a href="global.html#fileExists">fileExists</a></li><li><a href="global.html#filterCells">filterCells</a></li><li><a href="global.html#findNearestNeighbors">findNearestNeighbors</a></li><li><a href="global.html#guessFeatures">guessFeatures</a></li><li><a href="global.html#heapSize">heapSize</a></li><li><a href="global.html#initialize">initialize</a></li><li><a href="global.html#initializeSparseMatrixFromCompressedVectors">initializeSparseMatrixFromCompressedVectors</a></li><li><a href="global.html#initializeSparseMatrixFromDenseArray">initializeSparseMatrixFromDenseArray</a></li><li><a href="global.html#initializeSparseMatrixFromHDF5">initializeSparseMatrixFromHDF5</a></li><li><a href="global.html#initializeSparseMatrixFromMatrixMarketBuffer">initializeSparseMatrixFromMatrixMarketBuffer</a></li><li><a href="global.html#initializeTSNE">initializeTSNE</a></li><li><a href="global.html#initializeUMAP">initializeUMAP</a></li><li><a href="global.html#integrateCellLabels">integrateCellLabels</a></li><li><a href="global.html#integrateLabelledReferences">integrateLabelledReferences</a></li><li><a href="global.html#labelCells">labelCells</a></li><li><a href="global.html#loadHDF5Dataset">loadHDF5Dataset</a></li><li><a href="global.html#loadLabelledReferenceFromBuffers">loadLabelledReferenceFromBuffers</a></li><li><a href="global.html#logNormCounts">logNormCounts</a></li><li><a href="global.html#modelGeneVar">modelGeneVar</a></li><li><a href="global.html#permuteFeatures">permuteFeatures</a></li><li><a href="global.html#permuteVector">permuteVector</a></li><li><a href="global.html#perplexityToNeighbors">perplexityToNeighbors</a></li><li><a href="global.html#readFile">readFile</a></li><li><a href="global.html#removeFile">removeFile</a></li><li><a href="global.html#runPCA">runPCA</a></li><li><a href="global.html#runTSNE">runTSNE</a></li><li><a href="global.html#runUMAP">runUMAP</a></li><li><a href="global.html#scoreMarkers">scoreMarkers</a></li><li><a href="global.html#terminate">terminate</a></li><li><a href="global.html#unpermuteVector">unpermuteVector</a></li><li><a href="global.html#updatePermutation">updatePermutation</a></li><li><a href="global.html#wasmArraySpace">wasmArraySpace</a></li><li><a href="global.html#writeFile">writeFile</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.10</a> on Mon Mar 21 2022 02:12:57 GMT+0000 (Coordinated Universal Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.10</a> on Mon Mar 21 2022 04:52:44 GMT+0000 (Coordinated Universal Time)
 </footer>
 
 <script> prettyPrint(); </script>

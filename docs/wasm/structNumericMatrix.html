@@ -98,6 +98,8 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a3501cce20e99fa6d4a1ea61c8878c141"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7dff448fade2ac23b35252674f8ac63e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structNumericMatrix.html#a7dff448fade2ac23b35252674f8ac63e">perm</a> (uintptr_t values) const</td></tr>
 <tr class="separator:a7dff448fade2ac23b35252674f8ac63e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac09bc043d30fe5447a00990a0ea315e2"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structNumericMatrix.html#ac09bc043d30fe5447a00990a0ea315e2">permuted</a> () const</td></tr>
+<tr class="separator:ac09bc043d30fe5447a00990a0ea315e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p >Javascript-visible interface for a matrix of <code>double</code>s. </p>
@@ -361,7 +363,26 @@ Public Member Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>The array in <code>values</code> is filled with the permutation vector. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>The array in <code>values</code> is filled with the permutation vector.</dd></dl>
+<p>This function only makes sense if <code><a class="el" href="structNumericMatrix.html#ac09bc043d30fe5447a00990a0ea315e2">permuted()</a></code> returns <code>true</code>. </p>
+
+</div>
+</div>
+<a id="ac09bc043d30fe5447a00990a0ea315e2" name="ac09bc043d30fe5447a00990a0ea315e2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac09bc043d30fe5447a00990a0ea315e2">&#9670;&nbsp;</a></span>permuted()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool NumericMatrix::permuted </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="section return"><dt>Returns</dt><dd>Whether the underlying matrix contains a row permutation. </dd></dl>
 
 </div>
 </div>

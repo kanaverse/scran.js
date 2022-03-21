@@ -93,22 +93,27 @@ $(function() {
 <div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span> </div>
 <div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>    <span class="keywordtype">void</span> <a class="code hl_function" href="structNumericMatrix.html#a3501cce20e99fa6d4a1ea61c8878c141">column</a>(<span class="keywordtype">int</span> c, uintptr_t values) <span class="keyword">const</span>;</div>
 <div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span> </div>
-<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>    <span class="keywordtype">void</span> <a class="code hl_function" href="structNumericMatrix.html#a7dff448fade2ac23b35252674f8ac63e">perm</a>(uintptr_t values) <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span> </div>
-<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>    std::shared_ptr&lt;const tatami::NumericMatrix&gt; ptr;</div>
-<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span> </div>
-<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>    std::vector&lt;size_t&gt; permutation;</div>
-<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>};</div>
-<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span> </div>
-<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>    <span class="keywordtype">void</span> <a class="code hl_function" href="structNumericMatrix.html#a7dff448fade2ac23b35252674f8ac63e">perm</a>(uintptr_t values) <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span> </div>
+<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>    <span class="keywordtype">bool</span> <a class="code hl_function" href="structNumericMatrix.html#ac09bc043d30fe5447a00990a0ea315e2">permuted</a>() <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span> </div>
+<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>    std::shared_ptr&lt;const tatami::NumericMatrix&gt; ptr;</div>
+<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span> </div>
+<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>    std::vector&lt;size_t&gt; permutation;</div>
+<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span> </div>
+<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>    <span class="keywordtype">bool</span> is_permuted;</div>
+<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>};</div>
+<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span> </div>
+<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span><span class="preprocessor">#endif</span></div>
 <div class="ttc" id="aJSVector_8h_html"><div class="ttname"><a href="JSVector_8h.html">JSVector.h</a></div></div>
 <div class="ttc" id="aparallel_8h_html"><div class="ttname"><a href="parallel_8h.html">parallel.h</a></div></div>
 <div class="ttc" id="astructNumericMatrix_html"><div class="ttname"><a href="structNumericMatrix.html">NumericMatrix</a></div><div class="ttdoc">Javascript-visible interface for a matrix of doubles.</div><div class="ttdef"><b>Definition:</b> NumericMatrix.h:17</div></div>
-<div class="ttc" id="astructNumericMatrix_html_a3501cce20e99fa6d4a1ea61c8878c141"><div class="ttname"><a href="structNumericMatrix.html#a3501cce20e99fa6d4a1ea61c8878c141">NumericMatrix::column</a></div><div class="ttdeci">void column(int c, uintptr_t values) const</div><div class="ttdef"><b>Definition:</b> NumericMatrix.cpp:33</div></div>
-<div class="ttc" id="astructNumericMatrix_html_a7dff448fade2ac23b35252674f8ac63e"><div class="ttname"><a href="structNumericMatrix.html#a7dff448fade2ac23b35252674f8ac63e">NumericMatrix::perm</a></div><div class="ttdeci">void perm(uintptr_t values) const</div><div class="ttdef"><b>Definition:</b> NumericMatrix.cpp:39</div></div>
-<div class="ttc" id="astructNumericMatrix_html_a8b56c2bd09fea326c0c28a8a0add6a6e"><div class="ttname"><a href="structNumericMatrix.html#a8b56c2bd09fea326c0c28a8a0add6a6e">NumericMatrix::row</a></div><div class="ttdeci">void row(int r, uintptr_t values) const</div><div class="ttdef"><b>Definition:</b> NumericMatrix.cpp:27</div></div>
-<div class="ttc" id="astructNumericMatrix_html_aca9949603c5969178a3d43eb1a352f63"><div class="ttname"><a href="structNumericMatrix.html#aca9949603c5969178a3d43eb1a352f63">NumericMatrix::nrow</a></div><div class="ttdeci">int nrow() const</div><div class="ttdef"><b>Definition:</b> NumericMatrix.cpp:19</div></div>
-<div class="ttc" id="astructNumericMatrix_html_ad21bf001b87002dcb346d9fcdd4e8a60"><div class="ttname"><a href="structNumericMatrix.html#ad21bf001b87002dcb346d9fcdd4e8a60">NumericMatrix::ncol</a></div><div class="ttdeci">int ncol() const</div><div class="ttdef"><b>Definition:</b> NumericMatrix.cpp:23</div></div>
+<div class="ttc" id="astructNumericMatrix_html_a3501cce20e99fa6d4a1ea61c8878c141"><div class="ttname"><a href="structNumericMatrix.html#a3501cce20e99fa6d4a1ea61c8878c141">NumericMatrix::column</a></div><div class="ttdeci">void column(int c, uintptr_t values) const</div><div class="ttdef"><b>Definition:</b> NumericMatrix.cpp:41</div></div>
+<div class="ttc" id="astructNumericMatrix_html_a7dff448fade2ac23b35252674f8ac63e"><div class="ttname"><a href="structNumericMatrix.html#a7dff448fade2ac23b35252674f8ac63e">NumericMatrix::perm</a></div><div class="ttdeci">void perm(uintptr_t values) const</div><div class="ttdef"><b>Definition:</b> NumericMatrix.cpp:47</div></div>
+<div class="ttc" id="astructNumericMatrix_html_a8b56c2bd09fea326c0c28a8a0add6a6e"><div class="ttname"><a href="structNumericMatrix.html#a8b56c2bd09fea326c0c28a8a0add6a6e">NumericMatrix::row</a></div><div class="ttdeci">void row(int r, uintptr_t values) const</div><div class="ttdef"><b>Definition:</b> NumericMatrix.cpp:35</div></div>
+<div class="ttc" id="astructNumericMatrix_html_ac09bc043d30fe5447a00990a0ea315e2"><div class="ttname"><a href="structNumericMatrix.html#ac09bc043d30fe5447a00990a0ea315e2">NumericMatrix::permuted</a></div><div class="ttdeci">bool permuted() const</div><div class="ttdef"><b>Definition:</b> NumericMatrix.cpp:53</div></div>
+<div class="ttc" id="astructNumericMatrix_html_aca9949603c5969178a3d43eb1a352f63"><div class="ttname"><a href="structNumericMatrix.html#aca9949603c5969178a3d43eb1a352f63">NumericMatrix::nrow</a></div><div class="ttdeci">int nrow() const</div><div class="ttdef"><b>Definition:</b> NumericMatrix.cpp:27</div></div>
+<div class="ttc" id="astructNumericMatrix_html_ad21bf001b87002dcb346d9fcdd4e8a60"><div class="ttname"><a href="structNumericMatrix.html#ad21bf001b87002dcb346d9fcdd4e8a60">NumericMatrix::ncol</a></div><div class="ttdeci">int ncol() const</div><div class="ttdef"><b>Definition:</b> NumericMatrix.cpp:31</div></div>
 <div class="ttc" id="astructNumericMatrix_html_ad2a44d614c57a6bf2a3e400167ebb3e8"><div class="ttname"><a href="structNumericMatrix.html#ad2a44d614c57a6bf2a3e400167ebb3e8">NumericMatrix::NumericMatrix</a></div><div class="ttdeci">NumericMatrix(const tatami::NumericMatrix *p)</div><div class="ttdef"><b>Definition:</b> NumericMatrix.cpp:5</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->

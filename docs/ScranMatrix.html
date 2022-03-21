@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Class: SparseMatrix</title>
+    <title>JSDoc: Class: ScranMatrix</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Class: SparseMatrix</h1>
+    <h1 class="page-title">Class: ScranMatrix</h1>
 
     
 
@@ -28,7 +28,7 @@
 
 <header>
     
-        <h2><span class="attribs"><span class="type-signature"></span></span>SparseMatrix<span class="signature">(raw)</span><span class="type-signature"></span></h2>
+        <h2><span class="attribs"><span class="type-signature"></span></span>ScranMatrix<span class="signature">(raw)</span><span class="type-signature"></span></h2>
         
             <div class="class-description"><p>Wrapper around a sparse matrix allocated on the Wasm heap.</p></div>
         
@@ -45,7 +45,7 @@
     
 
     
-    <h4 class="name" id="SparseMatrix"><span class="type-signature"></span>new SparseMatrix<span class="signature">(raw)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="ScranMatrix"><span class="type-signature"></span>new ScranMatrix<span class="signature">(raw)</span><span class="type-signature"></span></h4>
     
 
     
@@ -103,7 +103,7 @@
 
             <td class="description last"><p>Raw matrix object created on the Wasm heap.</p>
 <p>This should not be called directly by developers,
-who should instead use functions that initialize a sparse matrix, e.g., <code>initializeSparseMatrixFromCompressedVectors()</code>.</p></td>
+who should instead use functions that initialize an appropriate matrix, e.g., <code>initializeSparseMatrixFromCompressedVectors()</code>.</p></td>
         </tr>
 
     
@@ -144,7 +144,7 @@ who should instead use functions that initialize a sparse matrix, e.g., <code>in
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="SparseMatrix.js.html">SparseMatrix.js</a>, <a href="SparseMatrix.js.html#line6">line 6</a>
+        <a href="ScranMatrix.js.html">ScranMatrix.js</a>, <a href="ScranMatrix.js.html#line6">line 6</a>
     </li></ul></dd>
     
 
@@ -185,7 +185,7 @@ who should instead use functions that initialize a sparse matrix, e.g., <code>in
         <h3 class="subsection-title">Classes</h3>
 
         <dl>
-            <dt><a href="SparseMatrix.html">SparseMatrix</a></dt>
+            <dt><a href="ScranMatrix.html">ScranMatrix</a></dt>
             <dd></dd>
         </dl>
     
@@ -410,7 +410,7 @@ If supplied, this should have length equal to <code>numberOfRows()</code>.</p></
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="SparseMatrix.js.html">SparseMatrix.js</a>, <a href="SparseMatrix.js.html#line71">line 71</a>
+        <a href="ScranMatrix.js.html">ScranMatrix.js</a>, <a href="ScranMatrix.js.html#line71">line 71</a>
     </li></ul></dd>
     
 
@@ -510,7 +510,7 @@ This invalidates this object and all of its references.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="SparseMatrix.js.html">SparseMatrix.js</a>, <a href="SparseMatrix.js.html#line92">line 92</a>
+        <a href="ScranMatrix.js.html">ScranMatrix.js</a>, <a href="ScranMatrix.js.html#line92">line 92</a>
     </li></ul></dd>
     
 
@@ -535,6 +535,100 @@ This invalidates this object and all of its references.</p>
 
 
 
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="isPermuted"><span class="type-signature"></span>isPermuted<span class="signature">()</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="ScranMatrix.js.html">ScranMatrix.js</a>, <a href="ScranMatrix.js.html#line103">line 103</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>Boolean indicating whether the matrix contains a permuted row order.</p>
+</div>
+
+
+
+    
 
 
 
@@ -594,7 +688,7 @@ This invalidates this object and all of its references.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="SparseMatrix.js.html">SparseMatrix.js</a>, <a href="SparseMatrix.js.html#line28">line 28</a>
+        <a href="ScranMatrix.js.html">ScranMatrix.js</a>, <a href="ScranMatrix.js.html#line28">line 28</a>
     </li></ul></dd>
     
 
@@ -688,7 +782,7 @@ This invalidates this object and all of its references.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="SparseMatrix.js.html">SparseMatrix.js</a>, <a href="SparseMatrix.js.html#line21">line 21</a>
+        <a href="ScranMatrix.js.html">ScranMatrix.js</a>, <a href="ScranMatrix.js.html#line21">line 21</a>
     </li></ul></dd>
     
 
@@ -718,6 +812,232 @@ This invalidates this object and all of its references.</p>
         
 <div class="param-desc">
     <p>Number of rows in the matrix.</p>
+</div>
+
+
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="permutation"><span class="type-signature"></span>permutation<span class="signature">(options<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Obtain the row permutation applied to the matrix, assuming <code>hasPermutation</code> returns <code>true</code>.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>options</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>Optional parameters.</p>
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>buffer</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Int32WasmArray</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>Buffer to extract into.
+If supplied, this should have length equal to <code>numberOfRows()</code>.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="ScranMatrix.js.html">ScranMatrix.js</a>, <a href="ScranMatrix.js.html#line124">line 124</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>If <code>buffer</code> is not supplied, a <code>Int32Array</code> is returned containing the permutation vector.
+Otherwise, <code>buffer</code> is filled with the permutation vector and nothing is returned.</p>
+<p>If <code>restore = true</code>, the permutation vector represents the permutation should be applied to the current rows to obtain the original row order.
+That is, for a permutation array <code>x</code>, <code>x[i]</code> is the current row index for the original row <code>i</code>.</p>
+<p>If <code>restore = false</code>, the permutation vector represents the permutation that <em>was</em> applied to the original rows to obtain the permuted (i.e., current) row order.
+That is, for a permutation array <code>x</code>, <code>x[i]</code> is the original row index for the current row <code>i</code>.</p>
 </div>
 
 
@@ -937,7 +1257,7 @@ If supplied, this should have length equal to <code>numberOfColumns()</code>.</p
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="SparseMatrix.js.html">SparseMatrix.js</a>, <a href="SparseMatrix.js.html#line43">line 43</a>
+        <a href="ScranMatrix.js.html">ScranMatrix.js</a>, <a href="ScranMatrix.js.html#line43">line 43</a>
     </li></ul></dd>
     
 
@@ -994,13 +1314,13 @@ Otherwise, <code>buffer</code> is filled with row <code>i</code> and nothing is 
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="BuiltLabelledReference.html">BuiltLabelledReference</a></li><li><a href="H5Base.html">H5Base</a></li><li><a href="H5DataSet.html">H5DataSet</a></li><li><a href="H5File.html">H5File</a></li><li><a href="H5Group.html">H5Group</a></li><li><a href="IntegratedLabelledReferences.html">IntegratedLabelledReferences</a></li><li><a href="KmeansClusters.html">KmeansClusters</a></li><li><a href="LabelledReference.html">LabelledReference</a></li><li><a href="LayeredSparseMatrix.html">LayeredSparseMatrix</a></li><li><a href="ModelGeneVarResults.html">ModelGeneVarResults</a></li><li><a href="NeighborSearchIndex.html">NeighborSearchIndex</a></li><li><a href="NeighborSearchResults.html">NeighborSearchResults</a></li><li><a href="PCAResults.html">PCAResults</a></li><li><a href="PerCellQCFilters.html">PerCellQCFilters</a></li><li><a href="PerCellQCMetrics.html">PerCellQCMetrics</a></li><li><a href="ScoreMarkersResults.html">ScoreMarkersResults</a></li><li><a href="SNNGraph.html">SNNGraph</a></li><li><a href="SNNGraphMultilevelClusters.html">SNNGraphMultilevelClusters</a></li><li><a href="SparseMatrix.html">SparseMatrix</a></li><li><a href="TSNEStatus.html">TSNEStatus</a></li><li><a href="UMAPStatus.html">UMAPStatus</a></li></ul><h3>Global</h3><ul><li><a href="global.html#buildLabelledReference">buildLabelledReference</a></li><li><a href="global.html#buildNeighborSearchIndex">buildNeighborSearchIndex</a></li><li><a href="global.html#buildSNNGraph">buildSNNGraph</a></li><li><a href="global.html#chooseHVGs">chooseHVGs</a></li><li><a href="global.html#clusterKmeans">clusterKmeans</a></li><li><a href="global.html#clusterSNNGraph">clusterSNNGraph</a></li><li><a href="global.html#computePerCellQCFilters">computePerCellQCFilters</a></li><li><a href="global.html#computePerCellQCMetrics">computePerCellQCMetrics</a></li><li><a href="global.html#createBigUint64WasmArray">createBigUint64WasmArray</a></li><li><a href="global.html#createFloat64WasmArray">createFloat64WasmArray</a></li><li><a href="global.html#createInt32WasmArray">createInt32WasmArray</a></li><li><a href="global.html#createNewHDF5File">createNewHDF5File</a></li><li><a href="global.html#createUint8WasmArray">createUint8WasmArray</a></li><li><a href="global.html#extractHDF5ObjectNames">extractHDF5ObjectNames</a></li><li><a href="global.html#fileExists">fileExists</a></li><li><a href="global.html#filterCells">filterCells</a></li><li><a href="global.html#findNearestNeighbors">findNearestNeighbors</a></li><li><a href="global.html#guessFeatures">guessFeatures</a></li><li><a href="global.html#heapSize">heapSize</a></li><li><a href="global.html#initialize">initialize</a></li><li><a href="global.html#initializeSparseMatrixFromCompressedVectors">initializeSparseMatrixFromCompressedVectors</a></li><li><a href="global.html#initializeSparseMatrixFromDenseArray">initializeSparseMatrixFromDenseArray</a></li><li><a href="global.html#initializeSparseMatrixFromHDF5">initializeSparseMatrixFromHDF5</a></li><li><a href="global.html#initializeSparseMatrixFromMatrixMarketBuffer">initializeSparseMatrixFromMatrixMarketBuffer</a></li><li><a href="global.html#initializeTSNE">initializeTSNE</a></li><li><a href="global.html#initializeUMAP">initializeUMAP</a></li><li><a href="global.html#integrateCellLabels">integrateCellLabels</a></li><li><a href="global.html#integrateLabelledReferences">integrateLabelledReferences</a></li><li><a href="global.html#labelCells">labelCells</a></li><li><a href="global.html#loadHDF5Dataset">loadHDF5Dataset</a></li><li><a href="global.html#loadLabelledReferenceFromBuffers">loadLabelledReferenceFromBuffers</a></li><li><a href="global.html#logNormCounts">logNormCounts</a></li><li><a href="global.html#modelGeneVar">modelGeneVar</a></li><li><a href="global.html#permuteFeatures">permuteFeatures</a></li><li><a href="global.html#permuteVector">permuteVector</a></li><li><a href="global.html#perplexityToNeighbors">perplexityToNeighbors</a></li><li><a href="global.html#readFile">readFile</a></li><li><a href="global.html#removeFile">removeFile</a></li><li><a href="global.html#runPCA">runPCA</a></li><li><a href="global.html#runTSNE">runTSNE</a></li><li><a href="global.html#runUMAP">runUMAP</a></li><li><a href="global.html#scoreMarkers">scoreMarkers</a></li><li><a href="global.html#terminate">terminate</a></li><li><a href="global.html#unpermuteVector">unpermuteVector</a></li><li><a href="global.html#updatePermutation">updatePermutation</a></li><li><a href="global.html#wasmArraySpace">wasmArraySpace</a></li><li><a href="global.html#writeFile">writeFile</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="BuiltLabelledReference.html">BuiltLabelledReference</a></li><li><a href="H5Base.html">H5Base</a></li><li><a href="H5DataSet.html">H5DataSet</a></li><li><a href="H5File.html">H5File</a></li><li><a href="H5Group.html">H5Group</a></li><li><a href="IntegratedLabelledReferences.html">IntegratedLabelledReferences</a></li><li><a href="KmeansClusters.html">KmeansClusters</a></li><li><a href="LabelledReference.html">LabelledReference</a></li><li><a href="ModelGeneVarResults.html">ModelGeneVarResults</a></li><li><a href="NeighborSearchIndex.html">NeighborSearchIndex</a></li><li><a href="NeighborSearchResults.html">NeighborSearchResults</a></li><li><a href="PCAResults.html">PCAResults</a></li><li><a href="PerCellQCFilters.html">PerCellQCFilters</a></li><li><a href="PerCellQCMetrics.html">PerCellQCMetrics</a></li><li><a href="ScoreMarkersResults.html">ScoreMarkersResults</a></li><li><a href="ScranMatrix.html">ScranMatrix</a></li><li><a href="SNNGraph.html">SNNGraph</a></li><li><a href="SNNGraphMultilevelClusters.html">SNNGraphMultilevelClusters</a></li><li><a href="TSNEStatus.html">TSNEStatus</a></li><li><a href="UMAPStatus.html">UMAPStatus</a></li></ul><h3>Global</h3><ul><li><a href="global.html#buildLabelledReference">buildLabelledReference</a></li><li><a href="global.html#buildNeighborSearchIndex">buildNeighborSearchIndex</a></li><li><a href="global.html#buildSNNGraph">buildSNNGraph</a></li><li><a href="global.html#chooseHVGs">chooseHVGs</a></li><li><a href="global.html#clusterKmeans">clusterKmeans</a></li><li><a href="global.html#clusterSNNGraph">clusterSNNGraph</a></li><li><a href="global.html#computePerCellQCFilters">computePerCellQCFilters</a></li><li><a href="global.html#computePerCellQCMetrics">computePerCellQCMetrics</a></li><li><a href="global.html#createBigUint64WasmArray">createBigUint64WasmArray</a></li><li><a href="global.html#createFloat64WasmArray">createFloat64WasmArray</a></li><li><a href="global.html#createInt32WasmArray">createInt32WasmArray</a></li><li><a href="global.html#createNewHDF5File">createNewHDF5File</a></li><li><a href="global.html#createUint8WasmArray">createUint8WasmArray</a></li><li><a href="global.html#extractHDF5ObjectNames">extractHDF5ObjectNames</a></li><li><a href="global.html#fileExists">fileExists</a></li><li><a href="global.html#filterCells">filterCells</a></li><li><a href="global.html#findNearestNeighbors">findNearestNeighbors</a></li><li><a href="global.html#guessFeatures">guessFeatures</a></li><li><a href="global.html#heapSize">heapSize</a></li><li><a href="global.html#initialize">initialize</a></li><li><a href="global.html#initializeSparseMatrixFromCompressedVectors">initializeSparseMatrixFromCompressedVectors</a></li><li><a href="global.html#initializeSparseMatrixFromDenseArray">initializeSparseMatrixFromDenseArray</a></li><li><a href="global.html#initializeSparseMatrixFromHDF5">initializeSparseMatrixFromHDF5</a></li><li><a href="global.html#initializeSparseMatrixFromMatrixMarketBuffer">initializeSparseMatrixFromMatrixMarketBuffer</a></li><li><a href="global.html#initializeTSNE">initializeTSNE</a></li><li><a href="global.html#initializeUMAP">initializeUMAP</a></li><li><a href="global.html#integrateCellLabels">integrateCellLabels</a></li><li><a href="global.html#integrateLabelledReferences">integrateLabelledReferences</a></li><li><a href="global.html#labelCells">labelCells</a></li><li><a href="global.html#loadHDF5Dataset">loadHDF5Dataset</a></li><li><a href="global.html#loadLabelledReferenceFromBuffers">loadLabelledReferenceFromBuffers</a></li><li><a href="global.html#logNormCounts">logNormCounts</a></li><li><a href="global.html#modelGeneVar">modelGeneVar</a></li><li><a href="global.html#permuteFeatures">permuteFeatures</a></li><li><a href="global.html#permuteVector">permuteVector</a></li><li><a href="global.html#perplexityToNeighbors">perplexityToNeighbors</a></li><li><a href="global.html#readFile">readFile</a></li><li><a href="global.html#removeFile">removeFile</a></li><li><a href="global.html#runPCA">runPCA</a></li><li><a href="global.html#runTSNE">runTSNE</a></li><li><a href="global.html#runUMAP">runUMAP</a></li><li><a href="global.html#scoreMarkers">scoreMarkers</a></li><li><a href="global.html#terminate">terminate</a></li><li><a href="global.html#unpermuteVector">unpermuteVector</a></li><li><a href="global.html#updatePermutation">updatePermutation</a></li><li><a href="global.html#wasmArraySpace">wasmArraySpace</a></li><li><a href="global.html#writeFile">writeFile</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.10</a> on Mon Mar 21 2022 02:12:57 GMT+0000 (Coordinated Universal Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.10</a> on Mon Mar 21 2022 04:52:44 GMT+0000 (Coordinated Universal Time)
 </footer>
 
 <script> prettyPrint(); </script>
