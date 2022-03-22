@@ -42,7 +42,7 @@ export function call(func) {
     try {
         output = func(cache.module);    
     } catch (e) {
-        if (e instanceof Number) {
+        if (typeof e == "number") {
             throw cache.module.get_error_message(e);
         } else {
             throw e;
