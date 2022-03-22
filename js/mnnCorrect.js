@@ -1,8 +1,9 @@
 import * as utils from "./utils.js";
-import * as pca from "./pca.js";
+import * as pca from "./runPCA.js";
+import * as wasm from "./wasm.js";
 
 /**
- * Perform mutual nearest neighbor correction on a low-dimensional representation.
+ * Perform mutual nearest neighbor (MNN) correction on a low-dimensional representation.
  * This is primarily used to remove batch effects.
  *
  * @param {(PCAResults|TypedArray|Array|Float64WasmArray)} x - A matrix of low-dimensional results where rows are dimensions and columns are cells.
@@ -19,8 +20,18 @@ import * as pca from "./pca.js";
  * This should be specified if an array-like object is provided, otherwise it is ignored.
  * @param {?number} [options.numberOfCells] - Number of cells in `x`.
  * This should be specified if an array-like object is provided, otherwise it is ignored.
- * @param {number} [options.k] - Number of neighbors to use in the mutual nearest
+ * @param {number} [options.k] - Number of neighbors to use in the MNN search. 
+ * @param {number} [options.numberOfMADs] - Number of MADs to use to define the threshold on the distances to the neighbors,
+ * see comments [here](https://ltla.github.io/CppMnnCorrect).
+ * @param {number} [options.robustIterations] - Number of robustness iterations to use for computing the center of mass,
+ * see comments [here](https://ltla.github.io/CppMnnCorrect).
+ * @param {number} [options.robustTrim] - Proportion of furthest observations to remove during robustness iterations, 
+ * see comments [here](https://ltla.github.io/CppMnnCorrect).
+ * @param {boolean} [options.approximate] - Whether to perform an approximate nearest neighbor search.
  *
+ * @return A Float64WasmArray containing the batch-corrected low-dimensional coordinates for all cells.
+ * Values are organized using the column-major layout.
+ * This is equal to `buffer` if provided.
  */
 export function mnnCorrect(x, block, { 
     buffer = null, 
@@ -54,8 +65,8 @@ export function mnnCorrect(x, block, {
         }
 
         block_data = utils.wasmifyArray(block, "Int32WasmArray");
-        if (block_data.length != metrics.sums().length) {
-            throw "'block' must be of length equal to the number of cells in 'metrics'";
+        if (block_data.length != numberOfCells) {
+            throw "'block' must be of length equal to the number of cells in 'x'";
         }
 
         wasm.call(module => module.mnn_correct(
@@ -75,5 +86,5 @@ export function mnnCorrect(x, block, {
         utils.free(x_data);
     }
 
-    return buffer;
+    return buffer; 
 }
