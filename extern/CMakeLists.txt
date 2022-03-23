@@ -58,7 +58,7 @@ FetchContent_MakeAvailable(scran)
 FetchContent_Declare(
   mnncorrect 
   GIT_REPOSITORY https://github.com/LTLA/CppMnnCorrect
-  GIT_TAG 6c369354b09d585e247b117d7f9f9d3fcb4a6979
+  GIT_TAG 922e05d46e0f4b5c624e5b705fb1119e2d4bb1e4
 )
 FetchContent_MakeAvailable(mnncorrect)
 

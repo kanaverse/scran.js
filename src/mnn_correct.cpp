@@ -1,4 +1,5 @@
 #include <emscripten/bind.h>
+#include "parallel.h"
 #include "mnncorrect/MnnCorrect.hpp"
 #include <vector>
 #include <cstdint>
