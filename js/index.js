@@ -24,5 +24,7 @@ export * from "./runUMAP.js";
 
 export * from "./clusterKmeans.js";
 
+export * from "./mnnCorrect.js";
+
 export * from "./scoreMarkers.js";
 export * from "./labelCells.js";

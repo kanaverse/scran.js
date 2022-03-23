@@ -39,6 +39,7 @@ void run_parallel(int total, Function fun) {
 
 #define TATAMI_CUSTOM_PARALLEL run_parallel
 #define SCRAN_CUSTOM_PARALLEL run_parallel
+#define MNNCORRECT_CUSTOM_PARALLEL run_parallel
 
 #endif
 #endif

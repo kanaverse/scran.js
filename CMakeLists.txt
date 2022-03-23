@@ -23,6 +23,7 @@ add_executable(
     src/run_pca.cpp
     src/run_tsne.cpp
     src/run_umap.cpp
+    src/mnn_correct.cpp
     src/cluster_snn_graph.cpp
     src/cluster_kmeans.cpp
     src/score_markers.cpp
@@ -40,6 +41,7 @@ target_compile_options(
 target_link_libraries(
     scran_wasm
     scran
+    mnncorrect
     qdtsne
     umappp
     h5wasm_cpp
