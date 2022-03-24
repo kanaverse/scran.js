@@ -44,7 +44,7 @@ target_link_libraries(
     mnncorrect
     qdtsne
     umappp
-    h5wasm_cpp
+    hdf5-wasm-cpp
     singlepp
 )
 
