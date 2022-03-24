@@ -36,11 +36,10 @@ include(FetchContent)
 FetchContent_Declare(
   tatami 
   GIT_REPOSITORY https://github.com/LTLA/tatami
-  GIT_TAG 2dc49a3cc71907eb276de6fecb70fe6f6e01a59a
+  GIT_TAG 66ae95df7262cf65aab869c500ea7954018abd11
 )
 FetchContent_MakeAvailable(tatami)
 
-# TODO: update the dependency in libscran, knncolle.
 FetchContent_Declare(
   kmeans 
   GIT_REPOSITORY https://github.com/LTLA/CppKmeans
@@ -51,7 +50,7 @@ FetchContent_MakeAvailable(kmeans)
 FetchContent_Declare(
   scran 
   GIT_REPOSITORY https://github.com/LTLA/libscran
-  GIT_TAG 4f3aaaef278918ff1d83c585d80b92b53bbb28d1
+  GIT_TAG bc5876b4f22eb0379b254137667c48ea5a2b5e65
 )
 FetchContent_MakeAvailable(scran)
 
@@ -78,14 +77,14 @@ FetchContent_MakeAvailable(umappp)
 
 FetchContent_Declare(
   h5wasm
-  GIT_REPOSITORY https://github.com/LTLA/h5wasm-cmake-demo
-  GIT_TAG master
+  URL https://github.com/usnistgov/libhdf5-wasm/releases/download/v0.1.1/libhdf5-1_12_1-wasm.tar.gz
+  URL_HASH SHA256=e9bb11d89c4f26fa79b9cf1dab6159640c7b184ebf00dc97b098cd4f6de49bfe
 )
 FetchContent_MakeAvailable(h5wasm)
 
 FetchContent_Declare(
   singlepp
   GIT_REPOSITORY https://github.com/LTLA/singlepp
-  GIT_TAG e2cd7dc7fc2006c555a45e5d71edc5da711ff87b
+  GIT_TAG 841e85fd5df2020407c689c75199f6de31873ad2
 )
 FetchContent_MakeAvailable(singlepp)
