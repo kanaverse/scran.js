@@ -28,7 +28,6 @@ export class ModelGeneVarResults {
      * (or the average across all blocks, if `block < 0`).
      */
     means({ block = -1, copy = true } = {}) {
-        return this.results.means(block);
         return utils.possibleCopy(this.results.means(block), copy);
     }
 
