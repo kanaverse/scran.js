@@ -35,7 +35,7 @@ export async function initialize({ numberOfThreads = 4, localFile = false } = {}
 
 export function call(func) {
     if (! ("module" in cache)) {
-        throw "Wasm module needs to be initialized via 'initialize()'";
+        throw new Error("Wasm module needs to be initialized via 'initialize()'");
     }
 
     var output;
@@ -43,7 +43,7 @@ export function call(func) {
         output = func(cache.module);    
     } catch (e) {
         if (typeof e == "number") {
-            throw cache.module.get_error_message(e);
+            throw new Error(cache.module.get_error_message(e));
         } else {
             throw e;
         }
@@ -53,7 +53,7 @@ export function call(func) {
 
 export function buffer() {
     if (! ("module" in cache)) {
-        throw "Wasm module needs to be initialized via 'initialize()'";
+        throw new Error("Wasm module needs to be initialized via 'initialize()'");
     }
     return cache.module.wasmMemory.buffer;
 }

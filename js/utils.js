@@ -48,7 +48,7 @@ export function createFloat64WasmArray(length) {
 export function wasmifyArray(x, expected) {
     if (x instanceof wa.WasmArray) {
         if (expected !== null && expected != x.constructor.className) {
-            throw "expected '" + expected + "', got '" + x.constructor.className + "'";
+            throw new Error("expected '" + expected + "', got '" + x.constructor.className + "'");
         }
 
         if (x.space === wasmArraySpace()) {
@@ -101,7 +101,7 @@ export function extractXY(ncells, coordinates) {
 export function possibleCopy(x, copy) {
     if (copy === "view") {
         if (x.buffer !== buffer()) {
-            throw "cannot use copy = \"view\" for non-Wasm TypedArrays";
+            throw new Error("cannot use copy = \"view\" for non-Wasm TypedArrays");
         }
 
         let view_class = x.constructor.name.replace("Array", "WasmArray");

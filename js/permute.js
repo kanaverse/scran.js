@@ -84,13 +84,13 @@ export function updatePermutation(x, old) {
     if (x instanceof ScranMatrix) {
         if (x.isPermuted()) {
             if (old.length != x.numberOfRows()) {
-                throw "number of rows in 'x' should be the same as length of 'old'";
+                throw new Error("number of rows in 'x' should be the same as length of 'old'");
             }
             spawnPerm = () => x.permutation({ copy: false });
         }
     } else {
         if (old.length != x.length) {
-            throw "length of 'x' should be the same as length of 'old'";
+            throw new Error("length of 'x' should be the same as length of 'old'");
         }
         spawnPerm = () => x;
     }

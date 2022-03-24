@@ -164,7 +164,7 @@ export function scoreMarkers(x, groups, { block = null } = {}) {
     try {
         group_data = utils.wasmifyArray(groups, "Int32WasmArray");
         if (group_data.length != x.numberOfColumns()) {
-            throw "length of 'groups' should be equal to number of columns in 'x'";
+            throw new Error("length of 'groups' should be equal to number of columns in 'x'");
         }
 
         var bptr = 0;
@@ -172,7 +172,7 @@ export function scoreMarkers(x, groups, { block = null } = {}) {
         if (block !== null) {
             block_data = utils.wasmifyArray(block, "Int32WasmArray");
             if (block_data.length != x.numberOfColumns()) {
-                throw "'block' must be of length equal to the number of columns in 'x'";
+                throw new Error("'block' must be of length equal to the number of columns in 'x'");
             }
             use_blocks = true;
             bptr = block_data.offset;

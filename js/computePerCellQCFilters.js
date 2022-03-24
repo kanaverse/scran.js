@@ -139,7 +139,7 @@ export function computePerCellQCFilters(metrics, { numberOfMADs = 3, block = nul
         if (block !== null) {
             block_data = utils.wasmifyArray(block, "Int32WasmArray");
             if (block_data.length != metrics.sums().length) {
-                throw "'block' must be of length equal to the number of cells in 'metrics'";
+                throw new Error("'block' must be of length equal to the number of cells in 'metrics'");
             }
             use_blocks = true;
             bptr = block_data.offset;
