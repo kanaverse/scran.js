@@ -29,7 +29,7 @@ export function logNormCounts(x, { sizeFactors = null, block = null } = {}) {
         if (sizeFactors !== null) {
             sf_data = utils.wasmifyArray(sizeFactors, "Float64WasmArray");
             if (sf_data.length != x.numberOfColumns()) {
-                throw "length of 'sizeFactors' must be equal to number of columns in 'x'";
+                throw new Error("length of 'sizeFactors' must be equal to number of columns in 'x'");
             }
             sfptr = sf_data.offset;
             use_sf = true;
@@ -41,7 +41,7 @@ export function logNormCounts(x, { sizeFactors = null, block = null } = {}) {
         if (block !== null) {
             block_data = utils.wasmifyArray(block, "Int32WasmArray");
             if (block_data.length != x.numberOfColumns()) {
-                throw "'block' must be of length equal to the number of columns in 'x'";
+                throw new Error("'block' must be of length equal to the number of columns in 'x'");
             }
             use_blocks = true;
             bptr = block_data.offset;

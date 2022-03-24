@@ -68,12 +68,12 @@ export function buildNeighborSearchIndex(x, { numberOfDims = null, numberOfCells
 
         } else {
             if (numberOfDims === null || numberOfCells === null) {
-                throw "'numberOfDims' and 'numberOfCells' must be specified when 'x' is an Array";
+                throw new Error("'numberOfDims' and 'numberOfCells' must be specified when 'x' is an Array");
             }
 
             buffer = utils.wasmifyArray(x, "Float64WasmArray");
             if (buffer.length != numberOfDims * numberOfCells) {
-                throw "length of 'x' must be the product of 'numberOfDims' and 'numberOfCells'";
+                throw new Error("length of 'x' must be the product of 'numberOfDims' and 'numberOfCells'");
             }
 
             pptr = buffer.offset;
@@ -140,7 +140,7 @@ export class NeighborSearchResults {
     serialize({ runs = null, indices = null, distances = null } = {}) {
         var copy = (runs === null) + (indices === null) + (distances === null);
         if (copy != 3 && copy != 0) {
-            throw "either all or none of 'runs', 'indices' and 'distances' can be 'null'";
+            throw new Error("either all or none of 'runs', 'indices' and 'distances' can be 'null'");
         }
 
         if (copy === 3) {

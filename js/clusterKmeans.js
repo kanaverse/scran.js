@@ -134,7 +134,7 @@ export function clusterKmeans(x, clusters, { numberOfDims = null, numberOfCells 
     const init_choices = ["random", "kmeans++", "pca-part"]
     let init_chosen = init_choices.indexOf(initMethod);
     if (init_chosen == -1) {
-        throw "'initMethod' should be one of 'random', 'kmeans++' or 'pca-part'";
+        throw new Error("'initMethod' should be one of 'random', 'kmeans++' or 'pca-part'");
     }
 
     try {
@@ -148,12 +148,12 @@ export function clusterKmeans(x, clusters, { numberOfDims = null, numberOfCells 
 
         } else {
             if (numberOfDims === null || numberOfCells === null) {
-                throw "'numberOfDims' and 'numberOfCells' must be specified when 'x' is an Array";
+                throw new Error("'numberOfDims' and 'numberOfCells' must be specified when 'x' is an Array");
             }
 
             buffer = utils.wasmifyArray(x, "Float64WasmArray");
             if (buffer.length != numberOfDims * numberOfCells) {
-                throw "length of 'x' must be the product of 'numberOfDims' and 'numberOfCells'";
+                throw new Error("length of 'x' must be the product of 'numberOfDims' and 'numberOfCells'");
             }
 
             pptr = buffer.offset;

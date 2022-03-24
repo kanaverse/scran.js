@@ -20,7 +20,7 @@ export function initializeSparseMatrixFromDenseArray(numberOfRows, numberOfColum
     try {
         val_data = utils.wasmifyArray(values, null);
         if (val_data.length !== numberOfRows * numberOfColumns) {
-            throw "length of 'values' is not consistent with supplied dimensions";
+            throw new Error("length of 'values' is not consistent with supplied dimensions");
         }
 
         raw = wasm.call(module => 
@@ -74,10 +74,10 @@ export function initializeSparseMatrixFromCompressedVectors(numberOfRows, number
         ind_data = utils.wasmifyArray(indices, null);
         indp_data = utils.wasmifyArray(pointers, null);
         if (val_data.length != ind_data.length) {
-            throw "'values' and 'indices' should have the same length";
+            throw new Error("'values' and 'indices' should have the same length");
         }
         if (indp_data.length != (byColumn ? numberOfColumns : numberOfRows) + 1) {
-            throw "'pointers' does not have an appropriate length";
+            throw new Error("'pointers' does not have an appropriate length");
         }
 
         raw = wasm.call(module => 

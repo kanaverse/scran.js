@@ -53,12 +53,12 @@ function check_shape(x, shape) {
     if (shape.length > 0) {
         let full_length = shape.reduce((a, b) => a * b);
         if (x.length != full_length) {
-            throw "length of 'x' must be equal to the product of 'shape'";
+            throw new Error("length of 'x' must be equal to the product of 'shape'");
         }
     } else {
         if (x instanceof Array || ArrayBuffer.isView(x)) {
             if (x.length != 1) {
-                throw "length of 'x' should be 1 for a scalar dataset";
+                throw new Error("length of 'x' should be 1 for a scalar dataset");
             }
         } else {
             x = [x];
@@ -170,10 +170,10 @@ export class H5Group extends H5Base {
             } else if (this.#children[name] == "DataSet") {
                 return new H5DataSet(this.file, new_name, options); 
             } else {
-                throw "don't know how to open '" + name + "'";
+                throw new Error("don't know how to open '" + name + "'");
             }
         } else {
-            throw "no '" + name + "' child in this HDF5 Group";
+            throw new Error("no '" + name + "' child in this HDF5 Group");
         }
     }
 
@@ -221,7 +221,7 @@ export class H5Group extends H5Base {
             if (chunks !== null) {
                 chunk_arr = utils.wasmifyArray(chunks, "Int32WasmArray");
                 if (chunk_arr.length != shape_arr.length) {
-                    throw "'chunks' and 'shape' should have the same dimensions";
+                    throw new Error("'chunks' and 'shape' should have the same dimensions");
                 }
                 chunk_offset = chunk_arr.offset;
             }
@@ -343,7 +343,7 @@ export class H5DataSet extends H5Base {
         try {
             type = x.type();
             if (type == "other") {
-                throw "cannot load dataset for an unsupported type";
+                throw new Error("cannot load dataset for an unsupported type");
             }
 
             if (type == "String") {

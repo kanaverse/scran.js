@@ -104,7 +104,7 @@ export function initializeTSNE(x, { perplexity = 30, checkMismatch = true } = {}
             if (checkMismatch) {
                 let k = perplexityToNeighbors(perplexity);
                 if (k * x.numberOfCells() != x.size()) {
-                    throw "number of neighbors in 'x' does not match '3 * perplexity'";
+                    throw new Error("number of neighbors in 'x' does not match '3 * perplexity'");
                 }
             }
             neighbors = x;

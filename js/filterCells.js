@@ -26,7 +26,7 @@ export function filterCells(x, filters) {
         } else {
             filter_data = utils.wasmifyArray(filters, "Uint8WasmArray");
             if (filter_data.length != x.numberOfColumns()) {
-                throw "length of 'filters' must be equal to number of columns in 'x'";
+                throw new Error("length of 'filters' must be equal to number of columns in 'x'");
             }
             ptr = filter_data.offset;
         }

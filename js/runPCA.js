@@ -110,7 +110,7 @@ export function runPCA(x, { features = null, numberOfPCs = 25, scale = false, bl
         if (features !== null) {
             feat_data = utils.wasmifyArray(features, "Uint8WasmArray");
             if (feat_data.length != x.numberOfRows()) {
-                throw "length of 'features' should be equal to number of rows in 'x'";
+                throw new Error("length of 'features' should be equal to number of rows in 'x'");
             }
             use_feat = true;
             fptr = feat_data.offset;
@@ -121,7 +121,7 @@ export function runPCA(x, { features = null, numberOfPCs = 25, scale = false, bl
         } else {
             block_data = utils.wasmifyArray(block, "Int32WasmArray");
             if (block_data.length != x.numberOfColumns()) {
-                throw "length of 'block' should be equal to the number of columns in 'x'";
+                throw new Error("length of 'block' should be equal to the number of columns in 'x'");
             }
             if (blockMethod == "block") {
                 raw = wasm.call(module => module.run_blocked_pca(x.matrix, numberOfPCs, use_feat, fptr, scale, block_data.offset));

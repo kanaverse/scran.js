@@ -63,14 +63,14 @@ export function cbindWithNames(x, names) {
     try {
         // Building a common set of rownames.
         if (names.length !== x.length) {
-            throw "length of 'names' should be equal to length of 'x'";
+            throw new Error("length of 'names' should be equal to length of 'x'");
         }
 
         let common = {};
         let universe = [];
         for (var i = 0; i < names.length; i++) {
             if (x[i].numberOfRows() !== names[i].length) {
-                throw "length of each 'names' must equal number of rows of its corresponding 'x'";
+                throw new Error("length of each 'names' must equal number of rows of its corresponding 'x'");
             }
             names[i].forEach(x => {
                 if (!(x in common)) {

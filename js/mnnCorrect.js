@@ -54,7 +54,7 @@ export function mnnCorrect(x, block, {
             x = x.principalComponents({ copy: "view" });
         } else {
             if (numberOfDims === null || numberOfCells === null || numberOfDims * numberOfCells !== x.length) {
-                throw "length of 'x' must be equal to the product of 'numberOfDims' and 'numberOfCells'";
+                throw new Error("length of 'x' must be equal to the product of 'numberOfDims' and 'numberOfCells'");
             }
             x_data = utils.wasmifyArray(x, "Float64WasmArray");
             x = x_data;
@@ -66,7 +66,7 @@ export function mnnCorrect(x, block, {
 
         block_data = utils.wasmifyArray(block, "Int32WasmArray");
         if (block_data.length != numberOfCells) {
-            throw "'block' must be of length equal to the number of cells in 'x'";
+            throw new Error("'block' must be of length equal to the number of cells in 'x'");
         }
 
         wasm.call(module => module.mnn_correct(
