@@ -52,9 +52,9 @@ export function cbind(inputs, { assumeSame = false } = {}) {
  *
  * @return An object containing:
  * - `matrix`, a {@linkplain ScranMatrix} containing the combined matrices.
- * - `indices`, an `Int32Array` of length equal to the number of rows in `matrix`.
+ * - `indices`, an `IntWasm32Array` of length equal to the number of rows in `matrix`.
  *    This contains the index of the row in the first entry of `inputs` corresponding to each row of `matrix`,
- *    i.e., the gene at the `i`-th row of `matrix` is equivalent to the gene at the `indices[i]`-th row of `inputs[0]`.
+ *    i.e., the gene at the `i`-th row of `matrix` is the same as the gene at the `indices[i]`-th row of `inputs[0]`.
  * - `names`, an array of names identifying the rows of `matrix`.
  *    This is constructed by indexing the first entry of `names` with `indices`.
  */
@@ -106,7 +106,7 @@ export function cbindWithNames(x, names) {
 
         // Even though isPermuted() is false, we can still get the gene indices via permutations().
         // This isn't entirely legit but whatever.
-        output.indices = output.matrix.permutation();
+        output.indices = output.matrix.permutation({ copy: "view" });
         let internames = [];
         for (const i of output.indices) {
             internames.push(universe[i]);
