@@ -27,6 +27,22 @@ struct PerCellQCMetrics_Results {
      */
 
     /**
+     * @param num_genes Number of genes.
+     * @param num_subsets Number of feature subsets.
+     *
+     * Create an empty result object, which can be filled with custom statistics.
+     * This is typically used for convenient input into `per_cell_qc_filters()`.
+     */
+    PerCellQCMetrics_Results(int num_genes, int num_subsets) {
+        store.sums.resize(num_genes);
+        store.detected.resize(num_genes);
+        store.subset_proportions.resize(num_subsets);
+        for (auto& p : store.subset_proportions) {
+            p.resize(num_genes);
+        }
+    }
+
+    /**
      * @return `Float64Array` view containing the total count for each cell.
      */
     emscripten::val sums() const {
