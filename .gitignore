@@ -3,10 +3,16 @@ docs/html/
 docs/latex/
 *.swp
 testing
-tests/hdf5-test-files
+hdf5-test-files
 node_modules/
 main/
 module/
 js/wasm/
 .parcel-cache
 dist/
+_testing/
+js/blacklists/
+jsdoc.config.json
+jsdocs/
+package-lock.json
+
