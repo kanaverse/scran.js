@@ -1,6 +1,6 @@
 {
     "name": "scran.js",
-    "version": "0.0.19",
+    "version": "0.0.20",
     "description": "Single cell RNA-seq analysis in Javascript",
     "license": "MIT",
     "main": "main/index.js",
@@ -41,7 +41,8 @@
     "contributors": [
         {
             "name": "Aaron Lun",
-            "email": "infinite.monkeys.with.keyboards@gmail.com"
+            "email": "infinite.monkeys.with.keyboards@gmail.com",
+            "url": "https://github.com/LTLA"
         }
     ],
     "bugs": "https://github.com/jkanche/scran.js/issues",
@@ -52,6 +53,6 @@
     ],
     "repository": "github:jkanche/scran.js",
     "dependencies": {
-        "wasmarrays.js": "0.0.2"
+        "wasmarrays.js": "0.0.3"
     }
 }
