@@ -107,16 +107,16 @@ Classes</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a032b252eaeefcc890d83aa42d7df4a53"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structBuildSNNGraph__Result.html">BuildSNNGraph_Result</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cluster__snn__graph_8cpp.html#a032b252eaeefcc890d83aa42d7df4a53">build_snn_graph</a> (const <a class="el" href="structNeighborResults.html">NeighborResults</a> &amp;neighbors, int scheme)</td></tr>
-<tr class="separator:a032b252eaeefcc890d83aa42d7df4a53"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2bba3f12fb3451e458f1b438386b19b3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structBuildSNNGraph__Result.html">BuildSNNGraph_Result</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cluster__snn__graph_8cpp.html#a2bba3f12fb3451e458f1b438386b19b3">build_snn_graph</a> (const <a class="el" href="structNeighborResults.html">NeighborResults</a> &amp;neighbors, std::string scheme)</td></tr>
+<tr class="separator:a2bba3f12fb3451e458f1b438386b19b3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4a3639798602da8d725c245d18a5c52d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structClusterSNNGraphMultiLevel__Result.html">ClusterSNNGraphMultiLevel_Result</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cluster__snn__graph_8cpp.html#a4a3639798602da8d725c245d18a5c52d">cluster_snn_graph</a> (const <a class="el" href="structBuildSNNGraph__Result.html">BuildSNNGraph_Result</a> &amp;graph, double resolution)</td></tr>
 <tr class="separator:a4a3639798602da8d725c245d18a5c52d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p >Identify clusters from a shared nearest-neighbor graph. </p>
 </div><h2 class="groupheader">Function Documentation</h2>
-<a id="a032b252eaeefcc890d83aa42d7df4a53" name="a032b252eaeefcc890d83aa42d7df4a53"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a032b252eaeefcc890d83aa42d7df4a53">&#9670;&nbsp;</a></span>build_snn_graph()</h2>
+<a id="a2bba3f12fb3451e458f1b438386b19b3" name="a2bba3f12fb3451e458f1b438386b19b3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2bba3f12fb3451e458f1b438386b19b3">&#9670;&nbsp;</a></span>build_snn_graph()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -130,7 +130,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">int&#160;</td>
+          <td class="paramtype">std::string&#160;</td>
           <td class="paramname"><em>scheme</em>&#160;</td>
         </tr>
         <tr>
@@ -144,7 +144,7 @@ Functions</h2></td></tr>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">neighbors</td><td>Pre-computed nearest neighbors for this dataset. </td></tr>
-    <tr><td class="paramname">scheme</td><td>Weighting scheme to use for the edges. This can be 0 (by highest shared rank), 1 (by number of shared neighbors) or 2 (by the Jaccard index of neighbor sets).</td></tr>
+    <tr><td class="paramname">scheme</td><td>Weighting scheme to use for the edges. This can be done by highest shared <code>"rank"</code>, by <code>"number"</code> of shared neighbors, or by the <code>"jaccard"</code> index of nearest neighbor sets.</td></tr>
   </table>
   </dd>
 </dl>
@@ -179,7 +179,7 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">graph</td><td>An existing SNN graph for the dataset, usually constructed by <code><a class="el" href="cluster__snn__graph_8cpp.html#a032b252eaeefcc890d83aa42d7df4a53">build_snn_graph()</a></code> or related functions. </td></tr>
+    <tr><td class="paramname">graph</td><td>An existing SNN graph for the dataset, usually constructed by <code><a class="el" href="cluster__snn__graph_8cpp.html#a2bba3f12fb3451e458f1b438386b19b3">build_snn_graph()</a></code> or related functions. </td></tr>
     <tr><td class="paramname">resolution</td><td>Resolution of the multi-level clustering, used in the modularity calculation. Larger values yield more fine-grained clusters.</td></tr>
   </table>
   </dd>

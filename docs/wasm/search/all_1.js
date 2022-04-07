@@ -6,7 +6,7 @@ var searchData=
   ['buffer_3',['buffer',['../structH5GroupDetails.html#a2d5158d1d683016b839dbba9d4bac139',1,'H5GroupDetails']]],
   ['build_5fneighbor_5findex_4',['build_neighbor_index',['../NeighborIndex_8cpp.html#ad18ff23ea88755b16f82fe79497f9c68',1,'build_neighbor_index(uintptr_t mat, int nr, int nc, bool approximate):&#160;NeighborIndex.cpp'],['../NeighborIndex_8h.html#a1dc33739be684ee25b41e3003427af01',1,'build_neighbor_index(uintptr_t, int, int, bool):&#160;NeighborIndex.cpp']]],
   ['build_5fsinglepp_5freference_5',['build_singlepp_reference',['../run__singlepp_8cpp.html#a9144a6f0f3796e23b6bbb6d65389f9e3',1,'run_singlepp.cpp']]],
-  ['build_5fsnn_5fgraph_6',['build_snn_graph',['../cluster__snn__graph_8cpp.html#a032b252eaeefcc890d83aa42d7df4a53',1,'cluster_snn_graph.cpp']]],
+  ['build_5fsnn_5fgraph_6',['build_snn_graph',['../cluster__snn__graph_8cpp.html#a2bba3f12fb3451e458f1b438386b19b3',1,'cluster_snn_graph.cpp']]],
   ['buildsnngraph_5fresult_7',['BuildSNNGraph_Result',['../structBuildSNNGraph__Result.html',1,'']]],
   ['builtsingleppreference_8',['BuiltSinglePPReference',['../classBuiltSinglePPReference.html',1,'']]]
 ];
