@@ -38,18 +38,23 @@ export class SNNGraph {
  * or a pre-computed set of neighbor search results for all cells (see `findNearestNeighbors()`).
  * @param {Object} [options] - Optional parameters.
  * @param {number} [options.scheme] - Weighting scheme for the edges between cells.
- * This can be based on the top ranks of the shared neighbors (0),
- * the number of shared neighbors (1) 
- * or the Jaccard index of the neighbor sets between cells (2).
+ * This can be based on the top ranks of the shared neighbors (`"rank"`),
+ * the number of shared neighbors (`"number"`) 
+ * or the Jaccard index of the neighbor sets between cells (`"jaccard"`).
  * @param {number} [options.neighbors] - Number of nearest neighbors to use to construct the graph.
  * Ignored if `x` is a `NeighborSearchResults` object.
  *
  * @return A `SNNGraph` object containing the graph.
  */
-export function buildSNNGraph(x, { scheme = 0, neighbors = 10 } = {}) {
+export function buildSNNGraph(x, { scheme = "rank", neighbors = 10 } = {}) {
     var raw;
     var output;
     var my_neighbors;
+
+    // Back compatibility.
+    if (typeof scheme == "number") {
+        scheme = [ "rank", "number", "jaccard" ][scheme];
+    }
 
     try {
         let ref;
