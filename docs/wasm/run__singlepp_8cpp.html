@@ -257,6 +257,7 @@ Functions</h2></td></tr>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir"></td><td class="paramname">mat</td><td>Matrix containing the test dataset, with cells in columns and features in rows. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">assigned</td><td>Offset to an array of 64-bit pointers. This array should be of length <code>nref</code>, where each pointer corresponds to a reference. Each pointer should refer to an integer array of length equal to the number of cells in <code>mat</code>, where each value is the label assigned to a cell in the corresponding reference. </td></tr>
     <tr><td class="paramdir"></td><td class="paramname">integrated</td><td>An integrated set of reference datasets, see <code><a class="el" href="run__singlepp_8cpp.html#aa2ef2af37738a8edb1896389bb16f4f8">integrate_singlepp_references()</a></code>. </td></tr>
     <tr><td class="paramdir"></td><td class="paramname">quantile</td><td>Quantile on the correlations to use when computing a score for each label. </td></tr>
     <tr><td class="paramdir">[out]</td><td class="paramname">output</td><td>Offset to an integer array of length equal to the number of columns in <code>mat</code>. This will be filled with the index of the reference with the top-scoring label for each cell in the test dataset.</td></tr>
@@ -321,9 +322,9 @@ Functions</h2></td></tr>
     <tr><td class="paramdir"></td><td class="paramname">nfeatures</td><td>Total number of features in the test dataset. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">mat_id</td><td>Offset to an integer array of length equal to <code>nfeatures</code>. Each element contains a feature identifier for the corresponding row. </td></tr>
     <tr><td class="paramdir"></td><td class="paramname">nref</td><td>Number of references. </td></tr>
-    <tr><td class="paramdir"></td><td class="paramname">refs</td><td>Offset to an array of 64-bit pointers to <code><a class="el" href="classSinglePPReference.html" title="A reference dataset for singlepp annotation.">SinglePPReference</a></code> objects. This array dshould be of length <code>nref</code>. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">refs</td><td>Offset to an array of 64-bit pointers to <code><a class="el" href="classSinglePPReference.html" title="A reference dataset for singlepp annotation.">SinglePPReference</a></code> objects. This array should be of length <code>nref</code>. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">ref_ids</td><td>Offset to an array of 64-bit pointers of length <code>nref</code>. Each entry points to an integer array of length equal to the number of features in the corresponding reference dataset. This should contain the feature identifier for each feature in the reference, to be intersected with those in <code>mat_id</code>. </td></tr>
-    <tr><td class="paramdir"></td><td class="paramname">built</td><td>Offset to an array of 64-bit pointers to <code><a class="el" href="classBuiltSinglePPReference.html" title="A built reference dataset for singlepp annotation.">BuiltSinglePPReference</a></code> objects. This array dshould be of length <code>nref</code>.</td></tr>
+    <tr><td class="paramdir"></td><td class="paramname">built</td><td>Offset to an array of 64-bit pointers to <code><a class="el" href="classBuiltSinglePPReference.html" title="A built reference dataset for singlepp annotation.">BuiltSinglePPReference</a></code> objects. This array should be of length <code>nref</code>.</td></tr>
   </table>
   </dd>
 </dl>
@@ -382,7 +383,6 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramdir"></td><td class="paramname">nfeatures</td><td>Number of features in the reference dataset. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">labels_buffer</td><td>Offset to an unsigned 8-bit integer array holding a Gzipped file of labels. </td></tr>
     <tr><td class="paramdir"></td><td class="paramname">labels_len</td><td>Length of the array in <code>labels_buffer</code>. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">markers_buffer</td><td>Offset to an unsigned 8-bit integer array holding a Gzipped file of marker lists. </td></tr>
