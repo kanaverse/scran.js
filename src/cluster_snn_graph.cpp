@@ -37,11 +37,11 @@ struct BuildSNNGraph_Result {
  *
  * @param neighbors Pre-computed nearest neighbors for this dataset.
  * @param scheme Weighting scheme to use for the edges.
- * This can be 0 (by highest shared rank), 1 (by number of shared neighbors) or 2 (by the Jaccard index of neighbor sets).
+ * This can be done by highest shared `"rank"`, by `"number"` of shared neighbors, or by the `"jaccard"` index of nearest neighbor sets.
  *
  * @return A `BuildSNNGraph_Result` containing the graph information.
  */
-BuildSNNGraph_Result build_snn_graph(const NeighborResults& neighbors, int scheme) {
+BuildSNNGraph_Result build_snn_graph(const NeighborResults& neighbors, std::string scheme) {
     size_t nc = neighbors.neighbors.size();
     std::vector<std::vector<int > > indices(nc);
     int k = 0;
@@ -55,8 +55,19 @@ BuildSNNGraph_Result build_snn_graph(const NeighborResults& neighbors, int schem
         }
     }
 
+    auto chosen = scran::BuildSNNGraph::RANKED;
+    if (scheme == "rank") {
+        ;
+    } else if (scheme == "number") {
+        chosen = scran::BuildSNNGraph::NUMBER;
+    } else if (scheme == "jaccard") {
+        chosen = scran::BuildSNNGraph::JACCARD;
+    } else {
+        throw std::runtime_error("no known weighting scheme '" + scheme + "'");
+    }
+
     scran::BuildSNNGraph builder;
-    builder.set_neighbors(k).set_weighting_scheme(static_cast<scran::BuildSNNGraph::Scheme>(scheme));
+    builder.set_neighbors(k).set_weighting_scheme(chosen);
     return BuildSNNGraph_Result(nc, builder.run(indices));
 }
 

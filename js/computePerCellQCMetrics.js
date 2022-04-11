@@ -139,3 +139,28 @@ export function computePerCellQCMetrics(x, subsets) {
 
     return output;
 }
+
+/**
+ * Create an empty {@linkplain PerCellQCMetricsResults} object, to be filled with custom results.
+ * This is typically used to generate a convenient input into later {@linkcode computePerCellQCFilters} calls.
+ * Note that filling requires use of `copy: false` in the various getters to obtain a writeable memory view.
+ *
+ * @param numberOfCells Number of cells in the dataset.
+ * @param numberOfSubsets Number of feature subsets.
+ *
+ * @return A {@linkplain PerCellQCMetricsResults} object with allocated memory but no actual values.
+ */
+export function emptyPerCellQCMetricsResults(numberOfGenes, numberOfSubsets) {
+    let raw;
+    let output;
+
+    try {
+        raw = wasm.call(module => new module.PerCellQCMetrics_Results(numberOfGenes, numberOfSubsets));
+        output = new PerCellQCMetrics(raw);
+    } catch (e) {
+        utils.free(raw);
+        throw e;
+    }
+
+    return output;
+}

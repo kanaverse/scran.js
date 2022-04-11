@@ -42,3 +42,29 @@ test("per-cell QC metrics gets the same results with an input WasmArray", () => 
     qc2.free();
     wasmified.free();
 });
+
+test("per-cell QC metrics can be mocked up", () => {
+    var ngenes = 100;
+    var nsubs = 2;
+
+    var qc = scran.emptyPerCellQCMetricsResults(ngenes, nsubs);
+    expect(qc.numberOfSubsets()).toBe(2);
+
+    for (const y of [ "sums", "detected" ]) {
+        var x = qc[y]({copy: false});
+        expect(x.length).toBe(ngenes);
+        x[0] = 100;
+        var x2 = qc[y]();
+        expect(x2[0]).toBe(100);
+    }
+
+    for (var s = 0; s < nsubs; s++) {
+        var x = qc.subsetProportions(s, {copy: false});
+        expect(x.length).toBe(ngenes);
+        x[10] = 0.5;
+        var x2 = qc.subsetProportions(s);
+        expect(x2[10]).toBe(0.5);
+    }
+
+    qc.free();
+});

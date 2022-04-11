@@ -40,6 +40,7 @@ EMSCRIPTEN_BINDINGS(per_cell_qc_metrics) {
     emscripten::function("per_cell_qc_metrics", &per_cell_qc_metrics);
 
     emscripten::class_<PerCellQCMetrics_Results>("PerCellQCMetrics_Results")
+        .constructor<int, int>()
         .function("sums", &PerCellQCMetrics_Results::sums)
         .function("detected", &PerCellQCMetrics_Results::detected)
         .function("subset_proportions", &PerCellQCMetrics_Results::subset_proportions)
