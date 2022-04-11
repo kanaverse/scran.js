@@ -48,3 +48,14 @@ test("guessFeatures works as expected", () => {
     expect(output.species).toBe("mouse");
 });
 
+test("guessFeatures handles null values properly", () => {
+    let output = scran.guessFeatures(["ENSG00000000003", "ENSG00000230003", null]);
+    expect(output.confidence).toBe(2/3);
+    expect(output.type).toBe("ensembl");
+    expect(output.species).toBe("human");
+
+    let output2 = scran.guessFeatures(["ENSG00000000003", "ENSG00000230003", undefined]);
+    expect(output2.confidence).toBe(2/3);
+    expect(output2.type).toBe("ensembl");
+    expect(output2.species).toBe("human");
+})
