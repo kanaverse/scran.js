@@ -140,8 +140,8 @@ std::string guess_hdf5_type(const H5::DataSet& dhandle, const H5::DataType& dtyp
  */
 struct H5DataSetDetails {
     /**
-     * @param f Path to a file.
-     * @param n Name of a dataset inside the file.
+     * @param file Path to a file.
+     * @param name Name of a dataset inside the file.
      */
     H5DataSetDetails(std::string file, std::string name) {
         H5::H5File handle(file, H5F_ACC_RDONLY);

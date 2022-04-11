@@ -63,7 +63,6 @@ public:
 };
 
 /**
- * @param nfeatures Number of features in the reference dataset.
  * @param[in] labels_buffer Offset to an unsigned 8-bit integer array holding a Gzipped file of labels.
  * @param labels_len Length of the array in `labels_buffer`.
  * @param[in] markers_buffer Offset to an unsigned 8-bit integer array holding a Gzipped file of marker lists.
@@ -200,13 +199,13 @@ public:
  * @param[in] mat_id Offset to an integer array of length equal to `nfeatures`.
  * Each element contains a feature identifier for the corresponding row.
  * @param nref Number of references.
- * @param refs Offset to an array of 64-bit pointers to `SinglePPReference` objects.
- * This array dshould be of length `nref`.
+ * @param[in] refs Offset to an array of 64-bit pointers to `SinglePPReference` objects.
+ * This array should be of length `nref`.
  * @param[in] ref_ids Offset to an array of 64-bit pointers of length `nref`.
  * Each entry points to an integer array of length equal to the number of features in the corresponding reference dataset.
  * This should contain the feature identifier for each feature in the reference, to be intersected with those in `mat_id`.
  * @param built Offset to an array of 64-bit pointers to `BuiltSinglePPReference` objects.
- * This array dshould be of length `nref`.
+ * This array should be of length `nref`.
  * 
  * @return An `IntegratedSinglePPReferences` object.
  */
@@ -241,6 +240,9 @@ IntegratedSinglePPReferences integrate_singlepp_references(
 
 /**
  * @param mat Matrix containing the test dataset, with cells in columns and features in rows.
+ * @param[in] assigned Offset to an array of 64-bit pointers.
+ * This array should be of length `nref`, where each pointer corresponds to a reference.
+ * Each pointer should refer to an integer array of length equal to the number of cells in `mat`, where each value is the label assigned to a cell in the corresponding reference.
  * @param integrated An integrated set of reference datasets, see `integrate_singlepp_references()`.
  * @param quantile Quantile on the correlations to use when computing a score for each label.
  * @param[out] output Offset to an integer array of length equal to the number of columns in `mat`.

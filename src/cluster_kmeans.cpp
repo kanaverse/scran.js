@@ -100,6 +100,7 @@ struct ClusterKmeans_Result {
  * @param nr Number of rows in `mat`.
  * @param nc Number of columns in `mat`.
  * Larger values yield more fine-grained clusters.
+ * @param k Number of clusters to create.
  * @param init_method Initialization method - random (0), kmeans++ (1) or PCA partitioning (2).
  * @param init_seed Random seed to use for initialization.
  * @param init_pca_adjust Adjustment factor to apply to the cluster sizes prior to the WCSS calculations in PCA partitioning.
