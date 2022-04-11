@@ -12,7 +12,6 @@ js/wasm/
 dist/
 _testing/
 js/blacklists/
-jsdoc.config.json
-jsdocs/
+docs/built/
 package-lock.json
 

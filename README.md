@@ -25,9 +25,6 @@ This can either use k-means or multi-level community detection (a.k.a., "Louvain
 - Dimensionality reduction with t-stochastic neighbor embedding (t-SNE), again using the top PCs.
 - Marker detection using a variety of effect sizes such as Cohen's d and the area under the curve (AUC).
 - Cell type annotation with a port of the [**SingleR**](https://bioconductor.org/packages/SingleR) algorithm.
-
-Coming soon:
-
 - Batch correction via the mutual nearest neighbors method.
 
 The theory behind these methods is described in more detail in the [**Orchestrating Single Cell Analysis with Bioconductor**](https://bioconductor.org/books/release/OSCA/) book. 

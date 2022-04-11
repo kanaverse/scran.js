@@ -25,21 +25,25 @@ jobs:
     - name: Set up Node
       uses: actions/setup-node@v2
 
+    - name: Restore the node modules
+      uses: actions/cache@v2
+      with:
+        path: '**/node_modules'
+        key: modules-${{ hashFiles('**/package.json') }}
+
     - name: Install JSDoc
-      run: npm i jsdoc
+      run: npm i --include-dev
 
     - name: Run JSDoc
-      run: |
-        echo '{ "plugins": ["plugins/markdown"] }' > jsdoc.config.json
-        node_modules/jsdoc/jsdoc.js js/ README.md -d jsdocs/ -c jsdoc.config.json
+      run: npm run jsdoc
 
     - name: Organize files
-      run: sudo mv docs/html jsdocs/wasm
+      run: sudo mv docs/html docs/built/wasm
 
     - name: GH Pages Deployment
       uses: JamesIves/github-pages-deploy-action@4.1.3
       with:
         branch: gh-pages # The branch the action should deploy to.
-        folder: jsdocs 
+        folder: docs/built
         target-folder: docs
         clean: true # Automatically remove deleted files from the deploy branch

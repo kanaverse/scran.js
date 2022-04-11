@@ -9,10 +9,12 @@
     "type": "module",
     "scripts": {
         "test": "NODE_OPTIONS='--experimental-vm-modules' npx jest",
-        "build": "npx parcel build"
+        "build": "npx parcel build",
+        "jsdoc": "npx jsdoc js README.md -d docs/built -c docs/jsdoc.config.json"
     },
     "devDependencies": {
         "@babel/plugin-transform-modules-commonjs": "^7.16.8",
+        "docdash": "^1.2.0",
         "h5wasm": "^0.2.1",
         "jest": "^27.4.7",
         "jsdoc": "^3.6.10",
