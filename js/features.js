@@ -21,7 +21,7 @@ export function permuteFeatures(x, featureInfo) {
  * Guess the identity of the features from their names.
  *
  * @param {Array} features - Array of strings containing feature identifiers, typically Ensembl IDs or gene symbols.
- * Elements may also be `null` if an identifier is missing.
+ * Elements may also be `null` or undefined if an identifier is missing.
  *
  * @return An object containing the inferred `species`, which can be either `"human"` or `"mouse"`;
  * and the identifier `type`, which can be either `"ensembl"` or `"symbol"`.
@@ -31,7 +31,7 @@ export function guessFeatures(features) {
     // Human Ensembl.
     let human_ens = 0
     features.forEach(x => {
-        if (x !== null && x.match(/^ENSG[0-9]{11}$/)) {
+        if (x && x.match(/^ENSG[0-9]{11}$/)) {
             human_ens++;
         }
     });
@@ -39,7 +39,7 @@ export function guessFeatures(features) {
     // Human symbol; starts with upper case, no lower case, and not an Ensembl of any kind.
     let human_sym = 0
     features.forEach(x => {
-        if (x !== null && x.match(/^[A-Z][^a-z]+$/) && !x.match(/^ENS[A-Z]+[0-9]{11}/)) {
+        if (x && x.match(/^[A-Z][^a-z]+$/) && !x.match(/^ENS[A-Z]+[0-9]{11}/)) {
             human_sym++;
         }
     });
@@ -47,7 +47,7 @@ export function guessFeatures(features) {
     // Mouse Ensembl.
     let mouse_ens = 0
     features.forEach(x => {
-        if (x !== null && x.match(/^ENSMUSG[0-9]{11}$/)) {
+        if (x && x.match(/^ENSMUSG[0-9]{11}$/)) {
             mouse_ens++;
         }
     });
@@ -55,7 +55,7 @@ export function guessFeatures(features) {
     // Mouse symbol; starts with upper case, but no upper case after that.
     let mouse_sym = 0
     features.forEach(x => {
-        if (x !== null && x.match(/^[A-Z][^A-Z]+$/)) {
+        if (x && x.match(/^[A-Z][^A-Z]+$/)) {
             mouse_sym++;
         }
     });
