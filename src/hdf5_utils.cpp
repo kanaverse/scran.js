@@ -193,18 +193,20 @@ struct LoadedH5DataSet {
     std::string type_;
     std::vector<int> shape_;
 
-    // Store all the possible types here.
+    // Store all the possible numeric types here.
     std::vector<uint8_t> u8_data;
     std::vector<int8_t> i8_data;
     std::vector<uint16_t> u16_data;
     std::vector<int16_t> i16_data;
     std::vector<uint32_t> u32_data;
     std::vector<int32_t> i32_data;
-    std::vector<uint64_t> u64_data;
-    std::vector<int64_t> i64_data;
     std::vector<float> f32_data;
     std::vector<double> f64_data;
     std::vector<char> str_data;
+
+    // embind can't deal with 64-bit types, see https://github.com/emscripten-core/emscripten/issues/11140.
+    std::vector<double> u64_data; 
+    std::vector<double> i64_data;
 
     // For strings.
     std::vector<int> lengths_;
@@ -313,11 +315,11 @@ struct LoadedH5DataSet {
 
             } else if (type_ == "Uint64") {
                 u64_data.resize(full_length);
-                dhandle.read(u64_data.data(), H5::PredType::NATIVE_UINT64);
+                dhandle.read(u64_data.data(), H5::PredType::NATIVE_DOUBLE); // see comments above about embind.
 
             } else if (type_ == "Int64") {
                 i64_data.resize(full_length);
-                dhandle.read(i64_data.data(), H5::PredType::NATIVE_INT64);
+                dhandle.read(i64_data.data(), H5::PredType::NATIVE_DOUBLE); // see comments above about embind.
 
             } else if (type_ == "Float32") {
                 f32_data.resize(full_length);
@@ -461,9 +463,9 @@ void write_numeric_hdf5_dataset(std::string path, std::string name, std::string 
     } else if (type == "Int32WasmArray") {
         dhandle.write(reinterpret_cast<const int32_t*>(data), H5::PredType::NATIVE_INT32);
     } else if (type == "Uint64WasmArray") {
-        dhandle.write(reinterpret_cast<const uint64_t*>(data), H5::PredType::NATIVE_UINT64);
+        dhandle.write(reinterpret_cast<const double*>(data), H5::PredType::NATIVE_UINT64);
     } else if (type == "Int64WasmArray") {
-        dhandle.write(reinterpret_cast<const int64_t*>(data), H5::PredType::NATIVE_INT64);
+        dhandle.write(reinterpret_cast<const double*>(data), H5::PredType::NATIVE_INT64);
     } else if (type == "Float32WasmArray") {
         dhandle.write(reinterpret_cast<const float*>(data), H5::PredType::NATIVE_FLOAT);
     } else if (type == "Float64WasmArray") {

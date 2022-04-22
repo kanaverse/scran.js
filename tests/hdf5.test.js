@@ -240,3 +240,27 @@ test("HDF5 creation works as expected (strings)", () => {
     expect(content3[1]).toBe("");
     expect(content3[2]).toBe("");
 })
+
+test("HDF5 creation works as expected (64-bit)", () => {
+    const path = dir + "/test.write.h5";
+    purge(path)
+
+    {
+        let fhandle = scran.createNewHDF5File(path);
+        fhandle.writeDataSet("stuffi", "Int64", null, [1,2,3,4,5]);
+        fhandle.writeDataSet("stuffu", "Uint64", null, [6,7,8,9,10]);
+    }
+
+    // Pulling it out successfully. This uses doubles instead of
+    // BigInts, given that the latter isn't embind'd properly.
+    {
+        let fhandle = new scran.H5File(path);
+        let ires = fhandle.open("stuffi", { load: true }).values;
+        expect(ires[0]).toBe(1);
+        expect(ires[4]).toBe(5);
+
+        let ures = fhandle.open("stuffu", { load: true }).values;
+        expect(ures[0]).toBe(6);
+        expect(ures[4]).toBe(10);
+    }
+})

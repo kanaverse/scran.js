@@ -482,7 +482,8 @@ export class H5DataSet extends H5Base {
                 this.#values = null;
             }
         } else {
-            let y = utils.wasmifyArray(x, null); // take whatever the type is.
+            let y = utils.wasmifyArray(x, null);
+
             try {
                 wasm.call(module => module.write_numeric_hdf5_dataset(this.file, this.name, y.constructor.className, y.offset));
                 if (cache) {
