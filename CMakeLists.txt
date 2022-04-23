@@ -31,6 +31,7 @@ add_executable(
     src/NumericMatrix.cpp
     src/NeighborIndex.cpp
     src/cbind.cpp
+    src/subset.cpp
     src/get_error_message.cpp
 )
 
