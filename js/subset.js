@@ -2,14 +2,14 @@ import * as utils from "./utils.js";
 import * as wasm from "./wasm.js";
 
 /**
- * Slice rows of a ScranMatrix
+ * Slice a {@linkplain ScranMatrix} by its rows.
  * 
- * @param mat ScranMatrix to extract from
- * @param {Array} indices - Row indices to extract
- * all indices must be a non-negative integer less than `numberOfRows()`
+ * @param {ScranMatrix} The matrix of interest.
+ * @param {Array} indices - Row indices to extract.
+ * All indices must be non-negative integers less than `mat.numberOfRows()`.
  *
  * @return
- * A new ScranMatrix
+ * A new ScranMatrix containing the subset of rows from `mat` specified by `indices`.
  */
 export function subsetRows(mat, indices) {
     let raw;
@@ -17,11 +17,6 @@ export function subsetRows(mat, indices) {
     let wasm_indices;
 
     try {
-
-        if (Math.max(...indices) > mat.numberOfRows()) {
-            throw new Error("all indices to slice must be less than the number of rows.");
-        }
-
         wasm_indices = utils.wasmifyArray(indices, "Int32WasmArray");
         raw = wasm.call(module => module.row_subset(mat.matrix, wasm_indices.offset, indices.length));
         output = new mat.constructor(raw);
@@ -36,14 +31,14 @@ export function subsetRows(mat, indices) {
 }
 
 /**
- * Slice columns of a ScranMatrix
+ * Slice a ScranMatrix by its columns.
  * 
- * @param mat ScranMatrix to extract from
- * @param {Array} indices - Column indices to extract
- * all indices must be a non-negative integer less than `numberOfColumns()`.
+ * @param {ScranMatrix} The matrix of interest.
+ * @param {Array} indices - Column indices to extract.
+ * Al indices must be a non-negative integer less than `mat.numberOfColumns()`.
  *
  * @return
- * A new ScranMatrix
+ * A new ScranMatrix containing the subset of columns from `mat` specified by `indices`.
  */
 export function subsetColumns(mat, indices) {
     let raw;
@@ -51,11 +46,6 @@ export function subsetColumns(mat, indices) {
     let wasm_indices;
 
     try {
-
-        if (Math.max(...indices) > mat.numberOfColumns()) {
-            throw new Error("all indices to slice must be less than the number of columns.");
-        }
-
         wasm_indices = utils.wasmifyArray(indices, "Int32WasmArray");
         raw = wasm.call(module => module.column_subset(mat.matrix, wasm_indices.offset, indices.length));
         output = new mat.constructor(raw);
@@ -68,3 +58,7 @@ export function subsetColumns(mat, indices) {
 
     return output;
 }
+
+
+
+

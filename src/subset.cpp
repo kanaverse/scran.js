@@ -1,35 +1,54 @@
 #include <emscripten/bind.h>
 #include <vector>
+#include <stdexcept>
+#include <string>
 #include "NumericMatrix.h"
 #include "tatami/tatami.hpp"
 #include "utils.h"
 
+/**
+ * @cond
+ */
+template<bool row>
+void check_limit(const int* ptr, size_t len, size_t limit) {
+    for (size_t i = 0; i < len; ++i) {
+        if (ptr[i] < 0) {
+            throw std::runtime_error("subset indices should be non-negative");
+        } else if (ptr[i] >= limit) {
+            throw std::runtime_error("subset indices should be less than the number of " + (row ? std::string("rows") : std::string("columns")));
+        }
+    }
+}
+/**
+ * @endcond
+ */
+
 /** 
- * @param matrix Offset to the matrix 
- * @param offset Offset to the start of the indices to slice or subset
- * All values in indices must be < `numberOfColumns()`
- * 
- * @param length length of the indices 
+ * @param matrix A `NumericMatrix` object. 
+ * @param offset Offset to a 32-bit integer array containing the column indices to subset.
+ * All indices should be positive and less than the number of columns in `matrix`.
+ * @param length Length of the array pointed to by `offset`.
  *
- * This function apply's a delayed subset operation on the matrix over columns
+ * @return A `NumericMatrix` containing a delayed subset on the columns of `matrix`.
  */
 NumericMatrix column_subset(const NumericMatrix& matrix, uintptr_t offset, size_t length) {
-    auto offset_ptr = reinterpret_cast<const int32_t*>(offset);
-    return NumericMatrix(tatami::make_DelayedSubset<1>(matrix.ptr, std::vector<int32_t>(offset_ptr, offset_ptr+length)));
+    auto offset_ptr = reinterpret_cast<const int*>(offset);
+    check_limit<true>(offset_ptr, length, matrix.nrow());
+    return NumericMatrix(tatami::make_DelayedSubset<1>(matrix.ptr, std::vector<int>(offset_ptr, offset_ptr+length)));
 }
 
 /** 
- * @param matrix Offset to the matrix 
- * @param offset Offset to the start of the indices to slice or subset
- * All values in indices must be < `numberOfColumns()`
- * 
- * @param length length of the indices 
+ * @param matrix A `NumericMatrix` object. 
+ * @param offset Offset to a 32-bit integer array containing the row indices to subset.
+ * All indices should be positive and less than the number of rows in `matrix`.
+ * @param length Length of the array pointed to by `offset`.
  *
- * This function apply's a delayed subset operation on the matrix over rows
+ * @return A `NumericMatrix` containing a delayed subset on the columns of `matrix`.
  */
 NumericMatrix row_subset(const NumericMatrix& matrix, uintptr_t offset, size_t length) {
-    auto offset_ptr = reinterpret_cast<const int32_t*>(offset);
-    return NumericMatrix(tatami::make_DelayedSubset<0>(matrix.ptr, std::vector<int32_t>(offset_ptr, offset_ptr+length)));
+    auto offset_ptr = reinterpret_cast<const int*>(offset);
+    check_limit<false>(offset_ptr, length, matrix.ncol());
+    return NumericMatrix(tatami::make_DelayedSubset<0>(matrix.ptr, std::vector<int>(offset_ptr, offset_ptr+length)));
 }
 
 /**

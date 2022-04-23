@@ -17,6 +17,10 @@ test("column subset works", () => {
     expect(compare.equalArrays(mat1.column(5), subset.column(1))).toBe(true);
     expect(compare.equalArrays(mat1.column(7), subset.column(2))).toBe(true);
 
+    // Throws the right errors.
+    expect(() => scran.subsetColumns(mat1, [-1])).toThrow("non-negative");
+    expect(() => scran.subsetColumns(mat1, [20])).toThrow("number of rows");
+
     // Freeing all the bits and pieces.
     subset.free();
     mat1.free();
@@ -33,6 +37,10 @@ test("row subset works", () => {
     expect(compare.equalArrays(mat1.row(1), subset.row(0))).toBe(true);
     expect(compare.equalArrays(mat1.row(5), subset.row(1))).toBe(true);
     expect(compare.equalArrays(mat1.row(7), subset.row(2))).toBe(true);
+
+    // Throws the right errors.
+    expect(() => scran.subsetRows(mat1, [-1])).toThrow("non-negative");
+    expect(() => scran.subsetRows(mat1, [10])).toThrow("number of columns");
 
     // Freeing all the bits and pieces.
     subset.free();
