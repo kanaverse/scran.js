@@ -28,3 +28,4 @@ export * from "./mnnCorrect.js";
 
 export * from "./scoreMarkers.js";
 export * from "./labelCells.js";
+export * from "./subset.js";
