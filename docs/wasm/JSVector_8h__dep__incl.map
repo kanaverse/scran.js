@@ -1,7 +1,7 @@
 <map id="JSVector.h" name="JSVector.h">
 <area shape="rect" id="node1" title=" " alt="" coords="495,5,582,32"/>
 <area shape="rect" id="node2" href="$NumericMatrix_8cpp.html" title=" " alt="" coords="5,155,136,181"/>
-<area shape="rect" id="node3" href="$NumericMatrix_8h.html" title="Javascript wrapper for a numeric matrix." alt="" coords="862,80,978,107"/>
+<area shape="rect" id="node3" href="$NumericMatrix_8h.html" title="Javascript wrapper for a numeric matrix." alt="" coords="947,80,1063,107"/>
 <area shape="rect" id="node4" href="$cbind_8cpp.html" title=" " alt="" coords="160,155,237,181"/>
 <area shape="rect" id="node5" href="$filter__cells_8cpp.html" title=" " alt="" coords="261,155,365,181"/>
 <area shape="rect" id="node6" href="$initialize__sparse__matrix_8cpp.html" title=" " alt="" coords="390,155,570,181"/>
@@ -14,4 +14,5 @@
 <area shape="rect" id="node13" href="$run__pca_8cpp.html" title="Compute the top principal components in the log&#45;expression matrix." alt="" coords="1647,155,1739,181"/>
 <area shape="rect" id="node14" href="$run__singlepp_8cpp.html" title=" " alt="" coords="1763,155,1882,181"/>
 <area shape="rect" id="node15" href="$score__markers_8cpp.html" title="Compute marker scores for each gene in each group of cells." alt="" coords="1906,155,2038,181"/>
+<area shape="rect" id="node16" href="$subset_8cpp.html" title=" " alt="" coords="2063,155,2148,181"/>
 </map>
