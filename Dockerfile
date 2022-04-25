@@ -6,8 +6,8 @@ RUN apt-get update && \
 # Grabbing Emscripten. 
 RUN git clone https://github.com/emscripten-core/emsdk.git && \
     cd emsdk && \
-    ./emsdk install latest && \
-    ./emsdk activate latest
+    ./emsdk install 3.1.8 && \
+    ./emsdk activate 3.1.8 
 
 # Grabbing CMake.
 RUN wget https://github.com/Kitware/CMake/releases/download/v3.22.2/cmake-3.22.2-linux-x86_64.sh -O cmake_install.sh && \
