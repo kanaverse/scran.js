@@ -11,14 +11,14 @@ import * as wasm from "./wasm.js";
  * @return
  * A new ScranMatrix containing the subset of rows from `mat` specified by `indices`.
  */
-export function subsetRows(mat, indices) {
+function subsetRows(mat, indices) {
     let raw;
     let output;
     let wasm_indices;
 
     try {
         wasm_indices = utils.wasmifyArray(indices, "Int32WasmArray");
-        raw = wasm.call(module => module.row_subset(mat.matrix, wasm_indices.offset, indices.length));
+        raw = wasm.call(module => module.row_subset(mat.matrix, wasm_indices.offset, wasm_indices.length));
         output = new mat.constructor(raw);
     } catch (e) {
         utils.free(raw);
@@ -47,7 +47,7 @@ export function subsetColumns(mat, indices) {
 
     try {
         wasm_indices = utils.wasmifyArray(indices, "Int32WasmArray");
-        raw = wasm.call(module => module.column_subset(mat.matrix, wasm_indices.offset, indices.length));
+        raw = wasm.call(module => module.column_subset(mat.matrix, wasm_indices.offset, wasm_indices.length));
         output = new mat.constructor(raw);
     } catch (e) {
         utils.free(raw);
