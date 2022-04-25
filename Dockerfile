@@ -1,7 +1,7 @@
 FROM ubuntu:latest
 
 RUN apt-get update && \
-    apt-get install -y git wget make python3
+    apt-get install -y git wget make python3 xz-utils lbzip2
 
 # Grabbing Emscripten. 
 RUN git clone https://github.com/emscripten-core/emsdk.git && \
