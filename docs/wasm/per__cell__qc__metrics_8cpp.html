@@ -106,14 +106,14 @@ Include dependency graph for per_cell_qc_metrics.cpp:</div>
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a32328fe460f166eb37cb07a23f19280a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structPerCellQCMetrics__Results.html">PerCellQCMetrics_Results</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="per__cell__qc__metrics_8cpp.html#a32328fe460f166eb37cb07a23f19280a">per_cell_qc_metrics</a> (const <a class="el" href="structNumericMatrix.html">NumericMatrix</a> &amp;mat, int nsubsets, uintptr_t subsets)</td></tr>
-<tr class="separator:a32328fe460f166eb37cb07a23f19280a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7945244bf938b8fb2862d6ea415b8194"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structPerCellQCMetrics__Results.html">PerCellQCMetrics_Results</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="per__cell__qc__metrics_8cpp.html#a7945244bf938b8fb2862d6ea415b8194">per_cell_qc_metrics</a> (const <a class="el" href="structNumericMatrix.html">NumericMatrix</a> &amp;mat, int nsubsets, uintptr_t subsets, bool proportions)</td></tr>
+<tr class="separator:a7945244bf938b8fb2862d6ea415b8194"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p >Compute per-cell QC metrics from the count matrix. </p>
 </div><h2 class="groupheader">Function Documentation</h2>
-<a id="a32328fe460f166eb37cb07a23f19280a" name="a32328fe460f166eb37cb07a23f19280a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a32328fe460f166eb37cb07a23f19280a">&#9670;&nbsp;</a></span>per_cell_qc_metrics()</h2>
+<a id="a7945244bf938b8fb2862d6ea415b8194" name="a7945244bf938b8fb2862d6ea415b8194"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7945244bf938b8fb2862d6ea415b8194">&#9670;&nbsp;</a></span>per_cell_qc_metrics()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -134,7 +134,13 @@ Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">uintptr_t&#160;</td>
-          <td class="paramname"><em>subsets</em>&#160;</td>
+          <td class="paramname"><em>subsets</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>proportions</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -148,7 +154,8 @@ Functions</h2></td></tr>
   <table class="params">
     <tr><td class="paramdir"></td><td class="paramname">mat</td><td>A <code><a class="el" href="structNumericMatrix.html" title="Javascript-visible interface for a matrix of doubles.">NumericMatrix</a></code> object containing features in rows and cells in columns. </td></tr>
     <tr><td class="paramdir"></td><td class="paramname">nsubsets</td><td>Number of feature subsets to be considered. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">subsets</td><td>Offset to a 2D array of <code>uint8_t</code>s with number of rows and columns equal to <code>mat.nrow()</code> and <code>nsubsets</code>, respectively. The array should be column-major where each column corresponds to a feature subset and each value indicates whether each feature in <code>mat</code> belongs to that subset.</td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">subsets</td><td>Offset to a 2D array of <code>uint8_t</code>s with number of rows and columns equal to <code>mat.nrow()</code> and <code>nsubsets</code>, respectively. The array should be column-major where each column corresponds to a feature subset and each value indicates whether each feature in <code>mat</code> belongs to that subset. </td></tr>
+    <tr><td class="paramdir"></td><td class="paramname">proportions</td><td>Whether subset proportions should be computed. If <code>false</code>, the subset totals are returned instead.</td></tr>
   </table>
   </dd>
 </dl>
