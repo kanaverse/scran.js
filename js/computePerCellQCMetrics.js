@@ -45,9 +45,17 @@ export class PerCellQCMetrics {
      * This incurs a copy but has safer lifetime management.
      *
      * @return A `Float64Array` (or a view thereof) containing the proportion of counts in the subset `i` for each cell.
+     * If {@linkcode PerCellQCMetrics#isProportion isProportion} is `false`, the total count of subset `i` is returned instead.
      */
     subsetProportions(i, { copy = true } = {}) {
         return utils.possibleCopy(this.results.subset_proportions(i), copy);
+    }
+
+    /**
+     * @return Whether the subset proportions were computed in {@linkcode computePerCellQCMetrics}.
+     */
+    isProportion() {
+        return this.results.is_proportion();
     }
 
     /**
@@ -83,10 +91,13 @@ export class PerCellQCMetrics {
  * this should be of length equal to the product of the number of subsets and the number of rows in `x`.
  *
  * Alternatively `null`, which is taken to mean that there are no subsets.
+ * @param {object} [options] - Optional parameters.
+ * @param {boolean} [options.subsetProportions] - Whether to compute proportions for each subset.
+ * If `false`, the total count for each subset is computed instead.
  *
  * @return A `PerCellQCMetrics` object containing the QC metrics.
  */
-export function computePerCellQCMetrics(x, subsets) {
+export function computePerCellQCMetrics(x, subsets, { subsetProportions = true } = {}) {
     var output;
     var raw;
 
@@ -102,7 +113,7 @@ export function computePerCellQCMetrics(x, subsets) {
             let converted = utils.wasmifyArray(subsets, null);
             try {
                 let ptr = subsets.offset;
-                raw = wasm.call(module => module.per_cell_qc_metrics(x.matrix, nsubsets, ptr));
+                raw = wasm.call(module => module.per_cell_qc_metrics(x.matrix, nsubsets, ptr, subsetProportions));
             } finally {
                 converted.free();
             }
@@ -119,7 +130,7 @@ export function computePerCellQCMetrics(x, subsets) {
                     tmp.array().set(current, offset);
                     offset += current.length;
                 }
-                raw = wasm.call(module => module.per_cell_qc_metrics(x.matrix, subsets.length, tmp.offset));
+                raw = wasm.call(module => module.per_cell_qc_metrics(x.matrix, subsets.length, tmp.offset, subsetProportions));
             } finally {
                 tmp.free();
             }
@@ -147,15 +158,18 @@ export function computePerCellQCMetrics(x, subsets) {
  *
  * @param numberOfCells Number of cells in the dataset.
  * @param numberOfSubsets Number of feature subsets.
+ * @param {object} [options] - Optional parameters.
+ * @param {boolean} [options.subsetProportions] - Whether to store proportions for each subset.
+ * If `false`, the total count for each subset is stored instead.
  *
  * @return A {@linkplain PerCellQCMetricsResults} object with allocated memory but no actual values.
  */
-export function emptyPerCellQCMetricsResults(numberOfGenes, numberOfSubsets) {
+export function emptyPerCellQCMetricsResults(numberOfGenes, numberOfSubsets, { subsetProportions = true } = {}) {
     let raw;
     let output;
 
     try {
-        raw = wasm.call(module => new module.PerCellQCMetrics_Results(numberOfGenes, numberOfSubsets));
+        raw = wasm.call(module => new module.PerCellQCMetrics_Results(numberOfGenes, numberOfSubsets, subsetProportions));
         output = new PerCellQCMetrics(raw);
     } catch (e) {
         utils.free(raw);

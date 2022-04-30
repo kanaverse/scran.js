@@ -14,10 +14,33 @@ test("per-cell QC metrics can be computed", () => {
     var qc = scran.computePerCellQCMetrics(mat, subs);
     expect(qc.sums().length).toBe(ncells);
     expect(qc.detected().length).toBe(ncells);
-    expect(qc.subsetProportions(0).length).toBe(ncells);
+    let prop = qc.subsetProportions(0);
+    expect(prop.length).toBe(ncells);
+
+    // Everything's still a proportion.
+    expect(qc.isProportion()).toBe(true);
+    let failures = 0;
+    prop.forEach(x => { failures += (x < 0 || x > 1) }); 
+    expect(failures).toBe(0);
 
     mat.free();
     qc.free();
+});
+
+test("subset totals can be computed", () => {
+    var ngenes = 100;
+    var ncells = 20;
+    var mat = simulate.simulateMatrix(ngenes, ncells);
+    var subs = simulate.simulateSubsets(ngenes, 1);
+
+    var qc = scran.computePerCellQCMetrics(mat, subs, { subsetProportions: false });
+    let prop = qc.subsetProportions(0);
+
+    // Not a proportion anymore!
+    expect(qc.isProportion()).toBe(false);
+    let has_big = 0;
+    prop.forEach(x => { has_big += (x > 1) }); 
+    expect(has_big).toBeGreaterThan(0);
 });
 
 test("per-cell QC metrics gets the same results with an input WasmArray", () => {

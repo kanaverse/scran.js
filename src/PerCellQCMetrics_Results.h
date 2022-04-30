@@ -19,9 +19,11 @@ struct PerCellQCMetrics_Results {
      */
     typedef scran::PerCellQCMetrics::Results Store;
 
-    PerCellQCMetrics_Results(Store s) : store(std::move(s)) {}
+    PerCellQCMetrics_Results(Store s, bool p) : store(std::move(s)), proportions(p) {}
 
     Store store;
+
+    bool proportions;
     /**
      * @endcond
      */
@@ -29,11 +31,13 @@ struct PerCellQCMetrics_Results {
     /**
      * @param num_genes Number of genes.
      * @param num_subsets Number of feature subsets.
+     * @param prop Whether to store the subset proportions in `subset_proportions()`.
+     * If `false`, we assume that the totals are stored instead.
      *
      * Create an empty result object, which can be filled with custom statistics.
      * This is typically used for convenient input into `per_cell_qc_filters()`.
      */
-    PerCellQCMetrics_Results(int num_genes, int num_subsets) {
+    PerCellQCMetrics_Results(int num_genes, int num_subsets, bool prop) : proportions(prop) {
         store.sums.resize(num_genes);
         store.detected.resize(num_genes);
         store.subset_proportions.resize(num_subsets);
@@ -59,6 +63,7 @@ struct PerCellQCMetrics_Results {
     /**
      * @param i Index of the feature subset of interest.
      * @return `Float64Array` view containing the proportion of counts in subset `i` for each cell.
+     * If `is_proportion()` is false, the total count for subset `i` is returned instead.
      */
     emscripten::val subset_proportions(int i) const {
         const auto& current = store.subset_proportions[i];
@@ -70,6 +75,14 @@ struct PerCellQCMetrics_Results {
      */
     int num_subsets() const {
         return store.subset_proportions.size();
+    }
+
+    /**
+     * @return Whether proportions were computed for the subsets.
+     * If `false`, subset totals were computed.
+     */
+    bool is_proportion() const {
+        return proportions;
     }
 };
 
