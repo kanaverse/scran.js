@@ -48,7 +48,7 @@ test("Size factor calculation works with a reference", () => {
     norm.free();
 });
 
-test("Size factor calculation works with blocking", () => {
+test("Size factor calculation works with buffering", () => {
     var ngenes = 1000;
     var ncells = 20;
     var mat = simulate.simulateMatrix(ngenes, ncells, 1);

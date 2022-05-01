@@ -12,11 +12,12 @@ import * as wa from "wasmarrays.js";
  * @param {Object} [options] - Optional parameters.
  * @param {boolean} [options.center] - Whether to return centered size factors.
  * If `false`, the size factors can be interpreted as the scaling to match `reference`.
- * @param {Array|TypedArray|Float64WasmArray} [options.reference] - Reference profile to normalize against.
+ * @param {?(Array|TypedArray|Float64WasmArray)} [options.reference] - Reference profile to normalize against.
  * This should be an array of length equal to the number of rows in `x`.
- * @param {Float64WasmArray} [options.buffer] - Output buffer for the size factors.
+ * If `null`, this is automatically set to the row means of `x`.
+ * @param {?Float64WasmArray} [options.buffer] - Output buffer for the size factors.
  * This should have length equal to the number of columns in `x`.
- * @param {number} priorCount Prior count to use for shrinking size factors towards the relative library size.
+ * @param {number} [options.priorCount] Prior count to use for shrinking size factors towards the relative library size.
  * Larger values result in stronger shrinkage when the coverage is low.
  *
  * @return A Float64WasmArray of length equal to the number of columns in `x`, containing the size factors for all cells.
