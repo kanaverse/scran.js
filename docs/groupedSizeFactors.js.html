@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>computePerCellQCMetrics.js - Documentation</title>
+    <title>groupedSizeFactors.js - Documentation</title>
     
     
     <script src="scripts/prettify/prettify.js"></script>
@@ -34,7 +34,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">computePerCellQCMetrics.js</h1>
+    <h1 class="page-title">groupedSizeFactors.js</h1>
     
 
     
@@ -45,183 +45,61 @@
     <section>
         <article>
             <pre class="prettyprint source linenums"><code>import * as wasm from "./wasm.js";
-import * as utils from "./utils.js"; 
+import * as utils from "./utils.js";
+import { ScranMatrix } from "./ScranMatrix.js";
 import * as wa from "wasmarrays.js";
 
 /**
- * Wrapper for the metrics allocated on the Wasm heap.
+ * Compute group-based size factors, where composition biases are removed between groups and library size normalization is performed within groups.
+ * This allows us to generate per-cell size factors in spite of the sparsity.
+ *
+ * @param {ScranMatrix} x The count matrix, usually after filtering.
+ * @param {(Int32WasmArray|Array|TypedArray)} groups - Array containing the group assignment for each cell.
+ * This should have length equal to the number of cells and contain all values from 0 to `n - 1` at least once, where `n` is the number of groups.
+ * @param {Object} [options] - Optional parameters.
+ * @param {boolean} [options.center] - Whether to return centered size factors.
+ * If `false`, the size factors can be interpreted as the scaling to match `reference`.
+ * @param {?Float64WasmArray} [options.buffer] - Output buffer for the size factors.
+ * This should have length equal to the number of columns in `x`.
+ * @param {number} [options.priorCount] - Prior count to use for shrinking size factors towards the relative library size.
+ * Larger values result in stronger shrinkage when the coverage is low.
+ * @param {?number} [options.reference] - Group to use as a reference.
+ * This should be an entry in `groups`. 
+ * If `null`, it is automatically determined.
+ *
+ * @return A Float64WasmArray of length equal to the number of columns in `x`, containing the size factors for all cells.
+ * If `buffer` is supplied, it is directly filled and returned.
  */
-export class PerCellQCMetrics {
-    /**
-     * @param {Object} raw Raw results allocated on the Wasm heap.
-     *
-     * This should not be called directly; use `computePerCellQCMetrics` instead to create an instance of this object.
-     */
-    constructor(raw) {
-        this.results = raw;
-        return;
-    }
-
-    /**
-     * @param {Object} [options] - Optional parameters.
-     * @param {boolean} [options.copy] - Whether to copy the results from the Wasm heap.
-     * This incurs a copy but has safer lifetime management.
-     *
-     * @return A `Float64Array` (or a view thereof) containing the total count for each cell.
-     */
-    sums({ copy = true } = {}) {
-        return utils.possibleCopy(this.results.sums(), copy);
-    }
-
-    /**
-     * @param {Object} [options] - Optional parameters.
-     * @param {boolean} [options.copy] - Whether to copy the results from the Wasm heap.
-     * This incurs a copy but has safer lifetime management.
-     *
-     * @return An `Int32Array` (or a view thereof) containing the total number of detected genes for each cell.
-     */
-    detected({ copy = true } = {}) {
-        return utils.possibleCopy(this.results.detected(), copy);
-    }
-
-    /**
-     * @param {number} i - Index of the feature subset of interest.
-     * @param {Object} [options] - Optional parameters.
-     * @param {boolean} [options.copy] - Whether to copy the results from the Wasm heap.
-     * This incurs a copy but has safer lifetime management.
-     *
-     * @return A `Float64Array` (or a view thereof) containing the proportion of counts in the subset `i` for each cell.
-     * If {@linkcode PerCellQCMetrics#isProportion isProportion} is `false`, the total count of subset `i` is returned instead.
-     */
-    subsetProportions(i, { copy = true } = {}) {
-        return utils.possibleCopy(this.results.subset_proportions(i), copy);
-    }
-
-    /**
-     * @return Whether the subset proportions were computed in {@linkcode computePerCellQCMetrics}.
-     */
-    isProportion() {
-        return this.results.is_proportion();
-    }
-
-    /**
-     * @return Number of feature subsets in this object.
-     */
-    numberOfSubsets() {
-        return this.results.num_subsets();
-    }
-
-    /**
-     * @return Frees the memory allocated on the Wasm heap for this object.
-     * This invalidates this object and all references to it.
-     */
-    free() {
-        if (this.results !== null) {
-            this.results.delete();
-            this.results = null;
-        }
-        return;
-    }
-}
-
-/**
- * Compute the per-cell QC metrics.
- *
- * @param {ScranMatrix} x - The count matrix.
- * @param {?(Array|Uint8WasmArray)} subsets - Array of arrays of boolean values specifying the feature subsets.
- * Each internal array corresponds to a subset and should be of length equal to the number of rows.
- * Each entry of each internal array specifies whether the corresponding row of `x` belongs to that subset; 
- * any value interpretable as a boolean can be used here.
- * 
- * Alternatively, a `Uint8WasmArray` can be supplied containing the concatenated contents of all arrays;
- * this should be of length equal to the product of the number of subsets and the number of rows in `x`.
- *
- * Alternatively `null`, which is taken to mean that there are no subsets.
- * @param {object} [options] - Optional parameters.
- * @param {boolean} [options.subsetProportions] - Whether to compute proportions for each subset.
- * If `false`, the total count for each subset is computed instead.
- *
- * @return A `PerCellQCMetrics` object containing the QC metrics.
- */
-export function computePerCellQCMetrics(x, subsets, { subsetProportions = true } = {}) {
+export function groupedSizeFactors(x, groups, { center = true, buffer = null, priorCount = 10, reference = null } = {}) {
+    var local_buffer;
     var output;
-    var raw;
+    var group_arr;
 
     try {
-        if (subsets instanceof wa.Uint8WasmArray) {
-            let nsubsets = Math.round(subsets.length / x.numberOfRows());
-            if (nsubsets * x.numberOfRows() != subsets.length) {
-                throw new Error("length of 'subsets' should be a multiple of the matrix rows");
-            }
-
-            // This will either create a cheap view, or it'll clone
-            // 'subsets' into the appropriate memory space.
-            let converted = utils.wasmifyArray(subsets, null);
-            try {
-                let ptr = subsets.offset;
-                raw = wasm.call(module => module.per_cell_qc_metrics(x.matrix, nsubsets, ptr, subsetProportions));
-            } finally {
-                converted.free();
-            }
-
-        } else if (subsets instanceof Array) {
-            let tmp = utils.createUint8WasmArray(x.numberOfRows() * subsets.length);
-            try {
-                let offset = 0;
-                for (var i = 0; i &lt; subsets.length; i++) {
-                    let current = subsets[i];
-                    if (current.length != x.numberOfRows()) {
-                        throw new Error("length of each array in 'subsets' should be equal to the matrix rows");
-                    }
-                    tmp.array().set(current, offset);
-                    offset += current.length;
-                }
-                raw = wasm.call(module => module.per_cell_qc_metrics(x.matrix, subsets.length, tmp.offset, subsetProportions));
-            } finally {
-                tmp.free();
-            }
-
-        } else if (subsets === null) {
-            raw = wasm.call(module => module.per_cell_qc_metrics(x.matrix, 0, 0));
-
+        if (!(buffer instanceof wa.Float64WasmArray)) {
+            local_buffer = utils.createFloat64WasmArray(x.numberOfColumns());
+            output = local_buffer;
         } else {
-            throw new Error("'subsets' should be an Array or Uint8WasmArray");
+            if (buffer.length !== x.numberOfColumns()) {
+                throw new Error("length of 'buffer' must be equal to the number of columns in 'x'");
+            }
+            output = buffer;
         }
 
-        output = new PerCellQCMetrics(raw);
+        group_arr = utils.wasmifyArray(groups, "Int32WasmArray");
+        if (reference == null) {
+            reference = -1;
+        }
+
+        wasm.call(module => module.grouped_size_factors(x.matrix, group_arr.offset, center, priorCount, reference, output.offset));
+
     } catch (e) {
-        utils.free(raw);
+        utils.free(local_buffer);
         throw e;
+    } finally {
+        utils.free(group_arr);
     }
-
-    return output;
-}
-
-/**
- * Create an empty {@linkplain PerCellQCMetricsResults} object, to be filled with custom results.
- * This is typically used to generate a convenient input into later {@linkcode computePerCellQCFilters} calls.
- * Note that filling requires use of `copy: false` in the various getters to obtain a writeable memory view.
- *
- * @param numberOfCells Number of cells in the dataset.
- * @param numberOfSubsets Number of feature subsets.
- * @param {object} [options] - Optional parameters.
- * @param {boolean} [options.subsetProportions] - Whether to store proportions for each subset.
- * If `false`, the total count for each subset is stored instead.
- *
- * @return A {@linkplain PerCellQCMetricsResults} object with allocated memory but no actual values.
- */
-export function emptyPerCellQCMetricsResults(numberOfGenes, numberOfSubsets, { subsetProportions = true } = {}) {
-    let raw;
-    let output;
-
-    try {
-        raw = wasm.call(module => new module.PerCellQCMetrics_Results(numberOfGenes, numberOfSubsets, subsetProportions));
-        output = new PerCellQCMetrics(raw);
-    } catch (e) {
-        utils.free(raw);
-        throw e;
-    }
-
+    
     return output;
 }
 </code></pre>
