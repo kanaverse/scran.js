@@ -12,7 +12,9 @@ export * from "./computePerCellQCMetrics.js";
 export * from "./computePerCellQCFilters.js";
 export * from "./filterCells.js";
 
+export * from "./medianSizeFactors.js";
 export * from "./logNormCounts.js";
+
 export * from "./modelGeneVar.js";
 export * from "./chooseHVGs.js";
 export * from "./runPCA.js";
