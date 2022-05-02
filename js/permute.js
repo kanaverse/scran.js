@@ -52,19 +52,19 @@ export function updatePermutation(x, old) {
     if (x instanceof ScranMatrix) {
         NR = x.numberOfRows();
         if (x.isPermuted()) {
-            if (old.length != x.numberOfRows()) {
+            if (old.length != NR) {
                 throw new Error("number of rows in 'x' should be the same as length of 'old'");
             }
             perm = x.identities();
         }
     } else {
-        if (old.length != x.length) {
+        NR = x.length;
+        if (old.length != NR) {
             throw new Error("length of 'x' should be the same as length of 'old'");
         }
         perm = x;
     }
 
-    let output = new old.constructor(old.length);
     if (perm !== null) {
         let same = true;
         for (const [index, val] of perm.entries()) {
@@ -76,23 +76,27 @@ export function updatePermutation(x, old) {
         if (same) {
             return null;
         }
+    }
 
-        let mapping = {};
-        perm.forEach((x, i) => { mapping[x] = i; });
-        old.forEach((x, i) => {
-            if (!(x in mapping)) {
+    let mapping = {};
+    old.forEach((x, i) => { mapping[x] = i; });
+    let output = new Int32Array(NR);
+
+    if (perm !== null) {
+        for (var i = 0; i < perm.length; i++) {
+            let p = perm[i];
+            if (!(p in mapping)) {
                 throw new Error("mismatch in row identities between 'x' and 'old'");
             }
-            output[mapping[x]] = i;
-        });
-
+            output[i] = mapping[p];
+        }
     } else {
-        old.forEach((x, i) => {
-            if (x < 0 || x >= NR) {
+        for (var p = 0; p < NR; p++) {
+            if (!(p in mapping)) {
                 throw new Error("mismatch in row identities between 'x' and 'old'");
             }
-            output[x] = i;
-        });
+            output[p] = mapping[p];
+        }
     }
 
     return output;
