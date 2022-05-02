@@ -92,7 +92,7 @@ NumericMatrix cbind(int n, uintptr_t mats, bool same_perm) {
     }
 }
 
-NumericMatrix cbind_with_rownames(int n, uintptr_t mats, uintptr_t names) {
+NumericMatrix cbind_with_rownames(int n, uintptr_t mats, uintptr_t names, uintptr_t n_indices, uintptr_t indices) {
     if (n == 0) {
         throw std::runtime_error("need at least one matrix to cbind");
     }
@@ -122,15 +122,15 @@ NumericMatrix cbind_with_rownames(int n, uintptr_t mats, uintptr_t names) {
         in_use = std::unordered_set<int>(intersection.begin(), intersection.end());
     }
 
+    auto as_vec = reinterpret_cast<int*>(indices);
+    auto n_vec = reinterpret_cast<int*>(n_indices);
+    *n_vec = in_use.size();
+
     std::unordered_map<int, int> mapping;
-    std::vector<int> as_vec(in_use.begin(), in_use.end());
-    {
-        std::sort(as_vec.begin(), as_vec.end());
-        int counter = 0;
-        for (auto s : as_vec) {
-            mapping[s] = counter;
-            ++counter;
-        }
+    std::copy(in_use.begin(), in_use.end(), as_vec);
+    std::sort(as_vec, as_vec + in_use.size());
+    for (int s = 0; s < *n_vec; ++s) {
+        mapping[as_vec[s]] = s;
     }
 
     // Applying the mapping. We ignore permutations here, under the assumption
@@ -138,6 +138,7 @@ NumericMatrix cbind_with_rownames(int n, uintptr_t mats, uintptr_t names) {
     // names to match the reordering of the rows.
     std::vector<std::shared_ptr<const tatami::Matrix<double, int> > > collected;
     collected.reserve(mat_ptrs.size());
+    std::vector<size_t> ids;
 
     for (int i = 0; i < n; ++i) {
         const auto& current = *(mat_ptrs[i]);
@@ -152,10 +153,24 @@ NumericMatrix cbind_with_rownames(int n, uintptr_t mats, uintptr_t names) {
             }
         }
 
+        if (i == 0) {
+            ids = reorder;
+        }
+
         collected.push_back(tatami::make_DelayedSubset<0>(current.ptr, std::move(reorder)));
     }
 
-    return NumericMatrix(tatami::make_DelayedBind<1>(std::move(collected)), std::vector<size_t>(as_vec.begin(), as_vec.end()));
+    // Adjust 'ids' so that they refer to the _original_ identifiers for the
+    // first dataset. Indices to the universe of names are instead returned via
+    // 'indices'. Of course, if the first matrix wasn't permuted, then 'ids'
+    // are already referring to the original identifiers.
+    if (first.is_permuted) {
+        for (auto& y : ids) {
+            y = first.row_ids[y];
+        }
+    }
+
+    return NumericMatrix(tatami::make_DelayedBind<1>(std::move(collected)), std::move(ids));
 }
 
 /**
