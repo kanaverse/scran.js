@@ -35,13 +35,12 @@ NumericMatrix column_subset(const NumericMatrix& matrix, uintptr_t offset, size_
     auto offset_ptr = reinterpret_cast<const int*>(offset);
     check_limit<false>(offset_ptr, length, matrix.ncol());
 
-    NumericMatrix output(tatami::make_DelayedSubset<1>(matrix.ptr, std::vector<int>(offset_ptr, offset_ptr + length)));
-    if (matrix.permuted()) {
-        output.is_permuted = true;
-        output.permutation.insert(output.permutation.end(), matrix.permutation.begin(), matrix.permutation.end());
+    auto ptr = tatami::make_DelayedSubset<1>(matrix.ptr, std::vector<int>(offset_ptr, offset_ptr + length));
+    if (matrix.is_permuted) {
+        return NumericMatrix(std::move(ptr), matrix.row_ids);
+    } else {
+        return NumericMatrix(std::move(ptr));
     }
-
-    return output;
 }
 
 /** 
@@ -55,7 +54,17 @@ NumericMatrix column_subset(const NumericMatrix& matrix, uintptr_t offset, size_
 NumericMatrix row_subset(const NumericMatrix& matrix, uintptr_t offset, size_t length) {
     auto offset_ptr = reinterpret_cast<const int*>(offset);
     check_limit<false>(offset_ptr, length, matrix.nrow());
-    return NumericMatrix(tatami::make_DelayedSubset<0>(matrix.ptr, std::vector<int>(offset_ptr, offset_ptr+length)));
+
+    std::vector<size_t> remaining(length);
+    if (matrix.is_permuted) {
+        for (size_t o = 0; o < length; ++o) {
+            remaining[o] = matrix.row_ids[offset_ptr[o]];
+        }
+    } else {
+        std::copy(offset_ptr, offset_ptr + length, remaining.begin());
+    }
+
+    return NumericMatrix(tatami::make_DelayedSubset<1>(matrix.ptr, std::vector<int>(offset_ptr, offset_ptr + length)), std::move(remaining));
 }
 
 /**

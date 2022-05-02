@@ -97,7 +97,7 @@ NumericMatrix read_hdf5_matrix(std::string path, std::string name) {
     }
     enable_parallel = true;
 
-    return NumericMatrix(std::move(output.matrix), std::move(output.permutation));
+    return NumericMatrix(std::move(output.matrix), permutation_to_indices(output.permutation));
 }
 
 /**

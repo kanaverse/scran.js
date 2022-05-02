@@ -6,15 +6,15 @@ NumericMatrix::NumericMatrix(const tatami::NumericMatrix* p) : ptr(std::shared_p
 
 NumericMatrix::NumericMatrix(std::shared_ptr<const tatami::NumericMatrix> p) : ptr(std::move(p)), is_permuted(false) {}
 
-NumericMatrix::NumericMatrix(const tatami::NumericMatrix* p, std::vector<size_t> perm) : ptr(std::shared_ptr<const tatami::NumericMatrix>(p)), permutation(std::move(perm)), is_permuted(true) {
-    if (permutation.size() != ptr->nrow()) {
-        throw std::runtime_error("length of 'permutation' must be equal to the number of rows of 'p'");
+NumericMatrix::NumericMatrix(const tatami::NumericMatrix* p, std::vector<size_t> i) : ptr(std::shared_ptr<const tatami::NumericMatrix>(p)), row_ids(std::move(i)), is_permuted(true) {
+    if (row_ids.size() != ptr->nrow()) {
+        throw std::runtime_error("length of 'i' must be equal to the number of rows of 'p'");
     }
 }
 
-NumericMatrix::NumericMatrix(std::shared_ptr<const tatami::NumericMatrix> p, std::vector<size_t> perm) : ptr(std::move(p)), permutation(std::move(perm)), is_permuted(true) {
-    if (permutation.size() != ptr->nrow()) {
-        throw std::runtime_error("length of 'permutation' must be equal to the number of rows of 'p'");
+NumericMatrix::NumericMatrix(std::shared_ptr<const tatami::NumericMatrix> p, std::vector<size_t> i) : ptr(std::move(p)), row_ids(std::move(i)), is_permuted(true) {
+    if (row_ids.size() != ptr->nrow()) {
+        throw std::runtime_error("length of 'i' must be equal to the number of rows of 'p'");
     }
 }
 
@@ -44,9 +44,9 @@ void NumericMatrix::column(int c, uintptr_t values) const {
     return;
 }
 
-void NumericMatrix::perm(uintptr_t values) const {
+void NumericMatrix::identities(uintptr_t values) const {
     int* buffer = reinterpret_cast<int*>(values);
-    std::copy(permutation.begin(), permutation.end(), buffer);
+    std::copy(row_ids.begin(), row_ids.end(), buffer);
     return;
 }
 
@@ -61,14 +61,14 @@ bool NumericMatrix::sparse() const {
 /**
  * @cond 
  */
-EMSCRIPTEN_BINDINGS(my_class_example) {
+EMSCRIPTEN_BINDINGS(NumericMatrix) {
     emscripten::class_<NumericMatrix>("NumericMatrix")
         .constructor<int, int, uintptr_t>()
         .function("nrow", &NumericMatrix::nrow)
         .function("ncol", &NumericMatrix::ncol)
         .function("row", &NumericMatrix::row)
         .function("column", &NumericMatrix::column)
-        .function("permutation", &NumericMatrix::perm)
+        .function("identities", &NumericMatrix::identities)
         .function("permuted", &NumericMatrix::permuted)
         .function("sparse", &NumericMatrix::sparse)
         ;

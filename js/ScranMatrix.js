@@ -105,53 +105,37 @@ export class ScranMatrix {
     }
 
     /**
-     * @return Boolean indicating whether the matrix contains a permuted row order.
+     * @return Boolean indicating whether the matrix contains a non-trivial row permutation.
+     * If `true`, the row identities should be extracted from {@linkcode ScranMatrix#identities identities};
+     * otherwise, the row identities are assumed to be consecutive increasing integers from 0.
      */
     isPermuted() {
         return this.matrix.permuted();
     }
 
     /**
-     * Obtain the row permutation applied to the matrix, assuming {@linkcode ScranMatrix#hasPermutation hasPermutation} returns `true`.
+     * Obtain the identities of the rows of the matrix, assuming {@linkcode ScranMatrix#isPermuted isPermuted} returns `true`.
      *
      * @param {Object} [options] - Optional parameters.
-     * @param {Int32WasmArray} [options.buffer] Buffer to extract into.
+     * @param {?Int32WasmArray} [options.buffer] Buffer to extract into.
      * If supplied, this should have length equal to `numberOfRows()`. 
      *
      * @return 
-     * If `buffer` is not supplied, a `Int32Array` is returned containing the permutation vector.
-     * Otherwise, `buffer` is filled with the permutation vector and nothing is returned.
+     * If `buffer` is not supplied, an Int32Array is returned containing the row identities.
+     * These represent the row indices in the original dataset.
      *
-     * If `restore = true`, the permutation vector represents the permutation should be applied to the current rows to obtain the original row order.
-     * That is, for a permutation array `x`, `x[i]` is the current row index for the original row `i`.
-     *
-     * If `restore = false`, the permutation vector represents the permutation that _was_ applied to the original rows to obtain the permuted (i.e., current) row order.
-     * That is, for a permutation array `x`, `x[i]` is the original row index for the current row `i`.
+     * If `buffer` is supplied, it is filled with the row identities.
+     * A reference to `buffer` is returned.
      */
-    permutation({ buffer = null, restore = true } = {}) {
-        let OP;
-        if (restore) {
-            OP = () => {};
-        } else {
-            OP = () => {
-                let tmp = new Int32Array(buffer.length);
-                buffer.array().forEach((x, i) => {
-                    tmp[x] = i;
-                });
-                buffer.set(tmp);
-            };
-        }
-
+    identities({ buffer = null }) {
         if (buffer != null) {
-            this.matrix.permutation(buffer.offset);
-            OP();
-            return;
+            this.matrix.identities(buffer.offset);
+            return buffer;
         } else {
             var output;
             buffer = utils.createInt32WasmArray(this.matrix.nrow());
             try {
-                this.matrix.permutation(buffer.offset);
-                OP();
+                this.matrix.identities(buffer.offset);
                 output = buffer.slice();
             } finally {
                 buffer.free();

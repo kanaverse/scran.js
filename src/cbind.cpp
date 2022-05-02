@@ -28,44 +28,63 @@ NumericMatrix cbind(int n, uintptr_t mats, bool same_perm) {
         }
     }
 
-    if (first.is_permuted) {
-        std::vector<int> reversi;
-        const auto& first_perm = first.permutation;
-
+    if (same_perm) {
         for (int i = 1; i < n; ++i) {
             const auto& current = *(mat_ptrs[i]);
-            if (same_perm) {
+            collected.push_back(current.ptr);
+        }
+
+    } else if (!first.is_permuted) {
+        for (int i = 1; i < n; ++i) {
+            const auto& current = *(mat_ptrs[i]);
+            if (!current.is_permuted) {
                 collected.push_back(current.ptr);
-            } else if (current.is_permuted) {
-                const auto& curperm = current.permutation;
-                std::vector<size_t> perm_to_first(NR);
-                for (size_t i = 0; i < NR; ++i) {
-                    perm_to_first[first_perm[i]] = curperm[i];
-                }
-                collected.push_back(tatami::make_DelayedSubset<0>(current.ptr, std::move(perm_to_first)));
             } else {
-                if (reversi.empty()) {
-                    reversi.resize(NR);
-                    for (size_t i = 0; i < NR; ++i) {
-                        reversi[first_perm[i]] = i;
+                std::vector<size_t> permutation(NR);
+                const auto& cur_ids = current.row_ids;
+                for (size_t i = 0; i < cur_ids.size(); ++i) {
+                    if (cur_ids[i] >= NR) {
+                        throw std::runtime_error("row identity (" + std::to_string(cur_ids[i]) + ") in matrix " + std::to_string(i + 1) + " has no counterpart in the first matrix");
                     }
+                    permutation[cur_ids[i]] = i;
                 }
-                collected.push_back(tatami::make_DelayedSubset<0>(current.ptr, reversi));
+                collected.push_back(tatami::make_DelayedSubset<0>(current.ptr, std::move(permutation)));
             }
         }
-        return NumericMatrix(tatami::make_DelayedBind<1>(std::move(collected)), first_perm);
 
     } else {
+        std::unordered_map<size_t, size_t> mapping;
+        const auto& first_ids = first.row_ids;  
+        for (size_t i = 0; i < first_ids.size(); ++i) {
+            mapping[first_ids[i]] = i;
+        }
+
         for (int i = 1; i < n; ++i) {
             const auto& current = *(mat_ptrs[i]);
-            if (same_perm || !current.is_permuted) {
-                collected.push_back(current.ptr);
+            std::vector<size_t> permutation(NR);
+            if (!current.is_permuted) {
+                for (size_t i = 0; i < NR; ++i) {
+                    auto it = mapping.find(i);
+                    if (it == mapping.end()) {
+                        throw std::runtime_error("row identity (" + std::to_string(i) + ") in matrix " + std::to_string(i + 1) + " has no counterpart in the first matrix");
+                    }
+                    permutation[it->second] = i;
+                }
             } else {
-                collected.push_back(tatami::make_DelayedSubset<0>(current.ptr, current.permutation));
+                const auto& cur_ids = current.row_ids;
+                for (size_t i = 0; i < cur_ids.size(); ++i) {
+                    auto it = mapping.find(cur_ids[i]);
+                    if (it == mapping.end()) {
+                        throw std::runtime_error("row identity (" + std::to_string(cur_ids[i]) + ") in matrix " + std::to_string(i + 1) + " has no counterpart in the first matrix");
+                    }
+                    permutation[it->second] = i;
+                }
             }
+            collected.push_back(tatami::make_DelayedSubset<0>(current.ptr, std::move(permutation)));
         }
-        return NumericMatrix(tatami::make_DelayedBind<1>(std::move(collected)));
     }
+
+    return NumericMatrix(tatami::make_DelayedBind<1>(std::move(collected)));
 }
 
 NumericMatrix cbind_with_rownames(int n, uintptr_t mats, uintptr_t names) {
@@ -131,16 +150,7 @@ NumericMatrix cbind_with_rownames(int n, uintptr_t mats, uintptr_t names) {
         collected.push_back(tatami::make_DelayedSubset<0>(current.ptr, std::move(reorder)));
     }
 
-    // Here, the permutation slot is just being re-used to define the intersection.
-    // We set is_permuted = false to indicate as such; we expect the caller to apply 
-    // the relevant subsetting of the feature information.
-    NumericMatrix output(
-        tatami::make_DelayedBind<1>(std::move(collected)), 
-        std::vector<size_t>(as_vec.begin(), as_vec.end())
-    );
-    output.is_permuted = false;
-
-    return output;
+    return NumericMatrix(tatami::make_DelayedBind<1>(std::move(collected)), std::vector<size_t>(as_vec.begin(), as_vec.end()));
 }
 
 /**

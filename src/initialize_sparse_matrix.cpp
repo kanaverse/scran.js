@@ -2,6 +2,7 @@
 #include "NumericMatrix.h"
 #include "tatami/ext/convert_to_layered_sparse.hpp"
 #include "tatami/ext/SomeNumericArray.hpp"
+#include "utils.h"
 
 /**
  * @cond
@@ -53,7 +54,7 @@ NumericMatrix initialize_sparse_matrix_from_dense_vector(size_t nrows, size_t nc
     auto vals = create_SomeNumericArray<int>(values, nrows*ncols, type);
     tatami::DenseColumnMatrix<double, int, decltype(vals)> mat(nrows, ncols, vals);
     auto output = tatami::convert_to_layered_sparse(&mat); 
-    return NumericMatrix(std::move(output.matrix), std::move(output.permutation));
+    return NumericMatrix(std::move(output.matrix), permutation_to_indices(output.permutation));
 }
 
 /**
@@ -90,7 +91,8 @@ NumericMatrix initialize_sparse_matrix(size_t nrows, size_t ncols, size_t neleme
     }
 
     auto output = tatami::convert_to_layered_sparse(mat.get()); 
-    return NumericMatrix(std::move(output.matrix), std::move(output.permutation));
+
+    return NumericMatrix(std::move(output.matrix), permutation_to_indices(output.permutation));
 }
 
 /**
