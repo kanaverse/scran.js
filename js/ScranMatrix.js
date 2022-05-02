@@ -127,7 +127,7 @@ export class ScranMatrix {
      * If `buffer` is supplied, it is filled with the row identities.
      * A reference to `buffer` is returned.
      */
-    identities({ buffer = null }) {
+    identities({ buffer = null } = {}) {
         if (buffer != null) {
             this.matrix.identities(buffer.offset);
             return buffer;

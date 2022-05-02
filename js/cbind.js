@@ -104,11 +104,9 @@ export function cbindWithNames(x, names) {
         raw = wasm.call(module => module.cbind_with_rownames(x.length, mat_ptrs.offset, name_ptrs.offset));
         output.matrix = new ScranMatrix(raw);
 
-        // Even though isPermuted() is false, we can still get the gene indices via permutations().
-        // This isn't entirely legit but whatever.
-        output.indices = output.matrix.permutation({ copy: "view" });
+        let ids = output.matrix.identities();
         let internames = [];
-        for (const i of output.indices) {
+        for (const i of ids) {
             internames.push(universe[i]);
         }
         output.names = internames;

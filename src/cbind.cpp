@@ -84,7 +84,12 @@ NumericMatrix cbind(int n, uintptr_t mats, bool same_perm) {
         }
     }
 
-    return NumericMatrix(tatami::make_DelayedBind<1>(std::move(collected)));
+    auto bound = tatami::make_DelayedBind<1>(std::move(collected));
+    if (first.is_permuted) {
+        return NumericMatrix(std::move(bound), first.row_ids);
+    } else {
+        return NumericMatrix(std::move(bound));
+    }
 }
 
 NumericMatrix cbind_with_rownames(int n, uintptr_t mats, uintptr_t names) {

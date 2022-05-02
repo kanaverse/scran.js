@@ -22,13 +22,14 @@ export function permuteVector(x, values) {
     }
 
     if (perm !== null) {
-        let copy = new values.constuctor(perm.length);
+        let copy = new values.constructor(perm.length);
         perm.forEach((x, i) => {
             copy[i] = values[x];
         });
+        return copy;
+    } else {
+        return values.slice();
     }
-
-    return copy;
 }
 
 /**
@@ -65,17 +66,24 @@ export function updatePermutation(x, old) {
         perm = x;
     }
 
+    let same = true;
     if (perm !== null) {
-        let same = true;
         for (const [index, val] of perm.entries()) {
             if (old[index] != val) {
                 same = false;
                 break;
             }
         }
-        if (same) {
-            return null;
+    } else {
+        for (const [index, val] of old.entries()) {
+            if (val != index) {
+                same = false;
+                break;
+            }
         }
+    }
+    if (same) {
+        return null;
     }
 
     let mapping = {};
