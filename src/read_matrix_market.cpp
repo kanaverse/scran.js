@@ -34,7 +34,7 @@ NumericMatrix read_matrix_market(uintptr_t buffer, int size, bool compressed) {
         PROGRESS_PRINTER("read_matrix_market", 2, 2, "Done")
 #endif
 
-        return NumericMatrix(std::move(stuff.matrix), std::move(stuff.permutation));
+        return NumericMatrix(std::move(stuff.matrix), permutation_to_indices(stuff.permutation));
     } else {
         auto stuff = tatami::MatrixMarket::load_layered_sparse_matrix_from_buffer(bufptr, size);
 
@@ -42,7 +42,7 @@ NumericMatrix read_matrix_market(uintptr_t buffer, int size, bool compressed) {
         PROGRESS_PRINTER("read_matrix_market", 2, 2, "Done")
 #endif
 
-        return NumericMatrix(std::move(stuff.matrix), std::move(stuff.permutation));
+        return NumericMatrix(std::move(stuff.matrix), permutation_to_indices(stuff.permutation));
     }
 }
 

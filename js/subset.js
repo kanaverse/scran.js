@@ -11,7 +11,7 @@ import * as wasm from "./wasm.js";
  * @return
  * A new ScranMatrix containing the subset of rows from `mat` specified by `indices`.
  */
-function subsetRows(mat, indices) {
+export function subsetRows(mat, indices) {
     let raw;
     let output;
     let wasm_indices;

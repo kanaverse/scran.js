@@ -30,16 +30,18 @@ struct NumericMatrix {
     /** Construct a `NumericMatrix` from an existing pointer to a `tatami::NumericMatrix`.
      *
      * @param p Pointer to a `tatami::NumericMatrix`.
-     * @param perm Vector of length equal to the number of rows of `p`, containing the permutation vector.
+     * @param i Vector of length equal to the number of rows of `p`,
+     * containing the identity of each row (typically as indices of the original dataset).
      */
-    NumericMatrix(const tatami::NumericMatrix* p, std::vector<size_t> perm);
+    NumericMatrix(const tatami::NumericMatrix* p, std::vector<size_t> i);
 
     /** Construct a `NumericMatrix` from an existing pointer to a `tatami::NumericMatrix`.
      *
      * @param p Pointer to a `tatami::NumericMatrix`.
-     * @param perm Vector of length equal to the number of rows of `p`, containing the permutation vector.
+     * @param i Vector of length equal to the number of rows of `p`, 
+     * containing the identity of each row (typically as indices of the original dataset).
      */
-    NumericMatrix(std::shared_ptr<const tatami::NumericMatrix> p, std::vector<size_t> perm);
+    NumericMatrix(std::shared_ptr<const tatami::NumericMatrix> p, std::vector<size_t> i);
 
     /**
      * Construct a `NumericMatrix` from a row-major dense array.
@@ -79,14 +81,15 @@ struct NumericMatrix {
     /** 
      * @param values Offset to the start of an output array of `int`s of length equal to `nrow()`.
      *
-     * @return The array in `values` is filled with the permutation vector.
+     * @return The array in `values` is filled with the row identities.
      *
-     * This function only makes sense if `permuted()` returns `true`.
+     * This function should only be called if `permuted()` returns `true`.
      */
-    void perm(uintptr_t values) const;
+    void identities(uintptr_t values) const;
 
     /**
-     * @return Whether the underlying matrix contains a row permutation.
+     * @return Whether the underlying matrix contains a non-trivial row permutation.
+     * If `false`, `indices()` is assumed to be trivial, containing consecutive increasing values from 0, and so is not explicitly stored. 
      */
     bool permuted() const;
 
@@ -100,7 +103,7 @@ struct NumericMatrix {
      */
     std::shared_ptr<const tatami::NumericMatrix> ptr;
 
-    std::vector<size_t> permutation;
+    std::vector<size_t> row_ids;
 
     bool is_permuted;
     /**

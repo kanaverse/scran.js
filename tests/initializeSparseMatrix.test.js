@@ -43,8 +43,8 @@ test("initialization from compressed values works correctly", () => {
     expect(mat.isPermuted()).toBe(true);
 
     // Extracting the row permutations.
-    var perm = mat.permutation();
-    expect(compare.equalArrays(perm, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10])).toBe(true);
+    var id = mat.identities();
+    expect(compare.equalArrays(id, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10])).toBe(true);
 
     // Extracting the first and last columns to check for correctness.
     expect(compare.equalArrays(mat.column(0), [0, 0, 0, 1, 0, 5, 0, 0, 0, 0, 0])).toBe(true);
@@ -74,11 +74,9 @@ test("initialization from compressed values works with permutations", () => {
     expect(mat.numberOfColumns()).toBe(10);
     expect(mat.isPermuted()).toBe(true);
 
-    // Extracting the row permutations.
-    var permutation = mat.permutation();
-    expect(compare.equalArrays(permutation, [10, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8])).toBe(true);
-    var revpermutation = mat.permutation({ restore: false });
-    expect(compare.equalArrays(revpermutation, [2, 3, 4, 5, 6, 7, 8, 9, 10, 1, 0])).toBe(true);
+    // Extracting the row identities.
+    var ids = mat.identities();
+    expect(compare.equalArrays(ids, [2, 3, 4, 5, 6, 7, 8, 9, 10, 1, 0])).toBe(true);
 
     expect(compare.equalArrays(mat.row(0), [0, 0, 10, 10, 0, 0, 0, 0, 0, 0])).toBe(true); // basically gets row 2, which has been promoted to the first row.
     expect(compare.equalArrays(mat.row(9), [0, 0, 0, 1000, 0, 0, 0, 0, 0, 0])).toBe(true); // gets row 1, which has been demoted to the second-last row.

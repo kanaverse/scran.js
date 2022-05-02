@@ -62,6 +62,8 @@ export function cbindWithNames(x, names) {
     let mat_ptrs;
     let renamed = [];
     let name_ptrs;
+    let n_indices;
+    let indices;
     let raw;
     let output = {};
 
@@ -101,12 +103,13 @@ export function cbindWithNames(x, names) {
         }
 
         mat_ptrs = harvest_matrices(x);
-        raw = wasm.call(module => module.cbind_with_rownames(x.length, mat_ptrs.offset, name_ptrs.offset));
+
+        indices = utils.createInt32WasmArray(universe.length);
+        n_indices = utils.createInt32WasmArray(1);
+        raw = wasm.call(module => module.cbind_with_rownames(x.length, mat_ptrs.offset, name_ptrs.offset, n_indices.offset, indices.offset));
         output.matrix = new ScranMatrix(raw);
 
-        // Even though isPermuted() is false, we can still get the gene indices via permutations().
-        // This isn't entirely legit but whatever.
-        output.indices = output.matrix.permutation({ copy: "view" });
+        output.indices = indices.slice(0, n_indices.array()[0]);
         let internames = [];
         for (const i of output.indices) {
             internames.push(universe[i]);
@@ -120,6 +123,8 @@ export function cbindWithNames(x, names) {
     } finally {
         utils.free(mat_ptrs);
         utils.free(name_ptrs);
+        utils.free(indices);
+        utils.free(n_indices);
         for (const x of renamed) {
             utils.free(x);
         }

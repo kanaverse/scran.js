@@ -18,7 +18,7 @@ NumericMatrix filter_cells(const NumericMatrix& mat, uintptr_t filter, bool keep
     if (keep) {
         filterer.set_retain();
     }
-    return NumericMatrix(filterer.run(mat.ptr, reinterpret_cast<const uint8_t*>(filter)), mat.permutation);
+    return NumericMatrix(filterer.run(mat.ptr, reinterpret_cast<const uint8_t*>(filter)), mat.row_ids);
 }
 
 /**
