@@ -53,7 +53,7 @@ NumericMatrix column_subset(const NumericMatrix& matrix, uintptr_t offset, size_
  */
 NumericMatrix row_subset(const NumericMatrix& matrix, uintptr_t offset, size_t length) {
     auto offset_ptr = reinterpret_cast<const int*>(offset);
-    check_limit<false>(offset_ptr, length, matrix.nrow());
+    check_limit<true>(offset_ptr, length, matrix.nrow());
 
     std::vector<size_t> remaining(length);
     if (matrix.is_permuted) {
@@ -64,7 +64,7 @@ NumericMatrix row_subset(const NumericMatrix& matrix, uintptr_t offset, size_t l
         std::copy(offset_ptr, offset_ptr + length, remaining.begin());
     }
 
-    return NumericMatrix(tatami::make_DelayedSubset<1>(matrix.ptr, std::vector<int>(offset_ptr, offset_ptr + length)), std::move(remaining));
+    return NumericMatrix(tatami::make_DelayedSubset<0>(matrix.ptr, std::vector<int>(offset_ptr, offset_ptr + length)), std::move(remaining));
 }
 
 /**
