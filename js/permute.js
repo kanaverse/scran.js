@@ -66,6 +66,10 @@ export function updatePermutation(x, old) {
         perm = x;
     }
 
+    if (NR != old.length) {
+        throw new Error("mismatch in row identities between 'x' and 'old'");
+    }
+
     let same = true;
     if (perm !== null) {
         for (const [index, val] of perm.entries()) {
