@@ -43,7 +43,7 @@ FetchContent_MakeAvailable(tatami)
 FetchContent_Declare(
   kmeans 
   GIT_REPOSITORY https://github.com/LTLA/CppKmeans
-  GIT_TAG 5c5dd42d1293f0c684c3b241be3001a143ad351b
+  GIT_TAG 4397a8d576cf0b657fd9012c049e05727c45796d
 )
 FetchContent_MakeAvailable(kmeans)
 
