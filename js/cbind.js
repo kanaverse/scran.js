@@ -62,7 +62,6 @@ export function cbindWithNames(x, names) {
     let mat_ptrs;
     let renamed = [];
     let name_ptrs;
-    let n_indices;
     let indices;
     let raw;
     let output = {};
@@ -103,16 +102,14 @@ export function cbindWithNames(x, names) {
         }
 
         mat_ptrs = harvest_matrices(x);
-
-        indices = utils.createInt32WasmArray(universe.length);
-        n_indices = utils.createInt32WasmArray(1);
-        raw = wasm.call(module => module.cbind_with_rownames(x.length, mat_ptrs.offset, name_ptrs.offset, n_indices.offset, indices.offset));
+        indices = utils.createInt32WasmArray(x[0].numberOfRows());
+        raw = wasm.call(module => module.cbind_with_rownames(x.length, mat_ptrs.offset, name_ptrs.offset, indices.offset));
         output.matrix = new ScranMatrix(raw);
 
-        output.indices = indices.slice(0, n_indices.array()[0]);
+        output.indices = indices.slice(0, output.matrix.numberOfRows());
         let internames = [];
         for (const i of output.indices) {
-            internames.push(universe[i]);
+            internames.push(names[0][i]);
         }
         output.names = internames;
 
@@ -124,7 +121,6 @@ export function cbindWithNames(x, names) {
         utils.free(mat_ptrs);
         utils.free(name_ptrs);
         utils.free(indices);
-        utils.free(n_indices);
         for (const x of renamed) {
             utils.free(x);
         }

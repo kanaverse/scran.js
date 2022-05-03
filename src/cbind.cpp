@@ -92,7 +92,7 @@ NumericMatrix cbind(int n, uintptr_t mats, bool same_perm) {
     }
 }
 
-NumericMatrix cbind_with_rownames(int n, uintptr_t mats, uintptr_t names, uintptr_t n_indices, uintptr_t indices) {
+NumericMatrix cbind_with_rownames(int n, uintptr_t mats, uintptr_t names, uintptr_t indices) {
     if (n == 0) {
         throw std::runtime_error("need at least one matrix to cbind");
     }
@@ -122,14 +122,10 @@ NumericMatrix cbind_with_rownames(int n, uintptr_t mats, uintptr_t names, uintpt
         in_use = std::unordered_set<int>(intersection.begin(), intersection.end());
     }
 
-    auto as_vec = reinterpret_cast<int*>(indices);
-    auto n_vec = reinterpret_cast<int*>(n_indices);
-    *n_vec = in_use.size();
-
     std::unordered_map<int, int> mapping;
-    std::copy(in_use.begin(), in_use.end(), as_vec);
-    std::sort(as_vec, as_vec + in_use.size());
-    for (int s = 0; s < *n_vec; ++s) {
+    std::vector<int> as_vec(in_use.begin(), in_use.end());
+    std::sort(as_vec.begin(), as_vec.end());
+    for (int s = 0; s < as_vec.size(); ++s) {
         mapping[as_vec[s]] = s;
     }
 
@@ -160,10 +156,14 @@ NumericMatrix cbind_with_rownames(int n, uintptr_t mats, uintptr_t names, uintpt
         collected.push_back(tatami::make_DelayedSubset<0>(current.ptr, std::move(reorder)));
     }
 
+    // Save the direct row indices for the first matrix.
+    auto idptr = reinterpret_cast<int*>(indices);
+    std::copy(ids.begin(), ids.end(), idptr);
+
     // Adjust 'ids' so that they refer to the _original_ identifiers for the
-    // first dataset. Indices to the universe of names are instead returned via
-    // 'indices'. Of course, if the first matrix wasn't permuted, then 'ids'
-    // are already referring to the original identifiers.
+    // first matrix, as expected for the 'row_ids' field of the NumericMatrix.
+    // Of course, if the first matrix wasn't permuted, then the 'ids' are
+    // already referring to the original identifiers, so no change is required.
     if (first.is_permuted) {
         for (auto& y : ids) {
             y = first.row_ids[y];

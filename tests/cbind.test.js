@@ -165,15 +165,7 @@ test("cbindWithNames works correctly (simple)", () => {
     mat3.free();
 })
 
-test("cbindWithNames works correctly (complex)", () => {
-    var mat1 = simulate.simulateDenseMatrix(10, 10);
-    var names1 = ["Z", "X", "V", "T", "R", "P", "N", "L", "J", "H"]; // every second letter, from the end.
-    var mat2 = simulate.simulateDenseMatrix(8, 20);
-    var names2 = ["I", "J", "K", "L", "M", "N", "O", "P"]; // consecutive letters.
-    var mat3 = simulate.simulateDenseMatrix(4, 30);
-    var names3 = ["L", "J", "N", "P"]; // random order.
-
-    let combined = scran.cbindWithNames([mat1, mat2, mat3], [names1, names2, names3]);
+function quick_check(mat1, mat2, mat3, combined) {
     expect(combined.matrix.isPermuted()).toBe(true);
     expect(combined.matrix.numberOfRows()).toBe(4);
     expect(combined.matrix.numberOfColumns()).toBe(60);
@@ -188,6 +180,18 @@ test("cbindWithNames works correctly (complex)", () => {
     let y3 = mat3.column(0);
     let expected3 = [y3[3], y3[2], y3[0], y3[1]];
     expect(compare.equalArrays(combined.matrix.column(30), expected3)).toBe(true);
+}
+
+test("cbindWithNames works correctly (complex)", () => {
+    var mat1 = simulate.simulateDenseMatrix(10, 10);
+    var names1 = ["Z", "X", "V", "T", "R", "P", "N", "L", "J", "H"]; // every second letter, from the end.
+    var mat2 = simulate.simulateDenseMatrix(8, 20);
+    var names2 = ["I", "J", "K", "L", "M", "N", "O", "P"]; // consecutive letters.
+    var mat3 = simulate.simulateDenseMatrix(4, 30);
+    var names3 = ["L", "J", "N", "P"]; // random order.
+
+    let combined = scran.cbindWithNames([mat1, mat2, mat3], [names1, names2, names3]);
+    quick_check(mat1, mat2, mat3, combined);
 
     // Row identities are handled correctly.
     expect(compare.equalArrays(combined.matrix.identities(), [5, 6, 7, 8])).toBe(true);
@@ -201,28 +205,37 @@ test("cbindWithNames works correctly (complex)", () => {
 
 test("cbindWithNames works correctly (permuted)", () => {
     var mat1 = simulate.simulatePermutedMatrix(10, 10);
-    var names1 = ["Z", "X", "V", "T", "R", "P", "N", "L", "J", "H"]; // every second letter, from the end.
+    var names1 = ["Z", "X", "V", "T", "R", "P", "N", "L", "J", "H"]; 
     var mat2 = simulate.simulatePermutedMatrix(8, 20);
-    var names2 = ["I", "J", "K", "L", "M", "N", "O", "P"]; // consecutive letters.
+    var names2 = ["I", "J", "K", "L", "M", "N", "O", "P"]; 
     var mat3 = simulate.simulatePermutedMatrix(4, 30);
-    var names3 = ["L", "J", "N", "P"]; // random order.
+    var names3 = ["L", "J", "N", "P"]; 
 
     let combined = scran.cbindWithNames([mat1, mat2, mat3], [names1, names2, names3]);
-    expect(combined.matrix.isPermuted()).toBe(true);
-    expect(combined.matrix.numberOfRows()).toBe(4);
-    expect(combined.matrix.numberOfColumns()).toBe(60);
+    quick_check(mat1, mat2, mat3, combined);
 
-    // Double-checking that the tests for the non-permuted case still hold here.
-    expect(compare.equalArrays(combined.names, ["P", "N", "L", "J",])).toBe(true);
-    expect(compare.equalArrays(combined.matrix.column(0), mat1.column(0).slice(5, 9))).toBe(true);
+    // Row identities are handled correctly.
+    let kept = [5, 6, 7, 8];
+    let expected = kept.map(i => mat1.identities()[i]);
+    expect(compare.equalArrays(combined.matrix.identities(), expected)).toBe(true);
 
-    let y2 = mat2.column(0);
-    let expected2 = [y2[7], y2[5], y2[3], y2[1]];
-    expect(compare.equalArrays(combined.matrix.column(10), expected2)).toBe(true);
+    // Freeing all the bits and pieces.
+    combined.matrix.free();
+    mat1.free();
+    mat2.free();
+    mat3.free();
+})
 
-    let y3 = mat3.column(0);
-    let expected3 = [y3[3], y3[2], y3[0], y3[1]];
-    expect(compare.equalArrays(combined.matrix.column(30), expected3)).toBe(true);
+test("cbindWithNames works correctly (duplicates)", () => {
+    var mat1 = simulate.simulatePermutedMatrix(10, 10);
+    var names1 = ["Z", "A", "Z", "A", "R", "P", "N", "L", "J", "H"]; // preceding duplicates that might mess with the indexing.
+    var mat2 = simulate.simulatePermutedMatrix(8, 20);
+    var names2 = ["I", "J", "K", "L", "M", "N", "P", "P"]; // duplicate in 'P', the last occurrence is used.
+    var mat3 = simulate.simulatePermutedMatrix(4, 30);
+    var names3 = ["L", "J", "N", "P"]; 
+
+    let combined = scran.cbindWithNames([mat1, mat2, mat3], [names1, names2, names3]);
+    quick_check(mat1, mat2, mat3, combined);
 
     // Row identities are handled correctly.
     let kept = [5, 6, 7, 8];
