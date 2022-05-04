@@ -208,6 +208,13 @@ $(function() {
 <p >Check out <a href="https://github.com/jkanche/kana">kana</a> to see how <b>scran.js</b> is used in an interactive scRNA-seq analysis application.</p>
 <p >The <a href="https://github.com/LTLA/scran.chan"><b>scran.chan</b></a> R package and <a href="https://github.com/LTLA/scran-cli"><b>scran</b></a> executable are based on the same C++ libraries and allow the same analysis to be performed in different environments.</p>
 <h1>Changelog</h1>
+<p ><b>0.1.1</b></p>
+<ul>
+<li>Deprecated <code>ScranMatrix::isPermuted()</code> for <code>ScranMatrix::isReorganized()</code>.</li>
+<li>Deprecated <code>permuteVector()</code> for <code>matchVectorToRowIdentities()</code>.</li>
+<li>Deprecated <code>updatePermutation()</code> for <code>updateRowIdentities()</code>.</li>
+<li>Deprecated <code>permuteFeatures()</code> for <code>matchFeatureAnnotationToRowIdentities()</code>.</li>
+</ul>
 <p ><b>0.1.0:</b></p>
 <ul>
 <li>Switched to <code>identities()</code> to keep track of the identities of the rows in the in-memory <code>ScranMatrix</code>. This is an improvement over <code>permutation()</code> as the <code>identities()</code> can naturally accommodate subsetting.</li>

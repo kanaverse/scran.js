@@ -98,8 +98,8 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a3501cce20e99fa6d4a1ea61c8878c141"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a30187703fa3ed102eedbe683071ca21a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structNumericMatrix.html#a30187703fa3ed102eedbe683071ca21a">identities</a> (uintptr_t values) const</td></tr>
 <tr class="separator:a30187703fa3ed102eedbe683071ca21a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac09bc043d30fe5447a00990a0ea315e2"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structNumericMatrix.html#ac09bc043d30fe5447a00990a0ea315e2">permuted</a> () const</td></tr>
-<tr class="separator:ac09bc043d30fe5447a00990a0ea315e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a87961b02a42a22f10fbc23992449334b"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structNumericMatrix.html#a87961b02a42a22f10fbc23992449334b">reorganized</a> () const</td></tr>
+<tr class="separator:a87961b02a42a22f10fbc23992449334b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0972e2d156b0e63b625ee6565f6cea8c"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structNumericMatrix.html#a0972e2d156b0e63b625ee6565f6cea8c">sparse</a> () const</td></tr>
 <tr class="separator:a0972e2d156b0e63b625ee6565f6cea8c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
@@ -330,7 +330,7 @@ Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The array in <code>values</code> is filled with the row identities.</dd></dl>
-<p>This function should only be called if <code><a class="el" href="structNumericMatrix.html#ac09bc043d30fe5447a00990a0ea315e2">permuted()</a></code> returns <code>true</code>. </p>
+<p>This function should only be called if <code><a class="el" href="structNumericMatrix.html#a87961b02a42a22f10fbc23992449334b">reorganized()</a></code> returns <code>true</code>. </p>
 
 </div>
 </div>
@@ -370,21 +370,21 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="ac09bc043d30fe5447a00990a0ea315e2" name="ac09bc043d30fe5447a00990a0ea315e2"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac09bc043d30fe5447a00990a0ea315e2">&#9670;&nbsp;</a></span>permuted()</h2>
+<a id="a87961b02a42a22f10fbc23992449334b" name="a87961b02a42a22f10fbc23992449334b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a87961b02a42a22f10fbc23992449334b">&#9670;&nbsp;</a></span>reorganized()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">bool NumericMatrix::permuted </td>
+          <td class="memname">bool NumericMatrix::reorganized </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
         </tr>
       </table>
 </div><div class="memdoc">
-<dl class="section return"><dt>Returns</dt><dd>Whether the underlying matrix contains a non-trivial row permutation. If <code>false</code>, <code>indices()</code> is assumed to be trivial, containing consecutive increasing values from 0, and so is not explicitly stored. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>Whether the underlying matrix contains a non-trivial row reorganization. If <code>false</code>, the row identities are assumed to be trivial (containing consecutive increasing values from 0) and so is not explicitly stored in <code><a class="el" href="structNumericMatrix.html#a30187703fa3ed102eedbe683071ca21a">identities()</a></code>. </dd></dl>
 
 </div>
 </div>
