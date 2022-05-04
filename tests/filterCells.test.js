@@ -19,7 +19,7 @@ test("filtered matrix is constructed as expected", () => {
 
     var filtered = scran.filterCells(mat, filt);
     expect(filtered.constructor.name).toBe("ScranMatrix");
-    expect(filtered.isPermuted()).toBe(true);
+    expect(filtered.isReorganized()).toBe(true);
     expect(filtered.numberOfColumns()).toBe(ncells - sum);
 
     mat.free();

@@ -83,15 +83,15 @@ struct NumericMatrix {
      *
      * @return The array in `values` is filled with the row identities.
      *
-     * This function should only be called if `permuted()` returns `true`.
+     * This function should only be called if `reorganized()` returns `true`.
      */
     void identities(uintptr_t values) const;
 
     /**
-     * @return Whether the underlying matrix contains a non-trivial row permutation.
-     * If `false`, `indices()` is assumed to be trivial, containing consecutive increasing values from 0, and so is not explicitly stored. 
+     * @return Whether the underlying matrix contains a non-trivial row reorganization.
+     * If `false`, the row identities are assumed to be trivial (containing consecutive increasing values from 0) and so is not explicitly stored in `identities()`.
      */
-    bool permuted() const;
+    bool reorganized() const;
 
     /**
      * @return Whether the underlying matrix is sparse.
@@ -105,7 +105,7 @@ struct NumericMatrix {
 
     std::vector<size_t> row_ids;
 
-    bool is_permuted;
+    bool is_reorganized;
     /**
      * @endcond
      */

@@ -22,11 +22,11 @@ test("column subset works", () => {
     expect(() => scran.subsetColumns(mat1, [10])).toThrow("number of columns");
 
     // Preserves the identities.
-    expect(subset.isPermuted()).toBe(false);
+    expect(subset.isReorganized()).toBe(false);
 
     var mat2 = simulate.simulatePermutedMatrix(20, 10);
     var subset2 = scran.subsetColumns(mat2, [1,5,7]);
-    expect(subset2.isPermuted()).toBe(true);
+    expect(subset2.isReorganized()).toBe(true);
     expect(compare.equalArrays(mat2.identities(), subset2.identities())).toBe(true);
 
     // Freeing all the bits and pieces.
@@ -54,12 +54,12 @@ test("row subset works", () => {
     expect(() => scran.subsetRows(mat1, [20])).toThrow("number of rows");
 
     // Preserves the row identities.
-    expect(subset.isPermuted()).toBe(true);
+    expect(subset.isReorganized()).toBe(true);
     expect(compare.equalArrays(subset.identities(), keep)).toBe(true);
 
     var mat2 = simulate.simulatePermutedMatrix(20, 10);
     var subset2 = scran.subsetRows(mat2, keep);
-    expect(subset2.isPermuted()).toBe(true);
+    expect(subset2.isReorganized()).toBe(true);
     let full = mat2.identities();
     let ids2 = keep.map(i => full[i]);
     expect(compare.equalArrays(ids2, subset2.identities())).toBe(true);

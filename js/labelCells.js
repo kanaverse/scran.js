@@ -178,7 +178,7 @@ function convert_reference_features(referenceFeatures, available, ref_id_buffer)
  * Of those features in the intersection, only the `top` markers from each pairwise comparison are ultimately used for classification.
  *
  * Needless to say, `features` should match up to the rows of the matrix that is actually used for annotation in `labelCells()`.
- * If the test dataset is a `ScranMatrix`, the ordering of `features` should include the permutation that was applied during the layering process.
+ * If the test dataset is a `ScranMatrix`, `features` should already be reorganized to match its row identities (see {#linkcode matchVectorToMatrix}).
  * Otherwise the row indices will not be correct in subsequent calls to `labelCells()` with a `ScranMatrix` input. 
  */
 export function buildLabelledReference(features, loaded, referenceFeatures, { top = 20 } = {}) {

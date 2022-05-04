@@ -105,16 +105,21 @@ export class ScranMatrix {
     }
 
     /**
-     * @return Boolean indicating whether the matrix contains a non-trivial row permutation.
+     * @return Boolean indicating whether the matrix contains a non-trivial organization of row identities.
      * If `true`, the row identities should be extracted from {@linkcode ScranMatrix#identities identities};
-     * otherwise, the row identities are assumed to be consecutive increasing integers from 0.
+     * otherwise, the row identities are assumed to be consecutive increasing integers from 0 up to the number of rows.
      */
+    isReorganized() {
+        return this.matrix.reorganized();
+    }
+
+    // Deprecated, kept around for back-compatibility as of 0.1.1.
     isPermuted() {
-        return this.matrix.permuted();
+        return this.isReorganized();
     }
 
     /**
-     * Obtain the identities of the rows of the matrix, assuming {@linkcode ScranMatrix#isPermuted isPermuted} returns `true`.
+     * Obtain the identities of the rows of the matrix, assuming {@linkcode ScranMatrix#isReorganized isReorganized} returns `true`.
      *
      * @param {Object} [options] - Optional parameters.
      * @param {?Int32WasmArray} [options.buffer] Buffer to extract into.

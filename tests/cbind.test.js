@@ -5,13 +5,13 @@ import * as compare from "./compare.js";
 beforeAll(async () => { await scran.initialize({ localFile: true }) });
 afterAll(async () => { await scran.terminate() });
 
-test("cbind works correctly without permutation", () => {
+test("cbind works correctly without reorganization", () => {
     var mat1 = simulate.simulateDenseMatrix(20, 10);
     var mat2 = simulate.simulateDenseMatrix(20, 20);
     var mat3 = simulate.simulateDenseMatrix(20, 30);
 
     var combined = scran.cbind([mat1, mat2, mat3]);
-    expect(combined.isPermuted()).toBe(false);
+    expect(combined.isReorganized()).toBe(false);
     expect(combined.isSparse()).toBe(false);
     expect(combined.numberOfRows()).toBe(20);
     expect(combined.numberOfColumns()).toBe(60);
@@ -27,13 +27,13 @@ test("cbind works correctly without permutation", () => {
     mat3.free();
 })
 
-test("cbind can ignore permutations", () => {
+test("cbind can ignore reorganizations", () => {
     var mat1 = simulate.simulatePermutedMatrix(20, 10);
     var mat2 = simulate.simulatePermutedMatrix(20, 20);
     var mat3 = simulate.simulatePermutedMatrix(20, 30);
 
     var combined = scran.cbind([mat1, mat2, mat3], { assumeSame: true });
-    expect(combined.isPermuted()).toBe(true);
+    expect(combined.isReorganized()).toBe(true);
     expect(combined.isSparse()).toBe(true);
     expect(combined.numberOfRows()).toBe(20);
     expect(combined.numberOfColumns()).toBe(60);
@@ -59,13 +59,13 @@ function unpermuteVector(mat, vals) {
     return copy;
 }
 
-test("cbind works correctly when only first is permuted", () => {
+test("cbind works correctly when only first is reorganized", () => {
     var mat1 = simulate.simulatePermutedMatrix(20, 10);
     var mat2 = simulate.simulateDenseMatrix(20, 20);
     var mat3 = simulate.simulateDenseMatrix(20, 30);
 
     var combined = scran.cbind([mat1, mat2, mat3]);
-    expect(combined.isPermuted()).toBe(true);
+    expect(combined.isReorganized()).toBe(true);
     expect(combined.isSparse()).toBe(false);
     expect(combined.numberOfRows()).toBe(20);
     expect(combined.numberOfColumns()).toBe(60);
@@ -86,13 +86,13 @@ test("cbind works correctly when only first is permuted", () => {
     mat3.free();
 })
 
-test("cbind works correctly when only first is not-permuted", () => {
+test("cbind works correctly when only first is not-reorganized", () => {
     var mat1 = simulate.simulateDenseMatrix(20, 10);
     var mat2 = simulate.simulatePermutedMatrix(20, 20);
     var mat3 = simulate.simulatePermutedMatrix(20, 30);
 
     var combined = scran.cbind([mat1, mat2, mat3]);
-    expect(combined.isPermuted()).toBe(false);
+    expect(combined.isReorganized()).toBe(false);
     expect(combined.numberOfRows()).toBe(20);
     expect(combined.numberOfColumns()).toBe(60);
 
@@ -111,13 +111,13 @@ test("cbind works correctly when only first is not-permuted", () => {
     mat3.free();
 })
 
-test("cbind works correctly when everyone is permuted", () => {
+test("cbind works correctly when everyone is reorganized", () => {
     var mat1 = simulate.simulatePermutedMatrix(20, 10);
     var mat2 = simulate.simulatePermutedMatrix(20, 20);
     var mat3 = simulate.simulatePermutedMatrix(20, 30);
 
     var combined = scran.cbind([mat1, mat2, mat3]);
-    expect(combined.isPermuted()).toBe(true);
+    expect(combined.isReorganized()).toBe(true);
     expect(combined.isSparse()).toBe(true);
     expect(combined.numberOfRows()).toBe(20);
     expect(combined.numberOfColumns()).toBe(60);
@@ -149,7 +149,7 @@ test("cbindWithNames works correctly (simple)", () => {
     var names3 = ["E", "F", "G", "H", "I", "J", "K", "L", "M", "N"];
 
     let combined = scran.cbindWithNames([mat1, mat2, mat3], [names1, names2, names3]);
-    expect(combined.matrix.isPermuted()).toBe(true);
+    expect(combined.matrix.isReorganized()).toBe(true);
     expect(combined.matrix.numberOfRows()).toBe(6);
     expect(combined.matrix.numberOfColumns()).toBe(60);
 
@@ -166,7 +166,7 @@ test("cbindWithNames works correctly (simple)", () => {
 })
 
 function quick_check(mat1, mat2, mat3, combined) {
-    expect(combined.matrix.isPermuted()).toBe(true);
+    expect(combined.matrix.isReorganized()).toBe(true);
     expect(combined.matrix.numberOfRows()).toBe(4);
     expect(combined.matrix.numberOfColumns()).toBe(60);
 
@@ -203,7 +203,7 @@ test("cbindWithNames works correctly (complex)", () => {
     mat3.free();
 })
 
-test("cbindWithNames works correctly (permuted)", () => {
+test("cbindWithNames works correctly (reorganized)", () => {
     var mat1 = simulate.simulatePermutedMatrix(10, 10);
     var names1 = ["Z", "X", "V", "T", "R", "P", "N", "L", "J", "H"]; 
     var mat2 = simulate.simulatePermutedMatrix(8, 20);

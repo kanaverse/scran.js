@@ -12,7 +12,7 @@ test("initialization from dense array works correctly", () => {
     var mat = scran.initializeSparseMatrixFromDenseArray(3, 5, vals);
     expect(mat.numberOfRows()).toBe(3);
     expect(mat.numberOfColumns()).toBe(5);
-    expect(mat.isPermuted()).toBe(true);
+    expect(mat.isReorganized()).toBe(true);
     expect(mat.isSparse()).toBe(true);
 
     // Properly column-major.
@@ -25,7 +25,7 @@ test("initialization from dense array works correctly", () => {
     var dense = scran.initializeDenseMatrixFromDenseArray(3, 5, vals);
     expect(dense.numberOfRows()).toBe(3);
     expect(dense.numberOfRows()).toBe(3);
-    expect(dense.isPermuted()).toBe(false);
+    expect(dense.isReorganized()).toBe(false);
     expect(dense.isSparse()).toBe(false);
 })
 
@@ -40,9 +40,9 @@ test("initialization from compressed values works correctly", () => {
     var mat = scran.initializeSparseMatrixFromCompressedVectors(11, 10, vals, indices, indptrs);
     expect(mat.numberOfRows()).toBe(11);
     expect(mat.numberOfColumns()).toBe(10);
-    expect(mat.isPermuted()).toBe(true);
+    expect(mat.isReorganized()).toBe(true);
 
-    // Extracting the row permutations.
+    // Extracting the row identities.
     var id = mat.identities();
     expect(compare.equalArrays(id, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10])).toBe(true);
 
@@ -61,7 +61,7 @@ test("initialization from compressed values works correctly", () => {
     mat.free();
 })
 
-test("initialization from compressed values works with permutations", () => {
+test("initialization from compressed values works with reorganization", () => {
     var vals = scran.createInt32WasmArray(15);
     vals.set([1, 5, 2, 1000000, 10, 8, 1000, 10, 4, 2, 1, 1, 3, 5, 8]); // first two rows contain elements beyond the range.
     var indices = scran.createInt32WasmArray(15);
@@ -72,7 +72,7 @@ test("initialization from compressed values works with permutations", () => {
     var mat = scran.initializeSparseMatrixFromCompressedVectors(11, 10, vals, indices, indptrs);
     expect(mat.numberOfRows()).toBe(11);
     expect(mat.numberOfColumns()).toBe(10);
-    expect(mat.isPermuted()).toBe(true);
+    expect(mat.isReorganized()).toBe(true);
 
     // Extracting the row identities.
     var ids = mat.identities();
@@ -100,7 +100,7 @@ test("initialization from MatrixMarket works correctly", () => {
     var mat = scran.initializeSparseMatrixFromMatrixMarketBuffer(buffer);
     expect(mat.numberOfRows()).toBe(11);
     expect(mat.numberOfColumns()).toBe(5);
-    expect(mat.isPermuted()).toBe(true);
+    expect(mat.isReorganized()).toBe(true);
 
     expect(compare.equalArrays(mat.row(0), [0, 5, 0, 0, 8]));
     expect(compare.equalArrays(mat.column(4), [0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0]));
@@ -120,7 +120,7 @@ test("initialization from Gzipped MatrixMarket works correctly with Gzip", () =>
     var mat = scran.initializeSparseMatrixFromMatrixMarketBuffer(buffer);
     expect(mat.numberOfRows()).toBe(11);
     expect(mat.numberOfColumns()).toBe(5);
-    expect(mat.isPermuted()).toBe(true);
+    expect(mat.isReorganized()).toBe(true);
 
     expect(compare.equalArrays(mat.row(0), [0, 5, 0, 0, 8]));
     expect(compare.equalArrays(mat.column(4), [0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0]));

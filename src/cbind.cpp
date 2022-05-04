@@ -34,10 +34,10 @@ NumericMatrix cbind(int n, uintptr_t mats, bool same_perm) {
             collected.push_back(current.ptr);
         }
 
-    } else if (!first.is_permuted) {
+    } else if (!first.is_reorganized) {
         for (int i = 1; i < n; ++i) {
             const auto& current = *(mat_ptrs[i]);
-            if (!current.is_permuted) {
+            if (!current.is_reorganized) {
                 collected.push_back(current.ptr);
             } else {
                 std::vector<size_t> permutation(NR);
@@ -62,7 +62,7 @@ NumericMatrix cbind(int n, uintptr_t mats, bool same_perm) {
         for (int i = 1; i < n; ++i) {
             const auto& current = *(mat_ptrs[i]);
             std::vector<size_t> permutation(NR);
-            if (!current.is_permuted) {
+            if (!current.is_reorganized) {
                 for (size_t i = 0; i < NR; ++i) {
                     auto it = mapping.find(i);
                     if (it == mapping.end()) {
@@ -85,7 +85,7 @@ NumericMatrix cbind(int n, uintptr_t mats, bool same_perm) {
     }
 
     auto bound = tatami::make_DelayedBind<1>(std::move(collected));
-    if (first.is_permuted) {
+    if (first.is_reorganized) {
         return NumericMatrix(std::move(bound), first.row_ids);
     } else {
         return NumericMatrix(std::move(bound));
@@ -162,9 +162,9 @@ NumericMatrix cbind_with_rownames(int n, uintptr_t mats, uintptr_t names, uintpt
 
     // Adjust 'ids' so that they refer to the _original_ identifiers for the
     // first matrix, as expected for the 'row_ids' field of the NumericMatrix.
-    // Of course, if the first matrix wasn't permuted, then the 'ids' are
+    // Of course, if the first matrix wasn't reorganized, then the 'ids' are
     // already referring to the original identifiers, so no change is required.
-    if (first.is_permuted) {
+    if (first.is_reorganized) {
         for (auto& y : ids) {
             y = first.row_ids[y];
         }

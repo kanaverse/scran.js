@@ -272,6 +272,13 @@ are based on the same C++ libraries and allow the same analysis to be performed 
 
 ## Changelog
 
+**0.1.1**
+
+- Deprecated `ScranMatrix::isPermuted()` for `ScranMatrix::isReorganized()`.
+- Deprecated `permuteVector()` for `matchVectorToRowIdentities()`.
+- Deprecated `updatePermutation()` for `updateRowIdentities()`.
+- Deprecated `permuteFeatures()` for `matchFeatureAnnotationToRowIdentities()`.
+
 **0.1.0:**
 
 - Switched to `identities()` to keep track of the identities of the rows in the in-memory `ScranMatrix`.

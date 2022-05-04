@@ -2,17 +2,17 @@
 #include "NumericMatrix.h"
 #include "JSVector.h"
 
-NumericMatrix::NumericMatrix(const tatami::NumericMatrix* p) : ptr(std::shared_ptr<const tatami::NumericMatrix>(p)), is_permuted(false) {}
+NumericMatrix::NumericMatrix(const tatami::NumericMatrix* p) : ptr(std::shared_ptr<const tatami::NumericMatrix>(p)), is_reorganized(false) {}
 
-NumericMatrix::NumericMatrix(std::shared_ptr<const tatami::NumericMatrix> p) : ptr(std::move(p)), is_permuted(false) {}
+NumericMatrix::NumericMatrix(std::shared_ptr<const tatami::NumericMatrix> p) : ptr(std::move(p)), is_reorganized(false) {}
 
-NumericMatrix::NumericMatrix(const tatami::NumericMatrix* p, std::vector<size_t> i) : ptr(std::shared_ptr<const tatami::NumericMatrix>(p)), row_ids(std::move(i)), is_permuted(true) {
+NumericMatrix::NumericMatrix(const tatami::NumericMatrix* p, std::vector<size_t> i) : ptr(std::shared_ptr<const tatami::NumericMatrix>(p)), row_ids(std::move(i)), is_reorganized(true) {
     if (row_ids.size() != ptr->nrow()) {
         throw std::runtime_error("length of 'i' must be equal to the number of rows of 'p'");
     }
 }
 
-NumericMatrix::NumericMatrix(std::shared_ptr<const tatami::NumericMatrix> p, std::vector<size_t> i) : ptr(std::move(p)), row_ids(std::move(i)), is_permuted(true) {
+NumericMatrix::NumericMatrix(std::shared_ptr<const tatami::NumericMatrix> p, std::vector<size_t> i) : ptr(std::move(p)), row_ids(std::move(i)), is_reorganized(true) {
     if (row_ids.size() != ptr->nrow()) {
         throw std::runtime_error("length of 'i' must be equal to the number of rows of 'p'");
     }
@@ -50,8 +50,8 @@ void NumericMatrix::identities(uintptr_t values) const {
     return;
 }
 
-bool NumericMatrix::permuted() const {
-    return is_permuted;
+bool NumericMatrix::reorganized() const {
+    return is_reorganized;
 }
 
 bool NumericMatrix::sparse() const {
@@ -69,7 +69,7 @@ EMSCRIPTEN_BINDINGS(NumericMatrix) {
         .function("row", &NumericMatrix::row)
         .function("column", &NumericMatrix::column)
         .function("identities", &NumericMatrix::identities)
-        .function("permuted", &NumericMatrix::permuted)
+        .function("reorganized", &NumericMatrix::reorganized)
         .function("sparse", &NumericMatrix::sparse)
         ;
 }
