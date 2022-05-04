@@ -14,4 +14,4 @@ _testing/
 js/blacklists/
 docs/built/
 package-lock.json
-
+jsdoc.config.json

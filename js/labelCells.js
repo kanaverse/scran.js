@@ -161,6 +161,13 @@ function convert_reference_features(referenceFeatures, available, ref_id_buffer)
 
 /**
  * Build the reference dataset for annotation.
+ * The build process involves harmonizing the identities of the features available in the test dataset compared to the reference.
+ * Specifically, a feature must be present in both datasets in order to be retained. 
+ * Of those features in the intersection, only the `top` markers from each pairwise comparison are ultimately used for classification.
+ *
+ * Needless to say, `features` should match up to the rows of the matrix that is actually used for annotation in `labelCells()`.
+ * If the test dataset is a `ScranMatrix`, `features` should already be reorganized to match its row identities (see {@linkcode matchVectorToMatrix}).
+ * Otherwise the row indices will not be correct in subsequent calls to `labelCells()` with a `ScranMatrix` input. 
  *
  * @param {Array} features - An array of feature identifiers (usually strings) of length equal to the number of rows in the test matrix.
  * Each entry should contain the identifier for the corresponding row of the test matrix.
@@ -172,14 +179,6 @@ function convert_reference_features(referenceFeatures, available, ref_id_buffer)
  * These features are taken from each pairwise comparison between labels.
  *
  * @return A `BuiltLabelledReference` object containing the built reference dataset.
- *
- * The build process involves harmonizing the identities of the features available in the test dataset compared to the reference.
- * Specifically, a feature must be present in both datasets in order to be retained. 
- * Of those features in the intersection, only the `top` markers from each pairwise comparison are ultimately used for classification.
- *
- * Needless to say, `features` should match up to the rows of the matrix that is actually used for annotation in `labelCells()`.
- * If the test dataset is a `ScranMatrix`, `features` should already be reorganized to match its row identities (see {#linkcode matchVectorToMatrix}).
- * Otherwise the row indices will not be correct in subsequent calls to `labelCells()` with a `ScranMatrix` input. 
  */
 export function buildLabelledReference(features, loaded, referenceFeatures, { top = 20 } = {}) {
     var mat_id_buffer;
