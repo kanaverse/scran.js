@@ -112,9 +112,6 @@ RunPCA_Results run_pca(const NumericMatrix& mat, int number, bool use_subset, ui
     pca.set_rank(number).set_scale(scale);
     auto result = pca.run(ptr.get(), subptr);
 
-    // Transposing PCs to get the right orientation.
-    result.pcs.adjointInPlace();
-
     return RunPCA_Results(std::move(result)); 
 }
 
@@ -153,9 +150,6 @@ BlockedPCA_Results run_blocked_pca(const NumericMatrix& mat, int number, bool us
     pca.set_rank(number).set_scale(scale);
     auto result = pca.run(ptr.get(), bptr, subptr);
 
-    // Transposing PCs to get the right orientation.
-    result.pcs.adjointInPlace();
-
     return BlockedPCA_Results(std::move(result)); 
 }
 
@@ -193,9 +187,6 @@ MultiBatchPCA_Results run_multibatch_pca(const NumericMatrix& mat, int number, b
     scran::MultiBatchPCA pca;
     pca.set_rank(number).set_scale(scale);
     auto result = pca.run(ptr.get(), bptr, subptr);
-
-    // Transposing PCs to get the right orientation.
-    result.pcs.adjointInPlace();
 
     return MultiBatchPCA_Results(std::move(result)); 
 }
