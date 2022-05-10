@@ -5,7 +5,7 @@
 #include "utils.h"
 #include <vector>
 
-void scale_by_neighbors(int ncells, int nembed, uintptr_t embeddings, uintptr_t indices, uintptr_t combined, int num_neighbors) {
+void scale_by_neighbors(int ncells, int nembed, uintptr_t embeddings, uintptr_t indices, uintptr_t combined, int num_neighbors, bool use_weights, uintptr_t weights) {
     auto index_ptrs = convert_array_of_offsets<const NeighborIndex*>(nembed, indices);
 
     scran::ScaleByNeighbors runner;
@@ -33,6 +33,13 @@ void scale_by_neighbors(int ncells, int nembed, uintptr_t embeddings, uintptr_t 
             } else {
                 scaling[e] = runner.compute_scale(distances[ref], distances[e]);
             }
+        }
+    }
+
+    if (use_weights) {
+        auto weight_ptr = reinterpret_cast<const double*>(weights);
+        for (int e = 0; e < nembed; ++e) {
+            scaling[e] *= weight_ptr[e];
         }
     }
 

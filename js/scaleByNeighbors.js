@@ -19,14 +19,18 @@ import { buildNeighborSearchIndex, NeighborSearchIndex } from "./findNearestNeig
  * @param {?Float64WasmArray} options.buffer - Array in which to store the combined embedding.
  * This should have length equal to the product of `numberOfCells` and the sum of dimensions of all embeddings.
  * @param {boolean} options.approximate - Should we construct an approximate search index if `indices` is not supplied?
+ * @param {?(Array|TypedArray|Float64WasmArray)} options.weights - Array of length equal to the number of embeddings, containing a non-enegative relative weight for each embedding.
+ * This is used to scale each embedding if non-equal noise is desired in the combined embedding.
+ * If `null`, all embeddings receive the same weight.
  *
  * @return {Float64WasmArray} Array containing the combined embeddings in column-major format, i.e., dimensions in rows and cells in columns.
  * If `buffer` was supplied, a reference to it is returned; otherwise a new array is allocated.
  */
-export function scaleByNeighbors(embeddings, numberOfCells, { neighbors = 20, indices = null, buffer = null, approximate = true } = {}) {
+export function scaleByNeighbors(embeddings, numberOfCells, { neighbors = 20, indices = null, buffer = null, approximate = true, weights = null } = {}) {
     let nembed = embeddings.length;
     let embed_ptrs, index_ptrs;
-    let holding;
+    let holding_weights;
+    let holding_buffer;
 
     let deletable = [];
     try {
@@ -69,14 +73,29 @@ export function scaleByNeighbors(embeddings, numberOfCells, { neighbors = 20, in
         }
 
         // Allocating output space, if necessary; and then scaling.
+        let total_len = total_ndim * numberOfCells;
         if (buffer === null) {
-            holding = utils.createFloat64WasmArray(total_ndim * numberOfCells);
-            buffer = holding;
+            holding_buffer = utils.createFloat64WasmArray(total_len);
+            buffer = holding_buffer;
+        } else if (total_len !== buffer.length) {
+            throw new Error("length of 'buffer' should be equal to the product of 'numberOfCells' and the total number of dimensions");
         }
-        wasm.call(module => module.scale_by_neighbors(numberOfCells, nembed, embed_ptrs.offset, index_ptrs.offset, buffer.offset, neighbors)); 
+
+        let weight_offset = 0;
+        let use_weights = false;
+        if (weights !== null) {
+            use_weights = true;
+            holding_weights = utils.wasmifyArray(weights, "Float64WasmArray");
+            if (holding_weights.length != nembed) {
+                throw new Error("length of 'weights' should be equal to the number of embeddings");
+            }
+            weight_offset = holding_weights.offset;
+        }
+
+        wasm.call(module => module.scale_by_neighbors(numberOfCells, nembed, embed_ptrs.offset, index_ptrs.offset, buffer.offset, neighbors, use_weights, weight_offset));
 
     } catch (e) {
-        utils.free(holding);
+        utils.free(holding_buffer);
         throw e;
 
     } finally {
@@ -85,6 +104,7 @@ export function scaleByNeighbors(embeddings, numberOfCells, { neighbors = 20, in
         }
         utils.free(embed_ptrs);
         utils.free(index_ptrs);
+        utils.free(holding_weights);
     }
 
     return buffer;

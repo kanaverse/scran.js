@@ -63,3 +63,22 @@ test("scaling by neighbors works with presupplied inputs", () => {
     buffer.free();
 })
 
+test("scaling by neighbors works with weights", () => {
+    var ncells = 100;
+    var pcs = simulate.simulatePCs(10, ncells);
+    let output = scran.scaleByNeighbors([pcs, pcs, pcs], ncells, { weights: [2, 3, 1] });
+
+    let pc_arr = pcs.array();
+    let out_arr = output.array();
+
+    expect(Math.abs(out_arr[0] - 2 *pc_arr[0])).toBeLessThan(0.00000001);
+    expect(Math.abs(out_arr[10] - 3 * pc_arr[0])).toBeLessThan(0.00000001);
+    expect(Math.abs(out_arr[29] - pc_arr[9])).toBeLessThan(0.00000001);
+
+    expect(Math.abs(out_arr[2970] - 2 * pc_arr[990])).toBeLessThan(0.00000001);
+    expect(Math.abs(out_arr[2985] - 3 * pc_arr[995])).toBeLessThan(0.00000001);
+    expect(Math.abs(out_arr[2999] - pc_arr[999])).toBeLessThan(0.00000001);
+
+    pcs.free();
+    output.free();
+})
