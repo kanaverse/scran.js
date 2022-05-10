@@ -25,6 +25,13 @@ export class NeighborSearchIndex {
     }
 
     /**
+     * @return Number of dimensions in the index.
+     */
+    numberOfDims() {
+        return this.index.num_dim();
+    }
+
+    /**
      * @return Frees the memory allocated on the Wasm heap for this object.
      * This invalidates this object and all references to it.
      */

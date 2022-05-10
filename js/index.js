@@ -29,6 +29,8 @@ export * from "./clusterKmeans.js";
 
 export * from "./mnnCorrect.js";
 
+export * from "./scaleByNeighbors.js";
+
 export * from "./scoreMarkers.js";
 export * from "./labelCells.js";
 export * from "./subset.js";
