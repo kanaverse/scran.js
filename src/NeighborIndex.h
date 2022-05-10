@@ -23,6 +23,13 @@ struct NeighborIndex {
     size_t num_obs() const {
         return search->nobs();
     }
+
+    /**
+     * @return Number of dimensions in the dataset.
+     */
+    size_t num_dim() const {
+        return search->ndim();
+    }
 };
 
 NeighborIndex build_neighbor_index(uintptr_t, int, int, bool);
