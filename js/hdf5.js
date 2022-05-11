@@ -240,6 +240,10 @@ export class H5Group extends H5Base {
      * It is particularly useful for string types as it avoids having to specify the `maxStringLength` during creation based on the `x` used during writing.
      * 
      * @param {string} name - Name of the dataset to create.
+     * @param {string} type - Type of dataset to create.
+     * This can be `"IntX"` or `"UintX"` for `X` of 8, 16, 32, or 64;
+     * or `"FloatX"` for `X` of 32 or 64;
+     * or `"String"`.
      * @param {Array} shape - Array containing the dimensions of the dataset to create.
      * If set to an empty array, this will create a scalar dataset.
      * If set to `null`, this is determined from `x`.
