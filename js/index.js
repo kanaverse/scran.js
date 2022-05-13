@@ -16,6 +16,7 @@ export * from "./filterCells.js";
 
 export * from "./medianSizeFactors.js";
 export * from "./groupedSizeFactors.js";
+export * from "./quickAdtSizeFactors.js";
 export * from "./logNormCounts.js";
 
 export * from "./modelGeneVar.js";
