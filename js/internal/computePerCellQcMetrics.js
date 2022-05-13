@@ -55,3 +55,19 @@ export function computePerCellQcMetrics(x, subsets, run, create) {
 
     return output;
 }
+
+export function emptyPerCellQcMetricsResults(create1, create2) {
+    let raw;
+    let output;
+
+    try {
+        raw = create1();
+        output = create2(raw);
+    } catch (e) {
+        utils.free(raw);
+        throw e;
+    }
+
+    return output;
+}
+

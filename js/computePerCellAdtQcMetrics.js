@@ -84,7 +84,7 @@ export class PerCellAdtQcMetrics {
  *
  * Alternatively `null`, which is taken to mean that there are no subsets.
  *
- * @return A `PerCellAdtQcMetrics` object containing the QC metrics.
+ * @return {PerCellAdtQcMetrics} Object containing the ADT-based QC metrics.
  */
 export function computePerCellAdtQcMetrics(x, subsets) {
     return internal.computePerCellQcMetrics(x, subsets, 
@@ -98,26 +98,18 @@ export function computePerCellAdtQcMetrics(x, subsets) {
 }
 
 /**
- * Create an empty {@linkplain PerCellAdtQcMetricsResults} object, to be filled with custom results.
+ * Create an empty {@linkplain PerCellAdtQcMetrics} object, to be filled with custom results.
  * This is typically used to generate a convenient input into later {@linkcode computePerCellAdtQcFilters} calls.
  * Note that filling requires use of `copy: false` in the various getters to obtain a writeable memory view.
  *
  * @param numberOfCells Number of cells in the dataset.
  * @param numberOfSubsets Number of feature subsets.
  *
- * @return A {@linkplain PerCellAdtQcMetricsResults} object with allocated memory but no actual values.
+ * @return {PerCellAdtQcMetrics} Object with allocated memory but no actual values.
  */
-export function emptyPerCellAdtQcMetricsResults(numberOfGenes, numberOfSubsets) {
-    let raw;
-    let output;
-
-    try {
-        raw = wasm.call(module => new module.PerCellAdtQcMetrics_Results(numberOfGenes, numberOfSubsets));
-        output = new PerCellAdtQcMetrics(raw);
-    } catch (e) {
-        utils.free(raw);
-        throw e;
-    }
-
-    return output;
+export function emptyPerCellAdtQcMetrics(numberOfGenes, numberOfSubsets) {
+    return internal.emptyPerCellQcMetrics(
+        () => wasm.call(module => new module.PerCellAdtQcMetrics_Results(numberOfGenes, numberOfSubsets)),
+        raw => new PerCellAdtQcMetrics(raw)
+    );
 }

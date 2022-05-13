@@ -122,16 +122,8 @@ export function computePerCellQCMetrics(x, subsets, { subsetProportions = true }
  * @return A {@linkplain PerCellQCMetricsResults} object with allocated memory but no actual values.
  */
 export function emptyPerCellQCMetricsResults(numberOfGenes, numberOfSubsets, { subsetProportions = true } = {}) {
-    let raw;
-    let output;
-
-    try {
-        raw = wasm.call(module => new module.PerCellQCMetrics_Results(numberOfGenes, numberOfSubsets, subsetProportions));
-        output = new PerCellQCMetrics(raw);
-    } catch (e) {
-        utils.free(raw);
-        throw e;
-    }
-
-    return output;
+    return internal.emptyPerCellQcMetricsResults(
+        () => wasm.call(module => new module.PerCellQCMetrics_Results(numberOfGenes, numberOfSubsets, subsetProportions)),
+        raw => new PerCellQCMetrics(raw)
+    );
 }
