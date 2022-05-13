@@ -3,13 +3,13 @@ import * as utils from "./utils.js";
 import * as internal from "./internal/computePerCellQcMetrics.js";
 
 /**
- * Wrapper for the metrics allocated on the Wasm heap.
+ * Wrapper for the ADT-based metrics allocated on the Wasm heap.
  */
-export class PerCellQCMetricsResults {
+export class PerCellAdtQcMetricsResults {
     /**
      * @param {Object} raw Raw results allocated on the Wasm heap.
      *
-     * This should not be called directly; use `computePerCellQCMetrics` instead to create an instance of this object.
+     * This should not be called directly; use `computePerCellAdtQcMetrics` instead to create an instance of this object.
      */
     constructor(raw) {
         this.results = raw;
@@ -21,7 +21,7 @@ export class PerCellQCMetricsResults {
      * @param {boolean} [options.copy] - Whether to copy the results from the Wasm heap.
      * This incurs a copy but has safer lifetime management.
      *
-     * @return A `Float64Array` (or a view thereof) containing the total count for each cell.
+     * @return A `Float64Array` (or a view thereof) containing the total ADT count for each cell.
      */
     sums({ copy = true } = {}) {
         return utils.possibleCopy(this.results.sums(), copy);
@@ -32,7 +32,7 @@ export class PerCellQCMetricsResults {
      * @param {boolean} [options.copy] - Whether to copy the results from the Wasm heap.
      * This incurs a copy but has safer lifetime management.
      *
-     * @return An `Int32Array` (or a view thereof) containing the total number of detected genes for each cell.
+     * @return An `Int32Array` (or a view thereof) containing the total number of detected ADT features for each cell.
      */
     detected({ copy = true } = {}) {
         return utils.possibleCopy(this.results.detected(), copy);
@@ -44,18 +44,10 @@ export class PerCellQCMetricsResults {
      * @param {boolean} [options.copy] - Whether to copy the results from the Wasm heap.
      * This incurs a copy but has safer lifetime management.
      *
-     * @return A `Float64Array` (or a view thereof) containing the proportion of counts in the subset `i` for each cell.
-     * If {@linkcode PerCellQCMetrics#isProportion isProportion} is `false`, the total count of subset `i` is returned instead.
+     * @return A `Float64Array` (or a view thereof) containing the total count in the ADT subset `i` for each cell.
      */
-    subsetProportions(i, { copy = true } = {}) {
-        return utils.possibleCopy(this.results.subset_proportions(i), copy);
-    }
-
-    /**
-     * @return Whether the subset proportions were computed in {@linkcode computePerCellQCMetrics}.
-     */
-    isProportion() {
-        return this.results.is_proportion();
+    subsetTotals(i, { copy = true } = {}) {
+        return utils.possibleCopy(this.results.subset_totals(i), copy);
     }
 
     /**
@@ -79,9 +71,9 @@ export class PerCellQCMetricsResults {
 }
 
 /**
- * Compute the per-cell QC metrics.
+ * Compute the per-cell QC metrics from an ADT count matrix.
  *
- * @param {ScranMatrix} x - The count matrix.
+ * @param {ScranMatrix} x - The ADT count matrix.
  * @param {?(Array|Uint8WasmArray)} subsets - Array of arrays of boolean values specifying the feature subsets.
  * Each internal array corresponds to a subset and should be of length equal to the number of rows.
  * Each entry of each internal array specifies whether the corresponding row of `x` belongs to that subset; 
@@ -91,37 +83,31 @@ export class PerCellQCMetricsResults {
  * this should be of length equal to the product of the number of subsets and the number of rows in `x`.
  *
  * Alternatively `null`, which is taken to mean that there are no subsets.
- * @param {object} [options] - Optional parameters.
- * @param {boolean} [options.subsetProportions] - Whether to compute proportions for each subset.
- * If `false`, the total count for each subset is computed instead.
  *
- * @return A `PerCellQCMetrics` object containing the QC metrics.
+ * @return {PerCellAdtQcMetrics} Object containing the ADT-based QC metrics.
  */
-export function computePerCellQCMetrics(x, subsets, { subsetProportions = true } = {}) {
+export function computePerCellAdtQcMetrics(x, subsets) {
     return internal.computePerCellQcMetrics(
         x, 
         subsets, 
-        (matrix, nsubsets, subset_offset) => wasm.call(module => module.per_cell_qc_metrics(matrix, nsubsets, subset_offset, subsetProportions)),
-        raw => new PerCellQCMetricsResults(raw)
+        (matrix, nsubsets, subset_offset) => wasm.call(module => module.per_cell_adt_qc_metrics(matrix, nsubsets, subset_offset)),
+        raw => new PerCellAdtQcMetricsResults(raw)
     );
 }
 
 /**
- * Create an empty {@linkplain PerCellQCMetricsResults} object, to be filled with custom results.
- * This is typically used to generate a convenient input into later {@linkcode computePerCellQCFilters} calls.
+ * Create an empty {@linkplain PerCellAdtQcMetrics} object, to be filled with custom results.
+ * This is typically used to generate a convenient input into later {@linkcode computePerCellAdtQcFilters} calls.
  * Note that filling requires use of `copy: false` in the various getters to obtain a writeable memory view.
  *
  * @param numberOfCells Number of cells in the dataset.
  * @param numberOfSubsets Number of feature subsets.
- * @param {object} [options] - Optional parameters.
- * @param {boolean} [options.subsetProportions] - Whether to store proportions for each subset.
- * If `false`, the total count for each subset is stored instead.
  *
- * @return A {@linkplain PerCellQCMetricsResults} object with allocated memory but no actual values.
+ * @return {PerCellAdtQcMetrics} Object with allocated memory but no actual values.
  */
-export function emptyPerCellQCMetricsResults(numberOfGenes, numberOfSubsets, { subsetProportions = true } = {}) {
+export function emptyPerCellAdtQcMetricsResults(numberOfGenes, numberOfSubsets) {
     return internal.emptyPerCellQcMetricsResults(
-        () => wasm.call(module => new module.PerCellQCMetrics_Results(numberOfGenes, numberOfSubsets, subsetProportions)),
-        raw => new PerCellQCMetricsResults(raw)
+        () => wasm.call(module => new module.PerCellAdtQcMetrics_Results(numberOfGenes, numberOfSubsets)),
+        raw => new PerCellAdtQcMetricsResults(raw)
     );
 }
