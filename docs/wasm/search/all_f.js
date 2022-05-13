@@ -14,7 +14,10 @@ var searchData=
   ['size_11',['size',['../structNeighborResults.html#a210be834f21e0f20f5b373cf5489e5bd',1,'NeighborResults::size()'],['../classJSVector.html#a29628665d2589799afc3389ef06991aa',1,'JSVector::size()']]],
   ['sparse_12',['sparse',['../structNumericMatrix.html#a0972e2d156b0e63b625ee6565f6cea8c',1,'NumericMatrix']]],
   ['status_13',['status',['../structClusterKmeans__Result.html#aade6046154f04e54083c4a4553e8c0c9',1,'ClusterKmeans_Result']]],
-  ['subset_2ecpp_14',['subset.cpp',['../subset_8cpp.html',1,'']]],
-  ['subset_5fproportions_15',['subset_proportions',['../structPerCellQCMetrics__Results.html#af8245c5a21f0aed9ba1a5b87031384f7',1,'PerCellQCMetrics_Results']]],
-  ['sums_16',['sums',['../structPerCellQCMetrics__Results.html#aed2914052ca302f343e852dfa7c5f7b3',1,'PerCellQCMetrics_Results']]]
+  ['store_14',['store',['../structPerCellAdtQcMetrics__Results.html#a565d3558ef6bc9ae33cdde28ac3444b9',1,'PerCellAdtQcMetrics_Results']]],
+  ['store_15',['Store',['../structPerCellAdtQcMetrics__Results.html#ad4f43cdf08bac160a598c7f3b40c5b18',1,'PerCellAdtQcMetrics_Results']]],
+  ['subset_2ecpp_16',['subset.cpp',['../subset_8cpp.html',1,'']]],
+  ['subset_5fproportions_17',['subset_proportions',['../structPerCellQCMetrics__Results.html#af8245c5a21f0aed9ba1a5b87031384f7',1,'PerCellQCMetrics_Results']]],
+  ['subset_5ftotals_18',['subset_totals',['../structPerCellAdtQcMetrics__Results.html#a42200b73d81234e131a7399f722d565d',1,'PerCellAdtQcMetrics_Results']]],
+  ['sums_19',['sums',['../structPerCellAdtQcMetrics__Results.html#a006cf37fc93f12df1421cbbc9404933b',1,'PerCellAdtQcMetrics_Results::sums()'],['../structPerCellQCMetrics__Results.html#aed2914052ca302f343e852dfa7c5f7b3',1,'PerCellQCMetrics_Results::sums()']]]
 ];

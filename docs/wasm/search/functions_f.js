@@ -9,5 +9,6 @@ var searchData=
   ['sparse_6',['sparse',['../structNumericMatrix.html#a0972e2d156b0e63b625ee6565f6cea8c',1,'NumericMatrix']]],
   ['status_7',['status',['../structClusterKmeans__Result.html#aade6046154f04e54083c4a4553e8c0c9',1,'ClusterKmeans_Result']]],
   ['subset_5fproportions_8',['subset_proportions',['../structPerCellQCMetrics__Results.html#af8245c5a21f0aed9ba1a5b87031384f7',1,'PerCellQCMetrics_Results']]],
-  ['sums_9',['sums',['../structPerCellQCMetrics__Results.html#aed2914052ca302f343e852dfa7c5f7b3',1,'PerCellQCMetrics_Results']]]
+  ['subset_5ftotals_9',['subset_totals',['../structPerCellAdtQcMetrics__Results.html#a42200b73d81234e131a7399f722d565d',1,'PerCellAdtQcMetrics_Results']]],
+  ['sums_10',['sums',['../structPerCellAdtQcMetrics__Results.html#a006cf37fc93f12df1421cbbc9404933b',1,'PerCellAdtQcMetrics_Results::sums()'],['../structPerCellQCMetrics__Results.html#aed2914052ca302f343e852dfa7c5f7b3',1,'PerCellQCMetrics_Results::sums()']]]
 ];
