@@ -25,7 +25,7 @@ test("per-cell QC ADT-based metrics can be mocked up", () => {
     var ngenes = 100;
     var nsubs = 2;
 
-    var qc = scran.emptyPerCellAdtQcMetrics(ngenes, nsubs);
+    var qc = scran.emptyPerCellAdtQcMetricsResults(ngenes, nsubs);
     expect(qc.numberOfSubsets()).toBe(2);
 
     for (const y of [ "sums", "detected" ]) {

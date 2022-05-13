@@ -5,7 +5,7 @@ import * as internal from "./internal/computePerCellQcMetrics.js";
 /**
  * Wrapper for the metrics allocated on the Wasm heap.
  */
-export class PerCellQCMetrics {
+export class PerCellQCMetricsResults {
     /**
      * @param {Object} raw Raw results allocated on the Wasm heap.
      *
@@ -98,13 +98,11 @@ export class PerCellQCMetrics {
  * @return A `PerCellQCMetrics` object containing the QC metrics.
  */
 export function computePerCellQCMetrics(x, subsets, { subsetProportions = true } = {}) {
-    return internal.computePerCellQcMetrics(x, subsets, 
-        (matrix, nsubsets, subset_offset) => {
-            return wasm.call(module => module.per_cell_qc_metrics(matrix, nsubsets, subset_offset, subsetProportions));
-        },
-        raw => {
-            return new PerCellQCMetrics(raw);
-        }
+    return internal.computePerCellQcMetrics(
+        x, 
+        subsets, 
+        (matrix, nsubsets, subset_offset) => wasm.call(module => module.per_cell_qc_metrics(matrix, nsubsets, subset_offset, subsetProportions)),
+        raw => new PerCellQCMetricsResults(raw)
     );
 }
 
@@ -124,6 +122,6 @@ export function computePerCellQCMetrics(x, subsets, { subsetProportions = true }
 export function emptyPerCellQCMetricsResults(numberOfGenes, numberOfSubsets, { subsetProportions = true } = {}) {
     return internal.emptyPerCellQcMetricsResults(
         () => wasm.call(module => new module.PerCellQCMetrics_Results(numberOfGenes, numberOfSubsets, subsetProportions)),
-        raw => new PerCellQCMetrics(raw)
+        raw => new PerCellQCMetricsResults(raw)
     );
 }
