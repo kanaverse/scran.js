@@ -106,7 +106,7 @@ export class PerCellAdtQcFilters {
  * This is used to segregate cells in order to compute filters within each block.
  * Alternatively, this may be `null`, in which case all cells are assumed to be in the same block.
  *
- * @return A `PerCellQCFilters` object containing the filtering results.
+ * @return {PerCellQCFilters} Object containing the filtering results.
  */
 export function computePerCellAdtQcFilters(metrics, { numberOfMADs = 3, minDetectedDrop = 0.1, block = null } = {}) {
     return internal.computePerCellQcFilters(
