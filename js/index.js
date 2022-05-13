@@ -11,6 +11,7 @@ export * from "./cbind.js";
 export * from "./computePerCellQCMetrics.js";
 export * from "./computePerCellAdtQcMetrics.js";
 export * from "./computePerCellQCFilters.js";
+export * from "./computePerCellAdtQcFilters.js";
 export * from "./filterCells.js";
 
 export * from "./medianSizeFactors.js";
