@@ -12,7 +12,7 @@
 
 PerCellAdtQcMetrics_Results per_cell_adt_qc_metrics(const NumericMatrix& mat, int nsubsets, uintptr_t subsets) {
     scran::PerCellAdtQcMetrics qc;
-    auto store = qc.run(mat.ptr.get(), extract_column_pointers<const uint8_t*>(subsets, mat.nrow(), nsubsets));
+    auto store = qc.run(mat.ptr.get(), convert_array_of_offsets<const uint8_t*>(nsubsets, subsets));
     return PerCellAdtQcMetrics_Results(std::move(store));
 }
 

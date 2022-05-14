@@ -5,51 +5,39 @@ import * as wa from "wasmarrays.js";
 export function computePerCellQcMetrics(x, subsets, run, create) {
     var output;
     var raw;
+    var tmp_subsets = [];
+    var subset_offsets;
 
     try {
-        if (subsets instanceof wa.Uint8WasmArray) {
-            let nsubsets = Math.round(subsets.length / x.numberOfRows());
-            if (nsubsets * x.numberOfRows() != subsets.length) {
-                throw new Error("length of 'subsets' should be a multiple of the matrix rows");
-            }
+        let nsubsets = 0;
+        let offset_offset = 0;
 
-            // This will either create a cheap view, or it'll clone
-            // 'subsets' into the appropriate memory space.
-            let converted = utils.wasmifyArray(subsets, "Uint8WasmArray");
-            try {
-                let ptr = subsets.offset;
-                raw = run(x.matrix, nsubsets, ptr);
-            } finally {
-                converted.free();
-            }
+        if (subsets != null) {
+            nsubsets = subsets.length;
+            subset_offsets = utils.createBigUint64WasmArray(nsubsets);
+            offset_offset = subset_offsets.offset;
+            let offset_arr = subset_offsets.array();
 
-        } else if (subsets instanceof Array) {
-            let tmp = utils.createUint8WasmArray(x.numberOfRows() * subsets.length);
-            try {
-                let offset = 0;
-                for (var i = 0; i < subsets.length; i++) {
-                    let current = subsets[i];
-                    if (current.length != x.numberOfRows()) {
-                        throw new Error("length of each array in 'subsets' should be equal to the matrix rows");
-                    }
-                    tmp.array().set(current, offset);
-                    offset += current.length;
+            for (var i = 0; i < nsubsets; i++) {
+                // This will either create a cheap view, or it'll clone
+                // 'subsets' into the appropriate memory space.
+                let current = utils.wasmifyArray(subsets[i], "Uint8WasmArray");
+                if (current.length != x.numberOfRows()) {
+                    throw new Error("length of each array in 'subsets' should be equal to the matrix rows");
                 }
-                raw = run(x.matrix, subsets.length, tmp.offset);
-            } finally {
-                tmp.free();
+                tmp_subsets.push(current);
+                offset_arr[i] = BigInt(current.offset);
             }
-
-        } else if (subsets === null) {
-            raw = run(x.matrix, 0, 0);
-
-        } else {
-            throw new Error("'subsets' should be an Array or Uint8WasmArray");
         }
 
+        raw = run(x.matrix, nsubsets, offset_offset);
         output = create(raw);
     } catch (e) {
         utils.free(raw);
+        utils.free(subset_offsets);
+        for (const y of tmp_subsets) {
+            utils.free(y);
+        }
         throw e;
     }
 

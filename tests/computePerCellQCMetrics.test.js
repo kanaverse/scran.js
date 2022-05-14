@@ -50,10 +50,11 @@ test("per-cell QC metrics gets the same results with an input WasmArray", () => 
     var subs = simulate.simulateSubsets(ngenes, 2);
     var qc1 = scran.computePerCellQCMetrics(mat, subs);
 
-    var wasmified = scran.createUint8WasmArray(ngenes * 2);
-    wasmified.array().set(subs[0]);
-    wasmified.array().set(subs[1], ngenes);
-    var qc2 = scran.computePerCellQCMetrics(mat, wasmified);
+    var wa1 = scran.createUint8WasmArray(ngenes);
+    wa1.set(subs[0]);
+    var wa2 = scran.createUint8WasmArray(ngenes);
+    wa2.set(subs[1]);
+    var qc2 = scran.computePerCellQCMetrics(mat, [wa1, wa2]);
 
     expect(compare.equalArrays(qc1.sums(), qc2.sums())).toBe(true);
     expect(compare.equalArrays(qc1.detected(), qc2.detected())).toBe(true);
@@ -63,7 +64,8 @@ test("per-cell QC metrics gets the same results with an input WasmArray", () => 
     mat.free();
     qc1.free();
     qc2.free();
-    wasmified.free();
+    wa1.free();
+    wa2.free();
 });
 
 test("per-cell QC metrics can be mocked up", () => {
