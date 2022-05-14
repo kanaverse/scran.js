@@ -15,6 +15,7 @@ destdir=$mode
 rm -rf ${destdir}
 mkdir -p ${destdir}
 cp js/*.js $destdir
+cp -r js/internal $destdir
 
 if [ $mode != "main" ]
 then
