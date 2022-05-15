@@ -116,6 +116,10 @@ export function runPCA(x, { features = null, numberOfPCs = 25, scale = false, bl
             fptr = feat_data.offset;
         }
 
+        // Avoid asking for more PCs than is possible.
+        // Remember that centering removes one df, so we subtract 1 from the dimensions.
+        numberOfPCs = Math.min(numberOfPCs, x.numberOfRows() - 1, x.numberOfColumns() - 1);
+
         if (block === null) {
             raw = wasm.call(module => module.run_pca(x.matrix, numberOfPCs, use_feat, fptr, scale));
         } else {
