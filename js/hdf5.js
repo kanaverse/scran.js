@@ -182,12 +182,21 @@ export class H5Group extends H5Base {
      *
      * @return A group is created as an immediate child of the current group.
      * A {@linkplain H5Group} object is returned representing this new group.
+     * If a group already exists at `name`, it is returned directly.
      */
     createGroup(name) {
         let new_name = this.#child_name(name);
-        wasm.call(module => module.create_hdf5_group(this.file, new_name));
-        this.children[name] = "Group";
-        return new H5Group(this.file, new_name, { children: {} });
+        if (name in this.children) {
+            if (this.children[name] == "Group") {
+                return new H5Group(this.file, new_name);
+            } else {
+                throw new Error("existing child '" + new_name + "' is not a HDF5 group");
+            }
+        } else {
+            wasm.call(module => module.create_hdf5_group(this.file, new_name));
+            this.children[name] = "Group";
+            return new H5Group(this.file, new_name, { children: {} });
+        }
     }
 
     /**

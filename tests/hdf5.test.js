@@ -135,6 +135,12 @@ test("HDF5 creation works as expected", () => {
     let ghandle = fhandle.createGroup("foo");
     let ghandle2 = ghandle.createGroup("bar");
 
+    // No-ops when the group already exists.
+    {
+        let ghandle3 = fhandle.createGroup("foo");
+        expect("bar" in ghandle3.children).toBe(true);
+    }
+
     // Creation of numeric datasets works correctly.
     let add_dataset = (name, constructor, type, shape) => {
         let prod = shape.reduce((a, b) => a * b);
