@@ -29,56 +29,17 @@ import { buildNeighborSearchIndex, NeighborSearchIndex } from "./findNearestNeig
 export function scaleByNeighbors(embeddings, numberOfCells, { neighbors = 20, indices = null, buffer = null, approximate = true, weights = null } = {}) {
     let nembed = embeddings.length;
     let embed_ptrs, index_ptrs;
+    let holding_ndims;
     let holding_weights;
     let holding_buffer;
 
     let deletable = [];
     try {
-        // Making sure that everyone has indices.
-        if (indices == null) {
-            for (var i = 0; i < nembed; i++) {
-                let ndim = embeddings[i].length / numberOfCells;
-                let index = buildNeighborSearchIndex(embeddings[i], { numberOfCells: numberOfCells, numberOfDims: ndim, approximate: approximate });
-                deletable.push(index);
-            }
-            indices = deletable;
-        } else {
-            if (nembed !== indices.length) {
-                throw new Error("'indices' and 'embeddings' should have the same length");
-            }
-            for (var i = 0; i < nembed; i++) {
-                let index = indices[i];
-                if (numberOfCells != index.numberOfCells()) {
-                    throw new Error("each element of 'indices' should have the same number of cells as 'numberOfCells'");
-                }
-                if (embeddings[i].length != index.numberOfCells() * index.numberOfDims()) {
-                    throw new Error("length of arrays in 'embeddings' should equal the length of arrays used to build 'indices'");
-                }
-            }
-        }
-
         // Fetching the pointers.
         embed_ptrs = utils.createBigUint64WasmArray(nembed);
         let embed_arr = embed_ptrs.array();
         for (var i = 0; i < nembed; i++) {
             embed_arr[i] = BigInt(embeddings[i].offset);
-        }
-
-        index_ptrs = utils.createBigUint64WasmArray(nembed);
-        let index_arr = index_ptrs.array();
-        let total_ndim = 0;
-        for (var i = 0; i < nembed; i++) {
-            index_arr[i] = BigInt(indices[i].index.$$.ptr);
-            total_ndim += indices[i].numberOfDims();
-        }
-
-        // Allocating output space, if necessary; and then scaling.
-        let total_len = total_ndim * numberOfCells;
-        if (buffer === null) {
-            holding_buffer = utils.createFloat64WasmArray(total_len);
-            buffer = holding_buffer;
-        } else if (total_len !== buffer.length) {
-            throw new Error("length of 'buffer' should be equal to the product of 'numberOfCells' and the total number of dimensions");
         }
 
         let weight_offset = 0;
@@ -92,7 +53,77 @@ export function scaleByNeighbors(embeddings, numberOfCells, { neighbors = 20, in
             weight_offset = holding_weights.offset;
         }
 
-        wasm.call(module => module.scale_by_neighbors(numberOfCells, nembed, embed_ptrs.offset, index_ptrs.offset, buffer.offset, neighbors, use_weights, weight_offset));
+        // Allocating output space, if necessary; and then scaling.
+        let allocator = (total_ndim) => {
+            let total_len = total_ndim * numberOfCells;
+            if (buffer === null) {
+                holding_buffer = utils.createFloat64WasmArray(total_len);
+                buffer = holding_buffer;
+            } else if (total_len !== buffer.length) {
+                throw new Error("length of 'buffer' should be equal to the product of 'numberOfCells' and the total number of dimensions");
+            }
+        }
+
+        if (indices !== null) {
+            if (nembed !== indices.length) {
+                throw new Error("'indices' and 'embeddings' should have the same length");
+            }
+
+            index_ptrs = utils.createBigUint64WasmArray(nembed);
+            let index_arr = index_ptrs.array();
+            let total_ndim = 0;
+
+            for (var i = 0; i < nembed; i++) {
+                let index = indices[i];
+                if (numberOfCells != index.numberOfCells()) {
+                    throw new Error("each element of 'indices' should have the same number of cells as 'numberOfCells'");
+                }
+                if (embeddings[i].length != index.numberOfCells() * index.numberOfDims()) {
+                    throw new Error("length of arrays in 'embeddings' should equal the length of arrays used to build 'indices'");
+                }
+
+                index_arr[i] = BigInt(indices[i].index.$$.ptr);
+                total_ndim += indices[i].numberOfDims();
+            }
+
+            allocator(total_ndim);
+            wasm.call(module => module.scale_by_neighbors_indices(
+                numberOfCells, 
+                nembed, 
+                embed_ptrs.offset, 
+                index_ptrs.offset, 
+                buffer.offset, 
+                neighbors, 
+                use_weights, 
+                weight_offset
+            ));
+        } else {
+            holding_ndims = utils.createInt32WasmArray(nembed);
+            let ndims_arr = holding_ndims.array();
+            let total_ndim = 0;
+
+            for (var i = 0; i < nembed; i++) {
+                let n = embeddings[i].length;
+                ndims_arr[i] = Math.floor(n / numberOfCells);
+                if (numberOfCells * ndims_arr[i] !== n) {
+                    throw new Error("length of arrays in 'embeddings' should be a multiple of 'numberOfCells'");
+                }
+                total_ndim += ndims_arr[i];
+            }
+
+            allocator(total_ndim);
+            wasm.call(module => module.scale_by_neighbors_matrices(
+                numberOfCells, 
+                nembed, 
+                holding_ndims.offset, 
+                embed_ptrs.offset, 
+                buffer.offset, 
+                neighbors, 
+                use_weights, 
+                weight_offset,
+                approximate
+            ));
+        }
 
     } catch (e) {
         utils.free(holding_buffer);
@@ -105,6 +136,7 @@ export function scaleByNeighbors(embeddings, numberOfCells, { neighbors = 20, in
         utils.free(embed_ptrs);
         utils.free(index_ptrs);
         utils.free(holding_weights);
+        utils.free(holding_ndims);
     }
 
     return buffer;
