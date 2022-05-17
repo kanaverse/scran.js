@@ -75,31 +75,37 @@ $(function() {
 <code>#include &quot;scran/dimensionality_reduction/ScaleByNeighbors.hpp&quot;</code><br />
 <code>#include &quot;<a class="el" href="utils_8h_source.html">utils.h</a>&quot;</code><br />
 <code>#include &lt;vector&gt;</code><br />
+<code>#include &lt;memory&gt;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for scale_by_neighbors.cpp:</div>
 <div class="dyncontent">
 <div class="center"><img src="scale__by__neighbors_8cpp__incl.png" border="0" usemap="#ascale__by__neighbors_8cpp" alt=""/></div>
 <map name="ascale__by__neighbors_8cpp" id="ascale__by__neighbors_8cpp">
-<area shape="rect" title=" " alt="" coords="263,5,423,32"/>
+<area shape="rect" title=" " alt="" coords="277,5,437,32"/>
 <area shape="rect" title=" " alt="" coords="5,87,129,114"/>
-<area shape="rect" href="NeighborIndex_8h.html" title=" " alt="" coords="154,87,269,114"/>
-<area shape="rect" title=" " alt="" coords="277,169,335,196"/>
-<area shape="rect" href="parallel_8h.html" title=" " alt="" coords="344,87,417,114"/>
-<area shape="rect" title=" " alt="" coords="441,80,659,121"/>
-<area shape="rect" href="utils_8h.html" title=" " alt="" coords="683,87,739,114"/>
-<area shape="rect" title=" " alt="" coords="10,169,157,196"/>
-<area shape="rect" title=" " alt="" coords="181,169,249,196"/>
-<area shape="rect" title=" " alt="" coords="597,169,658,196"/>
-<area shape="rect" title=" " alt="" coords="682,169,741,196"/>
-<area shape="rect" title=" " alt="" coords="765,169,837,196"/>
+<area shape="rect" href="NeighborIndex_8h.html" title=" " alt="" coords="205,87,319,114"/>
+<area shape="rect" title=" " alt="" coords="115,169,183,196"/>
+<area shape="rect" title=" " alt="" coords="378,169,437,196"/>
+<area shape="rect" href="parallel_8h.html" title=" " alt="" coords="395,87,468,114"/>
+<area shape="rect" title=" " alt="" coords="492,80,709,121"/>
+<area shape="rect" href="utils_8h.html" title=" " alt="" coords="734,87,790,114"/>
+<area shape="rect" title=" " alt="" coords="207,169,354,196"/>
+<area shape="rect" title=" " alt="" coords="647,169,709,196"/>
+<area shape="rect" title=" " alt="" coords="733,169,791,196"/>
+<area shape="rect" title=" " alt="" coords="815,169,887,196"/>
 </map>
 </div>
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a03633af4d5205f92ca7c98082ecdaf8c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="scale__by__neighbors_8cpp.html#a03633af4d5205f92ca7c98082ecdaf8c">scale_by_neighbors</a> (int ncells, int nembed, uintptr_t embeddings, uintptr_t indices, uintptr_t combined, int num_neighbors, bool use_weights, uintptr_t weights)</td></tr>
-<tr class="separator:a03633af4d5205f92ca7c98082ecdaf8c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2c9577a2153ab53b50d96cbb1e021450"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="scale__by__neighbors_8cpp.html#a2c9577a2153ab53b50d96cbb1e021450">EMSCRIPTEN_BINDINGS</a> (<a class="el" href="scale__by__neighbors_8cpp.html#a03633af4d5205f92ca7c98082ecdaf8c">scale_by_neighbors</a>)</td></tr>
+<tr class="memitem:a31fa5f9dca088f0f39f182184704d803"><td class="memTemplParams" colspan="2">template&lt;class Index &gt; </td></tr>
+<tr class="memitem:a31fa5f9dca088f0f39f182184704d803"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="scale__by__neighbors_8cpp.html#a31fa5f9dca088f0f39f182184704d803">scale_by_neighbors_internal</a> (const std::vector&lt; int &gt; &amp;ndims, size_t ncells, const std::vector&lt; const double * &gt; &amp;embeddings, const std::vector&lt; const Index * &gt; &amp;indices, uintptr_t combined, int num_neighbors, bool use_weights, uintptr_t weights)</td></tr>
+<tr class="separator:a31fa5f9dca088f0f39f182184704d803"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a484275014c8617f572e626015994e2cd"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="scale__by__neighbors_8cpp.html#a484275014c8617f572e626015994e2cd">scale_by_neighbors_indices</a> (int ncells, int nembed, uintptr_t embeddings, uintptr_t indices, uintptr_t combined, int num_neighbors, bool use_weights, uintptr_t weights)</td></tr>
+<tr class="separator:a484275014c8617f572e626015994e2cd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acdb30ff5064bbbc0d002337c7e57a084"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="scale__by__neighbors_8cpp.html#acdb30ff5064bbbc0d002337c7e57a084">scale_by_neighbors_matrices</a> (int ncells, int nembed, uintptr_t ndims, uintptr_t embeddings, uintptr_t combined, int num_neighbors, bool use_weights, uintptr_t weights, bool approximate)</td></tr>
+<tr class="separator:acdb30ff5064bbbc0d002337c7e57a084"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2c9577a2153ab53b50d96cbb1e021450"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="scale__by__neighbors_8cpp.html#a2c9577a2153ab53b50d96cbb1e021450">EMSCRIPTEN_BINDINGS</a> (scale_by_neighbors)</td></tr>
 <tr class="separator:a2c9577a2153ab53b50d96cbb1e021450"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function Documentation</h2>
@@ -112,7 +118,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="memname">EMSCRIPTEN_BINDINGS </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="scale__by__neighbors_8cpp.html#a03633af4d5205f92ca7c98082ecdaf8c">scale_by_neighbors</a>&#160;</td>
+          <td class="paramtype">scale_by_neighbors&#160;</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
         </tr>
@@ -121,14 +127,14 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a03633af4d5205f92ca7c98082ecdaf8c" name="a03633af4d5205f92ca7c98082ecdaf8c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a03633af4d5205f92ca7c98082ecdaf8c">&#9670;&nbsp;</a></span>scale_by_neighbors()</h2>
+<a id="a484275014c8617f572e626015994e2cd" name="a484275014c8617f572e626015994e2cd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a484275014c8617f572e626015994e2cd">&#9670;&nbsp;</a></span>scale_by_neighbors_indices()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void scale_by_neighbors </td>
+          <td class="memname">void scale_by_neighbors_indices </td>
           <td>(</td>
           <td class="paramtype">int&#160;</td>
           <td class="paramname"><em>ncells</em>, </td>
@@ -174,6 +180,142 @@ Functions</h2></td></tr>
           <td></td>
           <td class="paramtype">uintptr_t&#160;</td>
           <td class="paramname"><em>weights</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a31fa5f9dca088f0f39f182184704d803" name="a31fa5f9dca088f0f39f182184704d803"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a31fa5f9dca088f0f39f182184704d803">&#9670;&nbsp;</a></span>scale_by_neighbors_internal()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class Index &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">void scale_by_neighbors_internal </td>
+          <td>(</td>
+          <td class="paramtype">const std::vector&lt; int &gt; &amp;&#160;</td>
+          <td class="paramname"><em>ndims</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>ncells</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::vector&lt; const double * &gt; &amp;&#160;</td>
+          <td class="paramname"><em>embeddings</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::vector&lt; const Index * &gt; &amp;&#160;</td>
+          <td class="paramname"><em>indices</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uintptr_t&#160;</td>
+          <td class="paramname"><em>combined</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>num_neighbors</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>use_weights</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uintptr_t&#160;</td>
+          <td class="paramname"><em>weights</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="acdb30ff5064bbbc0d002337c7e57a084" name="acdb30ff5064bbbc0d002337c7e57a084"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acdb30ff5064bbbc0d002337c7e57a084">&#9670;&nbsp;</a></span>scale_by_neighbors_matrices()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void scale_by_neighbors_matrices </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>ncells</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>nembed</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uintptr_t&#160;</td>
+          <td class="paramname"><em>ndims</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uintptr_t&#160;</td>
+          <td class="paramname"><em>embeddings</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uintptr_t&#160;</td>
+          <td class="paramname"><em>combined</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>num_neighbors</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>use_weights</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uintptr_t&#160;</td>
+          <td class="paramname"><em>weights</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>approximate</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
