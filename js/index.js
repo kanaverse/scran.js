@@ -6,7 +6,10 @@ export * from "./hdf5.js";
 
 export * from "./permute.js";
 export * from "./features.js";
+export * from "./ArrayCollection.js";
+
 export * from "./cbind.js";
+export * from "./subset.js";
 
 export * from "./computePerCellQCMetrics.js";
 export * from "./computePerCellAdtQcMetrics.js";
@@ -36,4 +39,3 @@ export * from "./scaleByNeighbors.js";
 
 export * from "./scoreMarkers.js";
 export * from "./labelCells.js";
-export * from "./subset.js";
