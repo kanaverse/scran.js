@@ -58,6 +58,14 @@ bool NumericMatrix::sparse() const {
     return ptr->sparse(); 
 }
 
+NumericMatrix NumericMatrix::clone() const {
+    if (is_reorganized) {
+        return NumericMatrix(ptr, row_ids);
+    } else {
+        return NumericMatrix(ptr);
+    }
+}
+
 /**
  * @cond 
  */
@@ -71,6 +79,7 @@ EMSCRIPTEN_BINDINGS(NumericMatrix) {
         .function("identities", &NumericMatrix::identities)
         .function("reorganized", &NumericMatrix::reorganized)
         .function("sparse", &NumericMatrix::sparse)
+        .function("clone", &NumericMatrix::clone)
         ;
 }
 /**

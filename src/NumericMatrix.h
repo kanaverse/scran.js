@@ -98,6 +98,8 @@ struct NumericMatrix {
      */
     bool sparse() const;
 
+    NumericMatrix clone() const;
+
     /** 
      * @cond
      */

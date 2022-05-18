@@ -16,6 +16,14 @@ export class ScranMatrix {
     }
 
     /**
+     * @return A clone of the current ScranMatrix instance.
+     * This can be freed independently of the current instance.
+     */
+    clone() {
+        return new ScranMatrix(this.matrix.clone());
+    }
+
+    /**
      * @return Number of rows in the matrix.
      */
     numberOfRows() {

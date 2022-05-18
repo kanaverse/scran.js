@@ -70,3 +70,48 @@ test("row subset works", () => {
     mat2.free();
     subset2.free();
 })
+
+test("splitRows works as expected", () => {
+    var factor = ["A", "B", "C", "A", "C", "B", "D"];
+    let split = scran.splitByFactor(factor);
+    expect(split.A).toEqual([0, 3]);
+    expect(split.B).toEqual([1, 5]);
+    expect(split.C).toEqual([2, 4]);
+    expect(split.D).toEqual([6]);
+
+    var mat = simulate.simulateDenseMatrix(7, 10);
+    let splitmats = scran.splitRows(mat, split);
+
+    expect(splitmats.A.numberOfRows()).toBe(2);
+    expect(splitmats.A.row(0)).toEqual(mat.row(0));
+    expect(splitmats.A.row(1)).toEqual(mat.row(3));
+
+    expect(splitmats.D.numberOfRows()).toBe(1);
+    expect(splitmats.D.row(0)).toEqual(mat.row(6));
+
+    // Works correctly if there's only one level.
+    let solo_factor = new Array(factor.length);
+    solo_factor.fill("X");
+    let solo_split = scran.splitByFactor(solo_factor);
+
+    expect(scran.splitRows(mat, solo_split, { singleNull: true })).toBeNull();
+    let solomats = scran.splitRows(mat, solo_split);
+    expect(solomats.X.numberOfRows()).toBe(mat.numberOfRows());
+    expect(solomats.X.row(6)).toEqual(mat.row(6));
+
+    // It's a clone, so it should be in a different address space.
+    let new_ptr = solomats.X.matrix.$$.ptr;
+    expect(new_ptr >= 0).toBe(true);
+    let old_ptr = mat.matrix.$$.ptr;
+    expect(old_ptr >= 0).toBe(true);
+    expect(new_ptr).not.toBe(old_ptr);
+
+    mat.free();
+    for (const v of Object.values(splitmats)) {
+        v.free();
+    }
+    for (const v of Object.values(solomats)) {
+        v.free();
+    }
+})
+
