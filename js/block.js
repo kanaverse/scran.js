@@ -35,7 +35,7 @@ export function createBlock(ncells, { buffer = null } = {}) {
             barr.fill(i, old, sofar);
         }
     } catch (e) {
-        utils.freeCache(blocks);
+        utils.free(blocks);
         throw e;
     }
 
@@ -59,9 +59,9 @@ export function convertBlock(x, { buffer = null } = {}) {
 
     try {
         if (buffer == null) {
-            blocks = utils.createInt32WasmArray(total);
+            blocks = utils.createInt32WasmArray(x.length);
         } else {
-            if (buffer.length !== total) {
+            if (buffer.length !== x.length) {
                 throw new Error("'buffer' should have length equal to that of 'x'");
             }
             blocks = buffer.view();
@@ -79,7 +79,7 @@ export function convertBlock(x, { buffer = null } = {}) {
         });
 
     } catch (e) {
-        utils.freeCache(blocks);
+        utils.free(blocks);
         throw e;
     }
 
