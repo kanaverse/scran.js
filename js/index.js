@@ -7,6 +7,7 @@ export * from "./hdf5.js";
 export * from "./permute.js";
 export * from "./features.js";
 export * from "./ArrayCollection.js";
+export * from "./block.js";
 
 export * from "./cbind.js";
 export * from "./subset.js";
