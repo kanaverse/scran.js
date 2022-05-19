@@ -2,9 +2,12 @@ import * as utils from "./utils.js";
 
 /**
  * Create a blocking factor for a set of contiguous blocks, usually to accompany the output of {@linkcode cbind} on matrices representing different batches.
- * Note that no protection is provided against empty blocks; if this is a possibility, use {@dropUnusedBlock} on the output of this function.
+ * Note that no protection is provided against empty blocks; if this is a possibility, use {@linkcode dropUnusedBlock} on the output of this function.
  *
  * @param {(Array|TypedArray)} ncells - Array of integers specifying the number of cells in each block.
+ *
+ * Note that TypedArray views on Wasm-allocated buffers should only be provided if `buffer` is also provided;
+ * otherwise, a Wasm memory allocation may invalidate the view.
  * @param {object} [options] - Optional parameters.
  * @param {?Int32WasmArray} [options.buffer] - Array in which the output is to be stored.
  * If provided, this should be of length equal to the sum of `ncells`.
@@ -46,6 +49,9 @@ export function createBlock(ncells, { buffer = null } = {}) {
  * Convert an existing array into a blocking factor for use in **scran.js** functions.
  *
  * @param {(Array|TypedArray)} x - Array containing a blocking factor, where each unique level specifies the assigned block for each cell.
+ *
+ * Note that TypedArray views on Wasm-allocated buffers should only be provided if `buffer` is also provided;
+ * otherwise, a Wasm memory allocation may invalidate the view.
  * @param {object} [options] - Optional parameters.
  * @param {?Int32WasmArray} [options.buffer] - Array in which the output is to be stored.
  * If provided, this should be of length equal to that of `x`.
@@ -91,7 +97,7 @@ export function convertBlock(x, { buffer = null } = {}) {
 
 /**
  * Filter the blocking factor, typically based on the same filtering vector as {@linkcode filterCells}.
- * Note that no protection is provided against empty blocks; if this is a possibility, use {@dropUnusedBlock} on the output of this function.
+ * Note that no protection is provided against empty blocks; if this is a possibility, use {@linkcode dropUnusedBlock} on the output of this function.
  * 
  * @param {Int32WasmArray} x - A blocking factor, typically produced by {@linkcode convertBlock} or {@link createBlock}.
  * @param {(Array|TypedArray|Uint8WasmArray)} filter - Array of length equal to that of `x`.
