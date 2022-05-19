@@ -65,10 +65,56 @@ test("block conversion works", () => {
     }
 })
 
+test("block filtering works", () => {
+    let x = scran.createInt32WasmArray(6);
+    x.set([0,1,2,0,1,2]);
+
+    {
+        let filtered = scran.filterBlock(x, [0, 1, 0, 1, 0, 1]);
+        expect(Array.from(filtered.array())).toEqual([0,2,1]);
+        filtered.free();
+
+        expect(() => scran.filterBlock(x, [])).toThrow("should have the same length");
+    }
+
+    // Works with WasmArrays.
+    {
+        let filter = scran.createUint8WasmArray(6);
+        filter.set([1, 0, 0, 0, 0, 1]);
+        let filtered = scran.filterBlock(x, filter);
+        expect(Array.from(filtered.array())).toEqual([1,2,0,1]);
+        filtered.free();
+    }
+
+    // Works with TypedArrays.
+    {
+        let filter = new Uint8Array(6);
+        filter.set([0, 0, 1, 1, 0, 0]);
+        let filtered = scran.filterBlock(x, filter);
+        expect(Array.from(filtered.array())).toEqual([0,1,1,2]);
+        filtered.free();
+    }
+
+    // Works with a buffer.
+    {
+        let buffer = scran.createInt32WasmArray(2);
+        let filter = new Uint8Array(6);
+        filter.set([0, 1, 1, 1, 1, 0]);
+
+        let filtered = scran.filterBlock(x, filter, { buffer: buffer });
+        expect(Array.from(filtered.array())).toEqual([0,2]);
+        buffer.free();
+
+        expect(() => scran.filterBlock(x, [1,1,0,0,0,1], { buffer: buffer })).toThrow("falses");
+    }
+
+    x.free();
+})
+
 test("block releveling works", () => {
     let buffer = scran.createInt32WasmArray(6);
     buffer.set([2,1,4,1,2,4]);
-    let mapping = scran.removeUnusedBlock(buffer);
+    let mapping = scran.dropUnusedBlock(buffer);
     expect(Array.from(buffer.array())).toEqual([1,0,2,0,1,2]);
     expect(mapping).toEqual([1,2,4]);
 })
