@@ -98,79 +98,32 @@ NumericMatrix cbind_with_rownames(int n, uintptr_t mats, uintptr_t names, uintpt
     }
 
     auto mat_ptrs = convert_array_of_offsets<const NumericMatrix*>(n, mats);
-    const auto& first = *(mat_ptrs.front());
-
-    // Harvesting the commons.
-    auto name_ptrs = convert_array_of_offsets<const int32_t*>(n, names);
-    auto first_names = name_ptrs[0];
-    std::unordered_set<int> in_use(first_names, first_names + first.ptr->nrow());
-
-    for (int i = 1; i < n; ++i) {
-        std::vector<int> intersection;
-        intersection.reserve(in_use.size());
-
-        const auto& current = *(mat_ptrs[i]);
-        size_t current_NR = current.ptr->nrow();
-        auto current_names = name_ptrs[i];
-
-        for (size_t j = 0; j < current_NR; ++j) {
-            if (in_use.find(current_names[j]) != in_use.end()) {
-                intersection.push_back(current_names[j]);            
-            }
-        }
-
-        in_use = std::unordered_set<int>(intersection.begin(), intersection.end());
-    }
-
-    std::unordered_map<int, int> mapping;
-    std::vector<int> as_vec(in_use.begin(), in_use.end());
-    std::sort(as_vec.begin(), as_vec.end());
-    for (int s = 0; s < as_vec.size(); ++s) {
-        mapping[as_vec[s]] = s;
-    }
-
-    // Applying the mapping. We ignore permutations here, under the assumption
-    // that same an appropriate permutation was already applied to the row
-    // names to match the reordering of the rows.
-    std::vector<std::shared_ptr<const tatami::Matrix<double, int> > > collected;
-    collected.reserve(mat_ptrs.size());
-    std::vector<size_t> ids;
-
+    const auto& first = *(mat_ptrs[0]);
+    std::vector<std::remove_reference<decltype(first.ptr)>::type> inputs;
+    inputs.reserve(n);
     for (int i = 0; i < n; ++i) {
-        const auto& current = *(mat_ptrs[i]);
-        size_t current_NR = current.ptr->nrow();
-        auto current_names = name_ptrs[i];
-
-        std::vector<size_t> reorder(mapping.size());
-        for (size_t j = 0; j < current_NR; ++j) {
-            auto it = mapping.find(current_names[j]);
-            if (it != mapping.end()) {
-                reorder[it->second] = j;
-            }
-        }
-
-        if (i == 0) {
-            ids = reorder;
-        }
-
-        collected.push_back(tatami::make_DelayedSubset<0>(current.ptr, std::move(reorder)));
+        inputs.push_back(mat_ptrs[i]->ptr);
     }
+
+    auto name_ptrs = convert_array_of_offsets<const int32_t*>(n, names);
+    auto out = tatami::bind_intersection<1>(inputs, name_ptrs);
 
     // Save the direct row indices for the first matrix.
+    auto& idx = out.second;
     auto idptr = reinterpret_cast<int*>(indices);
-    std::copy(ids.begin(), ids.end(), idptr);
+    std::copy(idx.begin(), idx.end(), idptr);
 
     // Adjust 'ids' so that they refer to the _original_ identifiers for the
     // first matrix, as expected for the 'row_ids' field of the NumericMatrix.
     // Of course, if the first matrix wasn't reorganized, then the 'ids' are
     // already referring to the original identifiers, so no change is required.
     if (first.is_reorganized) {
-        for (auto& y : ids) {
+        for (auto& y : idx) {
             y = first.row_ids[y];
         }
     }
 
-    return NumericMatrix(tatami::make_DelayedBind<1>(std::move(collected)), std::move(ids));
+    return NumericMatrix(std::move(out.first), std::move(idx));
 }
 
 /**
