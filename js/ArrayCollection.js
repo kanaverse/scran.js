@@ -1,16 +1,16 @@
 /**
- * Slice each array in a collection of equilength arrays.
+ * Subset each array in a collection of equilength arrays.
  *
  * @param {object} x - Object containing a collection of arrays (or TypedArrays) of the same length.
- * @param {Array|TypedArray} slice - Array of indices specifing the slice to extract from each array in `x`.
+ * @param {Array|TypedArray} indices - Array of indices specifing the subset to extract from each array in `x`.
  *
- * @return {object} An object with the same keys as `x`, where each value is the desired slice of the corresponding array of `x`.
+ * @return {object} An object with the same keys as `x`, where each value is the desired subset of the corresponding array of `x`.
  */
-export function sliceArrayCollection(x, slice) {
+export function subsetArrayCollection(x, indices) {
     let sub = {};
     for (const [k, v] of Object.entries(x)) {
-        let copy = new v.constructor(slice.length);
-        slice.forEach((x, i) => { copy[i] = v[x]; });
+        let copy = new v.constructor(indices.length);
+        indices.forEach((x, i) => { copy[i] = v[x]; });
         sub[k] = copy;
     }
     return sub;
@@ -28,7 +28,7 @@ export function sliceArrayCollection(x, slice) {
 export function splitArrayCollection(x, split) {
     let splits = {};
     for (const [k, v] of Object.entries(split)) {
-        splits[k] = sliceArrayCollection(x, v);
+        splits[k] = subsetArrayCollection(x, v);
     }
     return splits;
 }

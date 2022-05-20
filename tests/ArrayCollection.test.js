@@ -1,8 +1,8 @@
 import * as scran from "../js/index.js";
 
-test("slicing an array collection works", () => {
+test("subsetting an array collection works", () => {
     let x = { "A": [ 1, 2, 3, 4 ], "B": [ 'x', 'y', 'z', 'aa' ] };
-    let out = scran.sliceArrayCollection(x, [3, 1, 2]);
+    let out = scran.subsetArrayCollection(x, [3, 1, 2]);
     expect(out.A).toEqual([4,2,3]);
     expect(out.B).toEqual(['aa','y','z']);
 })
