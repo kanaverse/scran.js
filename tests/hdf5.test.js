@@ -152,6 +152,12 @@ test("HDF5 creation works as expected", () => {
         let dhandle = ghandle2.createDataSet(name, type, shape);
         dhandle.write(src);
 
+        // Fails for nulls or strings
+        expect(() => dhandle.write(null)).toThrow(/null/);
+        let strtmp = new Array(prod);
+        strtmp.fill("A");
+        expect(() => dhandle.write(strtmp)).toThrow(/string/);
+
         let vals = dhandle.load();
         expect(vals.constructor.name).toBe(constructor.name);
         expect(compare.equalArrays(vals, src)).toBe(true);
@@ -205,6 +211,8 @@ test("HDF5 creation works as expected", () => {
     let empty = ehandle.load();
     expect(empty.constructor.name).toBe("Int32Array");
     expect(empty.length).toBe(0);
+
+    expect(() => ghandle.writeDataSet("stuffZ", "Int32", [0], null)).toThrow(/null/)
 })
 
 test("HDF5 creation works as expected (strings)", () => {
@@ -226,6 +234,8 @@ test("HDF5 creation works as expected (strings)", () => {
     str_shandle.write("Bummer");
     let content = str_shandle.load();
     expect(content[0]).toBe("Bummer");
+
+    expect(() => ghandle.writeDataSet("foobar", "String", [3], [1,2,3])).toThrow(/strings/)
 
     // Checking that the quick writer works.
     let str_dhandleX = ghandle.writeDataSet("stuffX", "String", [5], colleagues);

@@ -16,7 +16,13 @@ function unpack_strings(buffer, lengths) {
 function repack_strings(x) {
     let buffer;
     let lengths;
-    
+
+    for (const y of x) {
+        if (!(typeof y == "string")) {
+            throw new Error("all entries of 'x' should be strings for a string HDF5 dataset");
+        }
+    }
+
     try {
         lengths = utils.createInt32WasmArray(x.length);
         let lengths_arr = lengths.array();
@@ -268,6 +274,10 @@ export class H5Group extends H5Base {
      * A {@linkplain H5DataSet} object is returned representing this new dataset.
      */
      writeDataSet(name, type, shape, x, { compression = 6, chunks = null } = {}) {
+        if (x === null) {
+            throw new Error("cannot write 'null' to HDF5"); 
+        }
+
         if (shape === null) {
             if (typeof x == "string" || typeof x == "number") {
                 x = [x];
@@ -476,6 +486,10 @@ export class H5DataSet extends H5Base {
      * No return value is provided.
      */
     write(x, { cache = false } = {}) {
+        if (x === null) {
+            throw new Error("cannot write 'null' to HDF5"); 
+        }
+
         x = check_shape(x, this.shape);
 
         if (this.type == "String") {
@@ -495,6 +509,14 @@ export class H5DataSet extends H5Base {
                 this.#values = null;
             }
         } else {
+            if (Array.isArray(x)) {
+                // no strings allowed!
+                for (const x0 of x) {
+                    if (typeof x0 === "string") {
+                        throw new Error("'x' should not contain any strings for a non-string HDF5 dataset");
+                    }
+                }
+            }
             let y = utils.wasmifyArray(x, null);
 
             try {
