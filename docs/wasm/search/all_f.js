@@ -16,10 +16,11 @@ var searchData=
   ['size_13',['size',['../structNeighborResults.html#a210be834f21e0f20f5b373cf5489e5bd',1,'NeighborResults::size()'],['../classJSVector.html#a29628665d2589799afc3389ef06991aa',1,'JSVector::size()']]],
   ['sparse_14',['sparse',['../structNumericMatrix.html#a0972e2d156b0e63b625ee6565f6cea8c',1,'NumericMatrix']]],
   ['status_15',['status',['../structClusterKmeans__Result.html#aade6046154f04e54083c4a4553e8c0c9',1,'ClusterKmeans_Result']]],
-  ['store_16',['store',['../structPerCellAdtQcMetrics__Results.html#a565d3558ef6bc9ae33cdde28ac3444b9',1,'PerCellAdtQcMetrics_Results']]],
-  ['store_17',['Store',['../structPerCellAdtQcMetrics__Results.html#ad4f43cdf08bac160a598c7f3b40c5b18',1,'PerCellAdtQcMetrics_Results']]],
-  ['subset_2ecpp_18',['subset.cpp',['../subset_8cpp.html',1,'']]],
-  ['subset_5fproportions_19',['subset_proportions',['../structPerCellQCMetrics__Results.html#af8245c5a21f0aed9ba1a5b87031384f7',1,'PerCellQCMetrics_Results']]],
-  ['subset_5ftotals_20',['subset_totals',['../structPerCellAdtQcMetrics__Results.html#a42200b73d81234e131a7399f722d565d',1,'PerCellAdtQcMetrics_Results']]],
-  ['sums_21',['sums',['../structPerCellAdtQcMetrics__Results.html#a006cf37fc93f12df1421cbbc9404933b',1,'PerCellAdtQcMetrics_Results::sums()'],['../structPerCellQCMetrics__Results.html#aed2914052ca302f343e852dfa7c5f7b3',1,'PerCellQCMetrics_Results::sums()']]]
+  ['store_16',['store',['../structClusterSNNGraphLeiden__Result.html#ac052ba2140d04d9376137f0dab32dc2a',1,'ClusterSNNGraphLeiden_Result::store()'],['../structPerCellAdtQcMetrics__Results.html#a565d3558ef6bc9ae33cdde28ac3444b9',1,'PerCellAdtQcMetrics_Results::store()']]],
+  ['store_17',['Store',['../structClusterSNNGraphWalktrap__Result.html#ac30c930aae112614821730529aa99541',1,'ClusterSNNGraphWalktrap_Result::Store()'],['../structClusterSNNGraphLeiden__Result.html#a5b35ee30e55a2012f48b3dd5d3c0d41b',1,'ClusterSNNGraphLeiden_Result::Store()'],['../structPerCellAdtQcMetrics__Results.html#ad4f43cdf08bac160a598c7f3b40c5b18',1,'PerCellAdtQcMetrics_Results::Store()']]],
+  ['store_18',['store',['../structClusterSNNGraphWalktrap__Result.html#ae936ac50590c47cc9a8355918dbe7052',1,'ClusterSNNGraphWalktrap_Result']]],
+  ['subset_2ecpp_19',['subset.cpp',['../subset_8cpp.html',1,'']]],
+  ['subset_5fproportions_20',['subset_proportions',['../structPerCellQCMetrics__Results.html#af8245c5a21f0aed9ba1a5b87031384f7',1,'PerCellQCMetrics_Results']]],
+  ['subset_5ftotals_21',['subset_totals',['../structPerCellAdtQcMetrics__Results.html#a42200b73d81234e131a7399f722d565d',1,'PerCellAdtQcMetrics_Results']]],
+  ['sums_22',['sums',['../structPerCellAdtQcMetrics__Results.html#a006cf37fc93f12df1421cbbc9404933b',1,'PerCellAdtQcMetrics_Results::sums()'],['../structPerCellQCMetrics__Results.html#aed2914052ca302f343e852dfa7c5f7b3',1,'PerCellQCMetrics_Results::sums()']]]
 ];

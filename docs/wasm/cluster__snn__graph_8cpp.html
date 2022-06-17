@@ -104,13 +104,21 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structClusterSNNGraphMultiLevel__Result.html">ClusterSNNGraphMultiLevel_Result</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Javascript-visible wrapper around <code>scran::ClusterSNNGraph::MultiLevelResult</code>.  <a href="structClusterSNNGraphMultiLevel__Result.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structClusterSNNGraphWalktrap__Result.html">ClusterSNNGraphWalktrap_Result</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structClusterSNNGraphLeiden__Result.html">ClusterSNNGraphLeiden_Result</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:a2bba3f12fb3451e458f1b438386b19b3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structBuildSNNGraph__Result.html">BuildSNNGraph_Result</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cluster__snn__graph_8cpp.html#a2bba3f12fb3451e458f1b438386b19b3">build_snn_graph</a> (const <a class="el" href="structNeighborResults.html">NeighborResults</a> &amp;neighbors, std::string scheme)</td></tr>
 <tr class="separator:a2bba3f12fb3451e458f1b438386b19b3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4a3639798602da8d725c245d18a5c52d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structClusterSNNGraphMultiLevel__Result.html">ClusterSNNGraphMultiLevel_Result</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cluster__snn__graph_8cpp.html#a4a3639798602da8d725c245d18a5c52d">cluster_snn_graph</a> (const <a class="el" href="structBuildSNNGraph__Result.html">BuildSNNGraph_Result</a> &amp;graph, double resolution)</td></tr>
-<tr class="separator:a4a3639798602da8d725c245d18a5c52d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a468ce2d7a952cfe6b40e0c9e7d2e444c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structClusterSNNGraphMultiLevel__Result.html">ClusterSNNGraphMultiLevel_Result</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cluster__snn__graph_8cpp.html#a468ce2d7a952cfe6b40e0c9e7d2e444c">cluster_snn_graph_multilevel</a> (const <a class="el" href="structBuildSNNGraph__Result.html">BuildSNNGraph_Result</a> &amp;graph, double resolution)</td></tr>
+<tr class="separator:a468ce2d7a952cfe6b40e0c9e7d2e444c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aee1d81745a47039efed347a515f715f8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structClusterSNNGraphWalktrap__Result.html">ClusterSNNGraphWalktrap_Result</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cluster__snn__graph_8cpp.html#aee1d81745a47039efed347a515f715f8">cluster_snn_graph_walktrap</a> (const <a class="el" href="structBuildSNNGraph__Result.html">BuildSNNGraph_Result</a> &amp;graph, int steps)</td></tr>
+<tr class="separator:aee1d81745a47039efed347a515f715f8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae7c7b29732780d2dc1a693e89585de5d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structClusterSNNGraphLeiden__Result.html">ClusterSNNGraphLeiden_Result</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cluster__snn__graph_8cpp.html#ae7c7b29732780d2dc1a693e89585de5d">cluster_snn_graph_leiden</a> (const <a class="el" href="structBuildSNNGraph__Result.html">BuildSNNGraph_Result</a> &amp;graph, double resolution)</td></tr>
+<tr class="separator:ae7c7b29732780d2dc1a693e89585de5d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p >Identify clusters from a shared nearest-neighbor graph. </p>
@@ -152,14 +160,42 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a4a3639798602da8d725c245d18a5c52d" name="a4a3639798602da8d725c245d18a5c52d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4a3639798602da8d725c245d18a5c52d">&#9670;&nbsp;</a></span>cluster_snn_graph()</h2>
+<a id="ae7c7b29732780d2dc1a693e89585de5d" name="ae7c7b29732780d2dc1a693e89585de5d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae7c7b29732780d2dc1a693e89585de5d">&#9670;&nbsp;</a></span>cluster_snn_graph_leiden()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="structClusterSNNGraphMultiLevel__Result.html">ClusterSNNGraphMultiLevel_Result</a> cluster_snn_graph </td>
+          <td class="memname"><a class="el" href="structClusterSNNGraphLeiden__Result.html">ClusterSNNGraphLeiden_Result</a> cluster_snn_graph_leiden </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structBuildSNNGraph__Result.html">BuildSNNGraph_Result</a> &amp;&#160;</td>
+          <td class="paramname"><em>graph</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double&#160;</td>
+          <td class="paramname"><em>resolution</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a468ce2d7a952cfe6b40e0c9e7d2e444c" name="a468ce2d7a952cfe6b40e0c9e7d2e444c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a468ce2d7a952cfe6b40e0c9e7d2e444c">&#9670;&nbsp;</a></span>cluster_snn_graph_multilevel()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structClusterSNNGraphMultiLevel__Result.html">ClusterSNNGraphMultiLevel_Result</a> cluster_snn_graph_multilevel </td>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="structBuildSNNGraph__Result.html">BuildSNNGraph_Result</a> &amp;&#160;</td>
           <td class="paramname"><em>graph</em>, </td>
@@ -185,6 +221,34 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>A <code><a class="el" href="structClusterSNNGraphMultiLevel__Result.html" title="Javascript-visible wrapper around scran::ClusterSNNGraph::MultiLevelResult.">ClusterSNNGraphMultiLevel_Result</a></code> object containing the... multi-level clustering results, obviously. </dd></dl>
+
+</div>
+</div>
+<a id="aee1d81745a47039efed347a515f715f8" name="aee1d81745a47039efed347a515f715f8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aee1d81745a47039efed347a515f715f8">&#9670;&nbsp;</a></span>cluster_snn_graph_walktrap()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structClusterSNNGraphWalktrap__Result.html">ClusterSNNGraphWalktrap_Result</a> cluster_snn_graph_walktrap </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structBuildSNNGraph__Result.html">BuildSNNGraph_Result</a> &amp;&#160;</td>
+          <td class="paramname"><em>graph</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>steps</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
 
 </div>
 </div>
