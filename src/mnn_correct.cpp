@@ -13,8 +13,9 @@ void mnn_correct(
     int k, 
     double nmads, 
     int riters, 
-    double rtrim, 
-    bool approximate) 
+    double rtrim,
+    std::string ref_policy, 
+    bool approximate)
 {
     auto bptr = reinterpret_cast<const int32_t*>(batch);
     auto iptr = reinterpret_cast<const double*>(input);
@@ -22,6 +23,19 @@ void mnn_correct(
 
     mnncorrect::MnnCorrect<int, double> runner;
     runner.set_num_neighbors(k).set_num_mads(nmads).set_robust_iterations(riters).set_robust_trim(rtrim).set_approximate(approximate);
+
+    if (ref_policy == "max-variance") {
+        runner.set_reference_policy(mnncorrect::MaxVariance);
+    } else if (ref_policy == "max-rss") {
+        runner.set_reference_policy(mnncorrect::MaxRss);
+    } else if (ref_policy == "max-size") {
+        runner.set_reference_policy(mnncorrect::MaxSize);
+    } else if (ref_policy == "input") {
+        runner.set_reference_policy(mnncorrect::Input);
+    } else {
+        throw std::runtime_error("unknown reference policy '" + ref_policy + "'");
+    }
+
     runner.run(nrows, ncols, iptr, bptr, optr);
 
     return;

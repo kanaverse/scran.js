@@ -9,7 +9,7 @@ import * as wasm from "./wasm.js";
  * @param {(PCAResults|TypedArray|Array|Float64WasmArray)} x - A matrix of low-dimensional results where rows are dimensions and columns are cells.
  * If this is a {@linkplain PCAResults} object, the PCs are automatically extracted.
  * Otherwise, the matrix should be provided as an array in column-major form, with specification of `numberOfDims` and `numberOfCells`.
- * @param {(Int32WasmArray|Array|TypedArray)} [options.block] - Array containing the block assignment for each cell.
+ * @param {(Int32WasmArray|Array|TypedArray)} block - Array containing the block assignment for each cell.
  * This should have length equal to the number of cells and contain all values from 0 to `n - 1` at least once, where `n` is the number of blocks.
  * This is used to segregate cells in order to perform normalization within each block.
  * @param {object} [options] - Further optional parameters.
@@ -27,6 +27,8 @@ import * as wasm from "./wasm.js";
  * see comments [here](https://ltla.github.io/CppMnnCorrect).
  * @param {number} [options.robustTrim] - Proportion of furthest observations to remove during robustness iterations, 
  * see comments [here](https://ltla.github.io/CppMnnCorrect).
+ * @param {string} [options.referencePolicy] - What policy to use to choose the first reference batch.
+ * This can be the largest batch (`max-size`), the most variable batch (`max-variance`), the batch with the highest RSS (`max-rss`) or batch 0 in `block` (`input`).
  * @param {boolean} [options.approximate] - Whether to perform an approximate nearest neighbor search.
  *
  * @return A Float64WasmArray containing the batch-corrected low-dimensional coordinates for all cells.
@@ -41,6 +43,7 @@ export function mnnCorrect(x, block, {
     numberOfMADs = 3, 
     robustIterations = 2, 
     robustTrim = 0.25,
+    referencePolicy = "max-size",
     approximate = true
 } = {}) {
 
@@ -79,6 +82,7 @@ export function mnnCorrect(x, block, {
             numberOfMADs,
             robustIterations,
             robustTrim,
+            referencePolicy,
             approximate
         ));
         
