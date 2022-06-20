@@ -4,7 +4,7 @@
 #include "utils.h"
 #include "PerCellQCMetrics_Results.h"
 
-#include "scran/quality_control/PerCellQCFilters.hpp"
+#include "scran/quality_control/PerCellRnaQcFilters.hpp"
 
 #include <vector>
 #include <algorithm>

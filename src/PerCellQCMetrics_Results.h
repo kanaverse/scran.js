@@ -2,7 +2,7 @@
 #define PER_CELL_QC_METRICS_RESULTS_H
 
 #include <emscripten/bind.h>
-#include "scran/quality_control/PerCellQCMetrics.hpp"
+#include "scran/quality_control/PerCellRnaQcMetrics.hpp"
 
 /**
  * @file PerCellQCMetrics_Results.h

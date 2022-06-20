@@ -4,7 +4,7 @@
 #include "utils.h"
 #include "PerCellQCMetrics_Results.h"
 
-#include "scran/quality_control/PerCellQCMetrics.hpp"
+#include "scran/quality_control/PerCellRnaQcMetrics.hpp"
 #include "tatami/base/DelayedSubsetBlock.hpp"
 
 #include <vector>

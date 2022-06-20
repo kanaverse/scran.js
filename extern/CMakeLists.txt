@@ -36,7 +36,7 @@ include(FetchContent)
 FetchContent_Declare(
   tatami 
   GIT_REPOSITORY https://github.com/LTLA/tatami
-  GIT_TAG 965fdbfc6d23e71586ba0a89274b2e2a4afaa087
+  GIT_TAG 2b97a572e4d399de6e7e8615119b8a9ea09c9802
 )
 FetchContent_MakeAvailable(tatami)
 
@@ -50,21 +50,21 @@ FetchContent_MakeAvailable(kmeans)
 FetchContent_Declare(
   scran 
   GIT_REPOSITORY https://github.com/LTLA/libscran
-  GIT_TAG 2151fbf68650bf8c1067329076e8de180b1e9c2d
+  GIT_TAG 899efd34c08ef76545ad5a9b6b5eec5860281788
 )
 FetchContent_MakeAvailable(scran)
 
 FetchContent_Declare(
   mnncorrect 
   GIT_REPOSITORY https://github.com/LTLA/CppMnnCorrect
-  GIT_TAG 922e05d46e0f4b5c624e5b705fb1119e2d4bb1e4
+  GIT_TAG ba8c2f5987e1a0eb94b6e0859040301b13e14acf
 )
 FetchContent_MakeAvailable(mnncorrect)
 
 FetchContent_Declare(
   qdtsne 
   GIT_REPOSITORY https://github.com/LTLA/qdtsne
-  GIT_TAG e189c57980b36a6f337af8e562804f97963bb26f
+  GIT_TAG 2a6fd4d78180625389dd75637939d74929b5668d
 )
 FetchContent_MakeAvailable(qdtsne)
 

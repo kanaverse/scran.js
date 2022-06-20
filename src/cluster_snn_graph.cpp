@@ -156,7 +156,7 @@ struct ClusterSNNGraphWalktrap_Result {
 
 ClusterSNNGraphWalktrap_Result cluster_snn_graph_walktrap(const BuildSNNGraph_Result& graph, int steps) {
     scran::ClusterSNNGraphWalktrap clust;
-    clust.set_resolution(steps);
+    clust.set_steps(steps);
     auto output = clust.run(graph.ncells, graph.edges);
     return ClusterSNNGraphWalktrap_Result(std::move(output));
 }
