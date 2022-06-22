@@ -1,5 +1,17 @@
 # scran.js news
 
+## 0.2.1
+
+**New**
+
+- Exposed a reference policy option in `mnnCorrect()` for choosing the reference batch.
+- Support more community detection methods in `clusterSNNGraph()`.
+
+**Changes**
+
+- Any attempt to save `null`s via the HDF5 writers will now raise an error.
+- Any attempt to save non-strings as strings in the HDF5 writers will raise an error.
+
 ## 0.2.0
 
 **New**
