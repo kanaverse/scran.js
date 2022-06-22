@@ -39,6 +39,7 @@ test("clusterSNNGraph works as expected", () => {
     clusters.free();
     graph2.free();
     clusters2.free();
+    clusters3.free();
 });
 
 test("clusterSNNGraph works with other clustering methods", () => {

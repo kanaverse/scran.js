@@ -251,30 +251,25 @@ export class SNNGraphLeidenClusters {
  * @param {Object} [options] - Optional parameters.
  * @param {string} [options.method] - Community detection method to use.
  * This should be one of `"multilevel"`, `"walktrap"` or `"leiden"`.
- * @param {?number} [options.resolution] - The resolution of the multi-level clustering, retained for back-compatibility.
- * Overrides `multiLevelResolution` if set.
- * @param {?number} [options.multiLevelResolution] - The resolution of the multi-level clustering.
- * @param {?number} [options.leidenResolution] - The resolution of the Leiden clustering.
+ * @param {?number} [options.resolution] - The resolution of the multi-level or Leiden clustering.
+ * Larger values result in more fine-grained clusters.
  * @param {number} [options.walktrapSteps] - Number of steps for the Walktrap algorithm.
  *
  * @return A `SNNGraphMultilevelClusters` object containing the clustering results.
  */
-export function clusterSNNGraph(x, { method = "multilevel", resolution = null, multiLevelResolution = 1, leidenResolution = 0.05, walktrapSteps = 4 } = {}) {
+export function clusterSNNGraph(x, { method = "multilevel", resolution = 1, walktrapSteps = 4 } = {}) {
     var raw;
     var output;
 
     try {
         if (method == "multilevel") {
-            if (resolution !== null) {
-                multiLevelResolution = resolution;
-            }
-            raw = wasm.call(module => module.cluster_snn_graph_multilevel(x.graph, multiLevelResolution));
+            raw = wasm.call(module => module.cluster_snn_graph_multilevel(x.graph, resolution));
             output = new SNNGraphMultiLevelClusters(raw);
         } else if (method == "walktrap") {
             raw = wasm.call(module => module.cluster_snn_graph_walktrap(x.graph, walktrapSteps));
             output = new SNNGraphWalktrapClusters(raw);
         } else if (method == "leiden") {
-            raw = wasm.call(module => module.cluster_snn_graph_leiden(x.graph, leidenResolution));
+            raw = wasm.call(module => module.cluster_snn_graph_leiden(x.graph, resolution));
             output = new SNNGraphLeidenClusters(raw);
         } else {
             throw new Error("unknown method '" + method + "'")
