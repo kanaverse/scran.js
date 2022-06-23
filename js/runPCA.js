@@ -105,6 +105,8 @@ export function runPCA(x, { features = null, numberOfPCs = 25, scale = false, bl
     var raw;
     var output;
 
+    utils.matchOptions("blockMethod", blockMethod, ["none", "regress", "weight", "block"]);
+
     try {
         var use_feat = false;
         var fptr = 0;
@@ -134,7 +136,7 @@ export function runPCA(x, { features = null, numberOfPCs = 25, scale = false, bl
             } else if (blockMethod == "weight") {
                 raw = wasm.call(module => module.run_multibatch_pca(x.matrix, numberOfPCs, use_feat, fptr, scale, block_data.offset));
             } else {
-                throw new Error("'blockMethod' should be one of 'regress', 'weight' or 'none'");
+                throw new Error("unknown value '" + blockMethod + "' for 'blockMethod='");
             }
         }
         output = new PCAResults(raw);

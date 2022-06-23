@@ -118,3 +118,9 @@ export function possibleCopy(x, copy) {
         return x;
     }
 }
+
+export function matchOptions(name, value, choices) {
+    if (choices.indexOf(value) == -1) {
+        throw new Error("'" + name + "=' should be one of '" + choices.join("', '") + "'");
+    }
+}
