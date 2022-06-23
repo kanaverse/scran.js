@@ -1,5 +1,11 @@
 # scran.js news
 
+## 0.2.2
+
+**Changes**
+
+- `blockMethod: "block"` has been renamed to `blockMethod: "regress"` in `runPCA()`, for clarity.
+
 ## 0.2.1
 
 **New**

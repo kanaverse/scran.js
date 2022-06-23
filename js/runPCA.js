@@ -92,12 +92,14 @@ export class PCAResults {
  * This is used to segregate cells in order to compute filters within each block.
  * Alternatively, this may be `null`, in which case all cells are assumed to be in the same block.
  * @param {string} [options.blockMethod] - How to modify the PCA for the blocking factor.
- * The default `"block"` will block on the factor, effectively performing a PCA on the residuals.
+ * The default `"regress"` will regress out the factor, effectively performing a PCA on the residuals.
  * Alternatively, `"weight"` will weight the contribution of each blocking level equally so that larger blocks do not dominate the PCA.
+ *
+ * This option is only used if `block` is not `null`.
  *
  * @return A `PCAResults` object containing the computed PCs.
  */
-export function runPCA(x, { features = null, numberOfPCs = 25, scale = false, block = null, blockMethod = "block" } = {}) {
+export function runPCA(x, { features = null, numberOfPCs = 25, scale = false, block = null, blockMethod = "regress" } = {}) {
     var feat_data;
     var block_data;
     var raw;
@@ -120,17 +122,19 @@ export function runPCA(x, { features = null, numberOfPCs = 25, scale = false, bl
         // Remember that centering removes one df, so we subtract 1 from the dimensions.
         numberOfPCs = Math.min(numberOfPCs, x.numberOfRows() - 1, x.numberOfColumns() - 1);
 
-        if (block === null) {
+        if (block === null || blockMethod == 'none') {
             raw = wasm.call(module => module.run_pca(x.matrix, numberOfPCs, use_feat, fptr, scale));
         } else {
             block_data = utils.wasmifyArray(block, "Int32WasmArray");
             if (block_data.length != x.numberOfColumns()) {
                 throw new Error("length of 'block' should be equal to the number of columns in 'x'");
             }
-            if (blockMethod == "block") {
+            if (blockMethod == "regress" || blockMethod == "block") { // latter for back-compatibility.
                 raw = wasm.call(module => module.run_blocked_pca(x.matrix, numberOfPCs, use_feat, fptr, scale, block_data.offset));
-            } else {
+            } else if (blockMethod == "weight") {
                 raw = wasm.call(module => module.run_multibatch_pca(x.matrix, numberOfPCs, use_feat, fptr, scale, block_data.offset));
+            } else {
+                throw new Error("'blockMethod' should be one of 'regress', 'weight' or 'none'");
             }
         }
         output = new PCAResults(raw);

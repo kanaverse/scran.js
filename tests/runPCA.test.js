@@ -70,4 +70,11 @@ test("PCA works as expected with blocking", () => {
     expect(pca.numberOfPCs()).toBe(weighted.numberOfPCs());
     expect(pca.numberOfCells()).toBe(weighted.numberOfCells());
     expect(compare.equalFloatArrays(pca.principalComponents(), weighted.principalComponents())).toBe(false);
+
+    var none = scran.runPCA(mat, { features: feat, numberOfPCs: 15, block: block, blockMethod: "none" });
+    expect(pca.numberOfPCs()).toBe(none.numberOfPCs());
+    expect(pca.numberOfCells()).toBe(none.numberOfCells());
+    expect(compare.equalFloatArrays(pca.principalComponents(), none.principalComponents())).toBe(true);
+
+    expect(() => scran.runPCA(mat, { features: feat, numberOfPCs: 15, block: block, blockMethod: "foobar" })).toThrow("should be one of");
 });
