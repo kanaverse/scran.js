@@ -5,6 +5,7 @@
 **Changes**
 
 - `blockMethod: "block"` has been renamed to `blockMethod: "regress"` in `runPCA()`, for clarity.
+- More checks for valid `blockMethod=` being passed to `runPCA()`.
 
 ## 0.2.1
 
