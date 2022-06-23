@@ -131,12 +131,6 @@ export function clusterKmeans(x, clusters, { numberOfDims = null, numberOfCells 
     var raw;
     var output;
 
-    const init_choices = ["random", "kmeans++", "pca-part"]
-    let init_chosen = init_choices.indexOf(initMethod);
-    if (init_chosen == -1) {
-        throw new Error("'initMethod' should be one of 'random', 'kmeans++' or 'pca-part'");
-    }
-
     try {
         let pptr;
 
@@ -159,7 +153,7 @@ export function clusterKmeans(x, clusters, { numberOfDims = null, numberOfCells 
             pptr = buffer.offset;
         }
 
-        raw = wasm.call(module => module.cluster_kmeans(pptr, numberOfDims, numberOfCells, clusters, init_chosen, initSeed, initPCASizeAdjust));
+        raw = wasm.call(module => module.cluster_kmeans(pptr, numberOfDims, numberOfCells, clusters, initMethod, initSeed, initPCASizeAdjust));
         output = new KmeansClusters(raw);
 
     } catch (e) {

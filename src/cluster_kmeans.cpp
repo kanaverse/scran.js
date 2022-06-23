@@ -108,25 +108,28 @@ struct ClusterKmeans_Result {
  *
  * @return A `ClusterKmeans_Result` object containing the... k-means clustering results, obviously.
  */
-ClusterKmeans_Result cluster_kmeans(uintptr_t mat, int nr, int nc, int k, int init_method, int init_seed, double init_pca_adjust) {
+ClusterKmeans_Result cluster_kmeans(uintptr_t mat, int nr, int nc, int k, std::string init_method, int init_seed, double init_pca_adjust) {
     const double* ptr = reinterpret_cast<const double*>(mat);
 
     std::shared_ptr<kmeans::Initialize<> > iptr;
-    if (init_method == 0) {
+    if (init_method == "random") {
         auto iptr2 = new kmeans::InitializeRandom<>;
         iptr.reset(iptr2);
         iptr2->set_seed(init_seed);
 
-    } else if (init_method == 1) {
+    } else if (init_method == "kmeans++") {
         auto iptr2 = new kmeans::InitializeKmeansPP<>;
         iptr.reset(iptr2);
         iptr2->set_seed(init_seed);
 
-    } else {
+    } else if (init_method == "pca-part") {
         auto iptr2 = new kmeans::InitializePCAPartition<>;
         iptr.reset(iptr2);
         iptr2->set_seed(init_seed);
         iptr2->set_size_adjustment(init_pca_adjust);
+
+    } else {
+        throw std::runtime_error("unknown initialization method '" + init_method + "'");
     }
 
     kmeans::Kmeans clust;
