@@ -40,3 +40,5 @@ export * from "./scaleByNeighbors.js";
 
 export * from "./scoreMarkers.js";
 export * from "./labelCells.js";
+
+export * from "./MultiMatrix.js";
