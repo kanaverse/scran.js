@@ -1,5 +1,6 @@
 import * as utils from "./utils.js";
 import * as wasm from "./wasm.js";
+import { MultiMatrix } from "./MultiMatrix.js";
 
 /**
  * Slice a {@linkplain ScranMatrix} by its rows.
@@ -86,10 +87,12 @@ export function splitByFactor(factor) {
  * @param {object} [options] - Optional parameters.
  * @param {boolean} [options.singleNull] - Whether `null` should be returned if `split` only contains one level.
  * This can be used to avoid the creation of a redundant ScranMatrix object.
+ * @param {boolean} [options.createMultimatrix] - Whether the output should be returned as a {@linkplain Multimatrix}.
  *
- * @return {object} Object with the same keys as `split` where each value is a ScranMatrix for the corresponding subset of rows.
+ * @return {object|MultiMatrix} Object with the same keys as `split` where each value is a ScranMatrix for the corresponding subset of rows.
+ * Alternatively, this is wrapped in a `MultiMatrix` if `createMultiMatrix = true`.
  */
-export function splitRows(matrix, split, { singleNull = false } = {}) { 
+export function splitRows(matrix, split, { singleNull = false, createMultiMatrix = false } = {}) { 
     let output = {};
     let tkeys = Object.keys(split);
     if (tkeys.length == 1) {
@@ -112,5 +115,9 @@ export function splitRows(matrix, split, { singleNull = false } = {}) {
         throw e;
     }
 
-    return output;
+    if (createMultiMatrix) {
+        return new MultiMatrix({ store: output });
+    } else {
+        return output;
+    }
 }

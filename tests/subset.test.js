@@ -106,12 +106,18 @@ test("splitRows works as expected", () => {
     expect(old_ptr >= 0).toBe(true);
     expect(new_ptr).not.toBe(old_ptr);
 
-    mat.free();
     for (const v of Object.values(splitmats)) {
         v.free();
     }
     for (const v of Object.values(solomats)) {
         v.free();
     }
+
+    // Works when returning a MultiMatrix.
+    let split2 = scran.splitRows(mat, split, { createMultiMatrix: true });
+    expect(split2.available().sort()).toEqual(["A", "B", "C", "D"]);
+    split2.free();
+
+    mat.free();
 })
 
