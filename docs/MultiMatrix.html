@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>ScranMatrix - Documentation</title>
+    <title>MultiMatrix - Documentation</title>
     
     
     <script src="scripts/prettify/prettify.js"></script>
@@ -34,7 +34,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">ScranMatrix</h1>
+    <h1 class="page-title">MultiMatrix</h1>
     
 
     
@@ -47,10 +47,11 @@
 <header>
     
         <h2>
-        ScranMatrix
+        MultiMatrix
         </h2>
         
-            <div class="class-description usertext"><p>Wrapper around a sparse matrix allocated on the Wasm heap.</p></div>
+            <div class="class-description usertext"><p>Helper class for handling matrix data from multiple modalities.
+In particular, it simplifies memory management of the assorted <a href="ScranMatrix.html">ScranMatrix</a> instances.</p></div>
         
     
 </header>
@@ -65,7 +66,7 @@
     <h2>Constructor</h2>
     
 
-    <h4 class="name" id="ScranMatrix"><span class="type-signature"></span>new ScranMatrix<span class="signature">(raw)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="MultiMatrix"><span class="type-signature"></span>new MultiMatrix<span class="signature">(options<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
 
     
 
@@ -77,7 +78,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="ScranMatrix.js.html">ScranMatrix.js</a>, <a href="ScranMatrix.js.html#line6">line 6</a>
+        <a href="MultiMatrix.js.html">MultiMatrix.js</a>, <a href="MultiMatrix.js.html#line7">line 7</a>
     </li></ul></dd>
     
 
@@ -139,6 +140,8 @@
         <th>Type</th>
 
         
+        <th>Attributes</th>
+        
 
         
 
@@ -151,25 +154,96 @@
 
         <tr>
             
-                <td class="name"><code>raw</code></td>
+                <td class="name"><code>options</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">Object</span>
+<span class="param-type">object</span>
 
 
             
             </td>
 
             
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
 
             
 
-            <td class="description last"><p>Raw matrix object created on the Wasm heap.</p>
-<p>This should not be called directly by developers,
-who should instead use functions that initialize an appropriate matrix, e.g., <code>initializeSparseMatrixFromCompressedVectors()</code>.</p></td>
+            <td class="description last"><p>Optional parameters.</p>
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>store</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>Existing store of <a href="ScranMatrix.html">ScranMatrix</a> objects.
+Each matrix should correspond to a different modality, named according to its key.
+All matrices should have data for the same set of cells, i.e., same number of columns.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
         </tr>
 
     
@@ -206,7 +280,7 @@ who should instead use functions that initialize an appropriate matrix, e.g., <c
         <h3 class="subsection-title">Classes</h3>
 
         <dl>
-            <dt><a href="ScranMatrix.html">ScranMatrix</a></dt>
+            <dt><a href="MultiMatrix.html">MultiMatrix</a></dt>
             <dd></dd>
         </dl>
     
@@ -227,7 +301,7 @@ who should instead use functions that initialize an appropriate matrix, e.g., <c
 
     
 
-    <h4 class="name" id="clone"><span class="type-signature"></span>clone<span class="signature">()</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="add"><span class="type-signature"></span>add<span class="signature">(i, matrix)</span><span class="type-signature"></span></h4>
 
     
 
@@ -239,101 +313,7 @@ who should instead use functions that initialize an appropriate matrix, e.g., <c
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="ScranMatrix.js.html">ScranMatrix.js</a>, <a href="ScranMatrix.js.html#line22">line 22</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>A clone of the current ScranMatrix instance.
-This can be freed independently of the current instance.</p>
-</div>
-
-
-
-    
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="column"><span class="type-signature"></span>column<span class="signature">(i, options<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-
-<dl class="details">
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="ScranMatrix.js.html">ScranMatrix.js</a>, <a href="ScranMatrix.js.html#line79">line 79</a>
+        <a href="MultiMatrix.js.html">MultiMatrix.js</a>, <a href="MultiMatrix.js.html#line72">line 72</a>
     </li></ul></dd>
     
 
@@ -395,8 +375,6 @@ This can be freed independently of the current instance.</p>
         <th>Type</th>
 
         
-        <th>Attributes</th>
-        
 
         
 
@@ -415,121 +393,40 @@ This can be freed independently of the current instance.</p>
             <td class="type">
             
                 
-<span class="param-type">number</span>
+<span class="param-type">string</span>
 
 
             
             </td>
 
             
-                <td class="attributes">
-                
-
-                
-
-                
-                </td>
-            
 
             
 
-            <td class="description last"><p>Index of the column to extract.
-This should be a non-negative integer less than <code>numberOfColumns()</code>.</p></td>
+            <td class="description last"><p>Name of a modality.</p></td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>options</code></td>
+                <td class="name"><code>matrix</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">Object</span>
+<span class="param-type"><a href="ScranMatrix.html">ScranMatrix</a></span>
 
 
             
             </td>
 
             
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
 
             
 
-            <td class="description last"><p>Optional parameters.</p>
-                <h6>Properties</h6>
-                
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Attributes</th>
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>buffer</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Float64WasmArray</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>Buffer to extract into.
-If supplied, this should have length equal to <code>numberOfRows()</code>.</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-            </td>
+            <td class="description last"><p>The matrix data for modality <code>i</code>.</p></td>
         </tr>
 
     
@@ -555,11 +452,115 @@ If supplied, this should have length equal to <code>numberOfRows()</code>.</p></
 
         
 <div class="param-desc">
-    <p>If <code>buffer</code> is not supplied, a <code>Float64Array</code> is returned containing the contents of column <code>i</code>.
-Otherwise, <code>buffer</code> is filled with column <code>i</code> and nothing is returned.</p>
+    <p><code>matrix</code> is added to the <code>MultiMatrix</code> with name <code>i</code>.</p>
 </div>
 
 
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="available"><span class="type-signature"></span>available<span class="signature">()</span><span class="type-signature"> &rarr; {Array}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="MultiMatrix.js.html">MultiMatrix.js</a>, <a href="MultiMatrix.js.html#line46">line 46</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>Names of the available modalities.</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Array</span>
+
+
+    </dd>
+</dl>
 
     
 
@@ -582,320 +583,7 @@ Otherwise, <code>buffer</code> is filled with column <code>i</code> and nothing 
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="ScranMatrix.js.html">ScranMatrix.js</a>, <a href="ScranMatrix.js.html#line100">line 100</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description usertext">
-    <p>Free the memory on the Wasm heap for this matrix.
-This invalidates this object and all of its references.</p>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="identities"><span class="type-signature"></span>identities<span class="signature">(options<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-
-<dl class="details">
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="ScranMatrix.js.html">ScranMatrix.js</a>, <a href="ScranMatrix.js.html#line143">line 143</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description usertext">
-    <p>Obtain the identities of the rows of the matrix, assuming <a href="ScranMatrix.html#isReorganized"><code>isReorganized</code></a> returns <code>true</code>.</p>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Attributes</th>
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>options</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Object</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>Optional parameters.</p>
-                <h6>Properties</h6>
-                
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Attributes</th>
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>buffer</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Int32WasmArray</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-                    &lt;nullable><br>
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>Buffer to extract into.
-If supplied, this should have length equal to <code>numberOfRows()</code>.</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-            </td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>If <code>buffer</code> is not supplied, an Int32Array is returned containing the row identities.
-These represent the row indices in the original dataset.</p>
-<p>If <code>buffer</code> is supplied, it is filled with the row identities.
-A reference to <code>buffer</code> is returned.</p>
-</div>
-
-
-
-    
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="isReorganized"><span class="type-signature"></span>isReorganized<span class="signature">()</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-
-<dl class="details">
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="ScranMatrix.js.html">ScranMatrix.js</a>, <a href="ScranMatrix.js.html#line120">line 120</a>
+        <a href="MultiMatrix.js.html">MultiMatrix.js</a>, <a href="MultiMatrix.js.html#line118">line 118</a>
     </li></ul></dd>
     
 
@@ -962,9 +650,7 @@ A reference to <code>buffer</code> is returned.</p>
 
         
 <div class="param-desc">
-    <p>Boolean indicating whether the matrix contains a non-trivial organization of row identities.
-If <code>true</code>, the row identities should be extracted from <a href="ScranMatrix.html#identities"><code>identities</code></a>;
-otherwise, the row identities are assumed to be consecutive increasing integers from 0 up to the number of rows.</p>
+    <p>Frees memory for all modalities in this <code>MultiMatrix</code>.</p>
 </div>
 
 
@@ -978,7 +664,7 @@ otherwise, the row identities are assumed to be consecutive increasing integers 
 
     
 
-    <h4 class="name" id="isSparse"><span class="type-signature"></span>isSparse<span class="signature">()</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="get"><span class="type-signature"></span>get<span class="signature">(i)</span><span class="type-signature"> &rarr; {<a href="ScranMatrix.html">ScranMatrix</a>}</span></h4>
 
     
 
@@ -990,286 +676,7 @@ otherwise, the row identities are assumed to be consecutive increasing integers 
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="ScranMatrix.js.html">ScranMatrix.js</a>, <a href="ScranMatrix.js.html#line111">line 111</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>Boolean indicating whether the matrix is sparse.</p>
-</div>
-
-
-
-    
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="numberOfColumns"><span class="type-signature"></span>numberOfColumns<span class="signature">()</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-
-<dl class="details">
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="ScranMatrix.js.html">ScranMatrix.js</a>, <a href="ScranMatrix.js.html#line36">line 36</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>Number of columns in the matrix.</p>
-</div>
-
-
-
-    
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="numberOfRows"><span class="type-signature"></span>numberOfRows<span class="signature">()</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-
-<dl class="details">
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="ScranMatrix.js.html">ScranMatrix.js</a>, <a href="ScranMatrix.js.html#line29">line 29</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>Number of rows in the matrix.</p>
-</div>
-
-
-
-    
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="row"><span class="type-signature"></span>row<span class="signature">(i, options<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-
-<dl class="details">
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="ScranMatrix.js.html">ScranMatrix.js</a>, <a href="ScranMatrix.js.html#line51">line 51</a>
+        <a href="MultiMatrix.js.html">MultiMatrix.js</a>, <a href="MultiMatrix.js.html#line62">line 62</a>
     </li></ul></dd>
     
 
@@ -1330,8 +737,6 @@ otherwise, the row identities are assumed to be consecutive increasing integers 
 
         <th>Type</th>
 
-        
-        <th>Attributes</th>
         
 
         
@@ -1351,121 +756,17 @@ otherwise, the row identities are assumed to be consecutive increasing integers 
             <td class="type">
             
                 
-<span class="param-type">number</span>
+<span class="param-type">string</span>
 
 
             
             </td>
 
             
-                <td class="attributes">
-                
-
-                
-
-                
-                </td>
-            
 
             
 
-            <td class="description last"><p>Index of the row to extract.
-This should be a non-negative integer less than <code>numberOfRows()</code>.</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>options</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Object</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>Optional parameters.</p>
-                <h6>Properties</h6>
-                
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Attributes</th>
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>buffer</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Float64WasmArray</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>Buffer to extract into.
-If supplied, this should have length equal to <code>numberOfColumns()</code>.</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-            </td>
+            <td class="description last"><p>Name of a modality.</p></td>
         </tr>
 
     
@@ -1491,8 +792,586 @@ If supplied, this should have length equal to <code>numberOfColumns()</code>.</p
 
         
 <div class="param-desc">
-    <p>If <code>buffer</code> is not supplied, a <code>Float64Array</code> is returned containing the contents of row <code>i</code>.
-Otherwise, <code>buffer</code> is filled with row <code>i</code> and nothing is returned.</p>
+    <p>The matrix data for modality <code>i</code>.</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type"><a href="ScranMatrix.html">ScranMatrix</a></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="has"><span class="type-signature"></span>has<span class="signature">(i)</span><span class="type-signature"> &rarr; {boolean}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="MultiMatrix.js.html">MultiMatrix.js</a>, <a href="MultiMatrix.js.html#line54">line 54</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>i</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Name of a modality.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>Whether modality <code>i</code> is available.</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">boolean</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="numberOfColumns"><span class="type-signature"></span>numberOfColumns<span class="signature">()</span><span class="type-signature"> &rarr; (nullable) {number}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="MultiMatrix.js.html">MultiMatrix.js</a>, <a href="MultiMatrix.js.html#line39">line 39</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>Number of columns in the matrices.
+If no matrices are available, <code>null</code> is returned.</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">number</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="remove"><span class="type-signature"></span>remove<span class="signature">(i)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="MultiMatrix.js.html">MultiMatrix.js</a>, <a href="MultiMatrix.js.html#line91">line 91</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>i</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Name of a modality.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>Modality <code>i</code> is removed from the <code>MultiMatrix</code>.</p>
+</div>
+
+
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="rename"><span class="type-signature"></span>rename<span class="signature">(from, to)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="MultiMatrix.js.html">MultiMatrix.js</a>, <a href="MultiMatrix.js.html#line105">line 105</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>from</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Old name of the modality.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>to</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>New name for the modality.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>The modality <code>from</code> is renamed to <code>to</code>, possibly replacing any existing modality at <code>to</code>.</p>
 </div>
 
 
