@@ -1,5 +1,11 @@
 # scran.js news
 
+## 0.2.3
+
+**Changes**
+
+- Updated **libscran** dependency for `scoreMarkers()` bugfix when group and block are confounded.
+
 ## 0.2.2
 
 **Changes**

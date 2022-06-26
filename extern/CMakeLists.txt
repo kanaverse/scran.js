@@ -50,7 +50,7 @@ FetchContent_MakeAvailable(kmeans)
 FetchContent_Declare(
   scran 
   GIT_REPOSITORY https://github.com/LTLA/libscran
-  GIT_TAG 899efd34c08ef76545ad5a9b6b5eec5860281788
+  GIT_TAG f67b7a4297a3e17c7f4d46c41e1f0e75c6ebf885
 )
 FetchContent_MakeAvailable(scran)
 
