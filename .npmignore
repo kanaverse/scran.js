@@ -1,9 +1,11 @@
 build*
 docs/
 extern/
+js/
 src/
 tests/
 .parcel-cache
 .github
 jest.config.js
 CMakeLists.txt
+Dockerfile
