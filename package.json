@@ -1,6 +1,6 @@
 {
     "name": "scran.js",
-    "version": "0.2.3",
+    "version": "0.2.4",
     "description": "Single cell RNA-seq analysis in Javascript",
     "license": "MIT",
     "main": "main/index.js",
@@ -55,6 +55,6 @@
     ],
     "repository": "github:jkanche/scran.js",
     "dependencies": {
-        "wasmarrays.js": "0.0.3"
+        "wasmarrays.js": "^0.0.3"
     }
 }
