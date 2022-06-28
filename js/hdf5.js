@@ -565,7 +565,7 @@ function extract_names(host, output, recursive = true) {
  * Extract object names from a HDF5 file.
  *
  * @param {string} path - Path to a HDF5 file.
- * For web applications, this should be saved to the virtual filesystem with `writeFile()`.
+ * For web applications, this should be saved to the virtual filesystem with {@linkcode writeFile}.
  * @param {Object} [options] - Optional parameters.
  * @param {string} [options.group] - Group to use as the root of the search.
  * If an empty string is supplied, the file is used as the group.
@@ -592,7 +592,7 @@ export function extractHDF5ObjectNames (path, { group = "", recursive = true } =
  * Load a dataset from a HDF5 file.
  *
  * @param {string} path - Path to a HDF5 file.
- * For web applications, this should be saved to the virtual filesystem with `writeFile()`.
+ * For web applications, this should be saved to the virtual filesystem with {@linkcode writeFile}.
  * @param {string} name - Name of a dataset inside the HDF5 file.
  * 
  * @return An object containing `dimensions`, an array containing the dimensions of the dataset;

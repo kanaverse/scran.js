@@ -1,5 +1,4 @@
 import * as scran from "../js/index.js";
-import * as fs from "fs";
 import * as compare from "./compare.js";
 import * as hdf5 from "h5wasm";
 
@@ -9,14 +8,14 @@ beforeAll(async () => {
 });
 afterAll(async () => { await scran.terminate() });
 
-const dir = "hdf5-test-files";
-if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir);
+const dir = "Test-files";
+if (!scran.fileExists(dir)) {
+    scran.makeDirectory(dir);
 }
 
 function purge(path) {
-    if (fs.existsSync(path)) {
-        fs.unlinkSync(path);
+    if (scran.fileExists(path)) {
+        scran.removeFile(path);
     }
 }
 
