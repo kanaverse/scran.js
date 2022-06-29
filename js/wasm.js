@@ -8,7 +8,8 @@ const cache = {};
  * @param {number} [options.numberOfThreads] - Number of threads to use for calculations.
  * This will spin up the requested number of Web Workers during module initialization.
  * @param {boolean} [options.localFile] - Whether or not to look for the Wasm and worker scripts locally.
- * Should only be `true` when using old versions of Node where file URLs are not supported.
+ * This should only be `true` when using old versions of Node.js where file URLs are not supported, 
+ * and is ignored completely outside of Node.js contexts.
  *
  * @return 
  * The Wasm bindings are initialized and `true` is returned.
@@ -21,11 +22,11 @@ export async function initialize({ numberOfThreads = 4, localFile = false } = {}
 
     let options = {
         scran_custom_nthreads: numberOfThreads
-    }
+    };
 
-    if (localFile) {
-        options.locateFile = (x) => import.meta.url.substring(7) + "/../wasm/" + x;
-    }
+    if (localFile) {                                                                /** NODE ONLY **/  
+        options.locateFile = (x) => import.meta.url.substring(7) + "/../wasm/" + x; /** NODE ONLY **/
+    }                                                                               /** NODE ONLY **/
 
     cache.module = await loadScran(options);
     cache.space = register(cache.module);
@@ -95,6 +96,7 @@ export function heapSize() {
  * rather, they can just read directly from the real file system.
  */
 export function writeFile(path, buffer) {
+    throw new Error("not supported in Node.js context"); /** NODE ONLY **/
     cache.module.FS.writeFile(path, buffer);
     return;
 }
@@ -109,6 +111,7 @@ export function writeFile(path, buffer) {
  * rather, they can just read directly from the real file system.
  */
 export function readFile(path) {
+    throw new Error("not supported in Node.js context"); /** NODE ONLY **/
     return cache.module.FS.readFile(path, { encoding: 'binary' });
 }
 
@@ -121,6 +124,7 @@ export function readFile(path) {
  * Node applications should not call this function.
  */
 export function removeFile(path) {
+    throw new Error("not supported in Node.js context"); /** NODE ONLY **/
     cache.module.FS.unlink(path);
     return;
 }
@@ -133,5 +137,6 @@ export function removeFile(path) {
  * Node applications should not call this function.
  */
 export function fileExists(path) {
+    throw new Error("not supported in Node.js context"); /** NODE ONLY **/
     return cache.module.FS.analyzePath(path).exists;
 }
