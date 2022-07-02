@@ -76,13 +76,25 @@ export function wasmifyArray(x, expected) {
     return y;
 }
 
-export function free(x) {
-    if (x !== null && x !== undefined) {
-        if ("free" in x) {
-            x.free();
-        } else if ("delete" in x) {
-            x.delete(); // i.e., one of the raw C++ classes.
-        }
+/**
+ * Try to free a **scran.js** object's memory (typically involving some memory allocated on the Wasm heap) by calling its `free` method.
+ *
+ * @param {?object} x - Instance of a **scran.js** class to be freed.
+ * May also be `null` or undefined.
+ * 
+ * @return The output of `x.free()` - unless `x` is undefined or `null`, in which case nothing is performed.
+ */
+export function safeFree(x) {
+    return free(x, { internal: false });
+}
+
+export function free(x, { internal = true } = {}) {
+    if (typeof x == "undefined" || x == null) {
+        return;
+    } else if (internal && "delete" in x) {
+        return x.delete();
+    } else {
+        return x.free();
     }
 }
 
