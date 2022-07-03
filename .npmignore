@@ -4,6 +4,7 @@ extern/
 js/
 src/
 tests/
+misc/
 .parcel-cache
 .github
 jest.config.js
