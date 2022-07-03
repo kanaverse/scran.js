@@ -2,6 +2,7 @@ import * as utils from "./utils.js";
 
 /**
  * Create a blocking factor for a set of contiguous blocks, usually to accompany the output of {@linkcode cbind} on matrices representing different batches.
+ * This can be used as the blocking factor in functions such as {@linkcode modelGeneVar} or {@linkcode scoreMarkers}.
  * Note that no protection is provided against empty blocks; if this is a possibility, use {@linkcode dropUnusedBlock} on the output of this function.
  *
  * @param {(Array|TypedArray)} ncells - Array of integers specifying the number of cells in each block.
@@ -46,7 +47,7 @@ export function createBlock(ncells, { buffer = null } = {}) {
 }
 
 /**
- * Convert an existing array into a blocking factor for use in **scran.js** functions.
+ * Convert an existing array into a blocking factor for use in **scran.js** functions such as {@linkcode modelGeneVar} or {@linkcode scoreMarkers}.
  *
  * @param {(Array|TypedArray)} x - Array containing a blocking factor, where each unique level specifies the assigned block for each cell.
  *
@@ -101,7 +102,7 @@ export function convertBlock(x, { buffer = null } = {}) {
  * 
  * @param {Int32WasmArray} x - A blocking factor, typically produced by {@linkcode convertBlock} or {@linkcode createBlock}.
  * @param {(Array|TypedArray|Uint8WasmArray)} filter - Array of length equal to that of `x`.
- * Each value is interpreted as a boolean and specifies the entry of `x` to be filtered out.
+ * Each value is interpreted as a boolean and, if truthy, indicates that the corresponding entry of `x` should be filtered out.
  *
  * Note that TypedArray views on Wasm-allocated buffers should only be provided if `buffer` is also provided;
  * otherwise, a Wasm memory allocation may invalidate the view.
