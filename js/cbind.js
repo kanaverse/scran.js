@@ -19,10 +19,10 @@ function harvest_matrices(x) {
  * @param {Array} inputs - Array of one or more {@linkplain ScranMatrix} objects.
  * Any number of these may have a non-trivial row organization.
  * @param {object} [options] - Optional parameters.
- * @param {boolean} [options.assumeSame] - Whether to assume all matrices in `inputs` have the same order of row identities.
+ * @param {boolean} [options.assumeSame=false] - Whether to assume all matrices in `inputs` have the same order of row identities.
  * If `true`, no attempt is made to match the row order across matrices.
  *
- * @return A {@linkplain ScranMatrix} containing the matrices after combining them by column.
+ * @return {ScranMatrix} A {@linkplain ScranMatrix} containing the matrices after combining them by column.
  */
 export function cbind(inputs, { assumeSame = false } = {}) {
     let mat_ptrs;
@@ -51,9 +51,9 @@ export function cbind(inputs, { assumeSame = false } = {}) {
  * Each entry should be an Array containing the row names of the corresponding entry of `inputs`.
  * Names should correspond to the rows, so if an element of `inputs` has reorganized row identities, the array of names should be similarly reorganized to match (e.g., with {@linkcode matchVectorToMatrix}).
  *
- * @return An object containing:
+ * @return {object} An object containing:
  * - `matrix`, a {@linkplain ScranMatrix} containing the combined matrices.
- * - `indices`, an `IntWasm32Array` of length equal to the number of rows in `matrix`.
+ * - `indices`, an Int32WasmArray of length equal to the number of rows in `matrix`.
  *    This contains the index of the row in the first entry of `inputs` corresponding to each row of `matrix`,
  *    i.e., the gene at the `i`-th row of `matrix` is the same as the gene at the `indices[i]`-th row of `inputs[0]`.
  * - `names`, an array of names identifying the rows of `matrix`.

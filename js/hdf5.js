@@ -119,7 +119,7 @@ export class H5Group extends H5Base {
      * @param {string} file - Path to the HDF5 file.
      * @param {string} name - Name of the object inside the file.
      * @param {object} [options] - Optional parameters.
-     * @param {object} [options.children] - For internal use, to set the immediate children of this group.
+     * @param {object} [options.children=null] - For internal use, to set the immediate children of this group.
      * If `null`, this is determined by reading the `file` at `name`.
      */
     constructor(file, name, { children = null } = {}) {
@@ -147,7 +147,7 @@ export class H5Group extends H5Base {
     /**
      * @member {object}
      * @desc An object where the keys are the names of the immediate children and the values are strings specifying the object type of each child.
-     * This can be `Group`, `DataSet` or `Other`.
+     * Each string can be one of `"Group"`, `"DataSet"` or `"Other"`.
      */
     get children() {
         return this.#children;
@@ -166,7 +166,7 @@ export class H5Group extends H5Base {
      * @param {string} name - Name of the child element to open.
      * @param {object} [options] - Further options to pass to the {@linkplain H5Group} or {@linkplain H5DataSet} constructors.
      *
-     * @return A {@linkplain H5Group} or {@linkplain H5DataSet} object representing the child element.
+     * @return {H5Group|H5DataSet} Object representing the child element.
      */
     open(name, options = {}) {
         let new_name = this.#child_name(name);
@@ -186,7 +186,7 @@ export class H5Group extends H5Base {
     /**
      * @param {string} name - Name of the group to create.
      *
-     * @return A group is created as an immediate child of the current group.
+     * @return {@H5Group} A group is created as an immediate child of the current group.
      * A {@linkplain H5Group} object is returned representing this new group.
      * If a group already exists at `name`, it is returned directly.
      */
@@ -214,14 +214,14 @@ export class H5Group extends H5Base {
      * @param {Array} shape - Array containing the dimensions of the dataset to create.
      * This can be set to an empty array to create a scalar dataset.
      * @param {object} [options] - Optional parameters.
-     * @param {number} [options.maxStringLength} - Maximum length of the strings to be saved.
+     * @param {number} [options.maxStringLength=10] - Maximum length of the strings to be saved.
      * Only used when `type = "String"`.
-     * @param {number} [options.compression] - Deflate compression level.
-     * @param {Array} [options.chunks] - Array containing the chunk dimensions.
+     * @param {number} [options.compression=6] - Deflate compression level.
+     * @param {Array} [options.chunks=null] - Array containing the chunk dimensions.
      * This should have length equal to `shape`, with each value being no greater than the corresponding value of `shape`.
      * If `null`, it defaults to `shape`.
      *
-     * @return A dataset of the specified type and shape is created as an immediate child of the current group.
+     * @return {H5DataSet} A dataset of the specified type and shape is created as an immediate child of the current group.
      * A {@linkplain H5DataSet} object is returned representing this new dataset.
      */
     createDataSet(name, type, shape, { maxStringLength = 10, compression = 6, chunks = null } = {}) {
@@ -264,12 +264,12 @@ export class H5Group extends H5Base {
      * If set to `null`, this is determined from `x`.
      * @param {(TypedArray|Array|string|number)} x - Values to be written to the new dataset, see {@linkcode H5DataSet#write write}.
      * @param {object} [options] - Optional parameters.
-     * @param {number} [options.compression] - Deflate compression level.
-     * @param {Array} [options.chunks] - Array containing the chunk dimensions.
+     * @param {number} [options.compression=6] - Deflate compression level.
+     * @param {Array} [options.chunks=null] - Array containing the chunk dimensions.
      * This should have length equal to `shape`, with each value being no greater than the corresponding value of `shape`.
      * If `null`, it defaults to `shape`.
      *
-     * @return A dataset of the specified type and shape is created as an immediate child of the current group.
+     * @return {H5DataSet} A dataset of the specified type and shape is created as an immediate child of the current group.
      * Then it is and filled with the contents of `x`.
      * A {@linkplain H5DataSet} object is returned representing this new dataset.
      */
@@ -325,7 +325,7 @@ export class H5File extends H5Group {
     /**
      * @param {string} file - Path to the HDF5 file.
      * @param {object} [options] - Optional parameters.
-     * @param {object} [options.children] - For internal use, to set the immediate children of the file.
+     * @param {object} [options.children=null] - For internal use, to set the immediate children of the file.
      * If `null`, this is determined by reading the `file`.
      */
     constructor(file, { children = null } = {}) {
@@ -338,7 +338,7 @@ export class H5File extends H5Group {
  *
  * @param {string} path - Path to the file.
  *
- * @return A new file is created at `path`.
+ * @return {H5File} A new file is created at `path`.
  * A {@linkplain H5File} object is returned.
  */
 export function createNewHDF5File(path) {
@@ -387,13 +387,13 @@ export class H5DataSet extends H5Base {
      * @param {string} file - Path to the HDF5 file.
      * @param {string} name - Name of the object inside the file.
      * @param {object} [options] - Optional parameters.
-     * @param {boolean} [options.load] - Whether or not to load the contents of the dataset in the constructor.
+     * @param {boolean} [options.load=false] - Whether or not to load the contents of the dataset in the constructor.
      * If `false`, the contents can be loaded later with {@linkcode H5DataSet#load load}.
-     * @param {Array} [options.shape] - For internal use, to set the dimensions of the dataset.
+     * @param {Array} [options.shape=null] - For internal use, to set the dimensions of the dataset.
      * If `null`, this is determined by reading the `file` at `name`.
-     * @param {Array} [options.type] - For internal use, to set the type of the dataset.
+     * @param {Array} [options.type=null] - For internal use, to set the type of the dataset.
      * If `null`, this is determined by reading the `file` at `name`.
-     * @param {Array} [options.shape] - For internal use, to set the values of the dataset.
+     * @param {Array} [options.shape=null] - For internal use, to set the values of the dataset.
      */
     constructor(file, name, { load = false, shape = null, type = null, values = null } = {}) {
         super(file, name);
@@ -463,7 +463,7 @@ export class H5DataSet extends H5Base {
     }
 
     /**
-     * @return The contents of this dataset are loaded and cached in this {@linkplain H5DataSet} object.
+     * @return {Array|TypedArray} The contents of this dataset are loaded and cached in this {@linkplain H5DataSet} object.
      * A (Typed)Array is returned containing those contents.
      */
     load() {
@@ -480,7 +480,7 @@ export class H5DataSet extends H5Base {
      * This should be of length equal to the product of {@linkcode H5DataSet#shape shape};
      * unless `shape` is empty, in which case it should either be of length 1, or a single number or string.
      * @param {object} [options] - Optional parameters.
-     * @param {boolean} [options.cache] - Whether to cache the written values in this {@linkplain H5DataSet} object.
+     * @param {boolean} [options.cache=false] - Whether to cache the written values in this {@linkplain H5DataSet} object.
      *
      * @return `x` is written to the dataset on file.
      * No return value is provided.
@@ -565,16 +565,16 @@ function extract_names(host, output, recursive = true) {
  * Extract object names from a HDF5 file.
  *
  * @param {string} path - Path to a HDF5 file.
- * For web applications, this should be saved to the virtual filesystem with `writeFile()`.
- * @param {Object} [options] - Optional parameters.
- * @param {string} [options.group] - Group to use as the root of the search.
- * If an empty string is supplied, the file is used as the group.
- * @param {boolean} [options.recursive] - Whether to recursively extract names inside child groups.
+ * For web applications, this should be saved to the virtual filesystem with {@linkcode writeFile}.
+ * @param {object} [options] - Optional parameters.
+ * @param {string} [options.group=""] - Group to use as the root of the search.
+ * If an empty string is supplied, the entire file is used as the root.
+ * @param {boolean} [options.recursive=true] - Whether to recursively extract names inside child groups.
  * 
- * @return Nested object where the keys are the names of the HDF5 objects and values are their types.
+ * @return {object} Nested object where the keys are the names of the HDF5 objects and values are their types.
  * HDF5 groups are represented by nested Javascript objects in the values;
  * these nested objects are empty if `recursive = false`.
- * HDF5 datasets are represented by strings specifying the data type - i.e., integer, float, string or other.
+ * HDF5 datasets are represented by strings specifying the data type - i.e., `"integer"`, `"float"`, `"string"` or `"other"`.
  */
 export function extractHDF5ObjectNames (path, { group = "", recursive = true } = {}) {
     var src;
@@ -592,11 +592,12 @@ export function extractHDF5ObjectNames (path, { group = "", recursive = true } =
  * Load a dataset from a HDF5 file.
  *
  * @param {string} path - Path to a HDF5 file.
- * For web applications, this should be saved to the virtual filesystem with `writeFile()`.
+ * For web applications, this should be saved to the virtual filesystem with {@linkcode writeFile}.
  * @param {string} name - Name of a dataset inside the HDF5 file.
  * 
- * @return An object containing `dimensions`, an array containing the dimensions of the dataset;
- * and `contents`, a `Int32Array`, `Float64Array` or array of strings, depending on the type of the dataset. 
+ * @return {object} An object containing:
+ * - `dimensions`, an array containing the dimensions of the dataset.
+ * - `contents`, a Int32Array, Float64Array or array of strings, depending on the type of the dataset. 
  */
 export function loadHDF5Dataset(path, name) {
     var x = new H5DataSet(path, name, { load: true });

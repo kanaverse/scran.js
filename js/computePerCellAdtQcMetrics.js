@@ -3,36 +3,30 @@ import * as utils from "./utils.js";
 import * as internal from "./internal/computePerCellQcMetrics.js";
 
 /**
- * Wrapper for the ADT-based metrics allocated on the Wasm heap.
+ * Wrapper for the ADT-based metrics allocated on the Wasm heap, typically produced by {@linkcode computePerCellAdtQcMetrics}.
+ * @hideconstructor
  */
 export class PerCellAdtQcMetricsResults {
-    /**
-     * @param {Object} raw Raw results allocated on the Wasm heap.
-     *
-     * This should not be called directly; use `computePerCellAdtQcMetrics` instead to create an instance of this object.
-     */
     constructor(raw) {
         this.results = raw;
         return;
     }
 
     /**
-     * @param {Object} [options] - Optional parameters.
-     * @param {boolean} [options.copy] - Whether to copy the results from the Wasm heap.
-     * This incurs a copy but has safer lifetime management.
+     * @param {object} [options] - Optional parameters.
+     * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      *
-     * @return A `Float64Array` (or a view thereof) containing the total ADT count for each cell.
+     * @return {Float64Array|Float64WasmArray} Array containing the total ADT count for each cell.
      */
     sums({ copy = true } = {}) {
         return utils.possibleCopy(this.results.sums(), copy);
     }
 
     /**
-     * @param {Object} [options] - Optional parameters.
-     * @param {boolean} [options.copy] - Whether to copy the results from the Wasm heap.
-     * This incurs a copy but has safer lifetime management.
+     * @param {object} [options] - Optional parameters.
+     * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      *
-     * @return An `Int32Array` (or a view thereof) containing the total number of detected ADT features for each cell.
+     * @return {Int32Array|Int32WasmArray} Array containing the total number of detected ADT features for each cell.
      */
     detected({ copy = true } = {}) {
         return utils.possibleCopy(this.results.detected(), copy);
@@ -40,18 +34,17 @@ export class PerCellAdtQcMetricsResults {
 
     /**
      * @param {number} i - Index of the feature subset of interest.
-     * @param {Object} [options] - Optional parameters.
-     * @param {boolean} [options.copy] - Whether to copy the results from the Wasm heap.
-     * This incurs a copy but has safer lifetime management.
+     * @param {object} [options] - Optional parameters.
+     * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      *
-     * @return A `Float64Array` (or a view thereof) containing the total count in the ADT subset `i` for each cell.
+     * @return {Float64Array|Float64WasmArray} Array containing the total count in the ADT subset `i` for each cell.
      */
     subsetTotals(i, { copy = true } = {}) {
         return utils.possibleCopy(this.results.subset_totals(i), copy);
     }
 
     /**
-     * @return Number of feature subsets in this object.
+     * @return {number} Number of feature subsets in this object.
      */
     numberOfSubsets() {
         return this.results.num_subsets();
@@ -84,7 +77,7 @@ export class PerCellAdtQcMetricsResults {
  *
  * Alternatively `null`, which is taken to mean that there are no subsets.
  *
- * @return {PerCellAdtQcMetrics} Object containing the ADT-based QC metrics.
+ * @return {PerCellAdtQcMetricsResults} Object containing the ADT-based QC metrics.
  */
 export function computePerCellAdtQcMetrics(x, subsets) {
     return internal.computePerCellQcMetrics(
@@ -96,14 +89,14 @@ export function computePerCellAdtQcMetrics(x, subsets) {
 }
 
 /**
- * Create an empty {@linkplain PerCellAdtQcMetrics} object, to be filled with custom results.
+ * Create an empty {@linkplain PerCellAdtQcMetricsResults} object, to be filled with custom results.
  * This is typically used to generate a convenient input into later {@linkcode computePerCellAdtQcFilters} calls.
  * Note that filling requires use of `copy: false` in the various getters to obtain a writeable memory view.
  *
  * @param numberOfCells Number of cells in the dataset.
  * @param numberOfSubsets Number of feature subsets.
  *
- * @return {PerCellAdtQcMetrics} Object with allocated memory but no actual values.
+ * @return {PerCellAdtQcMetricsResults} Object with allocated memory but no actual values.
  */
 export function emptyPerCellAdtQcMetricsResults(numberOfGenes, numberOfSubsets) {
     return internal.emptyPerCellQcMetricsResults(

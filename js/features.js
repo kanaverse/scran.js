@@ -2,7 +2,7 @@ import * as permute from "./permute.js";
 
 /**
  * Reorganize feature annotation to match the row identities in a {@linkplain ScranMatrix}.
- * This simpy calls {#linkcode matchVectorToRowIdentities} on each vector.
+ * This simpy calls {@linkcode matchVectorToRowIdentities} on each vector.
  *
  * @param {ScranMatrix} x - A {@linkplain ScranMatrix} where the rows might have been reorganized for a more memory-efficient storage order.
  * @param {object} featureInfo - A collection of arrays containing per-feature information (e.g., identifiers).
@@ -29,7 +29,7 @@ export function permuteFeatures(x, featureInfo) {
  * @param {Array} features - Array of strings containing feature identifiers, typically Ensembl IDs or gene symbols.
  * Elements may also be `null` or undefined if an identifier is missing.
  *
- * @return An object containing the inferred `species`, which can be either `"human"` or `"mouse"`;
+ * @return {object} An object containing the inferred `species`, which can be either `"human"` or `"mouse"`;
  * and the identifier `type`, which can be either `"ensembl"` or `"symbol"`.
  * A `confidence` value is reported which defines the percentage of entries in `x` that are consistent with the inferred identity.
  */

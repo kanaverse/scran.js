@@ -3,15 +3,10 @@ import * as utils from "./utils.js";
 import { NeighborSearchResults, findNearestNeighbors } from "./findNearestNeighbors.js";
 
 /**
- * Wrapper around the SNN graph object on the Wasm heap.
+ * Wrapper around the SNN graph object on the Wasm heap, produced by {@linkcode buildSNNGraph}.
+ * @hideconstructor
  */
 export class SNNGraph {
-    /**
-     * @param {Object} raw Graph object allocated on the Wasm heap.
-     *
-     * This should not be called directly by developers,
-     * call `buildSNNGraph()` instead.
-     */
     constructor(raw) {
         this.graph = raw;
         return;
@@ -34,17 +29,17 @@ export class SNNGraph {
  * Build a shared nearest graph.
  *
  * @param {(NeighborSearchIndex|NeighborSearchResults)} x 
- * Either a pre-built neighbor search index for the dataset (see `buildNeighborSearchIndex()`),
- * or a pre-computed set of neighbor search results for all cells (see `findNearestNeighbors()`).
- * @param {Object} [options] - Optional parameters.
- * @param {number} [options.scheme] - Weighting scheme for the edges between cells.
+ * Either a pre-built neighbor search index for the dataset (see {@linkcode buildNeighborSearchIndex}),
+ * or a pre-computed set of neighbor search results for all cells (see {@linkcode findNearestNeighbors}).
+ * @param {object} [options] - Optional parameters.
+ * @param {number} [options.scheme="rank"] - Weighting scheme for the edges between cells.
  * This can be based on the top ranks of the shared neighbors (`"rank"`),
  * the number of shared neighbors (`"number"`) 
  * or the Jaccard index of the neighbor sets between cells (`"jaccard"`).
- * @param {number} [options.neighbors] - Number of nearest neighbors to use to construct the graph.
- * Ignored if `x` is a `NeighborSearchResults` object.
+ * @param {number} [options.neighbors=10] - Number of nearest neighbors to use to construct the graph.
+ * Ignored if `x` is a {@linkplain NeighborSearchResults} object.
  *
- * @return A `SNNGraph` object containing the graph.
+ * @return {SNNGraph} Object containing the graph.
  */
 export function buildSNNGraph(x, { scheme = "rank", neighbors = 10 } = {}) {
     var raw;
@@ -80,40 +75,35 @@ export function buildSNNGraph(x, { scheme = "rank", neighbors = 10 } = {}) {
 }
 
 /**
- * Wrapper around the SNN multi-level clustering results on the Wasm heap.
+ * Wrapper around the SNN multi-level clustering results on the Wasm heap, produced by {@linkcode clusterSNNGraph}.
+ * @hideconstructor
  */
 export class SNNGraphMultiLevelClusters {
-    /**
-     * @param {Object} raw Results allocated on the Wasm heap.
-     *
-     * This should not be called directly by developers,
-     * call `clusterSNNGraph()` instead.
-     */
     constructor(raw) {
         this.results = raw;
         return;
     }
 
     /**
-     * @return The clustering level with the highest modularity.
+     * @return {number} The clustering level with the highest modularity.
      */
     best() {
         return this.results.best();
     }
 
     /**
-     * @return Number of levels in the results.
+     * @return {number} Number of levels in the results.
      */
     numberOfLevels() {
         return this.results.number();
     }
 
     /**
-     * @param {Object} [options] - Optional parameters.
-     * @param {?number} [options.level] - The clustering level for which to obtain the modularity.
-     * Defaults to the best clustering level from `best()`.
+     * @param {object} [options] - Optional parameters.
+     * @param {?number} [options.level=null] - The clustering level for which to obtain the modularity.
+     * Defaults to the best clustering level from {@linkcode SNNGraphMultiLevelClusters#best best}.
      *
-     * @return The modularity at the specified level.
+     * @return {number} The modularity at the specified level.
      */
     modularity({ level = null } = {}) {
         if (level === null) {
@@ -123,13 +113,12 @@ export class SNNGraphMultiLevelClusters {
     }
 
     /**
-     * @param {Object} [options] - Optional parameters.
-     * @param {?number} [options.level] - The clustering level for which to obtain the cluster membership.
-     * Defaults to the best clustering level from `best()`.
-     * @param {boolean} [options.copy] - Whether to copy the results from the Wasm heap.
-     * This incurs a copy but has safer lifetime management.
+     * @param {object} [options] - Optional parameters.
+     * @param {?number} [options.level=null] - The clustering level for which to obtain the cluster membership.
+     * Defaults to the best clustering level from {@linkcode SNNGraphMultiLevelClusters#best best}.
+     * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      *
-     * @return An `Int32Array` (or view thereof) containing the cluster membership for each cell.
+     * @return {Int32Array|Int32WasmArray} Array containing the cluster membership for each cell.
      */
     membership({ level = null, copy = true } = {}) {
         if (level === null) {
@@ -152,32 +141,26 @@ export class SNNGraphMultiLevelClusters {
 }
 
 /**
- * Wrapper around the SNN walktrap clustering results on the Wasm heap.
+ * Wrapper around the SNN walktrap clustering results on the Wasm heap, produced by {@linkcode clusterSNNGraph}.
+ * @hideconstructor
  */
 export class SNNGraphWalktrapClusters {
-    /**
-     * @param {Object} raw Results allocated on the Wasm heap.
-     *
-     * This should not be called directly by developers,
-     * call `clusterSNNGraph()` instead.
-     */
     constructor(raw) {
         this.results = raw;
         return;
     }
 
     /**
-     * @return The maximum modularity across all merge steps.
+     * @return {number} The maximum modularity across all merge steps.
      */
     modularity() {
         return this.results.modularity();
     }
 
     /**
-     * @param {boolean} [options.copy] - Whether to copy the results from the Wasm heap.
-     * This incurs a copy but has safer lifetime management.
+     * @param {boolean|string} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      *
-     * @return {Int32Array} Array containing the cluster membership for each cell.
+     * @return {Int32Array|Int32WasmArray} Array containing the cluster membership for each cell.
      */
     membership({ copy = true } = {}) {
         return utils.possibleCopy(this.results.membership(), copy);
@@ -197,22 +180,17 @@ export class SNNGraphWalktrapClusters {
 }
 
 /**
- * Wrapper around the SNN Leiden clustering results on the Wasm heap.
+ * Wrapper around the SNN Leiden clustering results on the Wasm heap, produced by {@linkcode clusterSNNGraph}.
+ * @hideconstructor
  */
 export class SNNGraphLeidenClusters {
-    /**
-     * @param {Object} raw Results allocated on the Wasm heap.
-     *
-     * This should not be called directly by developers,
-     * call `clusterSNNGraph()` instead.
-     */
     constructor(raw) {
         this.results = raw;
         return;
     }
 
     /**
-     * @return The quality of the Leiden clustering.
+     * @return {number} The quality of the Leiden clustering.
      *
      * Note that Leiden's quality score is technically a different measure from modularity.
      * Nonetheless, we use `modularity` for consistency with the other SNN clustering result classes.
@@ -222,10 +200,9 @@ export class SNNGraphLeidenClusters {
     }
 
     /**
-     * @param {boolean} [options.copy] - Whether to copy the results from the Wasm heap.
-     * This incurs a copy but has safer lifetime management.
+     * @param {boolean|string} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      *
-     * @return {Int32Array} Array containing the cluster membership for each cell.
+     * @return {Int32Array|Int32WasmArray} Array containing the cluster membership for each cell.
      */
     membership({ copy = true } = {}) {
         return utils.possibleCopy(this.results.membership(), copy);
@@ -247,15 +224,16 @@ export class SNNGraphLeidenClusters {
 /**
  * Cluster cells using community detection on the SNN graph.
  *
- * @param {SNNGraph} x - The shared nearest neighbor graph constructed by `buildSNNGraph()`.
- * @param {Object} [options] - Optional parameters.
- * @param {string} [options.method] - Community detection method to use.
+ * @param {SNNGraph} x - The shared nearest neighbor graph constructed by {@linkcode buildSNNGraph}.
+ * @param {object} [options] - Optional parameters.
+ * @param {string} [options.method="multilevel"] - Community detection method to use.
  * This should be one of `"multilevel"`, `"walktrap"` or `"leiden"`.
- * @param {?number} [options.resolution] - The resolution of the multi-level or Leiden clustering.
+ * @param {number} [options.resolution=1] - The resolution of the multi-level or Leiden clustering.
  * Larger values result in more fine-grained clusters.
- * @param {number} [options.walktrapSteps] - Number of steps for the Walktrap algorithm.
+ * @param {number} [options.walktrapSteps=4] - Number of steps for the Walktrap algorithm.
  *
- * @return A `SNNGraphMultilevelClusters` object containing the clustering results.
+ * @return {SNNGraphMultiLevelClusters|SNNGraphWalktrapClusters|SNNGraphLeidenClusters} Object containing the clustering results.
+ * The class of this object depends on the choice of `method`.
  */
 export function clusterSNNGraph(x, { method = "multilevel", resolution = 1, walktrapSteps = 4 } = {}) {
     var raw;

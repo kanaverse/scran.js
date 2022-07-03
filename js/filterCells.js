@@ -7,11 +7,12 @@ import { PerCellQCFilters } from "./computePerCellQCFilters.js";
  *
  * @param {ScranMatrix} x The count matrix.
  * @param {(PerCellQCFilters|Uint8WasmArray|Array|TypedArray)} filters 
- * If a `PerCellQCFilters` object is supplied, the overall filter (in `filters.discard_overall()`) is used.
- * Otherwise, an array of length equal to the number of columns in `x` should be supplied,
- * where `true` elements specify the cells to be discarded.
+ * If a {@linkplain PerCellQCFilters} object is supplied, the overall filter (in `filters.discard_overall()`) is used.
  *
- * @return A matrix of the same type as `x`, filtered by column to remove all cells specified in `filters`. 
+ * Otherwise, an array of length equal to the number of columns in `x` should be supplied,
+ * where truthy elements specify the cells to be discarded.
+ *
+ * @return {ScranMatrix} A matrix of the same type as `x`, filtered by column to remove all cells specified in `filters`. 
  */
 export function filterCells(x, filters) {
     var filter_data;

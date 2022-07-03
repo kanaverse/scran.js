@@ -5,16 +5,16 @@ import * as utils from "./utils.js";
  * Compute log-transformed normalized expression values.
  *
  * @param {ScranMatrix} x The count matrix, usually after filtering.
- * @param {Object} [options] - Optional parameters.
- * @param {?(Float64WasmArray|Array|TypedArray)} [options.sizeFactors] - Array of positive numbers containing the size factor for each cell in `x`.
+ * @param {object} [options] - Optional parameters.
+ * @param {?(Float64WasmArray|Array|TypedArray)} [options.sizeFactors=null] - Array of positive numbers containing the size factor for each cell in `x`.
  * This should have length equal to the number of columns in `x`.
  * If `null`, size factors are computed from the column sums of `x`.
- * @param {?(Int32WasmArray|Array|TypedArray)} [options.block] - Array containing the block assignment for each cell.
+ * @param {?(Int32WasmArray|Array|TypedArray)} [options.block=null] - Array containing the block assignment for each cell.
  * This should have length equal to the number of cells and contain all values from 0 to `n - 1` at least once, where `n` is the number of blocks.
  * This is used to adjust the scaling of cells in different blocks, to avoid excessive up-scaling of low-coverage blocks.
  * Alternatively, this may be `null`, in which case all cells are assumed to be in the same block.
  *
- * @return A matrix of the same type as `x` containing log-transformed normalized expression values.
+ * @return {ScranMatrix} A matrix of the same type as `x` containing log-transformed normalized expression values.
  */
 export function logNormCounts(x, { sizeFactors = null, block = null } = {}) {
     var sf_data;

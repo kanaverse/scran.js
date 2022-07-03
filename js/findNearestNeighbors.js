@@ -3,29 +3,24 @@ import * as wasm from "./wasm.js";
 import { PCAResults } from "./runPCA.js";
 
 /** 
- * Wrapper for the neighbor search index on the Wasm heap.
+ * Wrapper for the neighbor search index on the Wasm heap, typically produced by {@linkcode buildNeighborSearchIndex}.
+ * @hideconstructor
  */
 export class NeighborSearchIndex {
-    /**
-     * @param {Object} raw Search index on the Wasm heap.
-     *
-     * Not to be called directly by developers;
-     * use `buildNeighborSearchIndex()` instead.
-     */
     constructor(raw) {
         this.index = raw;
         return;
     }
 
     /**
-     * @return Number of cells in the index.
+     * @return {number} Number of cells in the index.
      */
     numberOfCells() {
         return this.index.num_obs();
     }
 
     /**
-     * @return Number of dimensions in the index.
+     * @return {number} Number of dimensions in the index.
      */
     numberOfDims() {
         return this.index.num_dim();
@@ -49,15 +44,15 @@ export class NeighborSearchIndex {
  *
  * @param {(PCAResults|Float64WasmArray|Array|TypedArray)} x - Numeric coordinates of each cell in the dataset.
  * For array inputs, this is expected to be in column-major format where the rows are the variables and the columns are the cells.
- * For a `PCAResults` input, we extract the principal components.
- * @param {Object} [options] - Optional parameters.
- * @param {number} [options.numberOfDims] - Number of variables/dimensions per cell.
+ * For a {@linkplain PCAResults} input, we extract the principal components.
+ * @param {object} [options] - Optional parameters.
+ * @param {number} [options.numberOfDims=null] - Number of variables/dimensions per cell.
  * Only used (and required) for array-like `x`.
- * @param {number} [options.numberOfCells] - Number of cells.
+ * @param {number} [options.numberOfCells=null] - Number of cells.
  * Only used (and required) for array-like `x`.
- * @param {boolean} [options.approximate] - Whether to build an index for an approximate neighbor search.
+ * @param {boolean} [options.approximate=true] - Whether to build an index for an approximate neighbor search.
  *
- * @return A `NeighborSearchIndex` object to use for neighbor searches.
+ * @return {NeighborSearchIndex} Index object to use for neighbor searches.
  */
 export function buildNeighborSearchIndex(x, { numberOfDims = null, numberOfCells = null, approximate = true } = {}) {
     var buffer;
@@ -101,22 +96,17 @@ export function buildNeighborSearchIndex(x, { numberOfDims = null, numberOfCells
 }
 
 /** 
- * Wrapper for the neighbor search results on the Wasm heap.
+ * Wrapper for the neighbor search results on the Wasm heap, typically produced by {@linkcode findNearestNeighbors}.
+ * @hideconstructor
  */
 export class NeighborSearchResults {
-    /**
-     * @param {Object} raw Search results on the Wasm heap.
-     *
-     * Not to be called directly by developers;
-     * use `findNearestNeighbors()` or `unserialize()` instead.
-     */
     constructor(raw) {
         this.results = raw;
         return;
     }
 
     /**
-     * @return The total number of neighbors across all cells.
+     * @return {number} The total number of neighbors across all cells.
      * This is usually the product of the number of neighbors and the number of cells.
      */
     size() {
@@ -124,24 +114,26 @@ export class NeighborSearchResults {
     }
 
     /**
-     * @return The number of cells used in the search.
+     * @return {number} The number of cells used in the search.
      */
     numberOfCells() {
         return this.results.num_obs();
     }
 
     /**
-     * @param {Object} [options] - Optional parameters.
-     * @param {?Int32WasmArray} [options.runs] - A Wasm-allocated array of length equal to `numberOfCells()`,
+     * @param {object} [options] - Optional parameters.
+     * @param {?Int32WasmArray} [options.runs=null] - A Wasm-allocated array of length equal to `numberOfCells()`,
      * to be used to store the number of neighbors per cell.
-     * @param {?Int32WasmArray} [options.indices] - A Wasm-allocated array of length equal to `size()`,
+     * @param {?Int32WasmArray} [options.indices=null] - A Wasm-allocated array of length equal to `size()`,
      * to be used to store the indices of the neighbors of each cell.
-     * @param {?Float64WasmArray} [options.distances] - A Wasm-allocated array of length equal to `size()`,
+     * @param {?Float64WasmArray} [options.distances=null] - A Wasm-allocated array of length equal to `size()`,
      * to be used to store the distances to the neighbors of each cell.
      *
-     * @return 
+     * @return {object|undefined} 
      * If all of the arguments are non-`null`, the buffers in `runs`, `indices` and `distances` are filled with their respective contents, and nothing is returned.
-     * If all of the arguments are `null`, a object is returned with `TypedArray` entries for each component.
+     *
+     * If all of the arguments are `null`, a object is returned with the `runs`, `indices` and `distances` keys, each with an appropriate TypedArray as the value.
+     *
      * Otherwise, an error is raised.
      */
     serialize({ runs = null, indices = null, distances = null } = {}) {
@@ -188,7 +180,7 @@ export class NeighborSearchResults {
      * @param {Float64WasmArray|Array|TypedArray} indices An array of length equal to `size()`,
      * containing the distances to the neighbors of each cell.
      *
-     * @return A new `NeighborSearchResults` object containing the unserialized search results.
+     * @return {NeighborSearchResults} Object containing the unserialized search results.
      */
     static unserialize(runs, indices, distances) {
         var raw;
@@ -231,10 +223,10 @@ export class NeighborSearchResults {
 /**
  * Find the nearest neighbors for each cell.
  *
- * @param {NeighborSearchIndex} x The pre-build neighbor search index from `buildNeighborSearchIndex()`.
+ * @param {NeighborSearchIndex} x The neighbor search index built by {@linkcode buildNeighborSearchIndex}.
  * @param {number} k Number of neighbors to find.
  *
- * @return A `NeighborSearchResults` object containing the search results.
+ * @return {NeighborSearchResults} Object containing the search results.
  */
 export function findNearestNeighbors(x, k) {
     var raw;

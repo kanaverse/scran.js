@@ -5,12 +5,12 @@ import { ModelGeneVarResults } from "./modelGeneVar.js";
  * Choose the highly variable genes from variance modelling statistics.
  *
  * @param {(TypedArray|ModelGeneVarResults)} x -
- * A `TypedArray` of statistics, where larger values correspond to higher variability;
- * or a `ModelGeneVarResults` object, in which case the residuals are used as the statistics.
- * @param {Object} [options] - Optional parameters.
- * @param {number} [options.number] - Number of highly variable genes to select.
+ * A TypedArray of statistics, where larger values correspond to higher variability;
+ * or a {@linkplain ModelGeneVarResults} object, in which case the residuals are used as the statistics.
+ * @param {object} [options] - Optional parameters.
+ * @param {number} [options.number=4000] - Number of highly variable genes to select.
  *
- * @return A `Uint8WasmArray` of length equal to the total number of genes,
+ * @return {Uint8WasmArray} Array of length equal to the total number of genes,
  * where the chosen highly variable genes are marked with a value of 1 and all other genes have values of zero.
  */
 export function chooseHVGs(x, { number = 4000 } = {}) {

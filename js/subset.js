@@ -9,7 +9,7 @@ import { MultiMatrix } from "./MultiMatrix.js";
  * @param {Array} indices - Row indices to extract.
  * All indices must be non-negative integers less than `mat.numberOfRows()`.
  *
- * @return
+ * @return {ScranMatrix}
  * A new ScranMatrix containing the subset of rows from `mat` specified by `indices`.
  */
 export function subsetRows(mat, indices) {
@@ -38,7 +38,7 @@ export function subsetRows(mat, indices) {
  * @param {Array} indices - Column indices to extract.
  * Al indices must be a non-negative integer less than `mat.numberOfColumns()`.
  *
- * @return
+ * @return {ScranMatrix}
  * A new ScranMatrix containing the subset of columns from `mat` specified by `indices`.
  */
 export function subsetColumns(mat, indices) {
@@ -83,14 +83,14 @@ export function splitByFactor(factor) {
  * Split a {@linkplain ScranMatrix} by row.
  *
  * @param {ScranMatrix} matrix - A ScranMatrix object.
- * @param {object} split - Object specifying how rows shouhld be split, usually produced by {@link splitByFactor}.
+ * @param {object} split - Object specifying how rows should be split, usually produced by {@link splitByFactor}.
  * @param {object} [options] - Optional parameters.
- * @param {boolean} [options.singleNull] - Whether `null` should be returned if `split` only contains one level.
+ * @param {boolean} [options.singleNull=false] - Whether `null` should be returned if `split` only contains one level.
  * This can be used to avoid the creation of a redundant ScranMatrix object.
- * @param {boolean} [options.createMultimatrix] - Whether the output should be returned as a {@linkplain Multimatrix}.
+ * @param {boolean} [options.createMultiMatrix=false] - Whether the output should be returned as a {@linkplain MultiMatrix}.
  *
  * @return {object|MultiMatrix} Object with the same keys as `split` where each value is a ScranMatrix for the corresponding subset of rows.
- * Alternatively, this is wrapped in a `MultiMatrix` if `createMultiMatrix = true`.
+ * Alternatively, this is wrapped in a MultiMatrix if `createMultiMatrix = true`.
  */
 export function splitRows(matrix, split, { singleNull = false, createMultiMatrix = false } = {}) { 
     let output = {};

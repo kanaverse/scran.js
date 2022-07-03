@@ -10,7 +10,7 @@ import { ScranMatrix } from "./ScranMatrix.js";
  * @param {WasmArray|Array|TypedArray} values Values of all elements in the matrix, stored in column-major order.
  * These should all be non-negative integers, even if they are stored in floating-point.
  *
- * @return A `ScranMatrix` object containing a layered sparse matrix.
+ * @return {ScranMatrix} A layered sparse matrix.
  */
 export function initializeSparseMatrixFromDenseArray(numberOfRows, numberOfColumns, values) {
     var val_data; 
@@ -56,11 +56,11 @@ export function initializeSparseMatrixFromDenseArray(numberOfRows, numberOfColum
  * This should be of the same length as `values`.
  * @param {WasmArray} pointers Pointers specifying the start of each column in `indices`.
  * This should have length equal to `numberOfColumns + 1`.
- * @param {Object} [options] - Optional parameters.
- * @param {boolean} [options.byColumn] - Whether the supplied arrays refer to the compressed sparse column format.
- * If `false`, `indices` should contain column indices and `pointers` should specify the start of each row in `indices`.
+ * @param {object} [options] - Optional parameters.
+ * @param {boolean} [options.byColumn=true] - Whether the supplied arrays refer to the compressed sparse column format.
+ * If `true`, `indices` should contain column indices and `pointers` should specify the start of each row in `indices`.
  *
- * @return A `ScranMatrix` object containing a layered sparse matrix.
+ * @return {ScranMatrix} A layered sparse matrix.
  */ 
 export function initializeSparseMatrixFromCompressedVectors(numberOfRows, numberOfColumns, values, indices, pointers, { byColumn = true } = {}) {
     var val_data;
@@ -115,11 +115,11 @@ export function initializeSparseMatrixFromCompressedVectors(numberOfRows, number
  *
  * @param {Uint8WasmArray|Array|TypedArray} buffer Byte array containing the contents of a Matrix Market file with non-negative counts.
  * This can be raw text or Gzip-compressed.
- * @param {Object} [options] - Optional parameters.
- * @param {boolean} [options.compressed] - Whether the buffer is Gzip-compressed.
+ * @param {object} [options] - Optional parameters.
+ * @param {boolean} [options.compressed=null] - Whether the buffer is Gzip-compressed.
  * If `null`, we detect this automatically from the magic number in the header.
  *
- * @return A `ScranMatrix` object containing a layered sparse matrix.
+ * @return {ScranMatrix} A layered sparse matrix.
  */
 export function initializeSparseMatrixFromMatrixMarketBuffer(buffer, { compressed = null } = {}) {
     var buf_data;
@@ -156,7 +156,7 @@ export function initializeSparseMatrixFromMatrixMarketBuffer(buffer, { compresse
  * This can be a HDF5 Dataset for dense matrices or a HDF5 Group for sparse matrices.
  * For the latter, both H5AD and 10X-style sparse formats are supported.
  *
- * @return A `ScranMatrix` containing the layered sparse matrix.
+ * @return {ScranMatrix} A layered sparse matrix.
  */
 export function initializeSparseMatrixFromHDF5(file, name) {
     var raw;
@@ -181,7 +181,7 @@ export function initializeSparseMatrixFromHDF5(file, name) {
  * @param {(WasmArray|TypedArray|Array)} values - Array of length equal to the product of `numberOfRows` and `numberOfColumns`,
  * containing the values to store in the array.
  *
- * @return A `ScranMatrix` containing the dense matrix, filled by column with the contents of `values`.
+ * @return {ScranMatrix} A dense matrix, filled by column with the contents of `values`.
  */
 export function initializeDenseMatrixFromDenseArray(numberOfRows, numberOfColumns, values) {
     var tmp;

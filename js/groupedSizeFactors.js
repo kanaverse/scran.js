@@ -10,18 +10,18 @@ import * as wa from "wasmarrays.js";
  * @param {ScranMatrix} x The count matrix, usually after filtering.
  * @param {(Int32WasmArray|Array|TypedArray)} groups - Array containing the group assignment for each cell.
  * This should have length equal to the number of cells and contain all values from 0 to `n - 1` at least once, where `n` is the number of groups.
- * @param {Object} [options] - Optional parameters.
- * @param {boolean} [options.center] - Whether to return centered size factors.
+ * @param {object} [options] - Optional parameters.
+ * @param {boolean} [options.center=true] - Whether to return centered size factors.
  * If `false`, the size factors can be interpreted as the scaling to match `reference`.
- * @param {?Float64WasmArray} [options.buffer] - Output buffer for the size factors.
+ * @param {?Float64WasmArray} [options.buffer=null] - Output buffer for the size factors.
  * This should have length equal to the number of columns in `x`.
- * @param {number} [options.priorCount] - Prior count to use for shrinking size factors towards the relative library size.
+ * @param {number} [options.priorCount=10] - Prior count to use for shrinking size factors towards the relative library size.
  * Larger values result in stronger shrinkage when the coverage is low.
- * @param {?number} [options.reference] - Group to use as a reference.
+ * @param {?number} [options.reference=null] - Group to use as a reference.
  * This should be an entry in `groups`. 
  * If `null`, it is automatically determined.
  *
- * @return A Float64WasmArray of length equal to the number of columns in `x`, containing the size factors for all cells.
+ * @return {Float64WasmArray} Array of length equal to the number of columns in `x`, containing the size factors for all cells.
  * If `buffer` is supplied, it is directly filled and returned.
  */
 export function groupedSizeFactors(x, groups, { center = true, buffer = null, priorCount = 10, reference = null } = {}) {

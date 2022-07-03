@@ -2,26 +2,20 @@ import * as wasm from "./wasm.js";
 import * as utils from "./utils.js";
 
 /** 
- * Wrapper for the PCA results on the Wasm heap.
+ * Wrapper for the PCA results on the Wasm heap, typically created by {@linkcode runPCA}.
+ * @hideconstructor
  */
 export class PCAResults {
-    /**
-     * @param {Object} raw Raw results allocated on the Wasm heap.
-     *
-     * This should not be called directly by developers.
-     * Instead, `PCAResults` objects should be created by calling `runPCA()`.
-     */
     constructor(raw) {
         this.results = raw;
         return;
     }
 
     /**
-     * @param {Object} [options] - Optional parameters.
-     * @param {boolean} [options.copy] - Whether to copy the results from the Wasm heap.
-     * This incurs a copy but has safer lifetime management.
+     * @param {object} [options] - Optional parameters.
+     * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      * 
-     * @return A `Float64Array` (or view thereof) containing the principal components for all cells.
+     * @return {Float64Array|Float64Wasmarray} Array containing the principal components for all cells.
      * This should be treated as a column-major array where the rows are the PCs and columns are the cells.
      */
     principalComponents({ copy = true } = {}) {
@@ -29,33 +23,32 @@ export class PCAResults {
     }
 
     /**
-     * @param {Object} [options] - Optional parameters.
-     * @param {boolean} [options.copy] - Whether to copy the results from the Wasm heap.
-     * This incurs a copy but has safer lifetime management.
+     * @param {object} [options] - Optional parameters.
+     * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      * 
-     * @return A `Float64Array` (or view thereof) containing the variance explained for each requested PC.
+     * @return {Float64Array|Float64WasmArray} Array containing the variance explained for each requested PC.
      */
     varianceExplained({ copy = true } = {}) {
         return utils.possibleCopy(this.results.variance_explained(), copy);
     }
 
     /**
-     * @return The total variance in the dataset,
-     * typically used with `varianceExplained()` to compute the proportion of variance explained.
+     * @return {number} The total variance in the dataset,
+     * typically used with {@linkcode PCAResults#varianceExplained varianceExplained} to compute the proportion of variance explained.
      */
     totalVariance () {
         return this.results.total_variance();
     }
 
     /**
-     * @return Number of PCs available in these results.
+     * @return {number} Number of PCs available in these results.
      */
     numberOfPCs() {
         return this.results.num_pcs();
     }
 
     /**
-     * @return Number of cells used to compute these results.
+     * @return {number} Number of cells used to compute these results.
      */
     numberOfCells() {
         // TODO: switch to this.results.num_cells();
@@ -81,23 +74,23 @@ export class PCAResults {
  * This is usually done on a subset of features, and possibly with some kind of blocking on a per-cell batch factor.
  *
  * @param {ScranMatrix} x - The log-normalized expression matrix.
- * @param {Object} [options] - Optional parameters. 
- * @param {?(Uint8WasmArray|Array|TypedArray)} [options.features] - Array specifying which features should be retained (e.g., HVGs).
+ * @param {object} [options] - Optional parameters. 
+ * @param {?(Uint8WasmArray|Array|TypedArray)} [options.features=null] - Array specifying which features should be retained (e.g., HVGs).
  * This should be of length equal to the number of rows in `x`; elements should be `true` to retain each row.
  * If `null`, all features are retained.
- * @param {number} [options.numberOfPCs] - Number of top principal components to compute.
- * @param {boolean} [options.scale] - Whether to scale each feature to unit variance.
- * @param {?(Int32WasmArray|Array|TypedArray)} [options.block] - Array containing the block assignment for each cell.
+ * @param {number} [options.numberOfPCs=25] - Number of top principal components to compute.
+ * @param {boolean} [options.scale=false] - Whether to scale each feature to unit variance.
+ * @param {?(Int32WasmArray|Array|TypedArray)} [options.block=null] - Array containing the block assignment for each cell.
  * This should have length equal to the number of cells and contain all values from 0 to `n - 1` at least once, where `n` is the number of blocks.
  * This is used to segregate cells in order to compute filters within each block.
  * Alternatively, this may be `null`, in which case all cells are assumed to be in the same block.
- * @param {string} [options.blockMethod] - How to modify the PCA for the blocking factor.
+ * @param {string} [options.blockMethod="regress"] - How to modify the PCA for the blocking factor.
  * The default `"regress"` will regress out the factor, effectively performing a PCA on the residuals.
  * Alternatively, `"weight"` will weight the contribution of each blocking level equally so that larger blocks do not dominate the PCA.
  *
  * This option is only used if `block` is not `null`.
  *
- * @return A `PCAResults` object containing the computed PCs.
+ * @return {PCAResults} Object containing the computed PCs.
  */
 export function runPCA(x, { features = null, numberOfPCs = 25, scale = false, block = null, blockMethod = "regress" } = {}) {
     var feat_data;

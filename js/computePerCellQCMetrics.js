@@ -3,36 +3,30 @@ import * as utils from "./utils.js";
 import * as internal from "./internal/computePerCellQcMetrics.js";
 
 /**
- * Wrapper for the metrics allocated on the Wasm heap.
+ * Wrapper for the metrics allocated on the Wasm heap, produced by {@linkcode computePerCellQCMetrics}.
+ * @hideconstructor
  */
 export class PerCellQCMetricsResults {
-    /**
-     * @param {Object} raw Raw results allocated on the Wasm heap.
-     *
-     * This should not be called directly; use `computePerCellQCMetrics` instead to create an instance of this object.
-     */
     constructor(raw) {
         this.results = raw;
         return;
     }
 
     /**
-     * @param {Object} [options] - Optional parameters.
-     * @param {boolean} [options.copy] - Whether to copy the results from the Wasm heap.
-     * This incurs a copy but has safer lifetime management.
+     * @param {object} [options] - Optional parameters.
+     * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      *
-     * @return A `Float64Array` (or a view thereof) containing the total count for each cell.
+     * @return {Float64Array|Float64WasmArray} Array containing the total count for each cell.
      */
     sums({ copy = true } = {}) {
         return utils.possibleCopy(this.results.sums(), copy);
     }
 
     /**
-     * @param {Object} [options] - Optional parameters.
-     * @param {boolean} [options.copy] - Whether to copy the results from the Wasm heap.
-     * This incurs a copy but has safer lifetime management.
+     * @param {object} [options] - Optional parameters.
+     * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      *
-     * @return An `Int32Array` (or a view thereof) containing the total number of detected genes for each cell.
+     * @return {Int32Array|Int32WasmArray} Array containing the total number of detected genes for each cell.
      */
     detected({ copy = true } = {}) {
         return utils.possibleCopy(this.results.detected(), copy);
@@ -40,11 +34,10 @@ export class PerCellQCMetricsResults {
 
     /**
      * @param {number} i - Index of the feature subset of interest.
-     * @param {Object} [options] - Optional parameters.
-     * @param {boolean} [options.copy] - Whether to copy the results from the Wasm heap.
-     * This incurs a copy but has safer lifetime management.
+     * @param {object} [options] - Optional parameters.
+     * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      *
-     * @return A `Float64Array` (or a view thereof) containing the proportion of counts in the subset `i` for each cell.
+     * @return {Float64Array|Float64WasmArray} Array containing the proportion of counts in the subset `i` for each cell.
      * If {@linkcode PerCellQCMetrics#isProportion isProportion} is `false`, the total count of subset `i` is returned instead.
      */
     subsetProportions(i, { copy = true } = {}) {
@@ -52,14 +45,14 @@ export class PerCellQCMetricsResults {
     }
 
     /**
-     * @return Whether the subset proportions were computed in {@linkcode computePerCellQCMetrics}.
+     * @return {boolean} Whether the subset proportions were computed in {@linkcode computePerCellQCMetrics}.
      */
     isProportion() {
         return this.results.is_proportion();
     }
 
     /**
-     * @return Number of feature subsets in this object.
+     * @return {number} Number of feature subsets in this object.
      */
     numberOfSubsets() {
         return this.results.num_subsets();
@@ -92,10 +85,10 @@ export class PerCellQCMetricsResults {
  *
  * Alternatively `null`, which is taken to mean that there are no subsets.
  * @param {object} [options] - Optional parameters.
- * @param {boolean} [options.subsetProportions] - Whether to compute proportions for each subset.
+ * @param {boolean} [options.subsetProportions=true] - Whether to compute proportions for each subset.
  * If `false`, the total count for each subset is computed instead.
  *
- * @return A `PerCellQCMetrics` object containing the QC metrics.
+ * @return {PerCellQCMetricsResults} Object containing the QC metrics.
  */
 export function computePerCellQCMetrics(x, subsets, { subsetProportions = true } = {}) {
     return internal.computePerCellQcMetrics(
@@ -114,10 +107,10 @@ export function computePerCellQCMetrics(x, subsets, { subsetProportions = true }
  * @param numberOfCells Number of cells in the dataset.
  * @param numberOfSubsets Number of feature subsets.
  * @param {object} [options] - Optional parameters.
- * @param {boolean} [options.subsetProportions] - Whether to store proportions for each subset.
+ * @param {boolean} [options.subsetProportions=true] - Whether to store proportions for each subset.
  * If `false`, the total count for each subset is stored instead.
  *
- * @return A {@linkplain PerCellQCMetricsResults} object with allocated memory but no actual values.
+ * @return {PerCellQCMetricsResults} Object with allocated memory to store QC metrics, but no actual values.
  */
 export function emptyPerCellQCMetricsResults(numberOfGenes, numberOfSubsets, { subsetProportions = true } = {}) {
     return internal.emptyPerCellQcMetricsResults(

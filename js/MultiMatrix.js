@@ -2,7 +2,7 @@ import * as utils from "./utils.js";
 
 /**
  * Helper class for handling matrix data from multiple modalities.
- * In particular, it simplifies memory management of the assorted {@linkplain ScranMatrix} instances. 
+ * In particular, it simplifies memory management of the assorted {@linkplain ScranMatrix} instances containing data for different features in the same set of cells.
  */
 export class MultiMatrix {
     #store;
@@ -10,7 +10,7 @@ export class MultiMatrix {
 
     /**
      * @param {object} [options] - Optional parameters.
-     * @param {object} [options.store] - Existing store of {@linkplain ScranMatrix} objects.
+     * @param {object} [options.store={}] - Existing store of {@linkplain ScranMatrix} objects.
      * Each matrix should correspond to a different modality, named according to its key.
      * All matrices should have data for the same set of cells, i.e., same number of columns.
      */
@@ -67,7 +67,7 @@ export class MultiMatrix {
      * @param {string} i - Name of a modality.
      * @param {ScranMatrix} matrix - The matrix data for modality `i`.
      *
-     * @return `matrix` is added to the `MultiMatrix` with name `i`.
+     * @return `matrix` is added to the MultiMatrix with name `i`.
      */
     add(i, matrix) {
         if (this.#ncols === null) {
@@ -86,7 +86,7 @@ export class MultiMatrix {
 
     /**
      * @param {string} i - Name of a modality.
-     * @return Modality `i` is removed from the `MultiMatrix`.
+     * @return Modality `i` is removed from the MultiMatrix.
      */
     remove(i) {
         utils.free(this.#store[i]);
@@ -113,7 +113,7 @@ export class MultiMatrix {
     }
 
     /**
-     * @return Frees memory for all modalities in this `MultiMatrix`.
+     * @return Frees memory for all modalities in this MultiMatrix.
      */
     free() {
         for (const [x, v] of Object.entries(this.#store)) {

@@ -10,20 +10,20 @@ import * as utils from "./utils.js";
  * The aim is to account for composition biases that are common in ADT-based data, while avoiding problems with per-cell sparsity.
  *
  * @param {ScranMatrix} x - An ADT count matrix.
- * @param {Object} [options] - Optional parameters.
- * @param {number} [options.numberOfClusters] - Number of clusters to create.
+ * @param {object} [options] - Optional parameters.
+ * @param {number} [options.numberOfClusters=20] - Number of clusters to create.
  * More clusters improves the accuracy of the size factors at the cost of precision.
- * @param {number} [options.numberOfPCs] - Number of PCs to use.
+ * @param {number} [options.numberOfPCs=25] - Number of PCs to use.
  * More PCs captures more biological signal at the cost of increasing noise.
- * @param {?(Float64WasmArray|Array|TypedArray)} [options.totals] - Total count for each column in `x`.
+ * @param {?(Float64WasmArray|Array|TypedArray)} [options.totals=null] - Array containing the total count for each column in `x`.
  * If `null`, this is computed from `x`.
- * @param {?(Int32WasmArray|Array|TypedArray)} [options.block] - Blocking level for each column in `x`, see {@linkcode logNormCounts}.
- * @param {?Float64WasmArray} [options.buffer] - Buffer in which to store the output size factors.
+ * @param {?(Int32WasmArray|Array|TypedArray)} [options.block=null] - Blocking level for each column in `x`, see {@linkcode logNormCounts}.
+ * @param {?Float64WasmArray} [options.buffer=null] - Buffer in which to store the output size factors.
  * Length should be equal to the number of columns in `x`.
  * If `null`, an array is allocated by the function.
  * 
  * @return {Float64WasmArray} Per-cell size factors for each column of `x`.
- * If `options.buffer` is supplied, the return value is a view on it.
+ * If `buffer` is supplied, the return value is a view on it.
  */
 export function quickAdtSizeFactors(x, { numberOfClusters = 20, numberOfPCs = 25, totals = null, block = null, buffer = null } = {}) {
     let norm, pcs;

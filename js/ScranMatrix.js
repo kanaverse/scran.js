@@ -1,22 +1,17 @@
 import * as utils from "./utils.js";
 
 /**
- * Wrapper around a sparse matrix allocated on the Wasm heap.
+ * Wrapper around a matrix allocated on the Wasm heap.
+ * @hideconstructor
  */
 export class ScranMatrix {
-    /**
-     * @param {Object} raw Raw matrix object created on the Wasm heap.
-     *
-     * This should not be called directly by developers,
-     * who should instead use functions that initialize an appropriate matrix, e.g., `initializeSparseMatrixFromCompressedVectors()`.
-     */
     constructor(raw) {
         this.matrix = raw;
         return;
     }
 
     /**
-     * @return A clone of the current ScranMatrix instance.
+     * @return {ScranMatrix} A clone of the current ScranMatrix instance.
      * This can be freed independently of the current instance.
      */
     clone() {
@@ -24,14 +19,14 @@ export class ScranMatrix {
     }
 
     /**
-     * @return Number of rows in the matrix.
+     * @return {number} Number of rows in the matrix.
      */
     numberOfRows() {
         return this.matrix.nrow();
     }
 
     /**
-     * @return Number of columns in the matrix.
+     * @return {number} Number of columns in the matrix.
      */
     numberOfColumns() {
         return this.matrix.ncol();
@@ -39,13 +34,13 @@ export class ScranMatrix {
 
     /**
      * @param {number} i - Index of the row to extract.
-     * This should be a non-negative integer less than `numberOfRows()`.
-     * @param {Object} [options] - Optional parameters.
-     * @param {Float64WasmArray} [options.buffer] - Buffer to extract into.
-     * If supplied, this should have length equal to `numberOfColumns()`. 
+     * This should be a non-negative integer less than {@linkcode ScranMatrix#numberOfRows numberOfRows}.
+     * @param {object} [options] - Optional parameters.
+     * @param {?Float64WasmArray} [options.buffer=null] - Buffer to extract into.
+     * If supplied, this should have length equal to {@linkcode ScranMatrix#numberOfColumns numberOfColumns}.
      *
-     * @return
-     * If `buffer` is not supplied, a `Float64Array` is returned containing the contents of row `i`.
+     * @return {Float64Array|undefined}
+     * If `buffer` is not supplied, a Float64Array is returned containing the contents of row `i`.
      * Otherwise, `buffer` is filled with row `i` and nothing is returned.
      */
     row(i, { buffer = null } = {}) {
@@ -67,13 +62,13 @@ export class ScranMatrix {
 
     /**
      * @param {number} i - Index of the column to extract.
-     * This should be a non-negative integer less than `numberOfColumns()`.
-     * @param {Object} [options] - Optional parameters.
-     * @param {Float64WasmArray} [options.buffer] - Buffer to extract into.
-     * If supplied, this should have length equal to `numberOfRows()`. 
+     * This should be a non-negative integer less than {@linkcode ScranMatrix#numberOfColumns numberOfColumns}.
+     * @param {object} [options] - Optional parameters.
+     * @param {?Float64WasmArray} [options.buffer=null] - Buffer to extract into.
+     * If supplied, this should have length equal to {@linkcode ScranMatrix#numberOfRows numberOfRows}.
      *
-     * @return
-     * If `buffer` is not supplied, a `Float64Array` is returned containing the contents of column `i`.
+     * @return {Float64Array|undefined}
+     * If `buffer` is not supplied, a Float64Array is returned containing the contents of column `i`.
      * Otherwise, `buffer` is filled with column `i` and nothing is returned.
      */
     column(i, { buffer = null } = {}) {
@@ -106,15 +101,15 @@ export class ScranMatrix {
     }
 
     /**
-     * @return Boolean indicating whether the matrix is sparse.
+     * @return {boolean} Whether the matrix is sparse.
      */
     isSparse() {
         return this.matrix.sparse();
     }
 
     /**
-     * @return Boolean indicating whether the matrix contains a non-trivial organization of row identities.
-     * If `true`, the row identities should be extracted from {@linkcode ScranMatrix#identities identities};
+     * @return {boolean} Whether the ScranMatrix contains a non-trivial organization of row identities.
+     * If `true`, the row identities can be extracted from {@linkcode ScranMatrix#identities identities};
      * otherwise, the row identities are assumed to be consecutive increasing integers from 0 up to the number of rows.
      */
     isReorganized() {
@@ -129,11 +124,11 @@ export class ScranMatrix {
     /**
      * Obtain the identities of the rows of the matrix, assuming {@linkcode ScranMatrix#isReorganized isReorganized} returns `true`.
      *
-     * @param {Object} [options] - Optional parameters.
-     * @param {?Int32WasmArray} [options.buffer] Buffer to extract into.
-     * If supplied, this should have length equal to `numberOfRows()`. 
+     * @param {object} [options] - Optional parameters.
+     * @param {?Int32WasmArray} [options.buffer=null] Buffer to extract into.
+     * If supplied, this should have length equal to {@linkcode ScranMatrix#numberOfRows numberOfRows}.
      *
-     * @return 
+     * @return {Int32Array}
      * If `buffer` is not supplied, an Int32Array is returned containing the row identities.
      * These represent the row indices in the original dataset.
      *

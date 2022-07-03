@@ -3,16 +3,10 @@ import * as wasm from "./wasm.js";
 import { NeighborSearchIndex, findNearestNeighbors } from "./findNearestNeighbors.js";
 
 /**
- * Wrapper around the t-SNE status object on the Wasm heap.
+ * Wrapper around the t-SNE status object on the Wasm heap, typically created by {@linkcode initializeTSNE}.
+ * @hideconstructor
  */
 export class TSNEStatus {
-    /**
-     * @param {Object} raw_status Status object allocated on the Wasm heap.
-     * @param {Float64WasmArray} raw_coordinates Buffer containing the initial t-SNE coordinates.
-     *
-     * This should not be called directly by developers;
-     * use `initializeTSNE()` instead.
-     */
     constructor(raw_status, raw_coordinates) {
         this.status = raw_status;
         this.coordinates = raw_coordinates;
@@ -20,30 +14,30 @@ export class TSNEStatus {
     }
 
     /**
-     * @return A deep copy of the status object.
+     * @return {TSNEStatus} A deep copy of this status object.
      */
     clone() {
         return new TSNEStatus(this.status.deepcopy(), this.coordinates.clone());
     }
 
     /**
-     * @return Number of cells in the dataset.
+     * @return {number} Number of cells in the dataset.
      */
     numberOfCells () {
         return this.status.num_obs();
     }
 
     /**
-     * @return Number of iterations processed so far.
-     * This changes with repeated invocations of `runTSNE()`.
+     * @return {number} Number of iterations processed so far.
+     * This will change with repeated invocations of {@linkcode runTSNE} on this object.
      */
     iterations () {
         return this.status.iterations();
     }
 
     /**
-     * @return Object with `x` and `y` keys,
-     * where values are `Float64Array` objects of length equal to the number of cells,
+     * @return {object} Object with `x` and `y` keys.
+     * The corresponding values are Float64Array objects of length equal to the number of cells,
      * containing the x- and  y- coordinates for each cell at the current state of the algorithm.
      */
     extractCoordinates() {
@@ -69,7 +63,7 @@ export class TSNEStatus {
 
 /**
  * @param {number} perplexity - Perplexity to use in the t-SNE algorithm.
- * @return Appropriate number of neighbors to use in the nearest neighbor search.
+ * @return {number} Appropriate number of neighbors to use in the nearest neighbor search.
  */
 export function perplexityToNeighbors(perplexity) {
     return wasm.call(module => module.perplexity_to_k(perplexity));
@@ -77,14 +71,14 @@ export function perplexityToNeighbors(perplexity) {
 
 /**
  * @param {(NeighborSearchIndex|NeighborSearchResults)} x 
- * Either a pre-built neighbor search index for the dataset (see `buildNeighborSearchIndex()`),
- * or a pre-computed set of neighbor search results for all cells (see `findNearestNeighbors()`).
- * @param {Object} [options] - Optional parameters.
- * @param {number} [options.perplexity] - Perplexity to use when computing neighbor probabilities in the t-SNE.
- * @param {boolean} [options.checkMismatch] - Whether to check for a mismatch between the perplexity and the number of searched neighbors.
- * Only relevant if `x` is a `NeighborSearchResults` object.
+ * Either a pre-built neighbor search index for the dataset (see {@linkcode buildNeighborSearchIndex}),
+ * or a pre-computed set of neighbor search results for all cells (see {@linkcode findNearestNeighbors}).
+ * @param {object} [options] - Optional parameters.
+ * @param {number} [options.perplexity=30] - Perplexity to use when computing neighbor probabilities in the t-SNE.
+ * @param {boolean} [options.checkMismatch=true] - Whether to check for a mismatch between the perplexity and the number of searched neighbors.
+ * Only relevant if `x` is a {@linkplain NeighborSearchResults} object.
  *
- * @return A `TSNEStatus` object containing the initial status of the t-SNE algorithm.
+ * @return {TSNEStatus} Object containing the initial status of the t-SNE algorithm.
  */
 export function initializeTSNE(x, { perplexity = 30, checkMismatch = true } = {}) {
     var my_neighbors;
@@ -128,14 +122,14 @@ export function initializeTSNE(x, { perplexity = 30, checkMismatch = true } = {}
 }
 
 /**
- * Run the t-SNE algorithm on an initialized `TSNEStatus`.
+ * Run the t-SNE algorithm on an initialized {@linkplain TSNEStatus}.
  *
- * @param {TSNEStatus} x A previously initialized status object.
- * This may be passed through `runTSNE()` any number of times.
- * @param {Object} [options] - Optional parameters.
- * @param {number} [options.maxIterations] - Maximum number of iterations to perform.
- * This will also count all existing iterations from previous calls to `runTSNE()`.
- * @param {?number} [options.runTime] - Number of milliseconds for which the algorithm is allowed to run before returning.
+ * @param {TSNEStatus} x A previously initialized status object from {@linkcode initializeTSNE}.
+ * This may be passed through {@linkcode runTSNE} any number of times.
+ * @param {object} [options] - Optional parameters.
+ * @param {number} [options.maxIterations=1000] - Maximum number of iterations to perform.
+ * This number includes all existing iterations that were already performed in `x` from previous calls to {@linkcode runTSNE}.
+ * @param {?number} [options.runTime=null] - Number of milliseconds for which the algorithm is allowed to run before returning.
  * If `null`, no limit is imposed on the runtime.
  *
  * @return The algorithm status in `x` is advanced up to the requested number of iterations,

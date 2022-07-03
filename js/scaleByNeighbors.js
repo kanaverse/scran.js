@@ -10,16 +10,16 @@ import { buildNeighborSearchIndex, NeighborSearchIndex } from "./findNearestNeig
  * @param {Array} embeddings - Array of Float64WasmArrays containing column-major matrices where rows are dimensions and columns are cells.
  * All entries of this array should contain data for the same number and ordering of cells.
  * @param {number} numberOfCells - Number of cells in all embeddings.
- * @param {Object} options - Optional parameters.
- * @param {number} options.neighbors - Number of neighbors to use for quantifying variation.
+ * @param {object} [options] - Optional parameters.
+ * @param {number} [options.neighbors=20] - Number of neighbors to use for quantifying variation.
  * Larger values provide a more stable calculation but assume larger subpopulations.
- * @param {?Array} options.indices - Array of {@linkplain NeighborSearchIndex} objects, 
+ * @param {?Array} [options.indices=null] - Array of {@linkplain NeighborSearchIndex} objects, 
  * where each entry is constructed from the corresponding entry of `embeddings` (see {@linkcode buildNeighborSearchIndex}).
  * This can be used to avoid redundant calculation of indices if they are already available.
- * @param {?Float64WasmArray} options.buffer - Array in which to store the combined embedding.
+ * @param {?Float64WasmArray} [options.buffer=null] - Array in which to store the combined embedding.
  * This should have length equal to the product of `numberOfCells` and the sum of dimensions of all embeddings.
- * @param {boolean} options.approximate - Should we construct an approximate search index if `indices` is not supplied?
- * @param {?(Array|TypedArray|Float64WasmArray)} options.weights - Array of length equal to the number of embeddings, containing a non-enegative relative weight for each embedding.
+ * @param {boolean} [options.approximate=true] - Should we construct an approximate search index if `indices` is not supplied?
+ * @param {?(Array|TypedArray|Float64WasmArray)} [options.weights=null] - Array of length equal to the number of embeddings, containing a non-enegative relative weight for each embedding.
  * This is used to scale each embedding if non-equal noise is desired in the combined embedding.
  * If `null`, all embeddings receive the same weight.
  *

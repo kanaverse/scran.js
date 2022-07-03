@@ -4,36 +4,31 @@ import { ScranMatrix } from "./ScranMatrix.js";
 import * as wa from "wasmarrays.js";
 
 /**
- * Wrapper around a labelled reference dataset on the Wasm heap.
+ * Wrapper around a labelled reference dataset on the Wasm heap, typically produced by {@linkcode loadLabelledReferenceFromBuffers}.
+ * @hideconstructor
  */
 class LabelledReference {
-    /**
-     * @param {Object} raw Results allocated on the Wasm heap.
-     *
-     * This should not be called directly by developers,
-     * call `loadReferenceFromBuffers()` instead.
-     */
     constructor(raw) {
         this.reference = raw;
         return;
     }
 
     /**
-     * @return Number of samples in this dataset.
+     * @return {number} Number of samples in this dataset.
      */
     numberOfSamples() {
         return this.reference.num_samples();
     }
 
     /**
-     * @return Number of features in this dataset.
+     * @return {number} Number of features in this dataset.
      */
     numberOfFeatures() {
         return this.reference.num_features();
     }
 
     /**
-     * @return Number of labels in this dataset.
+     * @return {number} Number of labels in this dataset.
      */
     numberOfLabels() {
         return this.reference.num_labels();
@@ -53,26 +48,23 @@ class LabelledReference {
 
 /**
  * Load a reference dataset for annotation.
- *
- * @param {Uint8Array} ranks - Buffer containing the Gzipped CSV file containing a matrix of ranks.
- * @param {Uint8Array} markers - Buffer containing the Gzipped GMT file containing the markers for each pairwise comparison between labels.
- * @param {Uint8Array} labels - Buffer containing the Gzipped text file containing the label for each sample.
  * 
- * @return A `LabelledReference` object containing the reference dataset.
- *
- * In `matrix`, each line corresponds to a sample and contains a comma-separated vector of ranks across all features.
+ * @param {Uint8Array} ranks - Buffer containing the Gzipped CSV file containing a matrix of ranks.
+ * Each line corresponds to a sample and contains a comma-separated vector of ranks across all features.
  * All lines should contain the same number of entries.
  * This is effectively a row-major matrix where rows are samples and columns are features.
  * (Advanced users may note that this is transposed in C++.) 
- *
+ * @param {Uint8Array} markers - Buffer containing the Gzipped GMT file containing the markers for each pairwise comparison between labels.
  * For `markers`, the GMT format is a tab-separated file with possibly variable numbers of fields for each line.
  * Each line corresponds to a pairwise comparison between labels, defined by the first two fields.
  * The remaining fields should contain indices of marker features (referring to columns of `matrix`) that are upregulated in the first label when compared to the second.
  * Markers should be sorted in order of decreasing strength.
- *
- * For `labels`, each line should contain an integer representing a particular label, from `[0, N)` where `N` is the number of unique labels.
+ * @param {Uint8Array} labels - Buffer containing the Gzipped text file containing the label for each sample.
+ * Each line should contain an integer representing a particular label, from `[0, N)` where `N` is the number of unique labels.
  * The number of lines should be equal to the number of rows in `matrix`.
  * The actual names of the labels are usually held elsewhere.
+ * 
+ * @return {LabelledReference} Object containing the reference dataset.
  */
 export function loadLabelledReferenceFromBuffers(ranks, markers, labels) {
     var raw;
@@ -100,22 +92,17 @@ export function loadLabelledReferenceFromBuffers(ranks, markers, labels) {
 }
 
 /**
- * Wrapper around a built labelled reference dataset on the Wasm heap.
+ * Wrapper around a built labelled reference dataset on the Wasm heap, typically produced by {@linkcode buildLabelledReference}.
+ * @hideconstructor
  */
 class BuiltLabelledReference {
-    /**
-     * @param {Object} raw Results allocated on the Wasm heap.
-     *
-     * This should not be called directly by developers,
-     * call `buildLabelledReference()` instead.
-     */
     constructor(raw) {
         this.reference = raw;
         return;
     }
 
     /**
-     * @return Number of shared features between the test and reference datasets.
+     * @return {number} Number of shared features between the test and reference datasets.
      */
     sharedFeatures() {
         return this.reference.shared_features();
@@ -165,20 +152,20 @@ function convert_reference_features(referenceFeatures, available, ref_id_buffer)
  * Specifically, a feature must be present in both datasets in order to be retained. 
  * Of those features in the intersection, only the `top` markers from each pairwise comparison are ultimately used for classification.
  *
- * Needless to say, `features` should match up to the rows of the matrix that is actually used for annotation in `labelCells()`.
- * If the test dataset is a `ScranMatrix`, `features` should already be reorganized to match its row identities (see {@linkcode matchVectorToMatrix}).
- * Otherwise the row indices will not be correct in subsequent calls to `labelCells()` with a `ScranMatrix` input. 
+ * Needless to say, `features` should match up to the rows of the matrix that is actually used for annotation in {@linkcode labelCells}.
+ * If the test dataset is a {@linkplain ScranMatrix}, `features` should already be reorganized to match its row identities (see {@linkcode matchVectorToRowIdentities}).
+ * Otherwise the row indices will not be correct in subsequent calls to {@linkcode labelCells} with a {@linkplain ScranMatrix} input. 
  *
  * @param {Array} features - An array of feature identifiers (usually strings) of length equal to the number of rows in the test matrix.
  * Each entry should contain the identifier for the corresponding row of the test matrix.
- * @param {LabelledReference} loaded - A reference dataset, typically loaded with `loadLabelledReferenceFromBuffers`.
+ * @param {LabelledReference} loaded - A reference dataset, typically loaded with {@linkcode loadLabelledReferenceFromBuffers}.
  * @param {Array} referenceFeatures - An array of feature identifiers (usually strings) of length equal to the number of features in `reference`.
  * This is expected to exhibit some overlap with those in `features`.
- * @param {Object} [options] - Optional parameters.
- * @param {number} [options.top] - Number of top marker features to use.
+ * @param {object} [options] - Optional parameters.
+ * @param {number} [options.top=20] - Number of top marker features to use.
  * These features are taken from each pairwise comparison between labels.
  *
- * @return A `BuiltLabelledReference` object containing the built reference dataset.
+ * @return {BuiltLabelledReference} Object containing the built reference dataset.
  */
 export function buildLabelledReference(features, loaded, referenceFeatures, { top = 20 } = {}) {
     var mat_id_buffer;
@@ -270,15 +257,15 @@ function label_cells(x, expectedNumberOfFeatures, buffer, numberOfFeatures, numb
  * Label cells based on similarity in expression to a reference dataset.
  *
  * @param {(ScranMatrix|Float64WasmArray)} x - The count matrix, or log-normalized matrix, containing features in the rows and cells in the columns.
- * If a `Float64WasmArray` is supplied, it is assumed to contain a column-major dense matrix.
- * @param {BuiltLabelledReference} reference - A built reference dataset, typically generated by `buildLabelledReference()`.
- * @param {Object} [options] - Optional parameters.
- * @param {Int32WasmArray} [options.buffer] - A buffer to store the output labels, of length equal to the number of columns in `x`.
- * @param {number} [options.numberOfFeatures] - Number of features, used when `x` is a `Float64WasmArray`.
- * @param {number} [options.numberOfCells] - Number of cells, used when `x` is a `Float64WasmArray`.
- * @param {number} [options.quantile] - Quantile on the correlations to use to compute the score for each label.
+ * If a Float64WasmArray is supplied, it is assumed to contain a column-major dense matrix.
+ * @param {BuiltLabelledReference} reference - A built reference dataset, typically generated by {@linkcode buildLabelledReference}.
+ * @param {object} [options] - Optional parameters.
+ * @param {Int32WasmArray} [options.buffer=null] - An existing buffer to store the output labels, of length equal to the number of columns in `x`.
+ * @param {number} [options.numberOfFeatures=null] - Number of features, used when `x` is a Float64WasmArray.
+ * @param {number} [options.numberOfCells=null] - Number of cells, used when `x` is a Float64WasmArray.
+ * @param {number} [options.quantile=0.8] - Quantile on the correlations to use to compute the score for each label.
  *
- * @return An `Int32Array` is returned containing the labels for each cell in `x`.
+ * @return {Int32Array} Array containing the labels for each cell in `x`.
  * If `buffer` is supplied, the returned array is a view into it.
  */
 export function labelCells(x, reference, { buffer = null, numberOfFeatures = null, numberOfCells = null, quantile = 0.8 } = {}) {
@@ -289,22 +276,17 @@ export function labelCells(x, reference, { buffer = null, numberOfFeatures = nul
 }
 
 /**
- * Wrapper around integrated reference datasets on the Wasm heap.
+ * Wrapper around integrated reference datasets on the Wasm heap, typically produced by {@linkcode integrateLabelledReferences}.
+ * @hideconstructor
  */
 class IntegratedLabelledReferences {
-    /**
-     * @param {Object} raw Integrated references on the Wasm heap.
-     *
-     * This should not be called directly by developers,
-     * call `integrateLabelledReferences()` instead.
-     */
     constructor(raw) {
         this.integrated = raw;
         return;
     }
 
     /**
-     * @return Number of reference datasets.
+     * @return {number} Number of reference datasets.
      */
     numberOfReferences() {
         return this.integrated.num_references();
@@ -327,14 +309,14 @@ class IntegratedLabelledReferences {
  *
  * @param {Array} features - An array of feature identifiers (usually strings) of length equal to the number of rows in the test matrix.
  * Each entry should contain the identifier for the corresponding row of the test matrix.
- * @param {Array} loaded - Array of {@linkplain LabelledReference}, typically created with `loadLabelledReferenceFromBuffers`.
+ * @param {Array} loaded - Array of {@linkplain LabelledReference} objects, typically created with {@linkcode loadLabelledReferenceFromBuffers}.
  * @param {Array} referenceFeatures - Array of length equal to `loaded`, 
  * containing arrays of feature identifiers (usually strings) of length equal to the number of features the corresponding entry of `loaded`.
  * This is expected to exhibit some overlap with those in `features`.
- * @param {Array} reference - Array of {@linkplain BuiltLabelledReference} objects, typically generated by `buildLabelledReference()`.
+ * @param {Array} reference - Array of {@linkplain BuiltLabelledReference} objects, typically generated by {@linkcode buildLabelledReference}.
  * This should have length equal to that of `loaded`.
  *
- * @return A {@linkplain IntegratedLabelledReferences} object containing the integrated references.
+ * @return {IntegratedLabelledReferences} Object containing the integrated references.
  */
 export function integrateLabelledReferences(features, loaded, referenceFeatures, built) {
     let id_arr;
@@ -424,18 +406,18 @@ export function integrateLabelledReferences(features, loaded, referenceFeatures,
  * Label cells based on similarity in expression to a reference dataset.
  *
  * @param {(ScranMatrix|Float64WasmArray)} x - The count matrix, or log-normalized matrix, containing features in the rows and cells in the columns.
- * If a `Float64WasmArray` is supplied, it is assumed to contain a column-major dense matrix.
+ * If a Float64WasmArray is supplied, it is assumed to contain a column-major dense matrix.
  * @param {IntegratedLabelledReferences} integrated - An integrated set of reference datasets, typically generated by {@linkcode integrateLabelledReferences}.
  * @param {Array} assigned - An array of length equal to the number of references in `integrated`.
  * This should contain the result of classification of `x` with each individual reference via {@linkcode labelCells}.
  * Each element should be an Array, TypedArray or Int32WasmArray of length equal to the number of cells in `x`.
- * @param {Object} [options] - Optional parameters.
- * @param {Int32WasmArray} [options.buffer] - A buffer to store the output labels, of length equal to the number of columns in `x`.
- * @param {number} [options.numberOfFeatures] - Number of features, used when `x` is a `Float64WasmArray`.
- * @param {number} [options.numberOfCells] - Number of cells, used when `x` is a `Float64WasmArray`.
- * @param {number} [options.quantile] - Quantile on the correlations to use to compute the score for each label.
+ * @param {object} [options] - Optional parameters.
+ * @param {Int32WasmArray} [options.buffer=null] - An existing buffer to store the output labels, of length equal to the number of columns in `x`.
+ * @param {number} [options.numberOfFeatures=null] - Number of features, used when `x` is a Float64WasmArray.
+ * @param {number} [options.numberOfCells=null] - Number of cells, used when `x` is a Float64WasmArray.
+ * @param {number} [options.quantile=0.8] - Quantile on the correlations to use to compute the score for each label.
  *
- * @return An `Int32Array` is returned containing the best reference for each cell in `x`.
+ * @return {Int32Array} Array containing the best reference for each cell in `x`.
  * If `buffer` is supplied, the returned array is a view into it.
  */
 export function integrateCellLabels(x, assigned, integrated, { buffer = null, numberOfFeatures = null, numberOfCells = null, quantile = 0.8 } = {}) { 
