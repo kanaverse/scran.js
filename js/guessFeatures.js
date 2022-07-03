@@ -1,16 +1,6 @@
 import * as permute from "./permute.js";
 
-/**
- * Reorganize feature annotation to match the row identities in a {@linkplain ScranMatrix}.
- * This simpy calls {@linkcode matchVectorToRowIdentities} on each vector.
- *
- * @param {ScranMatrix} x - A {@linkplain ScranMatrix} where the rows might have been reorganized for a more memory-efficient storage order.
- * @param {object} featureInfo - A collection of arrays containing per-feature information (e.g., identifiers).
- * Each array should be parallel to the rows of the original dataset.
- *
- * @return All vectors in `featureInfo` are replaced by their reorganized counterparts,
- * such that entries match the corresponding row in `x`.
- */
+// Deprecated, kept around for back-compatibility as of 0.2.6.
 export function matchFeatureAnnotationToRowIdentities(x, featureInfo) {
     for (const [key, val] of Object.entries(featureInfo)) {
         featureInfo[key] = permute.matchVectorToRowIdentities(x, val);
@@ -22,6 +12,7 @@ export function matchFeatureAnnotationToRowIdentities(x, featureInfo) {
 export function permuteFeatures(x, featureInfo) {
     return matchFeatureAnnotationToRowIdentities(x, featureInfo);
 }
+
 
 /**
  * Guess the identity of the features from their names.
