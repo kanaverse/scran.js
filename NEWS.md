@@ -1,5 +1,30 @@
 # scran.js news
 
+## 0.2.5
+
+**New**
+
+- Exported the `safeFree()` function for fail-safe freeing of **scran.js** objects.
+- Added a `listMito()` function to list mitochondrial genes in mouse or human.
+- Added a `validateArrayCollection()` function to validate equilength array collections.
+
+**Changes**
+
+- Functions involving the **scran.js** virtual filesystem (e.g., `writeFile()`) now throw errors when attempted in a Node context.
+- The setting of `localFile=` in `initialize()` is ignored outside of a Node context.
+- `subsetArrayCollection()` can now be used to subset based on a filtering vector.
+- `combineArrayCollections()` will attempt to preserve TypedArray types across input collections.
+
+## 0.2.4
+
+**New**
+
+- Added a MultiMatrix class to handle memory management in multi-modal scenarios. 
+
+**Changes**
+
+- `subsetRows()` can now directly return a MultiMatrix.
+
 ## 0.2.3
 
 **Changes**
