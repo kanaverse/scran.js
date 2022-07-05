@@ -15,6 +15,11 @@ test("Log-normalization works as expected", () => {
     expect(norm.numberOfRows()).toBe(mat.numberOfRows());
     expect(norm.numberOfColumns()).toBe(mat.numberOfColumns());
 
+    // Check that values are different.
+    let rcol = mat.column(0);
+    let ocol = norm.column(0);
+    expect(ocol).not.toEqual(rcol);
+
     // Cleaning up.
     mat.free();
     norm.free();
@@ -82,4 +87,24 @@ test("Log-normalization works as expected with blocking", () => {
     normed_sub1.free();
     sub2.free();
     normed_sub2.free();
+})
+
+test("Log-normalization behaves with zeros", () => {
+    var ngenes = 1000;
+    var ncells = 100;
+    var mat = simulate.simulateMatrix(ngenes, ncells);
+
+    var empty = new Float64Array(ncells);
+    empty.fill(0);
+    expect(() => scran.logNormCounts(mat, { sizeFactors: empty })).toThrow("positive");
+
+    // Now trying with allowed zeros.
+    let out = scran.logNormCounts(mat, { sizeFactors: empty, allowZeros: true });
+    let ocol = out.column(0);
+    let rcol = mat.column(0);
+    for (var i = 0; i < ngenes; i++) {
+        expect(ocol[i]).toBeCloseTo(Math.log2(rcol[i] + 1), 6);
+    }
+
+    mat.free();
 })

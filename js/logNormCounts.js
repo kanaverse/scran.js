@@ -13,10 +13,13 @@ import * as utils from "./utils.js";
  * This should have length equal to the number of cells and contain all values from 0 to `n - 1` at least once, where `n` is the number of blocks.
  * This is used to adjust the scaling of cells in different blocks, to avoid excessive up-scaling of low-coverage blocks.
  * Alternatively, this may be `null`, in which case all cells are assumed to be in the same block.
+ * @param {boolean} [options.allowZeros=false] - Whether size factors of zero should be allowed.
+ * If `true`, no scaling normalization is performed for the corresponding cells, under the assumption they are all-zero libraries.
+ * If `false`, an error is raised instead.
  *
  * @return {ScranMatrix} A matrix of the same type as `x` containing log-transformed normalized expression values.
  */
-export function logNormCounts(x, { sizeFactors = null, block = null } = {}) {
+export function logNormCounts(x, { sizeFactors = null, block = null, allowZeros = false } = {}) {
     var sf_data;
     var block_data;
     var raw;
@@ -47,7 +50,7 @@ export function logNormCounts(x, { sizeFactors = null, block = null } = {}) {
             bptr = block_data.offset;
         }
 
-        raw = wasm.call(module => module.log_norm_counts(x.matrix, use_sf, sfptr, use_blocks, bptr));
+        raw = wasm.call(module => module.log_norm_counts(x.matrix, use_sf, sfptr, use_blocks, bptr, allowZeros));
         output = new x.constructor(raw);
 
     } catch (e) {
