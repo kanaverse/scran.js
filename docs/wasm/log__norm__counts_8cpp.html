@@ -98,12 +98,12 @@ Include dependency graph for log_norm_counts.cpp:</div>
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a67c799ea48a1c508b5a8455a996df103"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structNumericMatrix.html">NumericMatrix</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="log__norm__counts_8cpp.html#a67c799ea48a1c508b5a8455a996df103">log_norm_counts</a> (const <a class="el" href="structNumericMatrix.html">NumericMatrix</a> &amp;mat, bool use_size_factors, uintptr_t size_factors, bool use_blocks, uintptr_t blocks)</td></tr>
-<tr class="separator:a67c799ea48a1c508b5a8455a996df103"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab3da21e274c5f88c50837d5752a7018b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structNumericMatrix.html">NumericMatrix</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="log__norm__counts_8cpp.html#ab3da21e274c5f88c50837d5752a7018b">log_norm_counts</a> (const <a class="el" href="structNumericMatrix.html">NumericMatrix</a> &amp;mat, bool use_size_factors, uintptr_t size_factors, bool use_blocks, uintptr_t blocks, bool allow_zero)</td></tr>
+<tr class="separator:ab3da21e274c5f88c50837d5752a7018b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function Documentation</h2>
-<a id="a67c799ea48a1c508b5a8455a996df103" name="a67c799ea48a1c508b5a8455a996df103"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a67c799ea48a1c508b5a8455a996df103">&#9670;&nbsp;</a></span>log_norm_counts()</h2>
+<a id="ab3da21e274c5f88c50837d5752a7018b" name="ab3da21e274c5f88c50837d5752a7018b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab3da21e274c5f88c50837d5752a7018b">&#9670;&nbsp;</a></span>log_norm_counts()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -136,7 +136,13 @@ Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">uintptr_t&#160;</td>
-          <td class="paramname"><em>blocks</em>&#160;</td>
+          <td class="paramname"><em>blocks</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>allow_zero</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -145,18 +151,6 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p >Compute log-normalized expression values.</p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">mat</td><td>A <code><a class="el" href="structNumericMatrix.html" title="Javascript-visible interface for a matrix of doubles.">NumericMatrix</a></code> object containing features in rows and cells in columns. </td></tr>
-    <tr><td class="paramname">use_size_factors</td><td>Whether to use custom size factors, or to compute them based on the library size. </td></tr>
-    <tr><td class="paramname">size_factors</td><td>Offset to an array of <code>double</code>s of length <code>nsubsets</code>, containing (possibly uncentered) positive size factors for each column of <code>mat</code>. Only used if <code>use_size_factors = true</code>. </td></tr>
-    <tr><td class="paramname">use_blocks</td><td>Whether or not to compute the default filters within each block. </td></tr>
-    <tr><td class="paramname">blocks</td><td>Offset to an array of <code>int32_t</code>s with <code>mat.ncol()</code> elements, containing the block assignment for each cell. Block IDs should be consecutive and 0-based. If <code>use_blocks = false</code>, this value is ignored.</td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>A <code><a class="el" href="structNumericMatrix.html" title="Javascript-visible interface for a matrix of doubles.">NumericMatrix</a></code> containing log-normalized expression values is returned. If <code>use_blocks = true</code>, centering of the size factors is performed within each block, so as to mimic separate normalization of cells in that block. </dd></dl>
 
 </div>
 </div>
