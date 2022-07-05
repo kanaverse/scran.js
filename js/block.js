@@ -101,44 +101,83 @@ export function convertBlock(x, { buffer = null } = {}) {
  * Note that no protection is provided against empty blocks; if this is a possibility, use {@linkcode dropUnusedBlock} on the output of this function.
  * 
  * @param {Int32WasmArray} x - A blocking factor, typically produced by {@linkcode convertBlock} or {@linkcode createBlock}.
- * @param {(Array|TypedArray|Uint8WasmArray)} filter - Array of length equal to that of `x`.
+ * @param {(Array|TypedArray|WasmArray)} subset - Array specifying the subset to retain or filter out, depending on `filter`.
+ * 
+ * If `filter = null`, the array is expected to contain integer indices specifying the entries in `x` to retain.
+ * The ordering of indices in `subset` will be respected in the subsetted array.
+ *
+ * If `filter = true`, the array should be of length equal to that of `x`.
  * Each value is interpreted as a boolean and, if truthy, indicates that the corresponding entry of `x` should be filtered out.
+ *
+ * If `filter = false`, the array should be of length equal to that of `x`.
+ * Each value is interpreted as a boolean and, if truthy, indicates that the corresponding entry of `x` should be retained.
  *
  * Note that TypedArray views on Wasm-allocated buffers should only be provided if `buffer` is also provided;
  * otherwise, a Wasm memory allocation may invalidate the view.
  * @param {object} [options] - Optional parameters.
- * @param {?Int32WasmArray} [options.buffer=null] - Array in which the output is to be stored.
+ * @param {?boolean} [options.filter=null] - Whether `subset` to filter
  * If provided, this should be of length equal to the number of `false`s in `filter`.
+ * @param {?Int32WasmArray} [options.buffer=null] - Array in which the output is to be stored.
+ * If provided, this should be of length equal to `subset`, if `filter = null`; 
+ * the number of falsey elements in `subset`, if `filter = false`;
+ * or the number of truthy elements in `subset`, if `filter = true`.
  *
- * @return {Int32WasmArray} Array of length equal to `x`, containing all entries of `x` for which `filter` is `false`.
+ * @return {Int32WasmArray} Array containing the desired subset of `x`. 
+ * If `buffer` is supplied, the returned array will be a view into `buffer`.
  */
-export function filterBlock(x, filter, { buffer = null } = {}) {
-    let remaining = 0;
-    filter.forEach(x => { remaining += (x == 0); });
-    if (filter.length != x.length) {
-        throw new Error("'x' and 'filter' should have the same length");
+export function subsetBlock(x, subset, { filter = null, buffer = null } = {}) {
+    let len = 0;
+    if (filter === null) {
+        len = subset.length;
+    } else {
+        if (subset.length != x.length) {
+            throw new Error("'x' and 'filter' should have the same length");
+        }
+
+        let sum = 0;
+        subset.forEach(x => { sum += (x != 0); });
+        if (filter) {
+            len = subset.length - sum;
+        } else {
+            len = sum;
+        }
     }
 
     let blocks;
     try {
         if (buffer == null) {
-            blocks = utils.createInt32WasmArray(remaining);
+            blocks = utils.createInt32WasmArray(len);
         } else {
-            if (buffer.length !== remaining) {
-                throw new Error("'buffer' should have the same length as the number of falses in 'filter'");
+            if (buffer.length !== len) {
+                throw new Error("length of 'buffer' is not consistent with 'subset'");
             }
             blocks = buffer.view();            
         }
 
-        let j = 0;
         let barr = blocks.array();
         let xarr = x.array();
-        filter.forEach((y, i) => {
-            if (y == 0) {
-                barr[j] = xarr[i];
-                j++;
-            }
-        });
+
+        if (filter == null) {
+            subset.forEach((s, i) => {
+                barr[i] = xarr[s];
+            });
+        } else if (filter) {
+            let j = 0;
+            subset.forEach((y, i) => {
+                if (y == 0) {
+                    barr[j] = xarr[i];
+                    j++;
+                }
+            });
+        } else {
+            let j = 0;
+            subset.forEach((y, i) => {
+                if (y !== 0) {
+                    barr[j] = xarr[i];
+                    j++;
+                }
+            });
+        }
 
     } catch (e) {
         utils.free(blocks);
@@ -148,6 +187,28 @@ export function filterBlock(x, filter, { buffer = null } = {}) {
     return blocks;
 }
 
+
+/**
+ * Filter the blocking factor, typically based on the same filtering vector as {@linkcode filterCells}.
+ * Note that no protection is provided against empty blocks; if this is a possibility, use {@linkcode dropUnusedBlock} on the output of this function.
+ * 
+ * @param {Int32WasmArray} x - A blocking factor, typically produced by {@linkcode convertBlock} or {@linkcode createBlock}.
+ * @param {(Array|TypedArray|Uint8WasmArray)} filter - Array of length equal to that of `x`.
+ * Each value is interpreted as a boolean and, if truthy, indicates that the corresponding entry of `x` should be filtered out.
+ *
+ * Note that TypedArray views on Wasm-allocated buffers should only be provided if `buffer` is also provided;
+ * otherwise, a Wasm memory allocation may invalidate the view.
+ * @param {object} [options] - Optional parameters.
+ * @param {?Int32WasmArray} [options.buffer=null] - Array in which the output is to be stored.
+ * If provided, this should be of length equal to the number of falsey elements in `filter`.
+ *
+ * @return {Int32WasmArray} Array of length equal to `x`, containing all entries of `x` for which `filter` is `false`.
+ * If `buffer` is supplied, the returned array will be a view into `buffer`.
+ */
+export function filterBlock(x, filter, { buffer = null } = {}) {
+    return subsetBlock(x, filter, { buffer: buffer, filter: true });
+}
+
 /**
  * Reindex the blocking factor to remove unused levels.
  * This is done by adjusting the blocking IDs so that every ID from `[0, N)` is represented at least once, where `N` is the number of levels.
@@ -155,7 +216,10 @@ export function filterBlock(x, filter, { buffer = null } = {}) {
  * @param {Int32WasmArray} x - A blocking factor, typically produced by {@linkcode convertBlock} or {@link createBlock}.
  *
  * @return {Array} `x` is modified in place to remove unused levels.
- * An array is returned that represents the mapping between the original and modified IDs.
+ *
+ * An array (denoted here as `y`) is returned that represents the mapping between the original and modified IDs,
+ * i.e., running `x.map(i => y[i])` will recover the input `x`.
+ * This is most commonly used to create a new array of levels, i.e., `y.map(i => old_levels[i])` will drop the unused levels. 
  */
 export function dropUnusedBlock(x) {
     let uniq = new Set(x.array())

@@ -105,10 +105,43 @@ test("block filtering works", () => {
         expect(Array.from(filtered.array())).toEqual([0,2]);
         buffer.free();
 
-        expect(() => scran.filterBlock(x, [1,1,0,0,0,1], { buffer: buffer })).toThrow("falses");
+        expect(() => scran.filterBlock(x, [1,1,0,0,0,1], { buffer: buffer })).toThrow("length of 'buffer'");
     }
 
     x.free();
+})
+
+test("block subsetting works", () => {
+    let x = scran.createInt32WasmArray(6);
+    x.set([0,1,2,0,1,2]);
+
+    {
+        let filtered = scran.subsetBlock(x, [0, 2, 4]);
+        expect(Array.from(filtered.array())).toEqual([0,2,1]);
+        filtered.free();
+    }
+
+    {
+        // Preserves order.
+        let filtered = scran.subsetBlock(x, [5, 3, 1]);
+        expect(Array.from(filtered.array())).toEqual([2,0,1]);
+        filtered.free();
+    }
+
+    {
+        // Works with a buffer.
+        let buffer = scran.createInt32WasmArray(6);
+        let filtered = scran.subsetBlock(x, [0,2,4,5,3,1], { buffer: buffer });
+        expect(Array.from(buffer.array())).toEqual([0,2,1,2,0,1]);
+        buffer.free();
+    }
+
+    {
+        // Inverting the filter.
+        let filtered = scran.subsetBlock(x, [0, 1, 0, 0, 0, 1], { filter: false });
+        expect(Array.from(filtered.array())).toEqual([1, 2]);
+        filtered.free();
+    }
 })
 
 test("block releveling works", () => {
