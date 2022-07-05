@@ -30,6 +30,8 @@ test("subsetting an array collection works", () => {
     out = scran.subsetArrayCollection(x, [0, 0, 0, 1], { filter: true });
     expect(out.A).toEqual([1,2,3]);
     expect(out.B).toEqual(['x','y','z']);
+
+    expect(() => scran.subsetArrayCollection(x, [0, 0, 1], { filter: true })).toThrow("same length");
 })
 
 test("subsetting an array collection works with WasmArray inputs", () => {

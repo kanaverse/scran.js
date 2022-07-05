@@ -55,6 +55,9 @@ export function subsetArrayCollection(x, subset, { filter = null } = {}) {
                 copy = new v.constructor(subset.length);
                 subset.forEach((x, i) => { copy[i] = v[x]; });
             } else {
+                if (subset.length !== v.length) {
+                    throw new Error("'subset' and each value of 'x' should have the same length");
+                }
                 let subcopy = subset;
                 if (subset instanceof wa.WasmArray) {
                     subcopy = subset.array();
