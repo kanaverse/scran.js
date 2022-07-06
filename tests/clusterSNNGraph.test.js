@@ -13,7 +13,7 @@ test("clusterSNNGraph works as expected", () => {
     var k = 5;
     var res = scran.findNearestNeighbors(index, k);
     var graph = scran.buildSNNGraph(res);
-    expect(graph instanceof scran.SNNGraph).toBe(true);
+    expect(graph instanceof scran.BuildSNNGraphResults).toBe(true);
 
     var clusters = scran.clusterSNNGraph(graph);
     var clust = clusters.membership();
@@ -52,12 +52,12 @@ test("clusterSNNGraph works with other clustering methods", () => {
     var graph = scran.buildSNNGraph(res);
 
     var clusters = scran.clusterSNNGraph(graph, { method: "walktrap" });
-    expect(clusters instanceof scran.SNNGraphWalktrapClusters);
+    expect(clusters instanceof scran.ClusterSNNGraphWalktrapResults);
     var clust = clusters.membership();
     expect(clust.length).toBe(ncells);
 
     var clusters2 = scran.clusterSNNGraph(graph, { method: "leiden" });
-    expect(clusters2 instanceof scran.SNNGraphLeidenClusters);
+    expect(clusters2 instanceof scran.ClusterSNNGraphLeidenResults);
     var clust = clusters2.membership();
     expect(clust.length).toBe(ncells);
 

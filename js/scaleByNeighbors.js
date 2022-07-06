@@ -1,6 +1,6 @@
 import * as wasm from "./wasm.js";
 import * as utils from "./utils.js";
-import { buildNeighborSearchIndex, NeighborSearchIndex } from "./findNearestNeighbors.js"; 
+import { buildNeighborSearchIndex, BuildNeighborSearchIndexResults } from "./findNearestNeighbors.js"; 
 
 /**
  * Scale embeddings based on the variation between neighboring cells.
@@ -13,7 +13,7 @@ import { buildNeighborSearchIndex, NeighborSearchIndex } from "./findNearestNeig
  * @param {object} [options] - Optional parameters.
  * @param {number} [options.neighbors=20] - Number of neighbors to use for quantifying variation.
  * Larger values provide a more stable calculation but assume larger subpopulations.
- * @param {?Array} [options.indices=null] - Array of {@linkplain NeighborSearchIndex} objects, 
+ * @param {?Array} [options.indices=null] - Array of {@linkplain BuildNeighborSearchIndexResults} objects, 
  * where each entry is constructed from the corresponding entry of `embeddings` (see {@linkcode buildNeighborSearchIndex}).
  * This can be used to avoid redundant calculation of indices if they are already available.
  * @param {?Float64WasmArray} [options.buffer=null] - Array in which to store the combined embedding.

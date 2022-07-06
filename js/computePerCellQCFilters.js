@@ -6,7 +6,7 @@ import * as internal from "./internal/computePerCellQcFilters.js";
  * Wrapper class for the filtering results, produced by {@linkcode computePerCellQCFilters}.
  * @hideconstructor
  */
-export class PerCellQCFilters {
+export class PerCellQCFiltersResults {
     constructor(raw) {
         this.results = raw;
         return;
@@ -115,7 +115,7 @@ export class PerCellQCFilters {
  * This is used to segregate cells in order to compute filters within each block.
  * Alternatively, this may be `null`, in which case all cells are assumed to be in the same block.
  *
- * @return {PerCellQCFilters} Object containing the filtering results.
+ * @return {PerCellQCFiltersResults} Object containing the filtering results.
  */
 export function computePerCellQCFilters(metrics, { numberOfMADs = 3, block = null } = {}) {
     return internal.computePerCellQcFilters(
@@ -123,6 +123,6 @@ export function computePerCellQCFilters(metrics, { numberOfMADs = 3, block = nul
         block,
         x => x.sums().length,
         (x, use_blocks, bptr) => wasm.call(module => module.per_cell_qc_filters(x.results, use_blocks, bptr, numberOfMADs)),
-        raw => new PerCellQCFilters(raw)
+        raw => new PerCellQCFiltersResults(raw)
     );
 }

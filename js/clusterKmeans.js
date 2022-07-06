@@ -1,12 +1,12 @@
 import * as wasm from "./wasm.js";
 import * as utils from "./utils.js";
-import { PCAResults } from "./runPCA.js";
+import { RunPCAResults } from "./runPCA.js";
 
 /**
  * Wrapper around the k-means clustering results on the Wasm heap, produced by {@linkcode clusterKmeans}.
  * @hideconstructor
  */
-export class KmeansClusters {
+export class ClusterKmeansResults {
     constructor(raw) {
         this.results = raw;
         return;
@@ -97,9 +97,9 @@ export class KmeansClusters {
 /**
  * Cluster cells using k-means.
  *
-* @param {(PCAResults|Float64WasmArray|Array|TypedArray)} x - Numeric coordinates of each cell in the dataset.
+* @param {(RunPCAResults|Float64WasmArray|Array|TypedArray)} x - Numeric coordinates of each cell in the dataset.
  * For array inputs, this is expected to be in column-major format where the rows are the variables and the columns are the cells.
- * For a {@linkplain PCAResults} input, we extract the principal components.
+ * For a {@linkplain RunPCAResults} input, we extract the principal components.
  * @param clusters Number of clusters to create.
  * This should not be greater than the number of cells.
  * @param {object} [options] - Optional parameters.
@@ -115,7 +115,7 @@ export class KmeansClusters {
  * @param {number} [options.initPCASizeAdjust=1] - Adjustment factor for the cluster sizes, used when `initMethod = "pca-part"`.
  * Larger values (up to 1) will prioritize partitioning of clusters with more cells.
  *
- * @return {KmeansClusters} Object containing the clustering results.
+ * @return {ClusterKmeansResults} Object containing the clustering results.
  */
 export function clusterKmeans(x, clusters, { numberOfDims = null, numberOfCells = null, initMethod = "pca-part", initSeed = 5768, initPCASizeAdjust = 1 } = {}) {
     var buffer;
@@ -125,7 +125,7 @@ export function clusterKmeans(x, clusters, { numberOfDims = null, numberOfCells 
     try {
         let pptr;
 
-        if (x instanceof PCAResults) {
+        if (x instanceof RunPCAResults) {
             numberOfDims = x.numberOfPCs();
             numberOfCells = x.numberOfCells();
             let pcs = x.principalComponents({ copy: false });
@@ -145,7 +145,7 @@ export function clusterKmeans(x, clusters, { numberOfDims = null, numberOfCells 
         }
 
         raw = wasm.call(module => module.cluster_kmeans(pptr, numberOfDims, numberOfCells, clusters, initMethod, initSeed, initPCASizeAdjust));
-        output = new KmeansClusters(raw);
+        output = new ClusterKmeansResults(raw);
 
     } catch (e) {
         utils.free(raw);

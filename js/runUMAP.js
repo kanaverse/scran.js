@@ -1,12 +1,12 @@
 import * as utils from "./utils.js";
 import * as wasm from "./wasm.js";
-import { NeighborSearchIndex, findNearestNeighbors } from "./findNearestNeighbors.js";
+import { BuildNeighborSearchIndexResults, findNearestNeighbors } from "./findNearestNeighbors.js";
 
 /**
  * Wrapper around the UMAP status object on the Wasm heap, typically created by {@linkcode initializeUMAP}.
  * @hideconstructor
  */
-export class UMAPStatus {
+export class InitializeUMAPResults {
     constructor(raw_status, raw_coordinates) {
         this.status = raw_status;
         this.coordinates = raw_coordinates;
@@ -14,10 +14,10 @@ export class UMAPStatus {
     }
 
     /**
-     * @return {UMAPStatus} A deep copy of the status object.
+     * @return {InitializeUMAPResults} A deep copy of the status object.
      */
     clone() {
-        return new UMAPStatus(this.status.deepcopy(), this.coordinates.clone());
+        return new InitializeUMAPResults(this.status.deepcopy(), this.coordinates.clone());
     }
 
     /**
@@ -29,7 +29,7 @@ export class UMAPStatus {
 
     /**
      * @return {number} Number of epochs processed so far.
-     * This changes with repeated invocations of {@linkcode runUMAP}, up to the maximum in {@linkcode UMAPStatus#totalEpochs totalEpochs}.
+     * This changes with repeated invocations of {@linkcode runUMAP}, up to the maximum in {@linkcode InitializeUMAPResults#totalEpochs totalEpochs}.
      */
     currentEpoch() {
         return this.status.epoch();
@@ -69,16 +69,16 @@ export class UMAPStatus {
 }
 
 /**
- * @param {(NeighborSearchIndex|NeighborSearchResults)} x 
+ * @param {(BuildNeighborSearchIndexResults|FindNearestNeighborsResults)} x 
  * Either a pre-built neighbor search index for the dataset (see {@linkcode buildNeighborSearchIndex}),
  * or a pre-computed set of neighbor search results for all cells (see {@linkcode findNearestNeighbors}).
  * @param {object} [options] - Optional parameters.
  * @param {number} [options.neighbors=15] - Number of neighbors to use in the UMAP algorithm.
- * Ignored if `x` is a {@linkplain NeighborSearchResults} object.
+ * Ignored if `x` is a {@linkplain FindNearestNeighborsResults} object.
  * @param {number} [options.epochs=500] - Number of epochs to run the UMAP algorithm.
  * @param {number} [options.minDist=0.01] - Minimum distance between points in the UMAP algorithm.
  *
- * @return {UMAPStatus} Object containing the initial status of the UMAP algorithm.
+ * @return {InitializeUMAPResults} Object containing the initial status of the UMAP algorithm.
  */
 export function initializeUMAP(x, { neighbors = 15, epochs = 500, minDist = 0.01 } = {}) {
     var my_neighbors;
@@ -89,7 +89,7 @@ export function initializeUMAP(x, { neighbors = 15, epochs = 500, minDist = 0.01
     try {
         let nnres;
 
-        if (x instanceof NeighborSearchIndex) {
+        if (x instanceof BuildNeighborSearchIndexResults) {
             my_neighbors = findNearestNeighbors(x, neighbors);
             nnres = my_neighbors;
         } else {
@@ -98,7 +98,7 @@ export function initializeUMAP(x, { neighbors = 15, epochs = 500, minDist = 0.01
 
         raw_coords = utils.createFloat64WasmArray(2 * nnres.numberOfCells());
         raw_status = wasm.call(module => module.initialize_umap(nnres.results, epochs, minDist, raw_coords.offset));
-        output = new UMAPStatus(raw_status, raw_coords);
+        output = new InitializeUMAPResults(raw_status, raw_coords);
 
     } catch(e) {
         utils.free(raw_status);
@@ -113,9 +113,9 @@ export function initializeUMAP(x, { neighbors = 15, epochs = 500, minDist = 0.01
 }
 
 /**
- * Run the UMAP algorithm on an initialized {@linkplain UMAPStatus}.
+ * Run the UMAP algorithm on an initialized {@linkplain InitializeUMAPResults}.
  *
- * @param {UMAPStatus} x A previously initialized status object from {@linkcode initializeUMAP}.
+ * @param {InitializeUMAPResults} x A previously initialized status object from {@linkcode initializeUMAP}.
  * This may be passed through {@linkcode runUMAP} any number of times.
  * @param {object} [options] - Optional parameters.
  * @param {?number} [options.runTime=null] - Number of milliseconds for which the algorithm is allowed to run before returning.

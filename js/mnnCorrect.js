@@ -6,8 +6,8 @@ import * as wasm from "./wasm.js";
  * Perform mutual nearest neighbor (MNN) correction on a low-dimensional representation.
  * This is primarily used to remove batch effects.
  *
- * @param {(PCAResults|TypedArray|Array|Float64WasmArray)} x - A matrix of low-dimensional results where rows are dimensions and columns are cells.
- * If this is a {@linkplain PCAResults} object, the PCs are automatically extracted.
+ * @param {(RunPCAResults|TypedArray|Array|Float64WasmArray)} x - A matrix of low-dimensional results where rows are dimensions and columns are cells.
+ * If this is a {@linkplain RunPCAResults} object, the PCs are automatically extracted.
  * Otherwise, the matrix should be provided as an array in column-major form, with specification of `numberOfDims` and `numberOfCells`.
  * @param {(Int32WasmArray|Array|TypedArray)} block - Array containing the block assignment for each cell.
  * This should have length equal to the number of cells and contain all values from 0 to `n - 1` at least once, where `n` is the number of blocks.
@@ -51,7 +51,7 @@ export function mnnCorrect(x, block, {
     let block_data;
 
     try {
-        if (x instanceof pca.PCAResults) {
+        if (x instanceof pca.RunPCAResults) {
             numberOfDims = x.numberOfPCs();
             numberOfCells = x.numberOfCells();
             x = x.principalComponents({ copy: "view" });

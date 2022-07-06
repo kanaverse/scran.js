@@ -1,13 +1,13 @@
 import * as wasm from "./wasm.js";
 import * as utils from "./utils.js";
-import { PerCellQCFilters } from "./computePerCellQCFilters.js";
+import { PerCellQCFiltersResults } from "./computePerCellQCFilters.js";
 
 /**
  * Filter out low-quality cells.
  *
  * @param {ScranMatrix} x The count matrix.
- * @param {(PerCellQCFilters|Uint8WasmArray|Array|TypedArray)} filters 
- * If a {@linkplain PerCellQCFilters} object is supplied, the overall filter (in `filters.discard_overall()`) is used.
+ * @param {(PerCellQCFiltersResults|Uint8WasmArray|Array|TypedArray)} filters 
+ * If a {@linkplain PerCellQCFiltersResults} object is supplied, the overall filter (in `filters.discard_overall()`) is used.
  *
  * Otherwise, an array of length equal to the number of columns in `x` should be supplied,
  * where truthy elements specify the cells to be discarded.
@@ -21,7 +21,7 @@ export function filterCells(x, filters) {
 
     try {
         var ptr;
-        if (filters instanceof PerCellQCFilters) {
+        if (filters instanceof PerCellQCFiltersResults) {
             var tmp = filters.discardOverall({ copy: false });
             ptr = tmp.byteOffset;
         } else {

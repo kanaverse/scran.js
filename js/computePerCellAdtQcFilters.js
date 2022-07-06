@@ -6,7 +6,7 @@ import * as internal from "./internal/computePerCellQcFilters.js";
  * Wrapper class for the ADT-based QC filtering results, produced by {@linkcode computePerCellAdtQcFilters}.
  * @hideconstructor
  */
-export class PerCellAdtQcFilters {
+export class PerCellAdtQcFiltersResults {
     constructor(raw) {
         this.results = raw;
         return;
@@ -97,7 +97,7 @@ export class PerCellAdtQcFilters {
  * This is used to segregate cells in order to compute filters within each block.
  * Alternatively, this may be `null`, in which case all cells are assumed to be in the same block.
  *
- * @return {PerCellAdtQcFilters} Object containing the filtering results.
+ * @return {PerCellAdtQcFiltersResults} Object containing the filtering results.
  */
 export function computePerCellAdtQcFilters(metrics, { numberOfMADs = 3, minDetectedDrop = 0.1, block = null } = {}) {
     return internal.computePerCellQcFilters(
@@ -105,6 +105,6 @@ export function computePerCellAdtQcFilters(metrics, { numberOfMADs = 3, minDetec
         block,
         x => x.detected().length,
         (x, use_blocks, bptr) => wasm.call(module => module.per_cell_adt_qc_filters(x.results, use_blocks, bptr, numberOfMADs, minDetectedDrop)),
-        raw => new PerCellAdtQcFilters(raw)
+        raw => new PerCellAdtQcFiltersResults(raw)
     );
 }

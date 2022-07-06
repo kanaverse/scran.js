@@ -1,12 +1,12 @@
 import * as utils from "./utils.js";
 import * as wasm from "./wasm.js";
-import { PCAResults } from "./runPCA.js";
+import { RunPCAResults } from "./runPCA.js";
 
 /** 
  * Wrapper for the neighbor search index on the Wasm heap, typically produced by {@linkcode buildNeighborSearchIndex}.
  * @hideconstructor
  */
-export class NeighborSearchIndex {
+export class BuildNeighborSearchIndexResults {
     constructor(raw) {
         this.index = raw;
         return;
@@ -42,9 +42,9 @@ export class NeighborSearchIndex {
 /**
  * Build the nearest neighbor search index.
  *
- * @param {(PCAResults|Float64WasmArray|Array|TypedArray)} x - Numeric coordinates of each cell in the dataset.
+ * @param {(RunPCAResults|Float64WasmArray|Array|TypedArray)} x - Numeric coordinates of each cell in the dataset.
  * For array inputs, this is expected to be in column-major format where the rows are the variables and the columns are the cells.
- * For a {@linkplain PCAResults} input, we extract the principal components.
+ * For a {@linkplain RunPCAResults} input, we extract the principal components.
  * @param {object} [options] - Optional parameters.
  * @param {number} [options.numberOfDims=null] - Number of variables/dimensions per cell.
  * Only used (and required) for array-like `x`.
@@ -52,7 +52,7 @@ export class NeighborSearchIndex {
  * Only used (and required) for array-like `x`.
  * @param {boolean} [options.approximate=true] - Whether to build an index for an approximate neighbor search.
  *
- * @return {NeighborSearchIndex} Index object to use for neighbor searches.
+ * @return {BuildNeighborSearchIndexResults} Index object to use for neighbor searches.
  */
 export function buildNeighborSearchIndex(x, { numberOfDims = null, numberOfCells = null, approximate = true } = {}) {
     var buffer;
@@ -62,7 +62,7 @@ export function buildNeighborSearchIndex(x, { numberOfDims = null, numberOfCells
     try {
         let pptr;
 
-        if (x instanceof PCAResults) {
+        if (x instanceof RunPCAResults) {
             numberOfDims = x.numberOfPCs();
             numberOfCells = x.numberOfCells();
             let pcs = x.principalComponents({ copy: false });
@@ -82,7 +82,7 @@ export function buildNeighborSearchIndex(x, { numberOfDims = null, numberOfCells
         }
 
         raw = wasm.call(module => module.build_neighbor_index(pptr, numberOfDims, numberOfCells, approximate)); 
-        output = new NeighborSearchIndex(raw);
+        output = new BuildNeighborSearchIndexResults(raw);
 
     } catch (e) {
         utils.free(raw);
@@ -99,7 +99,7 @@ export function buildNeighborSearchIndex(x, { numberOfDims = null, numberOfCells
  * Wrapper for the neighbor search results on the Wasm heap, typically produced by {@linkcode findNearestNeighbors}.
  * @hideconstructor
  */
-export class NeighborSearchResults {
+export class FindNearestNeighborsResults {
     constructor(raw) {
         this.results = raw;
         return;
@@ -180,7 +180,7 @@ export class NeighborSearchResults {
      * @param {Float64WasmArray|Array|TypedArray} indices An array of length equal to `size()`,
      * containing the distances to the neighbors of each cell.
      *
-     * @return {NeighborSearchResults} Object containing the unserialized search results.
+     * @return {FindNearestNeighborsResults} Object containing the unserialized search results.
      */
     static unserialize(runs, indices, distances) {
         var raw;
@@ -194,7 +194,7 @@ export class NeighborSearchResults {
             ind_data = utils.wasmifyArray(indices, "Int32WasmArray");
             dist_data = utils.wasmifyArray(distances, "Float64WasmArray");
             raw = wasm.call(module => new module.NeighborResults(runs.length, run_data.offset, ind_data.offset, dist_data.offset));
-            output = new NeighborSearchResults(raw);
+            output = new FindNearestNeighborsResults(raw);
         } catch (e) {
             utils.free(raw);
             throw e;
@@ -226,7 +226,7 @@ export class NeighborSearchResults {
  * @param {NeighborSearchIndex} x The neighbor search index built by {@linkcode buildNeighborSearchIndex}.
  * @param {number} k Number of neighbors to find.
  *
- * @return {NeighborSearchResults} Object containing the search results.
+ * @return {FindNearestNeighborsResults} Object containing the search results.
  */
 export function findNearestNeighbors(x, k) {
     var raw;
@@ -234,7 +234,7 @@ export function findNearestNeighbors(x, k) {
 
     try {
         raw = wasm.call(module => module.find_nearest_neighbors(x.index, k));
-        output = new NeighborSearchResults(raw);
+        output = new FindNearestNeighborsResults(raw);
     } catch (e) {
         utils.free(raw);
         throw e;

@@ -1,12 +1,12 @@
 import * as wasm from "./wasm.js";
 import * as utils from "./utils.js";
-import { NeighborSearchResults, findNearestNeighbors } from "./findNearestNeighbors.js";
+import { FindNearestNeighborsResults, findNearestNeighbors } from "./findNearestNeighbors.js";
 
 /**
  * Wrapper around the SNN graph object on the Wasm heap, produced by {@linkcode buildSNNGraph}.
  * @hideconstructor
  */
-export class SNNGraph {
+export class BuildSNNGraphResults {
     constructor(raw) {
         this.graph = raw;
         return;
@@ -28,7 +28,7 @@ export class SNNGraph {
 /**
  * Build a shared nearest graph.
  *
- * @param {(NeighborSearchIndex|NeighborSearchResults)} x 
+ * @param {(BuildNeighborSearchIndexResults|FindNearestNeighborsResults)} x 
  * Either a pre-built neighbor search index for the dataset (see {@linkcode buildNeighborSearchIndex}),
  * or a pre-computed set of neighbor search results for all cells (see {@linkcode findNearestNeighbors}).
  * @param {object} [options] - Optional parameters.
@@ -37,9 +37,9 @@ export class SNNGraph {
  * the number of shared neighbors (`"number"`) 
  * or the Jaccard index of the neighbor sets between cells (`"jaccard"`).
  * @param {number} [options.neighbors=10] - Number of nearest neighbors to use to construct the graph.
- * Ignored if `x` is a {@linkplain NeighborSearchResults} object.
+ * Ignored if `x` is a {@linkplain FindNearestNeighborsResults} object.
  *
- * @return {SNNGraph} Object containing the graph.
+ * @return {BuildSNNGraphResults} Object containing the graph.
  */
 export function buildSNNGraph(x, { scheme = "rank", neighbors = 10 } = {}) {
     var raw;
@@ -53,7 +53,7 @@ export function buildSNNGraph(x, { scheme = "rank", neighbors = 10 } = {}) {
 
     try {
         let ref;
-        if (x instanceof NeighborSearchResults) {
+        if (x instanceof FindNearestNeighborsResults) {
             ref = x;
         } else {
             my_neighbors = findNearestNeighbors(x, neighbors); 
@@ -61,7 +61,7 @@ export function buildSNNGraph(x, { scheme = "rank", neighbors = 10 } = {}) {
         }
 
         raw = wasm.call(module => module.build_snn_graph(ref.results, scheme));
-        output = new SNNGraph(raw);
+        output = new BuildSNNGraphResults(raw);
 
     } catch(e) {
         utils.free(raw);
@@ -78,7 +78,7 @@ export function buildSNNGraph(x, { scheme = "rank", neighbors = 10 } = {}) {
  * Wrapper around the SNN multi-level clustering results on the Wasm heap, produced by {@linkcode clusterSNNGraph}.
  * @hideconstructor
  */
-export class SNNGraphMultiLevelClusters {
+export class ClusterSNNGraphMultiLevelResults {
     constructor(raw) {
         this.results = raw;
         return;
@@ -101,7 +101,7 @@ export class SNNGraphMultiLevelClusters {
     /**
      * @param {object} [options] - Optional parameters.
      * @param {?number} [options.level=null] - The clustering level for which to obtain the modularity.
-     * Defaults to the best clustering level from {@linkcode SNNGraphMultiLevelClusters#best best}.
+     * Defaults to the best clustering level from {@linkcode ClusterSNNGraphMultiLevelResults#best best}.
      *
      * @return {number} The modularity at the specified level.
      */
@@ -115,7 +115,7 @@ export class SNNGraphMultiLevelClusters {
     /**
      * @param {object} [options] - Optional parameters.
      * @param {?number} [options.level=null] - The clustering level for which to obtain the cluster membership.
-     * Defaults to the best clustering level from {@linkcode SNNGraphMultiLevelClusters#best best}.
+     * Defaults to the best clustering level from {@linkcode ClusterSNNGraphMultiLevelResults#best best}.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      *
      * @return {Int32Array|Int32WasmArray} Array containing the cluster membership for each cell.
@@ -144,7 +144,7 @@ export class SNNGraphMultiLevelClusters {
  * Wrapper around the SNN walktrap clustering results on the Wasm heap, produced by {@linkcode clusterSNNGraph}.
  * @hideconstructor
  */
-export class SNNGraphWalktrapClusters {
+export class ClusterSNNGraphWalktrapResults {
     constructor(raw) {
         this.results = raw;
         return;
@@ -183,7 +183,7 @@ export class SNNGraphWalktrapClusters {
  * Wrapper around the SNN Leiden clustering results on the Wasm heap, produced by {@linkcode clusterSNNGraph}.
  * @hideconstructor
  */
-export class SNNGraphLeidenClusters {
+export class ClusterSNNGraphLeidenResults {
     constructor(raw) {
         this.results = raw;
         return;
@@ -224,7 +224,7 @@ export class SNNGraphLeidenClusters {
 /**
  * Cluster cells using community detection on the SNN graph.
  *
- * @param {SNNGraph} x - The shared nearest neighbor graph constructed by {@linkcode buildSNNGraph}.
+ * @param {BuildSNNGraphResults} x - The shared nearest neighbor graph constructed by {@linkcode buildSNNGraph}.
  * @param {object} [options] - Optional parameters.
  * @param {string} [options.method="multilevel"] - Community detection method to use.
  * This should be one of `"multilevel"`, `"walktrap"` or `"leiden"`.
@@ -232,7 +232,7 @@ export class SNNGraphLeidenClusters {
  * Larger values result in more fine-grained clusters.
  * @param {number} [options.walktrapSteps=4] - Number of steps for the Walktrap algorithm.
  *
- * @return {SNNGraphMultiLevelClusters|SNNGraphWalktrapClusters|SNNGraphLeidenClusters} Object containing the clustering results.
+ * @return {ClusterSNNGraphMultiLevelResults|ClusterSNNGraphWalktrapResults|ClusterSNNGraphLeidenResults} Object containing the clustering results.
  * The class of this object depends on the choice of `method`.
  */
 export function clusterSNNGraph(x, { method = "multilevel", resolution = 1, walktrapSteps = 4 } = {}) {
@@ -242,13 +242,13 @@ export function clusterSNNGraph(x, { method = "multilevel", resolution = 1, walk
     try {
         if (method == "multilevel") {
             raw = wasm.call(module => module.cluster_snn_graph_multilevel(x.graph, resolution));
-            output = new SNNGraphMultiLevelClusters(raw);
+            output = new ClusterSNNGraphMultiLevelResults(raw);
         } else if (method == "walktrap") {
             raw = wasm.call(module => module.cluster_snn_graph_walktrap(x.graph, walktrapSteps));
-            output = new SNNGraphWalktrapClusters(raw);
+            output = new ClusterSNNGraphWalktrapResults(raw);
         } else if (method == "leiden") {
             raw = wasm.call(module => module.cluster_snn_graph_leiden(x.graph, resolution));
-            output = new SNNGraphLeidenClusters(raw);
+            output = new ClusterSNNGraphLeidenResults(raw);
         } else {
             throw new Error("unknown method '" + method + "'")
         }

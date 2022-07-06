@@ -13,7 +13,7 @@ test("neighbor index building works with various inputs", () => {
 
     // Trying with the PCs.
     var index = scran.buildNeighborSearchIndex(pca);
-    expect(index instanceof scran.NeighborSearchIndex).toBe(true);
+    expect(index instanceof scran.BuildNeighborSearchIndexResults).toBe(true);
     expect(index.numberOfCells()).toBe(ncells);
 
     // Trying again with a buffer.
@@ -64,7 +64,7 @@ test("neighbor search works with serialization", () => {
     expect(dump.distances.length).toBe(ncells * k);
 
     // Reconstituting.
-    var res2 = scran.NeighborSearchResults.unserialize(dump.runs, dump.indices, dump.distances);
+    var res2 = scran.FindNearestNeighborsResults.unserialize(dump.runs, dump.indices, dump.distances);
     var dump2 = res2.serialize();
 
     expect(compare.equalArrays(dump.runs, dump2.runs)).toBe(true);

@@ -5,7 +5,7 @@ import * as utils from "./utils.js";
  * Wrapper for the PCA results on the Wasm heap, typically created by {@linkcode runPCA}.
  * @hideconstructor
  */
-export class PCAResults {
+export class RunPCAResults {
     constructor(raw) {
         this.results = raw;
         return;
@@ -90,7 +90,7 @@ export class PCAResults {
  *
  * This option is only used if `block` is not `null`.
  *
- * @return {PCAResults} Object containing the computed PCs.
+ * @return {RunPCAResults} Object containing the computed PCs.
  */
 export function runPCA(x, { features = null, numberOfPCs = 25, scale = false, block = null, blockMethod = "regress" } = {}) {
     var feat_data;
@@ -132,7 +132,7 @@ export function runPCA(x, { features = null, numberOfPCs = 25, scale = false, bl
                 throw new Error("unknown value '" + blockMethod + "' for 'blockMethod='");
             }
         }
-        output = new PCAResults(raw);
+        output = new RunPCAResults(raw);
 
     } catch (e) {
         utils.free(raw);
