@@ -13,13 +13,6 @@ export function release(id) {
 
 const finalizer = new FinalizationRegistry(release);
 
-export function wrap(raw, constructor, ...other){
-    let id = counter;
-    memories[id] = raw; 
-    counter++;
-    return new constructor(id, raw, ...other);
-}
-
 export function call(fun, constructor, ...other) {
     let raw = wasm.call(fun);
 

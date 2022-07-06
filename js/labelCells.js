@@ -243,8 +243,12 @@ function label_cells(x, expectedNumberOfFeatures, buffer, numberOfFeatures, numb
             // This will either create a cheap view, or it'll clone
             // 'x' into the appropriate memory space.
             matbuf = utils.wasmifyArray(x, null);
-            tempmat = wasm.call(module => module.initialize_dense_matrix(numberOfFeatures, numberOfCells, matbuf.offset, "Float64Array"));
-            target = tempmat;
+            tempmat = gc.call(
+                module => module.initialize_dense_matrix(numberOfFeatures, numberOfCells, matbuf.offset, "Float64Array"),
+                ScranMatrix
+            );
+            target = tempmat.matrix;
+
         } else {
             throw new Error("unknown type for 'x'");
         }
