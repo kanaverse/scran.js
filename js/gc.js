@@ -28,6 +28,7 @@ export function call(fun, constructor, ...other) {
         throw e;
     }
 
+    finalizer.register(output, id);
     return output;
 }
 
