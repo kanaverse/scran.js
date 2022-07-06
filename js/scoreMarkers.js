@@ -1,4 +1,4 @@
-import * as wasm from "./wasm.js";
+import * as gc from "./gc.js";
 import * as utils from "./utils.js";
 
 /**
@@ -6,8 +6,12 @@ import * as utils from "./utils.js";
  * @hideconstructor
  */
 export class ScoreMarkersResults {
-    constructor(raw) {
-        this.results = raw;
+    #id;
+    #results;
+
+    constructor(id, raw) {
+        this.#id = id;
+        this.#results = raw;
         return;
     }
 
@@ -15,14 +19,14 @@ export class ScoreMarkersResults {
      * @return {number} Number of blocks used to compute the results.
      */
     numberOfBlocks() {
-        return this.results.num_blocks();
+        return this.#results.num_blocks();
     }
 
     /**
      * @return {number} Number of groups in the results.
      */
     numberOfGroups() {
-        return this.results.num_groups();
+        return this.#results.num_groups();
     }
 
     /**
@@ -38,7 +42,7 @@ export class ScoreMarkersResults {
      * containing the mean expression for the requested group in the requested block.
      */
     means(group, { block = -1, copy = true } = {}) {
-        return utils.possibleCopy(this.results.means(group, block), copy);
+        return utils.possibleCopy(this.#results.means(group, block), copy);
     }
 
     /**
@@ -54,7 +58,7 @@ export class ScoreMarkersResults {
      * containing the proportion of cells with detectable expression for the requested group in the requested block.
      */
     detected(group, { block = -1, copy = true } = {}) {
-        return utils.possibleCopy(this.results.detected(group, block), copy);
+        return utils.possibleCopy(this.#results.detected(group, block), copy);
     }
 
     /**
@@ -69,7 +73,7 @@ export class ScoreMarkersResults {
      * containing the summarized Cohen's d for the comparisons between `group` and all other groups.
      */
     cohen(group, { summary = 1, copy = true } = {}) {
-        return utils.possibleCopy(this.results.cohen(group, summary), copy);
+        return utils.possibleCopy(this.#results.cohen(group, summary), copy);
     }
 
     /**
@@ -84,7 +88,7 @@ export class ScoreMarkersResults {
      * containing the summarized AUC for the comparisons between `group` and all other groups.
      */
     auc(group, { summary = 1, copy = true } = {}) {
-        return utils.possibleCopy(this.results.auc(group, summary), copy);
+        return utils.possibleCopy(this.#results.auc(group, summary), copy);
     }
 
     /**
@@ -99,7 +103,7 @@ export class ScoreMarkersResults {
      * containing the summarized log-fold change for the comparisons between `group` and all other groups.
      */
     lfc(group, { summary = 1, copy = true } = {}) {
-        return utils.possibleCopy(this.results.lfc(group, summary), copy);
+        return utils.possibleCopy(this.#results.lfc(group, summary), copy);
     }
 
     /**
@@ -114,7 +118,7 @@ export class ScoreMarkersResults {
      * containing the summarized delta-detected for the comparisons between `group` and all other groups.
      */
     deltaDetected(group, { summary = 1, copy = true } = {}) {
-        return utils.possibleCopy(this.results.delta_detected(group, summary), copy);
+        return utils.possibleCopy(this.#results.delta_detected(group, summary), copy);
     }
 
     /**
@@ -122,9 +126,9 @@ export class ScoreMarkersResults {
      * This invalidates this object and all references to it.
      */
     free() {
-        if (this.results !== null) {
-            this.results.delete();
-            this.results = null;
+        if (this.#results !== null) {
+            gc.release(this.#id);
+            this.#results = null;
         }
         return;
     }
@@ -145,7 +149,6 @@ export class ScoreMarkersResults {
  * @return {ScoreMarkersResults} Object containing the marker scoring results.
  */
 export function scoreMarkers(x, groups, { block = null } = {}) {
-    var raw;
     var output;
     var block_data;
     var group_data;
@@ -167,11 +170,13 @@ export function scoreMarkers(x, groups, { block = null } = {}) {
             bptr = block_data.offset;
         }
 
-        raw = wasm.call(module => module.score_markers(x.matrix, group_data.offset, use_blocks, bptr));
-        output = new ScoreMarkersResults(raw);
+        output = gc.call(
+            module => module.score_markers(x.matrix, group_data.offset, use_blocks, bptr),
+            ScoreMarkersResults
+        );
 
     } catch (e) {
-        utils.free(raw);
+        utils.free(output);
         throw e;
 
     } finally {

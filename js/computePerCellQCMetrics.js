@@ -1,4 +1,4 @@
-import * as wasm from "./wasm.js";
+import * as gc from "./gc.js";
 import * as utils from "./utils.js"; 
 import * as internal from "./internal/computePerCellQcMetrics.js";
 
@@ -7,9 +7,18 @@ import * as internal from "./internal/computePerCellQcMetrics.js";
  * @hideconstructor
  */
 export class PerCellQCMetricsResults {
-    constructor(raw) {
-        this.results = raw;
+    #id;
+    #results;
+
+    constructor(id, raw) {
+        this.#id = id;
+        this.#results = raw;
         return;
+    }
+
+    // Internal use only, not documented.
+    get results() {
+        return this.#results;
     }
 
     /**
@@ -19,7 +28,7 @@ export class PerCellQCMetricsResults {
      * @return {Float64Array|Float64WasmArray} Array containing the total count for each cell.
      */
     sums({ copy = true } = {}) {
-        return utils.possibleCopy(this.results.sums(), copy);
+        return utils.possibleCopy(this.#results.sums(), copy);
     }
 
     /**
@@ -29,7 +38,7 @@ export class PerCellQCMetricsResults {
      * @return {Int32Array|Int32WasmArray} Array containing the total number of detected genes for each cell.
      */
     detected({ copy = true } = {}) {
-        return utils.possibleCopy(this.results.detected(), copy);
+        return utils.possibleCopy(this.#results.detected(), copy);
     }
 
     /**
@@ -41,21 +50,21 @@ export class PerCellQCMetricsResults {
      * If {@linkcode PerCellQCMetrics#isProportion isProportion} is `false`, the total count of subset `i` is returned instead.
      */
     subsetProportions(i, { copy = true } = {}) {
-        return utils.possibleCopy(this.results.subset_proportions(i), copy);
+        return utils.possibleCopy(this.#results.subset_proportions(i), copy);
     }
 
     /**
      * @return {boolean} Whether the subset proportions were computed in {@linkcode computePerCellQCMetrics}.
      */
     isProportion() {
-        return this.results.is_proportion();
+        return this.#results.is_proportion();
     }
 
     /**
      * @return {number} Number of feature subsets in this object.
      */
     numberOfSubsets() {
-        return this.results.num_subsets();
+        return this.#results.num_subsets();
     }
 
     /**
@@ -63,9 +72,9 @@ export class PerCellQCMetricsResults {
      * This invalidates this object and all references to it.
      */
     free() {
-        if (this.results !== null) {
-            this.results.delete();
-            this.results = null;
+        if (this.#results !== null) {
+            gc.release(this.#id);
+            this.#results = null;
         }
         return;
     }
@@ -94,8 +103,10 @@ export function computePerCellQCMetrics(x, subsets, { subsetProportions = true }
     return internal.computePerCellQcMetrics(
         x, 
         subsets, 
-        (matrix, nsubsets, subset_offset) => wasm.call(module => module.per_cell_qc_metrics(matrix, nsubsets, subset_offset, subsetProportions)),
-        raw => new PerCellQCMetricsResults(raw)
+        (matrix, nsubsets, subset_offset) => gc.call(
+            module => module.per_cell_qc_metrics(matrix, nsubsets, subset_offset, subsetProportions),
+            PerCellQCMetricsResults
+        )
     );
 }
 
@@ -113,8 +124,8 @@ export function computePerCellQCMetrics(x, subsets, { subsetProportions = true }
  * @return {PerCellQCMetricsResults} Object with allocated memory to store QC metrics, but no actual values.
  */
 export function emptyPerCellQCMetricsResults(numberOfGenes, numberOfSubsets, { subsetProportions = true } = {}) {
-    return internal.emptyPerCellQcMetricsResults(
-        () => wasm.call(module => new module.PerCellQCMetrics_Results(numberOfGenes, numberOfSubsets, subsetProportions)),
-        raw => new PerCellQCMetricsResults(raw)
+    return gc.call(
+        module => new module.PerCellQCMetrics_Results(numberOfGenes, numberOfSubsets, subsetProportions),
+        PerCellQCMetricsResults
     );
 }

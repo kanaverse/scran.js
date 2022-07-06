@@ -1,4 +1,4 @@
-import * as wasm from "./wasm.js";
+import * as gc from "./gc.js";
 import * as utils from "./utils.js";
 import * as internal from "./internal/computePerCellQcFilters.js";
 
@@ -7,8 +7,12 @@ import * as internal from "./internal/computePerCellQcFilters.js";
  * @hideconstructor
  */
 export class PerCellAdtQcFiltersResults {
-    constructor(raw) {
-        this.results = raw;
+    #results;
+    #id;
+
+    constructor(id, raw) {
+        this.#id = id;
+        this.#results = raw;
         return;
     }
 
@@ -19,7 +23,7 @@ export class PerCellAdtQcFiltersResults {
      * @return {Uint8Array|Uint8WasmArray} Array indicating whether each cell was filtered out due to low numbers of detected ADT features.
      */
     discardDetected({ copy = true } = {}) {
-        return utils.possibleCopy(this.results.discard_detected(), copy);
+        return utils.possibleCopy(this.#results.discard_detected(), copy);
     }
 
     /**
@@ -30,7 +34,7 @@ export class PerCellAdtQcFiltersResults {
      * @return {Uint8Array|Uint8WasmArray} Array indicating whether each cell was filtered out due to high total counts for subset `i`.
      */
     discardSubsetTotals(i, { copy = true } = {}) {
-        return utils.possibleCopy(this.results.discard_subset_totals(i), copy);
+        return utils.possibleCopy(this.#results.discard_subset_totals(i), copy);
     }
 
     /**
@@ -40,7 +44,7 @@ export class PerCellAdtQcFiltersResults {
      * @return {Uint8Array|Uint8WasmArray} Array indicating whether each cell was filtered out for any reason.
      */
    discardOverall({ copy = true } = {}) {
-       return utils.possibleCopy(this.results.discard_overall(), copy);
+       return utils.possibleCopy(this.#results.discard_overall(), copy);
    }
 
     /**
@@ -50,7 +54,7 @@ export class PerCellAdtQcFiltersResults {
      * @return {Float64Array|Float64WasmArray} Array containing the filtering threshold on the number of detected features for each batch.
      */
     thresholdsDetected({ copy = true } = {}) {
-        return utils.possibleCopy(this.results.thresholds_detected(), copy);
+        return utils.possibleCopy(this.#results.thresholds_detected(), copy);
     }
 
     /**
@@ -61,14 +65,14 @@ export class PerCellAdtQcFiltersResults {
      * @return {Float64Array|Float64WasmArray} Array containing the filtering threshold on the total counts for subset `i` in each batch.
      */
     thresholdsSubsetTotals(i, { copy = true } = {}) {
-        return utils.possibleCopy(this.results.thresholds_subset_totals(i), copy);
+        return utils.possibleCopy(this.#results.thresholds_subset_totals(i), copy);
     }
 
     /**
      * @return {number} Number of feature subsets in this object.
      */
     numberOfSubsets() {
-        return this.results.num_subsets();
+        return this.#results.num_subsets();
     }
 
     /**
@@ -76,9 +80,9 @@ export class PerCellAdtQcFiltersResults {
      * This invalidates this object and all references to it.
      */
     free() {
-        if (this.results !== null) {
-            this.results.delete();
-            this.results = null;
+        if (this.#results !== null) {
+            gc.release(this.#id);
+            this.#results = null;
         }
         return;
     }
@@ -104,7 +108,9 @@ export function computePerCellAdtQcFilters(metrics, { numberOfMADs = 3, minDetec
         metrics, 
         block,
         x => x.detected().length,
-        (x, use_blocks, bptr) => wasm.call(module => module.per_cell_adt_qc_filters(x.results, use_blocks, bptr, numberOfMADs, minDetectedDrop)),
-        raw => new PerCellAdtQcFiltersResults(raw)
+        (x, use_blocks, bptr) => gc.call(
+            module => module.per_cell_adt_qc_filters(x.results, use_blocks, bptr, numberOfMADs, minDetectedDrop),
+            PerCellAdtQcFiltersResults
+        )
     );
 }

@@ -1,4 +1,4 @@
-import * as wasm from "./wasm.js";
+import * as gc from "./gc.js";
 import * as utils from "./utils.js"; 
 import { ScranMatrix } from "./ScranMatrix.js";
 
@@ -14,7 +14,6 @@ import { ScranMatrix } from "./ScranMatrix.js";
  */
 export function initializeSparseMatrixFromDenseArray(numberOfRows, numberOfColumns, values) {
     var val_data; 
-    var raw;
     var output;
 
     try {
@@ -23,19 +22,18 @@ export function initializeSparseMatrixFromDenseArray(numberOfRows, numberOfColum
             throw new Error("length of 'values' is not consistent with supplied dimensions");
         }
 
-        raw = wasm.call(module => 
-            module.initialize_sparse_matrix_from_dense_vector(
+        output = gc.call(
+            module => module.initialize_sparse_matrix_from_dense_vector(
                 numberOfRows, 
                 numberOfColumns, 
                 val_data.offset, 
                 val_data.constructor.className.replace("Wasm", "")
-            )
+            ),
+            ScranMatrix
         );
 
-        output = new ScranMatrix(raw); 
-
     } catch (e) {
-        utils.free(raw);
+        utils.free(output);
         throw e;
 
     } finally {
@@ -66,7 +64,6 @@ export function initializeSparseMatrixFromCompressedVectors(numberOfRows, number
     var val_data;
     var ind_data;
     var indp_data;
-    var raw;
     var output;
 
     try {
@@ -80,8 +77,8 @@ export function initializeSparseMatrixFromCompressedVectors(numberOfRows, number
             throw new Error("'pointers' does not have an appropriate length");
         }
 
-        raw = wasm.call(module => 
-            module.initialize_sparse_matrix(
+        output = gc.call(
+            module => module.initialize_sparse_matrix(
                 numberOfRows, 
                 numberOfColumns, 
                 val_data.length, 
@@ -92,13 +89,12 @@ export function initializeSparseMatrixFromCompressedVectors(numberOfRows, number
                 indp_data.offset, 
                 indp_data.constructor.className.replace("Wasm", ""), 
                 byColumn 
-            )
+            ),
+            ScranMatrix
         );
 
-        output = new ScranMatrix(raw);
-
     } catch (e) {
-        utils.free(raw);
+        utils.free(output);
         throw e;
 
     } finally {
@@ -123,7 +119,6 @@ export function initializeSparseMatrixFromCompressedVectors(numberOfRows, number
  */
 export function initializeSparseMatrixFromMatrixMarketBuffer(buffer, { compressed = null } = {}) {
     var buf_data;
-    var raw;
     var output;
 
     try {
@@ -133,11 +128,13 @@ export function initializeSparseMatrixFromMatrixMarketBuffer(buffer, { compresse
             compressed = (arr.length >= 3 && arr[0] == 0x1F && arr[1] == 0x8B && arr[2] == 0x08);
         }
         
-        raw = wasm.call(module => module.read_matrix_market(buf_data.offset, buf_data.length, compressed)); 
-        output = new ScranMatrix(raw);
+        output = gc.call(
+            module => module.read_matrix_market(buf_data.offset, buf_data.length, compressed),
+            ScranMatrix
+        );
 
     } catch(e) {
-        utils.free(raw);
+        utils.free(output);
         throw e;
 
     } finally {
@@ -159,18 +156,10 @@ export function initializeSparseMatrixFromMatrixMarketBuffer(buffer, { compresse
  * @return {ScranMatrix} A layered sparse matrix.
  */
 export function initializeSparseMatrixFromHDF5(file, name) {
-    var raw;
-    var output;
-
-    try {
-        raw = wasm.call(module => module.read_hdf5_matrix(file, name));
-        output = new ScranMatrix(raw);
-    } catch (e) {
-        utils.free(raw);
-        throw e;
-    }
-
-    return output;
+    return gc.call(
+        module => module.read_hdf5_matrix(file, name),
+        ScranMatrix
+    );
 }
 
 /**
@@ -185,19 +174,22 @@ export function initializeSparseMatrixFromHDF5(file, name) {
  */
 export function initializeDenseMatrixFromDenseArray(numberOfRows, numberOfColumns, values) {
     var tmp;
-    var raw;
     var output;
 
     try {
         tmp = utils.wasmifyArray(values, null);
-        raw = wasm.call(module => module.initialize_dense_matrix(
-            numberOfRows, 
-            numberOfColumns, 
-            tmp.offset, 
-            tmp.constructor.className.replace("Wasm", "")
-        ));
-
-        output = new ScranMatrix(raw);
+        output = gc.call(
+            module => module.initialize_dense_matrix(
+                numberOfRows, 
+                numberOfColumns, 
+                tmp.offset, 
+                tmp.constructor.className.replace("Wasm", "")
+            ),
+            ScranMatrix
+        );
+    } catch (e) {
+        utils.free(output);
+        throw e;
     } finally {
         utils.free(tmp);
     }

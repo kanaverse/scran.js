@@ -1,5 +1,5 @@
-import * as wasm from "./wasm.js";
 import * as utils from "./utils.js";
+import * as gc from "./gc.js";
 import { FindNearestNeighborsResults, findNearestNeighbors } from "./findNearestNeighbors.js";
 
 /**
@@ -7,8 +7,12 @@ import { FindNearestNeighborsResults, findNearestNeighbors } from "./findNearest
  * @hideconstructor
  */
 export class BuildSNNGraphResults {
-    constructor(raw) {
-        this.graph = raw;
+    #id;
+    #graph;
+
+    constructor(id, raw) {
+        this.#id = id;
+        this.#graph = raw;
         return;
     }
 
@@ -17,11 +21,16 @@ export class BuildSNNGraphResults {
      * This invalidates this object and all references to it.
      */
     free() {
-        if (this.graph !== null) {
-            this.graph.delete();
-            this.graph = null;
+        if (this.#graph !== null) {
+            gc.release(this.#id);
+            this.#graph = null;
         }
         return;
+    }
+
+    // Not documented, internal use only.
+    get graph() {
+        return this.#graph;
     }
 }
 
@@ -42,7 +51,6 @@ export class BuildSNNGraphResults {
  * @return {BuildSNNGraphResults} Object containing the graph.
  */
 export function buildSNNGraph(x, { scheme = "rank", neighbors = 10 } = {}) {
-    var raw;
     var output;
     var my_neighbors;
 
@@ -60,11 +68,13 @@ export function buildSNNGraph(x, { scheme = "rank", neighbors = 10 } = {}) {
             ref = my_neighbors ; // separate assignment is necessary for only 'my_neighbors' but not 'x' to be freed.
         }
 
-        raw = wasm.call(module => module.build_snn_graph(ref.results, scheme));
-        output = new BuildSNNGraphResults(raw);
+        output = gc.call(
+            module => module.build_snn_graph(ref.results, scheme),
+            BuildSNNGraphResults
+        );
 
     } catch(e) {
-        utils.free(raw);
+        utils.free(output);
         throw e;
 
     } finally {
@@ -79,8 +89,12 @@ export function buildSNNGraph(x, { scheme = "rank", neighbors = 10 } = {}) {
  * @hideconstructor
  */
 export class ClusterSNNGraphMultiLevelResults {
-    constructor(raw) {
-        this.results = raw;
+    #id;
+    #results;
+
+    constructor(id, raw) {
+        this.#id = id;
+        this.#results = raw;
         return;
     }
 
@@ -88,14 +102,14 @@ export class ClusterSNNGraphMultiLevelResults {
      * @return {number} The clustering level with the highest modularity.
      */
     best() {
-        return this.results.best();
+        return this.#results.best();
     }
 
     /**
      * @return {number} Number of levels in the results.
      */
     numberOfLevels() {
-        return this.results.number();
+        return this.#results.number();
     }
 
     /**
@@ -109,7 +123,7 @@ export class ClusterSNNGraphMultiLevelResults {
         if (level === null) {
             level = this.best();
         }
-        return this.results.modularity(level);
+        return this.#results.modularity(level);
     }
 
     /**
@@ -124,7 +138,7 @@ export class ClusterSNNGraphMultiLevelResults {
         if (level === null) {
             level = this.best();
         }
-        return utils.possibleCopy(this.results.membership(level), copy);
+        return utils.possibleCopy(this.#results.membership(level), copy);
     }
 
     /**
@@ -132,9 +146,9 @@ export class ClusterSNNGraphMultiLevelResults {
      * This invalidates this object and all references to it.
      */
     free() {
-        if (this.results !== null) {
-            this.results.delete();
-            this.results = null;
+        if (this.#results !== null) {
+            gc.release(this.#id);
+            this.#results = null;
         }
         return;
     }
@@ -145,8 +159,12 @@ export class ClusterSNNGraphMultiLevelResults {
  * @hideconstructor
  */
 export class ClusterSNNGraphWalktrapResults {
-    constructor(raw) {
-        this.results = raw;
+    #id;
+    #results;
+
+    constructor(id, raw) {
+        this.#id = id;
+        this.#results = raw;
         return;
     }
 
@@ -154,7 +172,7 @@ export class ClusterSNNGraphWalktrapResults {
      * @return {number} The maximum modularity across all merge steps.
      */
     modularity() {
-        return this.results.modularity();
+        return this.#results.modularity();
     }
 
     /**
@@ -163,7 +181,7 @@ export class ClusterSNNGraphWalktrapResults {
      * @return {Int32Array|Int32WasmArray} Array containing the cluster membership for each cell.
      */
     membership({ copy = true } = {}) {
-        return utils.possibleCopy(this.results.membership(), copy);
+        return utils.possibleCopy(this.#results.membership(), copy);
     }
 
     /**
@@ -171,9 +189,9 @@ export class ClusterSNNGraphWalktrapResults {
      * This invalidates this object and all references to it.
      */
     free() {
-        if (this.results !== null) {
-            this.results.delete();
-            this.results = null;
+        if (this.#results !== null) {
+            gc.release(this.#id);
+            this.#results = null;
         }
         return;
     }
@@ -184,8 +202,12 @@ export class ClusterSNNGraphWalktrapResults {
  * @hideconstructor
  */
 export class ClusterSNNGraphLeidenResults {
-    constructor(raw) {
-        this.results = raw;
+    #id;
+    #results;
+
+    constructor(id, raw) {
+        this.#id = id;
+        this.#results = raw;
         return;
     }
 
@@ -196,7 +218,7 @@ export class ClusterSNNGraphLeidenResults {
      * Nonetheless, we use `modularity` for consistency with the other SNN clustering result classes.
      */
     modularity() {
-        return this.results.modularity();
+        return this.#results.modularity();
     }
 
     /**
@@ -205,7 +227,7 @@ export class ClusterSNNGraphLeidenResults {
      * @return {Int32Array|Int32WasmArray} Array containing the cluster membership for each cell.
      */
     membership({ copy = true } = {}) {
-        return utils.possibleCopy(this.results.membership(), copy);
+        return utils.possibleCopy(this.#results.membership(), copy);
     }
 
     /**
@@ -213,9 +235,9 @@ export class ClusterSNNGraphLeidenResults {
      * This invalidates this object and all references to it.
      */
     free() {
-        if (this.results !== null) {
-            this.results.delete();
-            this.results = null;
+        if (this.#results !== null) {
+            gc.release(this.#id);
+            this.#results = null;
         }
         return;
     }
@@ -236,24 +258,29 @@ export class ClusterSNNGraphLeidenResults {
  * The class of this object depends on the choice of `method`.
  */
 export function clusterSNNGraph(x, { method = "multilevel", resolution = 1, walktrapSteps = 4 } = {}) {
-    var raw;
     var output;
 
     try {
         if (method == "multilevel") {
-            raw = wasm.call(module => module.cluster_snn_graph_multilevel(x.graph, resolution));
-            output = new ClusterSNNGraphMultiLevelResults(raw);
+            output = gc.call(
+                module => module.cluster_snn_graph_multilevel(x.graph, resolution),
+                ClusterSNNGraphMultiLevelResults
+            );
         } else if (method == "walktrap") {
-            raw = wasm.call(module => module.cluster_snn_graph_walktrap(x.graph, walktrapSteps));
-            output = new ClusterSNNGraphWalktrapResults(raw);
+            output = gc.call(
+                module => module.cluster_snn_graph_walktrap(x.graph, walktrapSteps),
+                ClusterSNNGraphWalktrapResults
+            );
         } else if (method == "leiden") {
-            raw = wasm.call(module => module.cluster_snn_graph_leiden(x.graph, resolution));
-            output = new ClusterSNNGraphLeidenResults(raw);
+            output = gc.call(
+                module => module.cluster_snn_graph_leiden(x.graph, resolution),
+                ClusterSNNGraphLeidenResults
+            );
         } else {
             throw new Error("unknown method '" + method + "'")
         }
     } catch (e) {
-        utils.free(raw);
+        utils.free(output);
         throw e;
     }
 

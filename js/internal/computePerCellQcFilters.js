@@ -1,8 +1,7 @@
 import * as utils from "./../utils.js";
 
-export function computePerCellQcFilters(metrics, block, length, run, create) {
+export function computePerCellQcFilters(metrics, block, length, run) {
     var block_data;
-    var raw;
     var output;
 
     try {
@@ -18,11 +17,10 @@ export function computePerCellQcFilters(metrics, block, length, run, create) {
             bptr = block_data.offset;
         }
 
-        raw = run(metrics, use_blocks, bptr);
-        output = create(raw);
+        output = run(metrics, use_blocks, bptr);
 
     } catch (e) {
-        utils.free(raw);
+        utils.free(output);
         throw e;
 
     } finally {

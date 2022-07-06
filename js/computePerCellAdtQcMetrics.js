@@ -1,4 +1,4 @@
-import * as wasm from "./wasm.js";
+import * as gc from "./gc.js";
 import * as utils from "./utils.js"; 
 import * as internal from "./internal/computePerCellQcMetrics.js";
 
@@ -7,9 +7,18 @@ import * as internal from "./internal/computePerCellQcMetrics.js";
  * @hideconstructor
  */
 export class PerCellAdtQcMetricsResults {
-    constructor(raw) {
-        this.results = raw;
+    #id;
+    #results;
+
+    constructor(id, raw) {
+        this.#id = id;
+        this.#results = raw;
         return;
+    }
+
+    // Internal use only, not documented.
+    get results() {
+        return this.#results;
     }
 
     /**
@@ -19,7 +28,7 @@ export class PerCellAdtQcMetricsResults {
      * @return {Float64Array|Float64WasmArray} Array containing the total ADT count for each cell.
      */
     sums({ copy = true } = {}) {
-        return utils.possibleCopy(this.results.sums(), copy);
+        return utils.possibleCopy(this.#results.sums(), copy);
     }
 
     /**
@@ -29,7 +38,7 @@ export class PerCellAdtQcMetricsResults {
      * @return {Int32Array|Int32WasmArray} Array containing the total number of detected ADT features for each cell.
      */
     detected({ copy = true } = {}) {
-        return utils.possibleCopy(this.results.detected(), copy);
+        return utils.possibleCopy(this.#results.detected(), copy);
     }
 
     /**
@@ -40,14 +49,14 @@ export class PerCellAdtQcMetricsResults {
      * @return {Float64Array|Float64WasmArray} Array containing the total count in the ADT subset `i` for each cell.
      */
     subsetTotals(i, { copy = true } = {}) {
-        return utils.possibleCopy(this.results.subset_totals(i), copy);
+        return utils.possibleCopy(this.#results.subset_totals(i), copy);
     }
 
     /**
      * @return {number} Number of feature subsets in this object.
      */
     numberOfSubsets() {
-        return this.results.num_subsets();
+        return this.#results.num_subsets();
     }
 
     /**
@@ -55,9 +64,9 @@ export class PerCellAdtQcMetricsResults {
      * This invalidates this object and all references to it.
      */
     free() {
-        if (this.results !== null) {
-            this.results.delete();
-            this.results = null;
+        if (this.#results !== null) {
+            gc.release(this.#id);
+            this.#results = null;
         }
         return;
     }
@@ -83,8 +92,10 @@ export function computePerCellAdtQcMetrics(x, subsets) {
     return internal.computePerCellQcMetrics(
         x, 
         subsets, 
-        (matrix, nsubsets, subset_offset) => wasm.call(module => module.per_cell_adt_qc_metrics(matrix, nsubsets, subset_offset)),
-        raw => new PerCellAdtQcMetricsResults(raw)
+        (matrix, nsubsets, subset_offset) => gc.call(
+            module => module.per_cell_adt_qc_metrics(matrix, nsubsets, subset_offset),
+            PerCellAdtQcMetricsResults
+        )
     );
 }
 
@@ -99,8 +110,8 @@ export function computePerCellAdtQcMetrics(x, subsets) {
  * @return {PerCellAdtQcMetricsResults} Object with allocated memory but no actual values.
  */
 export function emptyPerCellAdtQcMetricsResults(numberOfGenes, numberOfSubsets) {
-    return internal.emptyPerCellQcMetricsResults(
-        () => wasm.call(module => new module.PerCellAdtQcMetrics_Results(numberOfGenes, numberOfSubsets)),
-        raw => new PerCellAdtQcMetricsResults(raw)
+    return gc.call(
+        module => new module.PerCellAdtQcMetrics_Results(numberOfGenes, numberOfSubsets),
+        PerCellAdtQcMetricsResults
     );
 }

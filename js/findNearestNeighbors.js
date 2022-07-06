@@ -1,5 +1,5 @@
 import * as utils from "./utils.js";
-import * as wasm from "./wasm.js";
+import * as gc from "./gc.js";
 import { RunPCAResults } from "./runPCA.js";
 
 /** 
@@ -7,8 +7,12 @@ import { RunPCAResults } from "./runPCA.js";
  * @hideconstructor
  */
 export class BuildNeighborSearchIndexResults {
-    constructor(raw) {
-        this.index = raw;
+    #id;
+    #index; 
+
+    constructor(id, raw) {
+        this.#id = id;
+        this.#index = raw;
         return;
     }
 
@@ -16,14 +20,14 @@ export class BuildNeighborSearchIndexResults {
      * @return {number} Number of cells in the index.
      */
     numberOfCells() {
-        return this.index.num_obs();
+        return this.#index.num_obs();
     }
 
     /**
      * @return {number} Number of dimensions in the index.
      */
     numberOfDims() {
-        return this.index.num_dim();
+        return this.#index.num_dim();
     }
 
     /**
@@ -31,11 +35,16 @@ export class BuildNeighborSearchIndexResults {
      * This invalidates this object and all references to it.
      */
     free() {
-        if (this.index !== null) {
-            this.index.delete();
-            this.index = null;
+        if (this.#index !== null) {
+            gc.release(this.#id);
+            this.#index = null;
         }
         return;
+    }
+
+    // Internal only, not documented.
+    get index() {
+        return this.#index;
     }
 }
 
@@ -56,7 +65,6 @@ export class BuildNeighborSearchIndexResults {
  */
 export function buildNeighborSearchIndex(x, { numberOfDims = null, numberOfCells = null, approximate = true } = {}) {
     var buffer;
-    var raw;
     var output;
 
     try {
@@ -81,11 +89,13 @@ export function buildNeighborSearchIndex(x, { numberOfDims = null, numberOfCells
             pptr = buffer.offset;
         }
 
-        raw = wasm.call(module => module.build_neighbor_index(pptr, numberOfDims, numberOfCells, approximate)); 
-        output = new BuildNeighborSearchIndexResults(raw);
+        output = gc.call(
+            module => module.build_neighbor_index(pptr, numberOfDims, numberOfCells, approximate),
+            BuildNeighborSearchIndexResults
+        );
 
     } catch (e) {
-        utils.free(raw);
+        utils.free(output);
         throw e;
 
     } finally {
@@ -100,8 +110,12 @@ export function buildNeighborSearchIndex(x, { numberOfDims = null, numberOfCells
  * @hideconstructor
  */
 export class FindNearestNeighborsResults {
-    constructor(raw) {
-        this.results = raw;
+    #id;
+    #results;
+
+    constructor(id, raw) {
+        this.#id = id;
+        this.#results = raw;
         return;
     }
 
@@ -110,14 +124,19 @@ export class FindNearestNeighborsResults {
      * This is usually the product of the number of neighbors and the number of cells.
      */
     size() {
-        return this.results.size();
+        return this.#results.size();
     }
 
     /**
      * @return {number} The number of cells used in the search.
      */
     numberOfCells() {
-        return this.results.num_obs();
+        return this.#results.num_obs();
+    }
+
+    // Internal use only, not documented.
+    get results() {
+        return this.#results;
     }
 
     /**
@@ -153,7 +172,7 @@ export class FindNearestNeighborsResults {
                 let s = this.size();
                 ind_data = utils.createInt32WasmArray(s);
                 dist_data = utils.createFloat64WasmArray(s);
-                this.results.serialize(run_data.offset, ind_data.offset, dist_data.offset);
+                this.#results.serialize(run_data.offset, ind_data.offset, dist_data.offset);
 
                 output = { 
                     "runs": run_data.slice(), 
@@ -168,7 +187,7 @@ export class FindNearestNeighborsResults {
 
             return output;
         } else {
-            this.results.serialize(runs.offset, indices.offset, distances.offset);
+            this.#results.serialize(runs.offset, indices.offset, distances.offset);
         }
     }
 
@@ -183,7 +202,6 @@ export class FindNearestNeighborsResults {
      * @return {FindNearestNeighborsResults} Object containing the unserialized search results.
      */
     static unserialize(runs, indices, distances) {
-        var raw;
         var output;
         var run_data;
         var ind_data;
@@ -193,11 +211,15 @@ export class FindNearestNeighborsResults {
             run_data = utils.wasmifyArray(runs, "Int32WasmArray");
             ind_data = utils.wasmifyArray(indices, "Int32WasmArray");
             dist_data = utils.wasmifyArray(distances, "Float64WasmArray");
-            raw = wasm.call(module => new module.NeighborResults(runs.length, run_data.offset, ind_data.offset, dist_data.offset));
-            output = new FindNearestNeighborsResults(raw);
+            output = gc.call(
+                module => new module.NeighborResults(runs.length, run_data.offset, ind_data.offset, dist_data.offset),
+                FindNearestNeighborsResults
+            );
+
         } catch (e) {
-            utils.free(raw);
+            utils.free(output);
             throw e;
+
         } finally { 
             utils.free(run_data);
             utils.free(ind_data);
@@ -212,9 +234,9 @@ export class FindNearestNeighborsResults {
      * This invalidates this object and all references to it.
      */
     free() {
-        if (this.results !== null) {
-            this.results.delete();
-            this.results = null;
+        if (this.#results !== null) {
+            gc.release(this.#id);
+            this.#results = null;
         }
         return;
     }
@@ -229,16 +251,8 @@ export class FindNearestNeighborsResults {
  * @return {FindNearestNeighborsResults} Object containing the search results.
  */
 export function findNearestNeighbors(x, k) {
-    var raw;
-    var output;
-
-    try {
-        raw = wasm.call(module => module.find_nearest_neighbors(x.index, k));
-        output = new FindNearestNeighborsResults(raw);
-    } catch (e) {
-        utils.free(raw);
-        throw e;
-    }
-
-    return output;
+    return gc.call(
+        module => module.find_nearest_neighbors(x.index, k),
+        FindNearestNeighborsResults
+    );
 }

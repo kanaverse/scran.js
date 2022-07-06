@@ -1,5 +1,5 @@
-import * as wasm from "./wasm.js";
 import * as utils from "./utils.js";
+import * as gc from "./gc.js";
 import { RunPCAResults } from "./runPCA.js";
 
 /**
@@ -7,8 +7,12 @@ import { RunPCAResults } from "./runPCA.js";
  * @hideconstructor
  */
 export class ClusterKmeansResults {
-    constructor(raw) {
-        this.results = raw;
+    #id;
+    #results;
+
+    constructor(id, raw) {
+        this.#results = raw;
+        this.#id = id;
         return;
     }
 
@@ -16,14 +20,14 @@ export class ClusterKmeansResults {
      * @return {number} Number of cells in the results.
      */
     numberOfCells() {
-        return this.results.num_obs();
+        return this.#results.num_obs();
     }
 
     /**
      * @return {number} Number of clusters in the results.
      */
     numberOfClusters() {
-        return this.results.num_clusters();
+        return this.#results.num_clusters();
     }
 
     /**
@@ -33,7 +37,7 @@ export class ClusterKmeansResults {
      * @return {Int32Array|Int32WasmArray} Array containing the cluster assignment for each cell.
      */
     clusters({ copy = true } = {}) {
-        return utils.possibleCopy(this.results.clusters(), copy);
+        return utils.possibleCopy(this.#results.clusters(), copy);
     }
 
     /**
@@ -43,7 +47,7 @@ export class ClusterKmeansResults {
      * @return {Int32Array|Int32WasmArray} Array containing the number of cells in each cluster.
      */
     clusterSizes({ copy = true } = {}) {
-        return utils.possibleCopy(this.results.cluster_sizes(), copy);
+        return utils.possibleCopy(this.#results.cluster_sizes(), copy);
     }
 
     /**
@@ -53,7 +57,7 @@ export class ClusterKmeansResults {
      * @return {Float64Array|Float64WasmArray} Array containing the within-cluster sum of squares in each cluster.
      */
     withinClusterSumSquares({ copy = true } = {}) {
-        return utils.possibleCopy(this.results.wcss(), copy);
+        return utils.possibleCopy(this.#results.wcss(), copy);
     }
 
     /**
@@ -64,21 +68,21 @@ export class ClusterKmeansResults {
      * where rows are dimensions and columns are the clusters.
      */
     clusterCenters({ copy = true } = {}) {
-        return utils.possibleCopy(this.results.centers(), copy);
+        return utils.possibleCopy(this.#results.centers(), copy);
     }
 
     /**
      * @return {number} Number of refinement iterations performed by the algorithm.
      */
     iterations() {
-        return this.results.iterations();
+        return this.#results.iterations();
     }
 
     /**
      * @return {number} Status of the algorithm - anything other than zero usually indicates a problem with convergence.
      */
     status() {
-        return this.results.status();
+        return this.#results.status();
     }
 
     /**
@@ -86,9 +90,9 @@ export class ClusterKmeansResults {
      * This invalidates this object and all references to it.
      */
     free() {
-        if (this.results !== null) {
-            this.results.delete();
-            this.results = null;
+        if (this.#results !== null) {
+            gc.release(this.#id);
+            this.#results = null;
         }
         return;
     }
@@ -119,7 +123,6 @@ export class ClusterKmeansResults {
  */
 export function clusterKmeans(x, clusters, { numberOfDims = null, numberOfCells = null, initMethod = "pca-part", initSeed = 5768, initPCASizeAdjust = 1 } = {}) {
     var buffer;
-    var raw;
     var output;
 
     try {
@@ -144,11 +147,13 @@ export function clusterKmeans(x, clusters, { numberOfDims = null, numberOfCells 
             pptr = buffer.offset;
         }
 
-        raw = wasm.call(module => module.cluster_kmeans(pptr, numberOfDims, numberOfCells, clusters, initMethod, initSeed, initPCASizeAdjust));
-        output = new ClusterKmeansResults(raw);
+        output = gc.call(
+            module => module.cluster_kmeans(pptr, numberOfDims, numberOfCells, clusters, initMethod, initSeed, initPCASizeAdjust),
+            ClusterKmeansResults
+        );
 
     } catch (e) {
-        utils.free(raw);
+        utils.free(output);
         throw e;
 
     } finally {

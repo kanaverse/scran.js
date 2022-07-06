@@ -2,9 +2,8 @@ import * as wasm from "../wasm.js";
 import * as utils from "../utils.js"; 
 import * as wa from "wasmarrays.js";
 
-export function computePerCellQcMetrics(x, subsets, run, create) {
+export function computePerCellQcMetrics(x, subsets, run) {
     var output;
-    var raw;
     var tmp_subsets = [];
     var subset_offsets;
 
@@ -30,32 +29,18 @@ export function computePerCellQcMetrics(x, subsets, run, create) {
             }
         }
 
-        raw = run(x.matrix, nsubsets, offset_offset);
-        output = create(raw);
+        output = run(x.matrix, nsubsets, offset_offset);
+
     } catch (e) {
-        utils.free(raw);
+        utils.free(output);
+        throw e;
+
+    } finally {
         utils.free(subset_offsets);
         for (const y of tmp_subsets) {
             utils.free(y);
         }
-        throw e;
     }
 
     return output;
 }
-
-export function emptyPerCellQcMetricsResults(create1, create2) {
-    let raw;
-    let output;
-
-    try {
-        raw = create1();
-        output = create2(raw);
-    } catch (e) {
-        utils.free(raw);
-        throw e;
-    }
-
-    return output;
-}
-

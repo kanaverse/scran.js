@@ -1,3 +1,4 @@
+import * as gc from "./gc.js";
 import * as wasm from "./wasm.js";
 import * as utils from "./utils.js";
 import { ScranMatrix } from "./ScranMatrix.js";
@@ -8,30 +9,39 @@ import * as wa from "wasmarrays.js";
  * @hideconstructor
  */
 class LoadLabelledReferenceResults {
-    constructor(raw) {
-        this.reference = raw;
+    #id;
+    #reference;
+
+    constructor(id, raw) {
+        this.#id = id;
+        this.#reference = raw;
         return;
+    }
+
+    // Internal use only, not documented.
+    get reference() {
+        return this.#reference;
     }
 
     /**
      * @return {number} Number of samples in this dataset.
      */
     numberOfSamples() {
-        return this.reference.num_samples();
+        return this.#reference.num_samples();
     }
 
     /**
      * @return {number} Number of features in this dataset.
      */
     numberOfFeatures() {
-        return this.reference.num_features();
+        return this.#reference.num_features();
     }
 
     /**
      * @return {number} Number of labels in this dataset.
      */
     numberOfLabels() {
-        return this.reference.num_labels();
+        return this.#reference.num_labels();
     }
 
     /**
@@ -39,9 +49,9 @@ class LoadLabelledReferenceResults {
      * This invalidates this object and all references to it.
      */
     free() {
-        if (this.reference !== null) {
-            this.reference.delete();
-            this.reference = null;
+        if (this.#reference !== null) {
+            gc.release(this.#id);
+            this.#reference = null;
         }
     }
 }
@@ -67,7 +77,6 @@ class LoadLabelledReferenceResults {
  * @return {LoadLabelledReferenceResults} Object containing the reference dataset.
  */
 export function loadLabelledReferenceFromBuffers(ranks, markers, labels) {
-    var raw;
     var output;
     var matbuf;
     var markbuf;
@@ -77,11 +86,15 @@ export function loadLabelledReferenceFromBuffers(ranks, markers, labels) {
         matbuf = utils.wasmifyArray(ranks, "Uint8WasmArray");
         markbuf = utils.wasmifyArray(markers, "Uint8WasmArray");
         labbuf = utils.wasmifyArray(labels, "Uint8WasmArray");
-        raw = wasm.call(module => module.load_singlepp_reference(labbuf.offset, labbuf.length, markbuf.offset, markbuf.length, matbuf.offset, matbuf.length));
-        output = new LoadLabelledReferenceResults(raw);
+        output = gc.call(
+            module => module.load_singlepp_reference(labbuf.offset, labbuf.length, markbuf.offset, markbuf.length, matbuf.offset, matbuf.length),
+            LoadLabelledReferenceResults
+        );
+
     } catch (e) {
-        utils.free(raw);
+        utils.free(output);
         throw e;
+
     } finally {
         utils.free(matbuf);
         utils.free(markbuf);
@@ -96,16 +109,25 @@ export function loadLabelledReferenceFromBuffers(ranks, markers, labels) {
  * @hideconstructor
  */
 class BuildLabelledReferenceResults {
-    constructor(raw) {
-        this.reference = raw;
+    #id;
+    #reference;
+
+    constructor(id, raw) {
+        this.#id = id;
+        this.#reference = raw;
         return;
+    }
+
+    // internal use only.
+    get reference() {
+        return this.#reference;
     }
 
     /**
      * @return {number} Number of shared features between the test and reference datasets.
      */
     sharedFeatures() {
-        return this.reference.shared_features();
+        return this.#reference.shared_features();
     }
 
     /**
@@ -113,9 +135,9 @@ class BuildLabelledReferenceResults {
      * This invalidates this object and all references to it.
      */
     free() {
-        if (this.reference !== null) {
-            this.reference.delete();
-            this.reference = null;
+        if (this.#reference !== null) {
+            gc.release(this.#id);
+            this.#reference = null;
         }
     }
 }
@@ -170,7 +192,6 @@ function convert_reference_features(referenceFeatures, available, ref_id_buffer)
 export function buildLabelledReference(features, loaded, referenceFeatures, { top = 20 } = {}) {
     var mat_id_buffer;
     var ref_id_buffer;
-    var raw;
     var output;
 
     try {
@@ -184,12 +205,15 @@ export function buildLabelledReference(features, loaded, referenceFeatures, { to
         let available = create_feature_availability(features, mat_id_buffer);
         convert_reference_features(referenceFeatures, available, ref_id_buffer);
 
-        raw = wasm.call(module => module.build_singlepp_reference(nfeat, mat_id_buffer.offset, loaded.reference, ref_id_buffer.offset, top));
-        output = new BuildLabelledReferenceResults(raw);
+        output = gc.call(
+            module => module.build_singlepp_reference(nfeat, mat_id_buffer.offset, loaded.reference, ref_id_buffer.offset, top),
+            BuildLabelledReferenceResults
+        );
+
         output.expectedNumberOfFeatures = nfeat;
 
     } catch (e) {
-        utils.free(raw);
+        utils.free(output);
         throw e;
 
     } finally {
@@ -280,16 +304,25 @@ export function labelCells(x, reference, { buffer = null, numberOfFeatures = nul
  * @hideconstructor
  */
 class IntegrateLabelledReferencesResults {
-    constructor(raw) {
-        this.integrated = raw;
+    #id;
+    #integrated;
+
+    constructor(id, raw) {
+        this.#id = id;
+        this.#integrated = raw;
         return;
+    }
+
+    // Internal use only, not documented.
+    get integrated() {
+        return this.#integrated;
     }
 
     /**
      * @return {number} Number of reference datasets.
      */
     numberOfReferences() {
-        return this.integrated.num_references();
+        return this.#integrated.num_references();
     }
 
     /**
@@ -297,9 +330,9 @@ class IntegrateLabelledReferencesResults {
      * This invalidates this object and all references to it.
      */
     free() {
-        if (this.integrated !== null) {
-            this.integrated.delete();
-            this.integrated = null;
+        if (this.#integrated !== null) {
+            gc.release(this.#id);
+            this.#integrated = null;
         }
     }
 }
@@ -323,7 +356,6 @@ export function integrateLabelledReferences(features, loaded, referenceFeatures,
     let loaded_arr2;
     let ref_arr2;
     let built_arr2;
-    let raw;
     let output;
 
     // Checking the inputs.
@@ -371,7 +403,7 @@ export function integrateLabelledReferences(features, loaded, referenceFeatures,
             ba2[i] = BigInt(built[i].reference.$$.ptr);
         }
         
-        raw = wasm.call(
+        output = gc.call(
             module => module.integrate_singlepp_references(
                 features.length,
                 id_arr.offset,
@@ -379,14 +411,14 @@ export function integrateLabelledReferences(features, loaded, referenceFeatures,
                 loaded_arr2.offset,
                 ref_arr2.offset,
                 built_arr2.offset
-            )
+            ),
+            IntegrateLabelledReferencesResults
         );
 
-        output = new IntegrateLabelledReferencesResults(raw);
         output.expectedNumberOfFeatures = features.length;
 
     } catch (e) {
-        utils.free(raw);
+        utils.free(output);
         throw e;
 
     } finally {
