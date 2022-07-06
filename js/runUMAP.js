@@ -1,5 +1,6 @@
 import * as utils from "./utils.js";
 import * as wasm from "./wasm.js";
+import * as gc from "./gc.js";
 import { BuildNeighborSearchIndexResults, findNearestNeighbors } from "./findNearestNeighbors.js";
 
 /**
@@ -7,24 +8,43 @@ import { BuildNeighborSearchIndexResults, findNearestNeighbors } from "./findNea
  * @hideconstructor
  */
 export class InitializeUMAPResults {
-    constructor(raw_status, raw_coordinates) {
-        this.status = raw_status;
-        this.coordinates = raw_coordinates;
+    #id;
+    #status;
+    #coordinates;
+
+    constructor(id, raw_status, raw_coordinates) {
+        this.#id = id;
+        this.#status = raw_status;
+        this.#coordinates = raw_coordinates;
         return;
     }
 
+    // Internal use only, not documented.
+    get status() {
+        return this.#status;
+    }
+
+    // Internal use only, not documented.
+    get coordinates() {
+        return this.#coordinates;
+    }
+
     /**
-     * @return {InitializeUMAPResults} A deep copy of the status object.
+     * @return {InitializeUMAPResults} A deep copy of this object.
      */
     clone() {
-        return new InitializeUMAPResults(this.status.deepcopy(), this.coordinates.clone());
+        return gc.call(
+            module => this.#status.deepcopy(), 
+            InitializeUMAPResults, 
+            this.#coordinates.clone()
+        );
     }
 
     /**
      * @return {number} Number of cells in the dataset.
      */
     numberOfCells () {
-        return this.status.num_obs();
+        return this.#status.num_obs();
     }
 
     /**
@@ -32,14 +52,14 @@ export class InitializeUMAPResults {
      * This changes with repeated invocations of {@linkcode runUMAP}, up to the maximum in {@linkcode InitializeUMAPResults#totalEpochs totalEpochs}.
      */
     currentEpoch() {
-        return this.status.epoch();
+        return this.#status.epoch();
     }
 
     /**
      * @return {number} Total number of epochs used to initialize this object.
      */
     totalEpochs() {
-        return this.status.num_epochs();
+        return this.#status.num_epochs();
     }
 
     /**
@@ -48,7 +68,7 @@ export class InitializeUMAPResults {
      * containing the x- and  y- coordinates for each cell at the current state of the algorithm.
      */
     extractCoordinates() {
-        return utils.extractXY(this.numberOfCells(), this.coordinates.array()); 
+        return utils.extractXY(this.numberOfCells(), this.#coordinates.array()); 
     }
 
     /**
@@ -56,13 +76,13 @@ export class InitializeUMAPResults {
      * This invalidates this object and all references to it.
      */   
     free() {
-        if (this.status !== null) {
-            this.status.delete();
-            this.status = null;
+        if (this.#status !== null) {
+            gc.release(this.#id);
+            this.#status = null;
         }
-        if (this.coordinates !== null) {
-            this.coordinates.free();
-            this.coordinates = null;
+        if (this.#coordinates !== null) {
+            this.#coordinates.free();
+            this.#coordinates = null;
         }
         return;
     }
@@ -82,7 +102,6 @@ export class InitializeUMAPResults {
  */
 export function initializeUMAP(x, { neighbors = 15, epochs = 500, minDist = 0.01 } = {}) {
     var my_neighbors;
-    var raw_status;
     var raw_coords;
     var output;
 
@@ -97,11 +116,14 @@ export function initializeUMAP(x, { neighbors = 15, epochs = 500, minDist = 0.01
         }
 
         raw_coords = utils.createFloat64WasmArray(2 * nnres.numberOfCells());
-        raw_status = wasm.call(module => module.initialize_umap(nnres.results, epochs, minDist, raw_coords.offset));
-        output = new InitializeUMAPResults(raw_status, raw_coords);
+        output = gc.call(
+            module => module.initialize_umap(nnres.results, epochs, minDist, raw_coords.offset),
+            InitializeUMAPResults,
+            raw_coords
+        );
 
     } catch(e) {
-        utils.free(raw_status);
+        utils.free(output);
         utils.free(raw_coords);
         throw e;
 

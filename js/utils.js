@@ -84,18 +84,16 @@ export function wasmifyArray(x, expected) {
  * 
  * @return The output of `x.free()` - unless `x` is undefined or `null`, in which case nothing is performed.
  */
-export function safeFree(x) {
-    return free(x, { internal: false });
-}
-
-export function free(x, { internal = true } = {}) {
+export function free(x) {
     if (typeof x == "undefined" || x == null) {
         return;
-    } else if (internal && "delete" in x) {
-        return x.delete();
-    } else {
-        return x.free();
     }
+    return x.free();
+}
+
+// Exported for back-compatibility, deprecated as of 0.3.0.
+export function safeFree(x) {
+    return free(x);
 }
 
 export function extractXY(ncells, coordinates) {

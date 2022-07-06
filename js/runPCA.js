@@ -1,4 +1,4 @@
-import * as wasm from "./wasm.js";
+import * as gc from "./gc.js";
 import * as utils from "./utils.js";
 
 /** 
@@ -6,8 +6,12 @@ import * as utils from "./utils.js";
  * @hideconstructor
  */
 export class RunPCAResults {
-    constructor(raw) {
-        this.results = raw;
+    #id;
+    #results;
+
+    constructor(id, raw) {
+        this.#id = id;
+        this.#results = raw;
         return;
     }
 
@@ -19,7 +23,7 @@ export class RunPCAResults {
      * This should be treated as a column-major array where the rows are the PCs and columns are the cells.
      */
     principalComponents({ copy = true } = {}) {
-        return utils.possibleCopy(this.results.pcs(), copy);
+        return utils.possibleCopy(this.#results.pcs(), copy);
     }
 
     /**
@@ -29,7 +33,7 @@ export class RunPCAResults {
      * @return {Float64Array|Float64WasmArray} Array containing the variance explained for each requested PC.
      */
     varianceExplained({ copy = true } = {}) {
-        return utils.possibleCopy(this.results.variance_explained(), copy);
+        return utils.possibleCopy(this.#results.variance_explained(), copy);
     }
 
     /**
@@ -37,21 +41,21 @@ export class RunPCAResults {
      * typically used with {@linkcode PCAResults#varianceExplained varianceExplained} to compute the proportion of variance explained.
      */
     totalVariance () {
-        return this.results.total_variance();
+        return this.#results.total_variance();
     }
 
     /**
      * @return {number} Number of PCs available in these results.
      */
     numberOfPCs() {
-        return this.results.num_pcs();
+        return this.#results.num_pcs();
     }
 
     /**
      * @return {number} Number of cells used to compute these results.
      */
     numberOfCells() {
-        // TODO: switch to this.results.num_cells();
+        // TODO: switch to this.#results.num_cells();
         return this.principalComponents({ copy: false }).length / this.numberOfPCs();
 
     }
@@ -61,9 +65,9 @@ export class RunPCAResults {
      * This invalidates this object and all references to it.
      */
     free() {
-        if (this.results !== null) {
-            this.results.delete();
-            this.results = null;
+        if (this.#results !== null) {
+            gc.release(this.#id);
+            this.#results = null;
         }
         return;
     }
@@ -95,7 +99,6 @@ export class RunPCAResults {
 export function runPCA(x, { features = null, numberOfPCs = 25, scale = false, block = null, blockMethod = "regress" } = {}) {
     var feat_data;
     var block_data;
-    var raw;
     var output;
 
     utils.matchOptions("blockMethod", blockMethod, ["none", "regress", "weight", "block"]);
@@ -118,24 +121,33 @@ export function runPCA(x, { features = null, numberOfPCs = 25, scale = false, bl
         numberOfPCs = Math.min(numberOfPCs, x.numberOfRows() - 1, x.numberOfColumns() - 1);
 
         if (block === null || blockMethod == 'none') {
-            raw = wasm.call(module => module.run_pca(x.matrix, numberOfPCs, use_feat, fptr, scale));
+            output = gc.call(
+                module => module.run_pca(x.matrix, numberOfPCs, use_feat, fptr, scale),
+                RunPCAResults
+            );
+
         } else {
             block_data = utils.wasmifyArray(block, "Int32WasmArray");
             if (block_data.length != x.numberOfColumns()) {
                 throw new Error("length of 'block' should be equal to the number of columns in 'x'");
             }
             if (blockMethod == "regress" || blockMethod == "block") { // latter for back-compatibility.
-                raw = wasm.call(module => module.run_blocked_pca(x.matrix, numberOfPCs, use_feat, fptr, scale, block_data.offset));
+                output = gc.call(
+                    module => module.run_blocked_pca(x.matrix, numberOfPCs, use_feat, fptr, scale, block_data.offset),
+                    RunPCAResults
+                );
             } else if (blockMethod == "weight") {
-                raw = wasm.call(module => module.run_multibatch_pca(x.matrix, numberOfPCs, use_feat, fptr, scale, block_data.offset));
+                output = gc.call(
+                    module => module.run_multibatch_pca(x.matrix, numberOfPCs, use_feat, fptr, scale, block_data.offset),
+                    RunPCAResults
+                );
             } else {
                 throw new Error("unknown value '" + blockMethod + "' for 'blockMethod='");
             }
         }
-        output = new RunPCAResults(raw);
 
     } catch (e) {
-        utils.free(raw);
+        utils.free(output);
         throw e;
 
     } finally {

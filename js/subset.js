@@ -1,5 +1,5 @@
 import * as utils from "./utils.js";
-import * as wasm from "./wasm.js";
+import * as gc from "./gc.js";
 import { MultiMatrix } from "./MultiMatrix.js";
 
 /**
@@ -13,17 +13,20 @@ import { MultiMatrix } from "./MultiMatrix.js";
  * A new ScranMatrix containing the subset of rows from `mat` specified by `indices`.
  */
 export function subsetRows(mat, indices) {
-    let raw;
     let output;
     let wasm_indices;
 
     try {
         wasm_indices = utils.wasmifyArray(indices, "Int32WasmArray");
-        raw = wasm.call(module => module.row_subset(mat.matrix, wasm_indices.offset, wasm_indices.length));
-        output = new mat.constructor(raw);
+        output = gc.call(
+            module => module.row_subset(mat.matrix, wasm_indices.offset, wasm_indices.length),
+            mat.constructor
+        );
+
     } catch (e) {
-        utils.free(raw);
+        utils.free(output);
         throw e;
+
     } finally {
         utils.free(wasm_indices);
     }
@@ -42,17 +45,20 @@ export function subsetRows(mat, indices) {
  * A new ScranMatrix containing the subset of columns from `mat` specified by `indices`.
  */
 export function subsetColumns(mat, indices) {
-    let raw;
     let output;
     let wasm_indices;
 
     try {
         wasm_indices = utils.wasmifyArray(indices, "Int32WasmArray");
-        raw = wasm.call(module => module.column_subset(mat.matrix, wasm_indices.offset, wasm_indices.length));
-        output = new mat.constructor(raw);
+        output = gc.call(
+            module => module.column_subset(mat.matrix, wasm_indices.offset, wasm_indices.length),
+            mat.constructor
+        );
+
     } catch (e) {
-        utils.free(raw);
+        utils.free(output);
         throw e;
+
     } finally {
         utils.free(wasm_indices);
     }
@@ -104,9 +110,16 @@ export function splitRows(matrix, split, { singleNull = false, createMultiMatrix
         }
     }
 
+    let stuff;
     try {
         for (const k of tkeys) {
             output[k] = subsetRows(matrix, split[k]);
+        }
+
+        // Sticking this inside the trycatch, so that
+        // memory is released if the constructor fails. 
+        if (createMultiMatrix) {
+            stuff = new MultiMatrix({ store: output });
         }
     } catch (e) {
         for (const v of Object.values(output)) {
@@ -116,7 +129,7 @@ export function splitRows(matrix, split, { singleNull = false, createMultiMatrix
     }
 
     if (createMultiMatrix) {
-        return new MultiMatrix({ store: output });
+        return stuff;
     } else {
         return output;
     }

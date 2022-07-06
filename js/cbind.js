@@ -1,6 +1,6 @@
 import * as utils from "./utils.js";
-import * as wasm from "./wasm.js";
 import { ScranMatrix } from "./ScranMatrix.js";
+import * as gc from "./gc.js";
 
 function harvest_matrices(x) {
     let output = utils.createBigUint64WasmArray(x.length);
@@ -26,15 +26,16 @@ function harvest_matrices(x) {
  */
 export function cbind(inputs, { assumeSame = false } = {}) {
     let mat_ptrs;
-    let raw;
     let output;
 
     try {
         mat_ptrs = harvest_matrices(inputs);
-        raw = wasm.call(module => module.cbind(mat_ptrs.length, mat_ptrs.offset, assumeSame));
-        output = new ScranMatrix(raw);
+        output = gc.call(
+            module => module.cbind(mat_ptrs.length, mat_ptrs.offset, assumeSame),
+            ScranMatrix
+        );
     } catch (e) {
-        utils.free(raw);
+        utils.free(output);
         throw e;
     } finally {
         utils.free(mat_ptrs);
@@ -64,7 +65,6 @@ export function cbindWithNames(x, names) {
     let renamed = [];
     let name_ptrs;
     let indices;
-    let raw;
     let output = {};
 
     try {
@@ -104,8 +104,10 @@ export function cbindWithNames(x, names) {
 
         mat_ptrs = harvest_matrices(x);
         indices = utils.createInt32WasmArray(x[0].numberOfRows());
-        raw = wasm.call(module => module.cbind_with_rownames(x.length, mat_ptrs.offset, name_ptrs.offset, indices.offset));
-        output.matrix = new ScranMatrix(raw);
+        output.matrix = gc.call(
+            module => module.cbind_with_rownames(x.length, mat_ptrs.offset, name_ptrs.offset, indices.offset),
+            ScranMatrix
+        );
 
         output.indices = indices.slice(0, output.matrix.numberOfRows());
         let internames = [];
@@ -115,7 +117,7 @@ export function cbindWithNames(x, names) {
         output.names = internames;
 
     } catch (e) {
-        utils.free(raw);
+        utils.free(output.matrix);
         throw e;
 
     } finally {

@@ -1,12 +1,17 @@
 import * as utils from "./utils.js";
+import * as gc from "./gc.js";
 
 /**
  * Wrapper around a matrix allocated on the Wasm heap.
  * @hideconstructor
  */
 export class ScranMatrix {
-    constructor(raw) {
-        this.matrix = raw;
+    #id;
+    #matrix;
+
+    constructor(id, raw) {
+        this.#id = id;
+        this.#matrix = raw;
         return;
     }
 
@@ -15,21 +20,29 @@ export class ScranMatrix {
      * This can be freed independently of the current instance.
      */
     clone() {
-        return new ScranMatrix(this.matrix.clone());
+        return gc.call(
+            module => this.#matrix.clone(),
+            ScranMatrix
+        );
+    }
+
+    // Internal use only, not documented.
+    get matrix() {
+        return this.#matrix;
     }
 
     /**
      * @return {number} Number of rows in the matrix.
      */
     numberOfRows() {
-        return this.matrix.nrow();
+        return this.#matrix.nrow();
     }
 
     /**
      * @return {number} Number of columns in the matrix.
      */
     numberOfColumns() {
-        return this.matrix.ncol();
+        return this.#matrix.ncol();
     }
 
     /**
@@ -45,13 +58,13 @@ export class ScranMatrix {
      */
     row(i, { buffer = null } = {}) {
         if (buffer != null) {
-            this.matrix.row(i, buffer.offset);
+            this.#matrix.row(i, buffer.offset);
             return;
         } else {
             var output;
-            buffer = utils.createFloat64WasmArray(this.matrix.ncol());
+            buffer = utils.createFloat64WasmArray(this.#matrix.ncol());
             try {
-                this.matrix.row(i, buffer.offset);
+                this.#matrix.row(i, buffer.offset);
                 output = buffer.slice();
             } finally {
                 buffer.free();
@@ -73,13 +86,13 @@ export class ScranMatrix {
      */
     column(i, { buffer = null } = {}) {
         if (buffer != null) {
-            this.matrix.column(i, buffer.offset);
+            this.#matrix.column(i, buffer.offset);
             return;
         } else {
             var output;
-            buffer = utils.createFloat64WasmArray(this.matrix.nrow());
+            buffer = utils.createFloat64WasmArray(this.#matrix.nrow());
             try {
-                this.matrix.column(i, buffer.offset);
+                this.#matrix.column(i, buffer.offset);
                 output = buffer.slice();
             } finally {
                 buffer.free();
@@ -89,13 +102,13 @@ export class ScranMatrix {
     }
 
     /** 
-     * Free the memory on the Wasm heap for this matrix.
+     * Free the memory on the Wasm heap for this.#matrix.
      * This invalidates this object and all of its references.
      */
     free() {
-        if (this.matrix !== null) {
-            this.matrix.delete();
-            this.matrix = null;
+        if (this.#matrix !== null) {
+            gc.release(this.#id);
+            this.#matrix = null;
         }
         return;
     }
@@ -104,7 +117,7 @@ export class ScranMatrix {
      * @return {boolean} Whether the matrix is sparse.
      */
     isSparse() {
-        return this.matrix.sparse();
+        return this.#matrix.sparse();
     }
 
     /**
@@ -113,7 +126,7 @@ export class ScranMatrix {
      * otherwise, the row identities are assumed to be consecutive increasing integers from 0 up to the number of rows.
      */
     isReorganized() {
-        return this.matrix.reorganized();
+        return this.#matrix.reorganized();
     }
 
     // Deprecated, kept around for back-compatibility as of 0.1.1.
@@ -137,13 +150,13 @@ export class ScranMatrix {
      */
     identities({ buffer = null } = {}) {
         if (buffer != null) {
-            this.matrix.identities(buffer.offset);
+            this.#matrix.identities(buffer.offset);
             return buffer;
         } else {
             var output;
-            buffer = utils.createInt32WasmArray(this.matrix.nrow());
+            buffer = utils.createInt32WasmArray(this.#matrix.nrow());
             try {
-                this.matrix.identities(buffer.offset);
+                this.#matrix.identities(buffer.offset);
                 output = buffer.slice();
             } finally {
                 buffer.free();

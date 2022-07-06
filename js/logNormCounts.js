@@ -1,4 +1,4 @@
-import * as wasm from "./wasm.js";
+import * as gc from "./gc.js";
 import * as utils from "./utils.js";
 
 /**
@@ -22,7 +22,6 @@ import * as utils from "./utils.js";
 export function logNormCounts(x, { sizeFactors = null, block = null, allowZeros = false } = {}) {
     var sf_data;
     var block_data;
-    var raw;
     var output;
 
     try {
@@ -50,11 +49,13 @@ export function logNormCounts(x, { sizeFactors = null, block = null, allowZeros 
             bptr = block_data.offset;
         }
 
-        raw = wasm.call(module => module.log_norm_counts(x.matrix, use_sf, sfptr, use_blocks, bptr, allowZeros));
-        output = new x.constructor(raw);
+        output = gc.call(
+            module => module.log_norm_counts(x.matrix, use_sf, sfptr, use_blocks, bptr, allowZeros),
+            x.constructor
+        );
 
     } catch (e) {
-        utils.free(raw);
+        utils.free(output);
         throw e;
 
     } finally {

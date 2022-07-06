@@ -1,4 +1,4 @@
-import * as wasm from "./wasm.js";
+import * as gc from "./gc.js";
 import * as utils from "./utils.js";
 
 /**
@@ -6,8 +6,12 @@ import * as utils from "./utils.js";
  * @hideconstructor
  */
 export class ModelGeneVarResults {
-    constructor(raw) {
-        this.results = raw;
+    #id;
+    #results;
+
+    constructor(id, raw) {
+        this.#id = id;
+        this.#results = raw;
         return;
     }
 
@@ -23,7 +27,7 @@ export class ModelGeneVarResults {
      * (or the average across all blocks, if `block < 0`).
      */
     means({ block = -1, copy = true } = {}) {
-        return utils.possibleCopy(this.results.means(block), copy);
+        return utils.possibleCopy(this.#results.means(block), copy);
     }
 
     /**
@@ -38,7 +42,7 @@ export class ModelGeneVarResults {
      * (or the average across all blocks, if `block < 0`).
      */
     variances({ block = -1, copy = true } = {}) {
-        return utils.possibleCopy(this.results.variances(block), copy);
+        return utils.possibleCopy(this.#results.variances(block), copy);
     }
 
     /**
@@ -53,7 +57,7 @@ export class ModelGeneVarResults {
      * (or the average across all blocks, if `block < 0`).
      */
     fitted({ block = -1, copy = true } = {}) {
-        return utils.possibleCopy(this.results.fitted(block), copy);
+        return utils.possibleCopy(this.#results.fitted(block), copy);
     }
 
     /**
@@ -68,14 +72,14 @@ export class ModelGeneVarResults {
      * (or the average across all blocks, if `block < 0`).
      */
     residuals({ block = -1, copy = true } = {}) {
-        return utils.possibleCopy(this.results.residuals(block), copy);
+        return utils.possibleCopy(this.#results.residuals(block), copy);
     }
 
     /**
      * @return {number} Number of blocks used.
      */
     numberOfBlocks() {
-        return this.results.num_blocks();
+        return this.#results.num_blocks();
     }
 
     /**
@@ -83,9 +87,9 @@ export class ModelGeneVarResults {
      * This invalidates this object and all references to it.
      */
     free() {
-        if (this.results !== null) {
-            this.results.delete();
-            this.results = null;
+        if (this.#results !== null) {
+            gc.release(this.#id);
+            this.#results = null;
         }
         return;
     }
@@ -106,7 +110,6 @@ export class ModelGeneVarResults {
  */
 export function modelGeneVar(x, { block = null, span = 0.3 } = {}) {
     var block_data;
-    var raw;
     var output;
 
     try {
@@ -122,11 +125,13 @@ export function modelGeneVar(x, { block = null, span = 0.3 } = {}) {
             bptr = block_data.offset;
         }
 
-        raw = wasm.call(module => module.model_gene_var(x.matrix, use_blocks, bptr, span));
-        output = new ModelGeneVarResults(raw);
+        output = gc.call(
+            module => module.model_gene_var(x.matrix, use_blocks, bptr, span),
+            ModelGeneVarResults
+        );
 
     } catch (e) {
-        utils.free(raw);
+        utils.free(output);
         throw e;
 
     } finally {

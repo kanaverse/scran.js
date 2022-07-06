@@ -1,5 +1,6 @@
 import * as utils from "./utils.js";
 import * as wasm from "./wasm.js";
+import * as gc from "./gc.js";
 import { BuildNeighborSearchIndexResults, findNearestNeighbors } from "./findNearestNeighbors.js";
 
 /**
@@ -7,24 +8,43 @@ import { BuildNeighborSearchIndexResults, findNearestNeighbors } from "./findNea
  * @hideconstructor
  */
 export class InitializeTSNEResults {
-    constructor(raw_status, raw_coordinates) {
-        this.status = raw_status;
-        this.coordinates = raw_coordinates;
+    #id;
+    #status;
+    #coordinates;
+
+    constructor(id, raw_status, raw_coordinates) {
+        this.#id = id;
+        this.#status = raw_status;
+        this.#coordinates = raw_coordinates;
         return;
     }
 
+    // Internal use only, not documented.
+    get status() {
+        return this.#status;
+    }
+
+    // Internal use only, not documented.
+    get coordinates() {
+        return this.#coordinates;
+    }
+
     /**
-     * @return {InitializeTSNEResults} A deep copy of this status object.
+     * @return {InitializeTSNEResults} A deep copy of this object.
      */
     clone() {
-        return new InitializeTSNEResults(this.status.deepcopy(), this.coordinates.clone());
+        return gc.call(
+            module => this.#status.deepcopy(), 
+            InitializeTSNEResults, 
+            this.#coordinates.clone()
+        );
     }
 
     /**
      * @return {number} Number of cells in the dataset.
      */
     numberOfCells () {
-        return this.status.num_obs();
+        return this.#status.num_obs();
     }
 
     /**
@@ -32,7 +52,7 @@ export class InitializeTSNEResults {
      * This will change with repeated invocations of {@linkcode runTSNE} on this object.
      */
     iterations () {
-        return this.status.iterations();
+        return this.#status.iterations();
     }
 
     /**
@@ -41,7 +61,7 @@ export class InitializeTSNEResults {
      * containing the x- and  y- coordinates for each cell at the current state of the algorithm.
      */
     extractCoordinates() {
-        return utils.extractXY(this.numberOfCells(), this.coordinates.array()); 
+        return utils.extractXY(this.numberOfCells(), this.#coordinates.array()); 
     }
 
     /**
@@ -49,13 +69,13 @@ export class InitializeTSNEResults {
      * This invalidates this object and all references to it.
      */   
     free() {
-        if (this.status !== null) {
-            this.status.delete();
-            this.status = null;
+        if (this.#status !== null) {
+            gc.release(this.#id);
+            this.#status = null;
         }
-        if (this.coordinates !== null) {
-            this.coordinates.free();
-            this.coordinates = null;
+        if (this.#coordinates !== null) {
+            this.#coordinates.free();
+            this.#coordinates = null;
         }
         return;
     }
@@ -82,7 +102,6 @@ export function perplexityToNeighbors(perplexity) {
  */
 export function initializeTSNE(x, { perplexity = 30, checkMismatch = true } = {}) {
     var my_neighbors;
-    var raw_status;
     var raw_coords;
     var output;
 
@@ -104,13 +123,16 @@ export function initializeTSNE(x, { perplexity = 30, checkMismatch = true } = {}
             neighbors = x;
         }
 
-        raw_status = wasm.call(module => module.initialize_tsne(neighbors.results, perplexity));
         raw_coords = utils.createFloat64WasmArray(2 * neighbors.numberOfCells());
         wasm.call(module => module.randomize_tsne_start(neighbors.numberOfCells(), raw_coords.offset, 42));
-        output = new InitializeTSNEResults(raw_status, raw_coords);
+        output = gc.call(
+            module => module.initialize_tsne(neighbors.results, perplexity),
+            InitializeTSNEResults,
+            raw_coords
+        );
 
     } catch(e) {
-        utils.free(raw_status);
+        utils.free(output);
         utils.free(raw_coords);
         throw e;
 

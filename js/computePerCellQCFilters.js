@@ -1,4 +1,4 @@
-import * as wasm from "./wasm.js";
+import * as gc from "./gc.js";
 import * as utils from "./utils.js";
 import * as internal from "./internal/computePerCellQcFilters.js";
 
@@ -7,8 +7,12 @@ import * as internal from "./internal/computePerCellQcFilters.js";
  * @hideconstructor
  */
 export class PerCellQCFiltersResults {
-    constructor(raw) {
-        this.results = raw;
+    #id;
+    #results;
+
+    constructor(id, raw) {
+        this.#id = id;
+        this.#results = raw;
         return;
     }
 
@@ -19,7 +23,7 @@ export class PerCellQCFiltersResults {
      * @return {Uint8Array|Uint8WasmArray} Array indicating whether each cell was filtered out due to low counts.
      */
     discardSums({ copy = true } = {}) {
-        return utils.possibleCopy(this.results.discard_sums(), copy);
+        return utils.possibleCopy(this.#results.discard_sums(), copy);
     }
 
     /**
@@ -29,7 +33,7 @@ export class PerCellQCFiltersResults {
      * @return {Uint8Array|Uint8WasmArray} Array indicating whether each cell was filtered out due to low numbers of detected genes.
      */
     discardDetected({ copy = true } = {}) {
-        return utils.possibleCopy(this.results.discard_detected(), copy);
+        return utils.possibleCopy(this.#results.discard_detected(), copy);
     }
 
     /**
@@ -40,7 +44,7 @@ export class PerCellQCFiltersResults {
      * @return {Uint8Array|Uint8WasmArray} Array indicating whether each cell was filtered out due to high proportions for subset `i`.
      */
     discardSubsetProportions(i, { copy = true } = {}) {
-        return utils.possibleCopy(this.results.discard_proportions(i), copy);
+        return utils.possibleCopy(this.#results.discard_proportions(i), copy);
     }
 
     /**
@@ -50,7 +54,7 @@ export class PerCellQCFiltersResults {
      * @return {Uint8Array|Uint8WasmArray} Array indicating whether each cell was filtered out for any reason.
      */
    discardOverall({ copy = true } = {}) {
-       return utils.possibleCopy(this.results.discard_overall(), copy);
+       return utils.possibleCopy(this.#results.discard_overall(), copy);
    }
 
     /**
@@ -60,7 +64,7 @@ export class PerCellQCFiltersResults {
      * @return {Float64Array|Float64WasmArray} Array containing the filtering threshold on the sums for each batch.
      */
     thresholdsSums({ copy = true } = {}) {
-        return utils.possibleCopy(this.results.thresholds_sums(), copy);
+        return utils.possibleCopy(this.#results.thresholds_sums(), copy);
     }
 
     /**
@@ -70,7 +74,7 @@ export class PerCellQCFiltersResults {
      * @return {Float64Array|Float64WasmArray} Array containing the filtering threshold on the number of detected genes for each batch.
      */
     thresholdsDetected({ copy = true } = {}) {
-        return utils.possibleCopy(this.results.thresholds_detected(), copy);
+        return utils.possibleCopy(this.#results.thresholds_detected(), copy);
     }
 
     /**
@@ -81,14 +85,14 @@ export class PerCellQCFiltersResults {
      * @return {Float64Array|Float64WasmArray} Array containing the filtering threshold on the proportions for subset `i` in each batch.
      */
     thresholdsSubsetProportions(i, { copy = true } = {}) {
-        return utils.possibleCopy(this.results.thresholds_proportions(i), copy);
+        return utils.possibleCopy(this.#results.thresholds_proportions(i), copy);
     }
 
     /**
      * @return {number} Number of feature subsets in this object.
      */
     numberOfSubsets() {
-        return this.results.num_subsets();
+        return this.#results.num_subsets();
     }
 
     /**
@@ -96,9 +100,9 @@ export class PerCellQCFiltersResults {
      * This invalidates this object and all references to it.
      */
     free() {
-        if (this.results !== null) {
-            this.results.delete();
-            this.results = null;
+        if (this.#results !== null) {
+            gc.release(this.#id);
+            this.#results = null;
         }
         return;
     }
@@ -122,7 +126,9 @@ export function computePerCellQCFilters(metrics, { numberOfMADs = 3, block = nul
         metrics, 
         block,
         x => x.sums().length,
-        (x, use_blocks, bptr) => wasm.call(module => module.per_cell_qc_filters(x.results, use_blocks, bptr, numberOfMADs)),
-        raw => new PerCellQCFiltersResults(raw)
+        (x, use_blocks, bptr) => gc.call(
+            module => module.per_cell_qc_filters(x.results, use_blocks, bptr, numberOfMADs),
+            PerCellQCFiltersResults
+        )
     );
 }
