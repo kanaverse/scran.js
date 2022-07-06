@@ -49,7 +49,7 @@ export function cbind(inputs, { assumeSame = false } = {}) {
  * @param {Array} inputs - Array of one or more {@linkplain ScranMatrix} objects.
  * @param {Array} names - Array of length equal to `inputs`.
  * Each entry should be an Array containing the row names of the corresponding entry of `inputs`.
- * Names should correspond to the rows, so if an element of `inputs` has reorganized row identities, the array of names should be similarly reorganized to match (e.g., with {@linkcode matchVectorToMatrix}).
+ * Names should correspond to the rows, so if an element of `inputs` has reorganized row identities, the array of names should be similarly reorganized to match (e.g., with {@linkcode matchVectorToRowIdentities}).
  *
  * @return {object} An object containing:
  * - `matrix`, a {@linkplain ScranMatrix} containing the combined matrices.

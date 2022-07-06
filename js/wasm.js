@@ -60,8 +60,8 @@ export function buffer() {
 }
 
 /**
- * @return {number} Integer containing the **wasmarray.js** identifier for **scran.js**'s memory space.
- * This can be used with `createWasmArray()` and related functions from **wasmarray.js**.
+ * @return {number} Integer containing the **wasmarrays.js** identifier for **scran.js**'s memory space.
+ * This can be used with `createWasmArray()` and related functions from **wasmarrays.js**.
  */
 export function wasmArraySpace() {
     return cache.space;

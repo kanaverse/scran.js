@@ -100,7 +100,7 @@ export class ClusterKmeansResults {
 * @param {(RunPCAResults|Float64WasmArray|Array|TypedArray)} x - Numeric coordinates of each cell in the dataset.
  * For array inputs, this is expected to be in column-major format where the rows are the variables and the columns are the cells.
  * For a {@linkplain RunPCAResults} input, we extract the principal components.
- * @param clusters Number of clusters to create.
+ * @param {number} clusters Number of clusters to create.
  * This should not be greater than the number of cells.
  * @param {object} [options] - Optional parameters.
  * @param {number} [options.numberOfDims=null] - Number of variables/dimensions per cell.

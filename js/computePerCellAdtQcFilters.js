@@ -87,7 +87,7 @@ export class PerCellAdtQcFiltersResults {
 /**
  * Define filters based on the per-cell QC metrics from the ADT count matrix.
  *
- * @param {PerCellQCMetrics} metrics - Per-cell QC metrics, usually computed by `computePerCellAdtQcMetrics()`.
+ * @param {PerCellQCMetrics} metrics - Per-cell QC metrics, usually computed by {@linkcode computePerCellAdtQcMetrics}.
  * @param {object} [options] - Optional parameters.
  * @param {number} [options.numberOfMADs=3] - Number of median absolute deviations to use to define low-quality outliers.
  * @param {number} [options.minDetectedDrop=0.1] - Minimum relative drop in the number of detected features before a cell is to be considered a low-quality cell.

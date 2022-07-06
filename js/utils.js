@@ -2,7 +2,7 @@ import { buffer, wasmArraySpace } from "./wasm.js";
 import * as wa from "wasmarrays.js";
 
 /**
- * Helper function to create a Uint8WasmArray from the **WasmArray** package.
+ * Helper function to create a Uint8WasmArray from the **wasmarrays.js** package.
  *
  * @param {number} length - Length of the array.
  *
@@ -13,7 +13,7 @@ export function createUint8WasmArray(length) {
 }
 
 /**
- * Helper function to create a Int32WasmArray from the **WasmArray** package.
+ * Helper function to create a Int32WasmArray from the **wasmarrays.js** package.
  *
  * @param {number} length - Length of the array.
  *
@@ -24,7 +24,7 @@ export function createInt32WasmArray(length) {
 }
 
 /**
- * Helper function to create a BigUint64WasmArray from the **WasmArray** package.
+ * Helper function to create a BigUint64WasmArray from the **wasmarrays.js** package.
  *
  * @param {number} length - Length of the array.
  *
@@ -35,7 +35,7 @@ export function createBigUint64WasmArray (length) {
 }
 
 /**
- * Helper function to create a Float64WasmArray from the **WasmArray** package.
+ * Helper function to create a Float64WasmArray from the **wasmarrays.js** package.
  *
  * @param {number} length - Length of the array.
  *
