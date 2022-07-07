@@ -1,5 +1,19 @@
 # scran.js news
 
+## 0.3.0
+
+**New**
+
+- Exported the `free()` function as a replacement for `safeFree()`.
+- Added the `subsetBlock()` function for general subsetting of the blocking factor.
+- Added a `allowZeros=` option to gracefully handle size factors of zero in `logNormCounts()`.
+
+**Changes**
+
+- Renamed some classes for consistency with the `*Results` naming scheme.
+- All `*Results` and `*Matrix` instances will automatically free their memory upon garbage collection if `free()` has not already been called.
+- `subsetArrayCollection()` will now check for correct array length before subsetting.
+
 ## 0.2.5
 
 **New**
@@ -7,12 +21,12 @@
 - Exported the `safeFree()` function for fail-safe freeing of **scran.js** objects.
 - Added a `listMito()` function to list mitochondrial genes in mouse or human.
 - Added a `validateArrayCollection()` function to validate equilength array collections.
+- `subsetArrayCollection()` can now be used to subset based on a filtering vector.
 
 **Changes**
 
 - Functions involving the **scran.js** virtual filesystem (e.g., `writeFile()`) now throw errors when attempted in a Node context.
 - The setting of `localFile=` in `initialize()` is ignored outside of a Node context.
-- `subsetArrayCollection()` can now be used to subset based on a filtering vector.
 - `combineArrayCollections()` will attempt to preserve TypedArray types across input collections.
 
 ## 0.2.4

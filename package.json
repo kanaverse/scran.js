@@ -1,39 +1,21 @@
 {
     "name": "scran.js",
-    "version": "0.2.5",
+    "version": "0.3.0",
     "description": "Single cell RNA-seq analysis in Javascript",
     "license": "MIT",
     "main": "main/index.js",
     "browser": "module/index.js",
-    "web": "dist/scran.web.js",
     "type": "module",
     "scripts": {
         "test": "NODE_OPTIONS='--experimental-vm-modules' npx jest",
-        "build": "npx parcel build",
         "jsdoc": "npx jsdoc js README.md -d docs/built -c docs/jsdoc.config.json"
     },
     "devDependencies": {
-        "@babel/plugin-transform-modules-commonjs": "^7.16.8",
         "docdash": "^1.2.0",
         "h5wasm": "^0.2.1",
         "jest": "^27.4.7",
         "jsdoc": "^3.6.10",
-        "pako": "^2.0.4",
-        "parcel": "^2.3.2",
-        "process": "^0.11.10"
-    },
-    "targets": {
-        "web": {
-            "source": "module/index.js",
-            "includeNodeModules": true,
-            "outputFormat": "esmodule",
-            "engines": {
-                "browsers": [
-                    "> 1%",
-                    "not dead"
-                ]
-            }
-        }
+        "pako": "^2.0.4"
     },
     "author": {
         "name": "Jayaram Kancherla",
