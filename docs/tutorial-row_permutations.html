@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>groupedSizeFactors.js - Documentation</title>
+    <title>Tutorial: Permuted row order - Documentation</title>
     
     
     <script src="scripts/prettify/prettify.js"></script>
@@ -34,80 +34,42 @@
 
 <div id="main">
     
-    <h1 class="page-title">groupedSizeFactors.js</h1>
+    <h1 class="page-title">Tutorial: Permuted row order</h1>
     
 
-    
-
-
-
-    
     <section>
-        <article>
-            <pre class="prettyprint source linenums"><code>import * as wasm from "./wasm.js";
-import * as utils from "./utils.js";
-import { ScranMatrix } from "./ScranMatrix.js";
-import * as wa from "wasmarrays.js";
 
-/**
- * Compute group-based size factors, where composition biases are removed between groups and library size normalization is performed within groups.
- * This allows us to generate per-cell size factors in spite of the sparsity.
- *
- * @param {ScranMatrix} x The count matrix, usually after filtering.
- * @param {(Int32WasmArray|Array|TypedArray)} groups - Array containing the group assignment for each cell.
- * This should have length equal to the number of cells and contain all values from 0 to `n - 1` at least once, where `n` is the number of groups.
- * @param {object} [options] - Optional parameters.
- * @param {boolean} [options.center=true] - Whether to return centered size factors.
- * If `false`, the size factors can be interpreted as the scaling to match `reference`.
- * @param {?Float64WasmArray} [options.buffer=null] - Output buffer for the size factors.
- * This should have length equal to the number of columns in `x`.
- * @param {number} [options.priorCount=10] - Prior count to use for shrinking size factors towards the relative library size.
- * Larger values result in stronger shrinkage when the coverage is low.
- * @param {?number} [options.reference=null] - Group to use as a reference.
- * This should be an entry in `groups`. 
- * If `null`, it is automatically determined.
- *
- * @return {Float64WasmArray} Array of length equal to the number of columns in `x`, containing the size factors for all cells.
- * If `buffer` is supplied, it is directly filled and returned.
- */
-export function groupedSizeFactors(x, groups, { center = true, buffer = null, priorCount = 10, reference = null } = {}) {
-    var local_buffer;
-    var output;
-    var group_arr;
-
-    try {
-        if (!(buffer instanceof wa.Float64WasmArray)) {
-            local_buffer = utils.createFloat64WasmArray(x.numberOfColumns());
-            output = local_buffer;
-        } else {
-            if (buffer.length !== x.numberOfColumns()) {
-                throw new Error("length of 'buffer' must be equal to the number of columns in 'x'");
-            }
-            output = buffer;
-        }
-
-        group_arr = utils.wasmifyArray(groups, "Int32WasmArray");
-        if (reference == null) {
-            reference = -1;
-        }
-
-        wasm.call(module => module.grouped_size_factors(x.matrix, group_arr.offset, center, priorCount, reference, output.offset));
-
-    } catch (e) {
-        utils.free(local_buffer);
-        throw e;
-    } finally {
-        utils.free(group_arr);
-    }
+<header>
     
-    return output;
+
+    <h2>Permuted row order</h2>
+</header>
+
+<article>
+    <p>Rows of the dataset are permuted by <code>initializeSparseMatrix*()</code> functions to achieve a memory-efficient layout in <code>mat</code>.
+Specifically, low-abundance genes are grouped together so that their counts can be efficiently stored as 8-bit integers;
+moderate-abundance genes are grouped together for 16-bit storage;
+and everything else is stored as a 32-bit integer.</p>
+<p>We refer to this layout as a &quot;layered sparse matrix&quot;.
+Users can check whether a <code>ScranMatrix</code> has its rows reorganized into a layered format with:</p>
+<pre class="prettyprint source lang-js"><code>if (mat.isReorganized()) {
+    // If true, we can use identities().
+    let row_ids = mat.identities();
 }
 </code></pre>
-        </article>
-    </section>
+<p>The output of the <code>identities()</code> method is an <code>Int32Array</code> that specifies the original row index for each row in <code>mat</code>.
+This can be used to, e.g., map an array of gene symbols to match up with the permuted order in the layered matrix.</p>
+<pre class="prettyprint source lang-js"><code>let reorg_symb = [];
+mat.identities().forEach(x => { reorg_symb.push(symb[x]); });
 
+// Or, more directly:
+let reorg_symb2 = scran.matchVectorToRowIdentities(mat, symb);
+</code></pre>
+<p>All gene-based results (e.g., from <code>modelGeneVar()</code> or <code>scoreMarkers()</code>) are reported in the permuted order,
+so be sure to apply the same permutation to the gene names/symbols in order to identify the genes correctly.</p>
+</article>
 
-
+</section>
 
     
     
@@ -116,7 +78,7 @@ export function groupedSizeFactors(x, groups, { center = true, buffer = null, pr
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.10</a> on Thu Jul 07 2022 00:30:32 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.10</a> on Thu Jul 07 2022 00:30:33 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>

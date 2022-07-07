@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>groupedSizeFactors.js - Documentation</title>
+    <title>Tutorial: Annotating cell types - Documentation</title>
     
     
     <script src="scripts/prettify/prettify.js"></script>
@@ -34,80 +34,67 @@
 
 <div id="main">
     
-    <h1 class="page-title">groupedSizeFactors.js</h1>
+    <h1 class="page-title">Tutorial: Annotating cell types</h1>
     
 
-    
-
-
-
-    
     <section>
-        <article>
-            <pre class="prettyprint source linenums"><code>import * as wasm from "./wasm.js";
-import * as utils from "./utils.js";
-import { ScranMatrix } from "./ScranMatrix.js";
-import * as wa from "wasmarrays.js";
 
-/**
- * Compute group-based size factors, where composition biases are removed between groups and library size normalization is performed within groups.
- * This allows us to generate per-cell size factors in spite of the sparsity.
- *
- * @param {ScranMatrix} x The count matrix, usually after filtering.
- * @param {(Int32WasmArray|Array|TypedArray)} groups - Array containing the group assignment for each cell.
- * This should have length equal to the number of cells and contain all values from 0 to `n - 1` at least once, where `n` is the number of groups.
- * @param {object} [options] - Optional parameters.
- * @param {boolean} [options.center=true] - Whether to return centered size factors.
- * If `false`, the size factors can be interpreted as the scaling to match `reference`.
- * @param {?Float64WasmArray} [options.buffer=null] - Output buffer for the size factors.
- * This should have length equal to the number of columns in `x`.
- * @param {number} [options.priorCount=10] - Prior count to use for shrinking size factors towards the relative library size.
- * Larger values result in stronger shrinkage when the coverage is low.
- * @param {?number} [options.reference=null] - Group to use as a reference.
- * This should be an entry in `groups`. 
- * If `null`, it is automatically determined.
- *
- * @return {Float64WasmArray} Array of length equal to the number of columns in `x`, containing the size factors for all cells.
- * If `buffer` is supplied, it is directly filled and returned.
- */
-export function groupedSizeFactors(x, groups, { center = true, buffer = null, priorCount = 10, reference = null } = {}) {
-    var local_buffer;
-    var output;
-    var group_arr;
-
-    try {
-        if (!(buffer instanceof wa.Float64WasmArray)) {
-            local_buffer = utils.createFloat64WasmArray(x.numberOfColumns());
-            output = local_buffer;
-        } else {
-            if (buffer.length !== x.numberOfColumns()) {
-                throw new Error("length of 'buffer' must be equal to the number of columns in 'x'");
-            }
-            output = buffer;
-        }
-
-        group_arr = utils.wasmifyArray(groups, "Int32WasmArray");
-        if (reference == null) {
-            reference = -1;
-        }
-
-        wasm.call(module => module.grouped_size_factors(x.matrix, group_arr.offset, center, priorCount, reference, output.offset));
-
-    } catch (e) {
-        utils.free(local_buffer);
-        throw e;
-    } finally {
-        utils.free(group_arr);
-    }
+<header>
     
-    return output;
-}
+
+    <h2>Annotating cell types</h2>
+</header>
+
+<article>
+    <h3>Overview</h3>
+<p>We use the same algorithm as <strong>SingleR</strong> for cell type classification from reference datasets.
+This assumes that we have several files describing each reference dataset:</p>
+<ol>
+<li>A matrix of ranks as a Gzipped CSV file.</li>
+<li>Markers from pairwise comparisons as a Gzipped GMT file.</li>
+<li>Labels for each reference sample as a Gzipped CSV file.</li>
+<li>Feature names for the matrix as a Gzipped CSV file.</li>
+<li>Names for all labels as a Gzipped CSV file.</li>
+</ol>
+<p>Several datasets have been processed and made available <a href="https://github.com/clusterfork/singlepp-references">here</a>.</p>
+<h3>Basic usage</h3>
+<p>Assuming the files have been downloaded and are available as <code>ArrayBuffer</code>s, we load the reference:</p>
+<pre class="prettyprint source lang-js"><code>let loaded = scran.loadLabelledReferenceFromBuffers(rankbuf, markbuf, labbuf); // files 1, 2 and 3, respectively.
 </code></pre>
-        </article>
-    </section>
+<p>We then build the reference given <code>testfeatures</code>, an array with the names of the features in our test dataset;
+and <code>reffeatures</code>, an array with the names of the features in our reference (extracted from file <strong>4</strong>).</p>
+<pre class="prettyprint source lang-js"><code>let built = scran.buildLabelledReference(testfeatures, loaded, reffeatures);
+</code></pre>
+<p>Finally, we can generate labels from our input matrix.
+This returns indices that can be cross-referenced to the actual names of the labels in file <strong>5</strong>.</p>
+<pre class="prettyprint source lang-js"><code>let labels = scran.labelCells(mat, built);
+</code></pre>
+<p>For interactive use, we may prefer to generate per-cluster labels rather than per-cell labels, as the former is much faster.
+This is easily done by computing the cluster means, storing them in a dense column-major array and passing that array to <code>labelCells</code>.</p>
+<h3>Integrated analyses</h3>
+<p>Advanced users can integrate cell labels from multiple references with the <code>integrateCellLabels</code> function.
+Firstly, we classify our test dataset against each of the references individually:</p>
+<pre class="prettyprint source lang-js"><code>let loaded_A = scran.loadLabelledReferenceFromBuffers(rankbuf_A, markbuf_A, labbuf_A); 
+let built_A = scran.buildLabelledReference(testfeatures, loaded_A, reffeatures_A);
+let labels_A = scran.labelCells(mat, built_A);
 
+let loaded_B = scran.loadLabelledReferenceFromBuffers(rankbuf_B, markbuf_B, labbuf_B); 
+let built_B = scran.buildLabelledReference(testfeatures, loaded_B, reffeatures_B);
+let labels_B = scran.labelCells(mat, built_B);
+</code></pre>
+<p>We then integrate the references and the associated labels to obtain a single set of cell type calls across all references.
+More specifically, this chooses the best reference for each cell, based on each reference's best cell type call for that cell.</p>
+<pre class="prettyprint source lang-js"><code>let interbuilt = scran.integrateLabelledReferences(testfeatures, 
+    [loaded_A, loaded_B], 
+    [reffeatures_A, reffeatures_B], 
+    [built_A, built_B]
+);
 
+let interlabels = scran.integrateCellLabels(mat, [labels_A, labels_B], inter);
+</code></pre>
+</article>
 
+</section>
 
     
     
@@ -116,7 +103,7 @@ export function groupedSizeFactors(x, groups, { center = true, buffer = null, pr
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.10</a> on Thu Jul 07 2022 00:30:32 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.10</a> on Thu Jul 07 2022 00:30:33 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>

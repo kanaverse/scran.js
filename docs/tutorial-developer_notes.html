@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>groupedSizeFactors.js - Documentation</title>
+    <title>Tutorial: Developer notes - Documentation</title>
     
     
     <script src="scripts/prettify/prettify.js"></script>
@@ -34,80 +34,58 @@
 
 <div id="main">
     
-    <h1 class="page-title">groupedSizeFactors.js</h1>
+    <h1 class="page-title">Tutorial: Developer notes</h1>
     
 
-    
-
-
-
-    
     <section>
-        <article>
-            <pre class="prettyprint source linenums"><code>import * as wasm from "./wasm.js";
-import * as utils from "./utils.js";
-import { ScranMatrix } from "./ScranMatrix.js";
-import * as wa from "wasmarrays.js";
 
-/**
- * Compute group-based size factors, where composition biases are removed between groups and library size normalization is performed within groups.
- * This allows us to generate per-cell size factors in spite of the sparsity.
- *
- * @param {ScranMatrix} x The count matrix, usually after filtering.
- * @param {(Int32WasmArray|Array|TypedArray)} groups - Array containing the group assignment for each cell.
- * This should have length equal to the number of cells and contain all values from 0 to `n - 1` at least once, where `n` is the number of groups.
- * @param {object} [options] - Optional parameters.
- * @param {boolean} [options.center=true] - Whether to return centered size factors.
- * If `false`, the size factors can be interpreted as the scaling to match `reference`.
- * @param {?Float64WasmArray} [options.buffer=null] - Output buffer for the size factors.
- * This should have length equal to the number of columns in `x`.
- * @param {number} [options.priorCount=10] - Prior count to use for shrinking size factors towards the relative library size.
- * Larger values result in stronger shrinkage when the coverage is low.
- * @param {?number} [options.reference=null] - Group to use as a reference.
- * This should be an entry in `groups`. 
- * If `null`, it is automatically determined.
- *
- * @return {Float64WasmArray} Array of length equal to the number of columns in `x`, containing the size factors for all cells.
- * If `buffer` is supplied, it is directly filled and returned.
- */
-export function groupedSizeFactors(x, groups, { center = true, buffer = null, priorCount = 10, reference = null } = {}) {
-    var local_buffer;
-    var output;
-    var group_arr;
-
-    try {
-        if (!(buffer instanceof wa.Float64WasmArray)) {
-            local_buffer = utils.createFloat64WasmArray(x.numberOfColumns());
-            output = local_buffer;
-        } else {
-            if (buffer.length !== x.numberOfColumns()) {
-                throw new Error("length of 'buffer' must be equal to the number of columns in 'x'");
-            }
-            output = buffer;
-        }
-
-        group_arr = utils.wasmifyArray(groups, "Int32WasmArray");
-        if (reference == null) {
-            reference = -1;
-        }
-
-        wasm.call(module => module.grouped_size_factors(x.matrix, group_arr.offset, center, priorCount, reference, output.offset));
-
-    } catch (e) {
-        utils.free(local_buffer);
-        throw e;
-    } finally {
-        utils.free(group_arr);
-    }
+<header>
     
-    return output;
-}
+
+    <h2>Developer notes</h2>
+</header>
+
+<article>
+    <h3>Overview</h3>
+<p>We use WebAssembly (Wasm) to enable efficient client-side execution of common steps in a scRNA-seq analysis.
+Code to perform each step is written in C++ and compiled to Wasm using the <a href="https://emscripten.org/">Emscripten toolchain</a>.
+Some of the relevant C++ libraries are listed below:</p>
+<ul>
+<li><a href="https://github.com/LTLA/libscran">libscran</a> provides C++ implementations of key functions in <strong>scran</strong> and its fellow packages <strong>scater</strong> and <strong>scuttle</strong>.
+This includes quality control, normalization, feature selection, PCA, clustering and dimensionality reduction.</li>
+<li><a href="https://github.com/LTLA/tatami">tatami</a> provides an abstract interface to different matrix classes, focusing on row and column extraction.</li>
+<li><a href="https://github.com/LTLA/knncolle">knncolle</a> wraps a number of nearest neighbor detection methods in a consistent interface.</li>
+<li><a href="https://github.com/LTLA/CppIrlba">CppIrlba</a> contains a C++ port of the IRLBA algorithm for approximate PCA.</li>
+<li><a href="https://github.com/LTLA/CppKmeans">CppKmeans</a> contains C++ ports of the Hartigan-Wong and Lloyd algorithms for k-means clustering.</li>
+<li><a href="https://github.com/LTLA/qdtsne">qdtsne</a> contains a refactored C++ implementation of the Barnes-Hut t-SNE dimensionality reduction algorithm.</li>
+<li><a href="https://github.com/LTLA/umappp">umappp</a> contains a refactored C++ implementation of the UMAP dimensionality reduction algorithm.</li>
+</ul>
+<p>For each step, we use Emscripten to compile the associated C++ functions into Wasm and generate Javascript-visible bindings.
+We can then load the Wasm binary into a web application and call the desired functions on user-supplied data.
+Reference documentation for the Wasm bindings is available <a href="https://jkanche.github.io/scran.js/wasm">here</a>.</p>
+<h3>Build procedure</h3>
+<p>Make sure <a href="https://emscripten.org/docs/getting_started/downloads.html">Emscripten</a> and <a href="https://cmake.org/download/">CMake</a> are installed on your machine.
+Running the <code>build.sh</code> script will then generate ES6 and Node.js-compatible builds.
+To build the Node.js version:</p>
+<pre class="prettyprint source lang-sh"><code>bash build.sh main
 </code></pre>
-        </article>
-    </section>
+<p>To build the browser-compatible version:</p>
+<pre class="prettyprint source lang-sh"><code>bash build.sh module
+</code></pre>
+<p>This will create the <code>main</code> and <code>module</code> directories respectively,
+containing the Wasm file in the <code>wasm</code> subdirectory as well as copying all the relevant Javascript bindings.</p>
+<h3>Tests</h3>
+<p>Run the test suite by calling:</p>
+<pre class="prettyprint source"><code># install dev dependencies
+npm install --include=dev
+npm run test
+</code></pre>
+<p>For earlier versions of Node, you may instead need to do some combination of the following options:</p>
+<pre class="prettyprint source"><code>node --experimental-vm-modules --experimental-wasm-threads --experimental-wasm-bulk-memory --experimental-wasm-bigint node_modules/jest/bin/jest.js
+</code></pre>
+</article>
 
-
-
+</section>
 
     
     
@@ -116,7 +94,7 @@ export function groupedSizeFactors(x, groups, { center = true, buffer = null, pr
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.10</a> on Thu Jul 07 2022 00:30:32 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.10</a> on Thu Jul 07 2022 00:30:33 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>

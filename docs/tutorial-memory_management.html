@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>groupedSizeFactors.js - Documentation</title>
+    <title>Tutorial: Manual memory management - Documentation</title>
     
     
     <script src="scripts/prettify/prettify.js"></script>
@@ -34,80 +34,49 @@
 
 <div id="main">
     
-    <h1 class="page-title">groupedSizeFactors.js</h1>
+    <h1 class="page-title">Tutorial: Manual memory management</h1>
     
 
-    
-
-
-
-    
     <section>
-        <article>
-            <pre class="prettyprint source linenums"><code>import * as wasm from "./wasm.js";
-import * as utils from "./utils.js";
-import { ScranMatrix } from "./ScranMatrix.js";
-import * as wa from "wasmarrays.js";
 
-/**
- * Compute group-based size factors, where composition biases are removed between groups and library size normalization is performed within groups.
- * This allows us to generate per-cell size factors in spite of the sparsity.
- *
- * @param {ScranMatrix} x The count matrix, usually after filtering.
- * @param {(Int32WasmArray|Array|TypedArray)} groups - Array containing the group assignment for each cell.
- * This should have length equal to the number of cells and contain all values from 0 to `n - 1` at least once, where `n` is the number of groups.
- * @param {object} [options] - Optional parameters.
- * @param {boolean} [options.center=true] - Whether to return centered size factors.
- * If `false`, the size factors can be interpreted as the scaling to match `reference`.
- * @param {?Float64WasmArray} [options.buffer=null] - Output buffer for the size factors.
- * This should have length equal to the number of columns in `x`.
- * @param {number} [options.priorCount=10] - Prior count to use for shrinking size factors towards the relative library size.
- * Larger values result in stronger shrinkage when the coverage is low.
- * @param {?number} [options.reference=null] - Group to use as a reference.
- * This should be an entry in `groups`. 
- * If `null`, it is automatically determined.
- *
- * @return {Float64WasmArray} Array of length equal to the number of columns in `x`, containing the size factors for all cells.
- * If `buffer` is supplied, it is directly filled and returned.
- */
-export function groupedSizeFactors(x, groups, { center = true, buffer = null, priorCount = 10, reference = null } = {}) {
-    var local_buffer;
-    var output;
-    var group_arr;
+<header>
+    
+
+    <h2>Manual memory management</h2>
+</header>
+
+<article>
+    <p>Several objects (any <code>*Results</code>, the <code>ScranMatrix</code>) returned by <strong>scran.js</strong> functions contain allocations on the Wasm heap.
+These allocations will be automatically freed when the object is garbage-collected.
+Thus, strictly speaking, it is not necessary to <code>free()</code> them manually to release the heap memory.</p>
+<p>That said, high-performance applications will benefit from manual <code>free()</code> once the object is no longer needed.
+The Javascript garbage collector is not guaranteed to run in a predictable manner and may not release memory in the most efficient manner.
+Calling <code>free()</code> directly will avoid any performance fluctuations due to untimely garbage collection.</p>
+<p>We often use the <code>try</code>/<code>finally</code> pattern below to free memory on an object as soon as it is not needed.
+This avoids memory leaks when the functions throw an error before the final result is obtained.
+The <code>scran.free()</code> function will free any allocated object and skip <code>null</code> or undefined values.</p>
+<pre class="prettyprint source lang-js"><code>// The result of interest, not on the Wasm heap.
+let result;
+
+{
+    // Temporary object that needs to be freed.
+    let temp_obj;
 
     try {
-        if (!(buffer instanceof wa.Float64WasmArray)) {
-            local_buffer = utils.createFloat64WasmArray(x.numberOfColumns());
-            output = local_buffer;
-        } else {
-            if (buffer.length !== x.numberOfColumns()) {
-                throw new Error("length of 'buffer' must be equal to the number of columns in 'x'");
-            }
-            output = buffer;
-        }
+        temp_obj = scran.initializeSparseMatrixFromMatrixMarketBuffer(buffer);
 
-        group_arr = utils.wasmifyArray(groups, "Int32WasmArray");
-        if (reference == null) {
-            reference = -1;
-        }
-
-        wasm.call(module => module.grouped_size_factors(x.matrix, group_arr.offset, center, priorCount, reference, output.offset));
-
-    } catch (e) {
-        utils.free(local_buffer);
-        throw e;
+        // Do something to get the result of interest.
+        result = temp_obj.row(10);
     } finally {
-        utils.free(group_arr);
+        scran.free(temp_obj);
     }
-    
-    return output;
 }
+
+// Continue work with 'result'.
 </code></pre>
-        </article>
-    </section>
+</article>
 
-
-
+</section>
 
     
     
@@ -116,7 +85,7 @@ export function groupedSizeFactors(x, groups, { center = true, buffer = null, pr
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.10</a> on Thu Jul 07 2022 00:30:32 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.10</a> on Thu Jul 07 2022 00:30:33 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>
