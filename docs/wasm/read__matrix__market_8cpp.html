@@ -73,26 +73,27 @@ $(function() {
 <code>#include &lt;emscripten/bind.h&gt;</code><br />
 <code>#include &quot;<a class="el" href="utils_8h_source.html">utils.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="NumericMatrix_8h_source.html">NumericMatrix.h</a>&quot;</code><br />
+<code>#include &lt;cstdint&gt;</code><br />
 <code>#include &quot;tatami/ext/MatrixMarket_layered.hpp&quot;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for read_matrix_market.cpp:</div>
 <div class="dyncontent">
 <div class="center"><img src="read__matrix__market_8cpp__incl.png" border="0" usemap="#aread__matrix__market_8cpp" alt=""/></div>
 <map name="aread__matrix__market_8cpp" id="aread__matrix__market_8cpp">
-<area shape="rect" title=" " alt="" coords="221,5,381,32"/>
+<area shape="rect" title=" " alt="" coords="240,5,400,32"/>
 <area shape="rect" title=" " alt="" coords="5,87,101,114"/>
 <area shape="rect" title=" " alt="" coords="126,87,250,114"/>
-<area shape="rect" href="utils_8h.html" title=" " alt="" coords="273,87,329,114"/>
-<area shape="rect" href="NumericMatrix_8h.html" title="Javascript wrapper for a numeric matrix." alt="" coords="395,87,511,114"/>
-<area shape="rect" title=" " alt="" coords="535,80,694,121"/>
-<area shape="rect" title=" " alt="" coords="63,169,121,196"/>
-<area shape="rect" title=" " alt="" coords="145,169,207,196"/>
-<area shape="rect" title=" " alt="" coords="231,169,289,196"/>
-<area shape="rect" title=" " alt="" coords="313,169,385,196"/>
-<area shape="rect" href="JSVector_8h.html" title=" " alt="" coords="410,169,497,196"/>
-<area shape="rect" href="parallel_8h.html" title=" " alt="" coords="521,169,594,196"/>
-<area shape="rect" title=" " alt="" coords="618,169,726,196"/>
-<area shape="rect" title=" " alt="" coords="421,244,486,271"/>
+<area shape="rect" href="utils_8h.html" title=" " alt="" coords="325,87,381,114"/>
+<area shape="rect" title=" " alt="" coords="156,169,217,196"/>
+<area shape="rect" href="NumericMatrix_8h.html" title="Javascript wrapper for a numeric matrix." alt="" coords="489,87,605,114"/>
+<area shape="rect" title=" " alt="" coords="629,80,787,121"/>
+<area shape="rect" title=" " alt="" coords="241,169,300,196"/>
+<area shape="rect" title=" " alt="" coords="324,169,383,196"/>
+<area shape="rect" title=" " alt="" coords="407,169,479,196"/>
+<area shape="rect" href="JSVector_8h.html" title=" " alt="" coords="503,169,590,196"/>
+<area shape="rect" href="parallel_8h.html" title=" " alt="" coords="614,169,687,196"/>
+<area shape="rect" title=" " alt="" coords="711,169,819,196"/>
+<area shape="rect" title=" " alt="" coords="514,244,579,271"/>
 </map>
 </div>
 </div><table class="memberdecls">
@@ -102,6 +103,10 @@ Functions</h2></td></tr>
 <tr class="separator:a0280967f65efd8978182d5eddbe8ae71"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9e00f87929f7e8c327d5ba41ea25c0e1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structNumericMatrix.html">NumericMatrix</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="read__matrix__market_8cpp.html#a9e00f87929f7e8c327d5ba41ea25c0e1">read_matrix_market_from_file</a> (std::string path, int compressed)</td></tr>
 <tr class="separator:a9e00f87929f7e8c327d5ba41ea25c0e1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a95941a8d08f8b43b5c458b09930aecea"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="read__matrix__market_8cpp.html#a95941a8d08f8b43b5c458b09930aecea">read_matrix_market_header_from_buffer</a> (uintptr_t buffer, int size, int compressed, uintptr_t output)</td></tr>
+<tr class="separator:a95941a8d08f8b43b5c458b09930aecea"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaaefff81fb5c8ce01a80b84d4b7b1cc3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="read__matrix__market_8cpp.html#aaaefff81fb5c8ce01a80b84d4b7b1cc3">read_matrix_market_header_from_file</a> (std::string path, int compressed, uintptr_t output)</td></tr>
+<tr class="separator:aaaefff81fb5c8ce01a80b84d4b7b1cc3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6a5eb5a91539e81e88a1b2b47fb6548a"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="read__matrix__market_8cpp.html#a6a5eb5a91539e81e88a1b2b47fb6548a">EMSCRIPTEN_BINDINGS</a> (read_matrix_market)</td></tr>
 <tr class="separator:a6a5eb5a91539e81e88a1b2b47fb6548a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
@@ -175,6 +180,80 @@ Functions</h2></td></tr>
           <td></td>
           <td class="paramtype">int&#160;</td>
           <td class="paramname"><em>compressed</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a95941a8d08f8b43b5c458b09930aecea" name="a95941a8d08f8b43b5c458b09930aecea"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a95941a8d08f8b43b5c458b09930aecea">&#9670;&nbsp;</a></span>read_matrix_market_header_from_buffer()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void read_matrix_market_header_from_buffer </td>
+          <td>(</td>
+          <td class="paramtype">uintptr_t&#160;</td>
+          <td class="paramname"><em>buffer</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>size</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>compressed</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uintptr_t&#160;</td>
+          <td class="paramname"><em>output</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="aaaefff81fb5c8ce01a80b84d4b7b1cc3" name="aaaefff81fb5c8ce01a80b84d4b7b1cc3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aaaefff81fb5c8ce01a80b84d4b7b1cc3">&#9670;&nbsp;</a></span>read_matrix_market_header_from_file()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void read_matrix_market_header_from_file </td>
+          <td>(</td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>path</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>compressed</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uintptr_t&#160;</td>
+          <td class="paramname"><em>output</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
