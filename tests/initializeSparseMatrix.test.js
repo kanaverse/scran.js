@@ -21,12 +21,24 @@ test("initialization from dense array works correctly", () => {
     expect(compare.equalArrays(mat.row(0), [1, 0, 0, 2, 0])).toBe(true);
     expect(compare.equalArrays(mat.row(2), [0, 0, 4, 0, 8])).toBe(true);
 
+    // Works with pre-supplied buffers.
+    let row_buf = scran.createFloat64WasmArray(5);
+    expect(compare.equalArrays(mat.row(1, { buffer: row_buf }), [5, 7, 10, 0, 5])).toBe(true);
+    let col_buf = scran.createFloat64WasmArray(3);
+    expect(compare.equalArrays(mat.column(2, { buffer: col_buf }), [0, 10, 4])).toBe(true);
+
     // Compare to a simple initialization.
     var dense = scran.initializeDenseMatrixFromDenseArray(3, 5, vals);
     expect(dense.numberOfRows()).toBe(3);
     expect(dense.numberOfRows()).toBe(3);
     expect(dense.isReorganized()).toBe(false);
     expect(dense.isSparse()).toBe(false);
+
+    // freeing everything.
+    vals.free();
+    mat.free();
+    col_buf.free();
+    row_buf.free();
 })
 
 test("initialization from compressed values works correctly", () => {
@@ -46,6 +58,9 @@ test("initialization from compressed values works correctly", () => {
     var id = mat.identities();
     expect(compare.equalArrays(id, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10])).toBe(true);
 
+    let id_buffer = scran.createInt32WasmArray(11);
+    expect(compare.equalArrays(id, mat.identities({ buffer: id_buffer }))).toBe(true);
+
     // Extracting the first and last columns to check for correctness.
     expect(compare.equalArrays(mat.column(0), [0, 0, 0, 1, 0, 5, 0, 0, 0, 0, 0])).toBe(true);
     expect(compare.equalArrays(mat.column(9), [0, 0, 0, 0, 0, 0, 5, 0, 0, 8, 0])).toBe(true);
@@ -59,6 +74,7 @@ test("initialization from compressed values works correctly", () => {
     indices.free();
     indptrs.free();
     mat.free();
+    id_buffer.free();
 })
 
 test("initialization from compressed values works with reorganization", () => {

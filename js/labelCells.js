@@ -225,7 +225,7 @@ export function buildLabelledReference(features, loaded, referenceFeatures, { to
 }
 
 function label_cells(x, expectedNumberOfFeatures, buffer, numberOfFeatures, numberOfCells, FUN, msg) {
-    var output;
+    var output = null;
     var matbuf;
     var tempmat;
     var tempbuf;
@@ -268,8 +268,6 @@ function label_cells(x, expectedNumberOfFeatures, buffer, numberOfFeatures, numb
         FUN(target, ptr);
         if (!use_buffer) {
             output = tempbuf.slice();
-        } else {
-            output = buffer.array();
         }
 
     } finally {
@@ -277,7 +275,7 @@ function label_cells(x, expectedNumberOfFeatures, buffer, numberOfFeatures, numb
         utils.free(tempmat);
         utils.free(tempbuf);
     }
-    
+
     return output;
 }
 
@@ -294,13 +292,24 @@ function label_cells(x, expectedNumberOfFeatures, buffer, numberOfFeatures, numb
  * @param {number} [options.quantile=0.8] - Quantile on the correlations to use to compute the score for each label.
  *
  * @return {Int32Array} Array containing the labels for each cell in `x`.
- * If `buffer` is supplied, the returned array is a view into it.
+ *
+ * If `buffer` was supplied, the returned array is a view into it.
+ * Note that this may be invalidated on the next allocation on the Wasm heap.
  */
 export function labelCells(x, reference, { buffer = null, numberOfFeatures = null, numberOfCells = null, quantile = 0.8 } = {}) {
     let FUN = (target, ptr) => {
         wasm.call(module => module.run_singlepp(target, reference.reference, quantile, ptr));
     };
-    return label_cells(x, reference.expectedNumberOfFeatures, buffer, numberOfFeatures, numberOfCells, FUN, "reference");
+
+    let output = label_cells(x, reference.expectedNumberOfFeatures, buffer, numberOfFeatures, numberOfCells, FUN, "reference");
+
+    // This is done as the final step to avoid invalidation upon any touching
+    // of the Wasm heap, anywhere... even upon freeing.
+    if (output === null) {
+        output = buffer.array();
+    }
+
+    return output;
 }
 
 /**
@@ -454,7 +463,9 @@ export function integrateLabelledReferences(features, loaded, referenceFeatures,
  * @param {number} [options.quantile=0.8] - Quantile on the correlations to use to compute the score for each label.
  *
  * @return {Int32Array} Array containing the best reference for each cell in `x`.
- * If `buffer` is supplied, the returned array is a view into it.
+ *
+ * If `buffer` was supplied, the returned array is a view into it.
+ * Note that this may be invalidated on the next allocation on the Wasm heap.
  */
 export function integrateCellLabels(x, assigned, integrated, { buffer = null, numberOfFeatures = null, numberOfCells = null, quantile = 0.8 } = {}) { 
     let nrefs = integrated.numberOfReferences();
@@ -498,6 +509,12 @@ export function integrateCellLabels(x, assigned, integrated, { buffer = null, nu
         for (const x of assigned_arrs) {
             utils.free(x);
         }
+    }
+
+    // This is done as the final step to avoid invalidation upon any touching
+    // of the Wasm heap, anywhere... even upon freeing.
+    if (output === null) {
+        output = buffer.array();
     }
 
     return output;

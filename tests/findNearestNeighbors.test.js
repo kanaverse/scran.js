@@ -71,9 +71,24 @@ test("neighbor search works with serialization", () => {
     expect(compare.equalArrays(dump.indices, dump2.indices)).toBe(true);
     expect(compare.equalArrays(dump.distances, dump2.distances)).toBe(true);
 
+    // Using pre-specified buffers.
+    let buf_runs = scran.createInt32WasmArray(res.numberOfCells());
+    let buf_indices = scran.createInt32WasmArray(res.size());
+    let buf_distances = scran.createFloat64WasmArray(res.size());
+
+    let dump3 = res.serialize({ runs: buf_runs, indices: buf_indices, distances: buf_distances });
+    expect(compare.equalArrays(dump.runs, dump3.runs)).toBe(true);
+    expect(compare.equalArrays(dump.indices, dump3.indices)).toBe(true);
+    expect(compare.equalArrays(dump.distances, dump3.distances)).toBe(true);
+
     // Cleaning up.
     buffer.free();
     index.free();
+
     res.free();
     res2.free();
+
+    buf_runs.free();
+    buf_indices.free();
+    buf_distances.free();
 });

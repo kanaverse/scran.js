@@ -23,7 +23,8 @@ import * as utils from "./utils.js";
  * If `null`, an array is allocated by the function.
  * 
  * @return {Float64WasmArray} Per-cell size factors for each column of `x`.
- * If `buffer` is supplied, the return value is a view on it.
+ *
+ * If `buffer` is supplied, it is directly used as the return value.
  */
 export function quickAdtSizeFactors(x, { numberOfClusters = 20, numberOfPCs = 25, totals = null, block = null, buffer = null } = {}) {
     let norm, pcs;
@@ -41,23 +42,23 @@ export function quickAdtSizeFactors(x, { numberOfClusters = 20, numberOfPCs = 25
         utils.free(pcs);
     }
 
-    let output;
+    let local_buffer;
     try {
         if (buffer === null) {
-            output = utils.createFloat64WasmArray(x.numberOfColumns());
-        } else {
-            if (buffer.length !== x.numberOfColumns()) {
-                throw new Error("length of 'buffer' should be equal to the number of columns in 'x'");
-            }
-            output = buffer.view();
+            local_buffer = utils.createFloat64WasmArray(x.numberOfColumns());
+            buffer = local_buffer;
+        } else if (buffer.length !== x.numberOfColumns()) {
+            throw new Error("length of 'buffer' should be equal to the number of columns in 'x'");
         }
-        grouped.groupedSizeFactors(x, clust.clusters({ copy: "view" }), { buffer: output });
+        grouped.groupedSizeFactors(x, clust.clusters({ copy: "view" }), { buffer: buffer });
+
     } catch (e) {
-        utils.free(output);
+        utils.free(local_buffer);
         throw e;
+
     } finally {
         utils.free(clust);
     }
 
-    return output;
+    return buffer;
 }

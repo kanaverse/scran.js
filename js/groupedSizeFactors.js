@@ -22,22 +22,19 @@ import * as wa from "wasmarrays.js";
  * If `null`, it is automatically determined.
  *
  * @return {Float64WasmArray} Array of length equal to the number of columns in `x`, containing the size factors for all cells.
- * If `buffer` is supplied, it is directly filled and returned.
+ *
+ * If `buffer` was supplied, it is used as the return value.
  */
 export function groupedSizeFactors(x, groups, { center = true, buffer = null, priorCount = 10, reference = null } = {}) {
     var local_buffer;
-    var output;
     var group_arr;
 
     try {
         if (!(buffer instanceof wa.Float64WasmArray)) {
             local_buffer = utils.createFloat64WasmArray(x.numberOfColumns());
-            output = local_buffer;
-        } else {
-            if (buffer.length !== x.numberOfColumns()) {
-                throw new Error("length of 'buffer' must be equal to the number of columns in 'x'");
-            }
-            output = buffer;
+            buffer = local_buffer;
+        } else if (buffer.length !== x.numberOfColumns()) {
+            throw new Error("length of 'buffer' must be equal to the number of columns in 'x'");
         }
 
         group_arr = utils.wasmifyArray(groups, "Int32WasmArray");
@@ -45,14 +42,15 @@ export function groupedSizeFactors(x, groups, { center = true, buffer = null, pr
             reference = -1;
         }
 
-        wasm.call(module => module.grouped_size_factors(x.matrix, group_arr.offset, center, priorCount, reference, output.offset));
+        wasm.call(module => module.grouped_size_factors(x.matrix, group_arr.offset, center, priorCount, reference, buffer.offset));
 
     } catch (e) {
         utils.free(local_buffer);
         throw e;
+
     } finally {
         utils.free(group_arr);
     }
     
-    return output;
+    return buffer;
 }

@@ -47,6 +47,7 @@ export function mnnCorrect(x, block, {
     approximate = true
 } = {}) {
 
+    let local_buffer;
     let x_data;
     let block_data;
 
@@ -64,7 +65,10 @@ export function mnnCorrect(x, block, {
         }
 
         if (buffer == null) {
-            buffer = utils.createFloat64WasmArray(numberOfCells * numberOfDims);
+            local_buffer = utils.createFloat64WasmArray(numberOfCells * numberOfDims);
+            buffer = local_buffer;
+        } else if (buffer.length !== x.length) {
+            throw new Error("length of 'buffer' must be equal to the product of the number of dimensions and cells");
         }
 
         block_data = utils.wasmifyArray(block, "Int32WasmArray");
@@ -85,6 +89,10 @@ export function mnnCorrect(x, block, {
             referencePolicy,
             approximate
         ));
+
+    } catch (e) {
+        utils.free(local_buffer);
+        throw e;
         
     } finally {
         utils.free(x_data);

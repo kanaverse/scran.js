@@ -49,17 +49,18 @@ export class ScranMatrix {
      * @param {number} i - Index of the row to extract.
      * This should be a non-negative integer less than {@linkcode ScranMatrix#numberOfRows numberOfRows}.
      * @param {object} [options] - Optional parameters.
-     * @param {?Float64WasmArray} [options.buffer=null] - Buffer to extract into.
+     * @param {?Float64WasmArray} [options.buffer=null] - Buffer for storing the extracted data.
      * If supplied, this should have length equal to {@linkcode ScranMatrix#numberOfColumns numberOfColumns}.
      *
-     * @return {Float64Array|undefined}
-     * If `buffer` is not supplied, a Float64Array is returned containing the contents of row `i`.
-     * Otherwise, `buffer` is filled with row `i` and nothing is returned.
+     * @return {Float64Array} An array containing the contents of row `i`.
+     *
+     * If `buffer` was supplied, the returned array is a view into it.
+     * Note that this may be invalidated on the next allocation on the Wasm heap.
      */
     row(i, { buffer = null } = {}) {
         if (buffer != null) {
             this.#matrix.row(i, buffer.offset);
-            return;
+            return buffer.array();
         } else {
             var output;
             buffer = utils.createFloat64WasmArray(this.#matrix.ncol());
@@ -77,17 +78,18 @@ export class ScranMatrix {
      * @param {number} i - Index of the column to extract.
      * This should be a non-negative integer less than {@linkcode ScranMatrix#numberOfColumns numberOfColumns}.
      * @param {object} [options] - Optional parameters.
-     * @param {?Float64WasmArray} [options.buffer=null] - Buffer to extract into.
+     * @param {?Float64WasmArray} [options.buffer=null] - Buffer for storing the extracted data.
      * If supplied, this should have length equal to {@linkcode ScranMatrix#numberOfRows numberOfRows}.
      *
-     * @return {Float64Array|undefined}
-     * If `buffer` is not supplied, a Float64Array is returned containing the contents of column `i`.
-     * Otherwise, `buffer` is filled with column `i` and nothing is returned.
+     * @return {Float64Array} An array containing the contents of column `i`.
+     *
+     * If `buffer` was supplied, the returned array is a view into it.
+     * Note that this may be invalidated on the next allocation on the Wasm heap.
      */
     column(i, { buffer = null } = {}) {
         if (buffer != null) {
             this.#matrix.column(i, buffer.offset);
-            return;
+            return buffer.array();
         } else {
             var output;
             buffer = utils.createFloat64WasmArray(this.#matrix.nrow());
@@ -141,17 +143,15 @@ export class ScranMatrix {
      * @param {?Int32WasmArray} [options.buffer=null] Buffer to extract into.
      * If supplied, this should have length equal to {@linkcode ScranMatrix#numberOfRows numberOfRows}.
      *
-     * @return {Int32Array}
-     * If `buffer` is not supplied, an Int32Array is returned containing the row identities.
-     * These represent the row indices in the original dataset.
+     * @return {Int32Array} An array containing the row identities.
      *
-     * If `buffer` is supplied, it is filled with the row identities.
-     * A reference to `buffer` is returned.
+     * If `buffer` was supplied, the returned array is a view into it.
+     * Note that this may be invalidated on the next allocation on the Wasm heap.
      */
     identities({ buffer = null } = {}) {
         if (buffer != null) {
             this.#matrix.identities(buffer.offset);
-            return buffer;
+            return buffer.array();
         } else {
             var output;
             buffer = utils.createInt32WasmArray(this.#matrix.nrow());
