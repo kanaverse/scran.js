@@ -33,6 +33,7 @@
     "keywords": [
         "bioinformatics",
         "scRNA-seq",
+        "single-cell",
         "webassembly"
     ],
     "repository": "github:jkanche/scran.js",
