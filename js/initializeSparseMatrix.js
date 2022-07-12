@@ -1,4 +1,5 @@
 import * as gc from "./gc.js";
+import * as wasm from "./wasm.js";
 import * as utils from "./utils.js"; 
 import { ScranMatrix } from "./ScranMatrix.js";
 
@@ -125,14 +126,7 @@ export function initializeSparseMatrixFromMatrixMarket(x, { compressed = null } 
     var output;
 
     try {
-        if (compressed == null) {
-            compressed = -1;
-        } else if (compressed) {
-            compressed = 1;
-        } else {
-            compressed = 0;
-        }
-
+        compressed = convert_compressed(compressed);
         if (typeof x !== "string") {
             buf_data = utils.wasmifyArray(x, "Uint8WasmArray");
             output = gc.call(
@@ -157,9 +151,60 @@ export function initializeSparseMatrixFromMatrixMarket(x, { compressed = null } 
     return output;
 }
 
-// From 
+function convert_compressed(compressed) {
+    if (compressed === null) {
+        return -1;
+    } else if (compressed) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
+// For back-compatibility, deprecated as of 0.3.0.
 export function initializeSparseMatrixFromMatrixMarketBuffer(x, { compressed = null } = {}) {
     return initializeSparseMatrixFromMatrixMarket(x, { compressed: compressed });
+}
+
+/** 
+ * Extract dimensions and other details from a MatrixMarket file.
+ *
+ * @param {Uint8WasmArray|Array|TypedArray|string} buffer Byte array containing the contents of a Matrix Market file with non-negative counts.
+ * This can be raw text or Gzip-compressed.
+ * 
+ * Alternatively, this can be a string containing a file path to a MatrixMarket file.
+ * On browsers, this should be a path in the virtual filesystem, typically created with {@linkcode writeFile}. 
+ * @param {object} [options] - Optional parameters.
+ * @param {boolean} [options.compressed=null] - Whether the buffer is Gzip-compressed.
+ * If `null`, we detect this automatically from the magic number in the header.
+ *
+ * @return {object} An object containing the number of `rows`, `columns` and `lines` in the matrix.
+ */
+export function extractMatrixMarketDimensions(x, { compressed = null } = {}) {
+    var buf_data;
+    var stats = utils.createFloat64WasmArray(3);
+    let output = {};
+
+    try {
+        compressed = convert_compressed(compressed);
+        if (typeof x !== "string") {
+            buf_data = utils.wasmifyArray(x, "Uint8WasmArray");
+            wasm.call(module => module.read_matrix_market_header_from_buffer(buf_data.offset, buf_data.length, compressed, stats.offset));
+        } else {
+            wasm.call(module => module.read_matrix_market_header_from_file(x, compressed, stats.offset));
+        }
+
+        let sarr = stats.array();
+        output.rows = sarr[0];
+        output.columns = sarr[1];
+        output.lines = sarr[2];
+
+    } finally {
+        utils.free(buf_data);
+        utils.free(stats);
+    }
+
+    return output;
 }
 
 /**

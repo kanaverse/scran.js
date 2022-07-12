@@ -136,6 +136,12 @@ test("initialization from MatrixMarket works correctly", () => {
     expect(mat2.numberOfColumns()).toBe(5);
     expect(compare.equalArrays(mat2.row(5), mat.row(5))).toBe(true);
 
+    // Inspection of dimensions works correctly.
+    let deets = scran.extractMatrixMarketDimensions(path);
+    expect(deets).toEqual({ rows: 11, columns: 5, lines: 6 });
+    let deets2 = scran.extractMatrixMarketDimensions(buffer);
+    expect(deets).toEqual(deets2);
+ 
     // Cleaning up.
     mat.free();
     mat2.free();
