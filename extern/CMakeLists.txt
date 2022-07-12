@@ -36,7 +36,7 @@ include(FetchContent)
 FetchContent_Declare(
   tatami 
   GIT_REPOSITORY https://github.com/LTLA/tatami
-  GIT_TAG 2b97a572e4d399de6e7e8615119b8a9ea09c9802
+  GIT_TAG 8becfe59b06d754e8c7e425323f181c4bd8c4e8e
 )
 FetchContent_MakeAvailable(tatami)
 

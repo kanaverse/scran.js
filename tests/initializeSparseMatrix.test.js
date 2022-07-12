@@ -1,6 +1,12 @@
 import * as scran from "../js/index.js";
 import * as compare from "./compare.js";
 import * as pako from "pako";
+import * as fs from "fs";
+
+const dir = "MatrixMarket-test-files";
+if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir);
+}
 
 beforeAll(async () => { await scran.initialize({ localFile: true }) });
 afterAll(async () => { await scran.terminate() });
@@ -113,16 +119,26 @@ test("initialization from MatrixMarket works correctly", () => {
     var buffer = scran.createUint8WasmArray(raw_buffer.length);
     buffer.set(raw_buffer);
 
-    var mat = scran.initializeSparseMatrixFromMatrixMarketBuffer(buffer);
+    var mat = scran.initializeSparseMatrixFromMatrixMarket(buffer);
     expect(mat.numberOfRows()).toBe(11);
     expect(mat.numberOfColumns()).toBe(5);
     expect(mat.isReorganized()).toBe(true);
 
-    expect(compare.equalArrays(mat.row(0), [0, 5, 0, 0, 8]));
-    expect(compare.equalArrays(mat.column(4), [0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0]));
+    expect(compare.equalArrays(mat.row(0), [0, 5, 0, 0, 8])).toBe(true);
+    expect(compare.equalArrays(mat.column(4), [8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])).toBe(true);
+
+    // Also works if we dump it into a file.
+    const path = dir + "/test.mtx";
+    fs.writeFileSync(path, content);
+    var mat2 = scran.initializeSparseMatrixFromMatrixMarket(path);
+
+    expect(mat2.numberOfRows()).toBe(11);
+    expect(mat2.numberOfColumns()).toBe(5);
+    expect(compare.equalArrays(mat2.row(5), mat.row(5))).toBe(true);
 
     // Cleaning up.
     mat.free();
+    mat2.free();
     buffer.free();
 })
 
@@ -133,18 +149,28 @@ test("initialization from Gzipped MatrixMarket works correctly with Gzip", () =>
     var buffer = scran.createUint8WasmArray(raw_buffer.length);
     buffer.set(raw_buffer);
 
-    var mat = scran.initializeSparseMatrixFromMatrixMarketBuffer(buffer);
+    var mat = scran.initializeSparseMatrixFromMatrixMarket(buffer);
     expect(mat.numberOfRows()).toBe(11);
     expect(mat.numberOfColumns()).toBe(5);
     expect(mat.isReorganized()).toBe(true);
 
-    expect(compare.equalArrays(mat.row(0), [0, 5, 0, 0, 8]));
-    expect(compare.equalArrays(mat.column(4), [0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0]));
+    expect(compare.equalArrays(mat.row(0), [0, 5, 0, 0, 8])).toBe(true);
+    expect(compare.equalArrays(mat.column(2), [0, 0, 0, 0, 0, 2, 0, 0, 0, 2, 0])).toBe(true);
     
     // Just checking that the it's actually compressed.
-    var mat2 = scran.initializeSparseMatrixFromMatrixMarketBuffer(buffer, { compressed: true });
+    var mat2 = scran.initializeSparseMatrixFromMatrixMarket(buffer, { compressed: true });
     expect(mat2.numberOfRows()).toBe(11);
     expect(mat2.numberOfColumns()).toBe(5);
+    expect(compare.equalArrays(mat2.row(4), mat.row(4))).toBe(true);
+
+    // Also works if we dump it into a file.
+    const path = dir + "/test.mtx.gz";
+    fs.writeFileSync(path, buffer.array());
+    var mat3 = scran.initializeSparseMatrixFromMatrixMarket(path);
+
+    expect(mat3.numberOfRows()).toBe(11);
+    expect(mat3.numberOfColumns()).toBe(5);
+    expect(compare.equalArrays(mat3.row(5), mat.row(5))).toBe(true);
 
     // Cleaning up.
     mat.free();

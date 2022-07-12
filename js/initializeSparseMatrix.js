@@ -109,29 +109,42 @@ export function initializeSparseMatrixFromCompressedVectors(numberOfRows, number
 /** 
  * Initialize a sparse matrix from a buffer containing a MatrixMarket file.
  *
- * @param {Uint8WasmArray|Array|TypedArray} buffer Byte array containing the contents of a Matrix Market file with non-negative counts.
+ * @param {Uint8WasmArray|Array|TypedArray|string} buffer Byte array containing the contents of a Matrix Market file with non-negative counts.
  * This can be raw text or Gzip-compressed.
+ * 
+ * Alternatively, this can be a string containing a file path to a MatrixMarket file.
+ * On browsers, this should be a path in the virtual filesystem, typically created with {@linkcode writeFile}. 
  * @param {object} [options] - Optional parameters.
  * @param {boolean} [options.compressed=null] - Whether the buffer is Gzip-compressed.
  * If `null`, we detect this automatically from the magic number in the header.
  *
  * @return {ScranMatrix} A layered sparse matrix.
  */
-export function initializeSparseMatrixFromMatrixMarketBuffer(buffer, { compressed = null } = {}) {
+export function initializeSparseMatrixFromMatrixMarket(x, { compressed = null } = {}) {
     var buf_data;
     var output;
 
     try {
-        var buf_data = utils.wasmifyArray(buffer, "Uint8WasmArray");
-        if (compressed === null) {
-            const arr = buf_data.array();
-            compressed = (arr.length >= 3 && arr[0] == 0x1F && arr[1] == 0x8B && arr[2] == 0x08);
+        if (compressed == null) {
+            compressed = -1;
+        } else if (compressed) {
+            compressed = 1;
+        } else {
+            compressed = 0;
         }
-        
-        output = gc.call(
-            module => module.read_matrix_market(buf_data.offset, buf_data.length, compressed),
-            ScranMatrix
-        );
+
+        if (typeof x !== "string") {
+            buf_data = utils.wasmifyArray(x, "Uint8WasmArray");
+            output = gc.call(
+                module => module.read_matrix_market_from_buffer(buf_data.offset, buf_data.length, compressed),
+                ScranMatrix
+            );
+        } else {
+            output = gc.call(
+                module => module.read_matrix_market_from_file(x, compressed),
+                ScranMatrix
+            );
+        }
 
     } catch(e) {
         utils.free(output);
@@ -142,6 +155,11 @@ export function initializeSparseMatrixFromMatrixMarketBuffer(buffer, { compresse
     }
 
     return output;
+}
+
+// From 
+export function initializeSparseMatrixFromMatrixMarketBuffer(x, { compressed = null } = {}) {
+    return initializeSparseMatrixFromMatrixMarket(x, { compressed: compressed });
 }
 
 /**
