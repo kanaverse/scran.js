@@ -98,18 +98,40 @@ Include dependency graph for read_matrix_market.cpp:</div>
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:ae97d4b17f48f6d25070f7e6dc91e20b3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structNumericMatrix.html">NumericMatrix</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="read__matrix__market_8cpp.html#ae97d4b17f48f6d25070f7e6dc91e20b3">read_matrix_market</a> (uintptr_t buffer, int size, bool compressed)</td></tr>
-<tr class="separator:ae97d4b17f48f6d25070f7e6dc91e20b3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0280967f65efd8978182d5eddbe8ae71"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structNumericMatrix.html">NumericMatrix</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="read__matrix__market_8cpp.html#a0280967f65efd8978182d5eddbe8ae71">read_matrix_market_from_buffer</a> (uintptr_t buffer, int size, int compressed)</td></tr>
+<tr class="separator:a0280967f65efd8978182d5eddbe8ae71"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9e00f87929f7e8c327d5ba41ea25c0e1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structNumericMatrix.html">NumericMatrix</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="read__matrix__market_8cpp.html#a9e00f87929f7e8c327d5ba41ea25c0e1">read_matrix_market_from_file</a> (std::string path, int compressed)</td></tr>
+<tr class="separator:a9e00f87929f7e8c327d5ba41ea25c0e1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6a5eb5a91539e81e88a1b2b47fb6548a"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="read__matrix__market_8cpp.html#a6a5eb5a91539e81e88a1b2b47fb6548a">EMSCRIPTEN_BINDINGS</a> (read_matrix_market)</td></tr>
+<tr class="separator:a6a5eb5a91539e81e88a1b2b47fb6548a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function Documentation</h2>
-<a id="ae97d4b17f48f6d25070f7e6dc91e20b3" name="ae97d4b17f48f6d25070f7e6dc91e20b3"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae97d4b17f48f6d25070f7e6dc91e20b3">&#9670;&nbsp;</a></span>read_matrix_market()</h2>
+<a id="a6a5eb5a91539e81e88a1b2b47fb6548a" name="a6a5eb5a91539e81e88a1b2b47fb6548a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6a5eb5a91539e81e88a1b2b47fb6548a">&#9670;&nbsp;</a></span>EMSCRIPTEN_BINDINGS()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="structNumericMatrix.html">NumericMatrix</a> read_matrix_market </td>
+          <td class="memname">EMSCRIPTEN_BINDINGS </td>
+          <td>(</td>
+          <td class="paramtype">read_matrix_market&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a0280967f65efd8978182d5eddbe8ae71" name="a0280967f65efd8978182d5eddbe8ae71"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0280967f65efd8978182d5eddbe8ae71">&#9670;&nbsp;</a></span>read_matrix_market_from_buffer()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structNumericMatrix.html">NumericMatrix</a> read_matrix_market_from_buffer </td>
           <td>(</td>
           <td class="paramtype">uintptr_t&#160;</td>
           <td class="paramname"><em>buffer</em>, </td>
@@ -123,7 +145,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">bool&#160;</td>
+          <td class="paramtype">int&#160;</td>
           <td class="paramname"><em>compressed</em>&#160;</td>
         </tr>
         <tr>
@@ -133,16 +155,34 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p >Read a (possibly compressed) Matrix Market file into a sparse <code><a class="el" href="structNumericMatrix.html" title="Javascript-visible interface for a matrix of doubles.">NumericMatrix</a></code> object. The file should only contain non-negative integer values.</p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">buffer</td><td>Offset to a unsigned 8-bit integer array of length <code>size</code>, containing the byte contents of the file. </td></tr>
-    <tr><td class="paramname">size</td><td>Length of the array referenced by <code>buffer</code>. </td></tr>
-    <tr><td class="paramname">compressed</td><td>Whether the file is Gzip-compressed.</td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>A <code><a class="el" href="structNumericMatrix.html" title="Javascript-visible interface for a matrix of doubles.">NumericMatrix</a></code> object containing the file contents. </dd></dl>
+
+</div>
+</div>
+<a id="a9e00f87929f7e8c327d5ba41ea25c0e1" name="a9e00f87929f7e8c327d5ba41ea25c0e1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9e00f87929f7e8c327d5ba41ea25c0e1">&#9670;&nbsp;</a></span>read_matrix_market_from_file()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structNumericMatrix.html">NumericMatrix</a> read_matrix_market_from_file </td>
+          <td>(</td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>path</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>compressed</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
 
 </div>
 </div>
