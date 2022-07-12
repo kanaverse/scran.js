@@ -193,7 +193,7 @@ This can be freed independently of the current instance.</p>
 
     
 
-    <h4 class="name" id="column"><span class="type-signature"></span>column<span class="signature">(i, options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Float64Array|undefined}</span></h4>
+    <h4 class="name" id="column"><span class="type-signature"></span>column<span class="signature">(i, options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Float64Array}</span></h4>
 
     
 
@@ -205,7 +205,7 @@ This can be freed independently of the current instance.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="ScranMatrix.js.html">ScranMatrix.js</a>, <a href="ScranMatrix.js.html#line87">line 87</a>
+        <a href="ScranMatrix.js.html">ScranMatrix.js</a>, <a href="ScranMatrix.js.html#line89">line 89</a>
     </li></ul></dd>
     
 
@@ -403,7 +403,7 @@ This should be a non-negative integer less than <a href="ScranMatrix.html#number
                 </td>
             
 
-            <td class="description last"><p>Buffer to extract into.
+            <td class="description last"><p>Buffer for storing the extracted data.
 If supplied, this should have length equal to <a href="ScranMatrix.html#numberOfRows"><code>numberOfRows</code></a>.</p></td>
         </tr>
 
@@ -437,8 +437,9 @@ If supplied, this should have length equal to <a href="ScranMatrix.html#numberOf
 
         
 <div class="param-desc">
-    <p>If <code>buffer</code> is not supplied, a Float64Array is returned containing the contents of column <code>i</code>.
-Otherwise, <code>buffer</code> is filled with column <code>i</code> and nothing is returned.</p>
+    <p>An array containing the contents of column <code>i</code>.</p>
+<p>If <code>buffer</code> was supplied, the returned array is a view into it.
+Note that this may be invalidated on the next allocation on the Wasm heap.</p>
 </div>
 
 
@@ -450,9 +451,6 @@ Otherwise, <code>buffer</code> is filled with column <code>i</code> and nothing 
     <dd>
         
 <span class="param-type">Float64Array</span>
-|
-
-<span class="param-type">undefined</span>
 
 
     </dd>
@@ -479,7 +477,7 @@ Otherwise, <code>buffer</code> is filled with column <code>i</code> and nothing 
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="ScranMatrix.js.html">ScranMatrix.js</a>, <a href="ScranMatrix.js.html#line108">line 108</a>
+        <a href="ScranMatrix.js.html">ScranMatrix.js</a>, <a href="ScranMatrix.js.html#line110">line 110</a>
     </li></ul></dd>
     
 
@@ -771,10 +769,9 @@ If supplied, this should have length equal to <a href="ScranMatrix.html#numberOf
 
         
 <div class="param-desc">
-    <p>If <code>buffer</code> is not supplied, an Int32Array is returned containing the row identities.
-These represent the row indices in the original dataset.</p>
-<p>If <code>buffer</code> is supplied, it is filled with the row identities.
-A reference to <code>buffer</code> is returned.</p>
+    <p>An array containing the row identities.</p>
+<p>If <code>buffer</code> was supplied, the returned array is a view into it.
+Note that this may be invalidated on the next allocation on the Wasm heap.</p>
 </div>
 
 
@@ -812,7 +809,7 @@ A reference to <code>buffer</code> is returned.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="ScranMatrix.js.html">ScranMatrix.js</a>, <a href="ScranMatrix.js.html#line128">line 128</a>
+        <a href="ScranMatrix.js.html">ScranMatrix.js</a>, <a href="ScranMatrix.js.html#line130">line 130</a>
     </li></ul></dd>
     
 
@@ -919,7 +916,7 @@ otherwise, the row identities are assumed to be consecutive increasing integers 
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="ScranMatrix.js.html">ScranMatrix.js</a>, <a href="ScranMatrix.js.html#line119">line 119</a>
+        <a href="ScranMatrix.js.html">ScranMatrix.js</a>, <a href="ScranMatrix.js.html#line121">line 121</a>
     </li></ul></dd>
     
 
@@ -1222,7 +1219,7 @@ otherwise, the row identities are assumed to be consecutive increasing integers 
 
     
 
-    <h4 class="name" id="row"><span class="type-signature"></span>row<span class="signature">(i, options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Float64Array|undefined}</span></h4>
+    <h4 class="name" id="row"><span class="type-signature"></span>row<span class="signature">(i, options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Float64Array}</span></h4>
 
     
 
@@ -1234,7 +1231,7 @@ otherwise, the row identities are assumed to be consecutive increasing integers 
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="ScranMatrix.js.html">ScranMatrix.js</a>, <a href="ScranMatrix.js.html#line59">line 59</a>
+        <a href="ScranMatrix.js.html">ScranMatrix.js</a>, <a href="ScranMatrix.js.html#line60">line 60</a>
     </li></ul></dd>
     
 
@@ -1432,7 +1429,7 @@ This should be a non-negative integer less than <a href="ScranMatrix.html#number
                 </td>
             
 
-            <td class="description last"><p>Buffer to extract into.
+            <td class="description last"><p>Buffer for storing the extracted data.
 If supplied, this should have length equal to <a href="ScranMatrix.html#numberOfColumns"><code>numberOfColumns</code></a>.</p></td>
         </tr>
 
@@ -1466,8 +1463,9 @@ If supplied, this should have length equal to <a href="ScranMatrix.html#numberOf
 
         
 <div class="param-desc">
-    <p>If <code>buffer</code> is not supplied, a Float64Array is returned containing the contents of row <code>i</code>.
-Otherwise, <code>buffer</code> is filled with row <code>i</code> and nothing is returned.</p>
+    <p>An array containing the contents of row <code>i</code>.</p>
+<p>If <code>buffer</code> was supplied, the returned array is a view into it.
+Note that this may be invalidated on the next allocation on the Wasm heap.</p>
 </div>
 
 
@@ -1479,9 +1477,6 @@ Otherwise, <code>buffer</code> is filled with row <code>i</code> and nothing is 
     <dd>
         
 <span class="param-type">Float64Array</span>
-|
-
-<span class="param-type">undefined</span>
 
 
     </dd>
@@ -1511,7 +1506,7 @@ Otherwise, <code>buffer</code> is filled with row <code>i</code> and nothing is 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.10</a> on Thu Jul 07 2022 05:23:50 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.10</a> on Tue Jul 12 2022 06:11:42 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>

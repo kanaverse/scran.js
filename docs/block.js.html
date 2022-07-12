@@ -60,36 +60,37 @@
  * If provided, this should be of length equal to the sum of `ncells`.
  *
  * @return {Int32WasmArray} Array containing the blocking factor.
- * (Or specifically, the blocking ID for each cell, which refers to the same index of `ncells`.)
+ * Each value specifies the block of origin for each cell.
+ *
+ * If `buffer` was supplied, it is used as the return value. 
  */
 export function createBlock(ncells, { buffer = null } = {}) {
     let total = 0;
     ncells.forEach(x => { total += x; });
 
-    let blocks;
+    let local_buffer;
     try {
         if (buffer == null) {
-            blocks = utils.createInt32WasmArray(total);
-        } else {
-            if (buffer.length !== total) {
-                throw new Error("'buffer' should have length equal to sum of 'ncells'");
-            }
-            blocks = buffer.view(); // create a view so that freeing inside this function is a no-op.
+            local_buffer = utils.createInt32WasmArray(total);
+            buffer = local_buffer;
+        } else if (buffer.length !== total) {
+            throw new Error("'buffer' should have length equal to sum of 'ncells'");
         }
 
-        let barr = blocks.array();
+        let barr = buffer.array();
         let sofar = 0;
         for (var i = 0; i &lt; ncells.length; i++) {
             let old = sofar;
             sofar += ncells[i];
             barr.fill(i, old, sofar);
         }
+
     } catch (e) {
-        utils.free(blocks);
+        utils.free(local_buffer);
         throw e;
     }
 
-    return blocks;
+    return buffer;
 }
 
 /**
@@ -105,22 +106,22 @@ export function createBlock(ncells, { buffer = null } = {}) {
  *
  * @return {object} Object containing `ids`, an Int32WasmArray of length equal to `x` with the block IDs for each cell;
  * and `levels`, an array of unique levels corresponding to the block IDs.
+ *
+ * If `buffer` was supplied, it is used as the value of the `ids` property.
  */
 export function convertBlock(x, { buffer = null } = {}) {
     let levels = [];
-    let blocks;
+    let local_buffer;
 
     try {
         if (buffer == null) {
-            blocks = utils.createInt32WasmArray(x.length);
-        } else {
-            if (buffer.length !== x.length) {
-                throw new Error("'buffer' should have length equal to that of 'x'");
-            }
-            blocks = buffer.view();
+            local_buffer = utils.createInt32WasmArray(x.length);
+            buffer = local_buffer;
+        } else if (buffer.length !== x.length) {
+            throw new Error("'buffer' should have length equal to that of 'x'");
         }
 
-        let barr = blocks.array();
+        let barr = buffer.array();
         let mapping = {};
 
         x.forEach((y, i) => {
@@ -132,12 +133,12 @@ export function convertBlock(x, { buffer = null } = {}) {
         });
 
     } catch (e) {
-        utils.free(blocks);
+        utils.free(local_buffer);
         throw e;
     }
 
     return {
-        ids: blocks,
+        ids: buffer,
         levels: levels
     };
 }
@@ -189,18 +190,16 @@ export function subsetBlock(x, subset, { filter = null, buffer = null } = {}) {
         }
     }
 
-    let blocks;
+    let local_buffer;
     try {
         if (buffer == null) {
-            blocks = utils.createInt32WasmArray(len);
-        } else {
-            if (buffer.length !== len) {
-                throw new Error("length of 'buffer' is not consistent with 'subset'");
-            }
-            blocks = buffer.view();            
+            local_buffer = utils.createInt32WasmArray(len);
+            buffer = local_buffer;
+        } else if (buffer.length !== len) {
+            throw new Error("length of 'buffer' is not consistent with 'subset'");
         }
 
-        let barr = blocks.array();
+        let barr = buffer.array();
         let xarr = x.array();
 
         if (filter == null) {
@@ -226,13 +225,12 @@ export function subsetBlock(x, subset, { filter = null, buffer = null } = {}) {
         }
 
     } catch (e) {
-        utils.free(blocks);
+        utils.free(local_buffer);
         throw e;
     }
 
-    return blocks;
+    return buffer;
 }
-
 
 /**
  * Filter the blocking factor, typically based on the same filtering vector as {@linkcode filterCells}.
@@ -249,7 +247,8 @@ export function subsetBlock(x, subset, { filter = null, buffer = null } = {}) {
  * If provided, this should be of length equal to the number of falsey elements in `filter`.
  *
  * @return {Int32WasmArray} Array of length equal to `x`, containing all entries of `x` for which `filter` is `false`.
- * If `buffer` is supplied, the returned array will be a view into `buffer`.
+ *
+ * If `buffer` is supplied, it is used as the return value.
  */
 export function filterBlock(x, filter, { buffer = null } = {}) {
     return subsetBlock(x, filter, { buffer: buffer, filter: true });
@@ -294,7 +293,7 @@ export function dropUnusedBlock(x) {
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.10</a> on Thu Jul 07 2022 05:23:50 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.10</a> on Tue Jul 12 2022 06:11:41 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>

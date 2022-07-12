@@ -4282,7 +4282,7 @@ If <code>false</code>, the total count for each subset is computed instead.</p><
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="block.js.html">block.js</a>, <a href="block.js.html#line63">line 63</a>
+        <a href="block.js.html">block.js</a>, <a href="block.js.html#line66">line 66</a>
     </li></ul></dd>
     
 
@@ -4524,6 +4524,7 @@ If provided, this should be of length equal to that of <code>x</code>.</p></td>
 <div class="param-desc">
     <p>Object containing <code>ids</code>, an Int32WasmArray of length equal to <code>x</code> with the block IDs for each cell;
 and <code>levels</code>, an array of unique levels corresponding to the block IDs.</p>
+<p>If <code>buffer</code> was supplied, it is used as the value of the <code>ids</code> property.</p>
 </div>
 
 
@@ -4719,7 +4720,7 @@ and <code>levels</code>, an array of unique levels corresponding to the block ID
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="block.js.html">block.js</a>, <a href="block.js.html#line19">line 19</a>
+        <a href="block.js.html">block.js</a>, <a href="block.js.html#line21">line 21</a>
     </li></ul></dd>
     
 
@@ -4962,7 +4963,8 @@ If provided, this should be of length equal to the sum of <code>ncells</code>.</
         
 <div class="param-desc">
     <p>Array containing the blocking factor.
-(Or specifically, the blocking ID for each cell, which refers to the same index of <code>ncells</code>.)</p>
+Each value specifies the block of origin for each cell.</p>
+<p>If <code>buffer</code> was supplied, it is used as the return value.</p>
 </div>
 
 
@@ -5633,7 +5635,7 @@ A <a href="H5File.html">H5File</a> object is returned.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="block.js.html">block.js</a>, <a href="block.js.html#line224">line 224</a>
+        <a href="block.js.html">block.js</a>, <a href="block.js.html#line223">line 223</a>
     </li></ul></dd>
     
 
@@ -6735,7 +6737,7 @@ Node applications should not call this function.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="block.js.html">block.js</a>, <a href="block.js.html#line208">line 208</a>
+        <a href="block.js.html">block.js</a>, <a href="block.js.html#line207">line 207</a>
     </li></ul></dd>
     
 
@@ -7011,8 +7013,8 @@ If provided, this should be of length equal to the number of falsey elements in 
 
         
 <div class="param-desc">
-    <p>Array of length equal to <code>x</code>, containing all entries of <code>x</code> for which <code>filter</code> is <code>false</code>.
-If <code>buffer</code> is supplied, the returned array will be a view into <code>buffer</code>.</p>
+    <p>Array of length equal to <code>x</code>, containing all entries of <code>x</code> for which <code>filter</code> is <code>false</code>.</p>
+<p>If <code>buffer</code> is supplied, it is used as the return value.</p>
 </div>
 
 
@@ -7242,7 +7244,7 @@ where truthy elements specify the cells to be discarded.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="findNearestNeighbors.js.html">findNearestNeighbors.js</a>, <a href="findNearestNeighbors.js.html#line253">line 253</a>
+        <a href="findNearestNeighbors.js.html">findNearestNeighbors.js</a>, <a href="findNearestNeighbors.js.html#line261">line 261</a>
     </li></ul></dd>
     
 
@@ -7582,7 +7584,7 @@ May also be <code>null</code> or undefined.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="groupedSizeFactors.js.html">groupedSizeFactors.js</a>, <a href="groupedSizeFactors.js.html#line27">line 27</a>
+        <a href="groupedSizeFactors.js.html">groupedSizeFactors.js</a>, <a href="groupedSizeFactors.js.html#line28">line 28</a>
     </li></ul></dd>
     
 
@@ -7979,8 +7981,8 @@ If <code>null</code>, it is automatically determined.</p></td>
 
         
 <div class="param-desc">
-    <p>Array of length equal to the number of columns in <code>x</code>, containing the size factors for all cells.
-If <code>buffer</code> is supplied, it is directly filled and returned.</p>
+    <p>Array of length equal to the number of columns in <code>x</code>, containing the size factors for all cells.</p>
+<p>If <code>buffer</code> was supplied, it is used as the return value.</p>
 </div>
 
 
@@ -10503,7 +10505,7 @@ Ignored if <code>x</code> is a <a href="FindNearestNeighborsResults.html">FindNe
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="labelCells.js.html">labelCells.js</a>, <a href="labelCells.js.html#line459">line 459</a>
+        <a href="labelCells.js.html">labelCells.js</a>, <a href="labelCells.js.html#line470">line 470</a>
     </li></ul></dd>
     
 
@@ -10920,8 +10922,9 @@ Each element should be an Array, TypedArray or Int32WasmArray of length equal to
 
         
 <div class="param-desc">
-    <p>Array containing the best reference for each cell in <code>x</code>.
-If <code>buffer</code> is supplied, the returned array is a view into it.</p>
+    <p>Array containing the best reference for each cell in <code>x</code>.</p>
+<p>If <code>buffer</code> was supplied, the returned array is a view into it.
+Note that this may be invalidated on the next allocation on the Wasm heap.</p>
 </div>
 
 
@@ -10959,7 +10962,7 @@ If <code>buffer</code> is supplied, the returned array is a view into it.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="labelCells.js.html">labelCells.js</a>, <a href="labelCells.js.html#line358">line 358</a>
+        <a href="labelCells.js.html">labelCells.js</a>, <a href="labelCells.js.html#line367">line 367</a>
     </li></ul></dd>
     
 
@@ -11574,8 +11577,9 @@ If a Float64WasmArray is supplied, it is assumed to contain a column-major dense
 
         
 <div class="param-desc">
-    <p>Array containing the labels for each cell in <code>x</code>.
-If <code>buffer</code> is supplied, the returned array is a view into it.</p>
+    <p>Array containing the labels for each cell in <code>x</code>.</p>
+<p>If <code>buffer</code> was supplied, the returned array is a view into it.
+Note that this may be invalidated on the next allocation on the Wasm heap.</p>
 </div>
 
 
@@ -12578,7 +12582,7 @@ Alternatively a row identity vector, generated by calling <a href="ScranMatrix.h
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="medianSizeFactors.js.html">medianSizeFactors.js</a>, <a href="medianSizeFactors.js.html#line26">line 26</a>
+        <a href="medianSizeFactors.js.html">medianSizeFactors.js</a>, <a href="medianSizeFactors.js.html#line27">line 27</a>
     </li></ul></dd>
     
 
@@ -12944,8 +12948,8 @@ Larger values result in stronger shrinkage when the coverage is low.</p></td>
 
         
 <div class="param-desc">
-    <p>Array of length equal to the number of columns in <code>x</code>, containing the size factors for all cells.
-If <code>buffer</code> is supplied, it is directly filled and returned.</p>
+    <p>Array of length equal to the number of columns in <code>x</code>, containing the size factors for all cells.</p>
+<p>If <code>buffer</code> was supplied, it is used as the return value.</p>
 </div>
 
 
@@ -14302,7 +14306,7 @@ This avoids any copy and is robust to invalidation but requires an extra <code>W
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="quickAdtSizeFactors.js.html">quickAdtSizeFactors.js</a>, <a href="quickAdtSizeFactors.js.html#line28">line 28</a>
+        <a href="quickAdtSizeFactors.js.html">quickAdtSizeFactors.js</a>, <a href="quickAdtSizeFactors.js.html#line29">line 29</a>
     </li></ul></dd>
     
 
@@ -14715,8 +14719,8 @@ If <code>null</code>, an array is allocated by the function.</p></td>
 
         
 <div class="param-desc">
-    <p>Per-cell size factors for each column of <code>x</code>.
-If <code>buffer</code> is supplied, the return value is a view on it.</p>
+    <p>Per-cell size factors for each column of <code>x</code>.</p>
+<p>If <code>buffer</code> is supplied, it is directly used as the return value.</p>
 </div>
 
 
@@ -16078,7 +16082,7 @@ or until the requested run time is exceeded, whichever comes first.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="scaleByNeighbors.js.html">scaleByNeighbors.js</a>, <a href="scaleByNeighbors.js.html#line29">line 29</a>
+        <a href="scaleByNeighbors.js.html">scaleByNeighbors.js</a>, <a href="scaleByNeighbors.js.html#line30">line 30</a>
     </li></ul></dd>
     
 
@@ -16518,8 +16522,8 @@ If <code>null</code>, all embeddings receive the same weight.</p></td>
 
         
 <div class="param-desc">
-    <p>Array containing the combined embeddings in column-major format, i.e., dimensions in rows and cells in columns.
-If <code>buffer</code> was supplied, a reference to it is returned; otherwise a new array is allocated.</p>
+    <p>Array containing the combined embeddings in column-major format, i.e., dimensions in rows and cells in columns.</p>
+<p>If <code>buffer</code> was supplied, it is used as the return value.</p>
 </div>
 
 
@@ -17876,7 +17880,7 @@ or on the per-gene annotations to match the features in the intersection of <a h
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="block.js.html">block.js</a>, <a href="block.js.html#line128">line 128</a>
+        <a href="block.js.html">block.js</a>, <a href="block.js.html#line129">line 129</a>
     </li></ul></dd>
     
 
@@ -19319,7 +19323,7 @@ rather, they can just read directly from the real file system.</p>
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.10</a> on Thu Jul 07 2022 05:23:50 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.10</a> on Tue Jul 12 2022 06:11:41 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>
