@@ -1,5 +1,19 @@
 # scran.js news
 
+## 0.4.0
+
+**New**
+
+- Added the `extractMatrixMarketDimensions()` function to easily get dimensions without loading the entire file.
+
+**Changes**
+
+- Renamed the MatrixMarket reader to `initializeSparseMatrixFromMatrixMarket()`.
+  This function now supports file path inputs, which avoids the need to buffer the entire file in Node.js.
+- Functions that accept an optional `buffer =` argument will now return it directly if `buffer` is non-`null` and the output type is a WasmArray.
+  Otherwise, if the output type is a TypedArray, functions will now return a TypedArray view on a non-null input `buffer`.
+  This aims to provide some kind of sensible output value rather than just `undefined`.
+
 ## 0.3.0
 
 **New**
