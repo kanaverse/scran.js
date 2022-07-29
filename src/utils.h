@@ -17,12 +17,4 @@ std::vector<T> convert_array_of_offsets(size_t n, uintptr_t x) {
     return output;
 }
 
-inline std::vector<size_t> permutation_to_indices(const std::vector<size_t>& permutation) { 
-    std::vector<size_t> ids(permutation.size());
-    for (size_t i = 0; i < ids.size(); ++i) {
-        ids[permutation[i]] = i;
-    }
-    return ids;
-}
-
 #endif

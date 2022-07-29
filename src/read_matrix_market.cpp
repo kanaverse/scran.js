@@ -1,21 +1,32 @@
 #include <emscripten.h>
 #include <emscripten/bind.h>
 
-#include "utils.h"
+#include "read_utils.h"
 #include "NumericMatrix.h"
 #include <cstdint>
 
 #include "tatami/ext/MatrixMarket_layered.hpp"
 
-NumericMatrix read_matrix_market_from_buffer(uintptr_t buffer, int size, int compressed) {
+NumericMatrix read_matrix_market_from_buffer(uintptr_t buffer, int size, int compressed, bool layered) {
     unsigned char* bufptr = reinterpret_cast<unsigned char*>(buffer);
-    auto stuff = tatami::MatrixMarket::load_layered_sparse_matrix_from_buffer(bufptr, size, compressed);
-    return NumericMatrix(std::move(stuff.matrix), permutation_to_indices(stuff.permutation));
+
+    if (layered) {
+        auto stuff = tatami::MatrixMarket::load_layered_sparse_matrix_from_buffer(bufptr, size, compressed);
+        return NumericMatrix(std::move(stuff.matrix), permutation_to_indices(stuff.permutation));
+    } else {
+        auto stuff = tatami::MatrixMarket::load_sparse_matrix_from_buffer(bufptr, size, compressed);
+        return NumericMatrix(std::move(stuff));
+    }
 }
 
-NumericMatrix read_matrix_market_from_file(std::string path, int compressed) {
-    auto stuff = tatami::MatrixMarket::load_layered_sparse_matrix_from_file(path.c_str(), compressed);
-    return NumericMatrix(std::move(stuff.matrix), permutation_to_indices(stuff.permutation));
+NumericMatrix read_matrix_market_from_file(std::string path, int compressed, bool layered) {
+    if (layered) {
+        auto stuff = tatami::MatrixMarket::load_layered_sparse_matrix_from_file(path.c_str(), compressed);
+        return NumericMatrix(std::move(stuff.matrix), permutation_to_indices(stuff.permutation));
+    } else {
+        auto stuff = tatami::MatrixMarket::load_sparse_matrix_from_file(path.c_str(), compressed);
+        return NumericMatrix(std::move(stuff));
+    }
 }
 
 void read_matrix_market_header_from_buffer(uintptr_t buffer, int size, int compressed, uintptr_t output) {

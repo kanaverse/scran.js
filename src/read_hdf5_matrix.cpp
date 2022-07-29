@@ -1,15 +1,14 @@
 #include <emscripten.h>
 #include <emscripten/bind.h>
 
-#include "utils.h"
+#include "read_utils.h"
 #include "NumericMatrix.h"
 
 #include "H5Cpp.h"
 #include "tatami/ext/HDF5DenseMatrix.hpp"
 #include "tatami/ext/HDF5CompressedSparseMatrix.hpp"
-#include "tatami/ext/convert_to_layered_sparse.hpp"
 
-NumericMatrix read_hdf5_matrix(std::string path, std::string name) {
+NumericMatrix read_hdf5_matrix(std::string path, std::string name, bool layered) {
     bool is_dense;
     bool csc = true;
     size_t nr, nc;
@@ -88,16 +87,16 @@ NumericMatrix read_hdf5_matrix(std::string path, std::string name) {
     // need a large number of small reads to maintain memory usage below its
     // limit across all threads). So we just disable it.
     enable_parallel = false;
-    tatami::LayeredMatrixData<double, int> output;
+
+    NumericMatrix output;
     try {
-        output = tatami::convert_to_layered_sparse<double, int>(mat.get()); 
+        output = sparse_from_tatami(mat.get(), layered);
     } catch (std::exception& e) {
-        enable_parallel = true;
+        enable_parallel = false;
         throw e;
     }
-    enable_parallel = true;
 
-    return NumericMatrix(std::move(output.matrix), permutation_to_indices(output.permutation));
+    return output;
 }
 
 /**

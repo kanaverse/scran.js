@@ -25,3 +25,12 @@ export function equalFloatArrays(x, y, tol = 0.00001) {
 
     return true;
 }
+
+export function areIndicesConsecutive(x, start = 0) {
+    for (var i = 0; i < x.length; i++) {
+        if (x[i] != start + i) {
+            return false;
+        }
+    }
+    return true;
+}
