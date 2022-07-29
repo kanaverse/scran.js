@@ -1,9 +1,9 @@
 var searchData=
 [
   ['randomize_5ftsne_5fstart_0',['randomize_tsne_start',['../run__tsne_8cpp.html#aa2655f4139c7fc61647f49a204635adc',1,'run_tsne.cpp']]],
-  ['read_5fhdf5_5fmatrix_1',['read_hdf5_matrix',['../read__hdf5__matrix_8cpp.html#a3148acc69d25b26ad959758ccfd7510b',1,'read_hdf5_matrix.cpp']]],
-  ['read_5fmatrix_5fmarket_5ffrom_5fbuffer_2',['read_matrix_market_from_buffer',['../read__matrix__market_8cpp.html#a0280967f65efd8978182d5eddbe8ae71',1,'read_matrix_market.cpp']]],
-  ['read_5fmatrix_5fmarket_5ffrom_5ffile_3',['read_matrix_market_from_file',['../read__matrix__market_8cpp.html#a9e00f87929f7e8c327d5ba41ea25c0e1',1,'read_matrix_market.cpp']]],
+  ['read_5fhdf5_5fmatrix_1',['read_hdf5_matrix',['../read__hdf5__matrix_8cpp.html#a42be2ebc97e154f97a2930997abd2700',1,'read_hdf5_matrix.cpp']]],
+  ['read_5fmatrix_5fmarket_5ffrom_5fbuffer_2',['read_matrix_market_from_buffer',['../read__matrix__market_8cpp.html#a8a820ecea5e148a758cc2d18ac3c0e42',1,'read_matrix_market.cpp']]],
+  ['read_5fmatrix_5fmarket_5ffrom_5ffile_3',['read_matrix_market_from_file',['../read__matrix__market_8cpp.html#a3dc1e45abd065b7671d3f81b4bc16320',1,'read_matrix_market.cpp']]],
   ['read_5fmatrix_5fmarket_5fheader_5ffrom_5fbuffer_4',['read_matrix_market_header_from_buffer',['../read__matrix__market_8cpp.html#a95941a8d08f8b43b5c458b09930aecea',1,'read_matrix_market.cpp']]],
   ['read_5fmatrix_5fmarket_5fheader_5ffrom_5ffile_5',['read_matrix_market_header_from_file',['../read__matrix__market_8cpp.html#aaaefff81fb5c8ce01a80b84d4b7b1cc3',1,'read_matrix_market.cpp']]],
   ['reorganized_6',['reorganized',['../structNumericMatrix.html#a87961b02a42a22f10fbc23992449334b',1,'NumericMatrix']]],

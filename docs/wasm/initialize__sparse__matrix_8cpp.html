@@ -71,37 +71,33 @@ $(function() {
 <div class="contents">
 <div class="textblock"><code>#include &lt;emscripten/bind.h&gt;</code><br />
 <code>#include &quot;<a class="el" href="NumericMatrix_8h_source.html">NumericMatrix.h</a>&quot;</code><br />
-<code>#include &quot;tatami/ext/convert_to_layered_sparse.hpp&quot;</code><br />
 <code>#include &quot;tatami/ext/SomeNumericArray.hpp&quot;</code><br />
-<code>#include &quot;<a class="el" href="utils_8h_source.html">utils.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="read__utils_8h_source.html">read_utils.h</a>&quot;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for initialize_sparse_matrix.cpp:</div>
 <div class="dyncontent">
 <div class="center"><img src="initialize__sparse__matrix_8cpp__incl.png" border="0" usemap="#ainitialize__sparse__matrix_8cpp" alt=""/></div>
 <map name="ainitialize__sparse__matrix_8cpp" id="ainitialize__sparse__matrix_8cpp">
-<area shape="rect" title=" " alt="" coords="283,5,463,32"/>
-<area shape="rect" title=" " alt="" coords="5,87,129,114"/>
-<area shape="rect" href="NumericMatrix_8h.html" title="Javascript wrapper for a numeric matrix." alt="" coords="153,87,269,114"/>
-<area shape="rect" title=" " alt="" coords="293,80,452,121"/>
-<area shape="rect" title=" " alt="" coords="476,87,696,114"/>
-<area shape="rect" href="utils_8h.html" title=" " alt="" coords="721,87,777,114"/>
-<area shape="rect" href="JSVector_8h.html" title=" " alt="" coords="64,169,151,196"/>
-<area shape="rect" href="parallel_8h.html" title=" " alt="" coords="175,169,248,196"/>
-<area shape="rect" title=" " alt="" coords="272,169,380,196"/>
-<area shape="rect" title=" " alt="" coords="75,244,140,271"/>
-<area shape="rect" title=" " alt="" coords="593,169,651,196"/>
-<area shape="rect" title=" " alt="" coords="675,169,737,196"/>
-<area shape="rect" title=" " alt="" coords="761,169,819,196"/>
-<area shape="rect" title=" " alt="" coords="843,169,915,196"/>
+<area shape="rect" title=" " alt="" coords="151,5,331,32"/>
+<area shape="rect" title=" " alt="" coords="5,80,129,107"/>
+<area shape="rect" href="NumericMatrix_8h.html" title="Javascript wrapper for a numeric matrix." alt="" coords="201,162,317,189"/>
+<area shape="rect" title=" " alt="" coords="205,80,425,107"/>
+<area shape="rect" href="read__utils_8h.html" title=" " alt="" coords="450,80,538,107"/>
+<area shape="rect" href="JSVector_8h.html" title=" " alt="" coords="112,244,199,271"/>
+<area shape="rect" href="parallel_8h.html" title=" " alt="" coords="223,244,296,271"/>
+<area shape="rect" title=" " alt="" coords="320,244,428,271"/>
+<area shape="rect" title=" " alt="" coords="123,319,188,345"/>
+<area shape="rect" title=" " alt="" coords="350,162,473,189"/>
+<area shape="rect" title=" " alt="" coords="497,155,656,196"/>
 </map>
 </div>
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:ae308adf094b57f224db4bb1581b12959"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structNumericMatrix.html">NumericMatrix</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="initialize__sparse__matrix_8cpp.html#ae308adf094b57f224db4bb1581b12959">initialize_sparse_matrix_from_dense_vector</a> (size_t nrows, size_t ncols, uintptr_t values, std::string type)</td></tr>
-<tr class="separator:ae308adf094b57f224db4bb1581b12959"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afc85e751aefae01dbd8aeac07701ea1d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structNumericMatrix.html">NumericMatrix</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="initialize__sparse__matrix_8cpp.html#afc85e751aefae01dbd8aeac07701ea1d">initialize_sparse_matrix</a> (size_t nrows, size_t ncols, size_t nelements, uintptr_t values, std::string value_type, uintptr_t indices, std::string index_type, uintptr_t indptrs, std::string indptr_type, bool csc)</td></tr>
-<tr class="separator:afc85e751aefae01dbd8aeac07701ea1d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a23ba7e4fadf41181c80e0d54043f0117"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structNumericMatrix.html">NumericMatrix</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="initialize__sparse__matrix_8cpp.html#a23ba7e4fadf41181c80e0d54043f0117">initialize_sparse_matrix_from_dense_vector</a> (size_t nrows, size_t ncols, uintptr_t values, std::string type, bool layered)</td></tr>
+<tr class="separator:a23ba7e4fadf41181c80e0d54043f0117"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4c5f1a5a4f00b3d5130b2a1f084ad81e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structNumericMatrix.html">NumericMatrix</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="initialize__sparse__matrix_8cpp.html#a4c5f1a5a4f00b3d5130b2a1f084ad81e">initialize_sparse_matrix</a> (size_t nrows, size_t ncols, size_t nelements, uintptr_t values, std::string value_type, uintptr_t indices, std::string index_type, uintptr_t indptrs, std::string indptr_type, bool csc, bool layered)</td></tr>
+<tr class="separator:a4c5f1a5a4f00b3d5130b2a1f084ad81e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa7464e42f428628321417cd26e0beb76"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structNumericMatrix.html">NumericMatrix</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="initialize__sparse__matrix_8cpp.html#aa7464e42f428628321417cd26e0beb76">initialize_dense_matrix</a> (size_t nrows, size_t ncols, uintptr_t values, std::string type)</td></tr>
 <tr class="separator:aa7464e42f428628321417cd26e0beb76"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
@@ -156,8 +152,8 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="afc85e751aefae01dbd8aeac07701ea1d" name="afc85e751aefae01dbd8aeac07701ea1d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#afc85e751aefae01dbd8aeac07701ea1d">&#9670;&nbsp;</a></span>initialize_sparse_matrix()</h2>
+<a id="a4c5f1a5a4f00b3d5130b2a1f084ad81e" name="a4c5f1a5a4f00b3d5130b2a1f084ad81e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4c5f1a5a4f00b3d5130b2a1f084ad81e">&#9670;&nbsp;</a></span>initialize_sparse_matrix()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -220,7 +216,13 @@ Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">bool&#160;</td>
-          <td class="paramname"><em>csc</em>&#160;</td>
+          <td class="paramname"><em>csc</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>layered</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -248,8 +250,8 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="ae308adf094b57f224db4bb1581b12959" name="ae308adf094b57f224db4bb1581b12959"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae308adf094b57f224db4bb1581b12959">&#9670;&nbsp;</a></span>initialize_sparse_matrix_from_dense_vector()</h2>
+<a id="a23ba7e4fadf41181c80e0d54043f0117" name="a23ba7e4fadf41181c80e0d54043f0117"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a23ba7e4fadf41181c80e0d54043f0117">&#9670;&nbsp;</a></span>initialize_sparse_matrix_from_dense_vector()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -276,7 +278,13 @@ Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">std::string&#160;</td>
-          <td class="paramname"><em>type</em>&#160;</td>
+          <td class="paramname"><em>type</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>layered</em>&#160;</td>
         </tr>
         <tr>
           <td></td>

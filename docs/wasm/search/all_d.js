@@ -18,7 +18,7 @@ var searchData=
   ['percellqcfilters_5fresults_15',['PerCellQCFilters_Results',['../structPerCellQCFilters__Results.html',1,'']]],
   ['percellqcmetrics_5fresults_16',['PerCellQCMetrics_Results',['../structPerCellQCMetrics__Results.html#abfcb6b82c09fe26e2dd7545277ada2b0',1,'PerCellQCMetrics_Results::PerCellQCMetrics_Results()'],['../structPerCellQCMetrics__Results.html',1,'PerCellQCMetrics_Results']]],
   ['percellqcmetrics_5fresults_2eh_17',['PerCellQCMetrics_Results.h',['../PerCellQCMetrics__Results_8h.html',1,'']]],
-  ['permutation_5fto_5findices_18',['permutation_to_indices',['../utils_8h.html#a09c3c15d677e48df52c07dd24c7db871',1,'utils.h']]],
+  ['permutation_5fto_5findices_18',['permutation_to_indices',['../read__utils_8h.html#a09c3c15d677e48df52c07dd24c7db871',1,'read_utils.h']]],
   ['perplexity_5fto_5fk_19',['perplexity_to_k',['../run__tsne_8cpp.html#a70e669cf0eff6584006d032073ea4571',1,'run_tsne.cpp']]],
   ['precheck_5finputs_20',['precheck_inputs',['../run__pca_8cpp.html#a57b4a416b505500abd00894c2406a450',1,'run_pca.cpp']]]
 ];
