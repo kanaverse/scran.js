@@ -1,6 +1,7 @@
 import * as scran from "../js/index.js";
 import * as fs from "fs";
 import * as compare from "./compare.js";
+import * as simulate from "./simulate.js";
 import * as hdf5 from "h5wasm";
 
 beforeAll(async () => { 
@@ -45,46 +46,14 @@ test("initialization from HDF5 works correctly with dense inputs", () => {
     expect(compare.equalArrays(first_col, x.slice(0, 50))).toBe(true);
 })
 
-function mock_sparse_matrix(primary, secondary) {
-    let data = [];
-    let indices = [];
-    let indptrs = new Uint32Array(primary + 1);
-    indptrs[0] = 0;
-
-    for (var i = 0; i < primary; i++) {
-        indptrs[i+1] = indptrs[i];
-
-        for (var j = 0; j < secondary; j++) {
-            if (Math.random() < 0.05) { // 5% density
-                data.push(Math.round(Math.random() * 10));
-                indices.push(j);
-                indptrs[i+1]++;
-            }
-        }
-    }
-        
-    let data2 = new Uint16Array(data.length);
-    data2.set(data);
-    let indices2 = new Int32Array(indices.length);
-    indices2.set(indices);
-    let indptrs2 = new Uint32Array(indptrs.length);
-    indptrs2.set(indptrs);
-
-    return {
-        "data": data2,
-        "indices": indices2,
-        "indptrs": indptrs2
-    };
-}
-
 test("initialization from HDF5 works correctly with 10X inputs", () => {
     const path = dir + "/test.sparse_tenx.h5";
     purge(path);
 
-    // Creating a CSC sparse matrix.
+    // Creating a CSC sparse matrix, injecting in some big numbers.
     let nr = 50;
     let nc = 20;
-    const { data, indices, indptrs } = mock_sparse_matrix(nc, nr);
+    const { data, indices, indptrs } = simulate.simulateSparseData(nc, nr, /* injectBigValues = */ true);
 
     let f = new hdf5.File(path, "w");
     f.create_group("foobar");
@@ -98,24 +67,45 @@ test("initialization from HDF5 works correctly with 10X inputs", () => {
     var mat = scran.initializeSparseMatrixFromHDF5(path, "foobar");
     expect(mat.numberOfRows()).toBe(nr); 
     expect(mat.numberOfColumns()).toBe(nc);
+    expect(mat.isReorganized()).toBe(true);
+
+    let ids = mat.identities();
+    expect(compare.areIndicesConsecutive(ids)).toBe(false);
+    expect(compare.areIndicesConsecutive(ids.slice().sort())).toBe(true);
+
+    var raw_mat = scran.initializeSparseMatrixFromHDF5(path, "foobar", { layered: false });
+    expect(raw_mat.numberOfRows()).toBe(nr); 
+    expect(raw_mat.numberOfColumns()).toBe(nc);
+    expect(raw_mat.isReorganized()).toBe(false);
 
     // Checking that we can extract successfully.
-    var first_col = mat.column(0);
-    var ref = new Uint16Array(nr);
-    for (var j = 0; j < indptrs[1]; j++) {
-        ref[indices[j]] = data[j];
+    for (var c = 0; c < nc; c++) {
+        var ref = new Array(nr);
+        ref.fill(0);
+        for (var j = indptrs[c]; j < indptrs[c+1]; j++) {
+            ref[indices[j]] = data[j];
+        }
+        expect(compare.equalArrays(raw_mat.column(c), ref)).toBe(true);
+
+        let lref = new Array(nr);
+        ids.forEach((x, i) => {
+            lref[i] = ref[x];
+        });
+        expect(compare.equalArrays(mat.column(c), lref)).toBe(true);
     }
-    expect(compare.equalArrays(first_col, ref)).toBe(true);
+
+    mat.free();
+    raw_mat.free();
 })
 
 test("initialization from HDF5 works correctly with H5AD inputs", () => {
-    const path = dir + "/test.sparse_csr.h5";
+    const path = dir + "/test.sparse_csr.h5ad";
     purge(path);
 
     // Creating a CSR sparse matrix.
     let nr = 100;
     let nc = 50;
-    const { data, indices, indptrs } = mock_sparse_matrix(nr, nc);
+    const { data, indices, indptrs } = simulate.simulateSparseData(nr, nc);
 
     let f = new hdf5.File(path, "w");
     f.create_group("layers");

@@ -1,5 +1,50 @@
 import * as scran from "../js/index.js";
 
+export function simulateSparseData(primary, secondary, injectBigValues = false) {
+    let data = [];
+    let indices = [];
+    let indptrs = new Uint32Array(primary + 1);
+    indptrs[0] = 0;
+
+    for (var i = 0; i < primary; i++) {
+        indptrs[i+1] = indptrs[i];
+
+        for (var j = 0; j < secondary; j++) {
+            if (Math.random() < 0.05) { // 5% density
+                indices.push(j);
+                indptrs[i+1]++;
+
+                let candidate = Math.random() * 100; // i.e., in (0, 100)
+                if (injectBigValues) {
+                    if (j % 2 == 0) {
+                        candidate *= 10;
+                        candidate += 1000; // i.e., in (1000, 2000)
+                    } else if (j % 4 == 0) {
+                        candidate *= 1000;
+                        candidate += 100000; // i.e., in (100000, 200000)
+                    }
+                }
+
+                data.push(candidate);
+            }
+        }
+    }
+
+    let data2 = new Uint16Array(data.length);
+    data2.set(data);
+    let indices2 = new Int32Array(indices.length);
+    indices2.set(indices);
+    let indptrs2 = new Uint32Array(indptrs.length);
+    indptrs2.set(indptrs);
+
+    return {
+        "data": data2,
+        "indices": indices2,
+        "indptrs": indptrs2
+    };
+}
+
+
 export function simulateMatrix(numberOfRows, numberOfColumns, density = 0.2, maxValue = 10) {
     var buffer = scran.createInt32WasmArray(numberOfRows * numberOfColumns);
     let output;
