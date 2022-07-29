@@ -10,10 +10,16 @@ import { ScranMatrix } from "./ScranMatrix.js";
  * @param {number} numberOfColumns Number of columns in the matrix.
  * @param {WasmArray|Array|TypedArray} values Values of all elements in the matrix, stored in column-major order.
  * These should all be non-negative integers, even if they are stored in floating-point.
+ * @param {object} [options] - Optional parameters.
+ * @param {boolean} [options.layered=true] - Whether to create a layered sparse matrix, which reorders the rows of the loaded matrix for better memory efficiency.
+ * If `true`, the identity of the rows in the output matrix can be determined from {@linkcode ScranMatrix#identities ScranMatrix.identities}.
  *
- * @return {ScranMatrix} A layered sparse matrix.
+ * @return {ScranMatrix} 
+ * If `layered = false`, a sparse matrix is returned with no reorganization of the rows.
+ *
+ * If `layered = true`, a layered sparse matrix is returned where rows are shuffled to enable use of smaller integer types for low-abundance genes.
  */
-export function initializeSparseMatrixFromDenseArray(numberOfRows, numberOfColumns, values) {
+export function initializeSparseMatrixFromDenseArray(numberOfRows, numberOfColumns, values, { layered = true } = {}) {
     var val_data; 
     var output;
 
@@ -28,7 +34,8 @@ export function initializeSparseMatrixFromDenseArray(numberOfRows, numberOfColum
                 numberOfRows, 
                 numberOfColumns, 
                 val_data.offset, 
-                val_data.constructor.className.replace("Wasm", "")
+                val_data.constructor.className.replace("Wasm", ""),
+                layered
             ),
             ScranMatrix
         );
@@ -58,10 +65,15 @@ export function initializeSparseMatrixFromDenseArray(numberOfRows, numberOfColum
  * @param {object} [options] - Optional parameters.
  * @param {boolean} [options.byColumn=true] - Whether the supplied arrays refer to the compressed sparse column format.
  * If `true`, `indices` should contain column indices and `pointers` should specify the start of each row in `indices`.
+ * @param {boolean} [options.layered=true] - Whether to create a layered sparse matrix, which reorders the rows of the loaded matrix for better memory efficiency.
+ * If `true`, the identity of the rows in the output matrix can be determined from {@linkcode ScranMatrix#identities ScranMatrix.identities}.
  *
- * @return {ScranMatrix} A layered sparse matrix.
+ * @return {ScranMatrix} 
+ * If `layered = false`, a sparse matrix is returned with no reorganization of the rows.
+ *
+ * If `layered = true`, a layered sparse matrix is returned where rows are shuffled to enable use of smaller integer types for low-abundance genes.
  */ 
-export function initializeSparseMatrixFromCompressedVectors(numberOfRows, numberOfColumns, values, indices, pointers, { byColumn = true } = {}) {
+export function initializeSparseMatrixFromCompressedVectors(numberOfRows, numberOfColumns, values, indices, pointers, { byColumn = true, layered = true } = {}) {
     var val_data;
     var ind_data;
     var indp_data;
@@ -89,7 +101,8 @@ export function initializeSparseMatrixFromCompressedVectors(numberOfRows, number
                 ind_data.constructor.className.replace("Wasm", ""), 
                 indp_data.offset, 
                 indp_data.constructor.className.replace("Wasm", ""), 
-                byColumn 
+                byColumn,
+                layered
             ),
             ScranMatrix
         );

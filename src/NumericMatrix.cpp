@@ -2,6 +2,8 @@
 #include "NumericMatrix.h"
 #include "JSVector.h"
 
+NumericMatrix::NumericMatrix() {}
+
 NumericMatrix::NumericMatrix(const tatami::NumericMatrix* p) : ptr(std::shared_ptr<const tatami::NumericMatrix>(p)), is_reorganized(false) {}
 
 NumericMatrix::NumericMatrix(std::shared_ptr<const tatami::NumericMatrix> p) : ptr(std::move(p)), is_reorganized(false) {}

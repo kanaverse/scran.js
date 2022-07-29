@@ -15,6 +15,8 @@
  * @brief Javascript-visible interface for a matrix of `double`s.
  */
 struct NumericMatrix {
+    NumericMatrix();
+
     /** Construct a `NumericMatrix` from an existing pointer to a `tatami::NumericMatrix`.
      *
      * @param p Pointer to a `tatami::NumericMatrix`.

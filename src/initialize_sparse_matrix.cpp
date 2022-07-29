@@ -1,8 +1,7 @@
 #include <emscripten/bind.h>
 #include "NumericMatrix.h"
-#include "tatami/ext/convert_to_layered_sparse.hpp"
 #include "tatami/ext/SomeNumericArray.hpp"
-#include "utils.h"
+#include "read_utils.h"
 
 /**
  * @cond
@@ -50,11 +49,10 @@ tatami::SomeNumericArray<T> create_SomeNumericArray(uintptr_t ptr, size_t len, s
  *
  * @return A `NumericMatrix` containing a layered sparse matrix.
  */
-NumericMatrix initialize_sparse_matrix_from_dense_vector(size_t nrows, size_t ncols, uintptr_t values, std::string type) {
+NumericMatrix initialize_sparse_matrix_from_dense_vector(size_t nrows, size_t ncols, uintptr_t values, std::string type, bool layered) {
     auto vals = create_SomeNumericArray<int>(values, nrows*ncols, type);
-    tatami::DenseColumnMatrix<double, int, decltype(vals)> mat(nrows, ncols, vals);
-    auto output = tatami::convert_to_layered_sparse(&mat); 
-    return NumericMatrix(std::move(output.matrix), permutation_to_indices(output.permutation));
+    tatami::DenseColumnMatrix<int, int, decltype(vals)> mat(nrows, ncols, vals);
+    return sparse_from_tatami(&mat, layered);
 }
 
 /**
@@ -76,23 +74,22 @@ NumericMatrix initialize_sparse_matrix(size_t nrows, size_t ncols, size_t neleme
     uintptr_t values, std::string value_type,
     uintptr_t indices, std::string index_type,
     uintptr_t indptrs, std::string indptr_type,
-    bool csc)
+    bool csc,
+    bool layered)
 {
     auto val = create_SomeNumericArray<int>(values, nelements, value_type);
     auto idx = create_SomeNumericArray<int>(indices, nelements, index_type);
 
-    std::shared_ptr<tatami::Matrix<double, int> > mat;
+    std::shared_ptr<tatami::Matrix<int, int> > mat;
     if (csc) {
         auto ind = create_SomeNumericArray<size_t>(indptrs, ncols + 1, indptr_type);
-        mat.reset(new tatami::CompressedSparseColumnMatrix<double, int, decltype(val), decltype(idx), decltype(ind)>(nrows, ncols, val, idx, ind));
+        mat.reset(new tatami::CompressedSparseColumnMatrix<int, int, decltype(val), decltype(idx), decltype(ind)>(nrows, ncols, val, idx, ind));
     } else {
         auto ind = create_SomeNumericArray<size_t>(indptrs, nrows + 1, indptr_type);
-        mat.reset(new tatami::CompressedSparseRowMatrix<double, int, decltype(val), decltype(idx), decltype(ind)>(nrows, ncols, val, idx, ind));
+        mat.reset(new tatami::CompressedSparseRowMatrix<int, int, decltype(val), decltype(idx), decltype(ind)>(nrows, ncols, val, idx, ind));
     }
 
-    auto output = tatami::convert_to_layered_sparse(mat.get()); 
-
-    return NumericMatrix(std::move(output.matrix), permutation_to_indices(output.permutation));
+    return sparse_from_tatami(mat.get(), layered);
 }
 
 /**

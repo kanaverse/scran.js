@@ -1,13 +1,12 @@
 #include <emscripten.h>
 #include <emscripten/bind.h>
 
-#include "utils.h"
+#include "read_utils.h"
 #include "NumericMatrix.h"
 
 #include "H5Cpp.h"
 #include "tatami/ext/HDF5DenseMatrix.hpp"
 #include "tatami/ext/HDF5CompressedSparseMatrix.hpp"
-#include "tatami/ext/convert_to_layered_sparse.hpp"
 
 NumericMatrix read_hdf5_matrix(std::string path, std::string name, bool layered) {
     bool is_dense;
@@ -89,29 +88,15 @@ NumericMatrix read_hdf5_matrix(std::string path, std::string name, bool layered)
     // limit across all threads). So we just disable it.
     enable_parallel = false;
 
-    if (layered) {
-        tatami::LayeredMatrixData<double, int> output;
-        try {
-            output = tatami::convert_to_layered_sparse<double, int>(mat.get()); 
-        } catch (std::exception& e) {
-            enable_parallel = true;
-            throw e;
-        }
-        enable_parallel = true;
-        return NumericMatrix(std::move(output.matrix), permutation_to_indices(output.permutation));
-    } else {
-        std::shared_ptr<tatami::Matrix<double, int> > output;
-        try {
-            // TODO: add a template parameter to avoid the double conversion here.
-            // The storage type need not be the same as the interface type.
-            output = tatami::convert_to_sparse<false, tatami::Matrix<int, int>, double, int>(mat.get()); 
-        } catch (std::exception& e) {
-            enable_parallel = true;
-            throw e;
-        }
-        enable_parallel = true;
-        return NumericMatrix(std::move(output));
+    NumericMatrix output;
+    try {
+        output = sparse_from_tatami(mat.get(), layered);
+    } catch (std::exception& e) {
+        enable_parallel = false;
+        throw e;
     }
+
+    return output;
 }
 
 /**
