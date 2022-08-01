@@ -96,15 +96,18 @@ export class PerCellQCMetricsResults {
  * @param {object} [options] - Optional parameters.
  * @param {boolean} [options.subsetProportions=true] - Whether to compute proportions for each subset.
  * If `false`, the total count for each subset is computed instead.
+ * @param {?number} [options.numberOfThreads=null] - Number of threads to use.
+ * If `null`, defaults to {@linkcode maximumThreads}.
  *
  * @return {PerCellQCMetricsResults} Object containing the QC metrics.
  */
-export function computePerCellQCMetrics(x, subsets, { subsetProportions = true } = {}) {
+export function computePerCellQCMetrics(x, subsets, { subsetProportions = true, numberOfThreads = null } = {}) {
+    let nthreads = utils.chooseNumberOfThreads(numberOfThreads);
     return internal.computePerCellQcMetrics(
         x, 
         subsets, 
         (matrix, nsubsets, subset_offset) => gc.call(
-            module => module.per_cell_qc_metrics(matrix, nsubsets, subset_offset, subsetProportions),
+            module => module.per_cell_qc_metrics(matrix, nsubsets, subset_offset, subsetProportions, nthreads),
             PerCellQCMetricsResults
         )
     );

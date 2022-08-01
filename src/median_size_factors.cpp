@@ -2,6 +2,7 @@
 
 #include "NumericMatrix.h"
 #include "utils.h"
+#include "parallel.h"
 
 #include "scran/normalization/MedianSizeFactors.hpp"
 
@@ -25,9 +26,9 @@
  * 
  * @return `output` is filled with the size factors for all cells in `mat`.
  */
-void median_size_factors(const NumericMatrix& mat, bool use_ref, uintptr_t ref, bool center, double prior_count, uintptr_t output) {
+void median_size_factors(const NumericMatrix& mat, bool use_ref, uintptr_t ref, bool center, double prior_count, uintptr_t output, int nthreads) {
     scran::MedianSizeFactors med;
-    med.set_center(center).set_prior_count(prior_count);
+    med.set_center(center).set_prior_count(prior_count).set_num_threads(nthreads);
     auto optr = reinterpret_cast<double*>(output);
 
     if (!use_ref) {

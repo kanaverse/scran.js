@@ -55,9 +55,9 @@ export class BuildNeighborSearchIndexResults {
  * For array inputs, this is expected to be in column-major format where the rows are the variables and the columns are the cells.
  * For a {@linkplain RunPCAResults} input, we extract the principal components.
  * @param {object} [options] - Optional parameters.
- * @param {number} [options.numberOfDims=null] - Number of variables/dimensions per cell.
+ * @param {?number} [options.numberOfDims=null] - Number of variables/dimensions per cell.
  * Only used (and required) for array-like `x`.
- * @param {number} [options.numberOfCells=null] - Number of cells.
+ * @param {?number} [options.numberOfCells=null] - Number of cells.
  * Only used (and required) for array-like `x`.
  * @param {boolean} [options.approximate=true] - Whether to build an index for an approximate neighbor search.
  *
@@ -255,12 +255,16 @@ export class FindNearestNeighborsResults {
  *
  * @param {NeighborSearchIndex} x The neighbor search index built by {@linkcode buildNeighborSearchIndex}.
  * @param {number} k Number of neighbors to find.
+ * @param {object} [options] - Optional parameters.
+ * @param {?number} [options.numberOfThreads=null] - Number of threads to use.
+ * If `null`, defaults to {@linkcode maximumThreads}.
  *
  * @return {FindNearestNeighborsResults} Object containing the search results.
  */
-export function findNearestNeighbors(x, k) {
+export function findNearestNeighbors(x, k, { numberOfThreads = null } = {}) {
+    let nthreads = utils.chooseNumberOfThreads(numberOfThreads);
     return gc.call(
-        module => module.find_nearest_neighbors(x.index, k),
+        module => module.find_nearest_neighbors(x.index, k, nthreads),
         FindNearestNeighborsResults
     );
 }

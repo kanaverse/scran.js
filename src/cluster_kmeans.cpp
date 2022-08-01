@@ -1,5 +1,8 @@
 #include <emscripten/bind.h>
 
+#include <algorithm>
+#include <memory>
+
 #include "NeighborIndex.h"
 #include "parallel.h"
 
@@ -7,8 +10,6 @@
 #include "kmeans/InitializeRandom.hpp"
 #include "kmeans/InitializeKmeansPP.hpp"
 #include "kmeans/InitializePCAPartition.hpp"
-#include <algorithm>
-#include <memory>
 
 /**
  * @file cluster_snn_graph.cpp
@@ -108,7 +109,7 @@ struct ClusterKmeans_Result {
  *
  * @return A `ClusterKmeans_Result` object containing the... k-means clustering results, obviously.
  */
-ClusterKmeans_Result cluster_kmeans(uintptr_t mat, int nr, int nc, int k, std::string init_method, int init_seed, double init_pca_adjust) {
+ClusterKmeans_Result cluster_kmeans(uintptr_t mat, int nr, int nc, int k, std::string init_method, int init_seed, double init_pca_adjust, int nthreads) {
     const double* ptr = reinterpret_cast<const double*>(mat);
 
     std::shared_ptr<kmeans::Initialize<> > iptr;
@@ -121,6 +122,7 @@ ClusterKmeans_Result cluster_kmeans(uintptr_t mat, int nr, int nc, int k, std::s
         auto iptr2 = new kmeans::InitializeKmeansPP<>;
         iptr.reset(iptr2);
         iptr2->set_seed(init_seed);
+        iptr2->set_num_threads(nthreads);
 
     } else if (init_method == "pca-part") {
         auto iptr2 = new kmeans::InitializePCAPartition<>;
@@ -133,6 +135,7 @@ ClusterKmeans_Result cluster_kmeans(uintptr_t mat, int nr, int nc, int k, std::s
     }
 
     kmeans::Kmeans clust;
+    clust.set_num_threads(nthreads);
     auto output = clust.run(nr, nc, ptr, k, iptr.get());
 
     return ClusterKmeans_Result(std::move(output));

@@ -2,12 +2,11 @@
 
 #include "NumericMatrix.h"
 #include "utils.h"
+#include "parallel.h"
 
 #define SINGLEPP_USE_ZLIB
-#include "singlepp/SinglePP.hpp"
+#include "singlepp/singlepp.hpp"
 #include "singlepp/load_references.hpp"
-#include "singlepp/IntegratedBuilder.hpp"
-#include "singlepp/IntegratedScorer.hpp"
 
 #include "tatami/tatami.hpp"
 #include <vector>
@@ -98,9 +97,9 @@ public:
     /**
      * @cond
      */
-    BuiltSinglePPReference(singlepp::SinglePP::PrebuiltIntersection b) : built(std::move(b)) {}
+    BuiltSinglePPReference(singlepp::BasicBuilder::PrebuiltIntersection b) : built(std::move(b)) {}
 
-    singlepp::SinglePP::PrebuiltIntersection built;
+    singlepp::BasicBuilder::PrebuiltIntersection built;
     /**
      * @endcond
      */
@@ -132,10 +131,11 @@ public:
  *
  * @return A `BuiltSinglePPReference` object that can be immediately used for classification of any matrix with row identities corresponding to `mat_id`.
  */
-BuiltSinglePPReference build_singlepp_reference(size_t nfeatures, uintptr_t mat_id, const SinglePPReference& ref, uintptr_t ref_id, int top) {
-    singlepp::SinglePP runner;
-    runner.set_top(top);
-    auto built = runner.build(
+BuiltSinglePPReference build_singlepp_reference(size_t nfeatures, uintptr_t mat_id, const SinglePPReference& ref, uintptr_t ref_id, int top, int nthreads) {
+    singlepp::BasicBuilder builder;
+    builder.set_top(top).set_num_threads(nthreads);
+
+    auto built = builder.run(
         nfeatures, 
         reinterpret_cast<const int*>(mat_id), 
         ref.matrix.get(), 
@@ -155,10 +155,12 @@ BuiltSinglePPReference build_singlepp_reference(size_t nfeatures, uintptr_t mat_
  *
  * @return `output` is filled with the label assignments from the reference dataset.
  */
-void run_singlepp(const NumericMatrix& mat, const BuiltSinglePPReference& built, double quantile, uintptr_t output) {
+void run_singlepp(const NumericMatrix& mat, const BuiltSinglePPReference& built, double quantile, uintptr_t output, int nthreads) {
     std::vector<double*> empty(built.num_labels(), nullptr);
-    singlepp::SinglePP runner;
-    runner.set_quantile(quantile);
+
+    singlepp::BasicScorer runner;
+    runner.set_quantile(quantile).set_num_threads(nthreads);
+
     runner.run(
         mat.ptr.get(), 
         built.built,
@@ -215,7 +217,8 @@ IntegratedSinglePPReferences integrate_singlepp_references(
     size_t nref, 
     uintptr_t refs, 
     uintptr_t ref_ids, 
-    uintptr_t built) 
+    uintptr_t built,
+    int nthreads) 
 {
     // Casting all the pointers.
     auto mid_ptr = reinterpret_cast<const int*>(mat_id);
@@ -224,6 +227,8 @@ IntegratedSinglePPReferences integrate_singlepp_references(
     auto blt_ptrs = convert_array_of_offsets<const BuiltSinglePPReference*>(nref, built);
 
     singlepp::IntegratedBuilder inter;
+    inter.set_num_threads(nthreads);
+
     for (size_t r = 0; r < nref; ++r) {
         inter.add(
             nfeatures, 
@@ -250,12 +255,13 @@ IntegratedSinglePPReferences integrate_singlepp_references(
  *
  * @return `output` is filled with the reference indices.
  */
-void integrate_singlepp(const NumericMatrix& mat, uintptr_t assigned, const IntegratedSinglePPReferences& integrated, double quantile, uintptr_t output) {
+void integrate_singlepp(const NumericMatrix& mat, uintptr_t assigned, const IntegratedSinglePPReferences& integrated, double quantile, uintptr_t output, int nthreads) {
     std::vector<double*> empty(integrated.num_references(), nullptr);
     auto aptrs = convert_array_of_offsets<const int*>(integrated.num_references(), assigned);
 
     singlepp::IntegratedScorer runner;
-    runner.set_quantile(quantile);
+    runner.set_quantile(quantile).set_num_threads(nthreads);
+
     runner.run(
         mat.ptr.get(), 
         aptrs,

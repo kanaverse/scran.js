@@ -2,6 +2,7 @@
 
 #include "NumericMatrix.h"
 #include "utils.h"
+#include "parallel.h"
 #include "PerCellAdtQcMetrics_Results.h"
 
 #include "scran/quality_control/PerCellAdtQcFilters.hpp"

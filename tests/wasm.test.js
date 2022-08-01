@@ -9,3 +9,7 @@ test("wasm heap memory is reported correctly", () => {
     expect(usage > 1000).toBe(true);
     thing.free();
 })
+
+test("maximum number of threads is reported correctly", () => {
+    expect(scran.maximumThreads()).toBeGreaterThan(0);
+})

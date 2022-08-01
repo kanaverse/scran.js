@@ -1,7 +1,7 @@
-import * as cluster from "./clusterKmeans.js";
-import * as lognorm from "./logNormCounts.js";
-import * as grouped from "./groupedSizeFactors.js";
-import * as pca from "./runPCA.js";
+import { clusterKmeans } from "./clusterKmeans.js";
+import { logNormCounts } from "./logNormCounts.js";
+import { groupedSizeFactors } from "./groupedSizeFactors.js";
+import { runPCA } from "./runPCA.js";
 import * as utils from "./utils.js";
 
 /**
@@ -21,23 +21,25 @@ import * as utils from "./utils.js";
  * @param {?Float64WasmArray} [options.buffer=null] - Buffer in which to store the output size factors.
  * Length should be equal to the number of columns in `x`.
  * If `null`, an array is allocated by the function.
+ * @param {?number} [options.numberOfThreads=null] - Number of threads to use.
+ * If `null`, defaults to {@linkcode maximumThreads}.
  * 
  * @return {Float64WasmArray} Per-cell size factors for each column of `x`.
  *
  * If `buffer` is supplied, it is directly used as the return value.
  */
-export function quickAdtSizeFactors(x, { numberOfClusters = 20, numberOfPCs = 25, totals = null, block = null, buffer = null } = {}) {
+export function quickAdtSizeFactors(x, { numberOfClusters = 20, numberOfPCs = 25, totals = null, block = null, buffer = null, numberOfThreads = null } = {}) {
     let norm, pcs;
     try {
-        norm = lognorm.logNormCounts(x, { sizeFactors: totals, block: block });
-        pcs = pca.runPCA(norm, { numberOfPCs: Math.min(norm.numberOfRows() - 1, numberOfPCs) });
+        norm = logNormCounts(x, { sizeFactors: totals, block: block });
+        pcs = runPCA(norm, { numberOfPCs: Math.min(norm.numberOfRows() - 1, numberOfPCs), numberOfThreads: numberOfThreads });
     } finally {
         utils.free(norm);
     }
 
     let clust;
     try {
-        clust = cluster.clusterKmeans(pcs, numberOfClusters);
+        clust = clusterKmeans(pcs, numberOfClusters, { numberOfThreads: numberOfThreads });
     } finally {
         utils.free(pcs);
     }
@@ -50,7 +52,7 @@ export function quickAdtSizeFactors(x, { numberOfClusters = 20, numberOfPCs = 25
         } else if (buffer.length !== x.numberOfColumns()) {
             throw new Error("length of 'buffer' should be equal to the number of columns in 'x'");
         }
-        grouped.groupedSizeFactors(x, clust.clusters({ copy: "view" }), { buffer: buffer });
+        groupedSizeFactors(x, clust.clusters({ copy: "view" }), { buffer: buffer, numberOfThreads: numberOfThreads });
 
     } catch (e) {
         utils.free(local_buffer);

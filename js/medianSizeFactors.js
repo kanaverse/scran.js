@@ -19,14 +19,17 @@ import * as wa from "wasmarrays.js";
  * This should have length equal to the number of columns in `x`.
  * @param {number} [options.priorCount=10] Prior count to use for shrinking size factors towards the relative library size.
  * Larger values result in stronger shrinkage when the coverage is low.
+ * @param {?number} [options.numberOfThreads=null] - Number of threads to use.
+ * If `null`, defaults to {@linkcode maximumThreads}.
  *
  * @return {Float64WasmArray} Array of length equal to the number of columns in `x`, containing the size factors for all cells.
  *
  * If `buffer` was supplied, it is used as the return value.
  */
-export function medianSizeFactors(x, { center = true, reference = null, buffer = null, priorCount = 10 } = {}) {
+export function medianSizeFactors(x, { center = true, reference = null, buffer = null, priorCount = 10, numberOfThreads = null } = {}) {
     var local_buffer;
     var ref_arr;
+    let nthreads = utils.chooseNumberOfThreads(numberOfThreads);
 
     try {
         if (!(buffer instanceof wa.Float64WasmArray)) {
@@ -46,7 +49,7 @@ export function medianSizeFactors(x, { center = true, reference = null, buffer =
             ref_ptr = ref_arr.offset;
         }
 
-        wasm.call(module => module.median_size_factors(x.matrix, use_ref, ref_ptr, center, priorCount, buffer.offset));
+        wasm.call(module => module.median_size_factors(x.matrix, use_ref, ref_ptr, center, priorCount, buffer.offset, nthreads));
 
     } catch (e) {
         utils.free(local_buffer);

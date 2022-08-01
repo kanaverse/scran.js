@@ -1,8 +1,9 @@
 #include <emscripten/bind.h>
 
-#include "knncolle/knncolle.hpp"
 #include "NeighborIndex.h"
 #include "parallel.h"
+
+#include "knncolle/knncolle.hpp"
 
 /**
  * @param[in] mat An offset to a 2D array with dimensions (e.g., principal components) in rows and cells in columns.
@@ -29,7 +30,7 @@ NeighborIndex build_neighbor_index(uintptr_t mat, int nr, int nc, bool approxima
  *
  * @return A `NeighborResults` containing the search results for each cell.
  */
-NeighborResults find_nearest_neighbors(const NeighborIndex& index, int k) {
+NeighborResults find_nearest_neighbors(const NeighborIndex& index, int k, int nthreads) {
     size_t nc = index.search->nobs();
     NeighborResults output(nc);
     const auto& search = index.search;
@@ -37,15 +38,20 @@ NeighborResults find_nearest_neighbors(const NeighborIndex& index, int k) {
 
 #ifdef __EMSCRIPTEN_PTHREADS__
     run_parallel(nc, [&](int left, int right) -> void {
-        for (int i = left; i < right; ++i) {
-            x[i] = search->find_nearest_neighbors(i, k);
-        }
-    });
+    for (int i = left; i < right; ++i) {
 #else
     for (size_t i = 0; i < nc; ++i) {
+#endif
+
         x[i] = search->find_nearest_neighbors(i, k);
+
+#ifdef __EMSCRIPTEN_PTHREADS__
+        }
+    }, nthreads);
+#else
     }
 #endif
+
     return output;
 }
 

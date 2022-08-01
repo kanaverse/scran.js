@@ -34,6 +34,16 @@ export async function initialize({ numberOfThreads = 4, localFile = false } = {}
     return true;
 }
 
+/**
+ * Maximum number of threads available for computation.
+ * This depends on the value specified during module initialization in {@linkcode initialize}. 
+ *
+ * @return {number} Maximum number of available threads.
+ */
+export function maximumThreads() {
+    return cache.module.scran_custom_nthreads;
+}
+
 export function call(func) {
     if (! ("module" in cache)) {
         throw new Error("Wasm module needs to be initialized via 'initialize()'");

@@ -1,7 +1,10 @@
 #include <emscripten/bind.h>
+
 #include "NumericMatrix.h"
-#include "tatami/ext/SomeNumericArray.hpp"
 #include "read_utils.h"
+#include "parallel.h"
+
+#include "tatami/ext/SomeNumericArray.hpp"
 
 /**
  * @cond

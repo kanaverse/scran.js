@@ -1,8 +1,8 @@
 #ifndef NUMERIC_MATRIX_H
 #define NUMERIC_MATRIX_H
 
-#include "JSVector.h"
-#include "parallel.h" // must include this, ensure that all compilation units have a modified apply().
+#include "parallel.h"
+
 #include "tatami/tatami.h"
 
 /**

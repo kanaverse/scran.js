@@ -67,9 +67,9 @@ struct TsneStatus {
  *
  * @return A `TsneStatus` object that can be passed to `run_tsne()` to create 
  */
-TsneStatus initialize_tsne(const NeighborResults& neighbors, double perplexity) {
+TsneStatus initialize_tsne(const NeighborResults& neighbors, double perplexity, int nthreads) {
     qdtsne::Tsne factory;
-    factory.set_perplexity(perplexity);
+    factory.set_perplexity(perplexity).set_num_threads(nthreads);
     factory.set_max_depth(7); // speed up iterations, avoid problems with duplicates.
     return TsneStatus(factory.template initialize<>(neighbors.neighbors));
 }
@@ -112,17 +112,16 @@ int perplexity_to_k(double perplexity) {
  * @return `Y` and `TsneStatus` are updated with the latest results.
  */
 void run_tsne(TsneStatus& status, int runtime, int maxiter, uintptr_t Y) {
-    qdtsne::Tsne factory;
     double* ptr = reinterpret_cast<double*>(Y);
     int iter = status.iterations();
 
     if (runtime <= 0) {
-        factory.set_max_iter(maxiter).run(status.status, ptr);
+        status.status.run(ptr, maxiter);
     } else {
         auto end = std::chrono::steady_clock::now() + std::chrono::milliseconds(runtime);
         do {
             ++iter;
-            factory.set_max_iter(iter).run(status.status, ptr);
+            status.status.run(ptr, iter);
         } while (iter < maxiter && std::chrono::steady_clock::now() < end);
     }
     return;

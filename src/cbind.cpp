@@ -1,11 +1,15 @@
 #include <emscripten/bind.h>
+
 #include <cstdint>
 #include <vector>
 #include <stdexcept>
 #include <unordered_set>
 #include <unordered_map>
+
+#include "parallel.h"
 #include "NumericMatrix.h"
 #include "utils.h"
+
 #include "tatami/tatami.hpp"
 
 NumericMatrix cbind(int n, uintptr_t mats, bool same_perm) {

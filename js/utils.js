@@ -1,4 +1,4 @@
-import { buffer, wasmArraySpace } from "./wasm.js";
+import { buffer, wasmArraySpace, maximumThreads } from "./wasm.js";
 import * as wa from "wasmarrays.js";
 
 /**
@@ -74,6 +74,14 @@ export function wasmifyArray(x, expected) {
     }
 
     return y;
+}
+
+export function chooseNumberOfThreads(threads) {
+    if (threads == null) {
+        return maximumThreads();
+    } else {
+        return threads;
+    }
 }
 
 /**

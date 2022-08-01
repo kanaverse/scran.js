@@ -1,9 +1,11 @@
 #include <emscripten.h>
 #include <emscripten/bind.h>
 
+#include <cstdint>
+
 #include "read_utils.h"
 #include "NumericMatrix.h"
-#include <cstdint>
+#include "parallel.h"
 
 #include "tatami/ext/MatrixMarket_layered.hpp"
 

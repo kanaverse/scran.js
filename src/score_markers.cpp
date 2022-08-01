@@ -203,7 +203,7 @@ std::vector<std::vector<Stat*> > vector_to_pointers2(std::vector<std::vector<std
  *
  * @return A `ScoreMarkers_Results` containing summary statistics from comparisons between groups of cells.
  */
-ScoreMarkers_Results score_markers(const NumericMatrix& mat, uintptr_t groups, bool use_blocks, uintptr_t blocks) {
+ScoreMarkers_Results score_markers(const NumericMatrix& mat, uintptr_t groups, bool use_blocks, uintptr_t blocks, int nthreads) {
     const int32_t* gptr = reinterpret_cast<const int32_t*>(groups);
     const int32_t* bptr = NULL;
     if (use_blocks) {
@@ -213,6 +213,7 @@ ScoreMarkers_Results score_markers(const NumericMatrix& mat, uintptr_t groups, b
     scran::ScoreMarkers mrk;
     mrk.set_summary_max(false);
     mrk.set_summary_median(false);
+    mrk.set_num_threads(nthreads);
     auto store = mrk.run_blocked(mat.ptr.get(), gptr, bptr);
 
     return ScoreMarkers_Results(std::move(store));

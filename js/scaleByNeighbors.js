@@ -22,17 +22,20 @@ import { buildNeighborSearchIndex, BuildNeighborSearchIndexResults } from "./fin
  * @param {?(Array|TypedArray|Float64WasmArray)} [options.weights=null] - Array of length equal to the number of embeddings, containing a non-enegative relative weight for each embedding.
  * This is used to scale each embedding if non-equal noise is desired in the combined embedding.
  * If `null`, all embeddings receive the same weight.
+ * @param {?number} [options.numberOfThreads=null] - Number of threads to use.
+ * If `null`, defaults to {@linkcode maximumThreads}.
  *
  * @return {Float64WasmArray} Array containing the combined embeddings in column-major format, i.e., dimensions in rows and cells in columns.
  *
  * If `buffer` was supplied, it is used as the return value.
  */
-export function scaleByNeighbors(embeddings, numberOfCells, { neighbors = 20, indices = null, buffer = null, approximate = true, weights = null } = {}) {
+export function scaleByNeighbors(embeddings, numberOfCells, { neighbors = 20, indices = null, buffer = null, approximate = true, weights = null, numberOfThreads = null } = {}) {
     let nembed = embeddings.length;
     let embed_ptrs, index_ptrs;
     let holding_ndims;
     let holding_weights;
     let local_buffer;
+    let nthreads = utils.chooseNumberOfThreads(numberOfThreads);
 
     let deletable = [];
     try {
@@ -96,8 +99,10 @@ export function scaleByNeighbors(embeddings, numberOfCells, { neighbors = 20, in
                 buffer.offset, 
                 neighbors, 
                 use_weights, 
-                weight_offset
+                weight_offset,
+                nthreads
             ));
+
         } else {
             holding_ndims = utils.createInt32WasmArray(nembed);
             let ndims_arr = holding_ndims.array();
@@ -122,7 +127,8 @@ export function scaleByNeighbors(embeddings, numberOfCells, { neighbors = 20, in
                 neighbors, 
                 use_weights, 
                 weight_offset,
-                approximate
+                approximate,
+                nthreads
             ));
         }
 

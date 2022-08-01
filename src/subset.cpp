@@ -1,10 +1,14 @@
 #include <emscripten/bind.h>
+
 #include <vector>
 #include <stdexcept>
 #include <string>
+
 #include "NumericMatrix.h"
-#include "tatami/tatami.hpp"
 #include "utils.h"
+#include "parallel.h"
+
+#include "tatami/tatami.hpp"
 
 /**
  * @cond

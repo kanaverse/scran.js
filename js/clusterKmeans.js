@@ -107,9 +107,9 @@ export class ClusterKmeansResults {
  * @param {number} clusters Number of clusters to create.
  * This should not be greater than the number of cells.
  * @param {object} [options] - Optional parameters.
- * @param {number} [options.numberOfDims=null] - Number of variables/dimensions per cell.
+ * @param {?number} [options.numberOfDims=null] - Number of variables/dimensions per cell.
  * Only used (and required) for array-like `x`.
- * @param {number} [options.numberOfCells=null] - Number of cells.
+ * @param {?number} [options.numberOfCells=null] - Number of cells.
  * Only used (and required) for array-like `x`.
  * @param {string} [options.initMethod="pca-part"] - Initialization method.
  * Setting `"random"` will randomly select `clusters` cells as centers.
@@ -118,12 +118,15 @@ export class ClusterKmeansResults {
  * @param {number} [options.initSeed=5768] - Seed to use for random number generation during initialization.
  * @param {number} [options.initPCASizeAdjust=1] - Adjustment factor for the cluster sizes, used when `initMethod = "pca-part"`.
  * Larger values (up to 1) will prioritize partitioning of clusters with more cells.
+ * @param {?number} [options.numberOfThreads=null] - Number of threads to use.
+ * If `null`, defaults to {@linkcode maximumThreads}.
  *
  * @return {ClusterKmeansResults} Object containing the clustering results.
  */
-export function clusterKmeans(x, clusters, { numberOfDims = null, numberOfCells = null, initMethod = "pca-part", initSeed = 5768, initPCASizeAdjust = 1 } = {}) {
+export function clusterKmeans(x, clusters, { numberOfDims = null, numberOfCells = null, initMethod = "pca-part", initSeed = 5768, initPCASizeAdjust = 1, numberOfThreads = null } = {}) {
     var buffer;
     var output;
+    let nthreads = utils.chooseNumberOfThreads(numberOfThreads);
 
     try {
         let pptr;
@@ -148,7 +151,7 @@ export function clusterKmeans(x, clusters, { numberOfDims = null, numberOfCells 
         }
 
         output = gc.call(
-            module => module.cluster_kmeans(pptr, numberOfDims, numberOfCells, clusters, initMethod, initSeed, initPCASizeAdjust),
+            module => module.cluster_kmeans(pptr, numberOfDims, numberOfCells, clusters, initMethod, initSeed, initPCASizeAdjust, nthreads),
             ClusterKmeansResults
         );
 

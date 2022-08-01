@@ -105,12 +105,15 @@ export class ModelGeneVarResults {
  * This is used to segregate cells in order to fit the mean-variance trend within each block.
  * Alternatively, this may be `null`, in which case all cells are assumed to be in the same block.
  * @param {number} [options.span=0.3] - Span to use for the LOWESS trend fitting.
+ * @param {?number} [options.numberOfThreads=null] - Number of threads to use.
+ * If `null`, defaults to {@linkcode maximumThreads}.
  *
  * @return {ModelGeneVarResults} Object containing the variance modelling results.
  */
-export function modelGeneVar(x, { block = null, span = 0.3 } = {}) {
+export function modelGeneVar(x, { block = null, span = 0.3, numberOfThreads = null } = {}) {
     var block_data;
     var output;
+    let nthreads = utils.chooseNumberOfThreads(numberOfThreads);
 
     try {
         var bptr = 0;
@@ -126,7 +129,7 @@ export function modelGeneVar(x, { block = null, span = 0.3 } = {}) {
         }
 
         output = gc.call(
-            module => module.model_gene_var(x.matrix, use_blocks, bptr, span),
+            module => module.model_gene_var(x.matrix, use_blocks, bptr, span, nthreads),
             ModelGeneVarResults
         );
 

@@ -1,13 +1,15 @@
 #include <emscripten/bind.h>
 
-#include "NumericMatrix.h"
-#include "scran/dimensionality_reduction/RunPCA.hpp"
-#include "scran/dimensionality_reduction/MultiBatchPCA.hpp"
-#include "scran/dimensionality_reduction/BlockedPCA.hpp"
-
 #include <vector>
 #include <cmath>
 #include <algorithm>
+
+#include "NumericMatrix.h"
+#include "parallel.h"
+
+#include "scran/dimensionality_reduction/RunPCA.hpp"
+#include "scran/dimensionality_reduction/MultiBatchPCA.hpp"
+#include "scran/dimensionality_reduction/BlockedPCA.hpp"
 
 /**
  * @file run_pca.cpp
@@ -101,7 +103,7 @@ const uint8_t* precheck_inputs(int number, size_t NC, bool use_subset, uintptr_t
  *
  * @return A `RunPCA_Results` object is returned containing the PCA results.
  */
-RunPCA_Results run_pca(const NumericMatrix& mat, int number, bool use_subset, uintptr_t subset, bool scale) {
+RunPCA_Results run_pca(const NumericMatrix& mat, int number, bool use_subset, uintptr_t subset, bool scale, int nthreads) {
     auto ptr = mat.ptr;
     auto NR = ptr->nrow();
     auto NC = ptr->ncol();
@@ -109,7 +111,7 @@ RunPCA_Results run_pca(const NumericMatrix& mat, int number, bool use_subset, ui
     auto subptr = precheck_inputs(number, NC, use_subset, subset);
 
     scran::RunPCA pca;
-    pca.set_rank(number).set_scale(scale);
+    pca.set_rank(number).set_scale(scale).set_num_threads(nthreads);
     auto result = pca.run(ptr.get(), subptr);
 
     return RunPCA_Results(std::move(result)); 
@@ -138,7 +140,7 @@ using BlockedPCA_Results = PCA_Results<scran::BlockedPCA::Results>;
  *
  * @return A `BlockedPCA_Results` object is returned containing the PCA results.
  */
-BlockedPCA_Results run_blocked_pca(const NumericMatrix& mat, int number, bool use_subset, uintptr_t subset, bool scale, uintptr_t blocks) {
+BlockedPCA_Results run_blocked_pca(const NumericMatrix& mat, int number, bool use_subset, uintptr_t subset, bool scale, uintptr_t blocks, int nthreads) {
     auto ptr = mat.ptr;
     auto NR = ptr->nrow();
     auto NC = ptr->ncol();
@@ -147,7 +149,7 @@ BlockedPCA_Results run_blocked_pca(const NumericMatrix& mat, int number, bool us
     auto bptr = reinterpret_cast<const int32_t*>(blocks);
 
     scran::BlockedPCA pca;
-    pca.set_rank(number).set_scale(scale);
+    pca.set_rank(number).set_scale(scale).set_num_threads(nthreads);
     auto result = pca.run(ptr.get(), bptr, subptr);
 
     return BlockedPCA_Results(std::move(result)); 
@@ -176,7 +178,7 @@ using MultiBatchPCA_Results = PCA_Results<scran::MultiBatchPCA::Results>;
  *
  * @return A `MultiBatchPCA_Results` object is returned containing the PCA results.
  */
-MultiBatchPCA_Results run_multibatch_pca(const NumericMatrix& mat, int number, bool use_subset, uintptr_t subset, bool scale, uintptr_t blocks) {
+MultiBatchPCA_Results run_multibatch_pca(const NumericMatrix& mat, int number, bool use_subset, uintptr_t subset, bool scale, uintptr_t blocks, int nthreads) {
     auto ptr = mat.ptr;
     auto NR = ptr->nrow();
     auto NC = ptr->ncol();
@@ -185,7 +187,7 @@ MultiBatchPCA_Results run_multibatch_pca(const NumericMatrix& mat, int number, b
     auto bptr = reinterpret_cast<const int32_t*>(blocks);
 
     scran::MultiBatchPCA pca;
-    pca.set_rank(number).set_scale(scale);
+    pca.set_rank(number).set_scale(scale).set_num_threads(nthreads);
     auto result = pca.run(ptr.get(), bptr, subptr);
 
     return MultiBatchPCA_Results(std::move(result)); 

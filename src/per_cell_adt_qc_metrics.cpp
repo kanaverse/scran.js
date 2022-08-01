@@ -2,6 +2,7 @@
 
 #include "NumericMatrix.h"
 #include "utils.h"
+#include "parallel.h"
 #include "PerCellAdtQcMetrics_Results.h"
 
 #include "scran/quality_control/PerCellAdtQcMetrics.hpp"
@@ -10,8 +11,9 @@
 #include <cstdint>
 #include <cmath>
 
-PerCellAdtQcMetrics_Results per_cell_adt_qc_metrics(const NumericMatrix& mat, int nsubsets, uintptr_t subsets) {
+PerCellAdtQcMetrics_Results per_cell_adt_qc_metrics(const NumericMatrix& mat, int nsubsets, uintptr_t subsets, int nthreads) {
     scran::PerCellAdtQcMetrics qc;
+    qc.set_num_threads(nthreads);
     auto store = qc.run(mat.ptr.get(), convert_array_of_offsets<const uint8_t*>(nsubsets, subsets));
     return PerCellAdtQcMetrics_Results(std::move(store));
 }

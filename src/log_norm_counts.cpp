@@ -2,6 +2,7 @@
 
 #include "NumericMatrix.h"
 #include "utils.h"
+#include "parallel.h"
 
 #include "scran/normalization/LogNormCounts.hpp"
 
