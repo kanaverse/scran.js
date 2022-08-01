@@ -38,3 +38,8 @@ test("possibleCopy fails as expected", () => {
     }
     expect(copied).toBe(false);
 });
+
+test("chooseNumberOfThreads works as expected", () => {
+    expect(utils.chooseNumberOfThreads(null)).toBeGreaterThan(0);
+    expect(utils.chooseNumberOfThreads(1234)).toBe(1234);
+})
