@@ -47,6 +47,19 @@ void run_parallel2(int nthreads, Function fun) {
     }
 }
 
+/*
+ * All of these macros are explicitly defined for safety's sake. 
+ *
+ * In theory, this would not be necessary as macros for libraries like scran
+ * propagate to scran's dependencies like tatami, irlba, and kmeans.
+ * Unfortunately, this assumes that scran is included in each compilation unit,
+ * which is not currently the case. This means that certain compilation units
+ * may have propagation and others may not, resulting in ODR errors.
+ * 
+ * You can figure out which macros need to be defined by checking the
+ * dependencies in build_main/_deps; many of Aaron's libraries will support
+ * some form of *_CUSTOM_PARALLEL macro.
+ */
 
 #define TATAMI_CUSTOM_PARALLEL run_parallel
 #define IRLBA_CUSTOM_PARALLEL run_parallel2
