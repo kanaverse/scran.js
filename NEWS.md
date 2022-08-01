@@ -1,5 +1,19 @@
 # scran.js news
 
+## 0.4.2
+
+**New**
+
+- Added a `maximumThreads()` function to query the maximum number of threads specified at module initialization.
+- All parallelizable functions now accept a `numberOfThreads=` option to control the number of threads.
+
+## 0.4.1
+
+**New**
+
+- Added a `layered=` option in various `initializeSparseMatrix*()` functions.
+  This enables direct loading of sparse matrices without row reorganization, for simplicity at the cost of memory efficiency.
+
 ## 0.4.0
 
 **New**

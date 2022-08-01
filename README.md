@@ -21,7 +21,7 @@ This is based on residuals from a trend fitted to the means and variances of the
 - Principal components analysis (PCA) on the highly variable genes, to compress and denoise the data.
 We use an approximate method to quickly obtain the top few PCs.
 - Clustering on the cells using the top PCs.
-This can either use k-means or multi-level community detection (a.k.a., "Louvain clustering") on a shared nearest neighbor graph.
+This can either use k-means or community detection on a shared nearest neighbor graph.
 - Dimensionality reduction with t-stochastic neighbor embedding (t-SNE), again using the top PCs.
 - Marker detection using a variety of effect sizes such as Cohen's d and the area under the curve (AUC).
 - Cell type annotation with a port of the [**SingleR**](https://bioconductor.org/packages/SingleR) algorithm.
@@ -73,7 +73,7 @@ let mat = scran.initializeSparseMatrixFromMatrixMarketBuffer(buffer);
 
 // Performing QC.
 let qc_metrics = scran.computePerCellQCMetrics(mat, [ /* specify mito subset here */ ]);
-let qc_thresholds = scran.computePerCellQCThresholds(qc_metrics);
+let qc_thresholds = scran.computePerCellQCFilters(qc_metrics);
 let filtered = scran.filterCells(mat, qc_thresholds.discardOverall());
 
 // Log-normalizing.
