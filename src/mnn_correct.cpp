@@ -1,8 +1,11 @@
 #include <emscripten/bind.h>
-#include "parallel.h"
-#include "mnncorrect/MnnCorrect.hpp"
+
 #include <vector>
 #include <cstdint>
+
+#include "parallel.h"
+
+#include "mnncorrect/MnnCorrect.hpp"
 
 void mnn_correct(
     size_t nrows, 
@@ -15,14 +18,15 @@ void mnn_correct(
     int riters, 
     double rtrim,
     std::string ref_policy, 
-    bool approximate)
+    bool approximate,
+    int nthreads)
 {
     auto bptr = reinterpret_cast<const int32_t*>(batch);
     auto iptr = reinterpret_cast<const double*>(input);
     auto optr = reinterpret_cast<double*>(output);
 
     mnncorrect::MnnCorrect<int, double> runner;
-    runner.set_num_neighbors(k).set_num_mads(nmads).set_robust_iterations(riters).set_robust_trim(rtrim).set_approximate(approximate);
+    runner.set_num_neighbors(k).set_num_mads(nmads).set_robust_iterations(riters).set_robust_trim(rtrim).set_approximate(approximate).set_num_threads(nthreads);
 
     if (ref_policy == "max-variance") {
         runner.set_reference_policy(mnncorrect::MaxVariance);

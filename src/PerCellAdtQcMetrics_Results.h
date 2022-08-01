@@ -2,6 +2,9 @@
 #define PER_CELL_ADT_AdtQc_METRICS_RESULTS_H
 
 #include <emscripten/bind.h>
+
+#include "parallel.h"
+
 #include "scran/quality_control/PerCellAdtQcMetrics.hpp"
 
 struct PerCellAdtQcMetrics_Results {

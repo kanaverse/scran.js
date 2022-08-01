@@ -1,11 +1,12 @@
 #include <emscripten/bind.h>
 
+#include <algorithm>
+#include <memory>
+
 #include "NeighborIndex.h"
 #include "parallel.h"
 
 #include "scran/clustering/ClusterSNNGraph.hpp"
-#include <algorithm>
-#include <memory>
 
 /**
  * @file cluster_snn_graph.cpp
@@ -41,7 +42,7 @@ struct BuildSNNGraph_Result {
  *
  * @return A `BuildSNNGraph_Result` containing the graph information.
  */
-BuildSNNGraph_Result build_snn_graph(const NeighborResults& neighbors, std::string scheme) {
+BuildSNNGraph_Result build_snn_graph(const NeighborResults& neighbors, std::string scheme, int nthreads) {
     size_t nc = neighbors.neighbors.size();
     std::vector<std::vector<int > > indices(nc);
     int k = 0;
@@ -67,7 +68,7 @@ BuildSNNGraph_Result build_snn_graph(const NeighborResults& neighbors, std::stri
     }
 
     scran::BuildSNNGraph builder;
-    builder.set_neighbors(k).set_weighting_scheme(chosen);
+    builder.set_neighbors(k).set_weighting_scheme(chosen).set_num_threads(nthreads);
     return BuildSNNGraph_Result(nc, builder.run(indices));
 }
 

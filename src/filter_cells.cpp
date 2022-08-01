@@ -1,7 +1,11 @@
 #include <emscripten/bind.h>
-#include "NumericMatrix.h"
-#include "scran/quality_control/FilterCells.hpp"
+
 #include <cstdint>
+
+#include "NumericMatrix.h"
+#include "parallel.h"
+
+#include "scran/quality_control/FilterCells.hpp"
 
 /**
  * Filter out low-quality cells.

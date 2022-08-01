@@ -93,15 +93,18 @@ export class RunPCAResults {
  * Alternatively, `"weight"` will weight the contribution of each blocking level equally so that larger blocks do not dominate the PCA.
  *
  * This option is only used if `block` is not `null`.
+ * @param {?number} [options.numberOfThreads=null] - Number of threads to use.
+ * If `null`, defaults to {@linkcode maximumThreads}.
  *
  * @return {RunPCAResults} Object containing the computed PCs.
  */
-export function runPCA(x, { features = null, numberOfPCs = 25, scale = false, block = null, blockMethod = "regress" } = {}) {
+export function runPCA(x, { features = null, numberOfPCs = 25, scale = false, block = null, blockMethod = "regress", numberOfThreads = null } = {}) {
     var feat_data;
     var block_data;
     var output;
 
     utils.matchOptions("blockMethod", blockMethod, ["none", "regress", "weight", "block"]);
+    let nthreads = utils.chooseNumberOfThreads(numberOfThreads);
 
     try {
         var use_feat = false;
@@ -122,7 +125,7 @@ export function runPCA(x, { features = null, numberOfPCs = 25, scale = false, bl
 
         if (block === null || blockMethod == 'none') {
             output = gc.call(
-                module => module.run_pca(x.matrix, numberOfPCs, use_feat, fptr, scale),
+                module => module.run_pca(x.matrix, numberOfPCs, use_feat, fptr, scale, nthreads),
                 RunPCAResults
             );
 
@@ -133,12 +136,12 @@ export function runPCA(x, { features = null, numberOfPCs = 25, scale = false, bl
             }
             if (blockMethod == "regress" || blockMethod == "block") { // latter for back-compatibility.
                 output = gc.call(
-                    module => module.run_blocked_pca(x.matrix, numberOfPCs, use_feat, fptr, scale, block_data.offset),
+                    module => module.run_blocked_pca(x.matrix, numberOfPCs, use_feat, fptr, scale, block_data.offset, nthreads),
                     RunPCAResults
                 );
             } else if (blockMethod == "weight") {
                 output = gc.call(
-                    module => module.run_multibatch_pca(x.matrix, numberOfPCs, use_feat, fptr, scale, block_data.offset),
+                    module => module.run_multibatch_pca(x.matrix, numberOfPCs, use_feat, fptr, scale, block_data.offset, nthreads),
                     RunPCAResults
                 );
             } else {

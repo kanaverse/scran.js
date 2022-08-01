@@ -3,6 +3,7 @@
 
 #include "read_utils.h"
 #include "NumericMatrix.h"
+#include "parallel.h"
 
 #include "H5Cpp.h"
 #include "tatami/ext/HDF5DenseMatrix.hpp"
@@ -82,21 +83,7 @@ NumericMatrix read_hdf5_matrix(std::string path, std::string name, bool layered)
         throw std::runtime_error(e.getCDetailMsg());
     }
 
-    // The HDF5 library can't handle parallelization, and in any case, it's
-    // probably inefficient to lock on each read (especially given that we'd
-    // need a large number of small reads to maintain memory usage below its
-    // limit across all threads). So we just disable it.
-    enable_parallel = false;
-
-    NumericMatrix output;
-    try {
-        output = sparse_from_tatami(mat.get(), layered);
-    } catch (std::exception& e) {
-        enable_parallel = false;
-        throw e;
-    }
-
-    return output;
+    return sparse_from_tatami(mat.get(), layered);
 }
 
 /**

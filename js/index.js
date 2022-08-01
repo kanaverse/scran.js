@@ -1,4 +1,4 @@
-export { initialize, terminate, wasmArraySpace, heapSize, writeFile, removeFile, fileExists, readFile } from "./wasm.js";
+export { initialize, terminate, wasmArraySpace, heapSize, writeFile, removeFile, fileExists, readFile, maximumThreads } from "./wasm.js";
 export { createUint8WasmArray, createInt32WasmArray, createFloat64WasmArray, free, safeFree } from "./utils.js";
 
 export * from "./initializeSparseMatrix.js";

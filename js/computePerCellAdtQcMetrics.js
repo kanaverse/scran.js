@@ -85,15 +85,19 @@ export class PerCellAdtQcMetricsResults {
  * Each array should be of length equal to the number of rows and values are interpreted as booleans.
  *
  * Alternatively `null`, which is taken to mean that there are no subsets.
+ * @param {object} [options] - Optional parameters.
+ * @param {?number} [options.numberOfThreads=null] - Number of threads to use.
+ * If `null`, defaults to {@linkcode maximumThreads}.
  *
  * @return {PerCellAdtQcMetricsResults} Object containing the ADT-based QC metrics.
  */
-export function computePerCellAdtQcMetrics(x, subsets) {
+export function computePerCellAdtQcMetrics(x, subsets, { numberOfThreads = null } = {}) {
+    let nthreads = utils.chooseNumberOfThreads(numberOfThreads);
     return internal.computePerCellQcMetrics(
         x, 
         subsets, 
         (matrix, nsubsets, subset_offset) => gc.call(
-            module => module.per_cell_adt_qc_metrics(matrix, nsubsets, subset_offset),
+            module => module.per_cell_adt_qc_metrics(matrix, nsubsets, subset_offset, nthreads),
             PerCellAdtQcMetricsResults
         )
     );

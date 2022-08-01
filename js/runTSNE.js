@@ -97,20 +97,23 @@ export function perplexityToNeighbors(perplexity) {
  * @param {number} [options.perplexity=30] - Perplexity to use when computing neighbor probabilities in the t-SNE.
  * @param {boolean} [options.checkMismatch=true] - Whether to check for a mismatch between the perplexity and the number of searched neighbors.
  * Only relevant if `x` is a {@linkplain FindNearestNeighborsResults} object.
+ * @param {?number} [options.numberOfThreads=null] - Number of threads to use.
+ * If `null`, defaults to {@linkcode maximumThreads}.
  *
  * @return {InitializeTSNEResults} Object containing the initial status of the t-SNE algorithm.
  */
-export function initializeTSNE(x, { perplexity = 30, checkMismatch = true } = {}) {
+export function initializeTSNE(x, { perplexity = 30, checkMismatch = true, numberOfThreads = null } = {}) {
     var my_neighbors;
     var raw_coords;
     var output;
+    let nthreads = utils.chooseNumberOfThreads(numberOfThreads);
 
     try {
         let neighbors;
 
         if (x instanceof BuildNeighborSearchIndexResults) {
             let k = perplexityToNeighbors(perplexity);
-            my_neighbors = findNearestNeighbors(x, k);
+            my_neighbors = findNearestNeighbors(x, k, { numberOfThreads: nthreads });
             neighbors = my_neighbors;
 
         } else {
@@ -126,7 +129,7 @@ export function initializeTSNE(x, { perplexity = 30, checkMismatch = true } = {}
         raw_coords = utils.createFloat64WasmArray(2 * neighbors.numberOfCells());
         wasm.call(module => module.randomize_tsne_start(neighbors.numberOfCells(), raw_coords.offset, 42));
         output = gc.call(
-            module => module.initialize_tsne(neighbors.results, perplexity),
+            module => module.initialize_tsne(neighbors.results, perplexity, nthreads),
             InitializeTSNEResults,
             raw_coords
         );

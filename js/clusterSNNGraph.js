@@ -47,12 +47,15 @@ export class BuildSNNGraphResults {
  * or the Jaccard index of the neighbor sets between cells (`"jaccard"`).
  * @param {number} [options.neighbors=10] - Number of nearest neighbors to use to construct the graph.
  * Ignored if `x` is a {@linkplain FindNearestNeighborsResults} object.
+ * @param {?number} [options.numberOfThreads=null] - Number of threads to use.
+ * If `null`, defaults to {@linkcode maximumThreads}.
  *
  * @return {BuildSNNGraphResults} Object containing the graph.
  */
-export function buildSNNGraph(x, { scheme = "rank", neighbors = 10 } = {}) {
+export function buildSNNGraph(x, { scheme = "rank", neighbors = 10, numberOfThreads = null } = {}) {
     var output;
     var my_neighbors;
+    let nthreads = utils.chooseNumberOfThreads(numberOfThreads);
 
     // Back compatibility.
     if (typeof scheme == "number") {
@@ -64,12 +67,12 @@ export function buildSNNGraph(x, { scheme = "rank", neighbors = 10 } = {}) {
         if (x instanceof FindNearestNeighborsResults) {
             ref = x;
         } else {
-            my_neighbors = findNearestNeighbors(x, neighbors); 
+            my_neighbors = findNearestNeighbors(x, neighbors, { numberOfThreads: nthreads }); 
             ref = my_neighbors ; // separate assignment is necessary for only 'my_neighbors' but not 'x' to be freed.
         }
 
         output = gc.call(
-            module => module.build_snn_graph(ref.results, scheme),
+            module => module.build_snn_graph(ref.results, scheme, nthreads),
             BuildSNNGraphResults
         );
 

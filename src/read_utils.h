@@ -2,6 +2,8 @@
 #define INIT_UTILS_HPP
 
 #include "NumericMatrix.h"
+#include "parallel.h"
+
 #include "tatami/tatami.hpp"
 #include "tatami/ext/convert_to_layered_sparse.hpp"
 

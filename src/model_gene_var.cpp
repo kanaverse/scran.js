@@ -1,6 +1,7 @@
 #include <emscripten/bind.h>
 
 #include "NumericMatrix.h"
+#include "parallel.h"
 #include "utils.h"
 
 #include "scran/utils/average_vectors.hpp"
@@ -127,14 +128,14 @@ struct ModelGeneVar_Results {
  *
  * @return A `ModelGeneVar_Results` object containing the variance modelling statistics.
  */
-ModelGeneVar_Results model_gene_var(const NumericMatrix& mat, bool use_blocks, uintptr_t blocks, double span) {
+ModelGeneVar_Results model_gene_var(const NumericMatrix& mat, bool use_blocks, uintptr_t blocks, double span, int nthreads) {
     const int32_t* bptr = NULL;
     if (use_blocks) {
         bptr = reinterpret_cast<const int32_t*>(blocks);
     }
 
     scran::ModelGeneVar var;
-    var.set_span(span);
+    var.set_span(span).set_num_threads(nthreads);
     auto store = var.run_blocked(mat.ptr.get(), bptr);
     return ModelGeneVar_Results(std::move(store));
 }

@@ -97,19 +97,22 @@ export class InitializeUMAPResults {
  * Ignored if `x` is a {@linkplain FindNearestNeighborsResults} object.
  * @param {number} [options.epochs=500] - Number of epochs to run the UMAP algorithm.
  * @param {number} [options.minDist=0.01] - Minimum distance between points in the UMAP algorithm.
+ * @param {?number} [options.numberOfThreads=null] - Number of threads to use.
+ * If `null`, defaults to {@linkcode maximumThreads}.
  *
  * @return {InitializeUMAPResults} Object containing the initial status of the UMAP algorithm.
  */
-export function initializeUMAP(x, { neighbors = 15, epochs = 500, minDist = 0.01 } = {}) {
+export function initializeUMAP(x, { neighbors = 15, epochs = 500, minDist = 0.01, numberOfThreads = null } = {}) {
     var my_neighbors;
     var raw_coords;
     var output;
+    let nthreads = utils.chooseNumberOfThreads(numberOfThreads);
 
     try {
         let nnres;
 
         if (x instanceof BuildNeighborSearchIndexResults) {
-            my_neighbors = findNearestNeighbors(x, neighbors);
+            my_neighbors = findNearestNeighbors(x, neighbors, { numberOfThreads: nthreads });
             nnres = my_neighbors;
         } else {
             nnres = x;
@@ -117,7 +120,7 @@ export function initializeUMAP(x, { neighbors = 15, epochs = 500, minDist = 0.01
 
         raw_coords = utils.createFloat64WasmArray(2 * nnres.numberOfCells());
         output = gc.call(
-            module => module.initialize_umap(nnres.results, epochs, minDist, raw_coords.offset),
+            module => module.initialize_umap(nnres.results, epochs, minDist, raw_coords.offset, nthreads),
             InitializeUMAPResults,
             raw_coords
         );

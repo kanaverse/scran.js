@@ -2,6 +2,7 @@
 
 #include "NumericMatrix.h"
 #include "utils.h"
+#include "parallel.h"
 
 #include "scran/normalization/GroupedSizeFactors.hpp"
 
@@ -25,9 +26,9 @@
  * 
  * @return `output` is filled with the size factors for all cells in `mat`.
  */
-void grouped_size_factors(const NumericMatrix& mat, uintptr_t groups, bool center, double prior_count, int reference, uintptr_t output) {
+void grouped_size_factors(const NumericMatrix& mat, uintptr_t groups, bool center, double prior_count, int reference, uintptr_t output, int nthreads) {
     scran::GroupedSizeFactors runner;
-    runner.set_center(center).set_prior_count(prior_count); 
+    runner.set_center(center).set_prior_count(prior_count).set_num_threads(nthreads);
 
     auto gptr = reinterpret_cast<const int*>(groups);
     auto optr = reinterpret_cast<double*>(output);

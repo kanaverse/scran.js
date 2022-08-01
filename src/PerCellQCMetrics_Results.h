@@ -2,6 +2,9 @@
 #define PER_CELL_QC_METRICS_RESULTS_H
 
 #include <emscripten/bind.h>
+
+#include "parallel.h"
+
 #include "scran/quality_control/PerCellRnaQcMetrics.hpp"
 
 /**

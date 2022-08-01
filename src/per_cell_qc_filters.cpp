@@ -3,6 +3,7 @@
 #include "NumericMatrix.h"
 #include "utils.h"
 #include "PerCellQCMetrics_Results.h"
+#include "parallel.h"
 
 #include "scran/quality_control/PerCellRnaQcFilters.hpp"
 

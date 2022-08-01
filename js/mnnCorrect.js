@@ -1,5 +1,5 @@
 import * as utils from "./utils.js";
-import * as pca from "./runPCA.js";
+import { RunPCAResults } from "./runPCA.js";
 import * as wasm from "./wasm.js";
 
 /**
@@ -30,6 +30,8 @@ import * as wasm from "./wasm.js";
  * @param {string} [options.referencePolicy="max-size"] - What policy to use to choose the first reference batch.
  * This can be the largest batch (`"max-size"`), the most variable batch (`"max-variance"`), the batch with the highest RSS (`"max-rss"`) or batch 0 in `block` (`"input"`).
  * @param {boolean} [options.approximate=true] - Whether to perform an approximate nearest neighbor search.
+ * @param {?number} [options.numberOfThreads=null] - Number of threads to use.
+ * If `null`, defaults to {@linkcode maximumThreads}.
  *
  * @return {Float64WasmArray} Array of length equal to `x`, containing the batch-corrected low-dimensional coordinates for all cells.
  * Values are organized using the column-major layout.
@@ -44,15 +46,17 @@ export function mnnCorrect(x, block, {
     robustIterations = 2, 
     robustTrim = 0.25,
     referencePolicy = "max-size",
-    approximate = true
+    approximate = true,
+    numberOfThreads = null
 } = {}) {
 
     let local_buffer;
     let x_data;
     let block_data;
+    let nthreads = utils.chooseNumberOfThreads(numberOfThreads);
 
     try {
-        if (x instanceof pca.RunPCAResults) {
+        if (x instanceof RunPCAResults) {
             numberOfDims = x.numberOfPCs();
             numberOfCells = x.numberOfCells();
             x = x.principalComponents({ copy: "view" });
@@ -87,7 +91,8 @@ export function mnnCorrect(x, block, {
             robustIterations,
             robustTrim,
             referencePolicy,
-            approximate
+            approximate,
+            nthreads
         ));
 
     } catch (e) {

@@ -1,9 +1,12 @@
 #ifndef NEIGHBOR_INDEX_H
 #define NEIGHBOR_INDEX_H
 
-#include "knncolle/knncolle.hpp"
 #include <memory>
 #include <vector>
+
+#include "parallel.h"
+
+#include "knncolle/knncolle.hpp"
 
 /**
  * @brief Prebuilt nearest neighbor index.
@@ -125,6 +128,6 @@ struct NeighborResults {
     }
 };
 
-NeighborResults find_nearest_neighbors(const NeighborIndex&, int);
+NeighborResults find_nearest_neighbors(const NeighborIndex&, int, int);
 
 #endif

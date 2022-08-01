@@ -3,6 +3,7 @@
 #include "utils.h"
 #include "parallel.h"
 #include "NeighborIndex.h"
+
 #include "umappp/Umap.hpp"
 #include "knncolle/knncolle.hpp"
 
@@ -80,9 +81,9 @@ struct UmapStatus {
  *
  * @return A `UmapStatus` object that can be passed to `run_umap()` to update `Y`.
  */
-UmapStatus initialize_umap(const NeighborResults& neighbors, int num_epochs, double min_dist, uintptr_t Y) {
+UmapStatus initialize_umap(const NeighborResults& neighbors, int num_epochs, double min_dist, uintptr_t Y, int nthreads) {
     umappp::Umap factory;
-    factory.set_min_dist(min_dist).set_num_epochs(num_epochs);
+    factory.set_min_dist(min_dist).set_num_epochs(num_epochs).set_num_threads(nthreads);
     double* embedding = reinterpret_cast<double*>(Y);
 
     // Don't move from neighbors; this means that we can easily re-use the
@@ -106,14 +107,14 @@ void run_umap(UmapStatus& status, int runtime, uintptr_t Y) {
     double* ptr = reinterpret_cast<double*>(Y);
 
     if (runtime <= 0) {
-        factory.run(status.status, 2, ptr);
+        status.status.run(2, ptr);
     } else {
         int current = status.epoch();
         const int total = status.num_epochs();
         auto end = std::chrono::steady_clock::now() + std::chrono::milliseconds(runtime);
         do {
             ++current;
-            factory.run(status.status, 2, ptr, current);
+            status.status.run(2, ptr, current);
         } while (current < total && std::chrono::steady_clock::now() < end);
     }
 

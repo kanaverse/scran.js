@@ -20,14 +20,17 @@ import * as wa from "wasmarrays.js";
  * @param {?number} [options.reference=null] - Group to use as a reference.
  * This should be an entry in `groups`. 
  * If `null`, it is automatically determined.
+ * @param {?number} [options.numberOfThreads=null] - Number of threads to use.
+ * If `null`, defaults to {@linkcode maximumThreads}.
  *
  * @return {Float64WasmArray} Array of length equal to the number of columns in `x`, containing the size factors for all cells.
  *
  * If `buffer` was supplied, it is used as the return value.
  */
-export function groupedSizeFactors(x, groups, { center = true, buffer = null, priorCount = 10, reference = null } = {}) {
+export function groupedSizeFactors(x, groups, { center = true, buffer = null, priorCount = 10, reference = null, numberOfThreads = null } = {}) {
     var local_buffer;
     var group_arr;
+    let nthreads = utils.chooseNumberOfThreads(numberOfThreads);
 
     try {
         if (!(buffer instanceof wa.Float64WasmArray)) {
@@ -42,7 +45,7 @@ export function groupedSizeFactors(x, groups, { center = true, buffer = null, pr
             reference = -1;
         }
 
-        wasm.call(module => module.grouped_size_factors(x.matrix, group_arr.offset, center, priorCount, reference, buffer.offset));
+        wasm.call(module => module.grouped_size_factors(x.matrix, group_arr.offset, center, priorCount, reference, buffer.offset, nthreads));
 
     } catch (e) {
         utils.free(local_buffer);

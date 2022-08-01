@@ -145,13 +145,16 @@ export class ScoreMarkersResults {
  * This should have length equal to the number of cells and contain all values from 0 to `n - 1` at least once, where `n` is the number of blocks.
  * This is used to segregate cells in order to perform comparisons within each block.
  * Alternatively, this may be `null`, in which case all cells are assumed to be in the same block.
+ * @param {?number} [options.numberOfThreads=null] - Number of threads to use.
+ * If `null`, defaults to {@linkcode maximumThreads}.
  *
  * @return {ScoreMarkersResults} Object containing the marker scoring results.
  */
-export function scoreMarkers(x, groups, { block = null } = {}) {
+export function scoreMarkers(x, groups, { block = null, numberOfThreads = null } = {}) {
     var output;
     var block_data;
     var group_data;
+    let nthreads = utils.chooseNumberOfThreads(numberOfThreads);
 
     try {
         group_data = utils.wasmifyArray(groups, "Int32WasmArray");
@@ -171,7 +174,7 @@ export function scoreMarkers(x, groups, { block = null } = {}) {
         }
 
         output = gc.call(
-            module => module.score_markers(x.matrix, group_data.offset, use_blocks, bptr),
+            module => module.score_markers(x.matrix, group_data.offset, use_blocks, bptr, nthreads),
             ScoreMarkersResults
         );
 
