@@ -76,7 +76,7 @@ $(function() {
 <li>Normalization and log-transformation, to remove biases and mitigate the mean-variance trend. We use scaling normalization with size factors defined from the library size for each cell.</li>
 <li>Feature selection to identify highly variable genes. This is based on residuals from a trend fitted to the means and variances of the log-normalized data for each gene.</li>
 <li>Principal components analysis (PCA) on the highly variable genes, to compress and denoise the data. We use an approximate method to quickly obtain the top few PCs.</li>
-<li>Clustering on the cells using the top PCs. This can either use k-means or multi-level community detection (a.k.a., "Louvain clustering") on a shared nearest neighbor graph.</li>
+<li>Clustering on the cells using the top PCs. This can either use k-means or community detection on a shared nearest neighbor graph.</li>
 <li>Dimensionality reduction with t-stochastic neighbor embedding (t-SNE), again using the top PCs.</li>
 <li>Marker detection using a variety of effect sizes such as Cohen's d and the area under the curve (AUC).</li>
 <li>Cell type annotation with a port of the <a href="https://bioconductor.org/packages/SingleR"><b>SingleR</b></a> algorithm.</li>
@@ -106,7 +106,7 @@ $(function() {
 <div class="line"> </div>
 <div class="line">// Performing QC.</div>
 <div class="line">let qc_metrics = scran.computePerCellQCMetrics(mat, [ /* specify mito subset here */ ]);</div>
-<div class="line">let qc_thresholds = scran.computePerCellQCThresholds(qc_metrics);</div>
+<div class="line">let qc_thresholds = scran.computePerCellQCFilters(qc_metrics);</div>
 <div class="line">let filtered = scran.filterCells(mat, qc_thresholds.discardOverall());</div>
 <div class="line"> </div>
 <div class="line">// Log-normalizing.</div>
