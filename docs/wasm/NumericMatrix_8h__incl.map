@@ -1,7 +1,5 @@
 <map id="NumericMatrix.h" name="NumericMatrix.h">
-<area shape="rect" id="node1" title="Javascript wrapper for a numeric matrix." alt="" coords="95,5,211,32"/>
-<area shape="rect" id="node2" href="$JSVector_8h.html" title=" " alt="" coords="5,80,92,107"/>
-<area shape="rect" id="node4" href="$parallel_8h.html" title=" " alt="" coords="116,80,189,107"/>
-<area shape="rect" id="node5" title=" " alt="" coords="213,80,321,107"/>
-<area shape="rect" id="node3" title=" " alt="" coords="16,155,81,181"/>
+<area shape="rect" id="node1" title="Javascript wrapper for a numeric matrix." alt="" coords="41,5,157,32"/>
+<area shape="rect" id="node2" href="$parallel_8h.html" title=" " alt="" coords="5,80,79,107"/>
+<area shape="rect" id="node3" title=" " alt="" coords="103,80,211,107"/>
 </map>

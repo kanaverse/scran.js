@@ -70,21 +70,21 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><code>#include &lt;emscripten/bind.h&gt;</code><br />
-<code>#include &quot;knncolle/knncolle.hpp&quot;</code><br />
 <code>#include &quot;<a class="el" href="NeighborIndex_8h_source.html">NeighborIndex.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="parallel_8h_source.html">parallel.h</a>&quot;</code><br />
+<code>#include &quot;knncolle/knncolle.hpp&quot;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for NeighborIndex.cpp:</div>
 <div class="dyncontent">
 <div class="center"><img src="NeighborIndex_8cpp__incl.png" border="0" usemap="#aNeighborIndex_8cpp" alt=""/></div>
 <map name="aNeighborIndex_8cpp" id="aNeighborIndex_8cpp">
-<area shape="rect" title=" " alt="" coords="149,5,279,32"/>
+<area shape="rect" title=" " alt="" coords="193,5,323,32"/>
 <area shape="rect" title=" " alt="" coords="5,80,129,107"/>
-<area shape="rect" title=" " alt="" coords="75,155,222,181"/>
-<area shape="rect" href="NeighborIndex_8h.html" title=" " alt="" coords="205,80,319,107"/>
-<area shape="rect" href="parallel_8h.html" title=" " alt="" coords="344,80,417,107"/>
-<area shape="rect" title=" " alt="" coords="247,155,315,181"/>
-<area shape="rect" title=" " alt="" coords="339,155,398,181"/>
+<area shape="rect" href="NeighborIndex_8h.html" title=" " alt="" coords="154,80,269,107"/>
+<area shape="rect" href="parallel_8h.html" title=" " alt="" coords="245,155,319,181"/>
+<area shape="rect" title=" " alt="" coords="343,155,490,181"/>
+<area shape="rect" title=" " alt="" coords="69,155,137,181"/>
+<area shape="rect" title=" " alt="" coords="162,155,221,181"/>
 </map>
 </div>
 </div><table class="memberdecls">
@@ -92,8 +92,8 @@ Include dependency graph for NeighborIndex.cpp:</div>
 Functions</h2></td></tr>
 <tr class="memitem:ad18ff23ea88755b16f82fe79497f9c68"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structNeighborIndex.html">NeighborIndex</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="NeighborIndex_8cpp.html#ad18ff23ea88755b16f82fe79497f9c68">build_neighbor_index</a> (uintptr_t mat, int nr, int nc, bool approximate)</td></tr>
 <tr class="separator:ad18ff23ea88755b16f82fe79497f9c68"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae64e7d39dead46b27b5269d198c6d17d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structNeighborResults.html">NeighborResults</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="NeighborIndex_8cpp.html#ae64e7d39dead46b27b5269d198c6d17d">find_nearest_neighbors</a> (const <a class="el" href="structNeighborIndex.html">NeighborIndex</a> &amp;index, int k)</td></tr>
-<tr class="separator:ae64e7d39dead46b27b5269d198c6d17d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abe9114870fcf73b72b0663fa007ea14e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structNeighborResults.html">NeighborResults</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="NeighborIndex_8cpp.html#abe9114870fcf73b72b0663fa007ea14e">find_nearest_neighbors</a> (const <a class="el" href="structNeighborIndex.html">NeighborIndex</a> &amp;index, int k, int nthreads)</td></tr>
+<tr class="separator:abe9114870fcf73b72b0663fa007ea14e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function Documentation</h2>
 <a id="ad18ff23ea88755b16f82fe79497f9c68" name="ad18ff23ea88755b16f82fe79497f9c68"></a>
@@ -146,8 +146,8 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="ae64e7d39dead46b27b5269d198c6d17d" name="ae64e7d39dead46b27b5269d198c6d17d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae64e7d39dead46b27b5269d198c6d17d">&#9670;&nbsp;</a></span>find_nearest_neighbors()</h2>
+<a id="abe9114870fcf73b72b0663fa007ea14e" name="abe9114870fcf73b72b0663fa007ea14e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abe9114870fcf73b72b0663fa007ea14e">&#9670;&nbsp;</a></span>find_nearest_neighbors()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -162,7 +162,13 @@ Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>k</em>&#160;</td>
+          <td class="paramname"><em>k</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>nthreads</em>&#160;</td>
         </tr>
         <tr>
           <td></td>

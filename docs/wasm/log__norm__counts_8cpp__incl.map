@@ -1,15 +1,13 @@
 <map id="log_norm_counts.cpp" name="log_norm_counts.cpp">
-<area shape="rect" id="node1" title=" " alt="" coords="323,5,468,32"/>
-<area shape="rect" id="node2" title=" " alt="" coords="61,87,185,114"/>
-<area shape="rect" id="node3" href="$NumericMatrix_8h.html" title="Javascript wrapper for a numeric matrix." alt="" coords="209,87,325,114"/>
-<area shape="rect" id="node8" href="$utils_8h.html" title=" " alt="" coords="458,87,514,114"/>
-<area shape="rect" id="node9" title=" " alt="" coords="346,169,405,196"/>
-<area shape="rect" id="node10" title=" " alt="" coords="429,169,490,196"/>
-<area shape="rect" id="node13" title=" " alt="" coords="539,80,684,121"/>
-<area shape="rect" id="node4" href="$JSVector_8h.html" title=" " alt="" coords="5,169,92,196"/>
-<area shape="rect" id="node6" href="$parallel_8h.html" title=" " alt="" coords="116,169,189,196"/>
-<area shape="rect" id="node7" title=" " alt="" coords="213,169,321,196"/>
-<area shape="rect" id="node5" title=" " alt="" coords="16,244,81,271"/>
-<area shape="rect" id="node11" title=" " alt="" coords="610,169,669,196"/>
-<area shape="rect" id="node12" title=" " alt="" coords="514,169,586,196"/>
+<area shape="rect" id="node1" title=" " alt="" coords="287,5,432,32"/>
+<area shape="rect" id="node2" title=" " alt="" coords="5,87,129,114"/>
+<area shape="rect" id="node3" href="$NumericMatrix_8h.html" title="Javascript wrapper for a numeric matrix." alt="" coords="205,87,321,114"/>
+<area shape="rect" id="node4" href="$parallel_8h.html" title=" " alt="" coords="112,169,185,196"/>
+<area shape="rect" id="node6" href="$utils_8h.html" title=" " alt="" coords="447,87,503,114"/>
+<area shape="rect" id="node7" title=" " alt="" coords="342,169,401,196"/>
+<area shape="rect" id="node8" title=" " alt="" coords="425,169,486,196"/>
+<area shape="rect" id="node11" title=" " alt="" coords="528,80,673,121"/>
+<area shape="rect" id="node5" title=" " alt="" coords="209,169,317,196"/>
+<area shape="rect" id="node9" title=" " alt="" coords="510,169,569,196"/>
+<area shape="rect" id="node10" title=" " alt="" coords="593,169,665,196"/>
 </map>

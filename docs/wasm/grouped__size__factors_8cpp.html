@@ -72,6 +72,7 @@ $(function() {
 <div class="textblock"><code>#include &lt;emscripten/bind.h&gt;</code><br />
 <code>#include &quot;<a class="el" href="NumericMatrix_8h_source.html">NumericMatrix.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="utils_8h_source.html">utils.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="parallel_8h_source.html">parallel.h</a>&quot;</code><br />
 <code>#include &quot;scran/normalization/GroupedSizeFactors.hpp&quot;</code><br />
 <code>#include &lt;vector&gt;</code><br />
 </div><div class="textblock"><div class="dynheader">
@@ -79,30 +80,28 @@ Include dependency graph for grouped_size_factors.cpp:</div>
 <div class="dyncontent">
 <div class="center"><img src="grouped__size__factors_8cpp__incl.png" border="0" usemap="#agrouped__size__factors_8cpp" alt=""/></div>
 <map name="agrouped__size__factors_8cpp" id="agrouped__size__factors_8cpp">
-<area shape="rect" title=" " alt="" coords="291,5,460,32"/>
-<area shape="rect" title=" " alt="" coords="61,87,185,114"/>
-<area shape="rect" href="NumericMatrix_8h.html" title="Javascript wrapper for a numeric matrix." alt="" coords="209,87,325,114"/>
-<area shape="rect" href="utils_8h.html" title=" " alt="" coords="422,87,478,114"/>
-<area shape="rect" title=" " alt="" coords="346,169,405,196"/>
-<area shape="rect" title=" " alt="" coords="502,80,670,121"/>
-<area shape="rect" href="JSVector_8h.html" title=" " alt="" coords="5,169,92,196"/>
-<area shape="rect" href="parallel_8h.html" title=" " alt="" coords="116,169,189,196"/>
-<area shape="rect" title=" " alt="" coords="213,169,321,196"/>
-<area shape="rect" title=" " alt="" coords="16,244,81,271"/>
-<area shape="rect" title=" " alt="" coords="429,169,490,196"/>
-<area shape="rect" title=" " alt="" coords="514,169,573,196"/>
-<area shape="rect" title=" " alt="" coords="597,169,669,196"/>
+<area shape="rect" title=" " alt="" coords="229,5,399,32"/>
+<area shape="rect" title=" " alt="" coords="5,87,129,114"/>
+<area shape="rect" href="NumericMatrix_8h.html" title="Javascript wrapper for a numeric matrix." alt="" coords="205,87,321,114"/>
+<area shape="rect" href="parallel_8h.html" title=" " alt="" coords="108,169,181,196"/>
+<area shape="rect" href="utils_8h.html" title=" " alt="" coords="411,87,467,114"/>
+<area shape="rect" title=" " alt="" coords="338,169,397,196"/>
+<area shape="rect" title=" " alt="" coords="491,80,659,121"/>
+<area shape="rect" title=" " alt="" coords="205,169,313,196"/>
+<area shape="rect" title=" " alt="" coords="421,169,482,196"/>
+<area shape="rect" title=" " alt="" coords="506,169,565,196"/>
+<area shape="rect" title=" " alt="" coords="589,169,661,196"/>
 </map>
 </div>
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:ab6c8127e3063a6d6e6d9318b28907d78"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="grouped__size__factors_8cpp.html#ab6c8127e3063a6d6e6d9318b28907d78">grouped_size_factors</a> (const <a class="el" href="structNumericMatrix.html">NumericMatrix</a> &amp;mat, uintptr_t groups, bool center, double prior_count, int reference, uintptr_t output)</td></tr>
-<tr class="separator:ab6c8127e3063a6d6e6d9318b28907d78"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8c32f80cfd0fe9e4de124bbd619beae1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="grouped__size__factors_8cpp.html#a8c32f80cfd0fe9e4de124bbd619beae1">grouped_size_factors</a> (const <a class="el" href="structNumericMatrix.html">NumericMatrix</a> &amp;mat, uintptr_t groups, bool center, double prior_count, int reference, uintptr_t output, int nthreads)</td></tr>
+<tr class="separator:a8c32f80cfd0fe9e4de124bbd619beae1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function Documentation</h2>
-<a id="ab6c8127e3063a6d6e6d9318b28907d78" name="ab6c8127e3063a6d6e6d9318b28907d78"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab6c8127e3063a6d6e6d9318b28907d78">&#9670;&nbsp;</a></span>grouped_size_factors()</h2>
+<a id="a8c32f80cfd0fe9e4de124bbd619beae1" name="a8c32f80cfd0fe9e4de124bbd619beae1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8c32f80cfd0fe9e4de124bbd619beae1">&#9670;&nbsp;</a></span>grouped_size_factors()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -141,7 +140,13 @@ Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">uintptr_t&#160;</td>
-          <td class="paramname"><em>output</em>&#160;</td>
+          <td class="paramname"><em>output</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>nthreads</em>&#160;</td>
         </tr>
         <tr>
           <td></td>

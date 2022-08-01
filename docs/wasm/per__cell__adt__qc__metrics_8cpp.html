@@ -72,6 +72,7 @@ $(function() {
 <div class="textblock"><code>#include &lt;emscripten/bind.h&gt;</code><br />
 <code>#include &quot;<a class="el" href="NumericMatrix_8h_source.html">NumericMatrix.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="utils_8h_source.html">utils.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="parallel_8h_source.html">parallel.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="PerCellAdtQcMetrics__Results_8h_source.html">PerCellAdtQcMetrics_Results.h</a>&quot;</code><br />
 <code>#include &quot;scran/quality_control/PerCellAdtQcMetrics.hpp&quot;</code><br />
 <code>#include &lt;vector&gt;</code><br />
@@ -82,28 +83,26 @@ Include dependency graph for per_cell_adt_qc_metrics.cpp:</div>
 <div class="dyncontent">
 <div class="center"><img src="per__cell__adt__qc__metrics_8cpp__incl.png" border="0" usemap="#aper__cell__adt__qc__metrics_8cpp" alt=""/></div>
 <map name="aper__cell__adt__qc__metrics_8cpp" id="aper__cell__adt__qc__metrics_8cpp">
-<area shape="rect" title=" " alt="" coords="510,5,697,32"/>
+<area shape="rect" title=" " alt="" coords="402,5,589,32"/>
 <area shape="rect" title=" " alt="" coords="5,177,129,203"/>
-<area shape="rect" href="NumericMatrix_8h.html" title="Javascript wrapper for a numeric matrix." alt="" coords="451,87,567,114"/>
-<area shape="rect" href="utils_8h.html" title=" " alt="" coords="775,87,831,114"/>
-<area shape="rect" title=" " alt="" coords="690,177,749,203"/>
-<area shape="rect" title=" " alt="" coords="773,177,834,203"/>
-<area shape="rect" title=" " alt="" coords="954,177,1013,203"/>
+<area shape="rect" href="NumericMatrix_8h.html" title="Javascript wrapper for a numeric matrix." alt="" coords="437,87,553,114"/>
+<area shape="rect" href="parallel_8h.html" title=" " alt="" coords="349,177,423,203"/>
+<area shape="rect" href="utils_8h.html" title=" " alt="" coords="679,87,735,114"/>
+<area shape="rect" title=" " alt="" coords="579,177,638,203"/>
+<area shape="rect" title=" " alt="" coords="662,177,723,203"/>
+<area shape="rect" title=" " alt="" coords="843,177,902,203"/>
 <area shape="rect" href="PerCellAdtQcMetrics__Results_8h.html" title=" " alt="" coords="167,80,311,121"/>
 <area shape="rect" title=" " alt="" coords="153,169,325,211"/>
-<area shape="rect" href="JSVector_8h.html" title=" " alt="" coords="349,177,436,203"/>
-<area shape="rect" href="parallel_8h.html" title=" " alt="" coords="460,177,533,203"/>
-<area shape="rect" title=" " alt="" coords="557,177,665,203"/>
-<area shape="rect" title=" " alt="" coords="360,259,425,285"/>
-<area shape="rect" title=" " alt="" coords="858,177,930,203"/>
+<area shape="rect" title=" " alt="" coords="447,177,555,203"/>
+<area shape="rect" title=" " alt="" coords="747,177,819,203"/>
 </map>
 </div>
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a5854c6e2ba4b060a79ea3549ab0c8a81"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structPerCellAdtQcMetrics__Results.html">PerCellAdtQcMetrics_Results</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="per__cell__adt__qc__metrics_8cpp.html#a5854c6e2ba4b060a79ea3549ab0c8a81">per_cell_adt_qc_metrics</a> (const <a class="el" href="structNumericMatrix.html">NumericMatrix</a> &amp;mat, int nsubsets, uintptr_t subsets)</td></tr>
-<tr class="separator:a5854c6e2ba4b060a79ea3549ab0c8a81"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6ef638d010a5eada7076556002f81cfe"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="per__cell__adt__qc__metrics_8cpp.html#a6ef638d010a5eada7076556002f81cfe">EMSCRIPTEN_BINDINGS</a> (<a class="el" href="per__cell__qc__metrics_8cpp.html#a7945244bf938b8fb2862d6ea415b8194">per_cell_qc_metrics</a>)</td></tr>
+<tr class="memitem:a05e9c98b764da98e1f4ee73c093d2a22"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structPerCellAdtQcMetrics__Results.html">PerCellAdtQcMetrics_Results</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="per__cell__adt__qc__metrics_8cpp.html#a05e9c98b764da98e1f4ee73c093d2a22">per_cell_adt_qc_metrics</a> (const <a class="el" href="structNumericMatrix.html">NumericMatrix</a> &amp;mat, int nsubsets, uintptr_t subsets, int nthreads)</td></tr>
+<tr class="separator:a05e9c98b764da98e1f4ee73c093d2a22"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6ef638d010a5eada7076556002f81cfe"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="per__cell__adt__qc__metrics_8cpp.html#a6ef638d010a5eada7076556002f81cfe">EMSCRIPTEN_BINDINGS</a> (<a class="el" href="per__cell__qc__metrics_8cpp.html#ac46399877373a200519953fc2286730d">per_cell_qc_metrics</a>)</td></tr>
 <tr class="separator:a6ef638d010a5eada7076556002f81cfe"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function Documentation</h2>
@@ -116,7 +115,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="memname">EMSCRIPTEN_BINDINGS </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="per__cell__qc__metrics_8cpp.html#a7945244bf938b8fb2862d6ea415b8194">per_cell_qc_metrics</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="per__cell__qc__metrics_8cpp.html#ac46399877373a200519953fc2286730d">per_cell_qc_metrics</a>&#160;</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
         </tr>
@@ -125,8 +124,8 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a5854c6e2ba4b060a79ea3549ab0c8a81" name="a5854c6e2ba4b060a79ea3549ab0c8a81"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5854c6e2ba4b060a79ea3549ab0c8a81">&#9670;&nbsp;</a></span>per_cell_adt_qc_metrics()</h2>
+<a id="a05e9c98b764da98e1f4ee73c093d2a22" name="a05e9c98b764da98e1f4ee73c093d2a22"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a05e9c98b764da98e1f4ee73c093d2a22">&#9670;&nbsp;</a></span>per_cell_adt_qc_metrics()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -147,7 +146,13 @@ Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">uintptr_t&#160;</td>
-          <td class="paramname"><em>subsets</em>&#160;</td>
+          <td class="paramname"><em>subsets</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>nthreads</em>&#160;</td>
         </tr>
         <tr>
           <td></td>

@@ -74,10 +74,9 @@ $(function() {
 <div class="textblock"><code>#include &lt;emscripten/bind.h&gt;</code><br />
 <code>#include &quot;<a class="el" href="NumericMatrix_8h_source.html">NumericMatrix.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="utils_8h_source.html">utils.h</a>&quot;</code><br />
-<code>#include &quot;singlepp/SinglePP.hpp&quot;</code><br />
+<code>#include &quot;<a class="el" href="parallel_8h_source.html">parallel.h</a>&quot;</code><br />
+<code>#include &quot;singlepp/singlepp.hpp&quot;</code><br />
 <code>#include &quot;singlepp/load_references.hpp&quot;</code><br />
-<code>#include &quot;singlepp/IntegratedBuilder.hpp&quot;</code><br />
-<code>#include &quot;singlepp/IntegratedScorer.hpp&quot;</code><br />
 <code>#include &quot;tatami/tatami.hpp&quot;</code><br />
 <code>#include &lt;vector&gt;</code><br />
 <code>#include &lt;memory&gt;</code><br />
@@ -87,24 +86,20 @@ Include dependency graph for run_singlepp.cpp:</div>
 <div class="dyncontent">
 <div class="center"><img src="run__singlepp_8cpp__incl.png" border="0" usemap="#arun__singlepp_8cpp" alt=""/></div>
 <map name="arun__singlepp_8cpp" id="arun__singlepp_8cpp">
-<area shape="rect" title=" " alt="" coords="555,5,673,32"/>
-<area shape="rect" title=" " alt="" coords="61,80,185,107"/>
-<area shape="rect" href="NumericMatrix_8h.html" title="Javascript wrapper for a numeric matrix." alt="" coords="209,80,325,107"/>
-<area shape="rect" href="utils_8h.html" title=" " alt="" coords="458,80,514,107"/>
-<area shape="rect" title=" " alt="" coords="346,155,405,181"/>
-<area shape="rect" title=" " alt="" coords="429,155,490,181"/>
-<area shape="rect" title=" " alt="" coords="538,80,690,107"/>
-<area shape="rect" title=" " alt="" coords="715,80,905,107"/>
-<area shape="rect" title=" " alt="" coords="929,80,1125,107"/>
-<area shape="rect" title=" " alt="" coords="1150,80,1345,107"/>
-<area shape="rect" title=" " alt="" coords="1369,80,1491,107"/>
-<area shape="rect" title=" " alt="" coords="1516,80,1584,107"/>
-<area shape="rect" href="JSVector_8h.html" title=" " alt="" coords="5,155,92,181"/>
-<area shape="rect" href="parallel_8h.html" title=" " alt="" coords="116,155,189,181"/>
-<area shape="rect" title=" " alt="" coords="213,155,321,181"/>
-<area shape="rect" title=" " alt="" coords="16,229,81,256"/>
-<area shape="rect" title=" " alt="" coords="610,155,669,181"/>
-<area shape="rect" title=" " alt="" coords="514,155,586,181"/>
+<area shape="rect" title=" " alt="" coords="383,5,501,32"/>
+<area shape="rect" title=" " alt="" coords="5,80,129,107"/>
+<area shape="rect" href="NumericMatrix_8h.html" title="Javascript wrapper for a numeric matrix." alt="" coords="205,80,321,107"/>
+<area shape="rect" href="parallel_8h.html" title=" " alt="" coords="112,155,185,181"/>
+<area shape="rect" href="utils_8h.html" title=" " alt="" coords="447,80,503,107"/>
+<area shape="rect" title=" " alt="" coords="342,155,401,181"/>
+<area shape="rect" title=" " alt="" coords="425,155,486,181"/>
+<area shape="rect" title=" " alt="" coords="527,80,674,107"/>
+<area shape="rect" title=" " alt="" coords="699,80,889,107"/>
+<area shape="rect" title=" " alt="" coords="914,80,1037,107"/>
+<area shape="rect" title=" " alt="" coords="1061,80,1129,107"/>
+<area shape="rect" title=" " alt="" coords="209,155,317,181"/>
+<area shape="rect" title=" " alt="" coords="510,155,569,181"/>
+<area shape="rect" title=" " alt="" coords="593,155,665,181"/>
 </map>
 </div>
 </div><table class="memberdecls">
@@ -129,14 +124,14 @@ Macros</h2></td></tr>
 Functions</h2></td></tr>
 <tr class="memitem:a5c22e638037333a0544e8176c25ac126"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classSinglePPReference.html">SinglePPReference</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="run__singlepp_8cpp.html#a5c22e638037333a0544e8176c25ac126">load_singlepp_reference</a> (uintptr_t labels_buffer, size_t labels_len, uintptr_t markers_buffer, size_t markers_len, uintptr_t rankings_buffer, size_t rankings_len)</td></tr>
 <tr class="separator:a5c22e638037333a0544e8176c25ac126"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9144a6f0f3796e23b6bbb6d65389f9e3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classBuiltSinglePPReference.html">BuiltSinglePPReference</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="run__singlepp_8cpp.html#a9144a6f0f3796e23b6bbb6d65389f9e3">build_singlepp_reference</a> (size_t nfeatures, uintptr_t mat_id, const <a class="el" href="classSinglePPReference.html">SinglePPReference</a> &amp;ref, uintptr_t ref_id, int top)</td></tr>
-<tr class="separator:a9144a6f0f3796e23b6bbb6d65389f9e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1262e14f9a85fad9c4e04290f48e1299"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="run__singlepp_8cpp.html#a1262e14f9a85fad9c4e04290f48e1299">run_singlepp</a> (const <a class="el" href="structNumericMatrix.html">NumericMatrix</a> &amp;mat, const <a class="el" href="classBuiltSinglePPReference.html">BuiltSinglePPReference</a> &amp;built, double quantile, uintptr_t output)</td></tr>
-<tr class="separator:a1262e14f9a85fad9c4e04290f48e1299"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa2ef2af37738a8edb1896389bb16f4f8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classIntegratedSinglePPReferences.html">IntegratedSinglePPReferences</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="run__singlepp_8cpp.html#aa2ef2af37738a8edb1896389bb16f4f8">integrate_singlepp_references</a> (size_t nfeatures, uintptr_t mat_id, size_t nref, uintptr_t refs, uintptr_t ref_ids, uintptr_t built)</td></tr>
-<tr class="separator:aa2ef2af37738a8edb1896389bb16f4f8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa60233969226535149127884263638f9"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="run__singlepp_8cpp.html#aa60233969226535149127884263638f9">integrate_singlepp</a> (const <a class="el" href="structNumericMatrix.html">NumericMatrix</a> &amp;mat, uintptr_t assigned, const <a class="el" href="classIntegratedSinglePPReferences.html">IntegratedSinglePPReferences</a> &amp;integrated, double quantile, uintptr_t output)</td></tr>
-<tr class="separator:aa60233969226535149127884263638f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9b596536ba8ab3238c77a32832c753d0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classBuiltSinglePPReference.html">BuiltSinglePPReference</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="run__singlepp_8cpp.html#a9b596536ba8ab3238c77a32832c753d0">build_singlepp_reference</a> (size_t nfeatures, uintptr_t mat_id, const <a class="el" href="classSinglePPReference.html">SinglePPReference</a> &amp;ref, uintptr_t ref_id, int top, int nthreads)</td></tr>
+<tr class="separator:a9b596536ba8ab3238c77a32832c753d0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a049321a0e89b028242b1aa3ad09bcc03"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="run__singlepp_8cpp.html#a049321a0e89b028242b1aa3ad09bcc03">run_singlepp</a> (const <a class="el" href="structNumericMatrix.html">NumericMatrix</a> &amp;mat, const <a class="el" href="classBuiltSinglePPReference.html">BuiltSinglePPReference</a> &amp;built, double quantile, uintptr_t output, int nthreads)</td></tr>
+<tr class="separator:a049321a0e89b028242b1aa3ad09bcc03"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0fcfba933b7bd26813e73a3089eb59af"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classIntegratedSinglePPReferences.html">IntegratedSinglePPReferences</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="run__singlepp_8cpp.html#a0fcfba933b7bd26813e73a3089eb59af">integrate_singlepp_references</a> (size_t nfeatures, uintptr_t mat_id, size_t nref, uintptr_t refs, uintptr_t ref_ids, uintptr_t built, int nthreads)</td></tr>
+<tr class="separator:a0fcfba933b7bd26813e73a3089eb59af"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1507cbb26d4b4da36583bbe7821dda17"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="run__singlepp_8cpp.html#a1507cbb26d4b4da36583bbe7821dda17">integrate_singlepp</a> (const <a class="el" href="structNumericMatrix.html">NumericMatrix</a> &amp;mat, uintptr_t assigned, const <a class="el" href="classIntegratedSinglePPReferences.html">IntegratedSinglePPReferences</a> &amp;integrated, double quantile, uintptr_t output, int nthreads)</td></tr>
+<tr class="separator:a1507cbb26d4b4da36583bbe7821dda17"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Macro Definition Documentation</h2>
 <a id="a7660d0a2103fd156b4de21c789b22db2" name="a7660d0a2103fd156b4de21c789b22db2"></a>
@@ -154,8 +149,8 @@ Functions</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Function Documentation</h2>
-<a id="a9144a6f0f3796e23b6bbb6d65389f9e3" name="a9144a6f0f3796e23b6bbb6d65389f9e3"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a9144a6f0f3796e23b6bbb6d65389f9e3">&#9670;&nbsp;</a></span>build_singlepp_reference()</h2>
+<a id="a9b596536ba8ab3238c77a32832c753d0" name="a9b596536ba8ab3238c77a32832c753d0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9b596536ba8ab3238c77a32832c753d0">&#9670;&nbsp;</a></span>build_singlepp_reference()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -188,7 +183,13 @@ Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>top</em>&#160;</td>
+          <td class="paramname"><em>top</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>nthreads</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -211,8 +212,8 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="aa60233969226535149127884263638f9" name="aa60233969226535149127884263638f9"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa60233969226535149127884263638f9">&#9670;&nbsp;</a></span>integrate_singlepp()</h2>
+<a id="a1507cbb26d4b4da36583bbe7821dda17" name="a1507cbb26d4b4da36583bbe7821dda17"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1507cbb26d4b4da36583bbe7821dda17">&#9670;&nbsp;</a></span>integrate_singlepp()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -245,7 +246,13 @@ Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">uintptr_t&#160;</td>
-          <td class="paramname"><em>output</em>&#160;</td>
+          <td class="paramname"><em>output</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>nthreads</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -258,7 +265,7 @@ Functions</h2></td></tr>
   <table class="params">
     <tr><td class="paramdir"></td><td class="paramname">mat</td><td>Matrix containing the test dataset, with cells in columns and features in rows. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">assigned</td><td>Offset to an array of 64-bit pointers. This array should be of length <code>nref</code>, where each pointer corresponds to a reference. Each pointer should refer to an integer array of length equal to the number of cells in <code>mat</code>, where each value is the label assigned to a cell in the corresponding reference. </td></tr>
-    <tr><td class="paramdir"></td><td class="paramname">integrated</td><td>An integrated set of reference datasets, see <code><a class="el" href="run__singlepp_8cpp.html#aa2ef2af37738a8edb1896389bb16f4f8">integrate_singlepp_references()</a></code>. </td></tr>
+    <tr><td class="paramdir"></td><td class="paramname">integrated</td><td>An integrated set of reference datasets, see <code><a class="el" href="run__singlepp_8cpp.html#a0fcfba933b7bd26813e73a3089eb59af">integrate_singlepp_references()</a></code>. </td></tr>
     <tr><td class="paramdir"></td><td class="paramname">quantile</td><td>Quantile on the correlations to use when computing a score for each label. </td></tr>
     <tr><td class="paramdir">[out]</td><td class="paramname">output</td><td>Offset to an integer array of length equal to the number of columns in <code>mat</code>. This will be filled with the index of the reference with the top-scoring label for each cell in the test dataset.</td></tr>
   </table>
@@ -268,8 +275,8 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="aa2ef2af37738a8edb1896389bb16f4f8" name="aa2ef2af37738a8edb1896389bb16f4f8"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa2ef2af37738a8edb1896389bb16f4f8">&#9670;&nbsp;</a></span>integrate_singlepp_references()</h2>
+<a id="a0fcfba933b7bd26813e73a3089eb59af" name="a0fcfba933b7bd26813e73a3089eb59af"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0fcfba933b7bd26813e73a3089eb59af">&#9670;&nbsp;</a></span>integrate_singlepp_references()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -308,7 +315,13 @@ Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">uintptr_t&#160;</td>
-          <td class="paramname"><em>built</em>&#160;</td>
+          <td class="paramname"><em>built</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>nthreads</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -397,8 +410,8 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a1262e14f9a85fad9c4e04290f48e1299" name="a1262e14f9a85fad9c4e04290f48e1299"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1262e14f9a85fad9c4e04290f48e1299">&#9670;&nbsp;</a></span>run_singlepp()</h2>
+<a id="a049321a0e89b028242b1aa3ad09bcc03" name="a049321a0e89b028242b1aa3ad09bcc03"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a049321a0e89b028242b1aa3ad09bcc03">&#9670;&nbsp;</a></span>run_singlepp()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -425,7 +438,13 @@ Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">uintptr_t&#160;</td>
-          <td class="paramname"><em>output</em>&#160;</td>
+          <td class="paramname"><em>output</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>nthreads</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -437,7 +456,7 @@ Functions</h2></td></tr>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir"></td><td class="paramname">mat</td><td>Matrix containing the test dataset, with cells in columns and features in rows. </td></tr>
-    <tr><td class="paramdir"></td><td class="paramname">built</td><td>The pre-built reference dataset to use for annotation, see <code><a class="el" href="run__singlepp_8cpp.html#a9144a6f0f3796e23b6bbb6d65389f9e3">build_singlepp_reference()</a></code>. </td></tr>
+    <tr><td class="paramdir"></td><td class="paramname">built</td><td>The pre-built reference dataset to use for annotation, see <code><a class="el" href="run__singlepp_8cpp.html#a9b596536ba8ab3238c77a32832c753d0">build_singlepp_reference()</a></code>. </td></tr>
     <tr><td class="paramdir"></td><td class="paramname">quantile</td><td>Quantile on the correlations to use when computing a score for each label. </td></tr>
     <tr><td class="paramdir">[out]</td><td class="paramname">output</td><td>Offset to an integer array of length equal to the number of columns in <code>mat</code>. This will be filled with the index of the assigned label for each cell in the test dataset.</td></tr>
   </table>

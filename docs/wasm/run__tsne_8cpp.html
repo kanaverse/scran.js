@@ -88,20 +88,20 @@ Include dependency graph for run_tsne.cpp:</div>
 <div class="dyncontent">
 <div class="center"><img src="run__tsne_8cpp__incl.png" border="0" usemap="#arun__tsne_8cpp" alt=""/></div>
 <map name="arun__tsne_8cpp" id="arun__tsne_8cpp">
-<area shape="rect" title="Visualize cells with t&#45;SNE." alt="" coords="435,5,531,32"/>
-<area shape="rect" title=" " alt="" coords="26,80,150,107"/>
-<area shape="rect" href="utils_8h.html" title=" " alt="" coords="364,80,420,107"/>
-<area shape="rect" title=" " alt="" coords="269,155,328,181"/>
-<area shape="rect" title=" " alt="" coords="437,155,496,181"/>
-<area shape="rect" title=" " alt="" coords="520,155,592,181"/>
-<area shape="rect" href="parallel_8h.html" title=" " alt="" coords="546,80,619,107"/>
-<area shape="rect" href="NeighborIndex_8h.html" title=" " alt="" coords="175,80,289,107"/>
-<area shape="rect" title=" " alt="" coords="644,80,772,107"/>
-<area shape="rect" title=" " alt="" coords="796,80,857,107"/>
-<area shape="rect" title=" " alt="" coords="882,80,947,107"/>
-<area shape="rect" title=" " alt="" coords="352,155,413,181"/>
-<area shape="rect" title=" " alt="" coords="5,155,152,181"/>
-<area shape="rect" title=" " alt="" coords="177,155,245,181"/>
+<area shape="rect" title="Visualize cells with t&#45;SNE." alt="" coords="474,5,570,32"/>
+<area shape="rect" title=" " alt="" coords="73,80,197,107"/>
+<area shape="rect" href="utils_8h.html" title=" " alt="" coords="462,80,518,107"/>
+<area shape="rect" title=" " alt="" coords="367,155,426,181"/>
+<area shape="rect" title=" " alt="" coords="535,155,594,181"/>
+<area shape="rect" title=" " alt="" coords="618,155,690,181"/>
+<area shape="rect" href="parallel_8h.html" title=" " alt="" coords="269,155,343,181"/>
+<area shape="rect" href="NeighborIndex_8h.html" title=" " alt="" coords="222,80,337,107"/>
+<area shape="rect" title=" " alt="" coords="643,80,771,107"/>
+<area shape="rect" title=" " alt="" coords="795,80,857,107"/>
+<area shape="rect" title=" " alt="" coords="881,80,947,107"/>
+<area shape="rect" title=" " alt="" coords="450,155,511,181"/>
+<area shape="rect" title=" " alt="" coords="5,155,73,181"/>
+<area shape="rect" title=" " alt="" coords="98,155,245,181"/>
 </map>
 </div>
 </div><table class="memberdecls">
@@ -113,8 +113,8 @@ Classes</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a1ad5c739ffdf387c75297ef72244f035"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structTsneStatus.html">TsneStatus</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="run__tsne_8cpp.html#a1ad5c739ffdf387c75297ef72244f035">initialize_tsne</a> (const <a class="el" href="structNeighborResults.html">NeighborResults</a> &amp;neighbors, double perplexity)</td></tr>
-<tr class="separator:a1ad5c739ffdf387c75297ef72244f035"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2b4af357c1cf3314b9761cfdbd4c1fc1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structTsneStatus.html">TsneStatus</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="run__tsne_8cpp.html#a2b4af357c1cf3314b9761cfdbd4c1fc1">initialize_tsne</a> (const <a class="el" href="structNeighborResults.html">NeighborResults</a> &amp;neighbors, double perplexity, int nthreads)</td></tr>
+<tr class="separator:a2b4af357c1cf3314b9761cfdbd4c1fc1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa2655f4139c7fc61647f49a204635adc"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="run__tsne_8cpp.html#aa2655f4139c7fc61647f49a204635adc">randomize_tsne_start</a> (size_t n, uintptr_t Y, int seed)</td></tr>
 <tr class="separator:aa2655f4139c7fc61647f49a204635adc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a70e669cf0eff6584006d032073ea4571"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="run__tsne_8cpp.html#a70e669cf0eff6584006d032073ea4571">perplexity_to_k</a> (double perplexity)</td></tr>
@@ -125,8 +125,8 @@ Functions</h2></td></tr>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p >Visualize cells with t-SNE. </p>
 </div><h2 class="groupheader">Function Documentation</h2>
-<a id="a1ad5c739ffdf387c75297ef72244f035" name="a1ad5c739ffdf387c75297ef72244f035"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1ad5c739ffdf387c75297ef72244f035">&#9670;&nbsp;</a></span>initialize_tsne()</h2>
+<a id="a2b4af357c1cf3314b9761cfdbd4c1fc1" name="a2b4af357c1cf3314b9761cfdbd4c1fc1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2b4af357c1cf3314b9761cfdbd4c1fc1">&#9670;&nbsp;</a></span>initialize_tsne()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -141,7 +141,13 @@ Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">double&#160;</td>
-          <td class="paramname"><em>perplexity</em>&#160;</td>
+          <td class="paramname"><em>perplexity</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>nthreads</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -153,7 +159,7 @@ Functions</h2></td></tr>
 <p >Initialize the t-SNE from nearest neighbor search results.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">neighbors</td><td>Pre-computed nearest neighbor search results, usually generated by <code><a class="el" href="NeighborIndex_8cpp.html#ae64e7d39dead46b27b5269d198c6d17d">find_nearest_neighbors()</a></code>. </td></tr>
+    <tr><td class="paramname">neighbors</td><td>Pre-computed nearest neighbor search results, usually generated by <code><a class="el" href="NeighborIndex_8cpp.html#abe9114870fcf73b72b0663fa007ea14e">find_nearest_neighbors()</a></code>. </td></tr>
     <tr><td class="paramname">perplexity</td><td>t-SNE perplexity, controlling the trade-off between preservation of local and global structure. Larger values focus on global structure more than the local structure.</td></tr>
   </table>
   </dd>

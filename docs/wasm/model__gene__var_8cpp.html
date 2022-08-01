@@ -75,6 +75,7 @@ $(function() {
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &lt;emscripten/bind.h&gt;</code><br />
 <code>#include &quot;<a class="el" href="NumericMatrix_8h_source.html">NumericMatrix.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="parallel_8h_source.html">parallel.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="utils_8h_source.html">utils.h</a>&quot;</code><br />
 <code>#include &quot;scran/utils/average_vectors.hpp&quot;</code><br />
 <code>#include &quot;scran/feature_selection/ModelGeneVar.hpp&quot;</code><br />
@@ -86,21 +87,19 @@ Include dependency graph for model_gene_var.cpp:</div>
 <div class="dyncontent">
 <div class="center"><img src="model__gene__var_8cpp__incl.png" border="0" usemap="#amodel__gene__var_8cpp" alt=""/></div>
 <map name="amodel__gene__var_8cpp" id="amodel__gene__var_8cpp">
-<area shape="rect" title="Model the mean&#45;variance relationship across all genes." alt="" coords="382,5,523,32"/>
-<area shape="rect" title=" " alt="" coords="61,87,185,114"/>
-<area shape="rect" href="NumericMatrix_8h.html" title="Javascript wrapper for a numeric matrix." alt="" coords="209,87,325,114"/>
-<area shape="rect" href="utils_8h.html" title=" " alt="" coords="458,87,514,114"/>
-<area shape="rect" title=" " alt="" coords="346,169,405,196"/>
-<area shape="rect" title=" " alt="" coords="429,169,490,196"/>
-<area shape="rect" title=" " alt="" coords="539,80,671,121"/>
-<area shape="rect" title=" " alt="" coords="695,80,853,121"/>
-<area shape="rect" title=" " alt="" coords="877,87,951,114"/>
-<area shape="rect" href="JSVector_8h.html" title=" " alt="" coords="5,169,92,196"/>
-<area shape="rect" href="parallel_8h.html" title=" " alt="" coords="116,169,189,196"/>
-<area shape="rect" title=" " alt="" coords="213,169,321,196"/>
-<area shape="rect" title=" " alt="" coords="16,244,81,271"/>
-<area shape="rect" title=" " alt="" coords="610,169,669,196"/>
-<area shape="rect" title=" " alt="" coords="514,169,586,196"/>
+<area shape="rect" title="Model the mean&#45;variance relationship across all genes." alt="" coords="339,5,481,32"/>
+<area shape="rect" title=" " alt="" coords="5,87,129,114"/>
+<area shape="rect" href="NumericMatrix_8h.html" title="Javascript wrapper for a numeric matrix." alt="" coords="205,87,321,114"/>
+<area shape="rect" href="parallel_8h.html" title=" " alt="" coords="112,169,185,196"/>
+<area shape="rect" href="utils_8h.html" title=" " alt="" coords="447,87,503,114"/>
+<area shape="rect" title=" " alt="" coords="342,169,401,196"/>
+<area shape="rect" title=" " alt="" coords="425,169,486,196"/>
+<area shape="rect" title=" " alt="" coords="528,80,660,121"/>
+<area shape="rect" title=" " alt="" coords="685,80,842,121"/>
+<area shape="rect" title=" " alt="" coords="866,87,941,114"/>
+<area shape="rect" title=" " alt="" coords="209,169,317,196"/>
+<area shape="rect" title=" " alt="" coords="510,169,569,196"/>
+<area shape="rect" title=" " alt="" coords="593,169,665,196"/>
 </map>
 </div>
 </div><table class="memberdecls">
@@ -112,14 +111,14 @@ Classes</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a293da11d683b41f396389ef742ac8fd5"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structModelGeneVar__Results.html">ModelGeneVar_Results</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="model__gene__var_8cpp.html#a293da11d683b41f396389ef742ac8fd5">model_gene_var</a> (const <a class="el" href="structNumericMatrix.html">NumericMatrix</a> &amp;mat, bool use_blocks, uintptr_t blocks, double span)</td></tr>
-<tr class="separator:a293da11d683b41f396389ef742ac8fd5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a329bdc47119d3658c49380ef2fc6e9ce"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structModelGeneVar__Results.html">ModelGeneVar_Results</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="model__gene__var_8cpp.html#a329bdc47119d3658c49380ef2fc6e9ce">model_gene_var</a> (const <a class="el" href="structNumericMatrix.html">NumericMatrix</a> &amp;mat, bool use_blocks, uintptr_t blocks, double span, int nthreads)</td></tr>
+<tr class="separator:a329bdc47119d3658c49380ef2fc6e9ce"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p >Model the mean-variance relationship across all genes. </p>
 </div><h2 class="groupheader">Function Documentation</h2>
-<a id="a293da11d683b41f396389ef742ac8fd5" name="a293da11d683b41f396389ef742ac8fd5"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a293da11d683b41f396389ef742ac8fd5">&#9670;&nbsp;</a></span>model_gene_var()</h2>
+<a id="a329bdc47119d3658c49380ef2fc6e9ce" name="a329bdc47119d3658c49380ef2fc6e9ce"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a329bdc47119d3658c49380ef2fc6e9ce">&#9670;&nbsp;</a></span>model_gene_var()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -146,7 +145,13 @@ Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">double&#160;</td>
-          <td class="paramname"><em>span</em>&#160;</td>
+          <td class="paramname"><em>span</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>nthreads</em>&#160;</td>
         </tr>
         <tr>
           <td></td>

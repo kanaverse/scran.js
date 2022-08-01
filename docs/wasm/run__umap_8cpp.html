@@ -89,20 +89,20 @@ Include dependency graph for run_umap.cpp:</div>
 <div class="dyncontent">
 <div class="center"><img src="run__umap_8cpp__incl.png" border="0" usemap="#arun__umap_8cpp" alt=""/></div>
 <map name="arun__umap_8cpp" id="arun__umap_8cpp">
-<area shape="rect" title="Visualize cells with UMAP." alt="" coords="436,5,539,32"/>
+<area shape="rect" title="Visualize cells with UMAP." alt="" coords="421,5,524,32"/>
 <area shape="rect" title=" " alt="" coords="5,80,129,107"/>
-<area shape="rect" href="utils_8h.html" title=" " alt="" coords="394,80,450,107"/>
-<area shape="rect" title=" " alt="" coords="309,155,367,181"/>
-<area shape="rect" title=" " alt="" coords="477,155,535,181"/>
-<area shape="rect" title=" " alt="" coords="559,155,631,181"/>
-<area shape="rect" href="parallel_8h.html" title=" " alt="" coords="576,80,649,107"/>
+<area shape="rect" href="utils_8h.html" title=" " alt="" coords="445,80,501,107"/>
+<area shape="rect" title=" " alt="" coords="138,155,197,181"/>
+<area shape="rect" title=" " alt="" coords="575,155,634,181"/>
+<area shape="rect" title=" " alt="" coords="658,155,730,181"/>
+<area shape="rect" href="parallel_8h.html" title=" " alt="" coords="221,155,295,181"/>
 <area shape="rect" href="NeighborIndex_8h.html" title=" " alt="" coords="205,80,319,107"/>
-<area shape="rect" title=" " alt="" coords="45,155,191,181"/>
-<area shape="rect" title=" " alt="" coords="674,80,805,107"/>
-<area shape="rect" title=" " alt="" coords="829,80,890,107"/>
-<area shape="rect" title=" " alt="" coords="915,80,980,107"/>
-<area shape="rect" title=" " alt="" coords="391,155,453,181"/>
-<area shape="rect" title=" " alt="" coords="216,155,284,181"/>
+<area shape="rect" title=" " alt="" coords="319,155,466,181"/>
+<area shape="rect" title=" " alt="" coords="626,80,757,107"/>
+<area shape="rect" title=" " alt="" coords="781,80,842,107"/>
+<area shape="rect" title=" " alt="" coords="867,80,932,107"/>
+<area shape="rect" title=" " alt="" coords="490,155,551,181"/>
+<area shape="rect" title=" " alt="" coords="45,155,113,181"/>
 </map>
 </div>
 </div><table class="memberdecls">
@@ -114,16 +114,16 @@ Classes</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a3d645dfc308e6f66477eba3bc765ac6f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structUmapStatus.html">UmapStatus</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="run__umap_8cpp.html#a3d645dfc308e6f66477eba3bc765ac6f">initialize_umap</a> (const <a class="el" href="structNeighborResults.html">NeighborResults</a> &amp;neighbors, int num_epochs, double min_dist, uintptr_t Y)</td></tr>
-<tr class="separator:a3d645dfc308e6f66477eba3bc765ac6f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0e7dfd85bf5e9e8a3612fc0661bee40b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structUmapStatus.html">UmapStatus</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="run__umap_8cpp.html#a0e7dfd85bf5e9e8a3612fc0661bee40b">initialize_umap</a> (const <a class="el" href="structNeighborResults.html">NeighborResults</a> &amp;neighbors, int num_epochs, double min_dist, uintptr_t Y, int nthreads)</td></tr>
+<tr class="separator:a0e7dfd85bf5e9e8a3612fc0661bee40b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aed48c871b2d43d7b2a6aeacba599451f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="run__umap_8cpp.html#aed48c871b2d43d7b2a6aeacba599451f">run_umap</a> (<a class="el" href="structUmapStatus.html">UmapStatus</a> &amp;status, int runtime, uintptr_t Y)</td></tr>
 <tr class="separator:aed48c871b2d43d7b2a6aeacba599451f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p >Visualize cells with UMAP. </p>
 </div><h2 class="groupheader">Function Documentation</h2>
-<a id="a3d645dfc308e6f66477eba3bc765ac6f" name="a3d645dfc308e6f66477eba3bc765ac6f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3d645dfc308e6f66477eba3bc765ac6f">&#9670;&nbsp;</a></span>initialize_umap()</h2>
+<a id="a0e7dfd85bf5e9e8a3612fc0661bee40b" name="a0e7dfd85bf5e9e8a3612fc0661bee40b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0e7dfd85bf5e9e8a3612fc0661bee40b">&#9670;&nbsp;</a></span>initialize_umap()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -150,7 +150,13 @@ Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">uintptr_t&#160;</td>
-          <td class="paramname"><em>Y</em>&#160;</td>
+          <td class="paramname"><em>Y</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>nthreads</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -162,7 +168,7 @@ Functions</h2></td></tr>
 <p >Initialize the UMAP from some nearest neighbor results.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramdir"></td><td class="paramname">neighbors</td><td>Precomputed nearest-neighbor results, usually from <code><a class="el" href="NeighborIndex_8cpp.html#ae64e7d39dead46b27b5269d198c6d17d">find_nearest_neighbors()</a></code>. </td></tr>
+    <tr><td class="paramdir"></td><td class="paramname">neighbors</td><td>Precomputed nearest-neighbor results, usually from <code><a class="el" href="NeighborIndex_8cpp.html#abe9114870fcf73b72b0663fa007ea14e">find_nearest_neighbors()</a></code>. </td></tr>
     <tr><td class="paramdir"></td><td class="paramname">num_epochs</td><td>Maximum number of epochs to compute. Larger values improve the likelihood of convergence. </td></tr>
     <tr><td class="paramdir"></td><td class="paramname">min_dist</td><td>Minimum distance between neighboring points in the output embedding. Larger values generate a more even distribution of points. </td></tr>
     <tr><td class="paramdir">[out]</td><td class="paramname">Y</td><td>Offset to a 2-by-<code>nc</code> array containing the initial coordinates. Each row corresponds to a dimension, each column corresponds to a cell, and the matrix is in column-major format. This is filled with the first two rows of <code>mat</code>, i.e., the first and second PCs.</td></tr>
@@ -207,7 +213,7 @@ Functions</h2></td></tr>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir"></td><td class="paramname">status</td><td>A <code><a class="el" href="structUmapStatus.html" title="Status of the UMAP algorithm.">UmapStatus</a></code> object created by <code>initialize_status()</code>. </td></tr>
-    <tr><td class="paramdir"></td><td class="paramname">runtime</td><td>Number of milliseconds to run before returning. Iterations are performed until the specified <code>runtime</code> is exceeded. If <code>runtime</code> is not positive, it is ignored and the algorithm runs to the specified number of epochs from <code><a class="el" href="run__umap_8cpp.html#a3d645dfc308e6f66477eba3bc765ac6f">initialize_umap()</a></code>. </td></tr>
+    <tr><td class="paramdir"></td><td class="paramname">runtime</td><td>Number of milliseconds to run before returning. Iterations are performed until the specified <code>runtime</code> is exceeded. If <code>runtime</code> is not positive, it is ignored and the algorithm runs to the specified number of epochs from <code><a class="el" href="run__umap_8cpp.html#a0e7dfd85bf5e9e8a3612fc0661bee40b">initialize_umap()</a></code>. </td></tr>
     <tr><td class="paramdir">[in,out]</td><td class="paramname">Y</td><td>Offset to a two-dimensional array containing the initial coordinates. Each row corresponds to a dimension, each column corresponds to a cell, and the matrix is in column-major format. On output, this will be filled with the updated coordinates.</td></tr>
   </table>
   </dd>
