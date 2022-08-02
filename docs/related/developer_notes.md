@@ -51,5 +51,5 @@ npm run test
 For earlier versions of Node, you may instead need to do some combination of the following options:
 
 ```
-node --experimental-vm-modules --experimental-wasm-threads --experimental-wasm-bulk-memory --experimental-wasm-bigint node_modules/jest/bin/jest.js
+node --experimental-vm-modules --experimental-wasm-threads --experimental-wasm-bulk-memory --experimental-wasm-bigint node_modules/jest/bin/jest.js --runInBand
 ```

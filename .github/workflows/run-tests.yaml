@@ -23,5 +23,5 @@ jobs:
       run: npm i --include=dev
 
     - name: Run tests
-      run: node --experimental-vm-modules --experimental-wasm-threads --experimental-wasm-bigint node_modules/jest/bin/jest.js
+      run: node --experimental-vm-modules --experimental-wasm-threads --experimental-wasm-bigint node_modules/jest/bin/jest.js --runInBand
 
