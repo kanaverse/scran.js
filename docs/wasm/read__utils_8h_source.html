@@ -90,14 +90,12 @@ $(function() {
 <div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>        <span class="keyword">auto</span> output = tatami::convert_to_layered_sparse(mat); </div>
 <div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span>        <span class="keywordflow">return</span> <a class="code hl_struct" href="structNumericMatrix.html">NumericMatrix</a>(std::move(output.matrix), <a class="code hl_function" href="read__utils_8h.html#a09c3c15d677e48df52c07dd24c7db871">permutation_to_indices</a>(output.permutation));</div>
 <div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span>    } <span class="keywordflow">else</span> {</div>
-<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>        <span class="comment">// TODO: add a template parameter to avoid the double conversion here.</span></div>
-<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>        <span class="comment">// The storage type need not be the same as the interface type.</span></div>
-<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>        <span class="keyword">auto</span> output = tatami::convert_to_sparse&lt;false, Matrix, double, int&gt;(mat); </div>
-<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>        <span class="keywordflow">return</span> <a class="code hl_struct" href="structNumericMatrix.html">NumericMatrix</a>(std::move(output));</div>
-<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>    }</div>
-<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>}</div>
-<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span> </div>
-<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>        <span class="keyword">auto</span> output = tatami::convert_to_sparse&lt;false, double, int, typename Matrix::data_type, typename Matrix::index_type&gt;(mat); </div>
+<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>        <span class="keywordflow">return</span> <a class="code hl_struct" href="structNumericMatrix.html">NumericMatrix</a>(std::move(output));</div>
+<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>    }</div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>}</div>
+<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span> </div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span><span class="preprocessor">#endif</span></div>
 <div class="ttc" id="aNumericMatrix_8h_html"><div class="ttname"><a href="NumericMatrix_8h.html">NumericMatrix.h</a></div><div class="ttdoc">Javascript wrapper for a numeric matrix.</div></div>
 <div class="ttc" id="aparallel_8h_html"><div class="ttname"><a href="parallel_8h.html">parallel.h</a></div></div>
 <div class="ttc" id="aread__utils_8h_html_a09c3c15d677e48df52c07dd24c7db871"><div class="ttname"><a href="read__utils_8h.html#a09c3c15d677e48df52c07dd24c7db871">permutation_to_indices</a></div><div class="ttdeci">std::vector&lt; size_t &gt; permutation_to_indices(const std::vector&lt; size_t &gt; &amp;permutation)</div><div class="ttdef"><b>Definition:</b> read_utils.h:10</div></div>
