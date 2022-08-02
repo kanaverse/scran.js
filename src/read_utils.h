@@ -21,9 +21,7 @@ NumericMatrix sparse_from_tatami(const Matrix* mat, bool layered) {
         auto output = tatami::convert_to_layered_sparse(mat); 
         return NumericMatrix(std::move(output.matrix), permutation_to_indices(output.permutation));
     } else {
-        // TODO: add a template parameter to avoid the double conversion here.
-        // The storage type need not be the same as the interface type.
-        auto output = tatami::convert_to_sparse<false, Matrix, double, int>(mat); 
+        auto output = tatami::convert_to_sparse<false, double, int, typename Matrix::data_type, typename Matrix::index_type>(mat); 
         return NumericMatrix(std::move(output));
     }
 }
