@@ -26,8 +26,8 @@ jobs:
     - name: Update node build 
       run: bash build.sh main
 
-    - name: Update module build
-      run: bash build.sh module
+    - name: Update browser build
+      run: bash build.sh browser
 
     - name: Update NPM packages
       run: npm i --include=dev

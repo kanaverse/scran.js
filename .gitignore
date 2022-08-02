@@ -6,7 +6,7 @@ testing
 *-test-files
 node_modules/
 main/
-module/
+browser/
 js/wasm/
 .parcel-cache
 dist/

@@ -29,4 +29,4 @@ RUN git checkout -- package.json
 
 # Running the builds.
 RUN ./build.sh main
-RUN ./build.sh module
+RUN ./build.sh browser

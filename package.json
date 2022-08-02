@@ -1,10 +1,10 @@
 {
     "name": "scran.js",
-    "version": "0.4.1",
+    "version": "0.4.2",
     "description": "Single cell RNA-seq analysis in Javascript",
     "license": "MIT",
     "main": "main/index.js",
-    "browser": "module/index.js",
+    "browser": "browser/index.js",
     "type": "module",
     "scripts": {
         "test": "NODE_OPTIONS='--experimental-vm-modules' npx jest",

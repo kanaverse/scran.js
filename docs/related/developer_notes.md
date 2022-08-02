@@ -32,10 +32,10 @@ bash build.sh main
 To build the browser-compatible version:
 
 ```sh
-bash build.sh module
+bash build.sh browser 
 ```
 
-This will create the `main` and `module` directories respectively,
+This will create the `main` and `browser` directories respectively,
 containing the Wasm file in the `wasm` subdirectory as well as copying all the relevant Javascript bindings.
 
 ## Tests
