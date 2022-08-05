@@ -1,4 +1,5 @@
 import * as utils from "./utils.js";
+import * as wa from "wasmarrays.js";
 
 /**
  * Create a blocking factor for a set of contiguous blocks, usually to accompany the output of {@linkcode cbind} on matrices representing different batches.
@@ -212,7 +213,7 @@ export function filterBlock(x, filter, { buffer = null } = {}) {
  * Reindex the blocking factor to remove unused levels.
  * This is done by adjusting the blocking IDs so that every ID from `[0, N)` is represented at least once, where `N` is the number of levels.
  *
- * @param {Int32WasmArray} x - A blocking factor, typically produced by {@linkcode convertBlock} or {@link createBlock}.
+ * @param {Int32WasmArray|Array} x - A blocking factor, typically produced by {@linkcode convertBlock} or {@link createBlock}.
  *
  * @return {Array} `x` is modified in place to remove unused levels.
  *
@@ -221,14 +222,18 @@ export function filterBlock(x, filter, { buffer = null } = {}) {
  * This is most commonly used to create a new array of levels, i.e., `y.map(i => old_levels[i])` will drop the unused levels. 
  */
 export function dropUnusedBlock(x) {
-    let uniq = new Set(x.array())
+    if (x instanceof wa.WasmArray) {
+        // No more wasm allocations past this point!
+        x = x.array();
+    }
+
+    let uniq = new Set(x);
     let uniq_arr = Array.from(uniq).sort();
     let mapping = {};
     uniq_arr.forEach((y, i) => { mapping[y] = i; });
 
-    let x_arr = x.array();
     x.forEach((y, i) => {
-        x_arr[i] = mapping[y];
+        x[i] = mapping[y];
     });
 
     return uniq_arr;

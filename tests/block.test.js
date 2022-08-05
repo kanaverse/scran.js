@@ -150,5 +150,11 @@ test("block releveling works", () => {
     let mapping = scran.dropUnusedBlock(buffer);
     expect(Array.from(buffer.array())).toEqual([1,0,2,0,1,2]);
     expect(mapping).toEqual([1,2,4]);
+
+    // Also works for arrays.
+    let arr = [3,5,2,9,3];
+    mapping = scran.dropUnusedBlock(arr);
+    expect(arr).toEqual([1,2,0,3,1]);
+    expect(mapping).toEqual([2,3,5,9]);
 })
 
