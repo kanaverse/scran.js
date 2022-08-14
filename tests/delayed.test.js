@@ -91,6 +91,7 @@ test("vector delayedArithmetic works correctly for rows", () => {
             expect(newmat.row(0)).toEqual(exprow);
             let expcol = refcol.map((x, i) => x + refother[i]);
             expect(newmat.column(0)).toEqual(expcol);
+            newmat.free();
         }
 
         {
@@ -99,6 +100,7 @@ test("vector delayedArithmetic works correctly for rows", () => {
             expect(newmat.row(0)).toEqual(exprow);
             let expcol = refcol.map((x, i) => x * refother[i]);
             expect(newmat.column(0)).toEqual(expcol);
+            newmat.free();
         }
 
         {
@@ -107,6 +109,7 @@ test("vector delayedArithmetic works correctly for rows", () => {
             expect(newmat.row(0)).toEqual(exprow);
             let expcol = refcol.map((x, i) => x / refother[i]);
             expect(newmat.column(0)).toEqual(expcol);
+            newmat.free();
         }
 
         {
@@ -115,6 +118,7 @@ test("vector delayedArithmetic works correctly for rows", () => {
             expect(newmat.row(0)).toEqual(exprow);
             let expcol = refcol.map((x, i) => refother[i] / x);
             expect(newmat.column(0)).toEqual(expcol);
+            newmat.free();
         }
 
         {
@@ -123,6 +127,7 @@ test("vector delayedArithmetic works correctly for rows", () => {
             expect(newmat.row(0)).toEqual(exprow);
             let expcol = refcol.map((x, i) => x - refother[i]);
             expect(newmat.column(0)).toEqual(expcol);
+            newmat.free();
         }
 
         {
@@ -131,6 +136,7 @@ test("vector delayedArithmetic works correctly for rows", () => {
             expect(newmat.row(0)).toEqual(exprow);
             let expcol = refcol.map((x, i) => refother[i] - x);
             expect(newmat.column(0)).toEqual(expcol);
+            newmat.free();
         }
     }
 })
@@ -163,6 +169,7 @@ test("vector delayedArithmetic works correctly for columns", () => {
             expect(newmat.row(0)).toEqual(exprow);
             let expcol = refcol.map(x => x + other[0]);
             expect(newmat.column(0)).toEqual(expcol);
+            newmat.free();
         }
 
         {
@@ -171,6 +178,7 @@ test("vector delayedArithmetic works correctly for columns", () => {
             expect(newmat.row(0)).toEqual(exprow);
             let expcol = refcol.map(x => x * other[0]);
             expect(newmat.column(0)).toEqual(expcol);
+            newmat.free();
         }
 
         {
@@ -179,6 +187,7 @@ test("vector delayedArithmetic works correctly for columns", () => {
             expect(newmat.row(0)).toEqual(exprow);
             let expcol = refcol.map(x => x / other[0]);
             expect(newmat.column(0)).toEqual(expcol);
+            newmat.free();
         }
 
         {
@@ -187,6 +196,7 @@ test("vector delayedArithmetic works correctly for columns", () => {
             expect(newmat.row(0)).toEqual(exprow);
             let expcol = refcol.map(x => other[0] / x);
             expect(newmat.column(0)).toEqual(expcol);
+            newmat.free();
         }
 
         {
@@ -195,6 +205,7 @@ test("vector delayedArithmetic works correctly for columns", () => {
             expect(newmat.row(0)).toEqual(exprow);
             let expcol = refcol.map(x => x - other[0]);
             expect(newmat.column(0)).toEqual(expcol);
+            newmat.free();
         }
 
         {
@@ -203,6 +214,68 @@ test("vector delayedArithmetic works correctly for columns", () => {
             expect(newmat.row(0)).toEqual(exprow);
             let expcol = refcol.map(x => other[0] - x);
             expect(newmat.column(0)).toEqual(expcol);
+            newmat.free();
         }
+    }
+})
+
+test("delayedMath works correctly", () => {
+    var mat = simulate.simulateDenseMatrix(20, 10);
+    let ref = mat.row(0);
+
+    function almostequal (x, y) {
+        if (x.length !== y.length){ 
+            return false;
+        }
+        for (var i = 0; i < x.length; i++ ){
+            let x_ = x[i];
+            let y_ = y[i];
+            if (Math.abs(x_ - y_) / (Math.abs(x_) + Math.abs(y_) + 0.00000001) > 0.00000001) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    {
+        let newmat = scran.delayedMath(mat, "sqrt");
+        let expected = ref.map(x => Math.sqrt(x));
+        expect(almostequal(newmat.row(0), expected)).toBe(true);
+        newmat.free();
+    }
+
+    {
+        let newmat = scran.delayedMath(mat, "log1p");
+        let expected = ref.map(x => Math.log1p(x));
+        expect(almostequal(newmat.row(0), expected)).toBe(true);
+        newmat.free();
+    }
+
+    {
+        let newmat = scran.delayedMath(mat, "exp");
+        let expected = ref.map(x => Math.exp(x));
+        expect(almostequal(newmat.row(0), expected)).toBe(true);
+        newmat.free();
+    }
+
+    {
+        let newmat = scran.delayedMath(mat, "round");
+        let expected = ref.map(x => Math.round(x));
+        expect(almostequal(newmat.row(0), expected)).toBe(true);
+        newmat.free();
+    }
+
+    {
+        let newmat = scran.delayedMath(mat, "log");
+        let expected = ref.map(x => Math.log(x));
+        expect(almostequal(newmat.row(0), expected)).toBe(true);
+        newmat.free();
+    }
+
+    {
+        let newmat = scran.delayedMath(mat, "log", { logBase: 2 });
+        let expected = ref.map(x => Math.log2(x));
+        expect(almostequal(newmat.row(0), expected)).toBe(true);
+        newmat.free();
     }
 })

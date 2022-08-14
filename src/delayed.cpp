@@ -126,6 +126,38 @@ void delayed_divide_vector(NumericMatrix& x, uintptr_t ptr, size_t n, int margin
     }
 }
 
+/******* math ******/
+
+void delayed_log(NumericMatrix& x, double base) {
+    if (base > 0) {
+        auto alt = tatami::make_DelayedIsometricOp(std::move(x.ptr), tatami::DelayedLogHelper(base));
+        x.ptr = alt;
+    } else {
+        auto alt = tatami::make_DelayedIsometricOp(std::move(x.ptr), tatami::DelayedLogHelper());
+        x.ptr = alt;
+    }
+}
+
+void delayed_math(NumericMatrix& x, std::string op) {
+    if (op == "abs") {
+        auto alt = tatami::make_DelayedIsometricOp(std::move(x.ptr), tatami::DelayedAbsHelper());
+        x.ptr = alt;
+    } else if (op == "sqrt") {
+        auto alt = tatami::make_DelayedIsometricOp(std::move(x.ptr), tatami::DelayedSqrtHelper());
+        x.ptr = alt;
+    } else if (op == "log1p") {
+        auto alt = tatami::make_DelayedIsometricOp(std::move(x.ptr), tatami::DelayedLog1pHelper());
+        x.ptr = alt;
+    } else if (op == "exp") {
+        auto alt = tatami::make_DelayedIsometricOp(std::move(x.ptr), tatami::DelayedExpHelper());
+        x.ptr = alt;
+    } else if (op == "round") {
+        auto alt = tatami::make_DelayedIsometricOp(std::move(x.ptr), tatami::DelayedRoundHelper());
+        x.ptr = alt;
+    } else {
+        throw std::runtime_error("unknown operation '" + op + "'");
+    }
+}
 
 /******* bindings ******/
 
@@ -139,4 +171,7 @@ EMSCRIPTEN_BINDINGS(delayed_operations) {
     emscripten::function("delayed_multiply_vector", &delayed_multiply_vector);
     emscripten::function("delayed_subtract_vector", &delayed_subtract_vector);
     emscripten::function("delayed_divide_vector", &delayed_divide_vector);
+
+    emscripten::function("delayed_log", &delayed_log);
+    emscripten::function("delayed_math", &delayed_math);
 }

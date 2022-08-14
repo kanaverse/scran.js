@@ -68,6 +68,8 @@ export function delayedArithmetic(x, operation, value, { right = true, along = "
             } else {
                 wasm.call(module => module.delayed_divide_vector(target.matrix, vbuffer.offset, vbuffer.length, margin, right, isReorganized));
             }
+        } else {
+            throw new Error("unknown operation '" + operation + "'");
         }
 
     } catch (e) {
@@ -76,6 +78,49 @@ export function delayedArithmetic(x, operation, value, { right = true, along = "
 
     } finally {
         utils.free(vbuffer);
+    }
+
+    return target;
+}
+
+/**
+ * Apply delayed math to a {@linkplain ScranMatrix} object.
+ *
+ * @param {ScranMatrix} x - A ScranMatrix object.
+ * @param {string} operation - The operation to perform, one of `"log"`, `"sqrt"`, `"abs"`, `"log1p"`, `"round"` or `"exp"`.
+ * @param {object} [options] - Optional parameters.
+ * @param {boolean} [options.logBase=null] - Base of the logarithm to use when `operation = "log"`.
+ * Defaults to the natural base.
+ * @param {boolean} [options.inPlace=false] - Whether to modify `x` in place.
+ * If `false`, a new ScranMatrix is returned.
+ *
+ * @return {ScranMatrix} A ScranMatrix containing the delayed math operation on `x`.
+ * If `inPlace = true`, this is a reference to `x`, otherwise it is a new ScranMatrix.
+ */
+export function delayedMath(x, operation, { logBase = null, inPlace = false } = {}) {
+    let xcopy;
+    let vbuffer;
+    let target;
+
+    try {
+        if (inPlace) {
+            target = x;
+        } else {
+            xcopy = x.clone();
+            target = xcopy;
+        }
+
+        if (operation == "log") {
+            if (logBase === null) {
+                logBase = -1;
+            }
+            wasm.call(module => module.delayed_log(target.matrix, logBase));
+        } else {
+            wasm.call(module => module.delayed_math(target.matrix, operation));
+        }
+    } catch (e) {
+        utils.free(xcopy);
+        throw e;
     }
 
     return target;
