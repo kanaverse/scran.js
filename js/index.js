@@ -11,6 +11,7 @@ export * from "./block.js";
 
 export * from "./cbind.js";
 export * from "./subset.js";
+export * from "./delayed.js";
 
 export * from "./computePerCellQCMetrics.js";
 export * from "./computePerCellAdtQcMetrics.js";

@@ -37,6 +37,7 @@ add_executable(
     src/NeighborIndex.cpp
     src/cbind.cpp
     src/subset.cpp
+    src/delayed.cpp
     src/get_error_message.cpp
 )
 
