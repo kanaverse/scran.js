@@ -71,6 +71,32 @@ test("row subset works", () => {
     subset2.free();
 })
 
+test("subsetting works in place", () => {
+    var mat = simulate.simulateDenseMatrix(20, 10);
+    let ref7 = mat.row(7);
+
+    let keep = [1, 5, 7];
+    scran.subsetRows(mat, keep, { inPlace: true });
+    expect(mat.numberOfRows()).toEqual(3);
+    expect(mat.row(2)).toEqual(ref7);
+    let ref4 = mat.column(4);
+
+    let keep2 = [2, 4];
+    scran.subsetColumns(mat, keep2, { inPlace: true });
+    expect(mat.numberOfColumns()).toEqual(2);
+    expect(mat.column(1)).toEqual(ref4);
+
+    // In-place subsetting works for the IDs.
+    var mat2 = simulate.simulatePermutedMatrix(20, 10);
+    let full = mat2.identities();
+
+    scran.subsetRows(mat2, keep, { inPlace: true });
+    expect(mat2.isReorganized()).toBe(true);
+
+    let ids2 = keep.map(i => full[i]);
+    expect(compare.equalArrays(ids2, mat2.identities())).toBe(true);
+})
+
 test("splitRows works as expected", () => {
     var factor = ["A", "B", "C", "A", "C", "B", "D"];
     let split = scran.splitByFactor(factor);

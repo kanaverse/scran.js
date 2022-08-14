@@ -1,69 +1,87 @@
 import * as utils from "./utils.js";
-import * as gc from "./gc.js";
+import * as wasm from "./wasm.js";
 import { MultiMatrix } from "./MultiMatrix.js";
 
 /**
  * Slice a {@linkplain ScranMatrix} by its rows.
  * 
- * @param {ScranMatrix} The matrix of interest.
+ * @param {ScranMatrix} x - The matrix of interest.
  * @param {Array} indices - Row indices to extract.
  * All indices must be non-negative integers less than `mat.numberOfRows()`.
+ * @param {object} [options] - Optional parameters.
+ * @param {boolean} [options.inPlace=false] - Whether to modify `x` in place.
+ * If `false`, a new ScranMatrix is returned.
  *
  * @return {ScranMatrix}
- * A new ScranMatrix containing the subset of rows from `mat` specified by `indices`.
+ * A ScranMatrix containing the subset of rows from `mat` specified by `indices`.
+ * If `inPlace = true`, this is a reference to `x`, otherwise it is a new ScranMatrix.
  */
-export function subsetRows(mat, indices) {
-    let output;
+export function subsetRows(x, indices, { inPlace = false } = {}) {
+    let xcopy;
+    let target;
     let wasm_indices;
 
     try {
+        if (inPlace) {
+            target = x;
+        } else {
+            xcopy = x.clone();
+            target = xcopy;
+        }
+
         wasm_indices = utils.wasmifyArray(indices, "Int32WasmArray");
-        output = gc.call(
-            module => module.row_subset(mat.matrix, wasm_indices.offset, wasm_indices.length),
-            mat.constructor
-        );
+        wasm.call(module => module.row_subset(target.matrix, wasm_indices.offset, wasm_indices.length));
 
     } catch (e) {
-        utils.free(output);
+        utils.free(xcopy);
         throw e;
 
     } finally {
         utils.free(wasm_indices);
     }
 
-    return output;
+    return target;
 }
 
 /**
  * Slice a ScranMatrix by its columns.
  * 
- * @param {ScranMatrix} The matrix of interest.
+ * @param {ScranMatrix} x - The matrix of interest.
  * @param {Array} indices - Column indices to extract.
  * Al indices must be a non-negative integer less than `mat.numberOfColumns()`.
+ * @param {object} [options] - Optional parameters.
+ * @param {boolean} [options.inPlace=false] - Whether to modify `x` in place.
+ * If `false`, a new ScranMatrix is returned.
  *
  * @return {ScranMatrix}
  * A new ScranMatrix containing the subset of columns from `mat` specified by `indices`.
+ * If `inPlace = true`, this is a reference to `x`, otherwise it is a new ScranMatrix.
  */
-export function subsetColumns(mat, indices) {
-    let output;
+export function subsetColumns(x, indices, { inPlace = false } = {}) {
+    let xcopy;
+    let target;
     let wasm_indices;
 
     try {
+        if (inPlace) {
+            target = x;
+        } else {
+            xcopy = x.clone();
+            target = xcopy;
+        }
+
         wasm_indices = utils.wasmifyArray(indices, "Int32WasmArray");
-        output = gc.call(
-            module => module.column_subset(mat.matrix, wasm_indices.offset, wasm_indices.length),
-            mat.constructor
-        );
+        wasm.call(module => module.column_subset(target.matrix, wasm_indices.offset, wasm_indices.length));
 
     } catch (e) {
-        utils.free(output);
+        utils.free(xcopy);
         throw e;
 
     } finally {
         utils.free(wasm_indices);
     }
 
-    return output;
+    return target;
 }
 
 /**
