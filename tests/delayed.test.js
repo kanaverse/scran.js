@@ -139,6 +139,8 @@ test("vector delayedArithmetic works correctly for rows", () => {
             newmat.free();
         }
     }
+
+    mat.free();
 })
 
 test("vector delayedArithmetic works correctly for columns", () => {
@@ -217,6 +219,8 @@ test("vector delayedArithmetic works correctly for columns", () => {
             newmat.free();
         }
     }
+
+    mat.free();
 })
 
 test("delayedMath works correctly", () => {
@@ -278,4 +282,26 @@ test("delayedMath works correctly", () => {
         expect(almostequal(newmat.row(0), expected)).toBe(true);
         newmat.free();
     }
+
+    mat.free();
 })
+
+test("in place editing works correctly", () => {
+    var mat = simulate.simulateDenseMatrix(20, 10);
+    let ref = mat.row(0);
+
+    scran.delayedArithmetic(mat, "-", 1.2, { inPlace: true });
+    {
+        let expected = ref.map(x => x - 1.2);
+        expect(mat.row(0)).toEqual(expected);
+    }
+
+    scran.delayedMath(mat, "abs", { inPlace: true });
+    {
+        let expected = ref.map(x => Math.abs(x - 1.2));
+        expect(mat.row(0)).toEqual(expected);
+    }
+
+    mat.free();
+})
+
