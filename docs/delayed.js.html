@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>guessFeatures.js - Documentation</title>
+    <title>delayed.js - Documentation</title>
     
     
     <script src="scripts/prettify/prettify.js"></script>
@@ -34,7 +34,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">guessFeatures.js</h1>
+    <h1 class="page-title">delayed.js</h1>
     
 
     
@@ -44,82 +44,102 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>import * as permute from "./permute.js";
-
-// Deprecated, kept around for back-compatibility as of 0.2.6.
-export function matchFeatureAnnotationToRowIdentities(x, featureInfo) {
-    for (const [key, val] of Object.entries(featureInfo)) {
-        featureInfo[key] = permute.matchVectorToRowIdentities(x, val);
-    }
-    return;
-}
-
-// Deprecated, kept around for back-compatibility as of 0.1.1.
-export function permuteFeatures(x, featureInfo) {
-    return matchFeatureAnnotationToRowIdentities(x, featureInfo);
-}
-
+            <pre class="prettyprint source linenums"><code>import * as utils from "./utils.js";
+import * as wasm from "./wasm.js";
 
 /**
- * Guess the identity of the features from their names.
+ * Apply delayed arithmetic to a {@linkplain ScranMatrix} object.
  *
- * @param {Array} features - Array of strings containing feature identifiers, typically Ensembl IDs or gene symbols.
- * Elements may also be `null` or undefined if an identifier is missing.
+ * @param {ScranMatrix} x - A ScranMatrix object.
+ * @param {string} operation - The operation to perform, one of `"+"`, `"*"`, `"/"` or `"-"`.
+ * @param {number|Array|WasmArray|TypedArray} value - The other operand in the arithmetic operation.
+ * If a scalar, this is applied element-wise to each entry of `x`.
+ * If a vector, it is assumed to map to either the rows or columns of `x` (see `along`) and each entry is applied to all values of the corresponding row/column.
+ * @param {object} [options] - Optional parameters.
+ * @param {boolean} [options.right=true] - Whether `value` is applied to the right of `x`.
+ * Only relevant for subtraction or division.
+ * @param {string} [options.along="row"] - Whether an array-like `value` maps to the rows (`"row"`) or columns (`"column"`).
+ * If rows, `value` should have length equal to `x.numberOfRows()`.
+ * If columns, `value` should have length equal to `x.numberOfColumns()`.
+ * @param {boolean} [options.isReorganized=true] - Whether an array-like `value` has already been reorganized to match the row identities of `x` 
+ * (see {@linkcode ScranMatrix#isReorganized ScranMatrix.isReorganized} for details).
+ * Only relevant if `value` is array-like and `along = "row"`.
+ * @param {boolean} [options.inPlace=false] - Whether to modify `x` in place.
+ * If `false`, a new ScranMatrix is returned.
  *
- * @return {object} An object containing the inferred `species`, which can be either `"human"` or `"mouse"`;
- * and the identifier `type`, which can be either `"ensembl"` or `"symbol"`.
- * A `confidence` value is reported which defines the percentage of entries in `x` that are consistent with the inferred identity.
+ * @return {ScranMatrix} A ScranMatrix containing the delayed arithmetic operation on `x`.
+ * If `inPlace = true`, this is a reference to `x`, otherwise it is a new ScranMatrix.
  */
-export function guessFeatures(features) {
-    // Human Ensembl.
-    let human_ens = 0
-    features.forEach(x => {
-        if (x &amp;&amp; x.match(/^ENSG[0-9]{11}$/)) {
-            human_ens++;
-        }
-    });
+export function delayedArithmetic(x, operation, value, { right = true, along = "row", isReorganized = true, inPlace = false } = {}) {
+    let xcopy;
+    let vbuffer;
+    let target;
 
-    // Human symbol; starts with upper case, no lower case, and not an Ensembl of any kind.
-    let human_sym = 0
-    features.forEach(x => {
-        if (x &amp;&amp; x.match(/^[A-Z][^a-z]+$/) &amp;&amp; !x.match(/^ENS[A-Z]+[0-9]{11}/)) {
-            human_sym++;
+    try {
+        if (inPlace) {
+            target = x;
+        } else {
+            xcopy = x.clone();
+            target = xcopy;
         }
-    });
 
-    // Mouse Ensembl.
-    let mouse_ens = 0
-    features.forEach(x => {
-        if (x &amp;&amp; x.match(/^ENSMUSG[0-9]{11}$/)) {
-            mouse_ens++;
+        let margin = (along == "row" ? 0 : 1);
+
+        if (typeof value == "number") {
+            wasm.call(module => module.delayed_arithmetic_scalar(target.matrix, operation, right, value));
+        } else {
+            vbuffer = utils.wasmifyArray(value, "Float64WasmArray")
+            wasm.call(module => module.delayed_arithmetic_vector(target.matrix, operation, right, margin, vbuffer.offset, vbuffer.length, isReorganized));
         }
-    });
 
-    // Mouse symbol; starts with upper case, but no upper case after that.
-    let mouse_sym = 0
-    features.forEach(x => {
-        if (x &amp;&amp; x.match(/^[A-Z][^A-Z]+$/)) {
-            mouse_sym++;
-        }
-    });
+    } catch (e) {
+        utils.free(xcopy);
+        throw e;
 
-    // Who's the highest?
-    let output = [
-        { "species": "human", "type": "ensembl", "confidence": human_ens},
-        { "species": "human", "type": "symbol", "confidence": human_sym},
-        { "species": "mouse", "type": "ensembl", "confidence": mouse_ens},
-        { "species": "mouse", "type": "symbol", "confidence": mouse_sym}
-    ];
-
-    let highest = output[0];
-    for (var i = 1; i &lt; output.length; i++) {
-        if (output[i].confidence > highest.confidence) {
-            highest = output[i];
-        }
+    } finally {
+        utils.free(vbuffer);
     }
 
-    highest.confidence /= features.length;
-    return highest;
+    return target;
+}
+
+/**
+ * Apply delayed math to a {@linkplain ScranMatrix} object.
+ *
+ * @param {ScranMatrix} x - A ScranMatrix object.
+ * @param {string} operation - The operation to perform, one of `"log"`, `"sqrt"`, `"abs"`, `"log1p"`, `"round"` or `"exp"`.
+ * @param {object} [options] - Optional parameters.
+ * @param {number} [options.logBase=null] - Base of the logarithm to use when `operation = "log"`.
+ * Defaults to the natural base.
+ * @param {boolean} [options.inPlace=false] - Whether to modify `x` in place.
+ * If `false`, a new ScranMatrix is returned.
+ *
+ * @return {ScranMatrix} A ScranMatrix containing the delayed math operation on `x`.
+ * If `inPlace = true`, this is a reference to `x`, otherwise it is a new ScranMatrix.
+ */
+export function delayedMath(x, operation, { logBase = null, inPlace = false } = {}) {
+    let xcopy;
+    let target;
+
+    try {
+        if (inPlace) {
+            target = x;
+        } else {
+            xcopy = x.clone();
+            target = xcopy;
+        }
+
+        if (logBase === null) {
+            logBase = -1;
+        }
+
+        wasm.call(module => module.delayed_math(target.matrix, operation, logBase));
+    } catch (e) {
+        utils.free(xcopy);
+        throw e;
+    }
+
+    return target;
 }
 </code></pre>
         </article>
