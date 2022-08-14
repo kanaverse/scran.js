@@ -37,39 +37,13 @@ export function delayedArithmetic(x, operation, value, { right = true, along = "
             target = xcopy;
         }
 
-        let is_scalar = (typeof value == "number");
-        if (!is_scalar) {
-            vbuffer = utils.wasmifyArray(value, "Float64WasmArray")
-        }
-
         let margin = (along == "row" ? 0 : 1);
 
-        if (operation == "+") {
-            if (is_scalar) {
-                wasm.call(module => module.delayed_add_scalar(target.matrix, value));
-            } else {
-                wasm.call(module => module.delayed_add_vector(target.matrix, vbuffer.offset, vbuffer.length, margin, isReorganized));
-            }
-        } else if (operation == "*") {
-            if (is_scalar) {
-                wasm.call(module => module.delayed_multiply_scalar(target.matrix, value));
-            } else {
-                wasm.call(module => module.delayed_multiply_vector(target.matrix, vbuffer.offset, vbuffer.length, margin, isReorganized));
-            }
-        } else if (operation == "-") {
-            if (is_scalar) {
-                wasm.call(module => module.delayed_subtract_scalar(target.matrix, value, right));
-            } else {
-                wasm.call(module => module.delayed_subtract_vector(target.matrix, vbuffer.offset, vbuffer.length, margin, right, isReorganized));
-            }
-        } else if (operation == "/") {
-            if (is_scalar) {
-                wasm.call(module => module.delayed_divide_scalar(target.matrix, value, right));
-            } else {
-                wasm.call(module => module.delayed_divide_vector(target.matrix, vbuffer.offset, vbuffer.length, margin, right, isReorganized));
-            }
+        if (typeof value == "number") {
+            wasm.call(module => module.delayed_arithmetic_scalar(target.matrix, operation, right, value));
         } else {
-            throw new Error("unknown operation '" + operation + "'");
+            vbuffer = utils.wasmifyArray(value, "Float64WasmArray")
+            wasm.call(module => module.delayed_arithmetic_vector(target.matrix, operation, right, margin, vbuffer.offset, vbuffer.length, isReorganized));
         }
 
     } catch (e) {
@@ -89,7 +63,7 @@ export function delayedArithmetic(x, operation, value, { right = true, along = "
  * @param {ScranMatrix} x - A ScranMatrix object.
  * @param {string} operation - The operation to perform, one of `"log"`, `"sqrt"`, `"abs"`, `"log1p"`, `"round"` or `"exp"`.
  * @param {object} [options] - Optional parameters.
- * @param {boolean} [options.logBase=null] - Base of the logarithm to use when `operation = "log"`.
+ * @param {number} [options.logBase=null] - Base of the logarithm to use when `operation = "log"`.
  * Defaults to the natural base.
  * @param {boolean} [options.inPlace=false] - Whether to modify `x` in place.
  * If `false`, a new ScranMatrix is returned.
@@ -99,7 +73,6 @@ export function delayedArithmetic(x, operation, value, { right = true, along = "
  */
 export function delayedMath(x, operation, { logBase = null, inPlace = false } = {}) {
     let xcopy;
-    let vbuffer;
     let target;
 
     try {
@@ -110,14 +83,11 @@ export function delayedMath(x, operation, { logBase = null, inPlace = false } = 
             target = xcopy;
         }
 
-        if (operation == "log") {
-            if (logBase === null) {
-                logBase = -1;
-            }
-            wasm.call(module => module.delayed_log(target.matrix, logBase));
-        } else {
-            wasm.call(module => module.delayed_math(target.matrix, operation));
+        if (logBase === null) {
+            logBase = -1;
         }
+
+        wasm.call(module => module.delayed_math(target.matrix, operation, logBase));
     } catch (e) {
         utils.free(xcopy);
         throw e;
