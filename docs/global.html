@@ -19669,7 +19669,7 @@ Each value is an array collection that is sliced to the entries corresponding to
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="subset.js.html">subset.js</a>, <a href="subset.js.html#line77">line 77</a>
+        <a href="subset.js.html">subset.js</a>, <a href="subset.js.html#line95">line 95</a>
     </li></ul></dd>
     
 
@@ -19831,7 +19831,7 @@ This can be used in subsequent <a href="global.html#splitRows"><code>splitRows</
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="subset.js.html">subset.js</a>, <a href="subset.js.html#line101">line 101</a>
+        <a href="subset.js.html">subset.js</a>, <a href="subset.js.html#line119">line 119</a>
     </li></ul></dd>
     
 
@@ -20838,7 +20838,7 @@ If <code>buffer</code> is supplied, the returned array will be a view into <code
 
     
 
-    <h4 class="name" id="subsetColumns"><span class="type-signature"></span>subsetColumns<span class="signature">(The, indices)</span><span class="type-signature"> &rarr; {<a href="ScranMatrix.html">ScranMatrix</a>}</span></h4>
+    <h4 class="name" id="subsetColumns"><span class="type-signature"></span>subsetColumns<span class="signature">(x, indices, options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {<a href="ScranMatrix.html">ScranMatrix</a>}</span></h4>
 
     
 
@@ -20850,7 +20850,7 @@ If <code>buffer</code> is supplied, the returned array will be a view into <code
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="subset.js.html">subset.js</a>, <a href="subset.js.html#line47">line 47</a>
+        <a href="subset.js.html">subset.js</a>, <a href="subset.js.html#line60">line 60</a>
     </li></ul></dd>
     
 
@@ -20916,6 +20916,8 @@ If <code>buffer</code> is supplied, the returned array will be a view into <code
         <th>Type</th>
 
         
+        <th>Attributes</th>
+        
 
         
 
@@ -20928,7 +20930,7 @@ If <code>buffer</code> is supplied, the returned array will be a view into <code
 
         <tr>
             
-                <td class="name"><code>The</code></td>
+                <td class="name"><code>x</code></td>
             
 
             <td class="type">
@@ -20941,10 +20943,18 @@ If <code>buffer</code> is supplied, the returned array will be a view into <code
             </td>
 
             
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
 
             
 
-            <td class="description last"><p>matrix of interest.</p></td>
+            <td class="description last"><p>The matrix of interest.</p></td>
         </tr>
 
     
@@ -20964,11 +20974,122 @@ If <code>buffer</code> is supplied, the returned array will be a view into <code
             </td>
 
             
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
 
             
 
             <td class="description last"><p>Column indices to extract.
 Al indices must be a non-negative integer less than <code>mat.numberOfColumns()</code>.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>options</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>Optional parameters.</p>
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>inPlace</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    <code>false</code>
+                
+                </td>
+            
+
+            <td class="description last"><p>Whether to modify <code>x</code> in place.
+If <code>false</code>, a new ScranMatrix is returned.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
         </tr>
 
     
@@ -20994,7 +21115,8 @@ Al indices must be a non-negative integer less than <code>mat.numberOfColumns()<
 
         
 <div class="param-desc">
-    <p>A new ScranMatrix containing the subset of columns from <code>mat</code> specified by <code>indices</code>.</p>
+    <p>A new ScranMatrix containing the subset of columns from <code>mat</code> specified by <code>indices</code>.
+If <code>inPlace = true</code>, this is a reference to <code>x</code>, otherwise it is a new ScranMatrix.</p>
 </div>
 
 
@@ -21020,7 +21142,7 @@ Al indices must be a non-negative integer less than <code>mat.numberOfColumns()<
 
     
 
-    <h4 class="name" id="subsetRows"><span class="type-signature"></span>subsetRows<span class="signature">(The, indices)</span><span class="type-signature"> &rarr; {<a href="ScranMatrix.html">ScranMatrix</a>}</span></h4>
+    <h4 class="name" id="subsetRows"><span class="type-signature"></span>subsetRows<span class="signature">(x, indices, options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {<a href="ScranMatrix.html">ScranMatrix</a>}</span></h4>
 
     
 
@@ -21032,7 +21154,7 @@ Al indices must be a non-negative integer less than <code>mat.numberOfColumns()<
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="subset.js.html">subset.js</a>, <a href="subset.js.html#line15">line 15</a>
+        <a href="subset.js.html">subset.js</a>, <a href="subset.js.html#line19">line 19</a>
     </li></ul></dd>
     
 
@@ -21098,6 +21220,8 @@ Al indices must be a non-negative integer less than <code>mat.numberOfColumns()<
         <th>Type</th>
 
         
+        <th>Attributes</th>
+        
 
         
 
@@ -21110,7 +21234,7 @@ Al indices must be a non-negative integer less than <code>mat.numberOfColumns()<
 
         <tr>
             
-                <td class="name"><code>The</code></td>
+                <td class="name"><code>x</code></td>
             
 
             <td class="type">
@@ -21123,10 +21247,18 @@ Al indices must be a non-negative integer less than <code>mat.numberOfColumns()<
             </td>
 
             
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
 
             
 
-            <td class="description last"><p>matrix of interest.</p></td>
+            <td class="description last"><p>The matrix of interest.</p></td>
         </tr>
 
     
@@ -21146,11 +21278,122 @@ Al indices must be a non-negative integer less than <code>mat.numberOfColumns()<
             </td>
 
             
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
 
             
 
             <td class="description last"><p>Row indices to extract.
 All indices must be non-negative integers less than <code>mat.numberOfRows()</code>.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>options</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>Optional parameters.</p>
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>inPlace</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    <code>false</code>
+                
+                </td>
+            
+
+            <td class="description last"><p>Whether to modify <code>x</code> in place.
+If <code>false</code>, a new ScranMatrix is returned.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
         </tr>
 
     
@@ -21176,7 +21419,8 @@ All indices must be non-negative integers less than <code>mat.numberOfRows()</co
 
         
 <div class="param-desc">
-    <p>A new ScranMatrix containing the subset of rows from <code>mat</code> specified by <code>indices</code>.</p>
+    <p>A ScranMatrix containing the subset of rows from <code>mat</code> specified by <code>indices</code>.
+If <code>inPlace = true</code>, this is a reference to <code>x</code>, otherwise it is a new ScranMatrix.</p>
 </div>
 
 
@@ -21929,7 +22173,7 @@ rather, they can just read directly from the real file system.</p>
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.11</a> on Sun Aug 14 2022 06:01:58 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.11</a> on Sun Aug 14 2022 07:06:09 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>

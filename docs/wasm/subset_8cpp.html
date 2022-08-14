@@ -100,22 +100,63 @@ Include dependency graph for subset.cpp:</div>
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:ab75ee25b4ee274f6952a720da1ab15ad"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structNumericMatrix.html">NumericMatrix</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="subset_8cpp.html#ab75ee25b4ee274f6952a720da1ab15ad">column_subset</a> (const <a class="el" href="structNumericMatrix.html">NumericMatrix</a> &amp;matrix, uintptr_t offset, size_t length)</td></tr>
-<tr class="separator:ab75ee25b4ee274f6952a720da1ab15ad"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4f1bf0e95603c097b08a4ea353474036"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structNumericMatrix.html">NumericMatrix</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="subset_8cpp.html#a4f1bf0e95603c097b08a4ea353474036">row_subset</a> (const <a class="el" href="structNumericMatrix.html">NumericMatrix</a> &amp;matrix, uintptr_t offset, size_t length)</td></tr>
-<tr class="separator:a4f1bf0e95603c097b08a4ea353474036"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad4f1ecb2f5994c4ea32c07641e3c9478"><td class="memTemplParams" colspan="2">template&lt;bool row&gt; </td></tr>
+<tr class="memitem:ad4f1ecb2f5994c4ea32c07641e3c9478"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="subset_8cpp.html#ad4f1ecb2f5994c4ea32c07641e3c9478">check_limit</a> (const int *ptr, size_t len, size_t limit)</td></tr>
+<tr class="separator:ad4f1ecb2f5994c4ea32c07641e3c9478"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0e69219ae272d5bb0125f3ff6e3afcb6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="subset_8cpp.html#a0e69219ae272d5bb0125f3ff6e3afcb6">column_subset</a> (<a class="el" href="structNumericMatrix.html">NumericMatrix</a> &amp;matrix, uintptr_t offset, size_t length)</td></tr>
+<tr class="separator:a0e69219ae272d5bb0125f3ff6e3afcb6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a75821dc83bcfb697f0bc0d09b9ea7146"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="subset_8cpp.html#a75821dc83bcfb697f0bc0d09b9ea7146">row_subset</a> (<a class="el" href="structNumericMatrix.html">NumericMatrix</a> &amp;matrix, uintptr_t offset, size_t length)</td></tr>
+<tr class="separator:a75821dc83bcfb697f0bc0d09b9ea7146"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab9846012d38015c6419ffdd8f4cd1bd0"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="subset_8cpp.html#ab9846012d38015c6419ffdd8f4cd1bd0">EMSCRIPTEN_BINDINGS</a> (<a class="el" href="subset_8cpp.html#a0e69219ae272d5bb0125f3ff6e3afcb6">column_subset</a>)</td></tr>
+<tr class="separator:ab9846012d38015c6419ffdd8f4cd1bd0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function Documentation</h2>
-<a id="ab75ee25b4ee274f6952a720da1ab15ad" name="ab75ee25b4ee274f6952a720da1ab15ad"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab75ee25b4ee274f6952a720da1ab15ad">&#9670;&nbsp;</a></span>column_subset()</h2>
+<a id="ad4f1ecb2f5994c4ea32c07641e3c9478" name="ad4f1ecb2f5994c4ea32c07641e3c9478"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad4f1ecb2f5994c4ea32c07641e3c9478">&#9670;&nbsp;</a></span>check_limit()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;bool row&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">void check_limit </td>
+          <td>(</td>
+          <td class="paramtype">const int *&#160;</td>
+          <td class="paramname"><em>ptr</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>len</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>limit</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a0e69219ae272d5bb0125f3ff6e3afcb6" name="a0e69219ae272d5bb0125f3ff6e3afcb6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0e69219ae272d5bb0125f3ff6e3afcb6">&#9670;&nbsp;</a></span>column_subset()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="structNumericMatrix.html">NumericMatrix</a> column_subset </td>
+          <td class="memname">void column_subset </td>
           <td>(</td>
-          <td class="paramtype">const <a class="el" href="structNumericMatrix.html">NumericMatrix</a> &amp;&#160;</td>
+          <td class="paramtype"><a class="el" href="structNumericMatrix.html">NumericMatrix</a> &amp;&#160;</td>
           <td class="paramname"><em>matrix</em>, </td>
         </tr>
         <tr>
@@ -137,28 +178,37 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">matrix</td><td>A <code><a class="el" href="structNumericMatrix.html" title="Javascript-visible interface for a matrix of doubles.">NumericMatrix</a></code> object. </td></tr>
-    <tr><td class="paramname">offset</td><td>Offset to a 32-bit integer array containing the column indices to subset. All indices should be positive and less than the number of columns in <code>matrix</code>. </td></tr>
-    <tr><td class="paramname">length</td><td>Length of the array pointed to by <code>offset</code>.</td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>A <code><a class="el" href="structNumericMatrix.html" title="Javascript-visible interface for a matrix of doubles.">NumericMatrix</a></code> containing a delayed subset on the columns of <code>matrix</code>. </dd></dl>
 
 </div>
 </div>
-<a id="a4f1bf0e95603c097b08a4ea353474036" name="a4f1bf0e95603c097b08a4ea353474036"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4f1bf0e95603c097b08a4ea353474036">&#9670;&nbsp;</a></span>row_subset()</h2>
+<a id="ab9846012d38015c6419ffdd8f4cd1bd0" name="ab9846012d38015c6419ffdd8f4cd1bd0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab9846012d38015c6419ffdd8f4cd1bd0">&#9670;&nbsp;</a></span>EMSCRIPTEN_BINDINGS()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="structNumericMatrix.html">NumericMatrix</a> row_subset </td>
+          <td class="memname">EMSCRIPTEN_BINDINGS </td>
           <td>(</td>
-          <td class="paramtype">const <a class="el" href="structNumericMatrix.html">NumericMatrix</a> &amp;&#160;</td>
+          <td class="paramtype"><a class="el" href="subset_8cpp.html#a0e69219ae272d5bb0125f3ff6e3afcb6">column_subset</a>&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a75821dc83bcfb697f0bc0d09b9ea7146" name="a75821dc83bcfb697f0bc0d09b9ea7146"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a75821dc83bcfb697f0bc0d09b9ea7146">&#9670;&nbsp;</a></span>row_subset()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void row_subset </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structNumericMatrix.html">NumericMatrix</a> &amp;&#160;</td>
           <td class="paramname"><em>matrix</em>, </td>
         </tr>
         <tr>
@@ -180,15 +230,6 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">matrix</td><td>A <code><a class="el" href="structNumericMatrix.html" title="Javascript-visible interface for a matrix of doubles.">NumericMatrix</a></code> object. </td></tr>
-    <tr><td class="paramname">offset</td><td>Offset to a 32-bit integer array containing the row indices to subset. All indices should be positive and less than the number of rows in <code>matrix</code>. </td></tr>
-    <tr><td class="paramname">length</td><td>Length of the array pointed to by <code>offset</code>.</td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>A <code><a class="el" href="structNumericMatrix.html" title="Javascript-visible interface for a matrix of doubles.">NumericMatrix</a></code> containing a delayed subset on the columns of <code>matrix</code>. </dd></dl>
 
 </div>
 </div>
