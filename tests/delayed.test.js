@@ -51,6 +51,8 @@ test("scalar delayedArithmetic works correctly", () => {
         newmat.free();
     }
 
+    expect(() => scran.delayedArithmetic(mat, "whee", 123)).toThrow("whee");
+
     mat.free();
 })
 
@@ -138,9 +140,9 @@ test("vector delayedArithmetic works correctly for rows", () => {
             expect(newmat.column(0)).toEqual(expcol);
             newmat.free();
         }
-    }
 
-    mat.free();
+        mat.free();
+    }
 })
 
 test("vector delayedArithmetic works correctly for columns", () => {
@@ -218,9 +220,21 @@ test("vector delayedArithmetic works correctly for columns", () => {
             expect(newmat.column(0)).toEqual(expcol);
             newmat.free();
         }
+
+        mat.free();
+    }
+})
+
+test("delayed vector arith errors out correctly", () => {
+    var mat = simulate.simulateDenseMatrix(20, 10);
+
+    let other = [];
+    for (var i = 1; i <= mat.numberOfRows(); i++) {
+        other.push(i);
     }
 
-    mat.free();
+    expect(() => scran.delayedArithmetic(mat, "whee", other)).toThrow("whee");
+    expect(() => scran.delayedArithmetic(mat, "+", [1,2,3])).toThrow("length");
 })
 
 test("delayedMath works correctly", () => {
@@ -283,6 +297,8 @@ test("delayedMath works correctly", () => {
         newmat.free();
     }
 
+    expect(() => scran.delayedMath(mat, "whee")).toThrow("whee");
+
     mat.free();
 })
 
@@ -304,4 +320,3 @@ test("in place editing works correctly", () => {
 
     mat.free();
 })
-
