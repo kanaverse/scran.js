@@ -30,70 +30,10 @@ NumericMatrix cbind(int n, uintptr_t mats, bool same_perm) {
         if (current.ptr->nrow() != NR) {
             throw "all matrices to cbind should have the same number of rows";
         }
+        collected.push_back(current.ptr);
     }
 
-    if (same_perm) {
-        for (int i = 1; i < n; ++i) {
-            const auto& current = *(mat_ptrs[i]);
-            collected.push_back(current.ptr);
-        }
-
-    } else if (!first.is_reorganized) {
-        for (int i = 1; i < n; ++i) {
-            const auto& current = *(mat_ptrs[i]);
-            if (!current.is_reorganized) {
-                collected.push_back(current.ptr);
-            } else {
-                std::vector<size_t> permutation(NR);
-                const auto& cur_ids = current.row_ids;
-                for (size_t i = 0; i < cur_ids.size(); ++i) {
-                    if (cur_ids[i] >= NR) {
-                        throw std::runtime_error("row identity (" + std::to_string(cur_ids[i]) + ") in matrix " + std::to_string(i + 1) + " has no counterpart in the first matrix");
-                    }
-                    permutation[cur_ids[i]] = i;
-                }
-                collected.push_back(tatami::make_DelayedSubset<0>(current.ptr, std::move(permutation)));
-            }
-        }
-
-    } else {
-        std::unordered_map<size_t, size_t> mapping;
-        const auto& first_ids = first.row_ids;  
-        for (size_t i = 0; i < first_ids.size(); ++i) {
-            mapping[first_ids[i]] = i;
-        }
-
-        for (int i = 1; i < n; ++i) {
-            const auto& current = *(mat_ptrs[i]);
-            std::vector<size_t> permutation(NR);
-            if (!current.is_reorganized) {
-                for (size_t i = 0; i < NR; ++i) {
-                    auto it = mapping.find(i);
-                    if (it == mapping.end()) {
-                        throw std::runtime_error("row identity (" + std::to_string(i) + ") in matrix " + std::to_string(i + 1) + " has no counterpart in the first matrix");
-                    }
-                    permutation[it->second] = i;
-                }
-            } else {
-                const auto& cur_ids = current.row_ids;
-                for (size_t i = 0; i < cur_ids.size(); ++i) {
-                    auto it = mapping.find(cur_ids[i]);
-                    if (it == mapping.end()) {
-                        throw std::runtime_error("row identity (" + std::to_string(cur_ids[i]) + ") in matrix " + std::to_string(i + 1) + " has no counterpart in the first matrix");
-                    }
-                    permutation[it->second] = i;
-                }
-            }
-            collected.push_back(tatami::make_DelayedSubset<0>(current.ptr, std::move(permutation)));
-        }
-    }
-
-    auto bound = tatami::make_DelayedBind<1>(std::move(collected));
-    if (first.is_reorganized) {
-        return NumericMatrix(std::move(bound), first.row_ids);
-    } else {
-        return NumericMatrix(std::move(bound));
-    }
+    return NumericMatrix(tatami::make_DelayedBind<1>(std::move(collected)));
 }
 
 NumericMatrix cbind_with_rownames(int n, uintptr_t mats, uintptr_t names, uintptr_t indices) {
@@ -116,16 +56,6 @@ NumericMatrix cbind_with_rownames(int n, uintptr_t mats, uintptr_t names, uintpt
     auto& idx = out.second;
     auto idptr = reinterpret_cast<int*>(indices);
     std::copy(idx.begin(), idx.end(), idptr);
-
-    // Adjust 'ids' so that they refer to the _original_ identifiers for the
-    // first matrix, as expected for the 'row_ids' field of the NumericMatrix.
-    // Of course, if the first matrix wasn't reorganized, then the 'ids' are
-    // already referring to the original identifiers, so no change is required.
-    if (first.is_reorganized) {
-        for (auto& y : idx) {
-            y = first.row_ids[y];
-        }
-    }
 
     return NumericMatrix(std::move(out.first), std::move(idx));
 }

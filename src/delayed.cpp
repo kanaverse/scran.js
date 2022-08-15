@@ -36,21 +36,12 @@ void delayed_arithmetic_scalar(NumericMatrix& x, std::string op, bool right, dou
     }
 }
 
-void delayed_arithmetic_vector(NumericMatrix& x, std::string op, bool right, int margin, uintptr_t ptr, size_t n, bool already_permuted) {
+void delayed_arithmetic_vector(NumericMatrix& x, std::string op, bool right, int margin, uintptr_t ptr, size_t n) {
     if (n != static_cast<size_t>(margin == 0 ? x.nrow() : x.ncol())) {
         throw std::runtime_error("inappropriate length of vector for delayed arithmetic");
     }
-
     auto input = reinterpret_cast<const double*>(ptr);
-    std::vector<double> store(n);
-    if (margin == 0 && !already_permuted && x.is_reorganized) {
-        const auto& ids = x.row_ids;
-        for (size_t r = 0; r < n; ++r) {
-            store[r] = input[ids[r]];
-        }
-    } else {
-        std::copy(input, input + n, store.begin());
-    }
+    std::vector<double> store(input, input + n);
 
     if (op == "+") {
         if (margin == 1) {

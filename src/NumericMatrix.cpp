@@ -56,6 +56,13 @@ bool NumericMatrix::reorganized() const {
     return is_reorganized;
 }
 
+void NumericMatrix::wipe_identities() {
+    row_ids.clear();
+    row_ids.shrink_to_fit();
+    is_reorganized = false;
+    return;
+}
+
 bool NumericMatrix::sparse() const {
     return ptr->sparse(); 
 }
@@ -80,6 +87,7 @@ EMSCRIPTEN_BINDINGS(NumericMatrix) {
         .function("column", &NumericMatrix::column)
         .function("identities", &NumericMatrix::identities)
         .function("reorganized", &NumericMatrix::reorganized)
+        .function("wipe_identities", &NumericMatirx::wipe_identities)
         .function("sparse", &NumericMatrix::sparse)
         .function("clone", &NumericMatrix::clone)
         ;
