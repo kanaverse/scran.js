@@ -187,7 +187,7 @@ export class H5Base {
     #create_attribute(attr, type, shape, { maxStringLength = 10 } = {}) { // internal use only.
         let shape_arr = utils.wasmifyArray(shape, "Int32WasmArray");
         try {
-            wasm.call(module => module.create_hdf5_attribute(this.file, this.name, attr, type, shape_arr.offset, shape_arr.length, maxStringLength));
+            wasm.call(module => module.create_hdf5_attribute(this.file, this.name, attr, type, shape_arr.length, shape_arr.offset, maxStringLength));
             this.#attributes.push(attr);
         } finally {
             shape_arr.free();
@@ -208,8 +208,11 @@ export class H5Base {
      * @param {(TypedArray|Array|string|number)} x - Values to be written to the new dataset, see {@linkcode H5DataSet#write write}.
      * This should be of length equal to the product of `shape`;
      * unless `shape` is empty, in which case it should either be of length 1, or a single number or string.
+     * @param {?number} [options.maxStringLength=null] - Maximum length of the strings to be saved.
+     * Only used when `type = "String"`.
+     * If `null`, this is inferred from the maximum length of strings in `x`.
      */
-    writeAttribute(attr, type, shape, x) {
+    writeAttribute(attr, type, shape, x, { maxStringLength = null } = {}) {
         if (x === null) {
             throw new Error("cannot write 'null' to HDF5"); 
         }
@@ -218,10 +221,13 @@ export class H5Base {
         x = guessed.x;
         shape = guessed.shape;
 
-        if (this.type == "String") {
+        if (type == "String") {
             let [ lengths, buffer ] = repack_strings(x);
             try {
-                this.#create_attribute(attr, type, shape, { maxStringLength: fetch_max_string_length(lengths) });
+                if (maxStringLength == null) {
+                    maxStringLength = fetch_max_string_length(lengths);
+                }
+                this.#create_attribute(attr, type, shape, { maxStringLength: maxStringLength });
                 wasm.call(module => module.write_string_hdf5_attribute(this.file, this.name, attr, lengths.length, lengths.offset, buffer.offset));
             } finally {
                 utils.free(buffer);
@@ -354,7 +360,7 @@ export class H5Group extends H5Base {
      * @param {number} [options.maxStringLength=10] - Maximum length of the strings to be saved.
      * Only used when `type = "String"`.
      * @param {number} [options.compression=6] - Deflate compression level.
-     * @param {Array} [options.chunks=null] - Array containing the chunk dimensions.
+     * @param {?Array} [options.chunks=null] - Array containing the chunk dimensions.
      * This should have length equal to `shape`, with each value being no greater than the corresponding value of `shape`.
      * If `null`, it defaults to `shape`.
      *
@@ -402,7 +408,7 @@ export class H5Group extends H5Base {
      * @param {(TypedArray|Array|string|number)} x - Values to be written to the new dataset, see {@linkcode H5DataSet#write write}.
      * @param {object} [options] - Optional parameters.
      * @param {number} [options.compression=6] - Deflate compression level.
-     * @param {Array} [options.chunks=null] - Array containing the chunk dimensions.
+     * @param {?Array} [options.chunks=null] - Array containing the chunk dimensions.
      * This should have length equal to `shape`, with each value being no greater than the corresponding value of `shape`.
      * If `null`, it defaults to `shape`.
      * @param {boolean} [options.cache=false] - Whether to cache the written values in the returned {@linkplain H5DataSet} object.
@@ -523,6 +529,9 @@ export class H5DataSet extends H5Base {
         super(file, name);
 
         if (newlyCreated) {
+            if (shape === null || type === null) {
+                throw new Error("need to pass 'shape' and 'type' if 'newlyCreated = true'");
+            }
             this.#shape = shape;
             this.#type = type;
             this.#values = values;

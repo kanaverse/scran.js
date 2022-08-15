@@ -152,24 +152,34 @@ test("HDF5 creation works as expected", () => {
         let dhandle = ghandle2.createDataSet(name, type, shape);
         dhandle.write(src);
 
+        // We get back what we put in.
+        {
+            let dhandle2 = ghandle2.open(name);
+            expect(dhandle2.shape).toEqual(shape);
+            let vals = dhandle2.load();
+            expect(vals.constructor.name).toBe(constructor.name);
+            expect(compare.equalArrays(vals, src)).toBe(true);
+        }
+
         // Fails for nulls or strings
         expect(() => dhandle.write(null)).toThrow(/null/);
         let strtmp = new Array(prod);
         strtmp.fill("A");
         expect(() => dhandle.write(strtmp)).toThrow(/string/);
 
-        let vals = dhandle.load();
-        expect(vals.constructor.name).toBe(constructor.name);
-        expect(compare.equalArrays(vals, src)).toBe(true);
-
         // Works for scalar datasets.
         let scalar = name + "_scalar";
-        let dhandle2 = ghandle2.createDataSet(scalar, type, []);
-        dhandle2.write(100);
-
-        let vals2 = dhandle2.load();
-        expect(vals2.length).toBe(1);
-        expect(vals2[0]).toBe(100);
+        {
+            let dhandle2 = ghandle2.createDataSet(scalar, type, []);
+            dhandle2.write(100);
+        }
+        {
+            let dhandle2 = ghandle2.open(scalar);
+            expect(dhandle2.shape).toEqual([]);
+            let vals2 = dhandle2.load();
+            expect(vals2.length).toBe(1);
+            expect(vals2[0]).toBe(100);
+        }
     };
 
     add_dataset("u8", Uint8Array, "Uint8", [20, 4]);
@@ -278,5 +288,85 @@ test("HDF5 creation works as expected (64-bit)", () => {
         let ures = fhandle.open("stuffu", { load: true }).values;
         expect(ures[0]).toBe(6);
         expect(ures[4]).toBe(10);
+    }
+})
+
+test("HDF5 numeric attribute creation and loading works as expected", () => {
+    const path = dir + "/test.write.h5";
+    purge(path)
+
+    let fhandle = scran.createNewHDF5File(path);
+    let ghandle = fhandle.createGroup("foo");
+
+    // Creation of numeric attributes works correctly.
+    let add_attribute = (name, constructor, type, shape) => {
+        let prod = shape.reduce((a, b) => a * b);
+        let src = new constructor(prod);
+        for (var i = 0; i < prod; i++) {
+            src[i] = i;
+        }
+
+        ghandle.writeAttribute(name, type, shape, src);
+
+        // We get back what we put in.
+        {
+            let bundle = ghandle.readAttribute(name);
+            expect(compare.equalArrays(bundle.values, src)).toBe(true);
+            expect(bundle.shape).toEqual(shape);
+        }
+
+        // Fails for nulls or strings
+        expect(() => ghandle.writeAttribute(name + "_null", type, shape, null)).toThrow(/null/);
+        let strtmp = new Array(prod);
+        strtmp.fill("A");
+        expect(() => ghandle.writeAttribute(name + "_string", type, shape, strtmp)).toThrow(/string/);
+
+        // Works for scalar datasets.
+        let scalar = name + "_scalar";
+        ghandle.writeAttribute(scalar, type, [], 100);
+        {
+            let bundle = ghandle.readAttribute(scalar);
+            expect(Array.from(bundle.values)).toEqual([100]);
+            expect(bundle.shape).toEqual([]);
+        }
+    };
+
+    add_attribute("thingy_int8", Int8Array, "Int8", [5,2,1]);
+    add_attribute("thingy_uint8", Uint8Array, "Uint8", [4,4]);
+    add_attribute("thingy_int16", Int16Array, "Int16", [123]);
+    add_attribute("thingy_uint16", Uint16Array, "Uint16", [3,2,3]);
+    add_attribute("thingy_int32", Int32Array, "Int32", [111,2]);
+    add_attribute("thingy_uint32", Uint32Array, "Uint32", [50,2]);
+    add_attribute("thingy_float32", Float32Array, "Float32", [20,20]);
+    add_attribute("thingy_float64", Float64Array, "Float64", [9]);
+
+    let ghandle2 = fhandle.open("foo");
+    expect(ghandle2.attributes).toEqual(ghandle.attributes); // got added correctly.
+
+    let attrs = new Set(ghandle2.attributes);
+    expect(attrs.has("thingy_int8")).toBe(true);
+    expect(attrs.has("thingy_uint16")).toBe(true);
+    expect(attrs.has("thingy_float32_scalar")).toBe(true);
+})
+
+test("HDF5 string attribute creation and loading works as expected", () => {
+    const path = dir + "/test.write.h5";
+    purge(path)
+
+    let fhandle = scran.createNewHDF5File(path);
+    let dhandle = fhandle.writeDataSet("stuffX", "Int32", null, [1,2,3,4,5]);
+
+    let colleagues = ["Allison", "Aaron", "Jayaram", "Michael", "Sebastien"]; // ranked by age.
+    dhandle.writeAttribute("colleagues", "String", null, colleagues);
+    expect(dhandle.attributes.indexOf("colleagues")).toBe(0);
+
+    // Make sure we get the same thing out.
+    {
+        let dhandle2 = fhandle.open("stuffX");
+        expect(dhandle2.attributes.indexOf("colleagues")).toBe(0);
+
+        let recolleagues = dhandle2.readAttribute("colleagues");
+        expect(recolleagues.values).toEqual(colleagues);
+        expect(recolleagues.shape).toEqual([5]);
     }
 })

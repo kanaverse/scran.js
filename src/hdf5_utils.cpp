@@ -596,29 +596,33 @@ void write_string_hdf5_dataset(std::string path, std::string name, size_t n, uin
 /************* Attribute writers **************/
 
 void create_hdf5_attribute(std::string path, std::string name, std::string attr, std::string type, int nshape, uintptr_t shape, int max_str_len) {
-    H5::H5File handle(path, H5F_ACC_RDONLY);
+    try {
+        H5::H5File handle(path, H5F_ACC_RDWR);
 
-    auto creator = [&](const H5::H5Object& handle) -> void {
-        H5::DataSpace dspace;
-        if (nshape) { // if zero, it's a scalar.
-            auto dims = process_shape(nshape, shape);
-            dspace = H5::DataSpace(nshape, dims.data());
+        auto creator = [&](const H5::H5Object& handle) -> void {
+            H5::DataSpace dspace;
+            if (nshape) { // if zero, it's a scalar.
+                auto dims = process_shape(nshape, shape);
+                dspace = H5::DataSpace(nshape, dims.data());
+            }
+            H5::DataType dtype = choose_data_type(type, max_str_len);
+            handle.createAttribute(attr, dtype, dspace);
+        };
+
+        auto child_type = handle.childObjType(name);
+        if (child_type == H5O_TYPE_GROUP) {
+            auto ghandle = handle.openGroup(name);
+            creator(ghandle);
+        } else if (child_type == H5O_TYPE_DATASET) {
+            auto dhandle = handle.openDataSet(name);
+            creator(dhandle);
+        } else {
+            throw std::runtime_error("cannot fetch attribute from unknown HDF5 object '" + name + "'");
         }
-        H5::DataType dtype = choose_data_type(type, max_str_len);
-        handle.createAttribute(attr, dtype, dspace);
-    };
-
-    auto child_type = handle.childObjType(name);
-    if (child_type == H5O_TYPE_GROUP) {
-        auto ghandle = handle.openGroup(name);
-        creator(ghandle);
-    } else if (child_type == H5O_TYPE_DATASET) {
-        auto dhandle = handle.openDataSet(name);
-        creator(dhandle);
-    } else {
-        throw std::runtime_error("cannot fetch attribute from unknown HDF5 object '" + name + "'");
+    } catch (H5::Exception& e) {
+        throw std::runtime_error(e.getCDetailMsg());
     }
-}
+} 
 
 struct AttributeHandleWriter {
     template<class Handle, typename T, class MemType>
@@ -628,7 +632,7 @@ struct AttributeHandleWriter {
 };
 
 void write_numeric_hdf5_attribute(std::string path, std::string name, std::string attr, std::string type, uintptr_t data) {
-    H5::H5File handle(path, H5F_ACC_RDONLY);
+    H5::H5File handle(path, H5F_ACC_RDWR);
 
     auto writer = [&](const H5::H5Object& handle) -> void {
         auto ahandle = handle.openAttribute(attr);
@@ -648,7 +652,7 @@ void write_numeric_hdf5_attribute(std::string path, std::string name, std::strin
 }
 
 void write_string_hdf5_attribute(std::string path, std::string name, std::string attr, size_t n, uintptr_t lengths, uintptr_t buffer) {
-    H5::H5File handle(path, H5F_ACC_RDONLY);
+    H5::H5File handle(path, H5F_ACC_RDWR);
 
     auto writer = [&](const H5::H5Object& handle) -> void {
         auto ahandle = handle.openAttribute(attr);
