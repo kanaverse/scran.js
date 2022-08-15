@@ -73,6 +73,40 @@ function check_shape(x, shape) {
     return x;
 }
 
+function guess_shape(x, shape) {
+    if (shape === null) {
+        if (typeof x == "string" || typeof x == "number") {
+            x = [x];
+            shape = []; // scalar, I guess.
+        } else {
+            shape = [x.length];
+        }
+    } else {
+        x = check_shape(x, shape);
+    }
+    return { x: x, shape: shape };
+}
+
+function forbid_strings(x) {
+    if (Array.isArray(x)) {
+        // no strings allowed!
+        for (const x0 of x) {
+            if (typeof x0 === "string") {
+                throw new Error("'x' should not contain any strings for a non-string HDF5 dataset");
+            }
+        }
+    }
+}
+
+function fetch_max_string_length(lengths) {
+    let maxlen = 0;
+    lengths.array().forEach(y => {
+        if (maxlen < y) {
+            maxlen = y;
+        }
+    });
+    return maxlen;
+}
 
 /**
  * Base class for HDF5 objects.
@@ -80,6 +114,7 @@ function check_shape(x, shape) {
 export class H5Base {
     #file;
     #name;
+    #attributes;
 
     /**
      * @param {string} file - Path to the HDF5 file.
@@ -105,6 +140,106 @@ export class H5Base {
     get name() {
         return this.#name;
     }
+
+    /**
+     * @member {Array}
+     * @desc Array containing the names of all attributes of this object.
+     */
+    get attributes() {
+        return this.#attributes;
+    }
+
+    set_attributes(attributes) { // internal use only, for subclasses.
+        this.#attributes = attributes;
+    }
+
+    /**
+     * Read an attribute of the object.
+     *
+     * @param {string} attr - Name of the attribute.
+     * @return {object} Object containing the attribute `values` and the `shape` of the attribute.
+     */
+    readAttribute(attr) {
+        let vals;
+        let shape;
+
+        let x = wasm.call(module => new module.LoadedH5Attr(this.file, this.name, attr));
+        try {
+            shape = Array.from(x.shape());
+
+            let type = x.type();
+            if (type == "other") {
+                throw new Error("cannot load dataset for an unsupported type");
+            }
+
+            if (type == "String") {
+                vals = unpack_strings(x.values(), x.lengths());
+            } else {
+                vals = x.values().slice();
+            }
+        } finally {
+            x.delete();
+        }
+
+        return { values: vals, shape: shape };
+    }
+
+    #create_attribute(attr, type, shape, { maxStringLength = 10 } = {}) { // internal use only.
+        let shape_arr = utils.wasmifyArray(shape, "Int32WasmArray");
+        try {
+            wasm.call(module => module.create_hdf5_attribute(this.file, this.name, attr, type, shape_arr.offset, shape_arr.length, maxStringLength));
+            this.#attributes.push(attr);
+        } finally {
+            shape_arr.free();
+        }
+    }
+
+    /**
+     * Write an attribute for the object.
+     *
+     * @param {string} attr - Name of the attribute.
+     * @param {string} type - Type of dataset to create.
+     * This can be `"IntX"` or `"UintX"` for `X` of 8, 16, 32, or 64;
+     * or `"FloatX"` for `X` of 32 or 64;
+     * or `"String"`.
+     * @param {Array} shape - Array containing the dimensions of the dataset to create.
+     * If set to an empty array, this will create a scalar dataset.
+     * If set to `null`, this is determined from `x`.
+     * @param {(TypedArray|Array|string|number)} x - Values to be written to the new dataset, see {@linkcode H5DataSet#write write}.
+     * This should be of length equal to the product of `shape`;
+     * unless `shape` is empty, in which case it should either be of length 1, or a single number or string.
+     */
+    writeAttribute(attr, type, shape, x) {
+        if (x === null) {
+            throw new Error("cannot write 'null' to HDF5"); 
+        }
+
+        let guessed = guess_shape(x, shape);
+        x = guessed.x;
+        shape = guessed.shape;
+
+        if (this.type == "String") {
+            let [ lengths, buffer ] = repack_strings(x);
+            try {
+                this.#create_attribute(attr, type, shape, { maxStringLength: fetch_max_string_length(lengths) });
+                wasm.call(module => module.write_string_hdf5_attribute(this.file, this.name, attr, lengths.length, lengths.offset, buffer.offset));
+            } finally {
+                utils.free(buffer);
+                utils.free(lengths);
+            }
+        } else {
+            forbid_strings(x);
+            let y = utils.wasmifyArray(x, null);
+            try {
+                this.#create_attribute(attr, type, shape);
+                wasm.call(module => module.write_numeric_hdf5_attribute(this.file, this.name, attr, y.constructor.className, y.offset));
+            } finally {
+                y.free();
+            }
+        }
+
+        return;
+    }
 }
 
 /**
@@ -114,33 +249,35 @@ export class H5Base {
  */
 export class H5Group extends H5Base {
     #children;
+    #attributes;
 
     /**
      * @param {string} file - Path to the HDF5 file.
-     * @param {string} name - Name of the object inside the file.
-     * @param {object} [options] - Optional parameters.
-     * @param {object} [options.children=null] - For internal use, to set the immediate children of this group.
-     * If `null`, this is determined by reading the `file` at `name`.
+     * @param {string} name - Name of the group inside the file.
      */
-    constructor(file, name, { children = null } = {}) {
+    constructor(file, name, { newlyCreated = false } = {}) {
         super(file, name);
 
-        if (children === null) {
+        if (newlyCreated) {
+            this.#children = {};
+            this.set_attributes([]);
+        } else {
             let x = wasm.call(module => new module.H5GroupDetails(file, name));
             try {
-                let child_names = unpack_strings(x.buffer(), x.lengths());
-                let child_types = x.types();
+                let child_names = unpack_strings(x.child_buffer(), x.child_lengths());
+                let child_types = x.child_types();
                 let type_options = [ "Group", "DataSet", "Other" ];
 
                 this.#children = {};
                 for (var i = 0; i < child_names.length; i++) {
                     this.#children[child_names[i]] = type_options[child_types[i]];
                 }
+
+                let unpacked = unpack_strings(x.attr_buffer(), x.attr_lengths());
+                this.set_attributes(unpacked);
             } finally {
                 x.delete();
             }
-        } else {
-            this.#children = children;
         }
     }
 
@@ -201,7 +338,7 @@ export class H5Group extends H5Base {
         } else {
             wasm.call(module => module.create_hdf5_group(this.file, new_name));
             this.children[name] = "Group";
-            return new H5Group(this.file, new_name, { children: {} });
+            return new H5Group(this.file, new_name, { newlyCreated: true });
         }
     }
 
@@ -247,7 +384,7 @@ export class H5Group extends H5Base {
         }
 
         this.children[name] = "DataSet";
-        return new H5DataSet(this.file, new_name, { type: type, shape: shape });
+        return new H5DataSet(this.file, new_name, { newlyCreated: true, type: type, shape: shape });
     }
 
     /**
@@ -268,48 +405,36 @@ export class H5Group extends H5Base {
      * @param {Array} [options.chunks=null] - Array containing the chunk dimensions.
      * This should have length equal to `shape`, with each value being no greater than the corresponding value of `shape`.
      * If `null`, it defaults to `shape`.
+     * @param {boolean} [options.cache=false] - Whether to cache the written values in the returned {@linkplain H5DataSet} object.
      *
      * @return {H5DataSet} A dataset of the specified type and shape is created as an immediate child of the current group.
      * Then it is and filled with the contents of `x`.
      * A {@linkplain H5DataSet} object is returned representing this new dataset.
      */
-     writeDataSet(name, type, shape, x, { compression = 6, chunks = null } = {}) {
+     writeDataSet(name, type, shape, x, { compression = 6, chunks = null, cache = false } = {}) {
         if (x === null) {
             throw new Error("cannot write 'null' to HDF5"); 
         }
 
-        if (shape === null) {
-            if (typeof x == "string" || typeof x == "number") {
-                x = [x];
-                shape = []; // scalar, I guess.
-            } else {
-                shape = [x.length];
-            }
-        } else {
-            x = check_shape(x, shape);
-        }
+        let guessed = guess_shape(x, shape);
+        x = guessed.x;
+        shape = guessed.shape;
 
         let handle;
         if (type == "String") {
             let [ lengths, buffer ] = repack_strings(x);
             try {
-                let maxlen = 0;
-                lengths.array().forEach(y => {
-                    if (maxlen < y) {
-                        maxlen = y;
-                    }
-                });
-
+                let maxlen = fetch_max_string_length(lengths);
                 handle = this.createDataSet(name, "String", shape, { maxStringLength: maxlen, compression: compression, chunks: chunks });
                 wasm.call(module => module.write_string_hdf5_dataset(handle.file, handle.name, lengths.length, lengths.offset, buffer.offset));
-
             } finally {
                 utils.free(lengths);
                 utils.free(buffer);
             }
+            handle.cache_loaded(x, cache);
         } else {
             handle = this.createDataSet(name, type, shape, { compression: compression, chunks: chunks });
-            handle.write(x);
+            handle.write(x, { cache: cache });
         }
 
         return handle;
@@ -324,12 +449,9 @@ export class H5Group extends H5Base {
 export class H5File extends H5Group {
     /**
      * @param {string} file - Path to the HDF5 file.
-     * @param {object} [options] - Optional parameters.
-     * @param {object} [options.children=null] - For internal use, to set the immediate children of the file.
-     * If `null`, this is determined by reading the `file`.
      */
-    constructor(file, { children = null } = {}) {
-        super(file, "/", { children: children });
+    constructor(file, options = {}) {
+        super(file, "/", options);
     }
 }
 
@@ -343,7 +465,7 @@ export class H5File extends H5Group {
  */
 export function createNewHDF5File(path) {
     wasm.call(module => module.create_hdf5_file(path));
-    return new H5File(path, { children: {} });
+    return new H5File(path, { newlyCreated: true });
 }
 
 /**
@@ -361,6 +483,7 @@ export class H5DataSet extends H5Base {
         let vals;
         let type;
         let shape;
+        let attr;
 
         let x = wasm.call(module => new module.LoadedH5DataSet(file, name));
         try {
@@ -376,35 +499,43 @@ export class H5DataSet extends H5Base {
             }
 
             shape = Array.from(x.shape());
+            attr = unpack_strings(x.attr_buffer(), x.attr_lengths());
         } finally {
             x.delete();
         }
 
-        return { "values": vals, "type": type, "shape": shape };
+        return { 
+            "values": vals, 
+            "type": type, 
+            "shape": shape, 
+            "attributes": attr
+        };
     }
 
     /**
      * @param {string} file - Path to the HDF5 file.
-     * @param {string} name - Name of the object inside the file.
+     * @param {string} name - Name of the dataset inside the file.
      * @param {object} [options] - Optional parameters.
      * @param {boolean} [options.load=false] - Whether or not to load the contents of the dataset in the constructor.
      * If `false`, the contents can be loaded later with {@linkcode H5DataSet#load load}.
-     * @param {Array} [options.shape=null] - For internal use, to set the dimensions of the dataset.
-     * If `null`, this is determined by reading the `file` at `name`.
-     * @param {Array} [options.type=null] - For internal use, to set the type of the dataset.
-     * If `null`, this is determined by reading the `file` at `name`.
-     * @param {Array} [options.shape=null] - For internal use, to set the values of the dataset.
      */
-    constructor(file, name, { load = false, shape = null, type = null, values = null } = {}) {
+    constructor(file, name, { load = false, newlyCreated = false, shape = null, type = null, values = null } = {}) {
         super(file, name);
 
-        if (shape === null && type === null) {
+        if (newlyCreated) {
+            this.#shape = shape;
+            this.#type = type;
+            this.#values = values;
+            this.#loaded = (values !== null);
+            this.set_attributes([]);
+        } else {
             if (!load) {
                 let x = wasm.call(module => new module.H5DataSetDetails(file, name));
                 try {
                     this.#type = x.type();
                     this.#shape = Array.from(x.shape());
                     this.#values = null;
+                    this.set_attributes(unpack_strings(x.attr_buffer(), x.attr_lengths()));
                 } finally {
                     x.delete();
                 }
@@ -413,13 +544,9 @@ export class H5DataSet extends H5Base {
                 this.#type = deets.type;
                 this.#shape = deets.shape;
                 this.#values = deets.values;
+                this.set_attributes(deets.attributes);
             }
             this.#loaded = load;
-        } else {
-            this.#shape = shape;
-            this.#type = type;
-            this.#values = values;
-            this.#loaded = (values !== null);
         }
     }
 
@@ -475,6 +602,16 @@ export class H5DataSet extends H5Base {
         return this.#values;
     }
 
+    cache_loaded(x, cache) { // internal use only.
+        if (cache) {
+            this.#values = x.slice();
+            this.#loaded = true;
+        } else {
+            this.#loaded = false;
+            this.#values = null;
+        }
+    }
+
     /**
      * @param {(Array|TypedArray|number|string)} x - Values to write to the dataset.
      * This should be of length equal to the product of {@linkcode H5DataSet#shape shape};
@@ -500,34 +637,13 @@ export class H5DataSet extends H5Base {
                 utils.free(buffer);
                 utils.free(lengths);
             }
-
-            if (cache) {
-                this.#values = x.slice();
-                this.#loaded = true;
-            } else {
-                this.#loaded = false;
-                this.#values = null;
-            }
+            this.cache_loaded(x, cache);
         } else {
-            if (Array.isArray(x)) {
-                // no strings allowed!
-                for (const x0 of x) {
-                    if (typeof x0 === "string") {
-                        throw new Error("'x' should not contain any strings for a non-string HDF5 dataset");
-                    }
-                }
-            }
+            forbid_strings(x);
             let y = utils.wasmifyArray(x, null);
-
             try {
                 wasm.call(module => module.write_numeric_hdf5_dataset(this.file, this.name, y.constructor.className, y.offset));
-                if (cache) {
-                    this.#values = y.slice();
-                    this.#loaded = true;
-                } else {
-                    this.#loaded = false;
-                    this.#values = null;
-                }
+                this.cache_loaded(y, cache);
             } finally {
                 y.free();
             }
