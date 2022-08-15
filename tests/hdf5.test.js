@@ -126,20 +126,41 @@ test("HDF5 dataset loading works as expected", () => {
     expect(compare.equalArrays(z2.contents, z)).toBe(true);
 });
 
-test("HDF5 creation works as expected", () => {
+test("HDF5 group creation works as expected", () => {
     const path = dir + "/test.write.h5";
     purge(path)
 
     // Nested group creation works.
     let fhandle = scran.createNewHDF5File(path);
+    expect(fhandle.children).toEqual({});
+
     let ghandle = fhandle.createGroup("foo");
+    expect(fhandle.children).toEqual({ "foo": "Group" });
+
     let ghandle2 = ghandle.createGroup("bar");
+    expect(ghandle.children).toEqual({ "bar": "Group" });
 
     // No-ops when the group already exists.
     {
         let ghandle3 = fhandle.createGroup("foo");
         expect("bar" in ghandle3.children).toBe(true);
     }
+
+    // Check that we get the same result with a fresh handle.
+    let rehandle = new scran.H5File(path);
+    expect(rehandle.children).toEqual({ "foo": "Group" });
+
+    let reghandle = rehandle.open("foo");
+    expect(reghandle.children).toEqual({ "bar": "Group" });
+})
+
+test("HDF5 numeric dataset creation works as expected", () => {
+    const path = dir + "/test.write.h5";
+    purge(path)
+
+    let fhandle = scran.createNewHDF5File(path);
+    let ghandle = fhandle.createGroup("foo");
+    let ghandle2 = ghandle.createGroup("bar");
 
     // Creation of numeric datasets works correctly.
     let add_dataset = (name, constructor, type, shape) => {
@@ -151,6 +172,7 @@ test("HDF5 creation works as expected", () => {
 
         let dhandle = ghandle2.createDataSet(name, type, shape);
         dhandle.write(src);
+        expect(ghandle2.children[name]).toBe("DataSet");
 
         // We get back what we put in.
         {
@@ -193,9 +215,7 @@ test("HDF5 creation works as expected", () => {
 
     // Verifying everything landed in the right place.
     let fhandle_ = new scran.H5File(path);
-    expect(fhandle_.children["foo"]).toBe("Group");
     let ghandle_ = fhandle_.open("foo");
-    expect(ghandle_.children["bar"]).toBe("Group");
     let ghandle2_ = ghandle_.open("bar");
     expect(ghandle2_.children["u8"]).toBe("DataSet");
 
@@ -225,7 +245,7 @@ test("HDF5 creation works as expected", () => {
     expect(() => ghandle.writeDataSet("stuffZ", "Int32", [0], null)).toThrow(/null/)
 })
 
-test("HDF5 creation works as expected (strings)", () => {
+test("HDF5 string dataset creation works as expected", () => {
     const path = dir + "/test.write.h5";
     purge(path)
 
@@ -267,7 +287,7 @@ test("HDF5 creation works as expected (strings)", () => {
     expect(content3[2]).toBe("");
 })
 
-test("HDF5 creation works as expected (64-bit)", () => {
+test("HDF5 64-bit integer dataset creation works as expected", () => {
     const path = dir + "/test.write.h5";
     purge(path)
 
