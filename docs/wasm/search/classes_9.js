@@ -1,5 +1,6 @@
 var searchData=
 [
-  ['scoremarkers_5fresults_0',['ScoreMarkers_Results',['../structScoreMarkers__Results.html',1,'']]],
-  ['singleppreference_1',['SinglePPReference',['../classSinglePPReference.html',1,'']]]
+  ['neighborindex_0',['NeighborIndex',['../structNeighborIndex.html',1,'']]],
+  ['neighborresults_1',['NeighborResults',['../structNeighborResults.html',1,'']]],
+  ['numericmatrix_2',['NumericMatrix',['../structNumericMatrix.html',1,'']]]
 ];

@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['neighborindex_0',['NeighborIndex',['../structNeighborIndex.html',1,'']]],
-  ['neighborresults_1',['NeighborResults',['../structNeighborResults.html',1,'']]],
-  ['numericmatrix_2',['NumericMatrix',['../structNumericMatrix.html',1,'']]]
+  ['loadedh5attr_0',['LoadedH5Attr',['../structLoadedH5Attr.html',1,'']]],
+  ['loadedh5base_1',['LoadedH5Base',['../structLoadedH5Base.html',1,'']]],
+  ['loadedh5dataset_2',['LoadedH5DataSet',['../structLoadedH5DataSet.html',1,'']]]
 ];

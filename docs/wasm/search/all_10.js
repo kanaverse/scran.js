@@ -6,6 +6,6 @@ var searchData=
   ['thresholds_5fsums_3',['thresholds_sums',['../structPerCellQCFilters__Results.html#aa21b5e3fb3f85ee3e59a2b9559a3e45a',1,'PerCellQCFilters_Results']]],
   ['total_5fvariance_4',['total_variance',['../structPCA__Results.html#a872055cf9ad9ed625eecb476b3c5a75e',1,'PCA_Results']]],
   ['tsnestatus_5',['TsneStatus',['../structTsneStatus.html',1,'']]],
-  ['type_6',['type',['../structH5DataSetDetails.html#a7fc4fe99852aebe74c6c98315ca329df',1,'H5DataSetDetails::type()'],['../structLoadedH5DataSet.html#ae0924928e848819c2f42e13bb7e0919a',1,'LoadedH5DataSet::type()']]],
-  ['types_7',['types',['../structH5GroupDetails.html#a186d0eae4352c430d5c74de7e18716c5',1,'H5GroupDetails']]]
+  ['type_6',['type',['../structH5DataSetDetails.html#a7fc4fe99852aebe74c6c98315ca329df',1,'H5DataSetDetails::type()'],['../structLoadedH5DataSet.html#ae0924928e848819c2f42e13bb7e0919a',1,'LoadedH5DataSet::type()'],['../structLoadedH5Attr.html#a2cfe83684d24a503e773734cc26477dc',1,'LoadedH5Attr::type()']]],
+  ['type_5f_7',['type_',['../structH5DataSetDetails.html#a9270f6ff783b7d6b49b578d50f7b9f2b',1,'H5DataSetDetails::type_()'],['../structLoadedH5Base.html#aea645e467594838a86a3ab10795cf58d',1,'LoadedH5Base::type_()']]]
 ];

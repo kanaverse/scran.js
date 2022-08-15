@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['umapstatus_0',['UmapStatus',['../structUmapStatus.html',1,'']]]
+  ['scoremarkers_5fresults_0',['ScoreMarkers_Results',['../structScoreMarkers__Results.html',1,'']]],
+  ['singleppreference_1',['SinglePPReference',['../classSinglePPReference.html',1,'']]]
 ];

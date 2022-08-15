@@ -1,5 +1,7 @@
 var searchData=
 [
-  ['h5datasetdetails_0',['H5DataSetDetails',['../structH5DataSetDetails.html',1,'']]],
-  ['h5groupdetails_1',['H5GroupDetails',['../structH5GroupDetails.html',1,'']]]
+  ['clusterkmeans_5fresult_0',['ClusterKmeans_Result',['../structClusterKmeans__Result.html',1,'']]],
+  ['clustersnngraphleiden_5fresult_1',['ClusterSNNGraphLeiden_Result',['../structClusterSNNGraphLeiden__Result.html',1,'']]],
+  ['clustersnngraphmultilevel_5fresult_2',['ClusterSNNGraphMultiLevel_Result',['../structClusterSNNGraphMultiLevel__Result.html',1,'']]],
+  ['clustersnngraphwalktrap_5fresult_3',['ClusterSNNGraphWalktrap_Result',['../structClusterSNNGraphWalktrap__Result.html',1,'']]]
 ];

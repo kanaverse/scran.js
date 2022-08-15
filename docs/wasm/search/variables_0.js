@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['store_0',['store',['../structClusterSNNGraphWalktrap__Result.html#ae936ac50590c47cc9a8355918dbe7052',1,'ClusterSNNGraphWalktrap_Result::store()'],['../structClusterSNNGraphLeiden__Result.html#ac052ba2140d04d9376137f0dab32dc2a',1,'ClusterSNNGraphLeiden_Result::store()'],['../structPerCellAdtQcMetrics__Results.html#a565d3558ef6bc9ae33cdde28ac3444b9',1,'PerCellAdtQcMetrics_Results::store()']]]
+  ['attr_5fbuffer_5f_0',['attr_buffer_',['../structH5AttrDetails.html#a89414e977a3cc553b15446f3ec906ce5',1,'H5AttrDetails']]],
+  ['attr_5fruns_5f_1',['attr_runs_',['../structH5AttrDetails.html#a3dfda0632b66b8fb20e4b42edc314523',1,'H5AttrDetails']]]
 ];

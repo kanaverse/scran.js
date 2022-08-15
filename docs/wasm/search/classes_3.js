@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['integratedsingleppreferences_0',['IntegratedSinglePPReferences',['../classIntegratedSinglePPReferences.html',1,'']]]
+  ['datasethandlewriter_0',['DataSetHandleWriter',['../structDataSetHandleWriter.html',1,'']]]
 ];
