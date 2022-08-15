@@ -6,105 +6,59 @@
 #include <cstdint>
 #include <algorithm>
 
-/**
- * @file hdf5_utils.cpp
- *
- * @brief Utilities for reading and writing a HDF5 file.
- */
-
-/**
- * @brief Details about a group, including its children. 
- */
-struct H5GroupDetails {
-    /**
-     * @param file Path to a file.
-     * @param name Name of a group inside the file.
-     */
-    H5GroupDetails(std::string file, std::string name) {
-        H5::H5File handle(file, H5F_ACC_RDONLY);
-        H5::Group ghandle = handle.openGroup(name);
-
+struct H5AttrDetails {
+    void fill_attribute_names(const H5::H5Object& handle) {
         std::vector<std::string> collected;
-        size_t num = ghandle.getNumObjs();
+        size_t num = handle.getNumAttrs();
         for (size_t i = 0; i < num; ++i) {
-            auto child_name = ghandle.getObjnameByIdx(i);
-            collected.push_back(child_name);
-
-            auto child_type = ghandle.childObjType(child_name);
-            if (child_type == H5O_TYPE_GROUP) {
-                types_.push_back(0);
-            } else if (child_type == H5O_TYPE_DATASET) {
-                types_.push_back(1);
-            } else {
-                types_.push_back(2);
-            }
+            auto attr = handle.openAttribute(i);
+            collected.push_back(attr.getName());
         }
-        
-        runs_.resize(collected.size());
+
+        attr_runs_.resize(collected.size());
         size_t n = 0;
         for (size_t i = 0; i < collected.size(); ++i) {
             const auto& x = collected[i];
             n += x.size();
-            runs_[i] = x.size();
+            attr_runs_[i] = x.size();
         }
 
-        buffer_.resize(n);
+        attr_buffer_.resize(n);
         size_t i = 0;
         for (const auto& x : collected) {
             for (auto y : x) {
-                buffer_[i] = y;
+                attr_buffer_[i] = y;
                 ++i;
             }
         }
     }
 
-    /**
-     * @return An `Uint8Array` view containing the concatenated names of all objects inside the file.
-     */
-    emscripten::val buffer() const {
-        return emscripten::val(emscripten::typed_memory_view(buffer_.size(), buffer_.data()));
-    }
-
-    /**
-     * @return An `Int32Array` view containing the lengths of the names,
-     * to be used to index into the view returned by `buffer()`.
-     */
-    emscripten::val lengths() const {
-        return emscripten::val(emscripten::typed_memory_view(runs_.size(), runs_.data()));
-    }
-
-    /**
-     * @return An `Int32Array` view containing the types for each child.
-     * This can either be 0 for a Group, 1 for a DataSet, or 2 for something else.
-     */
-    emscripten::val types() const {
-        return emscripten::val(emscripten::typed_memory_view(types_.size(), types_.data()));
-    }
-
-    /**
-     * @cond
-     */
-    std::vector<char> buffer_;
-    std::vector<int> runs_;
-    std::vector<int> types_;
-    /**
-     * @endcond
-     */
+    std::vector<char> attr_buffer_;
+    std::vector<int> attr_runs_;
 };
 
-std::string guess_hdf5_type(const H5::DataSet& dhandle, const H5::DataType& dtype) {
+template<class Handle>
+std::string guess_hdf5_type(const Handle& handle, const H5::DataType& dtype) {
     auto dclass = dtype.getClass();
     std::string type;
 
     if (dclass == H5T_INTEGER) {
-        {
-            H5::IntType itype(dhandle);
-            if (itype.getSign() == H5T_SGN_NONE) {
-                type += "Uint";
-            } else {
-                type += "Int";
-            }
+        bool is_unsigned = false;
+        if constexpr(std::is_same<Handle, H5::DataSet>::value) {
+            H5::IntType itype(handle);
+            is_unsigned = (itype.getSign() == H5T_SGN_NONE);
+        } else {
+            // Assume it's an attribute.
+            auto itype = handle.getIntType();
+            is_unsigned = (itype.getSign() == H5T_SGN_NONE);
         }
+
+        if (is_unsigned) {
+            type += "Uint";
+        } else {
+            type += "Int";
+        }
+
         auto isize = dtype.getSize();
         if (isize <= 1) {
             type += "8";
@@ -134,15 +88,77 @@ std::string guess_hdf5_type(const H5::DataSet& dhandle, const H5::DataType& dtyp
     return type;
 }
 
+/************* Unloaded details **************/
 
-/**
- * @brief Details about a HDF5 dataset, without loading in the data.
- */
-struct H5DataSetDetails {
-    /**
-     * @param file Path to a file.
-     * @param name Name of a dataset inside the file.
-     */
+struct H5GroupDetails : public H5AttrDetails {
+    H5GroupDetails(std::string file, std::string name) {
+        H5::H5File handle(file, H5F_ACC_RDONLY);
+        H5::Group ghandle = handle.openGroup(name);
+
+        std::vector<std::string> collected;
+        size_t num = ghandle.getNumObjs();
+        for (size_t i = 0; i < num; ++i) {
+            auto child_name = ghandle.getObjnameByIdx(i);
+            collected.push_back(child_name);
+
+            auto child_type = ghandle.childObjType(child_name);
+            if (child_type == H5O_TYPE_GROUP) {
+                child_types_.push_back(0);
+            } else if (child_type == H5O_TYPE_DATASET) {
+                child_types_.push_back(1);
+            } else {
+                child_types_.push_back(2);
+            }
+        }
+        
+        child_runs_.resize(collected.size());
+        size_t n = 0;
+        for (size_t i = 0; i < collected.size(); ++i) {
+            const auto& x = collected[i];
+            n += x.size();
+            child_runs_[i] = x.size();
+        }
+
+        child_buffer_.resize(n);
+        size_t i = 0;
+        for (const auto& x : collected) {
+            for (auto y : x) {
+                child_buffer_[i] = y;
+                ++i;
+            }
+        }
+
+        fill_attribute_names(ghandle);
+    }
+
+public:
+    emscripten::val child_buffer() const {
+        return emscripten::val(emscripten::typed_memory_view(child_buffer_.size(), child_buffer_.data()));
+    }
+
+    emscripten::val child_lengths() const {
+        return emscripten::val(emscripten::typed_memory_view(child_runs_.size(), child_runs_.data()));
+    }
+
+    emscripten::val child_types() const {
+        return emscripten::val(emscripten::typed_memory_view(child_types_.size(), child_types_.data()));
+    }
+
+    std::vector<char> child_buffer_;
+    std::vector<int> child_runs_;
+    std::vector<int> child_types_;
+
+public:
+    emscripten::val attr_buffer() const {
+        return emscripten::val(emscripten::typed_memory_view(attr_buffer_.size(), attr_buffer_.data()));
+    }
+
+    emscripten::val attr_lengths() const {
+        return emscripten::val(emscripten::typed_memory_view(attr_runs_.size(), attr_runs_.data()));
+    }
+};
+
+struct H5DataSetDetails : public H5AttrDetails {
     H5DataSetDetails(std::string file, std::string name) {
         H5::H5File handle(file, H5F_ACC_RDONLY);
         auto dhandle = handle.openDataSet(name);
@@ -156,40 +172,35 @@ struct H5DataSetDetails {
         dspace.getSimpleExtentDims(dims.data());
         shape_.insert(shape_.end(), dims.begin(), dims.end());
 
+        fill_attribute_names(dhandle);
         return;
     }
 
-    /**
-     * @return Type of the dataset - `"string"`, `"integer"`, `"float"` or `"other"`.
-     */
+public:
     std::string type() const {
         return type_;
     }
 
-    /**
-     * @return An `Int32Array` view of a vector containing the dimensions.
-     */
     emscripten::val shape() const {
         return emscripten::val(emscripten::typed_memory_view(shape_.size(), shape_.data()));        
     }
 
-    /**
-     * @cond
-     */
     std::string type_;
     std::vector<int> shape_;
-    /**
-     * @endcond
-     */
+
+public:
+    emscripten::val attr_buffer() const {
+        return emscripten::val(emscripten::typed_memory_view(attr_buffer_.size(), attr_buffer_.data()));
+    }
+
+    emscripten::val attr_lengths() const {
+        return emscripten::val(emscripten::typed_memory_view(attr_runs_.size(), attr_runs_.data()));
+    }
 };
 
-/**
- * @brief Contents of a loaded HDF5 dataset.
- */
-struct LoadedH5DataSet {
-    /**
-     * @cond
-     */
+/************* Loaded details **************/
+
+struct LoadedH5Base {
     std::string type_;
     std::vector<int> shape_;
 
@@ -210,29 +221,8 @@ struct LoadedH5DataSet {
 
     // For strings.
     std::vector<int> lengths_;
-    /**
-     * @endcond
-     */
 
-    /**
-     * @return Type of the dataset - integer, float, string or other.
-     */
-    std::string type() const {
-        return type_;
-    }
-
-    /**
-     * @return An `Int32Array` view of a vector containing the dimensions.
-     */
-    emscripten::val shape() const {
-        return emscripten::val(emscripten::typed_memory_view(shape_.size(), shape_.data()));        
-    }
-
-    /**
-     * @return A `TypedArray` view containing an integer dataset, a floating-point dataset,
-     * or a `Uint8Array` buffer with concatenated strings (see `lengths()`).
-     */
-    emscripten::val values() const {
+    emscripten::val values_() const {
         if (type_ == "Uint8") {
             return emscripten::val(emscripten::typed_memory_view(u8_data.size(), u8_data.data()));
         } else if (type_ == "Int8") {
@@ -258,107 +248,168 @@ struct LoadedH5DataSet {
         }
     }
 
-    /**
-     * @return An `Int32Array` view containing the lengths of strings in the concatenated buffer returned by `values()`.
-     * Only useful when `type()` indicates a string dataset.
-     */
+    template<class Reader, class Handle>
+    void fill_contents(const Handle& handle) {
+        auto dspace = handle.getSpace();
+        auto dtype = handle.getDataType();
+        type_ = guess_hdf5_type(handle, dtype);
+
+        int ndims = dspace.getSimpleExtentNdims();
+        std::vector<hsize_t> dims(ndims);
+        dspace.getSimpleExtentDims(dims.data());
+        shape_.insert(shape_.end(), dims.begin(), dims.end());
+
+        // Full length defaults to 1 for scalars when 'dims' is empty.
+        hsize_t full_length = 1;
+        for (auto d : dims) {
+            full_length *= d;
+        }
+
+        if (type_ == "Uint8") {
+            u8_data.resize(full_length);
+            Reader::read(handle, u8_data.data(), H5::PredType::NATIVE_UINT8);
+
+        } else if (type_ == "Int8") {
+            i8_data.resize(full_length);
+            Reader::read(handle, i8_data.data(), H5::PredType::NATIVE_INT8);
+
+        } else if (type_ == "Uint16") {
+            u16_data.resize(full_length);
+            Reader::read(handle, u16_data.data(), H5::PredType::NATIVE_UINT16);
+
+        } else if (type_ == "Int16") {
+            i16_data.resize(full_length);
+            Reader::read(handle, i16_data.data(), H5::PredType::NATIVE_INT16);
+
+        } else if (type_ == "Uint32") {
+            u32_data.resize(full_length);
+            Reader::read(handle, u32_data.data(), H5::PredType::NATIVE_UINT32);
+
+        } else if (type_ == "Int32") {
+            i32_data.resize(full_length);
+            Reader::read(handle, i32_data.data(), H5::PredType::NATIVE_INT32);
+
+        } else if (type_ == "Uint64") {
+            u64_data.resize(full_length);
+            Reader::read(handle, u64_data.data(), H5::PredType::NATIVE_DOUBLE); // see comments above about embind.
+
+        } else if (type_ == "Int64") {
+            i64_data.resize(full_length);
+            Reader::read(handle, i64_data.data(), H5::PredType::NATIVE_DOUBLE); // see comments above about embind.
+
+        } else if (type_ == "Float32") {
+            f32_data.resize(full_length);
+            Reader::read(handle, f32_data.data(), H5::PredType::NATIVE_FLOAT);
+
+        } else if (type_ == "Float64") {
+            f64_data.resize(full_length);
+            Reader::read(handle, f64_data.data(), H5::PredType::NATIVE_DOUBLE);
+
+        } else if (type_ == "String") {
+            lengths_.resize(full_length);
+
+            if (dtype.isVariableStr()) {
+                std::vector<char*> buffer(full_length);
+                Reader::read(handle, buffer.data(), dtype);
+
+                str_data.reserve(full_length); // guessing that each string is of at least length 1.
+                for (size_t i = 0; i < full_length; ++i) {
+                    std::string current(buffer[i]);
+                    lengths_[i] = current.size();
+                    str_data.insert(str_data.end(), current.begin(), current.end());
+                }
+
+                H5Dvlen_reclaim(dtype.getId(), dspace.getId(), H5P_DEFAULT, buffer.data());
+
+            } else {
+                size_t len = dtype.getSize();
+                std::vector<char> buffer(len * full_length);
+                Reader::read(handle, buffer.data(), dtype);
+
+                str_data.reserve(buffer.size()); // guessing that each string is of length 'len'.
+                auto start = buffer.data();
+                for (size_t i = 0; i < full_length; ++i, start += len) {
+                    size_t j = 0;
+                    for (; j < len && start[j] != '\0'; ++j) {}
+                    lengths_[i] = j;
+                    str_data.insert(str_data.end(), start, start + j);
+                }
+            }
+        }
+    }
+};
+
+struct LoadedH5DataSet : public LoadedH5Base, public H5AttrDetails {
+    struct Internal {
+        template<class Handle, typename T, class MemType>
+        static void read(const Handle& dhandle, T* buffer, const MemType& mem_type) {
+            dhandle.read(buffer, mem_type);            
+        }
+    };
+
+    LoadedH5DataSet(std::string path, std::string name) {
+        try {
+            H5::H5File handle(path, H5F_ACC_RDONLY);
+            auto dhandle = handle.openDataSet(name);
+            fill_contents<Internal>(dhandle);
+            fill_attribute_names(dhandle);
+        } catch (H5::Exception& e) {
+            throw std::runtime_error(e.getCDetailMsg());
+        }
+        return;
+    }
+
+public:
+    std::string type() const {
+        return type_;
+    }
+
+    emscripten::val shape() const {
+        return emscripten::val(emscripten::typed_memory_view(shape_.size(), shape_.data()));        
+    }
+
+    // Strings only.
     emscripten::val lengths() const {
         return emscripten::val(emscripten::typed_memory_view(lengths_.size(), lengths_.data()));
     }
 
-    /**
-     * @param path Path to the HDF5 file.
-     * @param name Name of a dataset inside the HDF5 file.
-     */
-    LoadedH5DataSet(std::string path, std::string name) {
+    emscripten::val values() const {
+        return values_();
+    }
+
+public:
+    emscripten::val attr_buffer() const {
+        return emscripten::val(emscripten::typed_memory_view(attr_buffer_.size(), attr_buffer_.data()));
+    }
+
+    emscripten::val attr_lengths() const {
+        return emscripten::val(emscripten::typed_memory_view(attr_runs_.size(), attr_runs_.data()));
+    }
+};
+
+struct LoadedH5Attr : public LoadedH5Base {
+    struct Internal {
+        template<class Handle, typename T, class MemType>
+        static void read(const Handle& ahandle, T* buffer, const MemType& mem_type) {
+            ahandle.read(mem_type, buffer);
+        } 
+    };
+
+    LoadedH5Attr(std::string path, std::string name, std::string attr) {
         try {
             H5::H5File handle(path, H5F_ACC_RDONLY);
 
-            auto dhandle = handle.openDataSet(name);
-            auto dspace = dhandle.getSpace();
-            auto dtype = dhandle.getDataType();
-            type_ = guess_hdf5_type(dhandle, dtype);
-
-            int ndims = dspace.getSimpleExtentNdims();
-            std::vector<hsize_t> dims(ndims);
-            dspace.getSimpleExtentDims(dims.data());
-            shape_.insert(shape_.end(), dims.begin(), dims.end());
-
-            hsize_t full_length = 1;
-            for (auto d : dims) {
-                full_length *= d;
-            }
-
-            if (type_ == "Uint8") {
-                u8_data.resize(full_length);
-                dhandle.read(u8_data.data(), H5::PredType::NATIVE_UINT8);
-
-            } else if (type_ == "Int8") {
-                i8_data.resize(full_length);
-                dhandle.read(i8_data.data(), H5::PredType::NATIVE_INT8);
-
-            } else if (type_ == "Uint16") {
-                u16_data.resize(full_length);
-                dhandle.read(u16_data.data(), H5::PredType::NATIVE_UINT16);
-
-            } else if (type_ == "Int16") {
-                i16_data.resize(full_length);
-                dhandle.read(i16_data.data(), H5::PredType::NATIVE_INT16);
-
-            } else if (type_ == "Uint32") {
-                u32_data.resize(full_length);
-                dhandle.read(u32_data.data(), H5::PredType::NATIVE_UINT32);
-
-            } else if (type_ == "Int32") {
-                i32_data.resize(full_length);
-                dhandle.read(i32_data.data(), H5::PredType::NATIVE_INT32);
-
-            } else if (type_ == "Uint64") {
-                u64_data.resize(full_length);
-                dhandle.read(u64_data.data(), H5::PredType::NATIVE_DOUBLE); // see comments above about embind.
-
-            } else if (type_ == "Int64") {
-                i64_data.resize(full_length);
-                dhandle.read(i64_data.data(), H5::PredType::NATIVE_DOUBLE); // see comments above about embind.
-
-            } else if (type_ == "Float32") {
-                f32_data.resize(full_length);
-                dhandle.read(f32_data.data(), H5::PredType::NATIVE_FLOAT);
-
-            } else if (type_ == "Float64") {
-                f64_data.resize(full_length);
-                dhandle.read(f64_data.data(), H5::PredType::NATIVE_DOUBLE);
-
-            } else if (type_ == "String") {
-                lengths_.resize(full_length);
-
-                if (dtype.isVariableStr()) {
-                    std::vector<char*> buffer(full_length);
-                    dhandle.read(buffer.data(), dtype);
-
-                    str_data.reserve(full_length); // guessing that each string is of at least length 1.
-                    for (size_t i = 0; i < full_length; ++i) {
-                        std::string current(buffer[i]);
-                        lengths_[i] = current.size();
-                        str_data.insert(str_data.end(), current.begin(), current.end());
-                    }
-
-                    H5Dvlen_reclaim(dtype.getId(), dspace.getId(), H5P_DEFAULT, buffer.data());
-
-                } else {
-                    size_t len = dtype.getSize();
-                    std::vector<char> buffer(len * full_length);
-                    dhandle.read(buffer.data(), dtype);
-
-                    str_data.reserve(buffer.size()); // guessing that each string is of length 'len'.
-                    auto start = buffer.data();
-                    for (size_t i = 0; i < full_length; ++i, start += len) {
-                        size_t j = 0;
-                        for (; j < len && start[j] != '\0'; ++j) {}
-                        lengths_[i] = j;
-                        str_data.insert(str_data.end(), start, start + j);
-                    }
-                }
+            auto child_type = handle.childObjType(name);
+            if (child_type == H5O_TYPE_GROUP) {
+                auto ghandle = handle.openGroup(name);
+                auto ahandle = ghandle.openAttribute(attr);
+                fill_contents<Internal>(ahandle);
+            } else if (child_type == H5O_TYPE_DATASET) {
+                auto dhandle = handle.openDataSet(name);
+                auto ahandle = dhandle.openAttribute(attr);
+                fill_contents<Internal>(ahandle);
+            } else {
+                throw std::runtime_error("cannot fetch attribute from unknown HDF5 object '" + name + "'");
             }
 
         } catch (H5::Exception& e) {
@@ -367,15 +418,28 @@ struct LoadedH5DataSet {
 
         return;
     }
+
+public:
+    std::string type() const {
+        return type_;
+    }
+
+    emscripten::val shape() const {
+        return emscripten::val(emscripten::typed_memory_view(shape_.size(), shape_.data()));        
+    }
+
+    // Strings only.
+    emscripten::val lengths() const {
+        return emscripten::val(emscripten::typed_memory_view(lengths_.size(), lengths_.data()));
+    }
+
+    emscripten::val values() const {
+        return values_();
+    }
 };
 
-/**
- * Create a new HDF5 file, overwriting any existing file.
- *
- * @param path Path to the new file.
- *
- * @return An empty HDF5 file is created at `path`.
- */
+/************* File creators **************/
+
 void create_hdf5_file(std::string path) {
     H5::H5File handle(path, H5F_ACC_TRUNC);
     return;
@@ -387,6 +451,96 @@ void create_hdf5_group(std::string path, std::string name) {
     return;
 }
 
+/************* Writing utilities **************/
+
+std::vector<hsize_t> process_shape(int nshape, uintptr_t shape) {
+    std::vector<hsize_t> dims(nshape);
+    auto sptr = reinterpret_cast<const int32_t*>(shape);
+    std::copy(sptr, sptr + nshape, dims.begin());
+    return dims;
+}
+
+H5::DataType choose_data_type(const std::string& type, int max_str_len) {
+    if (type == "Uint8") {
+        return H5::PredType::NATIVE_UINT8;
+    } else if (type == "Int8") {
+        return H5::PredType::NATIVE_INT8;
+    } else if (type == "Uint16") {
+        return H5::PredType::NATIVE_UINT16;
+    } else if (type == "Int16") {
+        return H5::PredType::NATIVE_INT16;
+    } else if (type == "Uint32") {
+        return H5::PredType::NATIVE_UINT32;
+    } else if (type == "Int32") {
+        return H5::PredType::NATIVE_INT32;
+    } else if (type == "Uint64") {
+        return H5::PredType::NATIVE_UINT64;
+    } else if (type == "Int64") {
+        return H5::PredType::NATIVE_INT64;
+    } else if (type == "Float32") {
+        return H5::PredType::NATIVE_FLOAT;
+   } else if (type == "Float64") {
+        return H5::PredType::NATIVE_DOUBLE;
+    } else if (type == "String") {
+        // Make sure that it is at least of length 1.
+        return H5::StrType(0, std::max(1, max_str_len));
+    } else {
+        throw std::runtime_error("unknown HDF5 data type '" + type + "'");
+    }
+    return H5::PredType::NATIVE_INT;
+}
+
+template<class Reader, class Handle>
+void write_numeric_hdf5_base(Handle& handle, const std::string& type, uintptr_t data) {
+    if (type == "Uint8WasmArray") {
+        Reader::write(handle, reinterpret_cast<const uint8_t*>(data), H5::PredType::NATIVE_UINT8);
+    } else if (type == "Int8WasmArray") {
+        Reader::write(handle, reinterpret_cast<const int8_t*>(data), H5::PredType::NATIVE_INT8);
+    } else if (type == "Uint16WasmArray") {
+        Reader::write(handle, reinterpret_cast<const uint16_t*>(data), H5::PredType::NATIVE_UINT16);
+    } else if (type == "Int16WasmArray") {
+        Reader::write(handle, reinterpret_cast<const int16_t*>(data), H5::PredType::NATIVE_INT16);
+    } else if (type == "Uint32WasmArray") {
+        Reader::write(handle, reinterpret_cast<const uint32_t*>(data), H5::PredType::NATIVE_UINT32);
+    } else if (type == "Int32WasmArray") {
+        Reader::write(handle, reinterpret_cast<const int32_t*>(data), H5::PredType::NATIVE_INT32);
+    } else if (type == "Uint64WasmArray") {
+        Reader::write(handle, reinterpret_cast<const double*>(data), H5::PredType::NATIVE_UINT64);
+    } else if (type == "Int64WasmArray") {
+        Reader::write(handle, reinterpret_cast<const double*>(data), H5::PredType::NATIVE_INT64);
+    } else if (type == "Float32WasmArray") {
+        Reader::write(handle, reinterpret_cast<const float*>(data), H5::PredType::NATIVE_FLOAT);
+    } else if (type == "Float64WasmArray") {
+        Reader::write(handle, reinterpret_cast<const double*>(data), H5::PredType::NATIVE_DOUBLE);
+    } else {
+        throw std::runtime_error(std::string("unknown supported type '") + type + "' for HDF5 writing");
+    }
+}
+
+template<class Reader, class Handle>
+void write_string_hdf5_base(Handle& handle, size_t n, uintptr_t lengths, uintptr_t buffer) {
+    auto buf_ptr = reinterpret_cast<const uint8_t*>(buffer);
+    auto len_ptr = reinterpret_cast<const int32_t*>(lengths);
+
+    auto stype = handle.getStrType();
+    if (stype.isVariableStr()) {
+        throw std::runtime_error("writing variable-length strings is not yet supported");
+    }
+
+    int32_t max_len = stype.getSize();
+    std::vector<char> temp(max_len * n);
+    auto it = temp.data();
+    for (size_t i = 0; i < n; ++i, it += max_len) {
+        std::copy(buf_ptr, buf_ptr + std::min(len_ptr[i], max_len), it);
+        buf_ptr += len_ptr[i];
+    }
+
+    Reader::write(handle, temp.data(), stype);
+    return;
+}
+
+/************* Dataset writers **************/
+
 void create_hdf5_dataset(std::string path, std::string name, std::string type, int nshape, uintptr_t shape, int max_str_len, int deflate_level, uintptr_t chunks) {
     H5::H5File handle(path, H5F_ACC_RDWR);
 
@@ -394,9 +548,7 @@ void create_hdf5_dataset(std::string path, std::string name, std::string type, i
  	H5::DSetCreatPropList plist;
 
     if (nshape) { // if zero, it's a scalar.
-        std::vector<hsize_t> dims(nshape);
-        auto sptr = reinterpret_cast<const int32_t*>(shape);
-        std::copy(sptr, sptr + nshape, dims.begin());
+        auto dims = process_shape(nshape, shape);
         dspace = H5::DataSpace(nshape, dims.data());
 
         // Checking for non-zero length, otherwise chunking will fail.
@@ -416,106 +568,127 @@ void create_hdf5_dataset(std::string path, std::string name, std::string type, i
         }
     }
 
-    H5::DataType dtype(H5::PredType::NATIVE_INT);
-    if (type == "Uint8") {
-        dtype = H5::PredType::NATIVE_UINT8;
-    } else if (type == "Int8") {
-        dtype = H5::PredType::NATIVE_INT8;
-    } else if (type == "Uint16") {
-        dtype = H5::PredType::NATIVE_UINT16;
-    } else if (type == "Int16") {
-        dtype = H5::PredType::NATIVE_INT16;
-    } else if (type == "Uint32") {
-        dtype = H5::PredType::NATIVE_UINT32;
-    } else if (type == "Int32") {
-        dtype = H5::PredType::NATIVE_INT32;
-    } else if (type == "Uint64") {
-        dtype = H5::PredType::NATIVE_UINT64;
-    } else if (type == "Int64") {
-        dtype = H5::PredType::NATIVE_INT64;
-    } else if (type == "Float32") {
-        dtype = H5::PredType::NATIVE_FLOAT;
-   } else if (type == "Float64") {
-        dtype = H5::PredType::NATIVE_DOUBLE;
-    } else if (type == "String") {
-        // Make sure that it is at least of length 1.
-        dtype = H5::StrType(0, std::max(1, max_str_len));
-    }
-
+    H5::DataType dtype = choose_data_type(type, max_str_len);
     handle.createDataSet(name, dtype, dspace, plist);
     return;
 }
 
+struct DataSetHandleWriter {
+    template<class Handle, typename T, class MemType>
+    static void write(Handle& handle, T* data, const MemType& memtype) {
+        handle.write(data, memtype);
+    }
+};
+
 void write_numeric_hdf5_dataset(std::string path, std::string name, std::string type, uintptr_t data) {
     H5::H5File handle(path, H5F_ACC_RDWR);
     auto dhandle = handle.openDataSet(name);
-
-    if (type == "Uint8WasmArray") {
-        dhandle.write(reinterpret_cast<const uint8_t*>(data), H5::PredType::NATIVE_UINT8);
-    } else if (type == "Int8WasmArray") {
-        dhandle.write(reinterpret_cast<const int8_t*>(data), H5::PredType::NATIVE_INT8);
-    } else if (type == "Uint16WasmArray") {
-        dhandle.write(reinterpret_cast<const uint16_t*>(data), H5::PredType::NATIVE_UINT16);
-    } else if (type == "Int16WasmArray") {
-        dhandle.write(reinterpret_cast<const int16_t*>(data), H5::PredType::NATIVE_INT16);
-    } else if (type == "Uint32WasmArray") {
-        dhandle.write(reinterpret_cast<const uint32_t*>(data), H5::PredType::NATIVE_UINT32);
-    } else if (type == "Int32WasmArray") {
-        dhandle.write(reinterpret_cast<const int32_t*>(data), H5::PredType::NATIVE_INT32);
-    } else if (type == "Uint64WasmArray") {
-        dhandle.write(reinterpret_cast<const double*>(data), H5::PredType::NATIVE_UINT64);
-    } else if (type == "Int64WasmArray") {
-        dhandle.write(reinterpret_cast<const double*>(data), H5::PredType::NATIVE_INT64);
-    } else if (type == "Float32WasmArray") {
-        dhandle.write(reinterpret_cast<const float*>(data), H5::PredType::NATIVE_FLOAT);
-    } else if (type == "Float64WasmArray") {
-        dhandle.write(reinterpret_cast<const double*>(data), H5::PredType::NATIVE_DOUBLE);
-    } else {
-        throw std::runtime_error(std::string("unknown supported type '") + type + "' for HDF5 writing");
-    }
-
+    write_numeric_hdf5_base<DataSetHandleWriter>(dhandle, type, data);
     return;
 }
 
 void write_string_hdf5_dataset(std::string path, std::string name, size_t n, uintptr_t lengths, uintptr_t buffer) {
-    auto buf_ptr = reinterpret_cast<const uint8_t*>(buffer);
-    auto len_ptr = reinterpret_cast<const int32_t*>(lengths);
-
     H5::H5File handle(path, H5F_ACC_RDWR);
     auto dhandle = handle.openDataSet(name);
-
-    auto stype = dhandle.getStrType();
-    if (stype.isVariableStr()) {
-        throw std::runtime_error("writing variable-length strings is not yet supported");
-    }
-
-    int32_t max_len = stype.getSize();
-    std::vector<char> temp(max_len * n);
-    auto it = temp.data();
-    for (size_t i = 0; i < n; ++i, it += max_len) {
-        std::copy(buf_ptr, buf_ptr + std::min(len_ptr[i], max_len), it);
-        buf_ptr += len_ptr[i];
-    }
-
-    dhandle.write(temp.data(), stype);
-    return;
+    write_string_hdf5_base<DataSetHandleWriter>(dhandle, n, lengths, buffer);
 }
 
-/**
- * @cond
- */
+/************* Attribute writers **************/
+
+void create_hdf5_attribute(std::string path, std::string name, std::string attr, std::string type, int nshape, uintptr_t shape, int max_str_len) {
+    try {
+        H5::H5File handle(path, H5F_ACC_RDWR);
+
+        auto creator = [&](const H5::H5Object& handle) -> void {
+            H5::DataSpace dspace;
+            if (nshape) { // if zero, it's a scalar.
+                auto dims = process_shape(nshape, shape);
+                dspace = H5::DataSpace(nshape, dims.data());
+            }
+            H5::DataType dtype = choose_data_type(type, max_str_len);
+            handle.createAttribute(attr, dtype, dspace);
+        };
+
+        auto child_type = handle.childObjType(name);
+        if (child_type == H5O_TYPE_GROUP) {
+            auto ghandle = handle.openGroup(name);
+            creator(ghandle);
+        } else if (child_type == H5O_TYPE_DATASET) {
+            auto dhandle = handle.openDataSet(name);
+            creator(dhandle);
+        } else {
+            throw std::runtime_error("cannot fetch attribute from unknown HDF5 object '" + name + "'");
+        }
+    } catch (H5::Exception& e) {
+        throw std::runtime_error(e.getCDetailMsg());
+    }
+} 
+
+struct AttributeHandleWriter {
+    template<class Handle, typename T, class MemType>
+    static void write(Handle& handle, T* data, const MemType& memtype) {
+        handle.write(memtype, data);
+    }
+};
+
+void write_numeric_hdf5_attribute(std::string path, std::string name, std::string attr, std::string type, uintptr_t data) {
+    H5::H5File handle(path, H5F_ACC_RDWR);
+
+    auto writer = [&](const H5::H5Object& handle) -> void {
+        auto ahandle = handle.openAttribute(attr);
+        write_numeric_hdf5_base<AttributeHandleWriter>(ahandle, type, data);
+    };
+
+    auto child_type = handle.childObjType(name);
+    if (child_type == H5O_TYPE_GROUP) {
+        auto ghandle = handle.openGroup(name);
+        writer(ghandle);
+    } else if (child_type == H5O_TYPE_DATASET) {
+        auto dhandle = handle.openDataSet(name);
+        writer(dhandle);
+    } else {
+        throw std::runtime_error("cannot fetch attribute from unknown HDF5 object '" + name + "'");
+    }
+}
+
+void write_string_hdf5_attribute(std::string path, std::string name, std::string attr, size_t n, uintptr_t lengths, uintptr_t buffer) {
+    H5::H5File handle(path, H5F_ACC_RDWR);
+
+    auto writer = [&](const H5::H5Object& handle) -> void {
+        auto ahandle = handle.openAttribute(attr);
+        write_string_hdf5_base<AttributeHandleWriter>(ahandle, n, lengths, buffer);
+    };
+
+    auto child_type = handle.childObjType(name);
+    if (child_type == H5O_TYPE_GROUP) {
+        auto ghandle = handle.openGroup(name);
+        writer(ghandle);
+    } else if (child_type == H5O_TYPE_DATASET) {
+        auto dhandle = handle.openDataSet(name);
+        writer(dhandle);
+    } else {
+        throw std::runtime_error("cannot fetch attribute from unknown HDF5 object '" + name + "'");
+    }
+}
+
+/************* Emscripten bindings **************/
+
 EMSCRIPTEN_BINDINGS(hdf5_utils) {
     emscripten::class_<H5GroupDetails>("H5GroupDetails")
         .constructor<std::string, std::string>()
-        .function("buffer", &H5GroupDetails::buffer)
-        .function("lengths", &H5GroupDetails::lengths)
-        .function("types", &H5GroupDetails::types)
+        .function("child_buffer", &H5GroupDetails::child_buffer)
+        .function("child_lengths", &H5GroupDetails::child_lengths)
+        .function("child_types", &H5GroupDetails::child_types)
+        .function("attr_buffer", &H5GroupDetails::attr_buffer)
+        .function("attr_lengths", &H5GroupDetails::attr_lengths)
         ;
 
     emscripten::class_<H5DataSetDetails>("H5DataSetDetails")
         .constructor<std::string, std::string>()
         .function("type", &H5DataSetDetails::type)
         .function("shape", &H5DataSetDetails::shape)
+        .function("attr_buffer", &H5DataSetDetails::attr_buffer)
+        .function("attr_lengths", &H5DataSetDetails::attr_lengths)
         ;
 
     emscripten::class_<LoadedH5DataSet>("LoadedH5DataSet")
@@ -524,14 +697,26 @@ EMSCRIPTEN_BINDINGS(hdf5_utils) {
         .function("shape", &LoadedH5DataSet::shape)
         .function("values", &LoadedH5DataSet::values)
         .function("lengths", &LoadedH5DataSet::lengths)
+        .function("attr_buffer", &LoadedH5DataSet::attr_buffer)
+        .function("attr_lengths", &LoadedH5DataSet::attr_lengths)
+        ;
+
+    emscripten::class_<LoadedH5Attr>("LoadedH5Attr")
+        .constructor<std::string, std::string, std::string>()
+        .function("type", &LoadedH5Attr::type)
+        .function("shape", &LoadedH5Attr::shape)
+        .function("values", &LoadedH5Attr::values)
+        .function("lengths", &LoadedH5Attr::lengths)
         ;
 
    emscripten::function("create_hdf5_file", &create_hdf5_file);
-   emscripten::function("create_hdf5_dataset", &create_hdf5_dataset);
    emscripten::function("create_hdf5_group", &create_hdf5_group);
+
+   emscripten::function("create_hdf5_dataset", &create_hdf5_dataset);
    emscripten::function("write_numeric_hdf5_dataset", &write_numeric_hdf5_dataset);
    emscripten::function("write_string_hdf5_dataset", &write_string_hdf5_dataset);
+
+   emscripten::function("create_hdf5_attribute", &create_hdf5_attribute);
+   emscripten::function("write_numeric_hdf5_attribute", &write_numeric_hdf5_attribute);
+   emscripten::function("write_string_hdf5_attribute", &write_string_hdf5_attribute);
 }
-/**
- * @endcond
- */
