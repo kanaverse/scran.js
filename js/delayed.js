@@ -92,3 +92,34 @@ export function delayedMath(x, operation, { logBase = null, inPlace = false } = 
 
     return target;
 }
+
+/**
+ * Transpose a {@linkplain ScranMatrix} object.
+ *
+ * @param {ScranMatrix} x - A ScranMatrix object.
+ * @param {object} [options] - Optional parameters.
+ * @param {boolean} [options.inPlace=false] - Whether to modify `x` in place.
+ * If `false`, a new ScranMatrix is returned.
+ *
+ * @return {ScranMatrix} A ScranMatrix containing the transposition of `x`.
+ * If `inPlace = true`, this is a reference to `x`, otherwise it is a new ScranMatrix.
+ */
+export function transpose(x, { inPlace = false } = {}) {
+    let xcopy;
+    let target;
+
+    try {
+        if (inPlace) {
+            target = x;
+        } else {
+            xcopy = x.clone();
+            target = xcopy;
+        }
+        wasm.call(module => module.transpose(target.matrix));
+    } catch (e) {
+        utils.free(xcopy);
+        throw e;
+    }
+
+    return target;
+}

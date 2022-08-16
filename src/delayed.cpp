@@ -129,8 +129,15 @@ void delayed_math(NumericMatrix& x, std::string op, double base) {
     }
 }
 
+void transpose(NumericMatrix& x) {
+    auto alt = tatami::make_DelayedTranspose(std::move(x.ptr));
+    x.ptr = std::move(alt);
+    return;
+}
+
 EMSCRIPTEN_BINDINGS(delayed_operations) {
     emscripten::function("delayed_arithmetic_scalar", &delayed_arithmetic_scalar);
     emscripten::function("delayed_arithmetic_vector", &delayed_arithmetic_vector);
     emscripten::function("delayed_math", &delayed_math);
+    emscripten::function("transpose", &transpose);
 }

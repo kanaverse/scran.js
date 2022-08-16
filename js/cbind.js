@@ -15,7 +15,7 @@ function harvest_matrices(x) {
  * Combine matrices by column, where all matrices contain data for the same features, in the same order.
  *
  * @param {Array} inputs - Array of one or more {@linkplain ScranMatrix} objects.
- * Any number of these may have a non-trivial row organization.
+ * All of these should have the same number and order of features.
  *
  * @return {ScranMatrix} A {@linkplain ScranMatrix} containing the matrices after combining them by column.
  */
@@ -27,6 +27,34 @@ export function cbind(inputs) {
         mat_ptrs = harvest_matrices(inputs);
         output = gc.call(
             module => module.cbind(mat_ptrs.length, mat_ptrs.offset),
+            ScranMatrix
+        );
+    } catch (e) {
+        utils.free(output);
+        throw e;
+    } finally {
+        utils.free(mat_ptrs);
+    }
+
+    return output;
+}
+
+/**
+ * Combine matrices by row, where all matrices contain data for the same cells, in the same order.
+ *
+ * @param {Array} inputs - Array of one or more {@linkplain ScranMatrix} objects.
+ * All of these should have the same number and order of cells.
+ *
+ * @return {ScranMatrix} A {@linkplain ScranMatrix} containing the matrices after combining them by row.
+ */
+export function rbind(inputs) {
+    let mat_ptrs;
+    let output;
+
+    try {
+        mat_ptrs = harvest_matrices(inputs);
+        output = gc.call(
+            module => module.rbind(mat_ptrs.length, mat_ptrs.offset),
             ScranMatrix
         );
     } catch (e) {

@@ -267,6 +267,19 @@ test("delayedMath works correctly", () => {
     mat.free();
 })
 
+test("transposition works correctly", () => {
+    let mat = simulate.simulateDenseMatrix(20, 10);
+
+    let mat2 = scran.transpose(mat);
+    expect(mat2.numberOfRows()).toBe(mat.numberOfColumns());
+    expect(mat2.numberOfColumns()).toBe(mat.numberOfRows());
+
+    expect(mat.row(0)).toEqual(mat2.column(0));
+    expect(mat.column(0)).toEqual(mat2.row(0));
+
+    mat.free();
+})
+
 test("in place editing works correctly", () => {
     var mat = simulate.simulateDenseMatrix(20, 10);
     let ref = mat.row(0);
@@ -282,6 +295,10 @@ test("in place editing works correctly", () => {
         let expected = ref.map(x => Math.abs(x - 1.2));
         expect(mat.row(0)).toEqual(expected);
     }
+
+    scran.transpose(mat, { inPlace: true });
+    expect(mat.numberOfRows()).toBe(10);
+    expect(mat.numberOfColumns()).toBe(20);
 
     mat.free();
 })

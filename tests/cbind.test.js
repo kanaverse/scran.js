@@ -26,6 +26,27 @@ test("cbind works correctly", () => {
     mat3.free();
 })
 
+test("rbind works correctly", () => {
+    var mat1 = simulate.simulateDenseMatrix(20, 15);
+    var mat2 = simulate.simulateDenseMatrix(10, 15);
+    var mat3 = simulate.simulateDenseMatrix(30, 15);
+
+    var combined = scran.rbind([mat1, mat2, mat3]);
+    expect(combined.isSparse()).toBe(false);
+    expect(combined.numberOfRows()).toBe(60);
+    expect(combined.numberOfColumns()).toBe(15);
+
+    expect(compare.equalArrays(mat1.row(0), combined.row(0))).toBe(true);
+    expect(compare.equalArrays(mat2.row(0), combined.row(20))).toBe(true);
+    expect(compare.equalArrays(mat3.row(0), combined.row(30))).toBe(true);
+
+    // Freeing all the bits and pieces.
+    combined.free();
+    mat1.free();
+    mat2.free();
+    mat3.free();
+})
+
 test("cbindWithNames works correctly (simple)", () => {
     var mat1 = simulate.simulateDenseMatrix(10, 10);
     var names1 = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"];
