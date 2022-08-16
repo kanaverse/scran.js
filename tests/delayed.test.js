@@ -57,172 +57,137 @@ test("scalar delayedArithmetic works correctly", () => {
 })
 
 test("vector delayedArithmetic works correctly for rows", () => {
-    for (var mode = 0; mode < 3; mode++) {
-        var mat;
-
-        let options = {};
-        if (mode == 0) {
-            mat = simulate.simulateDenseMatrix(20, 10);
-        } else if (mode == 1) {
-            mat = simulate.simulatePermutedMatrix(50, 100);
-        } else {
-            mat = simulate.simulatePermutedMatrix(50, 100);
-            options.isReorganized = false;
-        }
-
-        let other = [];
-        for (var i = 1; i <= mat.numberOfRows(); i++) {
-            other.push(i);
-        }
-
-        let refother = other;
-        if (options.isReorganized === false) {
-            let temp = [];
-            mat.identities().forEach(x => {
-                temp.push(other[x]);
-            });
-            refother = temp;
-        }
-
-        let refrow = mat.row(0);
-        let refcol = mat.column(0);
-
-        {
-            let newmat = scran.delayedArithmetic(mat, "+", other, options);
-            let exprow = refrow.map(x => x + refother[0]);
-            expect(newmat.row(0)).toEqual(exprow);
-            let expcol = refcol.map((x, i) => x + refother[i]);
-            expect(newmat.column(0)).toEqual(expcol);
-            newmat.free();
-        }
-
-        {
-            let newmat = scran.delayedArithmetic(mat, "*", other, options);
-            let exprow = refrow.map(x => x * refother[0]);
-            expect(newmat.row(0)).toEqual(exprow);
-            let expcol = refcol.map((x, i) => x * refother[i]);
-            expect(newmat.column(0)).toEqual(expcol);
-            newmat.free();
-        }
-
-        {
-            let newmat = scran.delayedArithmetic(mat, "/", other, options);
-            let exprow = refrow.map(x => x / refother[0]);
-            expect(newmat.row(0)).toEqual(exprow);
-            let expcol = refcol.map((x, i) => x / refother[i]);
-            expect(newmat.column(0)).toEqual(expcol);
-            newmat.free();
-        }
-
-        {
-            let newmat = scran.delayedArithmetic(mat, "/", other, { ...options, right: false });
-            let exprow = refrow.map(x => refother[0] / x);
-            expect(newmat.row(0)).toEqual(exprow);
-            let expcol = refcol.map((x, i) => refother[i] / x);
-            expect(newmat.column(0)).toEqual(expcol);
-            newmat.free();
-        }
-
-        {
-            let newmat = scran.delayedArithmetic(mat, "-", other, options);
-            let exprow = refrow.map(x => x - refother[0]);
-            expect(newmat.row(0)).toEqual(exprow);
-            let expcol = refcol.map((x, i) => x - refother[i]);
-            expect(newmat.column(0)).toEqual(expcol);
-            newmat.free();
-        }
-
-        {
-            let newmat = scran.delayedArithmetic(mat, "-", other, { ...options, right: false });
-            let exprow = refrow.map(x => refother[0] - x);
-            expect(newmat.row(0)).toEqual(exprow);
-            let expcol = refcol.map((x, i) => refother[i] - x);
-            expect(newmat.column(0)).toEqual(expcol);
-            newmat.free();
-        }
-
-        mat.free();
+    let mat = simulate.simulateDenseMatrix(20, 10);
+    let other = [];
+    for (var i = 1; i <= mat.numberOfRows(); i++) {
+        other.push(i);
     }
+
+    let refrow = mat.row(0);
+    let refcol = mat.column(0);
+
+    {
+        let newmat = scran.delayedArithmetic(mat, "+", other);
+        let exprow = refrow.map(x => x + other[0]);
+        expect(newmat.row(0)).toEqual(exprow);
+        let expcol = refcol.map((x, i) => x + other[i]);
+        expect(newmat.column(0)).toEqual(expcol);
+        newmat.free();
+    }
+
+    {
+        let newmat = scran.delayedArithmetic(mat, "*", other);
+        let exprow = refrow.map(x => x * other[0]);
+        expect(newmat.row(0)).toEqual(exprow);
+        let expcol = refcol.map((x, i) => x * other[i]);
+        expect(newmat.column(0)).toEqual(expcol);
+        newmat.free();
+    }
+
+    {
+        let newmat = scran.delayedArithmetic(mat, "/", other);
+        let exprow = refrow.map(x => x / other[0]);
+        expect(newmat.row(0)).toEqual(exprow);
+        let expcol = refcol.map((x, i) => x / other[i]);
+        expect(newmat.column(0)).toEqual(expcol);
+        newmat.free();
+    }
+
+    {
+        let newmat = scran.delayedArithmetic(mat, "/", other, { right: false });
+        let exprow = refrow.map(x => other[0] / x);
+        expect(newmat.row(0)).toEqual(exprow);
+        let expcol = refcol.map((x, i) => other[i] / x);
+        expect(newmat.column(0)).toEqual(expcol);
+        newmat.free();
+    }
+
+    {
+        let newmat = scran.delayedArithmetic(mat, "-", other);
+        let exprow = refrow.map(x => x - other[0]);
+        expect(newmat.row(0)).toEqual(exprow);
+        let expcol = refcol.map((x, i) => x - other[i]);
+        expect(newmat.column(0)).toEqual(expcol);
+        newmat.free();
+    }
+
+    {
+        let newmat = scran.delayedArithmetic(mat, "-", other, { right: false });
+        let exprow = refrow.map(x => other[0] - x);
+        expect(newmat.row(0)).toEqual(exprow);
+        let expcol = refcol.map((x, i) => other[i] - x);
+        expect(newmat.column(0)).toEqual(expcol);
+        newmat.free();
+    }
+
+    mat.free();
 })
 
 test("vector delayedArithmetic works correctly for columns", () => {
-    for (var mode = 0; mode < 3; mode++) {
-        var mat;
-
-        let options = { along: "column" };
-        if (mode == 0) {
-            mat = simulate.simulateDenseMatrix(20, 10);
-        } else if (mode == 1) {
-            mat = simulate.simulatePermutedMatrix(50, 100);
-        } else {
-            mat = simulate.simulatePermutedMatrix(50, 100);
-            options.isReorganized = false; // has no effect for columns!
-        }
-
-        let other = [];
-        for (var i = 1; i <= mat.numberOfColumns(); i++) {
-            other.push(i);
-        }
-
-        let refrow = mat.row(0);
-        let refcol = mat.column(0);
-
-        {
-            let newmat = scran.delayedArithmetic(mat, "+", other, options);
-            let exprow = refrow.map((x, i) => x + other[i]);
-            expect(newmat.row(0)).toEqual(exprow);
-            let expcol = refcol.map(x => x + other[0]);
-            expect(newmat.column(0)).toEqual(expcol);
-            newmat.free();
-        }
-
-        {
-            let newmat = scran.delayedArithmetic(mat, "*", other, options);
-            let exprow = refrow.map((x, i) => x * other[i]);
-            expect(newmat.row(0)).toEqual(exprow);
-            let expcol = refcol.map(x => x * other[0]);
-            expect(newmat.column(0)).toEqual(expcol);
-            newmat.free();
-        }
-
-        {
-            let newmat = scran.delayedArithmetic(mat, "/", other, options);
-            let exprow = refrow.map((x, i) => x / other[i]);
-            expect(newmat.row(0)).toEqual(exprow);
-            let expcol = refcol.map(x => x / other[0]);
-            expect(newmat.column(0)).toEqual(expcol);
-            newmat.free();
-        }
-
-        {
-            let newmat = scran.delayedArithmetic(mat, "/", other, { ...options, right: false });
-            let exprow = refrow.map((x, i) => other[i] / x);
-            expect(newmat.row(0)).toEqual(exprow);
-            let expcol = refcol.map(x => other[0] / x);
-            expect(newmat.column(0)).toEqual(expcol);
-            newmat.free();
-        }
-
-        {
-            let newmat = scran.delayedArithmetic(mat, "-", other, options);
-            let exprow = refrow.map((x, i) => x - other[i]);
-            expect(newmat.row(0)).toEqual(exprow);
-            let expcol = refcol.map(x => x - other[0]);
-            expect(newmat.column(0)).toEqual(expcol);
-            newmat.free();
-        }
-
-        {
-            let newmat = scran.delayedArithmetic(mat, "-", other, { ...options, right: false });
-            let exprow = refrow.map((x, i) => other[i] - x);
-            expect(newmat.row(0)).toEqual(exprow);
-            let expcol = refcol.map(x => other[0] - x);
-            expect(newmat.column(0)).toEqual(expcol);
-            newmat.free();
-        }
-
-        mat.free();
+    let mat = simulate.simulateDenseMatrix(20, 10);
+    let other = [];
+    for (var i = 1; i <= mat.numberOfColumns(); i++) {
+        other.push(i);
     }
+
+    let refrow = mat.row(0);
+    let refcol = mat.column(0);
+
+    {
+        let newmat = scran.delayedArithmetic(mat, "+", other, { along: "column" });
+        let exprow = refrow.map((x, i) => x + other[i]);
+        expect(newmat.row(0)).toEqual(exprow);
+        let expcol = refcol.map(x => x + other[0]);
+        expect(newmat.column(0)).toEqual(expcol);
+        newmat.free();
+    }
+
+    {
+        let newmat = scran.delayedArithmetic(mat, "*", other, { along: "column" });
+        let exprow = refrow.map((x, i) => x * other[i]);
+        expect(newmat.row(0)).toEqual(exprow);
+        let expcol = refcol.map(x => x * other[0]);
+        expect(newmat.column(0)).toEqual(expcol);
+        newmat.free();
+    }
+
+    {
+        let newmat = scran.delayedArithmetic(mat, "/", other, { along: "column" });
+        let exprow = refrow.map((x, i) => x / other[i]);
+        expect(newmat.row(0)).toEqual(exprow);
+        let expcol = refcol.map(x => x / other[0]);
+        expect(newmat.column(0)).toEqual(expcol);
+        newmat.free();
+    }
+
+    {
+        let newmat = scran.delayedArithmetic(mat, "/", other, { along: "column", right: false });
+        let exprow = refrow.map((x, i) => other[i] / x);
+        expect(newmat.row(0)).toEqual(exprow);
+        let expcol = refcol.map(x => other[0] / x);
+        expect(newmat.column(0)).toEqual(expcol);
+        newmat.free();
+    }
+
+    {
+        let newmat = scran.delayedArithmetic(mat, "-", other, { along: "column" });
+        let exprow = refrow.map((x, i) => x - other[i]);
+        expect(newmat.row(0)).toEqual(exprow);
+        let expcol = refcol.map(x => x - other[0]);
+        expect(newmat.column(0)).toEqual(expcol);
+        newmat.free();
+    }
+
+    {
+        let newmat = scran.delayedArithmetic(mat, "-", other, { along: "column", right: false });
+        let exprow = refrow.map((x, i) => other[i] - x);
+        expect(newmat.row(0)).toEqual(exprow);
+        let expcol = refcol.map(x => other[0] - x);
+        expect(newmat.column(0)).toEqual(expcol);
+        newmat.free();
+    }
+
+    mat.free();
 })
 
 test("delayed vector arith errors out correctly", () => {

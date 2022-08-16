@@ -44,7 +44,6 @@ export function simulateSparseData(primary, secondary, injectBigValues = false) 
     };
 }
 
-
 export function simulateMatrix(numberOfRows, numberOfColumns, density = 0.2, maxValue = 10) {
     var buffer = scran.createInt32WasmArray(numberOfRows * numberOfColumns);
     let output;
@@ -66,7 +65,7 @@ export function simulateMatrix(numberOfRows, numberOfColumns, density = 0.2, max
         buffer.free();
     }
 
-    return output;
+    return output.matrix;
 }
 
 export function simulateDenseMatrix(numberOfRows, numberOfColumns) {

@@ -48,7 +48,7 @@ test("per-cell ADT-based QC filters can be computed with blocking", () => {
         dense_buffer.array().set(out, c * ngenes);
     }
     var mat1 = scran.initializeSparseMatrixFromDenseArray(ngenes, half, dense_buffer);
-    var qc1 = scran.computePerCellAdtQcMetrics(mat1, subs);
+    var qc1 = scran.computePerCellAdtQcMetrics(mat1.matrix, subs);
     var filt1 = scran.computePerCellAdtQcFilters(qc1);
 
     for (var c = half; c < ncells; c++) {
@@ -56,7 +56,7 @@ test("per-cell ADT-based QC filters can be computed with blocking", () => {
         dense_buffer.array().set(out, (c - half) * ngenes);
     }
     var mat2 = scran.initializeSparseMatrixFromDenseArray(ngenes, half, dense_buffer);
-    var qc2 = scran.computePerCellAdtQcMetrics(mat2, subs);
+    var qc2 = scran.computePerCellAdtQcMetrics(mat2.matrix, subs);
     var filt2 = scran.computePerCellAdtQcFilters(qc2);
 
     // Comparing values.
@@ -79,10 +79,10 @@ test("per-cell ADT-based QC filters can be computed with blocking", () => {
     filt.free();
 
     dense_buffer.free(); 
-    mat1.free();
+    mat1.matrix.free();
     qc1.free();
     filt1.free();
-    mat2.free();
+    mat2.matrix.free();
     qc2.free();
     filt2.free();
 });

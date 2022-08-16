@@ -53,11 +53,11 @@ NumericMatrix cbind_with_rownames(int n, uintptr_t mats, uintptr_t names, uintpt
     auto out = tatami::bind_intersection<1>(inputs, name_ptrs);
 
     // Save the direct row indices for the first matrix.
-    auto& idx = out.second;
+    const auto& idx = out.second;
     auto idptr = reinterpret_cast<int*>(indices);
     std::copy(idx.begin(), idx.end(), idptr);
 
-    return NumericMatrix(std::move(out.first), std::move(idx));
+    return NumericMatrix(std::move(out.first));
 }
 
 /**
