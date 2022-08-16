@@ -26,9 +26,8 @@ export function validateArrayCollection(x) {
 
 /**
  * Subset each array in a collection of equilength arrays.
- * This is typically performed on the per-cell annotations after filtering in {@linkcode filterCells};
- * on the per-gene annotations to match any row reorganization (see {@linkcode ScranMatrix#isReorganized isReorganized});
- * or on the per-gene annotations to match the features in the intersection of {@linkcode cbindWithNames}, to name a few.
+ * This is typically performed on the per-cell annotations after filtering in {@linkcode filterCells},
+ * or on the per-gene annotations to match the features in the intersection of {@linkcode cbindWithNames}.
  *
  * @param {object} x - Object containing arrays or TypedArrays, see {@linkcode validateArrayCollection}.
  * @param {Array|TypedArray|WasmArray} subset - Array of indices specifing the subset to extract from each array in `x`.

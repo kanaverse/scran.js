@@ -87,7 +87,7 @@ EMSCRIPTEN_BINDINGS(NumericMatrix) {
         .function("column", &NumericMatrix::column)
         .function("identities", &NumericMatrix::identities)
         .function("reorganized", &NumericMatrix::reorganized)
-        .function("wipe_identities", &NumericMatirx::wipe_identities)
+        .function("wipe_identities", &NumericMatrix::wipe_identities)
         .function("sparse", &NumericMatrix::sparse)
         .function("clone", &NumericMatrix::clone)
         ;

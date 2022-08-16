@@ -12,7 +12,7 @@
 
 #include "tatami/tatami.hpp"
 
-NumericMatrix cbind(int n, uintptr_t mats, bool same_perm) {
+NumericMatrix cbind(int n, uintptr_t mats) {
     if (n == 0) {
         throw std::runtime_error("need at least one matrix to cbind");
     }

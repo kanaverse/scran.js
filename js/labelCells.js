@@ -174,9 +174,7 @@ function convert_reference_features(referenceFeatures, available, ref_id_buffer)
  * Specifically, a feature must be present in both datasets in order to be retained. 
  * Of those features in the intersection, only the `top` markers from each pairwise comparison are ultimately used for classification.
  *
- * Needless to say, `features` should match up to the rows of the matrix that is actually used for annotation in {@linkcode labelCells}.
- * If the test dataset is a {@linkplain ScranMatrix}, `features` should already be reorganized to match its row identities (see {@linkcode matchVectorToRowIdentities}).
- * Otherwise the row indices will not be correct in subsequent calls to {@linkcode labelCells} with a {@linkplain ScranMatrix} input. 
+ * Needless to say, `features` should match up to the rows of the {@linkplain ScranMatrix} that is actually used for annotation in {@linkcode labelCells}.
  *
  * @param {Array} features - An array of feature identifiers (usually strings) of length equal to the number of rows in the test matrix.
  * Each entry should contain the identifier for the corresponding row of the test matrix.

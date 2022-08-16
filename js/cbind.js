@@ -12,26 +12,21 @@ function harvest_matrices(x) {
 }
 
 /**
- * Combine matrices by column, where all matrices contain data for the same features.
- * This yields a combined matrix where the order of the row identities are taken from the first matrix.
- * (If necessary, subsequent matrices will be permuted by row to match the first matrix's row order.)
+ * Combine matrices by column, where all matrices contain data for the same features, in the same order.
  *
  * @param {Array} inputs - Array of one or more {@linkplain ScranMatrix} objects.
  * Any number of these may have a non-trivial row organization.
- * @param {object} [options] - Optional parameters.
- * @param {boolean} [options.assumeSame=false] - Whether to assume all matrices in `inputs` have the same order of row identities.
- * If `true`, no attempt is made to match the row order across matrices.
  *
  * @return {ScranMatrix} A {@linkplain ScranMatrix} containing the matrices after combining them by column.
  */
-export function cbind(inputs, { assumeSame = false } = {}) {
+export function cbind(inputs) {
     let mat_ptrs;
     let output;
 
     try {
         mat_ptrs = harvest_matrices(inputs);
         output = gc.call(
-            module => module.cbind(mat_ptrs.length, mat_ptrs.offset, assumeSame),
+            module => module.cbind(mat_ptrs.length, mat_ptrs.offset),
             ScranMatrix
         );
     } catch (e) {
@@ -50,7 +45,7 @@ export function cbind(inputs, { assumeSame = false } = {}) {
  * @param {Array} inputs - Array of one or more {@linkplain ScranMatrix} objects.
  * @param {Array} names - Array of length equal to `inputs`.
  * Each entry should be an Array containing the row names of the corresponding entry of `inputs`.
- * Names should correspond to the rows, so if an element of `inputs` has reorganized row identities, the array of names should be similarly reorganized to match (e.g., with {@linkcode matchVectorToRowIdentities}).
+ * Names should correspond to the rows of that entry of `inputs`.
  *
  * @return {object} An object containing:
  * - `matrix`, a {@linkplain ScranMatrix} containing the combined matrices.
