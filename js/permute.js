@@ -1,24 +1,18 @@
 import {ScranMatrix} from "./ScranMatrix.js";
 
 /**
- * Permute or subset a vector so that its values correspond the row identities of a {@linkplain ScranMatrix}.
- * This is usually applied to feature annotations that correspond to the row identities in the original dataset,
- * but need to be modified to match a {@linkplain ScranMatrix} that has a non-trivial row reorganization.
+ * Quickly slice an array to obtain a new array.
  *
- * @param {?Int32Array} x - A row identity vector, of length equal to the number of features in a ScranMatrix.
+ * @param {?Int32Array} slice - Array of indices into `values`, representing the slice to obtain.
  * If `null`, it is assumed to contain consecutive integers from `[0, values.length)`.
  * @param {(Array|TypedArray)} values - An array of values where each entry corresponds to a feature in the original order.
  *
- * @return {Array|TypedArray} A copy of `values` is returned, permuted or subsetted so that each entry corresponds to a row of `x`.
+ * @return {Array|TypedArray} An array where the `i`-th entry contains `values[slice[i]]`.
  */
-export function matchVectorToRowIdentities(x, values) {
-    if (x instanceof ScranMatrix) {
-        throw new Error("supplying a ScranMatrix is deprecated");
-    } 
-
-    if (x !== null) {
-        let copy = new values.constructor(x.length);
-        x.forEach((x, i) => {
+export function quickSliceArray(slice, values) {
+    if (slice !== null) {
+        let copy = new values.constructor(values.length);
+        slice.forEach((x, i) => {
             copy[i] = values[x];
         });
         return copy;
@@ -101,13 +95,4 @@ export function updateRowIdentities(x, old) {
     }
 
     return output;
-}
-
-// Deprecated, kept around for back compatibility as of 0.1.1.
-export function permuteVector(x, values) {
-    return matchVectorToRowIdentities(x, values);
-}
-
-export function updatePermutation(x, old) {
-    return updateRowIdentities(x, old);
 }
