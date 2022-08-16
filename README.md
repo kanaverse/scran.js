@@ -69,7 +69,8 @@ await scran.initialize({ numberOfThreads: 4 });
 // Reading in the count matrix.
 import * as fs from "fs";
 let buffer = fs.readFileSync("matrix.mtx.gz");
-let mat = scran.initializeSparseMatrixFromMatrixMarketBuffer(buffer);
+let input = scran.initializeSparseMatrixFromMatrixMarketBuffer(buffer);
+let mat = input.matrix;
 
 // Performing QC.
 let qc_metrics = scran.computePerCellQCMetrics(mat, [ /* specify mito subset here */ ]);
@@ -105,8 +106,6 @@ let markers = scran.scoreMarkers(normalized, clustering.membership());
 
 scran.terminate();
 ```
-
-Note that the order of rows is permuted on input - see [here](docs/related/row_permutations.md) for details.
 
 ## More documentation
 
