@@ -102,7 +102,8 @@ $(function() {
 <div class="line">// Reading in the count matrix.</div>
 <div class="line">import * as fs from &quot;fs&quot;;</div>
 <div class="line">let buffer = fs.readFileSync(&quot;matrix.mtx.gz&quot;);</div>
-<div class="line">let mat = scran.initializeSparseMatrixFromMatrixMarketBuffer(buffer);</div>
+<div class="line">let input = scran.initializeSparseMatrixFromMatrixMarketBuffer(buffer);</div>
+<div class="line">let mat = input.matrix;</div>
 <div class="line"> </div>
 <div class="line">// Performing QC.</div>
 <div class="line">let qc_metrics = scran.computePerCellQCMetrics(mat, [ /* specify mito subset here */ ]);</div>
@@ -137,8 +138,7 @@ $(function() {
 <div class="line">let markers = scran.scoreMarkers(normalized, clustering.membership());</div>
 <div class="line"> </div>
 <div class="line">scran.terminate();</div>
-</div><!-- fragment --><p >Note that the order of rows is permuted on input - see here for details.</p>
-<h1>More documentation</h1>
+</div><!-- fragment --><h1>More documentation</h1>
 <p >Reference documentation for the Javascript API is available <a href="https://jkanche.github.io/scran.js">here</a>.</p>
 <p >Specific topics are discussed in more detail below:</p>
 <ul>

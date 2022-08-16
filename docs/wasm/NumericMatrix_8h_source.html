@@ -99,27 +99,30 @@ $(function() {
 <div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span> </div>
 <div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>    <span class="keywordtype">bool</span> <a class="code hl_function" href="structNumericMatrix.html#a87961b02a42a22f10fbc23992449334b">reorganized</a>() <span class="keyword">const</span>;</div>
 <div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span> </div>
-<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>    <span class="keywordtype">bool</span> <a class="code hl_function" href="structNumericMatrix.html#a0972e2d156b0e63b625ee6565f6cea8c">sparse</a>() <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span> </div>
-<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>    <a class="code hl_struct" href="structNumericMatrix.html">NumericMatrix</a> <a class="code hl_function" href="structNumericMatrix.html#a39cabb03392cc49d7ab2160b3a7a7b26">clone</a>() <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>    <span class="keywordtype">void</span> <a class="code hl_function" href="structNumericMatrix.html#ab43578a022239225d9677d87f62e38a7">wipe_identities</a>();</div>
+<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span> </div>
+<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>    <span class="keywordtype">bool</span> <a class="code hl_function" href="structNumericMatrix.html#a0972e2d156b0e63b625ee6565f6cea8c">sparse</a>() <span class="keyword">const</span>;</div>
 <div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span> </div>
-<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>    std::shared_ptr&lt;const tatami::NumericMatrix&gt; ptr;</div>
-<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span> </div>
-<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>    std::vector&lt;size_t&gt; row_ids;</div>
+<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>    <a class="code hl_struct" href="structNumericMatrix.html">NumericMatrix</a> <a class="code hl_function" href="structNumericMatrix.html#a39cabb03392cc49d7ab2160b3a7a7b26">clone</a>() <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span> </div>
+<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>    std::shared_ptr&lt;const tatami::NumericMatrix&gt; ptr;</div>
 <div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span> </div>
-<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>    <span class="keywordtype">bool</span> is_reorganized;</div>
-<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span>};</div>
-<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span> </div>
-<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>    std::vector&lt;size_t&gt; row_ids;</div>
+<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span> </div>
+<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>    <span class="keywordtype">bool</span> is_reorganized;</div>
+<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>};</div>
+<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span> </div>
+<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span><span class="preprocessor">#endif</span></div>
 <div class="ttc" id="aparallel_8h_html"><div class="ttname"><a href="parallel_8h.html">parallel.h</a></div></div>
 <div class="ttc" id="astructNumericMatrix_html"><div class="ttname"><a href="structNumericMatrix.html">NumericMatrix</a></div><div class="ttdoc">Javascript-visible interface for a matrix of doubles.</div><div class="ttdef"><b>Definition:</b> NumericMatrix.h:17</div></div>
-<div class="ttc" id="astructNumericMatrix_html_a0972e2d156b0e63b625ee6565f6cea8c"><div class="ttname"><a href="structNumericMatrix.html#a0972e2d156b0e63b625ee6565f6cea8c">NumericMatrix::sparse</a></div><div class="ttdeci">bool sparse() const</div><div class="ttdef"><b>Definition:</b> NumericMatrix.cpp:59</div></div>
+<div class="ttc" id="astructNumericMatrix_html_a0972e2d156b0e63b625ee6565f6cea8c"><div class="ttname"><a href="structNumericMatrix.html#a0972e2d156b0e63b625ee6565f6cea8c">NumericMatrix::sparse</a></div><div class="ttdeci">bool sparse() const</div><div class="ttdef"><b>Definition:</b> NumericMatrix.cpp:66</div></div>
 <div class="ttc" id="astructNumericMatrix_html_a30187703fa3ed102eedbe683071ca21a"><div class="ttname"><a href="structNumericMatrix.html#a30187703fa3ed102eedbe683071ca21a">NumericMatrix::identities</a></div><div class="ttdeci">void identities(uintptr_t values) const</div><div class="ttdef"><b>Definition:</b> NumericMatrix.cpp:49</div></div>
 <div class="ttc" id="astructNumericMatrix_html_a3501cce20e99fa6d4a1ea61c8878c141"><div class="ttname"><a href="structNumericMatrix.html#a3501cce20e99fa6d4a1ea61c8878c141">NumericMatrix::column</a></div><div class="ttdeci">void column(int c, uintptr_t values) const</div><div class="ttdef"><b>Definition:</b> NumericMatrix.cpp:43</div></div>
-<div class="ttc" id="astructNumericMatrix_html_a39cabb03392cc49d7ab2160b3a7a7b26"><div class="ttname"><a href="structNumericMatrix.html#a39cabb03392cc49d7ab2160b3a7a7b26">NumericMatrix::clone</a></div><div class="ttdeci">NumericMatrix clone() const</div><div class="ttdef"><b>Definition:</b> NumericMatrix.cpp:63</div></div>
+<div class="ttc" id="astructNumericMatrix_html_a39cabb03392cc49d7ab2160b3a7a7b26"><div class="ttname"><a href="structNumericMatrix.html#a39cabb03392cc49d7ab2160b3a7a7b26">NumericMatrix::clone</a></div><div class="ttdeci">NumericMatrix clone() const</div><div class="ttdef"><b>Definition:</b> NumericMatrix.cpp:70</div></div>
 <div class="ttc" id="astructNumericMatrix_html_a7d127d9c529a39a6858099d4bff7bfec"><div class="ttname"><a href="structNumericMatrix.html#a7d127d9c529a39a6858099d4bff7bfec">NumericMatrix::NumericMatrix</a></div><div class="ttdeci">NumericMatrix()</div><div class="ttdef"><b>Definition:</b> NumericMatrix.cpp:5</div></div>
 <div class="ttc" id="astructNumericMatrix_html_a87961b02a42a22f10fbc23992449334b"><div class="ttname"><a href="structNumericMatrix.html#a87961b02a42a22f10fbc23992449334b">NumericMatrix::reorganized</a></div><div class="ttdeci">bool reorganized() const</div><div class="ttdef"><b>Definition:</b> NumericMatrix.cpp:55</div></div>
 <div class="ttc" id="astructNumericMatrix_html_a8b56c2bd09fea326c0c28a8a0add6a6e"><div class="ttname"><a href="structNumericMatrix.html#a8b56c2bd09fea326c0c28a8a0add6a6e">NumericMatrix::row</a></div><div class="ttdeci">void row(int r, uintptr_t values) const</div><div class="ttdef"><b>Definition:</b> NumericMatrix.cpp:37</div></div>
+<div class="ttc" id="astructNumericMatrix_html_ab43578a022239225d9677d87f62e38a7"><div class="ttname"><a href="structNumericMatrix.html#ab43578a022239225d9677d87f62e38a7">NumericMatrix::wipe_identities</a></div><div class="ttdeci">void wipe_identities()</div><div class="ttdef"><b>Definition:</b> NumericMatrix.cpp:59</div></div>
 <div class="ttc" id="astructNumericMatrix_html_aca9949603c5969178a3d43eb1a352f63"><div class="ttname"><a href="structNumericMatrix.html#aca9949603c5969178a3d43eb1a352f63">NumericMatrix::nrow</a></div><div class="ttdeci">int nrow() const</div><div class="ttdef"><b>Definition:</b> NumericMatrix.cpp:29</div></div>
 <div class="ttc" id="astructNumericMatrix_html_ad21bf001b87002dcb346d9fcdd4e8a60"><div class="ttname"><a href="structNumericMatrix.html#ad21bf001b87002dcb346d9fcdd4e8a60">NumericMatrix::ncol</a></div><div class="ttdeci">int ncol() const</div><div class="ttdef"><b>Definition:</b> NumericMatrix.cpp:33</div></div>
 </div><!-- fragment --></div><!-- contents -->

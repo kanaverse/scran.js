@@ -3,7 +3,7 @@ var searchData=
   ['data_0',['data',['../classJSVector.html#a3c18b40bda4203371c5d2b5d908c5586',1,'JSVector']]],
   ['deepcopy_1',['deepcopy',['../structTsneStatus.html#aa7fb6bf1e25c46c9163f3c8e2b2f9136',1,'TsneStatus::deepcopy()'],['../structUmapStatus.html#af7b68b35aa573d4cb1fe8895000c313e',1,'UmapStatus::deepcopy()']]],
   ['delayed_5farithmetic_5fscalar_2',['delayed_arithmetic_scalar',['../delayed_8cpp.html#aa63505c90eb9f417f8bbeb75e8ebc1fa',1,'delayed.cpp']]],
-  ['delayed_5farithmetic_5fvector_3',['delayed_arithmetic_vector',['../delayed_8cpp.html#a52ebbd156ce98c856bc940d8cc92aff8',1,'delayed.cpp']]],
+  ['delayed_5farithmetic_5fvector_3',['delayed_arithmetic_vector',['../delayed_8cpp.html#a5748eddc5b234c743a3d9f3afe8effdc',1,'delayed.cpp']]],
   ['delayed_5fmath_4',['delayed_math',['../delayed_8cpp.html#ab74bff212519477be9d42075c41b1862',1,'delayed.cpp']]],
   ['delta_5fdetected_5',['delta_detected',['../structScoreMarkers__Results.html#a0d15fe0a83ecec71078cb6c891797518',1,'ScoreMarkers_Results']]],
   ['detected_6',['detected',['../structScoreMarkers__Results.html#a8705a7cd8c25f47f0460774265f90d5a',1,'ScoreMarkers_Results::detected()'],['../structPerCellQCMetrics__Results.html#aeb4cd294478c282fa053e8e8ecd0232c',1,'PerCellQCMetrics_Results::detected()'],['../structPerCellAdtQcMetrics__Results.html#ac7cf3b03fe9f3fada6710ec33b733a77',1,'PerCellAdtQcMetrics_Results::detected()']]],
