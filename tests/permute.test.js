@@ -5,7 +5,7 @@ import * as compare from "./compare.js";
 beforeAll(async () => { await scran.initialize({ localFile: true }) });
 afterAll(async () => { await scran.terminate() });
 
-test("reorganization of a vector works", () => {
+test("quick slicing of a vector works", () => {
     // Creating the source.
     let src = [];
     for (var i = 0; i < 20; i++) {
@@ -18,29 +18,13 @@ test("reorganization of a vector works", () => {
     let reorganization = sorted.map(x => x.index);
 
     // Checking whether it is consistent.
-    let permuted2 = scran.matchVectorToRowIdentities(reorganization, original);
+    let permuted2 = scran.quickSliceArray(reorganization, original);
     expect(compare.equalArrays(permuted, permuted2)).toBe(true);
+
+    // Works with null.
+    let permuted3 = scran.quickSliceArray(null, original);
+    expect(compare.equalArrays(permuted3, original)).toBe(true);
 })
-
-test("reorganization of a vector works with ScranMatrix inputs", () => {
-    // Handles array inputs.
-    let mat = simulate.simulatePermutedMatrix(50, 20);
-    expect(mat.isReorganized()).toBe(true);
-
-    let ids = [];
-    for (var i = 0; i < mat.numberOfRows(); i++) {
-        ids.push(i);
-    }
-    let redo = scran.matchVectorToRowIdentities(mat, ids);
-    expect(compare.equalArrays(mat.identities(), redo)).toBe(true);
-
-    // No-op for non-permuted matrix.
-    let dense = simulate.simulateDenseMatrix(50, 20);
-    expect(dense.isReorganized()).toBe(false);
-
-    let noop = scran.matchVectorToRowIdentities(dense, ids);
-    expect(compare.equalArrays(noop, ids)).toBe(true);
-});
 
 test("updating the reorganization works", () => {
     // Creating the source.
@@ -72,38 +56,25 @@ test("updating the reorganization works", () => {
     expect(updator2).toBe(null);
 })
 
-test("updating the reorganization works for ScranMatrix inputs", () => {
-    let mat = simulate.simulatePermutedMatrix(99, 20);
-    expect(mat.isReorganized()).toBe(true);
-
-    let linear = new Int32Array(mat.numberOfRows());
+test("updating the reorganization works with null", () => {
+    let NR = 21;
+    let linear = new Int32Array(NR);
     linear.forEach((x, i) => { linear[i] = i; });
 
-    let reperm = scran.updateRowIdentities(mat, linear);
-    let ids = mat.identities();
-    expect(compare.equalArrays(reperm, ids)).toBe(true);
-
-    // No-op for non-permuted matrix and old linear identities.
-    let dense = simulate.simulateDenseMatrix(79, 20);
-    expect(dense.isReorganized()).toBe(false);
-
-    let linear2 = new Int32Array(dense.numberOfRows());
-    linear2.forEach((x, i) => { linear2[i] = i; });
-
-    let noop = scran.updateRowIdentities(dense, linear2);
+    let noop = scran.updateRowIdentities(null, linear);
     expect(noop).toBe(null);
 
     // No-op for non-permuted matrix with non-linear identities.
     let src = [];
     let original = [];
-    for (var i = 0; i < dense.numberOfRows(); i++) {
+    for (var i = 0; i < NR; i++) {
         src.push({ index: i, sort: Math.random() });
     }
 
     let sorted = src.sort((a, b) => a.sort - b.sort);
     let random_ids = sorted.map(x => x.index);
 
-    let perm = scran.updateRowIdentities(dense, random_ids);
+    let perm = scran.updateRowIdentities(null, random_ids);
     let rescue = perm.map(i => random_ids[i]);
-    expect(compare.equalArrays(rescue, linear2)).toBe(true);
+    expect(compare.equalArrays(rescue, linear)).toBe(true);
 });

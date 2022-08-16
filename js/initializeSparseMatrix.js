@@ -14,14 +14,16 @@ import { ScranMatrix } from "./ScranMatrix.js";
  * @param {boolean} [options.layered=true] - Whether to create a layered sparse matrix, which reorders the rows of the loaded matrix for better memory efficiency.
  * If `true`, the identity of the rows in the output matrix can be determined from {@linkcode ScranMatrix#identities ScranMatrix.identities}.
  *
- * @return {ScranMatrix} 
- * If `layered = false`, a sparse matrix is returned with no reorganization of the rows.
- *
- * If `layered = true`, a layered sparse matrix is returned where rows are shuffled to enable use of smaller integer types for low-abundance genes.
+ * @return {object} An object containing:
+ * - `matrix`, a {@linkplain ScranMatrix} containing the sparse matrix data.
+ *   If `layered = true`, rows are shuffled to enable use of smaller integer types for low-abundance genes.
+ * - `row_ids`, an Int32Array specifying the identity of each row in `matrix` (i.e., the effective slicing that was applied to obtain `matrix`).
+ *   If `layered = false`, this is `null`.
  */
 export function initializeSparseMatrixFromDenseArray(numberOfRows, numberOfColumns, values, { layered = true } = {}) {
     var val_data; 
     var output;
+    var ids = null; 
 
     try {
         val_data = utils.wasmifyArray(values, null);
@@ -40,6 +42,11 @@ export function initializeSparseMatrixFromDenseArray(numberOfRows, numberOfColum
             ScranMatrix
         );
 
+        if (output.isReorganized()) {
+            ids = output.identities();
+            output.wipeIdentities();
+        }
+
     } catch (e) {
         utils.free(output);
         throw e;
@@ -48,7 +55,7 @@ export function initializeSparseMatrixFromDenseArray(numberOfRows, numberOfColum
         utils.free(val_data);
     }
 
-    return output;
+    return { "matrix": output, "row_ids": ids };
 }
 
 /**
@@ -68,16 +75,18 @@ export function initializeSparseMatrixFromDenseArray(numberOfRows, numberOfColum
  * @param {boolean} [options.layered=true] - Whether to create a layered sparse matrix, which reorders the rows of the loaded matrix for better memory efficiency.
  * If `true`, the identity of the rows in the output matrix can be determined from {@linkcode ScranMatrix#identities ScranMatrix.identities}.
  *
- * @return {ScranMatrix} 
- * If `layered = false`, a sparse matrix is returned with no reorganization of the rows.
- *
- * If `layered = true`, a layered sparse matrix is returned where rows are shuffled to enable use of smaller integer types for low-abundance genes.
+ * @return {object} An object containing:
+ * - `matrix`, a {@linkplain ScranMatrix} containing the sparse matrix data.
+ *   If `layered = true`, rows are shuffled to enable use of smaller integer types for low-abundance genes.
+ * - `row_ids`, an Int32Array specifying the identity of each row in `matrix` (i.e., the effective slicing that was applied to obtain `matrix`).
+ *   If `layered = false`, this is `null`.
  */ 
 export function initializeSparseMatrixFromCompressedVectors(numberOfRows, numberOfColumns, values, indices, pointers, { byColumn = true, layered = true } = {}) {
     var val_data;
     var ind_data;
     var indp_data;
     var output;
+    var ids = null;
 
     try {
         val_data = utils.wasmifyArray(values, null);
@@ -107,6 +116,11 @@ export function initializeSparseMatrixFromCompressedVectors(numberOfRows, number
             ScranMatrix
         );
 
+        if (output.isReorganized()) {
+            ids = output.identities();
+            output.wipeIdentities();
+        }
+
     } catch (e) {
         utils.free(output);
         throw e;
@@ -117,7 +131,7 @@ export function initializeSparseMatrixFromCompressedVectors(numberOfRows, number
         utils.free(indp_data);
     }
 
-    return output;
+    return { "matrix": output, "row_ids": ids };
 }
 
 /** 
@@ -134,14 +148,16 @@ export function initializeSparseMatrixFromCompressedVectors(numberOfRows, number
  * @param {boolean} [options.layered=true] - Whether to create a layered sparse matrix, which reorders the rows of the loaded matrix for better memory efficiency.
  * If `true`, the identity of the rows in the output matrix can be determined from {@linkcode ScranMatrix#identities ScranMatrix.identities}.
  *
- * @return {ScranMatrix} 
- * If `layered = false`, a sparse matrix is returned with no reorganization of the rows.
- *
- * If `layered = true`, a layered sparse matrix is returned where rows are shuffled to enable use of smaller integer types for low-abundance genes.
+ * @return {object} An object containing:
+ * - `matrix`, a {@linkplain ScranMatrix} containing the sparse matrix data.
+ *   If `layered = true`, rows are shuffled to enable use of smaller integer types for low-abundance genes.
+ * - `row_ids`, an Int32Array specifying the identity of each row in `matrix` (i.e., the effective slicing that was applied to obtain `matrix`).
+ *   If `layered = false`, this is `null`.
  */
 export function initializeSparseMatrixFromMatrixMarket(x, { compressed = null, layered = true } = {}) {
     var buf_data;
     var output;
+    var ids = null;
 
     try {
         compressed = convert_compressed(compressed);
@@ -158,6 +174,11 @@ export function initializeSparseMatrixFromMatrixMarket(x, { compressed = null, l
             );
         }
 
+        if (output.isReorganized()) {
+            ids = output.identities();
+            output.wipeIdentities();
+        }
+
     } catch(e) {
         utils.free(output);
         throw e;
@@ -166,7 +187,7 @@ export function initializeSparseMatrixFromMatrixMarket(x, { compressed = null, l
         utils.free(buf_data);
     }
 
-    return output;
+    return { "matrix": output, "row_ids": ids };
 }
 
 function convert_compressed(compressed) {
@@ -229,7 +250,7 @@ export function extractMatrixMarketDimensions(x, { compressed = null } = {}) {
  * Initialize a layered sparse matrix from a HDF5 file.
  *
  * @param {string} file Path to the HDF5 file.
- * For web contexts, this should be saved to the virtual filesystem.
+ * For browsers, the file should have been saved to the virtual filesystem.
  * @param {string} name Name of the dataset inside the file.
  * This can be a HDF5 Dataset for dense matrices or a HDF5 Group for sparse matrices.
  * For the latter, both H5AD and 10X-style sparse formats are supported.
@@ -237,16 +258,33 @@ export function extractMatrixMarketDimensions(x, { compressed = null } = {}) {
  * @param {boolean} [options.layered=true] - Whether to create a layered sparse matrix, which reorders the rows of the loaded matrix for better memory efficiency.
  * If `true`, the identity of the rows in the output matrix can be determined from {@linkcode ScranMatrix#identities ScranMatrix.identities}.
  *
- * @return {ScranMatrix} 
- * If `layered = false`, a sparse matrix is returned with no reorganization of the rows.
- *
- * If `layered = true`, a layered sparse matrix is returned where rows are shuffled to enable use of smaller integer types for low-abundance genes.
+ * @return {object} An object containing:
+ * - `matrix`, a {@linkplain ScranMatrix} containing the sparse matrix data.
+ *   If `layered = true`, rows are shuffled to enable use of smaller integer types for low-abundance genes.
+ * - `row_ids`, an Int32Array specifying the identity of each row in `matrix` (i.e., the effective slicing that was applied to obtain `matrix`).
+ *   If `layered = false`, this is `null`.
  */
 export function initializeSparseMatrixFromHDF5(file, name, { layered = true } = {}) {
-    return gc.call(
-        module => module.read_hdf5_matrix(file, name, layered),
-        ScranMatrix
-    );
+    var ids = null;
+    var output;
+
+    try {
+        output = gc.call(
+            module => module.read_hdf5_matrix(file, name, layered),
+            ScranMatrix
+        );
+
+        if (output.isReorganized()) {
+            ids = output.identities();
+            output.wipeIdentities();
+        }
+
+    } catch(e) {
+        utils.free(output);
+        throw e;
+    }
+
+    return { "matrix": output, "row_ids": ids };
 }
 
 /**

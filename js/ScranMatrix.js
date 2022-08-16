@@ -122,11 +122,7 @@ export class ScranMatrix {
         return this.#matrix.sparse();
     }
 
-    /**
-     * @return {boolean} Whether the ScranMatrix contains a non-trivial organization of row identities.
-     * If `true`, the row identities can be extracted from {@linkcode ScranMatrix#identities identities};
-     * otherwise, the row identities are assumed to be consecutive increasing integers from 0 up to the number of rows.
-     */
+    // Internal use only, by initialize* functions.
     isReorganized() {
         return this.#matrix.reorganized();
     }
@@ -136,18 +132,7 @@ export class ScranMatrix {
         return this.isReorganized();
     }
 
-    /**
-     * Obtain the identities of the rows of the matrix, assuming {@linkcode ScranMatrix#isReorganized isReorganized} returns `true`.
-     *
-     * @param {object} [options] - Optional parameters.
-     * @param {?Int32WasmArray} [options.buffer=null] Buffer to extract into.
-     * If supplied, this should have length equal to {@linkcode ScranMatrix#numberOfRows numberOfRows}.
-     *
-     * @return {Int32Array} An array containing the row identities.
-     *
-     * If `buffer` was supplied, the returned array is a view into it.
-     * Note that this may be invalidated on the next allocation on the Wasm heap.
-     */
+    // Internal use only, by initialize* functions.
     identities({ buffer = null } = {}) {
         if (buffer != null) {
             this.#matrix.identities(buffer.offset);
@@ -163,5 +148,11 @@ export class ScranMatrix {
             }
             return output;
         }
+    }
+
+    // Internal use only, by initialize* functions.
+    wipeIdentities() {
+        this.#matrix.wipe_identities();
+        return;
     }
 }

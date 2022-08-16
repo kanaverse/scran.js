@@ -15,16 +15,13 @@ import * as wasm from "./wasm.js";
  * @param {string} [options.along="row"] - Whether an array-like `value` maps to the rows (`"row"`) or columns (`"column"`).
  * If rows, `value` should have length equal to `x.numberOfRows()`.
  * If columns, `value` should have length equal to `x.numberOfColumns()`.
- * @param {boolean} [options.isReorganized=true] - Whether an array-like `value` has already been reorganized to match the row identities of `x` 
- * (see {@linkcode ScranMatrix#isReorganized ScranMatrix.isReorganized} for details).
- * Only relevant if `value` is array-like and `along = "row"`.
  * @param {boolean} [options.inPlace=false] - Whether to modify `x` in place.
  * If `false`, a new ScranMatrix is returned.
  *
  * @return {ScranMatrix} A ScranMatrix containing the delayed arithmetic operation on `x`.
  * If `inPlace = true`, this is a reference to `x`, otherwise it is a new ScranMatrix.
  */
-export function delayedArithmetic(x, operation, value, { right = true, along = "row", isReorganized = true, inPlace = false } = {}) {
+export function delayedArithmetic(x, operation, value, { right = true, along = "row", inPlace = false } = {}) {
     let xcopy;
     let vbuffer;
     let target;
@@ -43,7 +40,7 @@ export function delayedArithmetic(x, operation, value, { right = true, along = "
             wasm.call(module => module.delayed_arithmetic_scalar(target.matrix, operation, right, value));
         } else {
             vbuffer = utils.wasmifyArray(value, "Float64WasmArray")
-            wasm.call(module => module.delayed_arithmetic_vector(target.matrix, operation, right, margin, vbuffer.offset, vbuffer.length, isReorganized));
+            wasm.call(module => module.delayed_arithmetic_vector(target.matrix, operation, right, margin, vbuffer.offset, vbuffer.length));
         }
 
     } catch (e) {

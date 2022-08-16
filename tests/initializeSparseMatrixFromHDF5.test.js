@@ -37,13 +37,20 @@ test("initialization from HDF5 works correctly with dense inputs", () => {
     f.close();
     
     // Ingesting it.
-    var mat = scran.initializeSparseMatrixFromHDF5(path, "stuff");
-    expect(mat.numberOfRows()).toBe(50); // Transposed; rows in HDF5 are typically samples.
-    expect(mat.numberOfColumns()).toBe(20);
+    var mat = scran.initializeSparseMatrixFromHDF5(path, "stuff", { layered: false });
+    expect(mat.matrix.numberOfRows()).toBe(50); // Transposed; rows in HDF5 are typically samples.
+    expect(mat.matrix.numberOfColumns()).toBe(20);
+    expect(mat.row_ids).toBeNull();
 
     // Checking that we're working in column-major (or row-major, in HDF5).
-    var first_col = mat.column(0);
+    var first_col = mat.matrix.column(0);
     expect(compare.equalArrays(first_col, x.slice(0, 50))).toBe(true);
+
+    var last_col = mat.matrix.column(19);
+    expect(compare.equalArrays(last_col, x.slice(19 * 50, 20 * 50))).toBe(true);
+
+    // Freeing.
+    mat.matrix.free();
 })
 
 test("initialization from HDF5 works correctly with 10X inputs", () => {
@@ -65,18 +72,18 @@ test("initialization from HDF5 works correctly with 10X inputs", () => {
 
     // Ingesting it.
     var mat = scran.initializeSparseMatrixFromHDF5(path, "foobar");
-    expect(mat.numberOfRows()).toBe(nr); 
-    expect(mat.numberOfColumns()).toBe(nc);
-    expect(mat.isReorganized()).toBe(true);
+    expect(mat.matrix.numberOfRows()).toBe(nr); 
+    expect(mat.matrix.numberOfColumns()).toBe(nc);
+    expect(mat.row_ids.length).toBe(nr);
 
-    let ids = mat.identities();
+    let ids = mat.row_ids;
     expect(compare.areIndicesConsecutive(ids)).toBe(false);
     expect(compare.areIndicesConsecutive(ids.slice().sort())).toBe(true);
 
     var raw_mat = scran.initializeSparseMatrixFromHDF5(path, "foobar", { layered: false });
-    expect(raw_mat.numberOfRows()).toBe(nr); 
-    expect(raw_mat.numberOfColumns()).toBe(nc);
-    expect(raw_mat.isReorganized()).toBe(false);
+    expect(raw_mat.matrix.numberOfRows()).toBe(nr); 
+    expect(raw_mat.matrix.numberOfColumns()).toBe(nc);
+    expect(raw_mat.row_ids).toBeNull();
 
     // Checking that we can extract successfully.
     for (var c = 0; c < nc; c++) {
@@ -85,17 +92,18 @@ test("initialization from HDF5 works correctly with 10X inputs", () => {
         for (var j = indptrs[c]; j < indptrs[c+1]; j++) {
             ref[indices[j]] = data[j];
         }
-        expect(compare.equalArrays(raw_mat.column(c), ref)).toBe(true);
+        expect(compare.equalArrays(raw_mat.matrix.column(c), ref)).toBe(true);
 
         let lref = new Array(nr);
         ids.forEach((x, i) => {
             lref[i] = ref[x];
         });
-        expect(compare.equalArrays(mat.column(c), lref)).toBe(true);
+        expect(compare.equalArrays(mat.matrix.column(c), lref)).toBe(true);
     }
 
-    mat.free();
-    raw_mat.free();
+    // Freeing.
+    mat.matrix.free();
+    raw_mat.matrix.free();
 })
 
 test("initialization from HDF5 works correctly with H5AD inputs", () => {
@@ -120,11 +128,11 @@ test("initialization from HDF5 works correctly with H5AD inputs", () => {
 
     // Ingesting it.
     var mat = scran.initializeSparseMatrixFromHDF5(path, "layers/counts");
-    expect(mat.numberOfRows()).toBe(nr); 
-    expect(mat.numberOfColumns()).toBe(nc);
+    expect(mat.matrix.numberOfRows()).toBe(nr); 
+    expect(mat.matrix.numberOfColumns()).toBe(nc);
 
     // Checking that we can extract successfully.
-    var first_row = mat.row(0);
+    var first_row = mat.matrix.row(0);
     var ref = new Uint16Array(nc);
     for (var j = 0; j < indptrs[1]; j++) {
         ref[indices[j]] = data[j];

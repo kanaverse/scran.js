@@ -95,6 +95,8 @@ struct NumericMatrix {
      */
     bool reorganized() const;
 
+    void wipe_identities();
+
     /**
      * @return Whether the underlying matrix is sparse.
      */

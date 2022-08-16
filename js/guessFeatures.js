@@ -1,19 +1,5 @@
 import * as permute from "./permute.js";
 
-// Deprecated, kept around for back-compatibility as of 0.2.6.
-export function matchFeatureAnnotationToRowIdentities(x, featureInfo) {
-    for (const [key, val] of Object.entries(featureInfo)) {
-        featureInfo[key] = permute.matchVectorToRowIdentities(x, val);
-    }
-    return;
-}
-
-// Deprecated, kept around for back-compatibility as of 0.1.1.
-export function permuteFeatures(x, featureInfo) {
-    return matchFeatureAnnotationToRowIdentities(x, featureInfo);
-}
-
-
 /**
  * Guess the identity of the features from their names.
  *

@@ -34,18 +34,6 @@ void row_subset(NumericMatrix& matrix, uintptr_t offset, size_t length) {
     check_limit<true>(offset_ptr, length, matrix.nrow());
     auto ptr = tatami::make_DelayedSubset<0>(std::move(matrix.ptr), std::vector<int>(offset_ptr, offset_ptr + length));
     matrix.ptr = std::move(ptr);
-
-    if (matrix.is_reorganized) {
-        std::vector<size_t> remaining(length);
-        for (size_t o = 0; o < length; ++o) {
-            remaining[o] = matrix.row_ids[offset_ptr[o]];
-        }
-        matrix.row_ids = std::move(remaining);
-    } else {
-        matrix.is_reorganized = true;
-        matrix.row_ids = std::vector<size_t>(offset_ptr, offset_ptr + length);
-    }
-
     return;
 }
 
