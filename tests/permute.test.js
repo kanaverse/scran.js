@@ -21,6 +21,13 @@ test("quick slicing of a vector works", () => {
     let permuted2 = scran.quickSliceArray(reorganization, original);
     expect(compare.equalArrays(permuted, permuted2)).toBe(true);
 
+    // Works with a smaller set.
+    let subset = scran.quickSliceArray([0,2,13,1], original);
+    expect(subset[0]).toBe(original[0]);
+    expect(subset[1]).toBe(original[2]);
+    expect(subset[2]).toBe(original[13]);
+    expect(subset[3]).toBe(original[1]);
+
     // Works with null.
     let permuted3 = scran.quickSliceArray(null, original);
     expect(compare.equalArrays(permuted3, original)).toBe(true);

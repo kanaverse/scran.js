@@ -47,6 +47,10 @@ void NumericMatrix::column(int c, uintptr_t values) const {
 }
 
 void NumericMatrix::identities(uintptr_t values) const {
+    if (!is_reorganized) {
+        throw std::runtime_error("cannot retrieve identities for non-reorganized matrix");
+    } 
+
     int* buffer = reinterpret_cast<int*>(values);
     std::copy(row_ids.begin(), row_ids.end(), buffer);
     return;
