@@ -1,5 +1,25 @@
 # scran.js news
 
+## 0.5.0
+
+**New**
+
+- HDF5 handles now support reading and writing of attributes via `readAttribute()` and `writeAttribute()` methods.
+  An extra `attributes` member is available for listing the available attributes. 
+- ScranMatrix objects can be used in more delayed operations via the new `delayedArithmetic()`, `delayedMath()`, `rbind()` and `transpose()` functions.
+  All of these operations can be performed in place or can generate a new ScranMatrix.
+- Subsetting of a ScranMatrix via `subsetRows()` or `subsetColumns()` can now be done in place with the new `inPlace=` option.
+- Added a `quickSliceArray()` function to slice a (Typed)Array while preserving its type.
+
+**Changes**
+
+- The `initializeSparseMatrix*()` functions now return an object with a `row_ids=` array.
+  This makes it more explicit that a reorganization of the row identities was performed.
+- The `identities()` and `isReorganized()` methods for a ScranMatrix have been soft-deprecated; the latter will now always return `false`.
+  This simplifies downstream operations, which no longer need to preserve consistency in the identities to produce a valid ScranMatrix.
+- `updateRowIdentities()` now requires a row identity vector instead of a ScranMatrix in its first argument.
+- `matchVectorToRowIdentities()` has been removed, along with other deprecated functions based on manipulation of row identities.
+
 ## 0.4.2
 
 **New**
