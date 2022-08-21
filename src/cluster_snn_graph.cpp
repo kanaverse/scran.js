@@ -21,13 +21,9 @@ struct BuildSNNGraph_Result {
     /**
      * @cond
      **/
-    typedef std::deque<scran::BuildSNNGraph::WeightedEdge> Edges;
+    BuildSNNGraph_Result(scran::BuildSNNGraph::Results g) : graph(std::move(g)) {}
 
-    BuildSNNGraph_Result(size_t nc, Edges e) : ncells(nc), edges(std::move(e)) {}
-
-    size_t ncells;
-
-    Edges edges;
+    scran::BuildSNNGraph::Results graph;
     /**
      * @endcond
      */
@@ -69,7 +65,7 @@ BuildSNNGraph_Result build_snn_graph(const NeighborResults& neighbors, std::stri
 
     scran::BuildSNNGraph builder;
     builder.set_neighbors(k).set_weighting_scheme(chosen).set_num_threads(nthreads);
-    return BuildSNNGraph_Result(nc, builder.run(indices));
+    return BuildSNNGraph_Result(builder.run(indices));
 }
 
 /**
@@ -130,7 +126,7 @@ struct ClusterSNNGraphMultiLevel_Result {
 ClusterSNNGraphMultiLevel_Result cluster_snn_graph_multilevel(const BuildSNNGraph_Result& graph, double resolution) {
     scran::ClusterSNNGraphMultiLevel clust;
     clust.set_resolution(resolution);
-    auto output = clust.run(graph.ncells, graph.edges);
+    auto output = clust.run(graph.graph);
     return ClusterSNNGraphMultiLevel_Result(std::move(output));
 }
 
@@ -158,7 +154,7 @@ struct ClusterSNNGraphWalktrap_Result {
 ClusterSNNGraphWalktrap_Result cluster_snn_graph_walktrap(const BuildSNNGraph_Result& graph, int steps) {
     scran::ClusterSNNGraphWalktrap clust;
     clust.set_steps(steps);
-    auto output = clust.run(graph.ncells, graph.edges);
+    auto output = clust.run(graph.graph);
     return ClusterSNNGraphWalktrap_Result(std::move(output));
 }
 
@@ -182,7 +178,7 @@ struct ClusterSNNGraphLeiden_Result {
 ClusterSNNGraphLeiden_Result cluster_snn_graph_leiden(const BuildSNNGraph_Result& graph, double resolution) {
     scran::ClusterSNNGraphLeiden clust;
     clust.set_resolution(resolution);
-    auto output = clust.run(graph.ncells, graph.edges);
+    auto output = clust.run(graph.graph);
     return ClusterSNNGraphLeiden_Result(std::move(output));
 }
 

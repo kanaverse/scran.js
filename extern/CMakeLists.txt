@@ -43,35 +43,35 @@ FetchContent_MakeAvailable(tatami)
 FetchContent_Declare(
   kmeans 
   GIT_REPOSITORY https://github.com/LTLA/CppKmeans
-  GIT_TAG aed1b7ad1c4eddaf80d851fc24fb81333337bf57
+  GIT_TAG 698cd1279530675e8ea10bf58d3a1d1508fa1fb8
 )
 FetchContent_MakeAvailable(kmeans)
 
 FetchContent_Declare(
   scran 
   GIT_REPOSITORY https://github.com/LTLA/libscran
-  GIT_TAG cb4e937cd978e564855870f800eeffca21f19fc3
+  GIT_TAG 3dc38191c1f8481d5482597ab35c5f24e21d3a21
 )
 FetchContent_MakeAvailable(scran)
 
 FetchContent_Declare(
   mnncorrect 
   GIT_REPOSITORY https://github.com/LTLA/CppMnnCorrect
-  GIT_TAG 7c00002b315d6a7f9d6bead1fce307d539e911ce
+  GIT_TAG 8ae1bc5686809a9287d0a9030ffb9b99d8baf1ff
 )
 FetchContent_MakeAvailable(mnncorrect)
 
 FetchContent_Declare(
   qdtsne 
   GIT_REPOSITORY https://github.com/LTLA/qdtsne
-  GIT_TAG 9309c2e24180218363a5d898572051aa74a54377
+  GIT_TAG 72c81a00eda97cae2011abe06acce4525ecdd82a
 )
 FetchContent_MakeAvailable(qdtsne)
 
 FetchContent_Declare(
   umappp 
   GIT_REPOSITORY https://github.com/LTLA/umappp
-  GIT_TAG ebcf025444fc709c76485cbd1d943d8e13b3507b
+  GIT_TAG b65785b631c73e34008253f6dc2c04a19c8c6795
 )
 FetchContent_MakeAvailable(umappp)
 
