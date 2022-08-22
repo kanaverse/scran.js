@@ -17,7 +17,8 @@ import { ScranMatrix } from "./ScranMatrix.js";
  * @return {object} An object containing:
  * - `matrix`, a {@linkplain ScranMatrix} containing the sparse matrix data.
  *   If `layered = true`, rows are shuffled to enable use of smaller integer types for low-abundance genes.
- * - `row_ids`, an Int32Array specifying the identity of each row in `matrix` (i.e., the effective slicing that was applied to obtain `matrix`).
+ * - `row_ids`, an Int32Array specifying the identity of each row in `matrix`.
+ *   This can be interpreted as the row slicing that was applied to the original matrix to obtain `matrix`.
  *   If `layered = false`, this is `null`.
  */
 export function initializeSparseMatrixFromDenseArray(numberOfRows, numberOfColumns, values, { layered = true } = {}) {
@@ -78,7 +79,8 @@ export function initializeSparseMatrixFromDenseArray(numberOfRows, numberOfColum
  * @return {object} An object containing:
  * - `matrix`, a {@linkplain ScranMatrix} containing the sparse matrix data.
  *   If `layered = true`, rows are shuffled to enable use of smaller integer types for low-abundance genes.
- * - `row_ids`, an Int32Array specifying the identity of each row in `matrix` (i.e., the effective slicing that was applied to obtain `matrix`).
+ * - `row_ids`, an Int32Array specifying the identity of each row in `matrix`. 
+ *   This can be interpreted as the row slicing that was applied to the original matrix to obtain `matrix`.
  *   If `layered = false`, this is `null`.
  */ 
 export function initializeSparseMatrixFromCompressedVectors(numberOfRows, numberOfColumns, values, indices, pointers, { byColumn = true, layered = true } = {}) {
@@ -151,7 +153,8 @@ export function initializeSparseMatrixFromCompressedVectors(numberOfRows, number
  * @return {object} An object containing:
  * - `matrix`, a {@linkplain ScranMatrix} containing the sparse matrix data.
  *   If `layered = true`, rows are shuffled to enable use of smaller integer types for low-abundance genes.
- * - `row_ids`, an Int32Array specifying the identity of each row in `matrix` (i.e., the effective slicing that was applied to obtain `matrix`).
+ * - `row_ids`, an Int32Array specifying the identity of each row in `matrix`. 
+ *   This can be interpreted as the row slicing that was applied to the original matrix to obtain `matrix`.
  *   If `layered = false`, this is `null`.
  */
 export function initializeSparseMatrixFromMatrixMarket(x, { compressed = null, layered = true } = {}) {
@@ -261,7 +264,8 @@ export function extractMatrixMarketDimensions(x, { compressed = null } = {}) {
  * @return {object} An object containing:
  * - `matrix`, a {@linkplain ScranMatrix} containing the sparse matrix data.
  *   If `layered = true`, rows are shuffled to enable use of smaller integer types for low-abundance genes.
- * - `row_ids`, an Int32Array specifying the identity of each row in `matrix` (i.e., the effective slicing that was applied to obtain `matrix`).
+ * - `row_ids`, an Int32Array specifying the identity of each row in `matrix`. 
+ *   This can be interpreted as the row slicing that was applied to the original matrix to obtain `matrix`.
  *   If `layered = false`, this is `null`.
  */
 export function initializeSparseMatrixFromHDF5(file, name, { layered = true } = {}) {

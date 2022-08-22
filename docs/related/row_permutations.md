@@ -12,11 +12,13 @@ let mat = input.matrix;
 let ids = input.row_ids;
 ```
 
-The identities of the permuted rows are recorded in the `row_ids` property.
-This is an `Int32Array` where the `i`-th element specifies the original row index (i.e., if no permutation was applied) for the `i`-th row in `mat`,
+The identities of the permuted rows are recorded in the returned `row_ids` property.
+This is an `Int32Array` where the `i`-th element contains the row index of the hypothetical original matrix (i.e., if no permutation was applied) for the `i`-th row in the returned `matrix` property.
+In other words, slicing the rows of the original matrix by `input.row_ids` will return `input.matrix`.
 We can use this to ensure that other gene-level annotation is correctly reordered, e.g., by mapping an array of gene symbols to match up with the permuted order in the layered matrix.
 
 ```js
+// Assuming that we have a 'symb' array of gene symbols:
 let reorg_symb = [];
 ids.forEach(x => { reorg_symb.push(symb[x]); });
 
@@ -34,5 +36,5 @@ simplifying downstream book-keeping at the cost of increased memory usage.
 ```js
 let input = scran.initializeSparseMatrixFromMatrixMarketBuffer(buffer, { layered: false });
 let mat = input.matrix;
-let ids = input.row_ids; // null when layered: false.
+let ids = input.row_ids; // null when 'layered: false'.
 ```
