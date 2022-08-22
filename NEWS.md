@@ -1,5 +1,12 @@
 # scran.js news
 
+## 0.5.1
+
+**Changes**
+
+- Updated the underlying C++ libraries to their latest versions.
+  This should improve memory efficiency.
+
 ## 0.5.0
 
 **New**
