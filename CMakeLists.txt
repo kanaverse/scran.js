@@ -39,6 +39,7 @@ add_executable(
     src/subset.cpp
     src/delayed.cpp
     src/get_error_message.cpp
+    src/rds_utils.cpp
 )
 
 target_compile_options(
@@ -53,6 +54,7 @@ target_link_libraries(
     umappp
     hdf5-wasm-cpp
     singlepp
+    rds2cpp
 )
 
 target_compile_definitions(scran_wasm PRIVATE TATAMI_USE_ZLIB=1)
