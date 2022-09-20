@@ -18,7 +18,7 @@ public:
             case rds2cpp::SEXPType::LGL:
                 return "boolean";
             case rds2cpp::SEXPType::VEC:
-                return "list";
+                return "vector";
             case rds2cpp::SEXPType::S4:
                 return "S4";
             default:
@@ -93,6 +93,9 @@ private:
         }
     }
 
+    std::vector<char> string_vector_buffer_;
+    std::vector<int> string_vector_lengths_;
+
 public:
     void fill_string_vector() {
         if (ptr->type() != rds2cpp::SEXPType::STR) {
@@ -111,6 +114,9 @@ public:
     }
 
 private:
+    std::vector<char> attribute_names_buffer_;
+    std::vector<int> attribute_names_lengths_;
+
     template<class AttrClass>
     void fill_attribute_names_() {
         auto aptr = static_cast<const AttrClass*>(ptr);
@@ -231,12 +237,23 @@ public:
     }
 
 public:
-    std::vector<char> string_vector_buffer_;
-    std::vector<int> string_vector_lengths_;
+    std::string class_name() const {
+        if (ptr->type() != rds2cpp::SEXPType::S4) {
+            throw std::runtime_error("cannot return class name for non-S4 R object");
+        }
+        auto sptr = static_cast<const rds2cpp::S4Object*>(ptr);
+        return sptr->class_name;
+    }
 
-    std::vector<char> attribute_names_buffer_;
-    std::vector<int> attribute_names_lengths_;
+    std::string package_name() const {
+        if (ptr->type() != rds2cpp::SEXPType::S4) {
+            throw std::runtime_error("cannot return class name for non-S4 R object");
+        }
+        auto sptr = static_cast<const rds2cpp::S4Object*>(ptr);
+        return sptr->package_name;
+    }
 
+public:
     const rds2cpp::RObject* ptr;
 };
 
@@ -281,6 +298,7 @@ EMSCRIPTEN_BINDINGS(hdf5_utils) {
         ;
 
     emscripten::class_<RdsObject>("RdsObject")
+        .function("type", &RdsObject::type)
         .function("numeric_vector", &RdsObject::numeric_vector)
         .function("fill_string_vector", &RdsObject::fill_string_vector)
         .function("string_vector_buffer", &RdsObject::string_vector_buffer)
@@ -290,6 +308,9 @@ EMSCRIPTEN_BINDINGS(hdf5_utils) {
         .function("attribute_names_length", &RdsObject::attribute_names_lengths)
         .function("find_attribute", &RdsObject::find_attribute)
         .function("load_attribute", &RdsObject::load_attribute)
+        .function("load_list_element", &RdsObject::load_list_element)
+        .function("class_name", &RdsObject::class_name)
+        .function("package_name", &RdsObject::package_name)
         ;
 
     emscripten::function("parse_rds_from_buffer", &parse_rds_from_buffer);

@@ -3,6 +3,7 @@ export { createUint8WasmArray, createInt32WasmArray, createFloat64WasmArray, fre
 
 export * from "./initializeSparseMatrix.js";
 export * from "./hdf5.js";
+export * from "./rds.js";
 
 export * from "./permute.js";
 export * from "./guessFeatures.js";
