@@ -1,7 +1,7 @@
 import * as utils from "./utils.js";
 import * as wasm from "./wasm.js";
 import * as gc from "./gc.js";
-import * as h5 from "./hdf5.js";
+import * as packer from "./internal/pack_strings.js";
 
 /**
  * Base class for RDS objects.
@@ -58,7 +58,7 @@ export class RdsVector extends RdsObject {
             this.object.fill_attribute_names();
             let anames_buf = this.object.attribute_names_buffer();
             let anames_len = this.object.attribute_names_length();
-            return h5.unpack_strings(anames_buf, anames_len);
+            return packer.unpack_strings(anames_buf, anames_len);
         });
     }
 
@@ -103,12 +103,12 @@ export class RdsIntegerVector extends RdsVector {
 }
 
 /**
- * Logical (i.e., boolean) vector from R.
+ * Boolean (i.e., boolean) vector from R.
  *
  * @augments RdsVector 
  * @hideconstructor
  */
-export class RdsLogicalVector extends RdsVector {
+export class RdsBooleanVector extends RdsVector {
     constructor(id, raw, par) {
         super(id, raw, par);
     }
@@ -166,7 +166,7 @@ export class RdsStringVector extends RdsVector {
             this.object.fill_string_vector();
             let buf = this.object.string_vector_buffer();
             let len = this.object.string_vector_length();
-            return h5.unpack_strings(buf, len);
+            return packer.unpack_strings(buf, len);
         });
     }
 }
@@ -234,8 +234,8 @@ function dispatch(fun, par) {
         cons = RdsIntegerVector;
     } else if (tt == "double") {
         cons = RdsDoubleVector;
-    } else if (tt == "logical") {
-        cons = RdsLogicalVector;
+    } else if (tt == "boolean") {
+        cons = RdsBooleanVector;
     } else if (tt == "string") {
         cons = RdsStringVector;
     } else if (tt == "vector") {
