@@ -8,5 +8,6 @@ var searchData=
   ['write_5fnumeric_5fhdf5_5fdataset_5',['write_numeric_hdf5_dataset',['../hdf5__utils_8cpp.html#a1721b4670b0c3e3ed21b7fb6cc82064c',1,'hdf5_utils.cpp']]],
   ['write_5fstring_5fhdf5_5fattribute_6',['write_string_hdf5_attribute',['../hdf5__utils_8cpp.html#afe3bee014a030890e39f41f0d1bd153a',1,'hdf5_utils.cpp']]],
   ['write_5fstring_5fhdf5_5fbase_7',['write_string_hdf5_base',['../hdf5__utils_8cpp.html#a777fb2bea3f2e485e8cd90aea1040012',1,'hdf5_utils.cpp']]],
-  ['write_5fstring_5fhdf5_5fdataset_8',['write_string_hdf5_dataset',['../hdf5__utils_8cpp.html#a83718f1abc816b8144ca4b1ca36dd1cf',1,'hdf5_utils.cpp']]]
+  ['write_5fstring_5fhdf5_5fdataset_8',['write_string_hdf5_dataset',['../hdf5__utils_8cpp.html#a83718f1abc816b8144ca4b1ca36dd1cf',1,'hdf5_utils.cpp']]],
+  ['writer_5fversion_9',['writer_version',['../classLoadedRds.html#a6744389a6cb21b824ae84783393b143d',1,'LoadedRds']]]
 ];

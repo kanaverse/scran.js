@@ -7,6 +7,6 @@ var searchData=
   ['total_5fvariance_4',['total_variance',['../structPCA__Results.html#a872055cf9ad9ed625eecb476b3c5a75e',1,'PCA_Results']]],
   ['transpose_5',['transpose',['../delayed_8cpp.html#a3bc004aec959df162322f694fe977e0c',1,'delayed.cpp']]],
   ['tsnestatus_6',['TsneStatus',['../structTsneStatus.html',1,'']]],
-  ['type_7',['type',['../structH5DataSetDetails.html#a7fc4fe99852aebe74c6c98315ca329df',1,'H5DataSetDetails::type()'],['../structLoadedH5DataSet.html#ae0924928e848819c2f42e13bb7e0919a',1,'LoadedH5DataSet::type()'],['../structLoadedH5Attr.html#a2cfe83684d24a503e773734cc26477dc',1,'LoadedH5Attr::type()']]],
+  ['type_7',['type',['../structH5DataSetDetails.html#a7fc4fe99852aebe74c6c98315ca329df',1,'H5DataSetDetails::type()'],['../structLoadedH5DataSet.html#ae0924928e848819c2f42e13bb7e0919a',1,'LoadedH5DataSet::type()'],['../structLoadedH5Attr.html#a2cfe83684d24a503e773734cc26477dc',1,'LoadedH5Attr::type()'],['../classRdsObject.html#af1c1c939efb2bef47bc2661fb9f2e561',1,'RdsObject::type()']]],
   ['type_5f_8',['type_',['../structH5DataSetDetails.html#a9270f6ff783b7d6b49b578d50f7b9f2b',1,'H5DataSetDetails::type_()'],['../structLoadedH5Base.html#aea645e467594838a86a3ab10795cf58d',1,'LoadedH5Base::type_()']]]
 ];
