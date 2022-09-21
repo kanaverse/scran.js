@@ -1,0 +1,59 @@
+on: [push]
+
+name: Test RDS file parsing
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: rocker/rstudio:latest
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v3
+
+    - name: Build RDS files
+      run: |
+        cd tests/rds
+        R -f generate.R
+
+    - name: Upload RDS files
+      uses: actions/upload-artifact@v3
+      with:
+        name: rds-files
+        path: tests/rds/*.rds
+
+  check:
+    runs-on: ubuntu-latest
+    needs: build
+    container: ghcr.io/jkanche/scran.js/builder:latest
+    defaults:
+      run:
+        working-directory: /scran.js
+
+    steps:
+    - name: Get to the right branch
+      run: |
+        git fetch --all
+        git checkout $GITHUB_SHA
+
+    - name: Update node build
+      run: bash build.sh main
+
+    - name: Update NPM packages
+      run: npm i --include=dev
+
+    - name: Download RDS files 
+      uses: actions/download-artifact@v3
+      with:
+        name: rds-files
+        path: /scran.js/tests/rds
+
+    - name: Display structure of downloaded files
+      run: ls -R
+      working-directory: /scran.js/tests/rds
+
+    - name: Run tests
+      run: |
+        export CHECK_RDS=1
+        node --experimental-vm-modules --experimental-wasm-threads --experimental-wasm-bigint node_modules/jest/bin/jest.js --runInBand tests/rds/rds.test.js
+
