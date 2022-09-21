@@ -213,9 +213,21 @@ export class RdsS4Object extends RdsVector {
      * Name of the package that defines the class.
      */
     packageName() {
-        return wasm.call(mod => this.object.class_name());
+        return wasm.call(mod => this.object.package_name());
     }
 }
+
+/**
+ * NULL type in R.
+ *
+ * @augments RdsObject
+ * @hideconstructor
+ */
+export class RdsNull extends RdsVector {
+    constructor(id, raw, par) {
+        super(id, raw, par);
+    }
+};
 
 function dispatch(fun, par) {
     let obj = wasm.call(fun);
@@ -242,6 +254,8 @@ function dispatch(fun, par) {
         cons = RdsGenericVector;
     } else if (tt == "S4") {
         cons = RdsS4Object;
+    } else if (tt == "null") {
+        cons = RdsNull;
     } else {
         cons = RdsObject;
     }

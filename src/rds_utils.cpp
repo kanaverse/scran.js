@@ -21,6 +21,8 @@ public:
                 return "vector";
             case rds2cpp::SEXPType::S4:
                 return "S4";
+            case rds2cpp::SEXPType::NIL:
+                return "null";
             default:
                 break;
         }
@@ -142,7 +144,7 @@ public:
                 fill_attribute_names_<rds2cpp::GenericVector>();
                 break;
             case rds2cpp::SEXPType::S4:
-                fill_attribute_names_<rds2cpp::GenericVector>();
+                fill_attribute_names_<rds2cpp::S4Object>();
                 break;
             default:
                 attribute_names_lengths_.clear();
