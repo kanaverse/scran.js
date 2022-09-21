@@ -1,59 +1,6 @@
 import * as utils from "./utils.js";
 import * as wasm from "./wasm.js";
-
-function unpack_strings(buffer, lengths) {
-    let dec = new TextDecoder();
-    let names = [];
-    let sofar = 0;
-    for (const l of lengths) {
-        let view = buffer.slice(sofar, sofar + l);
-        names.push(dec.decode(view));
-        sofar += l;
-    }
-    return names;
-}
-
-function repack_strings(x) {
-    let buffer;
-    let lengths;
-
-    for (const y of x) {
-        if (!(typeof y == "string")) {
-            throw new Error("all entries of 'x' should be strings for a string HDF5 dataset");
-        }
-    }
-
-    try {
-        lengths = utils.createInt32WasmArray(x.length);
-        let lengths_arr = lengths.array();
-
-        let total = 0;
-        const enc = new TextEncoder;
-        let contents = new Array(x.length);
-
-        x.forEach((y, i) => {
-            let e = enc.encode(y);
-            lengths_arr[i] = e.length;
-            contents[i] = e;
-            total += e.length;
-        });
-
-        buffer = utils.createUint8WasmArray(total);
-        let buffer_arr = buffer.array();
-        total = 0;
-
-        contents.forEach(y => {
-            buffer_arr.set(y, total);
-            total += y.length;
-        });
-    } catch (e) {
-        utils.free(buffer);
-        utils.free(lengths);
-        throw e;
-    }
-
-    return [lengths, buffer];
-}
+import * as packer from "./internal/pack_strings.js";
 
 function check_shape(x, shape) {
     if (shape.length > 0) {
@@ -173,7 +120,7 @@ export class H5Base {
             }
 
             if (type == "String") {
-                vals = unpack_strings(x.values(), x.lengths());
+                vals = packer.unpack_strings(x.values(), x.lengths());
             } else {
                 vals = x.values().slice();
             }
@@ -222,7 +169,7 @@ export class H5Base {
         shape = guessed.shape;
 
         if (type == "String") {
-            let [ lengths, buffer ] = repack_strings(x);
+            let [ lengths, buffer ] = packer.repack_strings(x);
             try {
                 if (maxStringLength == null) {
                     maxStringLength = fetch_max_string_length(lengths);
@@ -270,7 +217,7 @@ export class H5Group extends H5Base {
         } else {
             let x = wasm.call(module => new module.H5GroupDetails(file, name));
             try {
-                let child_names = unpack_strings(x.child_buffer(), x.child_lengths());
+                let child_names = packer.unpack_strings(x.child_buffer(), x.child_lengths());
                 let child_types = x.child_types();
                 let type_options = [ "Group", "DataSet", "Other" ];
 
@@ -279,7 +226,7 @@ export class H5Group extends H5Base {
                     this.#children[child_names[i]] = type_options[child_types[i]];
                 }
 
-                let unpacked = unpack_strings(x.attr_buffer(), x.attr_lengths());
+                let unpacked = packer.unpack_strings(x.attr_buffer(), x.attr_lengths());
                 this.set_attributes(unpacked);
             } finally {
                 x.delete();
@@ -428,7 +375,7 @@ export class H5Group extends H5Base {
 
         let handle;
         if (type == "String") {
-            let [ lengths, buffer ] = repack_strings(x);
+            let [ lengths, buffer ] = packer.repack_strings(x);
             try {
                 let maxlen = fetch_max_string_length(lengths);
                 handle = this.createDataSet(name, "String", shape, { maxStringLength: maxlen, compression: compression, chunks: chunks });
@@ -499,13 +446,13 @@ export class H5DataSet extends H5Base {
             }
 
             if (type == "String") {
-                vals = unpack_strings(x.values(), x.lengths());
+                vals = packer.unpack_strings(x.values(), x.lengths());
             } else {
                 vals = x.values().slice();
             }
 
             shape = Array.from(x.shape());
-            attr = unpack_strings(x.attr_buffer(), x.attr_lengths());
+            attr = packer.unpack_strings(x.attr_buffer(), x.attr_lengths());
         } finally {
             x.delete();
         }
@@ -544,7 +491,7 @@ export class H5DataSet extends H5Base {
                     this.#type = x.type();
                     this.#shape = Array.from(x.shape());
                     this.#values = null;
-                    this.set_attributes(unpack_strings(x.attr_buffer(), x.attr_lengths()));
+                    this.set_attributes(packer.unpack_strings(x.attr_buffer(), x.attr_lengths()));
                 } finally {
                     x.delete();
                 }
@@ -639,7 +586,7 @@ export class H5DataSet extends H5Base {
         x = check_shape(x, this.shape);
 
         if (this.type == "String") {
-            let [ lengths, buffer ] = repack_strings(x);
+            let [ lengths, buffer ] = packer.repack_strings(x);
             try {
                 wasm.call(module => module.write_string_hdf5_dataset(this.file, this.name, lengths.length, lengths.offset, buffer.offset));
             } finally {

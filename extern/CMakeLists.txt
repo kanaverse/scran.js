@@ -88,3 +88,11 @@ FetchContent_Declare(
   GIT_TAG 3b0ac094f7398770018773243da990f4e9ebfbeb
 )
 FetchContent_MakeAvailable(singlepp)
+
+FetchContent_Declare(
+  rds2cpp 
+  GIT_REPOSITORY https://github.com/LTLA/rds2cpp
+  GIT_TAG e18490b6cf6646db91ff0b10d590374bdfb2a2dc
+)
+FetchContent_MakeAvailable(rds2cpp)
+
