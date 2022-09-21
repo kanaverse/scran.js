@@ -251,6 +251,7 @@ function dispatch(fun, par) {
 
 /**
  * Details of the RDS file.
+ * @hideconstructor
  */
 export class RdsDetails {
     #id;
