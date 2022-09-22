@@ -40,6 +40,7 @@ add_executable(
     src/delayed.cpp
     src/get_error_message.cpp
     src/rds_utils.cpp
+    src/initialize_from_rds.cpp
 )
 
 target_compile_options(
