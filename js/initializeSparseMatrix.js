@@ -326,3 +326,42 @@ export function initializeDenseMatrixFromDenseArray(numberOfRows, numberOfColumn
     return output;
 }
 
+/**
+ * Initialize a layered sparse matrix from an RDS file.
+ *
+ * @param {RdsObject} x - Handle to an object inside an RDS file.
+ * This should be an integer/numeric matrix, `dgCMatrix` or `dgTMatrix` object.
+ * @param {object} [options] - Optional parameters.
+ * @param {boolean} [options.consume=false] - Whether to consume the values in `x` when creating the output sparse matrix.
+ * Setting this to `true` improves memory efficiency at the cost of preventing any further use of `x`.
+ * @param {boolean} [options.layered=true] - Whether to create a layered sparse matrix, which reorders the rows of the loaded matrix for better memory efficiency.
+ *
+ * @return {object} An object containing:
+ * - `matrix`, a {@linkplain ScranMatrix} containing the sparse matrix data.
+ *   If `layered = true`, rows are shuffled to enable use of smaller integer types for low-abundance genes.
+ * - `row_ids`, an Int32Array specifying the identity of each row in `matrix`. 
+ *   This can be interpreted as the row slicing that was applied to the original matrix to obtain `matrix`.
+ *   If `layered = false`, this is `null`.
+ */
+export function initializeSparseMatrixFromRds(x, { consume = false, layered = true } = {}) {
+    var ids = null;
+    var output;
+
+    try {
+        output = gc.call(
+            module => module.initialize_sparse_matrix_from_rds(x.object.$$.ptr, layered, consume),
+            ScranMatrix
+        );
+
+        if (output.isReorganized()) {
+            ids = output.identities();
+            output.wipeIdentities();
+        }
+
+    } catch(e) {
+        utils.free(output);
+        throw e;
+    }
+
+    return { "matrix": output, "row_ids": ids };
+}
