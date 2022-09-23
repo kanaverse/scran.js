@@ -12,16 +12,6 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Add Pretty CSS
-      uses: wei/wget@v1
-      with:
-        args: -O docs/doxygen-awesome.css https://raw.githubusercontent.com/jothepro/doxygen-awesome-css/main/doxygen-awesome.css
-    
-    - name: Doxygen Action
-      uses: mattnotmitt/doxygen-action@v1.1.0
-      with:
-        working-directory: docs/
-
     - name: Set up Node
       uses: actions/setup-node@v2
 
@@ -36,9 +26,6 @@ jobs:
 
     - name: Run JSDoc
       run: npm run jsdoc
-
-    - name: Organize files
-      run: sudo mv docs/html docs/built/wasm
 
     - name: GH Pages Deployment
       uses: JamesIves/github-pages-deploy-action@4.1.3
