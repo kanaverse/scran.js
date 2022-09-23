@@ -23,15 +23,18 @@ var searchData=
   ['cluster_5fsnn_5fgraph_5fwalktrap_20',['cluster_snn_graph_walktrap',['../cluster__snn__graph_8cpp.html#aee1d81745a47039efed347a515f715f8',1,'cluster_snn_graph.cpp']]],
   ['clusterkmeans_5fresult_21',['ClusterKmeans_Result',['../structClusterKmeans__Result.html',1,'']]],
   ['clusters_22',['clusters',['../structClusterKmeans__Result.html#a41d6c9c8579153b7611274f83e0ae18a',1,'ClusterKmeans_Result']]],
-  ['clustersnngraphleiden_5fresult_23',['ClusterSNNGraphLeiden_Result',['../structClusterSNNGraphLeiden__Result.html',1,'ClusterSNNGraphLeiden_Result'],['../structClusterSNNGraphLeiden__Result.html#aa8c835073e295aa4d7c25da2350742db',1,'ClusterSNNGraphLeiden_Result::ClusterSNNGraphLeiden_Result()']]],
+  ['clustersnngraphleiden_5fresult_23',['ClusterSNNGraphLeiden_Result',['../structClusterSNNGraphLeiden__Result.html#aa8c835073e295aa4d7c25da2350742db',1,'ClusterSNNGraphLeiden_Result::ClusterSNNGraphLeiden_Result()'],['../structClusterSNNGraphLeiden__Result.html',1,'ClusterSNNGraphLeiden_Result']]],
   ['clustersnngraphmultilevel_5fresult_24',['ClusterSNNGraphMultiLevel_Result',['../structClusterSNNGraphMultiLevel__Result.html',1,'']]],
   ['clustersnngraphwalktrap_5fresult_25',['ClusterSNNGraphWalktrap_Result',['../structClusterSNNGraphWalktrap__Result.html#a42bec390d5c185d27b8ae4fb8d196fa3',1,'ClusterSNNGraphWalktrap_Result::ClusterSNNGraphWalktrap_Result()'],['../structClusterSNNGraphWalktrap__Result.html',1,'ClusterSNNGraphWalktrap_Result']]],
   ['cohen_26',['cohen',['../structScoreMarkers__Results.html#a77ce6eb68fd05cff4a5218e4a6fb549c',1,'ScoreMarkers_Results']]],
   ['column_27',['column',['../structNumericMatrix.html#a3501cce20e99fa6d4a1ea61c8878c141',1,'NumericMatrix']]],
   ['column_5fsubset_28',['column_subset',['../subset_8cpp.html#a0e69219ae272d5bb0125f3ff6e3afcb6',1,'subset.cpp']]],
   ['convert_5farray_5fof_5foffsets_29',['convert_array_of_offsets',['../utils_8h.html#af054ae3b1991fa1a539d347086f00114',1,'utils.h']]],
-  ['create_5fhdf5_5fattribute_30',['create_hdf5_attribute',['../hdf5__utils_8cpp.html#ad96a037e581788081e7ad4afde3a34b4',1,'hdf5_utils.cpp']]],
-  ['create_5fhdf5_5fdataset_31',['create_hdf5_dataset',['../hdf5__utils_8cpp.html#afc422ca924c7427d4a0f6b4d13fd64ea',1,'hdf5_utils.cpp']]],
-  ['create_5fhdf5_5ffile_32',['create_hdf5_file',['../hdf5__utils_8cpp.html#ad9865cce9a0309fa8ce7648a3f56c4d0',1,'hdf5_utils.cpp']]],
-  ['create_5fhdf5_5fgroup_33',['create_hdf5_group',['../hdf5__utils_8cpp.html#a979d6d36d63ecc0f399a56b1f6e0281b',1,'hdf5_utils.cpp']]]
+  ['convert_5fdgcmatrix_5fto_5fsparse_5fmatrix_30',['convert_dgCMatrix_to_sparse_matrix',['../initialize__from__rds_8cpp.html#aafd22a2f7e7c0edb6c5698b65452e6f8',1,'initialize_from_rds.cpp']]],
+  ['convert_5fdgtmatrix_5fto_5fsparse_5fmatrix_31',['convert_dgTMatrix_to_sparse_matrix',['../initialize__from__rds_8cpp.html#a8df122e9ba88fd995998a29b942a2399',1,'initialize_from_rds.cpp']]],
+  ['convert_5fordinary_5farray_5fto_5fsparse_5fmatrix_32',['convert_ordinary_array_to_sparse_matrix',['../initialize__from__rds_8cpp.html#a2bbe66bb151c9114866f78de405e5e73',1,'initialize_from_rds.cpp']]],
+  ['create_5fhdf5_5fattribute_33',['create_hdf5_attribute',['../hdf5__utils_8cpp.html#ad96a037e581788081e7ad4afde3a34b4',1,'hdf5_utils.cpp']]],
+  ['create_5fhdf5_5fdataset_34',['create_hdf5_dataset',['../hdf5__utils_8cpp.html#afc422ca924c7427d4a0f6b4d13fd64ea',1,'hdf5_utils.cpp']]],
+  ['create_5fhdf5_5ffile_35',['create_hdf5_file',['../hdf5__utils_8cpp.html#ad9865cce9a0309fa8ce7648a3f56c4d0',1,'hdf5_utils.cpp']]],
+  ['create_5fhdf5_5fgroup_36',['create_hdf5_group',['../hdf5__utils_8cpp.html#a979d6d36d63ecc0f399a56b1f6e0281b',1,'hdf5_utils.cpp']]]
 ];

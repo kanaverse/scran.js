@@ -1,6 +1,7 @@
 <map id="read_utils.h" name="read_utils.h">
-<area shape="rect" id="node1" title=" " alt="" coords="238,5,326,31"/>
-<area shape="rect" id="node2" href="$initialize__sparse__matrix_8cpp.html" title=" " alt="" coords="5,79,185,104"/>
-<area shape="rect" id="node3" href="$read__hdf5__matrix_8cpp.html" title=" " alt="" coords="209,79,355,104"/>
-<area shape="rect" id="node4" href="$read__matrix__market_8cpp.html" title=" " alt="" coords="379,79,539,104"/>
+<area shape="rect" id="node1" title=" " alt="" coords="319,5,407,31"/>
+<area shape="rect" id="node2" href="$initialize__from__rds_8cpp.html" title=" " alt="" coords="5,79,156,104"/>
+<area shape="rect" id="node3" href="$initialize__sparse__matrix_8cpp.html" title=" " alt="" coords="180,79,360,104"/>
+<area shape="rect" id="node4" href="$read__hdf5__matrix_8cpp.html" title=" " alt="" coords="384,79,529,104"/>
+<area shape="rect" id="node5" href="$read__matrix__market_8cpp.html" title=" " alt="" coords="554,79,714,104"/>
 </map>
