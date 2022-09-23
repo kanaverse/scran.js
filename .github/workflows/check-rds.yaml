@@ -55,5 +55,5 @@ jobs:
     - name: Run tests
       run: |
         export CHECK_RDS=1
-        node --experimental-vm-modules --experimental-wasm-threads --experimental-wasm-bigint node_modules/jest/bin/jest.js --runInBand tests/rds/rds.test.js
+        node --experimental-vm-modules --experimental-wasm-threads --experimental-wasm-bigint node_modules/jest/bin/jest.js --runInBand tests/rds
 
