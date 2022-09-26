@@ -197,7 +197,7 @@ export class RdsGenericVector extends RdsVector {
  * @augments RdsObject
  * @hideconstructor
  */
-export class RdsS4Object extends RdsVector {
+export class RdsS4Object extends RdsObject {
     constructor(id, raw, par) {
         super(id, raw, par);
     }
@@ -214,6 +214,35 @@ export class RdsS4Object extends RdsVector {
      */
     packageName() {
         return wasm.call(mod => this.object.package_name());
+    }
+
+    /**
+     * @return {Array} Names of all attributes.
+     */
+    attributeNames() {
+        return wasm.call(mod => {
+            this.object.fill_attribute_names();
+            let anames_buf = this.object.attribute_names_buffer();
+            let anames_len = this.object.attribute_names_length();
+            return packer.unpack_strings(anames_buf, anames_len);
+        });
+    }
+
+    /**
+     * @param {string} name - Name of the attribute of interest.
+     * @return {number} Index of `name` in the array of attributes from {@linkcode RdsVector#attributeNames attributeNames}.
+     * If `name` is not present, -1 is returned.
+     */
+    findAttribute(name) {
+        return wasm.call(mod => this.object.find_attribute(name));
+    }
+
+    /**
+     * @param {number} index - Index of the attribute of interest.
+     * @return {RdsObject} Value of the attribute.
+     */
+    attribute(index) {
+        return dispatch(mod => this.object.load_attribute(index), this.parent);
     }
 }
 

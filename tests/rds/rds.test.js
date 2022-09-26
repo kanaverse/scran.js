@@ -44,6 +44,8 @@ maybe("works for integer vectors", () => {
         expect(vals instanceof scran.RdsIntegerVector).toBe(true);
         expect(vals.attributeNames()).toEqual(["names"]);
 
+        expect(vals.findAttribute("missing_attribute")).toEqual(-1);
+
         let attrhandle = vals.attribute(0);
         let attrvec = attrhandle.values();
         expect(attrvec[0]).toEqual("a");
@@ -299,6 +301,8 @@ maybe("works for S4 object", () => {
 
         phandle.free();
     }
+
+    expect(vals.findAttribute("missing_attribute")).toEqual(-1);
 
     stuff.free();
 })
