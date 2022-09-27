@@ -25,6 +25,7 @@ maybe("works for integer vectors", () => {
         let vals = stuff.value();
         expect(vals.type()).toBe("integer");
         expect(vals instanceof scran.RdsIntegerVector).toBe(true);
+        expect(vals.length()).toBe(5);
 
         let vec = vals.values();
         expect(vec instanceof Int32Array).toBe(true);
@@ -62,6 +63,7 @@ maybe("works for double vectors", () => {
         let vals = stuff.value();
         expect(vals.type()).toBe("double");
         expect(vals instanceof scran.RdsDoubleVector).toBe(true);
+        expect(vals.length()).toBe(100);
 
         let vec = vals.values();
         expect(vec instanceof Float64Array).toBe(true);

@@ -60,6 +60,7 @@ EMSCRIPTEN_BINDINGS(hdf5_utils) {
         .function("load_list_element", &RdsObject::load_list_element)
         .function("class_name", &RdsObject::class_name)
         .function("package_name", &RdsObject::package_name)
+        .function("size", &RdsObject::size)
         ;
 
     emscripten::function("parse_rds_from_buffer", &parse_rds_from_buffer);
