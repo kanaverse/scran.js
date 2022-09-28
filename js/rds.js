@@ -72,11 +72,15 @@ export class RdsVector extends RdsObject {
     }
 
     /**
-     * @param {number} index - Index of the attribute of interest.
+     * @param {number|string} i - Index or name of the attribute of interest.
      * @return {RdsObject} Value of the attribute.
      */
-    attribute(index) {
-        return dispatch(mod => this.object.load_attribute(index), this.parent);
+    attribute(i) {
+        if (typeof i == "number") {
+            return dispatch(mod => this.object.load_attribute_by_index(i), this.parent);
+        } else {
+            return dispatch(mod => this.object.load_attribute_by_name(i), this.parent);
+        }
     }
 }
 
@@ -238,11 +242,15 @@ export class RdsS4Object extends RdsObject {
     }
 
     /**
-     * @param {number} index - Index of the attribute of interest.
+     * @param {number|string} i - Index or name of the attribute of interest.
      * @return {RdsObject} Value of the attribute.
      */
-    attribute(index) {
-        return dispatch(mod => this.object.load_attribute(index), this.parent);
+    attribute(i) {
+        if (typeof i == "number") {
+            return dispatch(mod => this.object.load_attribute_by_index(i), this.parent);
+        } else {
+            return dispatch(mod => this.object.load_attribute_by_name(i), this.parent);
+        }
     }
 }
 

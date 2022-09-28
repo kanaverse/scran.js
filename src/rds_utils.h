@@ -203,12 +203,15 @@ private:
     template<class AttrClass>
     RdsObject load_attribute_(int i) const {
         auto aptr = static_cast<const AttrClass*>(ptr);
+        if (static_cast<size_t>(i) >= aptr->attributes.values.size()) {
+            throw std::runtime_error("requested attribute index " + std::to_string(i) + " is out of range");
+        }
         const auto& chosen = aptr->attributes.values[i];
         return RdsObject(chosen.get());
     }
 
 public:
-    RdsObject load_attribute(int i) const {
+    RdsObject load_attribute_by_index(int i) const {
         switch (ptr->type()) {
             case rds2cpp::SEXPType::INT:
                 return load_attribute_<rds2cpp::IntegerVector>(i);
@@ -228,6 +231,14 @@ public:
 
         throw std::runtime_error("unsupported R object type");
         return load_attribute_<rds2cpp::S4Object>(i); // avoid compiler warnings.
+    }
+
+    RdsObject load_attribute_by_name(std::string n) const {
+        int i = find_attribute(n);
+        if (i < 0) {
+            throw std::runtime_error("no attribute named '" + n + "'");
+        }
+        return load_attribute_by_index(i);
     }
 
 public:

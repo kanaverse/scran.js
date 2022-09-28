@@ -51,6 +51,10 @@ maybe("works for integer vectors", () => {
         let attrvec = attrhandle.values();
         expect(attrvec[0]).toEqual("a");
 
+        let attrhandle2 = vals.attribute("names");
+        let attrvec2 = attrhandle2.values();
+        expect(attrvec2[0]).toEqual("a");
+
         vals.free();
         stuff.free();
     }
@@ -305,6 +309,8 @@ maybe("works for S4 object", () => {
     }
 
     expect(vals.findAttribute("missing_attribute")).toEqual(-1);
+    expect(() => vals.attribute("missing_attribute")).toThrow("no attribute named");
+    expect(() => vals.attribute(1000)).toThrow("out of range");
 
     stuff.free();
 })
