@@ -3,8 +3,29 @@ on: [push]
 name: Test JS bindings
 
 jobs:
-  build:
+  # Building the RDS files for the various RDS-reading utilities.
+  build_rds:
     runs-on: ubuntu-latest
+    container: rocker/r-base:latest
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v3
+
+    - name: Build RDS files
+      run: |
+        cd tests/rds
+        R -f generate.R
+
+    - name: Upload RDS files
+      uses: actions/upload-artifact@v3
+      with:
+        name: rds-files
+        path: tests/rds/*.rds
+
+  check:
+    runs-on: ubuntu-latest
+    needs: build_rds
     container: ghcr.io/jkanche/scran.js/builder:latest
     defaults:
       run:
@@ -22,6 +43,14 @@ jobs:
     - name: Update NPM packages
       run: npm i --include=dev
 
+    - name: Download RDS files
+      uses: actions/download-artifact@v3
+      with:
+        name: rds-files
+        path: /scran.js/tests/rds
+
     - name: Run tests
-      run: node --experimental-vm-modules --experimental-wasm-threads --experimental-wasm-bigint node_modules/jest/bin/jest.js --runInBand
+      run: |
+        export CHECK_RDS=1
+        node --experimental-vm-modules --experimental-wasm-threads --experimental-wasm-bigint node_modules/jest/bin/jest.js --runInBand
 
