@@ -13,3 +13,10 @@ test("wasm heap memory is reported correctly", () => {
 test("maximum number of threads is reported correctly", () => {
     expect(scran.maximumThreads()).toBeGreaterThan(0);
 })
+
+test("filesystem operations fail for Node", () => {
+    expect(() => scran.writeVirtualFile("asdasd", new Uint8Array(10))).toThrow("virtual");
+    expect(() => scran.removeVirtualFile("asdasd")).toThrow("virtual");
+    expect(() => scran.readVirtualFile("asdasd")).toThrow("virtual");
+    expect(() => scran.existsVirtualFile("asdasd")).toThrow("virtual");
+})

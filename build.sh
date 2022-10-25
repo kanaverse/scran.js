@@ -17,10 +17,20 @@ mkdir -p ${destdir}
 cp js/*.js $destdir
 cp -r js/internal $destdir
 
-if [ $mode != "main" ]
+if [ $mode == "main" ]
 then
-    cat js/wasm.js | grep -v "NODE ONLY" > $destdir/wasm.js
+    keep=node
+else
+    keep=web
 fi
+
+mkdir ${destdir}/abstract
+to_rename=$(ls js/abstract/*_${keep}.js)
+for x in ${to_rename[@]}
+do
+    newname=$(basename $x | sed "s/_${keep}\\.js$/.js/g")
+    cp $x ${destdir}/abstract/$newname
+done
 
 # Building the Wasm files.
 builddir=build_$mode

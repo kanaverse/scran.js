@@ -1,6 +1,6 @@
 # scran.js news
 
-## 0.6.0
+## 0.6.1
 
 **New**
 
@@ -11,6 +11,8 @@
 
 - Renamed `quickSliceArray()` to `sliceArray()` with a more sensible argument order.
   Soft-deprecated the former.
+- Renamed `writeFile()`, `removeFile()`, `readFile()` and `fileExists()` to `writeVirtualFile()`, `removeVirtualFile()`, `readVirtualFile()` and `existsVirtualFile()`.
+  Soft-deprecated the former set of functions.
 
 ## 0.6.0
 

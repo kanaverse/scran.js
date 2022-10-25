@@ -1,5 +1,6 @@
 import loadScran from "./wasm/scran.js";
 import { register } from "wasmarrays.js";
+import * as afile from "./abstract/file.js";
 
 const cache = {};
 
@@ -105,10 +106,14 @@ export function heapSize() {
  *
  * @return `buffer` is written to the binary file `path`.
  */
-export function writeFile(path, buffer) {
-    throw new Error("not supported in Node.js context"); /** NODE ONLY **/
-    cache.module.FS.writeFile(path, buffer);
+export function writeVirtualFile(path, buffer) {
+    let fs = afile.fetchVirtualFS(cache.module);
+    fs.writeFile(path, buffer);
     return;
+}
+
+export function writeFile(path, buffer){
+    return writeVirtualFile(path, buffer);
 }
 
 /**
@@ -120,9 +125,13 @@ export function writeFile(path, buffer) {
  *
  * @return {Uint8Array} Binary contents of the file.
  */
+export function readVirtualFile(path) {
+    let fs = afile.fetchVirtualFS(cache.module);
+    return fs.readFile(path, { encoding: 'binary' });
+}
+
 export function readFile(path) {
-    throw new Error("not supported in Node.js context"); /** NODE ONLY **/
-    return cache.module.FS.readFile(path, { encoding: 'binary' });
+    return readVirtualFile(path);
 }
 
 /**
@@ -133,10 +142,14 @@ export function readFile(path) {
  *
  * @return Deletes the specified file from the virtual file system.
  */
-export function removeFile(path) {
-    throw new Error("not supported in Node.js context"); /** NODE ONLY **/
-    cache.module.FS.unlink(path);
+export function removeVirtualFile(path) {
+    let fs = afile.fetchVirtualFS(cache.module);
+    fs.unlink(path);
     return;
+}
+
+export function removeFile(path) {
+    removeVirtualFile(path);
 }
 
 /**
@@ -146,7 +159,11 @@ export function removeFile(path) {
  * @param {string} path - Path to the file on the virtual file system.
  * @return {boolean} Whether the file exists.
  */
+export function existsVirtualFile(path) {
+    let fs = afile.fetchVirtualFS(cache.module);
+    return fs.analyzePath(path).exists;
+}
+
 export function fileExists(path) {
-    throw new Error("not supported in Node.js context"); /** NODE ONLY **/
-    return cache.module.FS.analyzePath(path).exists;
+    return existsVirtualFile(path);
 }
