@@ -6,6 +6,8 @@
 
 - Added `cloneArrayCollection()` to clone an array collection.
 - Added `splitArray()` to split an array based on a factor.
+- Added `realizeFile()` to prepare a file for reading into other functions, regardless of whether the call is in a Node.js or browser context.
+  For browsers, this creates a file on the virtual file system; for Node.js, it either uses the supplied path or it creates a temporary file.
 
 **Changes**
 
