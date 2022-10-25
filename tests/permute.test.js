@@ -5,7 +5,7 @@ import * as compare from "./compare.js";
 beforeAll(async () => { await scran.initialize({ localFile: true }) });
 afterAll(async () => { await scran.terminate() });
 
-test("quick slicing of a vector works", () => {
+test("slicing of a vector works", () => {
     // Creating the source.
     let src = [];
     for (var i = 0; i < 20; i++) {
@@ -18,19 +18,34 @@ test("quick slicing of a vector works", () => {
     let reorganization = sorted.map(x => x.index);
 
     // Checking whether it is consistent.
-    let permuted2 = scran.quickSliceArray(reorganization, original);
+    let permuted2 = scran.sliceArray(original, reorganization);
     expect(compare.equalArrays(permuted, permuted2)).toBe(true);
 
     // Works with a smaller set.
-    let subset = scran.quickSliceArray([0,2,13,1], original);
+    let subset = scran.sliceArray(original, [0,2,13,1]);
     expect(subset[0]).toBe(original[0]);
     expect(subset[1]).toBe(original[2]);
     expect(subset[2]).toBe(original[13]);
     expect(subset[3]).toBe(original[1]);
 
     // Works with null.
-    let permuted3 = scran.quickSliceArray(null, original);
+    let permuted3 = scran.sliceArray(original, null);
     expect(compare.equalArrays(permuted3, original)).toBe(true);
+})
+
+test("splitting of a vector works", () => {
+    var factor = ["A", "B", "C", "A", "C", "B", "D"];
+    let src = [];
+    for (var i = 0; i < factor.length; i++) {
+        src.push(Math.random());
+    }
+
+    let split = scran.splitByFactor(factor);
+    let fragged = scran.splitArray(src, split);
+    expect(fragged.A).toEqual([src[0], src[3]]);
+    expect(fragged.B).toEqual([src[1], src[5]]);
+    expect(fragged.C).toEqual([src[2], src[4]]);
+    expect(fragged.D).toEqual([src[6]]);
 })
 
 test("updating the reorganization works", () => {

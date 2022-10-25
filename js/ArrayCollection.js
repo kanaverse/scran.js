@@ -25,6 +25,21 @@ export function validateArrayCollection(x) {
 }
 
 /**
+ * Clone a collection of equilength arrays.
+ *
+ * @param {object} x - Object containing arrays or TypedArrays, see {@linkcode validateArrayCollection}.
+ *
+ * @return A deep copy of `x`, including all of its internal arrays.
+ */
+export function cloneArrayCollection(x) {
+    let output = {};
+    for (const [k, v] of Object.entries(x)) {
+        output[k] = v.slice();
+    }
+    return output;
+}
+
+/**
  * Subset each array in a collection of equilength arrays.
  * This is typically performed on the per-cell annotations after filtering in {@linkcode filterCells},
  * or on the per-gene annotations to match the features in the intersection of {@linkcode cbindWithNames}.

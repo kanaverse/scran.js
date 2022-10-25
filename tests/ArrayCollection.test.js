@@ -16,6 +16,17 @@ test("validating an array collection works", () => {
     x.B.free();
 })
 
+test("cloning an array collection works", () => {
+    let x = { "A": [ 1, 2, 3, 4 ], "B": [ 'x', 'y', 'z', 'aa' ] };
+    let y = scran.cloneArrayCollection(x)
+
+    y.A[0] = 2;
+    y.C = [5,4,3,2];
+
+    expect(x.A[0]).toBe(1);
+    expect("C" in x).toBe(false);
+})
+
 test("subsetting an array collection works", () => {
     let x = { "A": [ 1, 2, 3, 4 ], "B": [ 'x', 'y', 'z', 'aa' ] };
     let out = scran.subsetArrayCollection(x, [3, 1, 2]);
