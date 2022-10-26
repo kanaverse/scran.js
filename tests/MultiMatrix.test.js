@@ -45,6 +45,20 @@ test("default MultiMatrix constructor works", () => {
     multi.free();
 })
 
+test("cloning a MultiMatrix works", () => {
+    var multi = new scran.MultiMatrix;
+    var mat = simulate.simulateMatrix(ngenes, ncells);
+    multi.add("RNA", mat);
+
+    let clone = multi.clone();
+    multi.free();
+
+    // Methods still work on the clone.
+    expect(clone.get("RNA").numberOfColumns()).toEqual(ncells);
+    expect(clone.get("RNA").numberOfRows()).toEqual(ngenes);
+    clone.free();
+})
+
 test("MultiMatrix methods fail as expected", () => {
     var mat = simulate.simulateMatrix(ngenes, ncells);
     var mat2 = simulate.simulateMatrix(ngenes, ncells-1);

@@ -97,6 +97,23 @@ export class MultiMatrix {
     }
 
     /**
+     * @param {string} i - Name of a modality.
+     * @return {MultiMatrix} A deep copy of the current object. 
+     */
+    clone() {
+        let new_matrix = new MultiMatrix;
+        try {
+            for (const [k, v] of Object.entries(this.#store)) {
+                new_matrix.add(k, v.clone());
+            }
+        } catch (e) {
+            new_matrix.free();
+            throw e;
+        }
+        return new_matrix;
+    }
+
+    /**
      * @param {string} from - Old name of the modality.
      * @param {string} to - New name for the modality.
      *
