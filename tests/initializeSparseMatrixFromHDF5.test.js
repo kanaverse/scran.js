@@ -35,7 +35,13 @@ test("initialization from HDF5 works correctly with dense inputs", () => {
     let f = new hdf5.File(path, "w");
     f.create_dataset("stuff", x, [20, 50]);
     f.close();
-    
+
+    // Extracting details.
+    let deets = scran.extractHDF5MatrixDetails(path, "stuff");
+    expect(deets.format).toBe("dense");
+    expect(deets.rows).toBe(50); // transposed, rows in HDF5 are typically samples.
+    expect(deets.columns).toBe(20);
+
     // Ingesting it.
     var mat = scran.initializeSparseMatrixFromHDF5(path, "stuff", { layered: false });
     expect(mat.matrix.numberOfRows()).toBe(50); // Transposed; rows in HDF5 are typically samples.
@@ -69,6 +75,12 @@ test("initialization from HDF5 works correctly with 10X inputs", () => {
     f.get("foobar").create_dataset("indptr", indptrs);
     f.get("foobar").create_dataset("shape", [nr, nc], null, "<i");
     f.close();
+
+    // Extracting details.
+    let deets = scran.extractHDF5MatrixDetails(path, "foobar");
+    expect(deets.format).toBe("csc");
+    expect(deets.rows).toBe(50); 
+    expect(deets.columns).toBe(20);
 
     // Ingesting it.
     var mat = scran.initializeSparseMatrixFromHDF5(path, "foobar");
@@ -118,13 +130,19 @@ test("initialization from HDF5 works correctly with H5AD inputs", () => {
     let f = new hdf5.File(path, "w");
     f.create_group("layers");
     f.get("layers").create_group("counts");
-    f.get("layers/counts").create_attribute("shape", [nc, nr], null, "<i");
-    f.get("layers/counts").create_attribute("encoding-type", "csc_matrix", Array(0), "S"); // this is CSC for H5AD but CSR for us.
+    f.get("layers/counts").create_attribute("shape", [nc, nr], null, "<i"); // deliberately transposed, as CSC for H5AD is CSR for us.
+    f.get("layers/counts").create_attribute("encoding-type", "csc_matrix", Array(0), "S"); // again, CSC for H5AD == CSR for us.
 
     f.get("layers/counts").create_dataset("data", data);
     f.get("layers/counts").create_dataset("indices", indices);
     f.get("layers/counts").create_dataset("indptr", indptrs);
     f.close();
+
+    // Extracting details.
+    let deets = scran.extractHDF5MatrixDetails(path, "layers/counts");
+    expect(deets.format).toBe("csr");
+    expect(deets.rows).toBe(nr);
+    expect(deets.columns).toBe(nc);
 
     // Ingesting it.
     var mat = scran.initializeSparseMatrixFromHDF5(path, "layers/counts");

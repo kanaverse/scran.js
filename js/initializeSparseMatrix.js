@@ -288,6 +288,41 @@ export function initializeSparseMatrixFromHDF5(file, name, { layered = true } = 
 }
 
 /**
+ * Extract the format and dimensions of a HDF5 matrix.
+ *
+ * @param {string} file Path to the HDF5 file.
+ * For browsers, the file should have been saved to the virtual filesystem.
+ * @param {string} name Name of the dataset inside the file.
+ * This can be a HDF5 Dataset for dense matrices or a HDF5 Group for sparse matrices.
+ * For the latter, both H5AD and 10X-style sparse formats are supported.
+ *
+ * @return {object} An object containing the number of `rows` and `columns` in the matrix.
+ * In addition, the `format` of the matrix (dense, CSR or CSC) is also reported.
+ */
+export function extractHDF5MatrixDetails(file, name) { 
+    let output = {};
+    let arr = utils.createInt32WasmArray(4);
+    try {
+        wasm.call(module => module.extract_hdf5_matrix_details(file, name, arr.offset));
+
+        let vals = arr.array();
+        if (vals[0] > 0) {
+            output.format = "dense";
+        } else if (vals[1] > 0) {
+            output.format = "csc";
+        } else {
+            output.format = "csr";
+        }
+
+        output.rows = vals[2];
+        output.columns = vals[3];
+    } finally {
+        arr.free();
+    }
+    return output;
+}
+
+/**
  * Initialize a dense matrix from a column-major array.
  *
  * @param {number} numberOfRows - Number of rows.
