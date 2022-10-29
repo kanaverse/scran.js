@@ -1,47 +1,5 @@
 import {ScranMatrix} from "./ScranMatrix.js";
 
-export function quickSliceArray(slice, values) {
-    return sliceArray(values, slice);
-}
-
-/**
- * Slice an array to obtain a new array.
- * This is equivalent to `Array.from(slice).map(i => values[i])` but preserves the type of `values`.
- *
- * @param {(Array|TypedArray)} values - An array of values where each entry corresponds to a feature in the original order.
- * @param {?(Array|Int32Array)} slice - Array of integer indices into `values`, representing the slice to obtain.
- * If `null`, it is assumed to contain consecutive integers from `[0, values.length)`.
- *
- * @return {Array|TypedArray} An array of the same type as `values`, where the `i`-th entry contains `values[slice[i]]`.
- */
-export function sliceArray(values, slice) {
-    if (slice !== null) {
-        let copy = new values.constructor(slice.length);
-        slice.forEach((x, i) => {
-            copy[i] = values[x];
-        });
-        return copy;
-    } else {
-        return values.slice();
-    }
-}
-
-/**
- * Split an array into several contiguous arrays.
- *
- * @param {(Array|TypedArray)} values - An array of values where each entry corresponds to a feature in the original order.
- * @param {object} split - Object specifying how elements of `values` should be split, usually produced by {@link splitByFactor}.
- *
- * @return {object} Object with the same keys as `split` where each value is the subarray corresponding to that key.
- */
-export function splitArray(values, split) {
-    let output = {}; 
-    for (const [k, v] of Object.entries(split)) {
-        output[k] = sliceArray(values, v);
-    }
-    return output;
-}
-
 /**
  * Create a permutation vector to update old results to match the row identities of a {@linkplain ScranMatrix}.
  * This is provided as a safety measure to handle changes in the order of rows across different versions of the {@linkplain ScranMatrix} initialization.

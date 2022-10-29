@@ -85,32 +85,14 @@ export function subsetColumns(x, indices, { inPlace = false } = {}) {
 }
 
 /**
- * Given a factor, return the indices corresponding to each level.
- * This can be used in subsequent {@linkcode splitRows} calls.
- *
- * @param {Array|TypedArray} factor - Array containing the factor of interest.
- *
- * @return {object} Object where each key is a factor level and each value is an array containing the indices corresponding to that level in `factor`.
- */
-export function splitByFactor(factor) {
-    let by = {};
-    factor.forEach((x, i) => {
-        if (!(x in by)) {
-            by[x] = [];
-        }
-        by[x].push(i);
-    });
-    return by;
-}
-
-/**
  * Split a {@linkplain ScranMatrix} by row.
  *
  * @param {ScranMatrix} matrix - A ScranMatrix object.
- * @param {object} split - Object specifying how rows should be split, usually produced by {@link splitByFactor}.
+ * @param {object} split - Object specifying how rows should be split.
+ * Each value should be an Array/TypedArray of 0-based row indices.
  * @param {object} [options] - Optional parameters.
- * @param {boolean} [options.singleNull=false] - Whether `null` should be returned if `split` only contains one level.
- * This can be used to avoid the creation of a redundant ScranMatrix object.
+ * @param {boolean} [options.singleNull=false] - Whether `null` should be returned if `split` only contains one level and all rows are represented exactly once.
+ * This can be used to avoid the creation of a redundant {@linkplain ScranMatrix} object.
  * @param {boolean} [options.createMultiMatrix=false] - Whether the output should be returned as a {@linkplain MultiMatrix}.
  *
  * @return {object|MultiMatrix} Object with the same keys as `split` where each value is a ScranMatrix for the corresponding subset of rows.
@@ -119,12 +101,26 @@ export function splitByFactor(factor) {
 export function splitRows(matrix, split, { singleNull = false, createMultiMatrix = false } = {}) { 
     let output = {};
     let tkeys = Object.keys(split);
+
     if (tkeys.length == 1) {
-        if (singleNull) {
-            return null;
-        } else {
-            output[tkeys[0]] = matrix.clone();
-            return output;
+        let chosen = split[tkeys[0]];
+        let consec = (chosen.length == matrix.numberOfRows());
+        if (consec) {
+            for (var i = 0; i < chosen.length; i++) {
+                if (i != chosen[i]) {
+                    consec = false;
+                    break;
+                }
+            }
+        }
+
+        if (consec) {
+            if (singleNull) {
+                return null;
+            } else {
+                output[tkeys[0]] = matrix.clone();
+                return output;
+            }
         }
     }
 

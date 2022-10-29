@@ -7,7 +7,6 @@ export * from "./rds.js";
 
 export * from "./permute.js";
 export * from "./guessFeatures.js";
-export * from "./ArrayCollection.js";
 export * from "./block.js";
 
 export * from "./cbind.js";

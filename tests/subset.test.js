@@ -65,12 +65,12 @@ test("subsetting works in place", () => {
 })
 
 test("splitRows works as expected", () => {
-    var factor = ["A", "B", "C", "A", "C", "B", "D"];
-    let split = scran.splitByFactor(factor);
-    expect(split.A).toEqual([0, 3]);
-    expect(split.B).toEqual([1, 5]);
-    expect(split.C).toEqual([2, 4]);
-    expect(split.D).toEqual([6]);
+    let split = {
+        A: [0, 3],
+        B: [1, 5],
+        C: [2, 4],
+        D: [6]
+    };
 
     var mat = simulate.simulateDenseMatrix(7, 10);
     let splitmats = scran.splitRows(mat, split);
@@ -83,11 +83,9 @@ test("splitRows works as expected", () => {
     expect(splitmats.D.row(0)).toEqual(mat.row(6));
 
     // Works correctly if there's only one level.
-    let solo_factor = new Array(factor.length);
-    solo_factor.fill("X");
-    let solo_split = scran.splitByFactor(solo_factor);
-
+    let solo_split = { X: [ 0, 1, 2, 3, 4, 5, 6 ] };
     expect(scran.splitRows(mat, solo_split, { singleNull: true })).toBeNull();
+
     let solomats = scran.splitRows(mat, solo_split);
     expect(solomats.X.numberOfRows()).toBe(mat.numberOfRows());
     expect(solomats.X.row(6)).toEqual(mat.row(6));
@@ -105,6 +103,15 @@ test("splitRows works as expected", () => {
     for (const v of Object.values(solomats)) {
         v.free();
     }
+
+    // Ignores singleNull if it's not the right length and/or consecutive.
+    solo_split = { X: [ 0, 1, 2, 3, 4, 5 ] };
+    solomats = scran.splitRows(mat, solo_split, { singleNull: true }); 
+    expect(solomats.X.numberOfRows()).toBe(6);
+
+    solo_split = { X: [ 6, 0, 1, 2, 3, 4, 5 ] };
+    solomats = scran.splitRows(mat, solo_split, { singleNull: true }); 
+    expect(solomats.X.numberOfRows()).toBe(7);
 
     // Works when returning a MultiMatrix.
     let split2 = scran.splitRows(mat, split, { createMultiMatrix: true });
