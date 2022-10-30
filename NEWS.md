@@ -1,5 +1,15 @@
 # scran.js news
 
+## 1.0.1
+
+**New**
+
+- Added `chooseTemporaryPath()` to obtain a temporary file path on both browsers and Node.js.
+
+**Changes**
+
+- All file-related utilities (`writeFile()`, `removeFile()`, `readFile()` and `fileExists()`) now operate as expected on Node.js.
+
 ## 1.0.0
 
 **New**
@@ -16,8 +26,6 @@
   Users should instead use the `DataFrame` class and related methods from the **bioconductor** package.
 - Removed `splitByFactor()`.
   Users should instead use the `presplitFactor()` function from the **bioconductor** package.
-- Renamed `writeFile()`, `removeFile()`, `readFile()` and `fileExists()` to `writeVirtualFile()`, `removeVirtualFile()`, `readVirtualFile()` and `existsVirtualFile()`.
-  Soft-deprecated the former set of functions.
 
 ## 0.6.0
 

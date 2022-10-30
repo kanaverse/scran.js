@@ -112,10 +112,6 @@ export function writeVirtualFile(path, buffer) {
     return;
 }
 
-export function writeFile(path, buffer){
-    return writeVirtualFile(path, buffer);
-}
-
 /**
  * This is intended for use in web browsers to load files written by the various HDF5 utilities.
  * Node applications should not call this function;
@@ -128,10 +124,6 @@ export function writeFile(path, buffer){
 export function readVirtualFile(path) {
     let fs = afile.fetchVirtualFS(cache.module);
     return fs.readFile(path, { encoding: 'binary' });
-}
-
-export function readFile(path) {
-    return readVirtualFile(path);
 }
 
 /**
@@ -148,10 +140,6 @@ export function removeVirtualFile(path) {
     return;
 }
 
-export function removeFile(path) {
-    removeVirtualFile(path);
-}
-
 /**
  * This is intended for use in web browsers. 
  * Node applications should not call this function.
@@ -162,8 +150,4 @@ export function removeFile(path) {
 export function existsVirtualFile(path) {
     let fs = afile.fetchVirtualFS(cache.module);
     return fs.analyzePath(path).exists;
-}
-
-export function fileExists(path) {
-    return existsVirtualFile(path);
 }

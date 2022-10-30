@@ -35,3 +35,26 @@ test("realizeFile works correctly for buffers", () => {
     expect(fs.existsSync(realized.path)).toBe(false);
 })
 
+test("chooseTemporaryPath works correctly", () => {
+    let temp = scran.chooseTemporaryPath();
+    expect(fs.existsSync(temp)).toBe(false);
+
+    let temp_ext = scran.chooseTemporaryPath({ extension: ".h5" });
+    expect(temp_ext.endsWith(".h5")).toBe(true);
+    expect(fs.existsSync(temp_ext)).toBe(false);
+})
+
+test("removeFile works correctly", () => {
+    let tmpdir = fs.mkdtempSync(path.join(os.tmpdir(), "foo-"));
+    let tmppath = path.join(tmpdir, "foo.txt");
+    fs.writeFileSync(tmppath, "FOO");
+    expect(fs.existsSync(tmppath)).toBe(true);
+    
+    scran.removeFile(tmppath);
+    expect(fs.existsSync(tmppath)).toBe(false);
+
+    // Works when file is already absent.
+    scran.removeFile(tmppath);
+    expect(fs.existsSync(tmppath)).toBe(false);
+})
+
