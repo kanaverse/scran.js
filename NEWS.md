@@ -1,19 +1,21 @@
 # scran.js news
 
-## 0.6.1
+## 1.0.0
 
 **New**
 
-- Added `cloneArrayCollection()` to clone an array collection.
-- Added `splitArray()` to split an array based on a factor.
 - Added `realizeFile()` to prepare a file for reading into other functions, regardless of whether the call is in a Node.js or browser context.
   For browsers, this creates a file on the virtual file system; for Node.js, it either uses the supplied path or it creates a temporary file.
 - Added `extractHdf5MatrixDetails()` to preview the format and dimensions of a HDF5-based matrix.
 
 **Changes**
 
-- Renamed `quickSliceArray()` to `sliceArray()` with a more sensible argument order.
-  Soft-deprecated the former.
+- Removed `quickSliceArray()`.
+  Users should instead use the `SLICE()` function from the [**bioconductor**](https://npmjs.org/package/bioconductor) package.
+- Removed all array collection-related functions. 
+  Users should instead use the `DataFrame` class and related methods from the **bioconductor** package.
+- Removed `splitByFactor()`.
+  Users should instead use the `presplitFactor()` function from the **bioconductor** package.
 - Renamed `writeFile()`, `removeFile()`, `readFile()` and `fileExists()` to `writeVirtualFile()`, `removeVirtualFile()`, `readVirtualFile()` and `existsVirtualFile()`.
   Soft-deprecated the former set of functions.
 
