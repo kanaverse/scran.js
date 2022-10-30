@@ -1,12 +1,13 @@
-build*
+build_*
+build.sh
 docs/
 extern/
 js/
 src/
 tests/
 misc/
-.parcel-cache
-.github
-jest.config.js
+.parcel-cache/
+.github/
+*-test-files/
 CMakeLists.txt
 Dockerfile

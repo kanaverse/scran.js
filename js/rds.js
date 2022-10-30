@@ -360,7 +360,7 @@ export class RdsDetails {
 /**
  * Read the contents of an RDS file.
  *
-* @param {Uint8WasmArray|Array|TypedArray|string} buffer Byte array containing the contents of an RDS file.
+ * @param {Uint8WasmArray|Array|TypedArray|string} buffer Byte array containing the contents of an RDS file.
  * This can be raw text or Gzip-compressed.
  * 
  * Alternatively, this can be a string containing a file path to a MatrixMarket file.

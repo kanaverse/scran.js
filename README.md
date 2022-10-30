@@ -67,9 +67,7 @@ import * as scran from "scran.js";
 await scran.initialize({ numberOfThreads: 4 });
 
 // Reading in the count matrix.
-import * as fs from "fs";
-let buffer = fs.readFileSync("matrix.mtx.gz");
-let input = scran.initializeSparseMatrixFromMatrixMarketBuffer(buffer);
+let input = scran.initializeSparseMatrixFromMatrixMarketBuffer("matrix.mtx.gz");
 let mat = input.matrix;
 
 // Performing QC.
