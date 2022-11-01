@@ -1,5 +1,12 @@
 # scran.js news
 
+## 1.0.2
+
+**Changes**
+
+- Fixed `readFile()` to actually return content in the browser.
+- Removed the not-to-be-used virtual file system utilities.
+
 ## 1.0.1
 
 **New**
