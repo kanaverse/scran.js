@@ -245,7 +245,7 @@ function label_cells(x, expectedNumberOfFeatures, buffer, numberOfFeatures, numb
             // 'x' into the appropriate memory space.
             matbuf = utils.wasmifyArray(x, null);
             tempmat = gc.call(
-                module => module.initialize_dense_matrix(numberOfFeatures, numberOfCells, matbuf.offset, "Float64Array"),
+                module => module.initialize_dense_matrix(numberOfFeatures, numberOfCells, matbuf.offset, "Float64Array", false),
                 ScranMatrix
             );
             target = tempmat.matrix;
