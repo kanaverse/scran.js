@@ -6,8 +6,7 @@ export function writeFile(path, buffer) {
 }
 
 export function readFile(path) {
-    wasm.call(module => module.FS.readFile(path, { encoding: 'binary' }));
-    return;
+    return wasm.call(module => module.FS.readFile(path, { encoding: 'binary' }));
 }
 
 export function removeFile(path) {
