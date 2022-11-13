@@ -3,6 +3,7 @@ import * as wasm from "./wasm.js";
 import * as utils from "./utils.js";
 import { ScranMatrix } from "./ScranMatrix.js";
 import * as wa from "wasmarrays.js";
+import * as init from "./initializeSparseMatrix.js";
 
 /**
  * Wrapper around a labelled reference dataset on the Wasm heap, typically produced by {@linkcode loadLabelledReferenceFromBuffers}.
@@ -237,19 +238,8 @@ function label_cells(x, expectedNumberOfFeatures, buffer, numberOfFeatures, numb
         if (x instanceof ScranMatrix) {
             target = x.matrix;
         } else if (x instanceof wa.Float64WasmArray) {
-            if (x.length !== numberOfFeatures * numberOfCells) {
-                throw new Error("length of 'x' must be equal to the product of 'numberOfFeatures' and 'numberOfCells'");
-            }
-
-            // This will either create a cheap view, or it'll clone
-            // 'x' into the appropriate memory space.
-            matbuf = utils.wasmifyArray(x, null);
-            tempmat = gc.call(
-                module => module.initialize_dense_matrix(numberOfFeatures, numberOfCells, matbuf.offset, "Float64Array"),
-                ScranMatrix
-            );
+            tempmat = init.initializeDenseMatrixFromDenseArray(numberOfFeatures, numberOfCells, x, { forceInteger: false });
             target = tempmat.matrix;
-
         } else {
             throw new Error("unknown type for 'x'");
         }

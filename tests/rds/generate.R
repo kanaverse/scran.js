@@ -24,9 +24,9 @@ saveRDS(y, "test-s4.rds")
 
 saveRDS(matrix(as.integer(rpois(1000, 5)), 50, 20), "test2-integer-matrix.rds")
 
-saveRDS(matrix(2 * rpois(1000, 5), 100, 10), "test2-double-matrix.rds")
+saveRDS(matrix(0.5 * rpois(1000, 5), 100, 10), "test2-double-matrix.rds")
 
-saveRDS(abs(Matrix::rsparsematrix(70, 30, 0.05) * 100), "test2-dgCMatrix.rds")
+saveRDS(abs(Matrix::rsparsematrix(70, 30, 0.05) * 10), "test2-dgCMatrix.rds")
 
-y <- abs(Matrix::rsparsematrix(30, 70, 0.1) * 100)
+y <- abs(Matrix::rsparsematrix(30, 70, 0.1) * 10)
 saveRDS(as(y, "TsparseMatrix"), "test2-dgTMatrix.rds")

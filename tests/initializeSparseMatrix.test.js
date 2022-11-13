@@ -61,6 +61,47 @@ test("initialization from dense array works correctly", () => {
     row_buf.free();
 })
 
+test("forced integers from dense array works correctly", () => {
+    let nr = 5;
+    let nc = 3;
+    var vals = scran.createFloat64WasmArray(15);
+    vals.set([1.2, 2.5, 0, 0, 7.1, 0, 0, 10.1, 4.2, 2.3, 0, 0, 0, 5.3, 8.1]);
+
+    var smat1 = scran.initializeSparseMatrixFromDenseArray(nr, nc, vals, { forceInteger: true, layered: false });
+    var smat2 = scran.initializeSparseMatrixFromDenseArray(nr, nc, vals, { forceInteger: false });
+    var dmat1 = scran.initializeDenseMatrixFromDenseArray(nr, nc, vals, { forceInteger: true });
+    var dmat2 = scran.initializeDenseMatrixFromDenseArray(nr, nc, vals, { forceInteger: false });
+    var dmat_default = scran.initializeDenseMatrixFromDenseArray(nr, nc, vals); // checking the default for back-compatibility.
+
+    for (var i = 0; i < nc; i++) {
+        let ref = vals.slice(i * nr, (i + 1) * nr);
+        let trunc = ref.map(Math.trunc);
+
+        expect(compare.equalArrays(smat1.matrix.column(i), trunc)).toBe(true);
+        expect(compare.equalArrays(smat2.matrix.column(i), ref)).toBe(true);
+        expect(compare.equalArrays(dmat1.column(i), trunc)).toBe(true);
+        expect(compare.equalArrays(dmat2.column(i), ref)).toBe(true);
+        expect(compare.equalArrays(dmat_default.column(i), ref)).toBe(true);
+    }
+
+    // Layering is automatically performed if the values are already integers,
+    // even if forceInteger = false.
+    var vals2 = scran.createInt32WasmArray(15);
+    let arr2 = vals2.array();
+    vals.forEach((y, i) => { arr2[i] = Math.trunc(y) });
+    var smat3 = scran.initializeSparseMatrixFromDenseArray(nr, nc, vals2, { forceInteger: false });
+    expect(smat3.row_ids.length).toBe(nr);
+
+    // Cleaning up.
+    vals.free();
+    smat1.matrix.free();
+    smat2.matrix.free();
+    smat3.matrix.free();
+    dmat1.free();
+    dmat2.free();
+    dmat_default.free();
+})
+
 test("initialization from compressed values works correctly", () => {
     var vals = scran.createInt32WasmArray(15);
     vals.set([1, 5, 2, 3, 7, 8, 9, 10, 4, 2, 1, 1, 3, 5, 8]);
@@ -88,6 +129,43 @@ test("initialization from compressed values works correctly", () => {
     indices.free();
     indptrs.free();
     mat.matrix.free();
+})
+
+test("initialization from compressed values works with forced integers", () => {
+    var vals = scran.createFloat64WasmArray(15);
+    vals.set([1.2, 5.3, 2.6, 3.9, 7.2, 8.1, 9.3, 10.9, 4.6, 2.4, 1.7, 1.1, 3.2, 5.7, 8.8]);
+    var indices = scran.createInt32WasmArray(15);
+    indices.set([3, 5, 5, 0, 2, 3, 1, 2, 5, 5, 6, 8, 8, 6, 7]);
+    var indptrs = scran.createInt32WasmArray(11);
+    indptrs.set([0, 2, 3, 6, 9, 11, 11, 12, 12, 13, 15]);
+
+    var mat1 = scran.initializeSparseMatrixFromCompressedVectors(9, 10, vals, indices, indptrs, { forceInteger: false });
+    expect(mat1.row_ids).toBeNull(); // no layering is performed when we're not forcing integers.
+    expect(compare.equalArrays(mat1.matrix.column(0), [0, 0, 0, 1.2, 0, 5.3, 0, 0, 0])).toBe(true);
+
+    var mat2 = scran.initializeSparseMatrixFromCompressedVectors(9, 10, vals, indices, indptrs, { layered: false });
+    for (var i = 0; i < 10; i++) {
+        let col1 = mat1.matrix.column(i);
+        let trunc = col1.map(Math.trunc);
+        let col2 = mat2.matrix.column(i);
+        expect(compare.equalArrays(col2, trunc)).toBe(true);
+    }
+
+    // Layering is automatically performed if the values are already integers,
+    // even if forceInteger = false.
+    var vals2 = scran.createInt32WasmArray(15);
+    let arr2 = vals2.array();
+    vals.forEach((y, i) => { arr2[i] = Math.trunc(y) });
+    var mat3 = scran.initializeSparseMatrixFromCompressedVectors(9, 10, vals2, indices, indptrs, { forceInteger: false });
+    expect(mat3.row_ids.length).toBe(9);
+
+    // Cleaning up.
+    vals.free();
+    indices.free();
+    indptrs.free();
+    mat1.matrix.free();
+    mat2.matrix.free();
+    mat3.matrix.free();
 })
 
 test("initialization from compressed values works with reorganization", () => {

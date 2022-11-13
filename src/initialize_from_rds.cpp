@@ -48,19 +48,15 @@ std::pair<size_t, size_t> fetch_array_dimensions(const Vector* obj) {
     return parse_dimensions(attrval.get());
 }
 
-
-template<class Vector>
+template<typename T, class Vector>
 NumericMatrix convert_ordinary_array_to_sparse_matrix(const Vector* obj, bool layered) {
     auto dims = fetch_array_dimensions(obj);
     tatami::ArrayView view(obj->data.data(), obj->data.size());
-
-    typedef typename std::remove_reference<decltype(obj->data)>::type V;
-    typedef tatami::DenseColumnMatrix<typename V::value_type, int, decltype(view)> Matrix;
-    Matrix raw(dims.first, dims.second, std::move(view));
-
+    tatami::DenseColumnMatrix<T, int, decltype(view)> raw(dims.first, dims.second, std::move(view));
     return sparse_from_tatami(&raw, layered);
 }
 
+template<typename T>
 NumericMatrix convert_dgCMatrix_to_sparse_matrix(rds2cpp::S4Object* obj, bool layered, bool consume) {
     std::unordered_map<std::string, rds2cpp::RObject*> by_name;
     size_t nattr = obj->attributes.names.size();
@@ -104,21 +100,36 @@ NumericMatrix convert_dgCMatrix_to_sparse_matrix(rds2cpp::S4Object* obj, bool la
     }
     auto& p = static_cast<rds2cpp::IntegerVector*>(pobj)->data; 
 
-    if (!layered && consume) {
-        typedef typename std::remove_reference<decltype(x)>::type XType;
-        typedef typename std::remove_reference<decltype(i)>::type IType;
-        typedef typename std::remove_reference<decltype(p)>::type PType;
-        typedef tatami::CompressedSparseColumnMatrix<double, int, XType, IType, PType> Matrix;
-        return NumericMatrix(new Matrix(dims.first, dims.second, std::move(x), std::move(i), std::move(p)));
+    if (!layered) {
+        if (consume) {
+            typedef typename std::remove_reference<decltype(i)>::type IType;
+            typedef typename std::remove_reference<decltype(p)>::type PType;
+            typedef typename std::remove_reference<decltype(x)>::type XType;
+
+            if constexpr(std::is_same<T, typename XType::value_type>::value) {
+                typedef tatami::CompressedSparseColumnMatrix<double, int, XType, IType, PType> Matrix;
+                return NumericMatrix(new Matrix(dims.first, dims.second, std::move(x), std::move(i), std::move(p)));
+            } else {
+                std::vector<T> xcopy(x.begin(), x.end());
+                typedef tatami::CompressedSparseColumnMatrix<double, int, decltype(xcopy), IType, PType> Matrix;
+                return NumericMatrix(new Matrix(dims.first, dims.second, std::move(xcopy), std::move(i), std::move(p)));
+            }
+        } else {
+            // Directly creating a CSC matrix.
+            return copy_into_sparse<T>(dims.first, dims.second, x, i, p);
+        }
+
     } else {
         tatami::ArrayView xview(x.data(), x.size());
         tatami::ArrayView iview(i.data(), i.size());
         tatami::ArrayView pview(p.data(), p.size());
-        tatami::CompressedSparseColumnMatrix<double, int, decltype(xview), decltype(iview), decltype(pview)> mat(dims.first, dims.second, std::move(xview), std::move(iview), std::move(pview));
+        tatami::CompressedSparseColumnMatrix<T, int, decltype(xview), decltype(iview), decltype(pview)> mat(dims.first, dims.second, std::move(xview), std::move(iview), std::move(pview));
         return sparse_from_tatami(&mat, layered);
     }
 }
 
+
+template<typename T>
 NumericMatrix convert_dgTMatrix_to_sparse_matrix(rds2cpp::S4Object* obj, bool layered, bool consume) {
     std::unordered_map<std::string, rds2cpp::RObject*> by_name;
     size_t nattr = obj->attributes.names.size();
@@ -165,39 +176,65 @@ NumericMatrix convert_dgTMatrix_to_sparse_matrix(rds2cpp::S4Object* obj, bool la
     typedef typename std::remove_reference<decltype(x)>::type XType;
     typedef typename std::remove_reference<decltype(i)>::type IType;
     typedef std::vector<size_t> PType;
-    typedef tatami::CompressedSparseColumnMatrix<double, int, XType, IType, PType> Matrix;
-    std::shared_ptr<tatami::NumericMatrix> mptr;
-
-    if (consume) {
-        auto p = tatami::compress_sparse_triplets<false>(dims.first, dims.second, x, i, j);
-        mptr.reset(new Matrix(dims.first, dims.second, std::move(x), std::move(i), std::move(p)));
-    } else {
-        auto xcopy = x;
-        auto icopy = i;
-        auto jcopy = j;
-        auto p = tatami::compress_sparse_triplets<false>(dims.first, dims.second, xcopy, icopy, jcopy);
-        mptr.reset(new Matrix(dims.first, dims.second, std::move(xcopy), std::move(icopy), std::move(p)));
-    }
 
     if (!layered) {
+        typedef tatami::CompressedSparseColumnMatrix<double, int, std::vector<T>, IType, PType> Matrix;
+        std::shared_ptr<Matrix> mptr;
+
+        if (consume) {
+            if constexpr(std::is_same<T, typename XType::value_type>::value) {
+                auto p = tatami::compress_sparse_triplets<false>(dims.first, dims.second, x, i, j);
+                mptr.reset(new Matrix(dims.first, dims.second, std::move(x), std::move(i), std::move(p)));
+            } else {
+                std::vector<T> xcopy(x.begin(), x.end());
+                auto p = tatami::compress_sparse_triplets<false>(dims.first, dims.second, xcopy, i, j);
+                mptr.reset(new Matrix(dims.first, dims.second, std::move(xcopy), std::move(i), std::move(p)));
+            }
+        } else {
+            std::vector<T> xcopy(x.begin(), x.end());
+            auto icopy = i;
+            auto jcopy = j;
+            auto p = tatami::compress_sparse_triplets<false>(dims.first, dims.second, xcopy, icopy, jcopy);
+            mptr.reset(new Matrix(dims.first, dims.second, std::move(xcopy), std::move(icopy), std::move(p)));
+        }
+
         return NumericMatrix(std::move(mptr));
+
     } else {
+        typedef tatami::CompressedSparseColumnMatrix<T, int, XType, IType, PType> Matrix;
+        std::shared_ptr<Matrix> mptr;
+
+        if (consume) {
+            auto p = tatami::compress_sparse_triplets<false>(dims.first, dims.second, x, i, j);
+            mptr.reset(new Matrix(dims.first, dims.second, std::move(x), std::move(i), std::move(p)));
+        } else {
+            auto xcopy = x;
+            auto icopy = i;
+            auto jcopy = j;
+            auto p = tatami::compress_sparse_triplets<false>(dims.first, dims.second, xcopy, icopy, jcopy);
+            mptr.reset(new Matrix(dims.first, dims.second, std::move(xcopy), std::move(icopy), std::move(p)));
+        }
+
         return sparse_from_tatami(mptr.get(), true);
     }
 }
 
-NumericMatrix initialize_sparse_matrix_from_rds(uintptr_t ptr, bool layered, bool consume) {
+NumericMatrix initialize_sparse_matrix_from_rds(uintptr_t ptr, bool force_integer, bool layered, bool consume) {
     RdsObject* wrapper = reinterpret_cast<RdsObject*>(ptr);
     auto obj = wrapper->ptr;
 
     if (obj->type() == rds2cpp::SEXPType::INT) {
         auto ivec = static_cast<const rds2cpp::IntegerVector*>(obj);
-        return convert_ordinary_array_to_sparse_matrix(ivec, layered);
+        return convert_ordinary_array_to_sparse_matrix<int>(ivec, layered);
     }
 
     if (obj->type() == rds2cpp::SEXPType::REAL) {
         auto dvec = static_cast<const rds2cpp::DoubleVector*>(obj);
-        return convert_ordinary_array_to_sparse_matrix(dvec, layered);
+        if (force_integer) {
+            return convert_ordinary_array_to_sparse_matrix<int>(dvec, layered);
+        } else {
+            return convert_ordinary_array_to_sparse_matrix<double>(dvec, false);
+        }
     }
 
     if (obj->type() != rds2cpp::SEXPType::S4) {
@@ -206,13 +243,21 @@ NumericMatrix initialize_sparse_matrix_from_rds(uintptr_t ptr, bool layered, boo
 
     auto s4 = static_cast<rds2cpp::S4Object*>(const_cast<rds2cpp::RObject*>(obj));
     if (s4->class_name == "dgCMatrix") {
-        return convert_dgCMatrix_to_sparse_matrix(s4, layered, consume);
+        if (force_integer) {
+            return convert_dgCMatrix_to_sparse_matrix<int>(s4, layered, consume);
+        } else {
+            return convert_dgCMatrix_to_sparse_matrix<double>(s4, false, consume);
+        }
     }
 
     if (s4->class_name != "dgTMatrix") {
         throw std::runtime_error("S4 object in an RDS file must be a dgTMatrix");
     }
-    return convert_dgTMatrix_to_sparse_matrix(s4, layered, consume);
+    if (force_integer) {
+        return convert_dgTMatrix_to_sparse_matrix<int>(s4, layered, consume);
+    } else {
+        return convert_dgTMatrix_to_sparse_matrix<double>(s4, false, consume);
+    }
 }
 
 EMSCRIPTEN_BINDINGS(initialize_from_rds) {

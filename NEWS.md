@@ -1,5 +1,13 @@
 # scran.js news
 
+## 1.1.0
+
+**Changes**
+
+- Added a `forceInteger` option to (almost) all matrix initialization functions.
+  Setting this to `false` will preserve any floating-point representations, e.g., for normalized expression data.
+  This defaults to `true` for back-compatibility, where floats are coerced to integer by truncation.
+
 ## 1.0.2
 
 **Changes**
