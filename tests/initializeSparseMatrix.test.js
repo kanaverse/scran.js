@@ -71,6 +71,7 @@ test("forced integers from dense array works correctly", () => {
     var smat2 = scran.initializeSparseMatrixFromDenseArray(nr, nc, vals, { forceInteger: false });
     var dmat1 = scran.initializeDenseMatrixFromDenseArray(nr, nc, vals, { forceInteger: true });
     var dmat2 = scran.initializeDenseMatrixFromDenseArray(nr, nc, vals, { forceInteger: false });
+    var dmat_default = scran.initializeDenseMatrixFromDenseArray(nr, nc, vals); // checking the default for back-compatibility.
 
     for (var i = 0; i < nc; i++) {
         let ref = vals.slice(i * nr, (i + 1) * nr);
@@ -80,6 +81,7 @@ test("forced integers from dense array works correctly", () => {
         expect(compare.equalArrays(smat2.matrix.column(i), ref)).toBe(true);
         expect(compare.equalArrays(dmat1.column(i), trunc)).toBe(true);
         expect(compare.equalArrays(dmat2.column(i), ref)).toBe(true);
+        expect(compare.equalArrays(dmat_default.column(i), ref)).toBe(true);
     }
 
     // Layering is automatically performed if the values are already integers,
@@ -97,6 +99,7 @@ test("forced integers from dense array works correctly", () => {
     smat3.matrix.free();
     dmat1.free();
     dmat2.free();
+    dmat_default.free();
 })
 
 test("initialization from compressed values works correctly", () => {
