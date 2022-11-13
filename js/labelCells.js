@@ -3,7 +3,7 @@ import * as wasm from "./wasm.js";
 import * as utils from "./utils.js";
 import { ScranMatrix } from "./ScranMatrix.js";
 import * as wa from "wasmarrays.js";
-import * as init from "initializeSparseMatrix.js";
+import * as init from "./initializeSparseMatrix.js";
 
 /**
  * Wrapper around a labelled reference dataset on the Wasm heap, typically produced by {@linkcode loadLabelledReferenceFromBuffers}.
