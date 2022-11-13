@@ -28,72 +28,146 @@ function test_okayish(x, nr, nc, layered) {
     expect(margins).toBeGreaterThan(0);
 }
 
+function expect_all(x, fun) {
+    let mat = x.matrix;
+    for (var c = 0; c < mat.numberOfColumns(); c++) {
+        expect(mat.column(c).every(fun));
+    }
+}
+
+function expect_any(x, fun) {
+    let mat = x.matrix;
+    let present = false;
+    for (var c = 0; c < mat.numberOfColumns(); c++) {
+        if (mat.column(c).some(fun)) {
+            present = true;
+            break;        
+        }
+    }
+    expect(present).toBe(true);
+}
+
+
 maybe("works for integer matrix", () => {
+    let stuff = scran.readRds(path + "test2-integer-matrix.rds");
+    let vals = stuff.value();
+    expect(vals.type()).toBe("integer");
+
     for (const layered of [ true, false ]) {
-        let stuff = scran.readRds(path + "test2-integer-matrix.rds");
-
-        let vals = stuff.value();
-        expect(vals.type()).toBe("integer");
-
         let x = scran.initializeSparseMatrixFromRds(vals, { layered: layered });
         test_okayish(x, 50, 20, layered);
-
+        expect_all(x, y => y%1 == 0);
         x.matrix.free();
-        vals.free();
-        stuff.free();
     }
+
+    // Automatically layers even if forceInteger=false.
+    let x2 = scran.initializeSparseMatrixFromRds(vals, { forceInteger: false });
+    expect(x2.row_ids.length).toBe(50);
+    expect_all(x2, y => y%1 == 0); // naturally integer.
+    x2.matrix.free();
+
+    vals.free();
+    stuff.free();
 })
 
 maybe("works for double matrix", () => {
+    let stuff = scran.readRds(path + "test2-double-matrix.rds");
+    let vals = stuff.value();
+    expect(vals.type()).toBe("double");
+
     for (const layered of [ true, false ]) {
-        let stuff = scran.readRds(path + "test2-double-matrix.rds");
-
-        let vals = stuff.value();
-        expect(vals.type()).toBe("double");
-
         let x = scran.initializeSparseMatrixFromRds(vals, { layered: layered });
         test_okayish(x, 100, 10, layered);
-
+        expect_all(x, y => y%1 == 0); // forced integers.
         x.matrix.free();
-        vals.free();
-        stuff.free();
     }
+
+    // Doesn't automatically layer when forceInteger=false.
+    let x2 = scran.initializeSparseMatrixFromRds(vals, { forceInteger: false });
+    expect(x2.row_ids).toBeNull();
+    expect_any(x2, y => y%1 > 0); // not forced integers.
+    x2.matrix.free();
+
+    vals.free();
+    stuff.free();
 })
 
 maybe("works for dgCMatrix", () => {
+    let rpath = path + "test2-dgCMatrix.rds";
+    let stuff = scran.readRds(rpath);
+    let vals = stuff.value();
+    expect(vals.type()).toBe("S4");
+    expect(vals.className()).toBe("dgCMatrix");
+
     for (const layered of [ true, false ]) {
-        for (const cons of [ true, false ]) {
-            let stuff = scran.readRds(path + "test2-dgCMatrix.rds");
+        let x = scran.initializeSparseMatrixFromRds(vals, { layered: layered });
+        expect_all(x, y => y%1 == 0); // forced integers.
+        test_okayish(x, 70, 30, layered);
 
-            let vals = stuff.value();
-            expect(vals.type()).toBe("S4");
-            expect(vals.className()).toBe("dgCMatrix");
+        // Same results in consumption mode.
+        {
+            let stuff2 = scran.readRds(rpath);
+            let vals2 = stuff2.value();
+            let x2 = scran.initializeSparseMatrixFromRds(vals2, { layered: layered, consume: true });
 
-            let x = scran.initializeSparseMatrixFromRds(vals, { layered: layered, consume: cons });
-            test_okayish(x, 70, 30, layered);
+            for (var c = 0; c < x.matrix.numberOfColumns(); c++) {
+                expect(compare.equalArrays(x.matrix.column(c), x2.matrix.column(c))).toBe(true);
+            }
 
-            x.matrix.free();
-            vals.free();
-            stuff.free();
+            x2.matrix.free();
+            vals2.free();
+            stuff2.free();
         }
+
+        x.matrix.free();
     }
+
+    // Doesn't automatically layer when forceInteger=false.
+    let x2 = scran.initializeSparseMatrixFromRds(vals, { forceInteger: false });
+    expect(x2.row_ids).toBeNull();
+    expect_any(x2, y => y%1 > 0); // not forced integers.
+    x2.matrix.free();
+
+    vals.free();
+    stuff.free();
 })
 
 maybe("works for dgTMatrix", () => {
+    let rpath = path + "test2-dgTMatrix.rds";
+    let stuff = scran.readRds(rpath);
+    let vals = stuff.value();
+    expect(vals.type()).toBe("S4");
+    expect(vals.className()).toBe("dgTMatrix");
+
     for (const layered of [ true, false ]) {
-        for (const cons of [ true, false ]) {
-            let stuff = scran.readRds(path + "test2-dgTMatrix.rds");
+        let x = scran.initializeSparseMatrixFromRds(vals, { layered: layered }); 
+        test_okayish(x, 30, 70, layered);
+        expect_all(x, y => y%1 == 0); // forced integers.
 
-            let vals = stuff.value();
-            expect(vals.type()).toBe("S4");
-            expect(vals.className()).toBe("dgTMatrix");
+        // Same results in consumption mode.
+        {
+            let stuff2 = scran.readRds(rpath);
+            let vals2 = stuff2.value();
+            let x2 = scran.initializeSparseMatrixFromRds(vals2, { layered: layered, consume: true });
 
-            let x = scran.initializeSparseMatrixFromRds(vals, { layered: layered, consume: cons });
-            test_okayish(x, 30, 70, layered);
+            for (var c = 0; c < x.matrix.numberOfColumns(); c++) {
+                expect(compare.equalArrays(x.matrix.column(c), x2.matrix.column(c))).toBe(true);
+            }
 
-            x.matrix.free();
-            vals.free();
-            stuff.free();
+            x2.matrix.free();
+            vals2.free();
+            stuff2.free();
         }
+
+        x.matrix.free();
     }
+
+    // Doesn't automatically layer when forceInteger=false.
+    let x2 = scran.initializeSparseMatrixFromRds(vals, { forceInteger: false });
+    expect(x2.row_ids).toBeNull();
+    expect_any(x2, y => y%1 > 0); // not forced integers.
+    x2.matrix.free();
+
+    vals.free();
+    stuff.free();
 })

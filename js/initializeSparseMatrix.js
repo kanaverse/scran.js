@@ -4,14 +4,16 @@ import * as utils from "./utils.js";
 import { ScranMatrix } from "./ScranMatrix.js";
 
 /**
- * Initialize a sparse matrix from its compressed components.
+ * Initialize a sparse matrix from a dense array.
  *
  * @param {number} numberOfRows Number of rows in the matrix.
  * @param {number} numberOfColumns Number of columns in the matrix.
  * @param {WasmArray|Array|TypedArray} values Values of all elements in the matrix, stored in column-major order.
- * These should all be non-negative integers, even if they are stored in floating-point.
+ * This is generally expected to contain non-negative integers; otherwise, users should set `forceInteger = false`.
  * @param {object} [options] - Optional parameters.
+ * @param {boolean} [options.forceInteger=true] - Whether to coerce `values` to integers via truncation.
  * @param {boolean} [options.layered=true] - Whether to create a layered sparse matrix, which reorders the rows of the loaded matrix for better memory efficiency.
+ * Only used if `forceInteger = true`, and assumes that `values` contains only non-negative integers.
  *
  * @return {object} An object containing:
  * - `matrix`, a {@linkplain ScranMatrix} containing the sparse matrix data.
@@ -20,7 +22,7 @@ import { ScranMatrix } from "./ScranMatrix.js";
  *   This can be interpreted as the row slicing that was applied to the original matrix to obtain `matrix`.
  *   If `layered = false`, this is `null`.
  */
-export function initializeSparseMatrixFromDenseArray(numberOfRows, numberOfColumns, values, { layered = true } = {}) {
+export function initializeSparseMatrixFromDenseArray(numberOfRows, numberOfColumns, values, { forceInteger = true, layered = true } = {}) {
     var val_data; 
     var output;
     var ids = null; 
@@ -37,6 +39,7 @@ export function initializeSparseMatrixFromDenseArray(numberOfRows, numberOfColum
                 numberOfColumns, 
                 val_data.offset, 
                 val_data.constructor.className.replace("Wasm", ""),
+                forceInteger,
                 layered
             ),
             ScranMatrix
@@ -64,15 +67,17 @@ export function initializeSparseMatrixFromDenseArray(numberOfRows, numberOfColum
  * @param {number} numberOfRows Number of rows in the matrix.
  * @param {number} numberOfColumns Number of columns in the matrix.
  * @param {WasmArray} values Values of the non-zero elements.
- * These should all be non-negative integers, even if they are stored in floating-point.
+ * This is generally expected to contain non-negative integers; otherwise, users should set `forceInteger = false`.
  * @param {WasmArray} indices Row indices of the non-zero elements.
  * This should be of the same length as `values`.
  * @param {WasmArray} pointers Pointers specifying the start of each column in `indices`.
  * This should have length equal to `numberOfColumns + 1`.
  * @param {object} [options] - Optional parameters.
- * @param {boolean} [options.byColumn=true] - Whether the supplied arrays refer to the compressed sparse column format.
+ * @param {boolean} [options.byColumn=true] - Whether the input arrays are supplied in the compressed sparse column format.
  * If `true`, `indices` should contain column indices and `pointers` should specify the start of each row in `indices`.
+ * @param {boolean} [options.forceInteger=true] - Whether to coerce `values` to integers via truncation.
  * @param {boolean} [options.layered=true] - Whether to create a layered sparse matrix, which reorders the rows of the loaded matrix for better memory efficiency.
+ * Only used if `forceInteger = true`, and assumes that `values` contains only non-negative integers.
  *
  * @return {object} An object containing:
  * - `matrix`, a {@linkplain ScranMatrix} containing the sparse matrix data.
@@ -81,7 +86,7 @@ export function initializeSparseMatrixFromDenseArray(numberOfRows, numberOfColum
  *   This can be interpreted as the row slicing that was applied to the original matrix to obtain `matrix`.
  *   If `layered = false`, this is `null`.
  */ 
-export function initializeSparseMatrixFromCompressedVectors(numberOfRows, numberOfColumns, values, indices, pointers, { byColumn = true, layered = true } = {}) {
+export function initializeSparseMatrixFromCompressedVectors(numberOfRows, numberOfColumns, values, indices, pointers, { byColumn = true, forceInteger = true, layered = true } = {}) {
     var val_data;
     var ind_data;
     var indp_data;
@@ -111,6 +116,7 @@ export function initializeSparseMatrixFromCompressedVectors(numberOfRows, number
                 indp_data.offset, 
                 indp_data.constructor.className.replace("Wasm", ""), 
                 byColumn,
+                forceInteger,
                 layered
             ),
             ScranMatrix
@@ -255,7 +261,9 @@ export function extractMatrixMarketDimensions(x, { compressed = null } = {}) {
  * This can be a HDF5 Dataset for dense matrices or a HDF5 Group for sparse matrices.
  * For the latter, both H5AD and 10X-style sparse formats are supported.
  * @param {object} [options] - Optional parameters.
+ * @param {boolean} [options.forceInteger=true] - Whether to coerce all elements to integers via truncation.
  * @param {boolean} [options.layered=true] - Whether to create a layered sparse matrix, which reorders the rows of the loaded matrix for better memory efficiency.
+ * Only used if `forceInteger = true`, and assumes that the matrix contains only non-negative integers.
  *
  * @return {object} An object containing:
  * - `matrix`, a {@linkplain ScranMatrix} containing the sparse matrix data.
@@ -264,13 +272,13 @@ export function extractMatrixMarketDimensions(x, { compressed = null } = {}) {
  *   This can be interpreted as the row slicing that was applied to the original matrix to obtain `matrix`.
  *   If `layered = false`, this is `null`.
  */
-export function initializeSparseMatrixFromHDF5(file, name, { layered = true } = {}) {
+export function initializeSparseMatrixFromHDF5(file, name, { forceInteger = true, layered = true } = {}) {
     var ids = null;
     var output;
 
     try {
         output = gc.call(
-            module => module.read_hdf5_matrix(file, name, layered),
+            module => module.read_hdf5_matrix(file, name, forceInteger, layered),
             ScranMatrix
         );
 
@@ -296,12 +304,15 @@ export function initializeSparseMatrixFromHDF5(file, name, { layered = true } = 
  * This can be a HDF5 Dataset for dense matrices or a HDF5 Group for sparse matrices.
  * For the latter, both H5AD and 10X-style sparse formats are supported.
  *
- * @return {object} An object containing the number of `rows` and `columns` in the matrix.
- * In addition, the `format` of the matrix (dense, CSR or CSC) is also reported.
+ * @return {object} An object containing:
+ * - `rows`, the number of rows in the matrix.
+ * - `columns`, the number of columns.
+ * - `format`, whether the matrix is dense, CSR or CSC.
+ * - `integer`, whether the matrix data is stored as integers or doubles.
  */
 export function extractHDF5MatrixDetails(file, name) { 
     let output = {};
-    let arr = utils.createInt32WasmArray(4);
+    let arr = utils.createInt32WasmArray(5);
     try {
         wasm.call(module => module.extract_hdf5_matrix_details(file, name, arr.offset));
 
@@ -316,6 +327,7 @@ export function extractHDF5MatrixDetails(file, name) {
 
         output.rows = vals[2];
         output.columns = vals[3];
+        output.integer = vals[4] > 0;
     } finally {
         arr.free();
     }
@@ -329,10 +341,12 @@ export function extractHDF5MatrixDetails(file, name) {
  * @param {number} numberOfColumns - Number of columns.
  * @param {(WasmArray|TypedArray|Array)} values - Array of length equal to the product of `numberOfRows` and `numberOfColumns`,
  * containing the values to store in the array.
+ * @param {object} [options] - Optional parameters.
+ * @param {boolean} [options.forceInteger=true] - Whether to coerce `values` to integers via truncation.
  *
  * @return {ScranMatrix} A dense matrix, filled by column with the contents of `values`.
  */
-export function initializeDenseMatrixFromDenseArray(numberOfRows, numberOfColumns, values) {
+export function initializeDenseMatrixFromDenseArray(numberOfRows, numberOfColumns, values, { forceInteger = false } = {}) {
     var tmp;
     var output;
 
@@ -343,7 +357,8 @@ export function initializeDenseMatrixFromDenseArray(numberOfRows, numberOfColumn
                 numberOfRows, 
                 numberOfColumns, 
                 tmp.offset, 
-                tmp.constructor.className.replace("Wasm", "")
+                tmp.constructor.className.replace("Wasm", ""),
+                forceInteger
             ),
             ScranMatrix
         );
@@ -365,7 +380,9 @@ export function initializeDenseMatrixFromDenseArray(numberOfRows, numberOfColumn
  * @param {object} [options] - Optional parameters.
  * @param {boolean} [options.consume=false] - Whether to consume the values in `x` when creating the output sparse matrix.
  * Setting this to `true` improves memory efficiency at the cost of preventing any further use of `x`.
+ * @param {boolean} [options.forceInteger=true] - Whether to coerce all elements to integers via truncation.
  * @param {boolean} [options.layered=true] - Whether to create a layered sparse matrix, which reorders the rows of the loaded matrix for better memory efficiency.
+ * Only used if `forceInteger = true`, and assumes that the matrix contains only non-negative integers.
  *
  * @return {object} An object containing:
  * - `matrix`, a {@linkplain ScranMatrix} containing the sparse matrix data.
@@ -374,13 +391,13 @@ export function initializeDenseMatrixFromDenseArray(numberOfRows, numberOfColumn
  *   This can be interpreted as the row slicing that was applied to the original matrix to obtain `matrix`.
  *   If `layered = false`, this is `null`.
  */
-export function initializeSparseMatrixFromRds(x, { consume = false, layered = true } = {}) {
+export function initializeSparseMatrixFromRds(x, { consume = false, forceInteger = true, layered = true } = {}) {
     var ids = null;
     var output;
 
     try {
         output = gc.call(
-            module => module.initialize_sparse_matrix_from_rds(x.object.$$.ptr, layered, consume),
+            module => module.initialize_sparse_matrix_from_rds(x.object.$$.ptr, forceInteger, layered, consume),
             ScranMatrix
         );
 

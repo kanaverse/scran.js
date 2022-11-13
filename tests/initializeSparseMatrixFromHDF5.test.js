@@ -27,7 +27,7 @@ test("initialization from HDF5 works correctly with dense inputs", () => {
     purge(path);
 
     // Filling with random integers.
-    let x = new Float64Array(1000);
+    let x = new Int32Array(1000);
     x.forEach((y, i) => {
         x[i] = Math.round(Math.random() * 10);
     });
@@ -41,6 +41,7 @@ test("initialization from HDF5 works correctly with dense inputs", () => {
     expect(deets.format).toBe("dense");
     expect(deets.rows).toBe(50); // transposed, rows in HDF5 are typically samples.
     expect(deets.columns).toBe(20);
+    expect(deets.integer).toBe(true);
 
     // Ingesting it.
     var mat = scran.initializeSparseMatrixFromHDF5(path, "stuff", { layered: false });
@@ -55,8 +56,57 @@ test("initialization from HDF5 works correctly with dense inputs", () => {
     var last_col = mat.matrix.column(19);
     expect(compare.equalArrays(last_col, x.slice(19 * 50, 20 * 50))).toBe(true);
 
+    // Integer status is automatically detected, allowing the layering to be attempted.
+    var mat2 = scran.initializeSparseMatrixFromHDF5(path, "stuff", { forceInteger: false });
+    expect(mat2.row_ids.length).toBe(50);
+
     // Freeing.
     mat.matrix.free();
+})
+
+test("dense initialization from HDF5 works correctly with forced integers", () => {
+    const path = dir + "/test.dense.h5";
+    purge(path);
+
+    // Filling with random numbers.
+    let x = new Float64Array(1000);
+    x.forEach((y, i) => {
+        x[i] = Math.random() * 10;
+    });
+
+    let f = new hdf5.File(path, "w");
+    f.create_dataset("stuff", x, [25, 40]);
+    f.close();
+
+    let deets = scran.extractHDF5MatrixDetails(path, "stuff");
+    expect(deets.integer).toBe(false);
+
+    // Checking that non-integers are preserved.
+    var mat = scran.initializeSparseMatrixFromHDF5(path, "stuff", { forceInteger: false });
+    expect(mat.matrix.numberOfRows()).toBe(40); 
+    expect(mat.matrix.numberOfColumns()).toBe(25);
+    expect(mat.row_ids).toBeNull();
+
+    var first_col = mat.matrix.column(0);
+    let first_ref = x.slice(0, 40);
+    expect(compare.equalArrays(first_col, first_ref)).toBe(true);
+
+    var last_col = mat.matrix.column(24);
+    let last_ref = x.slice(24 * 40, 25 * 40);
+    expect(compare.equalArrays(last_col, last_ref)).toBe(true);
+
+    // Coercing to integer.
+    var mat2 = scran.initializeSparseMatrixFromHDF5(path, "stuff", { forceInteger: true, layered: false });
+
+    var first_col = mat2.matrix.column(0);
+    expect(compare.equalArrays(first_col, first_ref.map(Math.trunc))).toBe(true);
+
+    var last_col = mat2.matrix.column(24);
+    expect(compare.equalArrays(last_col, last_ref.map(Math.trunc))).toBe(true);
+
+    // Freeing.
+    mat.matrix.free();
+    mat2.matrix.free();
 })
 
 test("initialization from HDF5 works correctly with 10X inputs", () => {
@@ -81,6 +131,7 @@ test("initialization from HDF5 works correctly with 10X inputs", () => {
     expect(deets.format).toBe("csc");
     expect(deets.rows).toBe(50); 
     expect(deets.columns).toBe(20);
+    expect(deets.integer).toBe(true);
 
     // Ingesting it.
     var mat = scran.initializeSparseMatrixFromHDF5(path, "foobar");
@@ -113,9 +164,14 @@ test("initialization from HDF5 works correctly with 10X inputs", () => {
         expect(compare.equalArrays(mat.matrix.column(c), lref)).toBe(true);
     }
 
+    // Integer status is automatically detected, allowing the layering to be attempted.
+    var mat2 = scran.initializeSparseMatrixFromHDF5(path, "foobar", { forceInteger: false });
+    expect(mat2.row_ids.length).toBe(nr);
+
     // Freeing.
     mat.matrix.free();
     raw_mat.matrix.free();
+    mat2.matrix.free();
 })
 
 test("initialization from HDF5 works correctly with H5AD inputs", () => {
@@ -158,3 +214,50 @@ test("initialization from HDF5 works correctly with H5AD inputs", () => {
     expect(compare.equalArrays(first_row, ref)).toBe(true);
 })
 
+test("initialization from HDF5 works correctly with forced integers", () => {
+    const path = dir + "/test.sparse_tenx.h5";
+    purge(path);
+
+    // Creating a CSC sparse matrix, injecting in some big numbers.
+    let nr = 50;
+    let nc = 20;
+    const { data, indices, indptrs } = simulate.simulateSparseData(nc, nr);
+    let data2 = new Float64Array(data.length);
+    data.forEach((y, i) => { data2[i] = y + 0.5; });
+
+    let f = new hdf5.File(path, "w");
+    f.create_group("foobar");
+    f.get("foobar").create_dataset("data", data2);
+    f.get("foobar").create_dataset("indices", indices);
+    f.get("foobar").create_dataset("indptr", indptrs);
+    f.get("foobar").create_dataset("shape", [nr, nc], null, "<i");
+    f.close();
+
+    let deets = scran.extractHDF5MatrixDetails(path, "foobar");
+    expect(deets.integer).toBe(false);
+
+    var mat1 = scran.initializeSparseMatrixFromHDF5(path, "foobar", { forceInteger: true, layered: false });
+    expect(mat1.row_ids).toBeNull();
+    var mat2 = scran.initializeSparseMatrixFromHDF5(path, "foobar", { forceInteger: false });
+    expect(mat2.row_ids).toBeNull();
+
+    for (var c = 0; c < nc; c++) {
+        let col1 = mat1.matrix.column(c);
+        let col2 = mat2.matrix.column(c);
+
+        for (var r = 0; r < nr; ++r) {
+            let x1 = col1[r];
+            let x2 = col2[r];
+            if (x2) {
+                expect(x2 % 1).toBeGreaterThan(0);
+                expect(x1).toBe(Math.trunc(x2));
+            } else {
+                expect(x1).toBe(0);
+            }
+        }
+    }
+
+    // Freeing.
+    mat1.matrix.free();
+    mat2.matrix.free();
+})
