@@ -216,7 +216,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="labelCells.js.html">labelCells.js</a>, <a href="labelCells.js.html#line192">line 192</a>
+        <a href="labelCells.js.html">labelCells.js</a>, <a href="labelCells.js.html#line193">line 193</a>
     </li></ul></dd>
     
 
@@ -7320,7 +7320,7 @@ If <code>false</code>, the total count for each subset is stored instead.</p></t
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="initializeSparseMatrix.js.html">initializeSparseMatrix.js</a>, <a href="initializeSparseMatrix.js.html#line302">line 302</a>
+        <a href="initializeSparseMatrix.js.html">initializeSparseMatrix.js</a>, <a href="initializeSparseMatrix.js.html#line313">line 313</a>
     </li></ul></dd>
     
 
@@ -7466,8 +7466,13 @@ For the latter, both H5AD and 10X-style sparse formats are supported.</p></td>
 
         
 <div class="param-desc">
-    <p>An object containing the number of <code>rows</code> and <code>columns</code> in the matrix.
-In addition, the <code>format</code> of the matrix (dense, CSR or CSC) is also reported.</p>
+    <p>An object containing:</p>
+<ul>
+<li><code>rows</code>, the number of rows in the matrix.</li>
+<li><code>columns</code>, the number of columns.</li>
+<li><code>format</code>, whether the matrix is dense, CSR or CSC.</li>
+<li><code>integer</code>, whether the matrix data is stored as integers or doubles.</li>
+</ul>
 </div>
 
 
@@ -7819,7 +7824,7 @@ HDF5 datasets are represented by strings specifying the data type - i.e., <code>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="initializeSparseMatrix.js.html">initializeSparseMatrix.js</a>, <a href="initializeSparseMatrix.js.html#line222">line 222</a>
+        <a href="initializeSparseMatrix.js.html">initializeSparseMatrix.js</a>, <a href="initializeSparseMatrix.js.html#line228">line 228</a>
     </li></ul></dd>
     
 
@@ -10082,7 +10087,7 @@ If the bindings were already initialized (e.g., by a previous call), nothing is 
 
     
 
-    <h4 class="name" id="initializeDenseMatrixFromDenseArray"><span class="type-signature"></span>initializeDenseMatrixFromDenseArray<span class="signature">(numberOfRows, numberOfColumns, values)</span><span class="type-signature"> &rarr; {<a href="ScranMatrix.html">ScranMatrix</a>}</span></h4>
+    <h4 class="name" id="initializeDenseMatrixFromDenseArray"><span class="type-signature"></span>initializeDenseMatrixFromDenseArray<span class="signature">(numberOfRows, numberOfColumns, values, options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {<a href="ScranMatrix.html">ScranMatrix</a>}</span></h4>
 
     
 
@@ -10094,7 +10099,7 @@ If the bindings were already initialized (e.g., by a previous call), nothing is 
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="initializeSparseMatrix.js.html">initializeSparseMatrix.js</a>, <a href="initializeSparseMatrix.js.html#line335">line 335</a>
+        <a href="initializeSparseMatrix.js.html">initializeSparseMatrix.js</a>, <a href="initializeSparseMatrix.js.html#line349">line 349</a>
     </li></ul></dd>
     
 
@@ -10160,6 +10165,8 @@ If the bindings were already initialized (e.g., by a previous call), nothing is 
         <th>Type</th>
 
         
+        <th>Attributes</th>
+        
 
         
 
@@ -10185,6 +10192,14 @@ If the bindings were already initialized (e.g., by a previous call), nothing is 
             </td>
 
             
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
 
             
 
@@ -10207,6 +10222,14 @@ If the bindings were already initialized (e.g., by a previous call), nothing is 
             
             </td>
 
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
             
 
             
@@ -10237,11 +10260,121 @@ If the bindings were already initialized (e.g., by a previous call), nothing is 
             </td>
 
             
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
 
             
 
             <td class="description last"><p>Array of length equal to the product of <code>numberOfRows</code> and <code>numberOfColumns</code>,
 containing the values to store in the array.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>options</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>Optional parameters.</p>
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>forceInteger</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    <code>true</code>
+                
+                </td>
+            
+
+            <td class="description last"><p>Whether to coerce <code>values</code> to integers via truncation.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
         </tr>
 
     
@@ -10305,7 +10438,7 @@ containing the values to store in the array.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="initializeSparseMatrix.js.html">initializeSparseMatrix.js</a>, <a href="initializeSparseMatrix.js.html#line84">line 84</a>
+        <a href="initializeSparseMatrix.js.html">initializeSparseMatrix.js</a>, <a href="initializeSparseMatrix.js.html#line89">line 89</a>
     </li></ul></dd>
     
 
@@ -10472,7 +10605,7 @@ containing the values to store in the array.</p></td>
             
 
             <td class="description last"><p>Values of the non-zero elements.
-These should all be non-negative integers, even if they are stored in floating-point.</p></td>
+This is generally expected to contain non-negative integers; otherwise, users should set <code>forceInteger = false</code>.</p></td>
         </tr>
 
     
@@ -10631,8 +10764,47 @@ This should have length equal to <code>numberOfColumns + 1</code>.</p></td>
                 </td>
             
 
-            <td class="description last"><p>Whether the supplied arrays refer to the compressed sparse column format.
+            <td class="description last"><p>Whether the input arrays are supplied in the compressed sparse column format.
 If <code>true</code>, <code>indices</code> should contain column indices and <code>pointers</code> should specify the start of each row in <code>indices</code>.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>forceInteger</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    <code>true</code>
+                
+                </td>
+            
+
+            <td class="description last"><p>Whether to coerce <code>values</code> to integers via truncation.</p></td>
         </tr>
 
     
@@ -10671,7 +10843,8 @@ If <code>true</code>, <code>indices</code> should contain column indices and <co
                 </td>
             
 
-            <td class="description last"><p>Whether to create a layered sparse matrix, which reorders the rows of the loaded matrix for better memory efficiency.</p></td>
+            <td class="description last"><p>Whether to create a layered sparse matrix, which reorders the rows of the loaded matrix for better memory efficiency.
+Only used if <code>forceInteger = true</code>, and assumes that <code>values</code> contains only non-negative integers.</p></td>
         </tr>
 
     
@@ -10749,7 +10922,7 @@ If <code>layered = false</code>, this is <code>null</code>.</li>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="initializeSparseMatrix.js.html">initializeSparseMatrix.js</a>, <a href="initializeSparseMatrix.js.html#line23">line 23</a>
+        <a href="initializeSparseMatrix.js.html">initializeSparseMatrix.js</a>, <a href="initializeSparseMatrix.js.html#line25">line 25</a>
     </li></ul></dd>
     
 
@@ -10789,7 +10962,7 @@ If <code>layered = false</code>, this is <code>null</code>.</li>
 
 
 <div class="description usertext">
-    <p>Initialize a sparse matrix from its compressed components.</p>
+    <p>Initialize a sparse matrix from a dense array.</p>
 </div>
 
 
@@ -10922,7 +11095,7 @@ If <code>layered = false</code>, this is <code>null</code>.</li>
             
 
             <td class="description last"><p>Values of all elements in the matrix, stored in column-major order.
-These should all be non-negative integers, even if they are stored in floating-point.</p></td>
+This is generally expected to contain non-negative integers; otherwise, users should set <code>forceInteger = false</code>.</p></td>
         </tr>
 
     
@@ -10985,6 +11158,45 @@ These should all be non-negative integers, even if they are stored in floating-p
 
         <tr>
             
+                <td class="name"><code>forceInteger</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    <code>true</code>
+                
+                </td>
+            
+
+            <td class="description last"><p>Whether to coerce <code>values</code> to integers via truncation.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
                 <td class="name"><code>layered</code></td>
             
 
@@ -11017,7 +11229,8 @@ These should all be non-negative integers, even if they are stored in floating-p
                 </td>
             
 
-            <td class="description last"><p>Whether to create a layered sparse matrix, which reorders the rows of the loaded matrix for better memory efficiency.</p></td>
+            <td class="description last"><p>Whether to create a layered sparse matrix, which reorders the rows of the loaded matrix for better memory efficiency.
+Only used if <code>forceInteger = true</code>, and assumes that <code>values</code> contains only non-negative integers.</p></td>
         </tr>
 
     
@@ -11095,7 +11308,7 @@ If <code>layered = false</code>, this is <code>null</code>.</li>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="initializeSparseMatrix.js.html">initializeSparseMatrix.js</a>, <a href="initializeSparseMatrix.js.html#line267">line 267</a>
+        <a href="initializeSparseMatrix.js.html">initializeSparseMatrix.js</a>, <a href="initializeSparseMatrix.js.html#line275">line 275</a>
     </li></ul></dd>
     
 
@@ -11296,6 +11509,45 @@ For the latter, both H5AD and 10X-style sparse formats are supported.</p></td>
 
         <tr>
             
+                <td class="name"><code>forceInteger</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    <code>true</code>
+                
+                </td>
+            
+
+            <td class="description last"><p>Whether to coerce all elements to integers via truncation.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
                 <td class="name"><code>layered</code></td>
             
 
@@ -11328,7 +11580,8 @@ For the latter, both H5AD and 10X-style sparse formats are supported.</p></td>
                 </td>
             
 
-            <td class="description last"><p>Whether to create a layered sparse matrix, which reorders the rows of the loaded matrix for better memory efficiency.</p></td>
+            <td class="description last"><p>Whether to create a layered sparse matrix, which reorders the rows of the loaded matrix for better memory efficiency.
+Only used if <code>forceInteger = true</code>, and assumes that the matrix contains only non-negative integers.</p></td>
         </tr>
 
     
@@ -11406,7 +11659,7 @@ If <code>layered = false</code>, this is <code>null</code>.</li>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="initializeSparseMatrix.js.html">initializeSparseMatrix.js</a>, <a href="initializeSparseMatrix.js.html#line157">line 157</a>
+        <a href="initializeSparseMatrix.js.html">initializeSparseMatrix.js</a>, <a href="initializeSparseMatrix.js.html#line163">line 163</a>
     </li></ul></dd>
     
 
@@ -11737,7 +11990,7 @@ If <code>layered = false</code>, this is <code>null</code>.</li>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="initializeSparseMatrix.js.html">initializeSparseMatrix.js</a>, <a href="initializeSparseMatrix.js.html#line377">line 377</a>
+        <a href="initializeSparseMatrix.js.html">initializeSparseMatrix.js</a>, <a href="initializeSparseMatrix.js.html#line394">line 394</a>
     </li></ul></dd>
     
 
@@ -11945,6 +12198,45 @@ Setting this to <code>true</code> improves memory efficiency at the cost of prev
 
         <tr>
             
+                <td class="name"><code>forceInteger</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    <code>true</code>
+                
+                </td>
+            
+
+            <td class="description last"><p>Whether to coerce all elements to integers via truncation.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
                 <td class="name"><code>layered</code></td>
             
 
@@ -11977,7 +12269,8 @@ Setting this to <code>true</code> improves memory efficiency at the cost of prev
                 </td>
             
 
-            <td class="description last"><p>Whether to create a layered sparse matrix, which reorders the rows of the loaded matrix for better memory efficiency.</p></td>
+            <td class="description last"><p>Whether to create a layered sparse matrix, which reorders the rows of the loaded matrix for better memory efficiency.
+Only used if <code>forceInteger = true</code>, and assumes that the matrix contains only non-negative integers.</p></td>
         </tr>
 
     
@@ -12798,7 +13091,7 @@ If <code>null</code>, defaults to <a href="global.html#maximumThreads"><code>max
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="labelCells.js.html">labelCells.js</a>, <a href="labelCells.js.html#line481">line 481</a>
+        <a href="labelCells.js.html">labelCells.js</a>, <a href="labelCells.js.html#line471">line 471</a>
     </li></ul></dd>
     
 
@@ -13303,7 +13596,7 @@ Note that this may be invalidated on the next allocation on the Wasm heap.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="labelCells.js.html">labelCells.js</a>, <a href="labelCells.js.html#line374">line 374</a>
+        <a href="labelCells.js.html">labelCells.js</a>, <a href="labelCells.js.html#line364">line 364</a>
     </li></ul></dd>
     
 
@@ -13673,7 +13966,7 @@ If <code>null</code>, defaults to <a href="global.html#maximumThreads"><code>max
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="labelCells.js.html">labelCells.js</a>, <a href="labelCells.js.html#line302">line 302</a>
+        <a href="labelCells.js.html">labelCells.js</a>, <a href="labelCells.js.html#line292">line 292</a>
     </li></ul></dd>
     
 
@@ -14331,7 +14624,7 @@ For web applications, this should be saved to the virtual filesystem with <a hre
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="labelCells.js.html">labelCells.js</a>, <a href="labelCells.js.html#line79">line 79</a>
+        <a href="labelCells.js.html">labelCells.js</a>, <a href="labelCells.js.html#line80">line 80</a>
     </li></ul></dd>
     
 
@@ -22396,7 +22689,7 @@ This can be used with <code>createWasmArray()</code> and related functions from 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.11</a> on Tue Nov 01 2022 19:48:26 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.11</a> on Sun Nov 13 2022 22:22:33 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>
