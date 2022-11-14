@@ -8,6 +8,7 @@
 #include "H5Cpp.h"
 #include "tatami/ext/HDF5DenseMatrix.hpp"
 #include "tatami/ext/HDF5CompressedSparseMatrix.hpp"
+#include "tatami/ext/load_hdf5_matrix.hpp"
 
 struct Hdf5MatrixDetails {
     bool is_dense;
@@ -115,55 +116,9 @@ void extract_hdf5_matrix_details(std::string path, std::string name, uintptr_t p
 template<typename T>
 NumericMatrix read_hdf5_matrix_internal(size_t nr, size_t nc, bool is_dense, bool csc, const std::string& path, const std::string name, bool layered) {
     if (!is_dense && csc && !layered) {
-        // Directly dumping the contents into a tatami sparse matrix.
-        // TODO: move most of this code directly to tatami itself.
-        H5::H5File handle(path, H5F_ACC_RDONLY);
-        auto ghandle = handle.openGroup(name);
-
-        auto dhandle = ghandle.openDataSet("data");
-        auto dspace = dhandle.getSpace();
-        if (dspace.getSimpleExtentNdims() != 1) {
-            throw std::runtime_error("'data' should be a 1-dimensional array");
-        }
-        hsize_t len;
-        dspace.getSimpleExtentDims(&len);
-        std::vector<T> data(len);
-        if constexpr(std::is_same<T, int>::value) {
-            dhandle.read(data.data(), H5::PredType::NATIVE_INT);
-        } else {
-            dhandle.read(data.data(), H5::PredType::NATIVE_DOUBLE);
-        }
-
-        auto ihandle = ghandle.openDataSet("indices");
-        auto ispace = ihandle.getSpace();
-        if (ispace.getSimpleExtentNdims() != 1) {
-            throw std::runtime_error("'indices' should be a 1-dimensional array");
-        }
-        hsize_t leni;
-        ispace.getSimpleExtentDims(&leni);
-        if (len != leni) {
-            throw std::runtime_error("'indices' and 'data' should have the same length");
-        }
-        std::vector<int> index(leni);
-        ihandle.read(index.data(), H5::PredType::NATIVE_INT);
-
-        auto phandle = ghandle.openDataSet("indptr");
-        auto pspace = phandle.getSpace();
-        if (pspace.getSimpleExtentNdims() != 1) {
-            throw std::runtime_error("'indptr' should be a 1-dimensional array");
-        }
-        hsize_t lenp;
-        pspace.getSimpleExtentDims(&lenp);
-        if (lenp != nc + 1) {
-            throw std::runtime_error("'indptr' should have length equal to the number of columns plus 1");
-        }
-        std::vector<hsize_t> ptrs(lenp);
-        phandle.read(ptrs.data(), H5::PredType::NATIVE_HSIZE);
-
-        return NumericMatrix(new tatami::CompressedSparseColumnMatrix<double, int, decltype(data), decltype(index), decltype(ptrs)>(
-            nr, nc, std::move(data), std::move(index), std::move(ptrs)
+        return NumericMatrix(new tatami::CompressedSparseColumnMatrix<double, int, std::vector<T> >(
+            tatami::load_hdf5_compressed_sparse_matrix<false, double, int, std::vector<T> >(nr, nc, path, name + "/data", name + "/indices", name + "/indptr")
         ));
-
     } else {
         std::shared_ptr<tatami::Matrix<T, int> > mat;
         try {
