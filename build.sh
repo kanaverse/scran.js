@@ -43,7 +43,7 @@ fi
 
 if [ ! -e $builddir ]
 then
-    emcmake cmake -S . -B $builddir -DCOMPILE_NODE=${node_flag} -DCMAKE_BUILD_TYPE=Release
+    emcmake cmake -S . -B $builddir -DCOMPILE_NODE=${node_flag} -DCMAKE_BUILD_TYPE=Release -DCMAKE_CROSSCOMPILING_EMULATOR="node;--experimental-wasm-threads;--experimental-wasm-memory64"
 fi
 
 cd $builddir

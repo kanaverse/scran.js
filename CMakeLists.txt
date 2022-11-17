@@ -6,6 +6,8 @@ project(scran_wasm
     LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
+add_compile_options("-sMEMORY64")
+add_link_options("-sMEMORY64")
 
 add_subdirectory(extern)
 
@@ -62,7 +64,7 @@ target_compile_definitions(scran_wasm PRIVATE TATAMI_USE_ZLIB=1)
 
 set_target_properties(scran_wasm PROPERTIES 
     OUTPUT_NAME scran
-    LINK_FLAGS "-O3 --bind -s ALLOW_MEMORY_GROWTH=1 -s MAXIMUM_MEMORY=4GB -s USE_ZLIB=1 -s MODULARIZE=1 -s EXPORT_NAME=loadScran -s EXPORT_ES6"
+    LINK_FLAGS "-O3 --bind -s ALLOW_MEMORY_GROWTH=1 -s MAXIMUM_MEMORY=20GB -s USE_ZLIB=1 -s MODULARIZE=1 -s EXPORT_NAME=loadScran -s EXPORT_ES6"
 )
 
 set(COMPILE_NODE OFF CACHE BOOL "Compile for Node.js")
