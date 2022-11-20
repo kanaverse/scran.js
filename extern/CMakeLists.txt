@@ -77,8 +77,8 @@ FetchContent_MakeAvailable(umappp)
 
 FetchContent_Declare(
   h5wasm
-  URL https://github.com/usnistgov/libhdf5-wasm/releases/download/v0.1.1/libhdf5-1_12_1-wasm.tar.gz
-  URL_HASH SHA256=e9bb11d89c4f26fa79b9cf1dab6159640c7b184ebf00dc97b098cd4f6de49bfe
+  URL https://github.com/LTLA/libhdf5-wasm/releases/download/v0.2.0-test_3.1.25/libhdf5-1_12_1-wasm.tar.gz
+  URL_HASH SHA256=4fae54a3c88743d13f67b568657bd1ead9c992f39d36ea46cf389daf400bbf4a
 )
 FetchContent_MakeAvailable(h5wasm)
 
