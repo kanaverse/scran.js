@@ -122,6 +122,9 @@ struct ScoreMarkers_Results {
      * Each entry contains the summarized AUC across all pairwise comparisons between `g` and every other group for a particular gene.
      */
     emscripten::val auc(int g, int s=1) const {
+        if (store.auc.empty()) {
+            throw std::runtime_error("no AUCs computed for this result");
+        }
         const auto& current = store.auc[s][g];
         return emscripten::val(emscripten::typed_memory_view(current.size(), current.data()));
     }
@@ -203,7 +206,7 @@ std::vector<std::vector<Stat*> > vector_to_pointers2(std::vector<std::vector<std
  *
  * @return A `ScoreMarkers_Results` containing summary statistics from comparisons between groups of cells.
  */
-ScoreMarkers_Results score_markers(const NumericMatrix& mat, uintptr_t groups, bool use_blocks, uintptr_t blocks, int nthreads) {
+ScoreMarkers_Results score_markers(const NumericMatrix& mat, uintptr_t groups, bool use_blocks, uintptr_t blocks, double lfc_threshold, bool compute_auc, int nthreads) {
     const int32_t* gptr = reinterpret_cast<const int32_t*>(groups);
     const int32_t* bptr = NULL;
     if (use_blocks) {
@@ -214,6 +217,9 @@ ScoreMarkers_Results score_markers(const NumericMatrix& mat, uintptr_t groups, b
     mrk.set_summary_max(false);
     mrk.set_summary_median(false);
     mrk.set_num_threads(nthreads);
+    mrk.set_threshold(lfc_threshold);
+    mrk.set_compute_auc(compute_auc);
+
     auto store = mrk.run_blocked(mat.ptr.get(), gptr, bptr);
 
     return ScoreMarkers_Results(std::move(store));

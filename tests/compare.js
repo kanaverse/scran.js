@@ -18,8 +18,10 @@ export function equalFloatArrays(x, y, tol = 0.00001) {
     }
 
     for (var i = 0; i < x.length; i++) {
-        if (Math.abs(x[i] - y[i]) > tol * (Math.abs(x[i]) + Math.abs(y[i]))) {
-            return false;
+        if (Math.abs(x[i]) > 0.000000001 || Math.abs(y[i]) > 0.0000000001) { // don't distinguish between very small values.
+            if (Math.abs(x[i] - y[i]) > tol * (Math.abs(x[i]) + Math.abs(y[i]))) {
+                return false;
+            }
         }
     }
 

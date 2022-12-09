@@ -1,4 +1,5 @@
 import * as gc from "./gc.js";
+import * as wasm from "./wasm.js";
 import * as utils from "./utils.js";
 
 /**
@@ -77,6 +78,9 @@ export class ScoreMarkersResults {
     }
 
     /**
+     * AUCs are only computed if `computeAuc = true` in {@linkcode scoreMarkers}.
+     * If `false`, this method will throw an error.
+     *
      * @param {number} group - Group of interest.
      * Should be non-negative and less than {@linkcode ScoreMarkersResults#numberOfGroups numberOfGroups}.
      * @param {object} [options] - Optional parameters.
@@ -88,7 +92,7 @@ export class ScoreMarkersResults {
      * containing the summarized AUC for the comparisons between `group` and all other groups.
      */
     auc(group, { summary = 1, copy = true } = {}) {
-        return utils.possibleCopy(this.#results.auc(group, summary), copy);
+        return wasm.call(module => utils.possibleCopy(this.#results.auc(group, summary), copy));
     }
 
     /**
@@ -147,10 +151,14 @@ export class ScoreMarkersResults {
  * Alternatively, this may be `null`, in which case all cells are assumed to be in the same block.
  * @param {?number} [options.numberOfThreads=null] - Number of threads to use.
  * If `null`, defaults to {@linkcode maximumThreads}.
+ * @param {number} [options.lfcThreshold=0] - Log-fold change threshold to use for computing Cohen's d and AUC.
+ * Large positive values favor markers with large log-fold changes over those with low variance.
+ * @param {boolean} [options.computeAuc=true] - Whether to compute the AUCs as an effect size.
+ * This can be set to `false` for greater speed and memory efficiency.
  *
  * @return {ScoreMarkersResults} Object containing the marker scoring results.
  */
-export function scoreMarkers(x, groups, { block = null, numberOfThreads = null } = {}) {
+export function scoreMarkers(x, groups, { block = null, numberOfThreads = null, lfcThreshold = 0, computeAuc = true } = {}) {
     var output;
     var block_data;
     var group_data;
@@ -174,7 +182,7 @@ export function scoreMarkers(x, groups, { block = null, numberOfThreads = null }
         }
 
         output = gc.call(
-            module => module.score_markers(x.matrix, group_data.offset, use_blocks, bptr, nthreads),
+            module => module.score_markers(x.matrix, group_data.offset, use_blocks, bptr, lfcThreshold, computeAuc, nthreads),
             ScoreMarkersResults
         );
 
