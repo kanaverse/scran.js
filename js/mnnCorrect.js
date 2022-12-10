@@ -27,7 +27,7 @@ import * as wasm from "./wasm.js";
  * see comments [here](https://ltla.github.io/CppMnnCorrect).
  * @param {number} [options.robustTrim=0.25] - Proportion of furthest observations to remove during robustness iterations, 
  * see comments [here](https://ltla.github.io/CppMnnCorrect).
- * @param {string} [options.referencePolicy="max-size"] - What policy to use to choose the first reference batch.
+ * @param {string} [options.referencePolicy="max-rss"] - What policy to use to choose the first reference batch.
  * This can be the largest batch (`"max-size"`), the most variable batch (`"max-variance"`), the batch with the highest RSS (`"max-rss"`) or batch 0 in `block` (`"input"`).
  * @param {boolean} [options.approximate=true] - Whether to perform an approximate nearest neighbor search.
  * @param {?number} [options.numberOfThreads=null] - Number of threads to use.
@@ -45,7 +45,7 @@ export function mnnCorrect(x, block, {
     numberOfMADs = 3, 
     robustIterations = 2, 
     robustTrim = 0.25,
-    referencePolicy = "max-size",
+    referencePolicy = "max-rss",
     approximate = true,
     numberOfThreads = null
 } = {}) {
