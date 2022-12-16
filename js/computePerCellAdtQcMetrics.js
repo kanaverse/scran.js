@@ -108,8 +108,8 @@ export function computePerCellAdtQcMetrics(x, subsets, { numberOfThreads = null 
  * This is typically used to generate a convenient input into later {@linkcode computePerCellAdtQcFilters} calls.
  * Note that filling requires use of `copy: false` in the various getters to obtain a writeable memory view.
  *
- * @param numberOfCells Number of cells in the dataset.
- * @param numberOfSubsets Number of feature subsets.
+ * @param {number} numberOfCells - Number of cells in the dataset.
+ * @param {number} numberOfSubsets - Number of feature subsets.
  *
  * @return {PerCellAdtQcMetricsResults} Object with allocated memory but no actual values.
  */

@@ -132,3 +132,21 @@ export function computePerCellQCFilters(metrics, { numberOfMADs = 3, block = nul
         )
     );
 }
+
+/**
+ * Create an empty {@linkplain PerCellQCFiltersResults} object, to be filled with custom results.
+ * This is typically used to generate a convenient input into later {@linkcode filterCells} calls.
+ * Note that filling requires use of `copy: false` in the various getters to obtain a writeable memory view.
+ *
+ * @param {number} numberOfCells Number of cells in the dataset.
+ * @param {number} numberOfSubsets Number of feature subsets.
+ * @param {number} numberOfBlocks Number of blocks in the dataset.
+ *
+ * @return {PerCellQCFiltersResults} Object with allocated memory to store QC filters, but no actual values.
+ */
+export function emptyPerCellQCFiltersResults(numberOfGenes, numberOfSubsets, numberOfBlocks) {
+    return gc.call(
+        module => new module.PerCellQCFilters_Results(numberOfGenes, numberOfSubsets, numberOfBlocks),
+        PerCellQCFiltersResults
+    );
+}
