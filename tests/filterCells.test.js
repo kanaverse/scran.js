@@ -27,6 +27,29 @@ test("filtered matrix is constructed as expected", () => {
     filtered.free();
 })
 
+test("filtered matrix works with the ADT objects", () => {
+    var ngenes = 100;
+    var ncells = 20;
+    var mat = simulate.simulateMatrix(ngenes, ncells);
+    var subs = simulate.simulateSubsets(ngenes, 1);
+
+    var qc = scran.computePerCellAdtQcMetrics(mat, subs);
+    var filt = scran.computePerCellAdtQcFilters(qc);
+
+    var discard = filt.discardOverall();
+    var sum = 0;
+    discard.forEach(x => { sum += x; });
+
+    var filtered = scran.filterCells(mat, filt);
+    expect(filtered.constructor.name).toBe("ScranMatrix");
+    expect(filtered.numberOfColumns()).toBe(ncells - sum);
+
+    mat.free();
+    qc.free();
+    filt.free();
+    filtered.free();
+})
+
 test("filtered matrix is constructed as expected from a supplied array", () => {
     var ngenes = 100;
     var ncells = 20;
