@@ -52,6 +52,27 @@ struct ModelGeneVar_Results {
         average_fitted,
         average_residuals;
 
+    ModelGeneVar_Results(int num_genes, int num_blocks) {
+        store.means.resize(num_blocks);
+        store.variances.resize(num_blocks);
+        store.fitted.resize(num_blocks);
+        store.residuals.resize(num_blocks);
+
+        for (int b = 0; b < num_blocks; ++b) {
+            store.means[b].resize(num_genes);
+            store.variances[b].resize(num_genes);
+            store.fitted[b].resize(num_genes);
+            store.residuals[b].resize(num_genes);
+        }
+
+        if (store.means.size() > 1) {
+            average_means.resize(num_genes);
+            average_variances.resize(num_genes);
+            average_fitted.resize(num_genes);
+            average_residuals.resize(num_genes);
+        }
+    }
+
     static emscripten::val quick_wrap(int b, const std::vector<double>& ave, const std::vector<std::vector<double> >& store) {
         if (b < 0) {
             if (store.size() > 1) {
@@ -147,6 +168,7 @@ EMSCRIPTEN_BINDINGS(model_gene_var) {
     emscripten::function("model_gene_var", &model_gene_var);
 
     emscripten::class_<ModelGeneVar_Results>("ModelGeneVar_Results")
+        .constructor<int, int>()
         .function("means", &ModelGeneVar_Results::means)
         .function("variances", &ModelGeneVar_Results::variances)
         .function("fitted", &ModelGeneVar_Results::fitted)
