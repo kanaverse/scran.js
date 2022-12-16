@@ -92,3 +92,48 @@ test("per-cell QC filters can be computed with blocking", () => {
     qc2.free();
     filt2.free();
 });
+
+test("per-cell QC filters can be mocked up", () => {
+    var ngenes = 100;
+    var nsubs = 2;
+    var nblocks = 2;
+
+    var qc = scran.emptyPerCellQCFiltersResults(ngenes, nsubs, nblocks);
+    expect(qc.numberOfSubsets()).toBe(2);
+
+    for (const y of [ "discardSums", "discardDetected" ]) {
+        var x = qc[y]({copy: false});
+        expect(x.length).toBe(ngenes);
+        x[0] = 1;
+        expect(qc[y]()[0]).toBe(1);
+    }
+
+    for (var s = 0; s < nsubs; s++) {
+        var x = qc.discardSubsetProportions(s, {copy: false});
+        expect(x.length).toBe(ngenes);
+        x[10] = 1;
+        expect(qc.discardSubsetProportions(s)[10]).toEqual(1);
+    }
+
+    {
+        var x = qc.discardOverall({ copy: false });
+        x[2] = 1;
+        expect(qc.discardOverall()[2]).toEqual(1);
+    }
+
+    for (const y of [ "thresholdsSums", "thresholdsDetected" ]) {
+        let x = qc[y]({ copy: false });
+        expect(x.length).toEqual(nblocks);
+        x[1] = 20;
+        expect(qc[y]()[1]).toEqual(20);
+    }
+    
+    for (var s = 0; s < nsubs; s++) {
+        var x = qc.thresholdsSubsetProportions(s, {copy: false});
+        expect(x.length).toBe(nblocks);
+        x[0] = 0.9;
+        expect(qc.thresholdsSubsetProportions(s)[0]).toEqual(0.9);
+    }
+
+    qc.free();
+});

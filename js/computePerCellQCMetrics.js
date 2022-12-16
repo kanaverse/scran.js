@@ -118,8 +118,8 @@ export function computePerCellQCMetrics(x, subsets, { subsetProportions = true, 
  * This is typically used to generate a convenient input into later {@linkcode computePerCellQCFilters} calls.
  * Note that filling requires use of `copy: false` in the various getters to obtain a writeable memory view.
  *
- * @param numberOfCells Number of cells in the dataset.
- * @param numberOfSubsets Number of feature subsets.
+ * @param {number} numberOfCells - Number of cells in the dataset.
+ * @param {number} numberOfSubsets - Number of feature subsets.
  * @param {object} [options] - Optional parameters.
  * @param {boolean} [options.subsetProportions=true] - Whether to store proportions for each subset.
  * If `false`, the total count for each subset is stored instead.

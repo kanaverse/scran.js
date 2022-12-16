@@ -50,6 +50,22 @@ struct ScoreMarkers_Results {
         }
     }
 
+    static scran::ScoreMarkers::ComputeSummaries default_choice() {
+        scran::ScoreMarkers::ComputeSummaries out;
+        std::fill(out.begin(), out.end(), false);
+        out[scran::differential_analysis::MIN] = true;
+        out[scran::differential_analysis::MEAN] = true;
+        out[scran::differential_analysis::MIN_RANK] = true;
+        return out;
+    }
+
+    ScoreMarkers_Results(int ngenes, int ngroups, int nblocks, bool compute_auc) : store(ngenes, ngroups, nblocks, default_choice(), (compute_auc ?  default_choice() : scran::ScoreMarkers::Defaults::compute_no_summaries()), default_choice(), default_choice()) {
+        if (nblocks > 1) {
+            ave_means.resize(ngroups, std::vector<double>(ngenes));
+            ave_detected.resize(ngroups, std::vector<double>(ngenes));
+        }
+    }
+
     Store store;
 
     std::vector<std::vector<double> > ave_means;
@@ -232,6 +248,7 @@ EMSCRIPTEN_BINDINGS(score_markers) {
     emscripten::function("score_markers", &score_markers);
 
     emscripten::class_<ScoreMarkers_Results>("ScoreMarkers_Results")
+        .constructor<int, int, int, bool>()
         .function("means", &ScoreMarkers_Results::means)
         .function("detected", &ScoreMarkers_Results::detected)
         .function("cohen", &ScoreMarkers_Results::cohen)

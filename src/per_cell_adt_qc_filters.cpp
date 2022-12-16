@@ -33,6 +33,21 @@ struct PerCellAdtQcFilters_Results {
      * @endcond
      */
 
+    PerCellAdtQcFilters_Results(int num_genes, int num_subsets, int num_blocks) {
+        store.filter_by_detected.resize(num_genes);
+        store.filter_by_subset_totals.resize(num_subsets);
+        for (int s = 0; s < num_subsets; ++s) {
+            store.filter_by_subset_totals[s].resize(num_genes);
+        }
+        store.overall_filter.resize(num_genes);
+
+        store.thresholds.detected.resize(num_blocks);
+        store.thresholds.subset_totals.resize(num_subsets);
+        for (int s = 0; s < num_subsets; ++s) {
+            store.thresholds.subset_totals[s].resize(num_blocks);
+        }
+    }
+
     /**
      * @return `UInt8Array` view specifying whether a cell was discarded because its number of detected features were too low.
      */
@@ -96,6 +111,7 @@ EMSCRIPTEN_BINDINGS(per_cell_adt_qc_filters) {
     emscripten::function("per_cell_adt_qc_filters", &per_cell_adt_qc_filters);
 
     emscripten::class_<PerCellAdtQcFilters_Results>("PerCellAdtQcFilters_Results")
+        .constructor<int, int, int>()
         .function("thresholds_detected", &PerCellAdtQcFilters_Results::thresholds_detected)
         .function("thresholds_subset_totals", &PerCellAdtQcFilters_Results::thresholds_subset_totals)
         .function("discard_detected", &PerCellAdtQcFilters_Results::discard_detected)

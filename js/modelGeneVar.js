@@ -143,3 +143,20 @@ export function modelGeneVar(x, { block = null, span = 0.3, numberOfThreads = nu
     
     return output;
 }
+
+/**
+ * Create an empty {@linkplain ModelGeneVarResults} object, to be filled with custom results.
+ * This is typically used to generate a convenient input into later {@linkcode chooseHVGs} calls.
+ * Note that filling requires use of `copy: false` in the various getters to obtain a writeable memory view.
+ *
+ * @param {number} numberOfGenes - Number of genes in the dataset.
+ * @param {number} numberOfBlocks - Number of blocks in the dataset.
+ *
+ * @return {ModelGeneVarResults} Object with allocated memory to store variance modelling statistics, but no actual values.
+ */
+export function emptyModelGeneVarResults(numberOfGenes, numberOfBlocks) {
+    return gc.call(
+        module => new module.ModelGeneVar_Results(numberOfGenes, numberOfBlocks),
+        ModelGeneVarResults 
+    );
+}

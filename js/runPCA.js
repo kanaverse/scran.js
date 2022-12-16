@@ -27,6 +27,18 @@ export class RunPCAResults {
     }
 
     /**
+     * @param {number} total - Total variance in the dataset,
+     * equal to the sum of the variances across all PCs (including those that were not explicitly computed).
+     *
+     * @return Total varaiance in this object is set to `total`.
+     * This is primarily intended for use with {@linkcode emptyRunPCAResults}.
+     */
+    setTotalVariance(total) {
+        this.#results.set_total_variance(total);
+        return;
+    }
+
+    /**
      * @param {object} [options] - Optional parameters.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      * 
@@ -159,4 +171,21 @@ export function runPCA(x, { features = null, numberOfPCs = 25, scale = false, bl
     }
 
     return output;
+}
+
+/**
+ * Create an empty {@linkplain RunPCAResults} object, to be filled with custom results.
+ * This is typically used to generate a convenient input into later {@linkcode clusterKmeans} calls.
+ * Note that filling requires use of `copy: false` in the various getters to obtain a writeable memory view.
+ *
+ * @param {number} numberOfCells - Number of cells in the dataset, usually after QC filtering.
+ * @param {number} numberOfPCs - Number of PCs to be computed.
+ *
+ * @return {RunPCAResults} Object with allocated memory to store the PCs, but no actual values.
+ */
+export function emptyRunPCAResults(numberOfCells, numberOfPCs) {
+    return gc.call(
+        module => new module.RunPCA_Results(numberOfCells, numberOfPCs),
+        RunPCAResults
+    );
 }

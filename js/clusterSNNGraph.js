@@ -109,6 +109,16 @@ export class ClusterSNNGraphMultiLevelResults {
     }
 
     /**
+     * @param {number} best - Clustering level with the highest modularity.
+     * @return `best` is set as the best clustering level.
+     * This is typically only used after {@linkcode emptyClusterSNNGraphResults}.
+     */
+    setBest(best) {
+        this.#results.set_best(best);
+        return;
+    }
+
+    /**
      * @return {number} Number of levels in the results.
      */
     numberOfLevels() {
@@ -127,6 +137,17 @@ export class ClusterSNNGraphMultiLevelResults {
             level = this.best();
         }
         return this.#results.modularity(level);
+    }
+
+    /**
+     * @param {number} level - The clustering level at which to set the modularity.
+     * @param {number} modularity - Modularity value.
+     *
+     * @return `modularity` is set as the modularity at the specified level.
+     * This is typically only used after {@linkcode emptyClusterSNNGraphResults}.
+     */
+    setModularity(level, modularity) {
+        return this.#results.set_modularity(level, modularity);
     }
 
     /**
@@ -172,10 +193,38 @@ export class ClusterSNNGraphWalktrapResults {
     }
 
     /**
-     * @return {number} The maximum modularity across all merge steps.
+     * @return {number} Number of merge steps used by the Walktrap algorithm.
      */
-    modularity() {
-        return this.#results.modularity();
+    numberOfMergeSteps() {
+        return this.#results.num_merge_steps();
+    }
+
+    /**
+     * @param {object} [options={}] - Optional parameters.
+     * @param {?number} [options.at=null] - Index at which to extract the modularity.
+     * This can be any value from 0 to {@linkcode ClusterSNNGraphWalktrapResults#numberOfMergeSteps numberOfMergeSteps} plus 1.
+     * Set to `null` to obtain the largest modularity across all merge steps.
+     *
+     * @return {number} The modularity at the specified merge step, or the maximum modularity across all merge steps.
+     */
+    modularity({ at = null } = {}) {
+        if (at === null) {
+            at = -1;
+        }
+        return this.#results.modularity(at);
+    }
+
+    /**
+     * @param {number} at - Index at which to set the modularity.
+     * This can be any value from 0 to {@linkcode ClusterSNNGraphWalktrapResults#numberOfMergeSteps numberOfMergeSteps} plus 1.
+     * @param {number} modularity - Modularity value.
+     *
+     * @return Modularity value is set in this object.
+     * This is typically used after calling {@linkcode emptyClusterSNNGraphResults}.
+     */
+    setModularity(at, modularity) {
+        this.#results.set_modularity(at, modularity);
+        return;
     }
 
     /**
@@ -222,6 +271,16 @@ export class ClusterSNNGraphLeidenResults {
      */
     modularity() {
         return this.#results.modularity();
+    }
+
+    /**
+     * @param {number} modularity - Modularity value.
+     * @return Modularity value is set in this object.
+     * This is typically used after calling {@linkcode emptyClusterSNNGraphResults}.
+     */
+    setModularity(modularity) {
+        this.#results.set_modularity(modularity);
+        return;
     }
 
     /**
@@ -288,4 +347,39 @@ export function clusterSNNGraph(x, { method = "multilevel", resolution = 1, walk
     }
 
     return output;
+}
+
+/**
+ * Create an empty {@linkplain ClusterSNNGraphMultiLevelResults} object (or one of its counterparts), to be filled with custom results.
+ * Note that filling requires use of `copy: false` in the various getters to obtain a writeable memory view.
+ *
+ * @param {number} numberOfCells - Number of cells in the dataset.
+ * @param {object} [options={}] - Optional parameters.
+ * @param {string} [options.method="multilevel"] - Community detection method to use.
+ * This should be one of `"multilevel"`, `"walktrap"` or `"leiden"`.
+ * @param {number} [options.numberOfLevels=1] - Number of levels for which to allocate space when `method="multilevel"`.
+ * @param {number} [options.numberOfMergeSteps=1] - Number of merge steps for which to allocate space when `method="walktrap"`.
+ *
+ * @return {ClusterSNNGraphMultiLevelResults|ClusterSNNGraphWalktrapResults|ClusterSNNGraphLeidenResults} 
+ * Object with space allocated to store the clustering results.
+ */
+export function emptyClusterSNNGraphResults(numberOfCells, { method = "multilevel", numberOfLevels = 1, numberOfMergeSteps = 1 } = {}) {
+    if (method == "multilevel") {
+        return gc.call(
+            module => new module.ClusterSNNGraphMultiLevel_Result(numberOfCells, numberOfLevels),
+            ClusterSNNGraphMultiLevelResults
+        );
+    } else if (method == "walktrap") {
+        return gc.call(
+            module => new module.ClusterSNNGraphWalktrap_Result(numberOfCells, numberOfMergeSteps),
+            ClusterSNNGraphWalktrapResults
+        );
+    } else if (method == "leiden") {
+        return gc.call(
+            module => new module.ClusterSNNGraphLeiden_Result(numberOfCells),
+            ClusterSNNGraphLeidenResults
+        );
+    } else {
+        throw new Error("unknown method '" + method + "'")
+    }
 }

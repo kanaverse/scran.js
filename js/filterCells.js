@@ -1,12 +1,13 @@
 import * as gc from "./gc.js";
 import * as utils from "./utils.js";
 import { PerCellQCFiltersResults } from "./computePerCellQCFilters.js";
+import { PerCellAdtQcFiltersResults } from "./computePerCellAdtQcFilters.js";
 
 /**
  * Filter out low-quality cells.
  *
  * @param {ScranMatrix} x The count matrix.
- * @param {(PerCellQCFiltersResults|Uint8WasmArray|Array|TypedArray)} filters 
+ * @param {(PerCellQCFiltersResults|PerCellAdtQcFiltersResults|Uint8WasmArray|Array|TypedArray)} filters 
  * If a {@linkplain PerCellQCFiltersResults} object is supplied, the overall filter (in `filters.discard_overall()`) is used.
  *
  * Otherwise, an array of length equal to the number of columns in `x` should be supplied,
@@ -20,7 +21,7 @@ export function filterCells(x, filters) {
 
     try {
         var ptr;
-        if (filters instanceof PerCellQCFiltersResults) {
+        if (filters instanceof PerCellQCFiltersResults || filters instanceof PerCellAdtQcFiltersResults) {
             var tmp = filters.discardOverall({ copy: false });
             ptr = tmp.byteOffset;
         } else {

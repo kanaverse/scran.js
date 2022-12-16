@@ -31,6 +31,26 @@ export class ClusterKmeansResults {
     }
 
     /**
+     * @param {number} iterations - Number of iterations.
+     * @return The specified number of iterations is set in this object.
+     * Typically only used after {@linkcode emptyClusterKmeansResults}.
+     */
+    setIterations(iterations) {
+        this.#results.set_iterations(iterations);
+        return;
+    }
+
+    /**
+     * @param {number} status - Status of the k-means clustering.
+     * @return The status is set in this object.
+     * Typically only used after {@linkcode emptyClusterKmeansResults}.
+     */
+    setStatus(status) {
+        this.#results.set_status(status);
+        return;
+    }
+
+    /**
      * @param {object} [options] - Optional parameters.
      * @param {boolean|string} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      *
@@ -164,4 +184,21 @@ export function clusterKmeans(x, clusters, { numberOfDims = null, numberOfCells 
     }
 
     return output;
+}
+
+/**
+ * Create an empty {@linkplain ClusterKmeansResults} object, to be filled with custom results.
+ * Note that filling requires use of `copy: false` in the various getters to obtain a writeable memory view.
+ *
+ * @param {number} numberOfCells - Number of cells in the dataset.
+ * @param {number} numberOfClusters - Number of clusters in the dataset.
+ * @param {number} numberOfDimensions - Number of dimensions of the embedding used for clustering.
+ *
+ * @return {ClusterKmeansResults} Object with allocated memory to store variance modelling statistics, but no actual values.
+ */
+export function emptyClusterKmeansResults(numberOfCells, numberOfClusters, numberOfDimensions) {
+    return gc.call(
+        module => new module.ClusterKmeans_Result(numberOfCells, numberOfClusters, numberOfDimensions),
+        ClusterKmeansResults 
+    );
 }

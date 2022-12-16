@@ -77,4 +77,35 @@ test("Variance modelling works as expected with blocking", () => {
     res.free();
 });
 
+test("Variance modelling results can be mocked up", () => {
+    var ngenes = 100;
 
+    // Without blocking, averages are the same as block 0.
+    {
+        var nblocks = 1;
+        var res = scran.emptyModelGeneVarResults(ngenes, nblocks);
+        let x = res.means({ copy : false });
+        x[0] = 2000;
+
+        expect(res.means()[0]).toBe(2000);
+        expect(res.means({ block: 0 })[0]).toBe(2000);
+
+        res.free();
+    }
+
+    // With multiple blocks, they are different.
+    {
+        var nblocks = 2;
+        var res = scran.emptyModelGeneVarResults(ngenes, nblocks);
+        let x = res.residuals({ copy : false });
+        x[0] = 2000;
+
+        let y = res.residuals({ block: 0, copy : false });
+        y[0] = 1000;
+
+        expect(res.residuals()[0]).toBe(2000);
+        expect(res.residuals({ block: 0 })[0]).toBe(1000);
+
+        res.free();
+    }
+})

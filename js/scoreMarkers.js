@@ -197,3 +197,22 @@ export function scoreMarkers(x, groups, { block = null, numberOfThreads = null, 
 
     return output;
 }
+
+/**
+ * Create an empty {@linkplain ScoreMarkersResults} object, to be filled with custom results.
+ * Note that filling requires use of `copy: false` in the various getters to obtain a writeable memory view.
+ *
+ * @param {number} numberOfGenes - Number of genes in the dataset.
+ * @param {number} numberOfGroups - Number of groups for which to store marker detection statistics.
+ * @param {number} numberOfBlocks - Number of blocks in the dataset.
+ * @param {object} [options={}] - Optional parameters.
+ * @param {boolean} [options.computeAuc=true] - Whether to allocate memory for storing AUCs.
+ *
+ * @return {ScoreMarkersResults} Object with memory allocated to store marker statistics, but not containing any actual values.
+ */
+export function emptyScoreMarkersResults(numberOfGenes, numberOfGroups, numberOfBlocks, { computeAuc = true } = {}) {
+    return gc.call(
+        module => new module.ScoreMarkers_Results(numberOfGenes, numberOfGroups, numberOfBlocks, computeAuc),
+        ScoreMarkersResults
+    );
+}
