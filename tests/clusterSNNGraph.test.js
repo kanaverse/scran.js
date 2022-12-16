@@ -55,6 +55,7 @@ test("clusterSNNGraph works with other clustering methods", () => {
     expect(clusters instanceof scran.ClusterSNNGraphWalktrapResults);
     var clust = clusters.membership();
     expect(clust.length).toBe(ncells);
+    expect(clust.numberOfMergeSteps()).toBeGreaterThan(0);
 
     var clusters2 = scran.clusterSNNGraph(graph, { method: "leiden" });
     expect(clusters2 instanceof scran.ClusterSNNGraphLeidenResults);
