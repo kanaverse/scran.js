@@ -1,5 +1,15 @@
 # scran.js news
 
+## 1.2.0
+
+**Changes**
+
+- Added the `lfcThreshold` and `computeAuc` options to the `scoreMarkers()` function.
+  In particular, skipping the AUCs can improve speed and memory efficiency if they are not required.
+- Switched the default `referencePolicy` to `"max-rss"` in the `mnnCorrect()` function.
+  This favors the use of more heterogeneous batches as the initial reference.
+- Actually exported the `ScranMatrix` class.
+
 ## 1.1.0
 
 **Changes**
