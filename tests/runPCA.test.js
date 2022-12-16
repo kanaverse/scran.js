@@ -78,3 +78,28 @@ test("PCA works as expected with blocking", () => {
 
     expect(() => scran.runPCA(mat, { features: feat, numberOfPCs: 15, block: block, blockMethod: "foobar" })).toThrow("should be one of");
 });
+
+test("PCA results can be mocked up", () => {
+    var npcs = 25;
+    var ncells = 1234;
+
+    let dummy = scran.emptyRunPCAResults(ncells, npcs);
+    let pcs = dummy.principalComponents({ copy: false });
+    pcs[0] = 5;
+    pcs[npcs * ncells - 1] = 100;
+
+    let pcs2 = dummy.principalComponents();
+    expect(pcs2[0]).toEqual(5);
+    expect(pcs2[npcs * ncells - 1]).toEqual(100);
+
+    let ve = dummy.varianceExplained({ copy: false });
+    ve[0] = 100;
+    ve[npcs - 1] = 1;
+
+    let ve2 = dummy.varianceExplained();
+    expect(ve2[0]).toEqual(100);
+    expect(ve2[npcs - 1]).toEqual(1);
+
+    dummy.setTotalVariance(200);
+    expect(dummy.totalVariance()).toEqual(200);
+})
