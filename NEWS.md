@@ -1,5 +1,17 @@
 # scran.js news
 
+## 1.2.1
+
+**New**
+
+- Added more `empty*()` functions to construct empty instances of various result objects.
+  This is useful for mimicking the output of functions without actually running them.
+
+**Changes**
+
+- Added more methods and options for the `ClusterSNNGraph*Results` classes,
+  mostly to facilitate filling of empty objects.
+
 ## 1.2.0
 
 **Changes**
