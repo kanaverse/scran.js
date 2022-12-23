@@ -16,8 +16,10 @@ export * from "./delayed.js";
 
 export * from "./perCellRnaQcMetrics.js";
 export * from "./perCellAdtQcMetrics.js";
+export * from "./perCellCrisprQcMetrics.js";
 export * from "./suggestRnaQcFilters.js";
 export * from "./suggestAdtQcFilters.js";
+export * from "./suggestCrisprQcFilters.js";
 export * from "./filterCells.js";
 
 export * from "./medianSizeFactors.js";

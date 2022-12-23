@@ -18,6 +18,7 @@ add_executable(
 
     src/quality_control_rna.cpp
     src/quality_control_adt.cpp
+    src/quality_control_crispr.cpp
     src/filter_cells.cpp
 
     src/log_norm_counts.cpp
