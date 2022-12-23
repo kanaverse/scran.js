@@ -101,8 +101,10 @@ export class RunPCAResults {
  * This is used to segregate cells in order to compute filters within each block.
  * Alternatively, this may be `null`, in which case all cells are assumed to be in the same block.
  * @param {string} [options.blockMethod="regress"] - How to modify the PCA for the blocking factor.
- * The default `"regress"` will regress out the factor, effectively performing a PCA on the residuals.
- * Alternatively, `"weight"` will weight the contribution of each blocking level equally so that larger blocks do not dominate the PCA.
+ *
+ * - `"regress"` will regress out the factor, effectively performing a PCA on the residuals.
+ * - `"weight"` will weight the contribution of each blocking level equally so that larger blocks do not dominate the PCA.
+ * - `"none"` will ignore any blocking factor, i.e., as if `block = null`.
  *
  * This option is only used if `block` is not `null`.
  * @param {?number} [options.numberOfThreads=null] - Number of threads to use.
@@ -115,7 +117,7 @@ export function runPCA(x, { features = null, numberOfPCs = 25, scale = false, bl
     var block_data;
     var output;
 
-    utils.matchOptions("blockMethod", blockMethod, ["none", "regress", "weight", "block"]);
+    utils.matchOptions("blockMethod", blockMethod, ["none", "regress", "weight" ]);
     let nthreads = utils.chooseNumberOfThreads(numberOfThreads);
 
     try {
@@ -146,7 +148,7 @@ export function runPCA(x, { features = null, numberOfPCs = 25, scale = false, bl
             if (block_data.length != x.numberOfColumns()) {
                 throw new Error("length of 'block' should be equal to the number of columns in 'x'");
             }
-            if (blockMethod == "regress" || blockMethod == "block") { // latter for back-compatibility.
+            if (blockMethod == "regress") {
                 output = gc.call(
                     module => module.run_blocked_pca(x.matrix, numberOfPCs, use_feat, fptr, scale, block_data.offset, nthreads),
                     RunPCAResults

@@ -99,11 +99,6 @@ export function free(x) {
     return x.free();
 }
 
-// Exported for back-compatibility, deprecated as of 0.3.0.
-export function safeFree(x) {
-    return free(x);
-}
-
 export function extractXY(ncells, coordinates) {
     let x = new Float64Array(ncells);
     let y = new Float64Array(ncells);

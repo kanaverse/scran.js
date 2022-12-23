@@ -57,11 +57,6 @@ export function buildSNNGraph(x, { scheme = "rank", neighbors = 10, numberOfThre
     var my_neighbors;
     let nthreads = utils.chooseNumberOfThreads(numberOfThreads);
 
-    // Back compatibility.
-    if (typeof scheme == "number") {
-        scheme = [ "rank", "number", "jaccard" ][scheme];
-    }
-
     try {
         let ref;
         if (x instanceof FindNearestNeighborsResults) {

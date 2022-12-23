@@ -206,11 +206,6 @@ function convert_compressed(compressed) {
     }
 }
 
-// For back-compatibility, deprecated as of 0.3.0.
-export function initializeSparseMatrixFromMatrixMarketBuffer(x, { compressed = null } = {}) {
-    return initializeSparseMatrixFromMatrixMarket(x, { compressed: compressed });
-}
-
 /** 
  * Extract dimensions and other details from a MatrixMarket file.
  *

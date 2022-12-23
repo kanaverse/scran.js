@@ -127,11 +127,6 @@ export class ScranMatrix {
         return this.#matrix.reorganized();
     }
 
-    // Deprecated, kept around for back-compatibility as of 0.1.1.
-    isPermuted() {
-        return this.isReorganized();
-    }
-
     // Internal use only, by initialize* functions.
     identities({ buffer = null } = {}) {
         if (buffer != null) {
