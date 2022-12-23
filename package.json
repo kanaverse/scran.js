@@ -7,7 +7,7 @@
     "browser": "browser/index.js",
     "type": "module",
     "scripts": {
-        "test": "NODE_OPTIONS='--experimental-vm-modules' npx jest",
+        "test": "NODE_OPTIONS='--experimental-vm-modules' npx jest --runInBand",
         "jsdoc": "npx jsdoc js README.md -d docs/built -c docs/jsdoc.config.json"
     },
     "devDependencies": {
