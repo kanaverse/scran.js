@@ -15,11 +15,11 @@ add_executable(
     src/read_hdf5_matrix.cpp
     src/hdf5_utils.cpp
     src/initialize_sparse_matrix.cpp
-    src/per_cell_qc_metrics.cpp
-    src/per_cell_adt_qc_metrics.cpp
-    src/per_cell_qc_filters.cpp
-    src/per_cell_adt_qc_filters.cpp
+
+    src/quality_control_rna.cpp
+    src/quality_control_adt.cpp
     src/filter_cells.cpp
+
     src/log_norm_counts.cpp
     src/median_size_factors.cpp
     src/grouped_size_factors.cpp
