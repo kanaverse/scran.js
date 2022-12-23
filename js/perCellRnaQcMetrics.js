@@ -25,7 +25,7 @@ export class PerCellRnaQcMetricsResults {
      * @param {object} [options] - Optional parameters.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      *
-     * @return {Float64Array|Float64WasmArray} Array containing the total count for each cell.
+     * @return {Float64Array|Float64WasmArray} Array containing the total count across genes for each cell.
      */
     sums({ copy = true } = {}) {
         return utils.possibleCopy(this.#results.sums(), copy);
@@ -80,9 +80,9 @@ export class PerCellRnaQcMetricsResults {
 }
 
 /**
- * PerCell the per-cell RNA-based QC metrics.
+ * Compute per-cell QC metrics from the RNA count matrix.
  *
- * @param {ScranMatrix} x - The count matrix for RNA features.
+ * @param {ScranMatrix} x - The RNA count matrix for genes.
  * @param {?Array} subsets - Array of arrays of boolean values specifying the feature subsets.
  * Each internal array corresponds to a subset and should be of length equal to the number of rows.
  * Each entry of each internal array specifies whether the corresponding row of `x` belongs to that subset; 
@@ -120,9 +120,9 @@ export function perCellRnaQcMetrics(x, subsets, { numberOfThreads = null } = {})
  *
  * @return {PerCellRnaQcMetricsResults} Object with allocated memory to store QC metrics, but no actual values.
  */
-export function emptyPerCellRnaQcMetricsResults(numberOfGenes, numberOfSubsets) {
+export function emptyPerCellRnaQcMetricsResults(numberOfCells, numberOfSubsets) {
     return gc.call(
-        module => new module.PerCellRnaQcMetrics_Results(numberOfGenes, numberOfSubsets),
+        module => new module.PerCellRnaQcMetrics_Results(numberOfCells, numberOfSubsets),
         PerCellRnaQcMetricsResults
     );
 }

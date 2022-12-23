@@ -64,6 +64,7 @@ test("per-cell ADT-based QC filters can be computed with blocking", () => {
     // Computing with blocks.
     var qc = scran.perCellAdtQcMetrics(mat, subs);
     var filt = scran.suggestAdtQcFilters(qc, { block: block });
+    expect(filt.numberOfBlocks()).toBe(2);
 
     // Filters throw if block is not supplied.
     expect(() => filt.filter(qc)).toThrow("multiple batches");
@@ -104,7 +105,6 @@ test("per-cell ADT-based QC filters can be computed with blocking", () => {
 });
 
 test("per-cell ADT-based QC filters can be mocked up", () => {
-    var ngenes = 100;
     var nsubs = 2;
     var nblocks = 2;
 

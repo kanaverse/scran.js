@@ -120,9 +120,9 @@ export function perCellAdtQcMetrics(x, subsets, { numberOfThreads = null } = {})
  *
  * @return {PerCellAdtQcMetricsResults} Object with allocated memory but no actual values.
  */
-export function emptyPerCellAdtQcMetricsResults(numberOfGenes, numberOfSubsets) {
+export function emptyPerCellAdtQcMetricsResults(numberOfCells, numberOfSubsets) {
     return gc.call(
-        module => new module.PerCellAdtQcMetrics_Results(numberOfGenes, numberOfSubsets),
+        module => new module.PerCellAdtQcMetrics_Results(numberOfCells, numberOfSubsets),
         PerCellAdtQcMetricsResults
     );
 }

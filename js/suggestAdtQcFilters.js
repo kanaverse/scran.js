@@ -21,7 +21,7 @@ export class SuggestAdtQcFiltersResults {
      * @param {object} [options] - Optional parameters.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      *
-     * @return {Float64Array|Float64WasmArray} Array containing the filtering threshold on the number of detected features for each batch.
+     * @return {Float64Array|Float64WasmArray} Array containing the filtering threshold on the number of detected ADTs for each batch.
      */
     thresholdsDetected({ copy = true } = {}) {
         return utils.possibleCopy(this.#results.thresholds_detected(), copy);
@@ -92,7 +92,7 @@ export class SuggestAdtQcFiltersResults {
  * @param {PerCellAdtQcMetricsResults} metrics - Per-cell QC metrics, usually computed by {@linkcode perCellAdtQcMetrics}.
  * @param {object} [options] - Optional parameters.
  * @param {number} [options.numberOfMADs=3] - Number of median absolute deviations to use to define low-quality outliers.
- * @param {number} [options.minDetectedDrop=0.1] - Minimum relative drop in the number of detected features before a cell is to be considered a low-quality cell.
+ * @param {number} [options.minDetectedDrop=0.1] - Minimum relative drop in the number of detected ADTs before a cell is to be considered a low-quality cell.
  * By default, cells must exhibit at least a 10% decrease from the median before filtering is applied.
  * @param {?(Int32WasmArray|Array|TypedArray)} [options.block=null] - Array containing the block assignment for each cell.
  * This should have length equal to the number of cells and contain all values from 0 to `n - 1` at least once, where `n` is the number of blocks.

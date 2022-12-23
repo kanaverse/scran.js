@@ -97,7 +97,7 @@ export class SuggestRnaQcFiltersResults {
 }
 
 /**
- * Define filters based on the per-cell QC metrics.
+ * Define filters based on the per-cell QC metrics computed from an RNA count matrix.
  *
  * @param {PerCellRnaQcMetricsResults} metrics - Per-cell QC metrics, usually computed by {@linkcode perCellRnaQcMetrics}.
  * @param {object} [options] - Optional parameters.

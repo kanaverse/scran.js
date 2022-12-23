@@ -65,6 +65,7 @@ test("per-cell QC filters can be computed with blocking", () => {
     // Computing with blocks.
     var qc = scran.perCellRnaQcMetrics(mat, subs);
     var filt = scran.suggestRnaQcFilters(qc, { block: block });
+    expect(filt.numberOfBlocks()).toBe(2);
 
     // Filters throw if block is not supplied.
     expect(() => filt.filter(qc)).toThrow("multiple batches");
