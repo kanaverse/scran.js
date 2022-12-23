@@ -18,12 +18,12 @@ struct PerCellRnaQcMetrics_Results {
 
     PerCellRnaQcMetrics_Results(Store s) : store(std::move(s)) {}
 
-    PerCellRnaQcMetrics_Results(int num_genes, int num_subsets) {
-        store.sums.resize(num_genes);
-        store.detected.resize(num_genes);
+    PerCellRnaQcMetrics_Results(int num_cells, int num_subsets) {
+        store.sums.resize(num_cells);
+        store.detected.resize(num_cells);
         store.subset_proportions.resize(num_subsets);
         for (auto& p : store.subset_proportions) {
-            p.resize(num_genes);
+            p.resize(num_cells);
         }
     }
 
@@ -42,6 +42,10 @@ struct PerCellRnaQcMetrics_Results {
 
     int num_subsets() const {
         return store.subset_proportions.size();
+    }
+
+    int num_cells() const {
+        return store.sums.size();
     }
 };
 
@@ -122,6 +126,7 @@ EMSCRIPTEN_BINDINGS(quality_control_rna) {
         .function("detected", &PerCellRnaQcMetrics_Results::detected)
         .function("subset_proportions", &PerCellRnaQcMetrics_Results::subset_proportions)
         .function("num_subsets", &PerCellRnaQcMetrics_Results::num_subsets)
+        .function("num_cells", &PerCellRnaQcMetrics_Results::num_cells)
         ;
 
     emscripten::function("suggest_rna_qc_filters", &suggest_rna_qc_filters);

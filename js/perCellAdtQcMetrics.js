@@ -60,6 +60,13 @@ export class PerCellAdtQcMetricsResults {
     }
 
     /**
+     * @return {number} Number of cells in this object.
+     */
+    numberOfCells() {
+        return this.#results.num_cells();
+    }
+
+    /**
      * @return Frees the memory allocated on the Wasm heap for this object.
      * This invalidates this object and all references to it.
      */
@@ -91,7 +98,7 @@ export class PerCellAdtQcMetricsResults {
  *
  * @return {PerCellAdtQcMetricsResults} Object containing the ADT-based QC metrics.
  */
-export function computePerCellAdtQcMetrics(x, subsets, { numberOfThreads = null } = {}) {
+export function perCellAdtQcMetrics(x, subsets, { numberOfThreads = null } = {}) {
     let nthreads = utils.chooseNumberOfThreads(numberOfThreads);
     return internal.computePerCellQcMetrics(
         x, 

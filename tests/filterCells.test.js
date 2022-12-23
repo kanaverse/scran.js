@@ -10,37 +10,15 @@ test("filtered matrix is constructed as expected", () => {
     var mat = simulate.simulateMatrix(ngenes, ncells);
     var subs = simulate.simulateSubsets(ngenes, 1);
 
-    var qc = scran.computePerCellQCMetrics(mat, subs);
-    var filt = scran.computePerCellQCFilters(qc);
+    var qc = scran.perCellRnaQcMetrics(mat, subs);
+    var filt = scran.suggestRnaQcFilters(qc, { numberOfMADs: 0 });
 
-    var discard = filt.discardOverall();
+    var discard = filt.filter(qc);
     var sum = 0;
     discard.forEach(x => { sum += x; });
+    expect(sum).toBeGreaterThan(0);
 
-    var filtered = scran.filterCells(mat, filt);
-    expect(filtered.constructor.name).toBe("ScranMatrix");
-    expect(filtered.numberOfColumns()).toBe(ncells - sum);
-
-    mat.free();
-    qc.free();
-    filt.free();
-    filtered.free();
-})
-
-test("filtered matrix works with the ADT objects", () => {
-    var ngenes = 100;
-    var ncells = 20;
-    var mat = simulate.simulateMatrix(ngenes, ncells);
-    var subs = simulate.simulateSubsets(ngenes, 1);
-
-    var qc = scran.computePerCellAdtQcMetrics(mat, subs);
-    var filt = scran.computePerCellAdtQcFilters(qc);
-
-    var discard = filt.discardOverall();
-    var sum = 0;
-    discard.forEach(x => { sum += x; });
-
-    var filtered = scran.filterCells(mat, filt);
+    var filtered = scran.filterCells(mat, discard);
     expect(filtered.constructor.name).toBe("ScranMatrix");
     expect(filtered.numberOfColumns()).toBe(ncells - sum);
 

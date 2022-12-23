@@ -1,12 +1,13 @@
 import * as gc from "./gc.js";
 import * as utils from "./utils.js";
 import * as internal from "./internal/computePerCellQcFilters.js";
+import { PerCellAdtQcMetricsResults } from "./perCellAdtQcMetrics.js";
 
 /**
- * Wrapper class for the ADT-based QC filtering results, produced by {@linkcode computePerCellAdtQcFilters}.
+ * Wrapper class for the ADT-based QC filtering results, produced by {@linkcode suggestAdtQcFilters}.
  * @hideconstructor
  */
-export class PerCellAdtQcFiltersResults {
+export class SuggestAdtQcFiltersResults {
     #results;
     #id;
 
@@ -15,37 +16,6 @@ export class PerCellAdtQcFiltersResults {
         this.#results = raw;
         return;
     }
-
-    /**
-     * @param {object} [options] - Optional parameters.
-     * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
-     *
-     * @return {Uint8Array|Uint8WasmArray} Array indicating whether each cell was filtered out due to low numbers of detected ADT features.
-     */
-    discardDetected({ copy = true } = {}) {
-        return utils.possibleCopy(this.#results.discard_detected(), copy);
-    }
-
-    /**
-     * @param {number} i - Index of the feature subset of interest.
-     * @param {object} [options] - Optional parameters.
-     * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
-     *
-     * @return {Uint8Array|Uint8WasmArray} Array indicating whether each cell was filtered out due to high total counts for subset `i`.
-     */
-    discardSubsetTotals(i, { copy = true } = {}) {
-        return utils.possibleCopy(this.#results.discard_subset_totals(i), copy);
-    }
-
-    /**
-     * @param {object} [options] - Optional parameters.
-     * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
-     *
-     * @return {Uint8Array|Uint8WasmArray} Array indicating whether each cell was filtered out for any reason.
-     */
-   discardOverall({ copy = true } = {}) {
-       return utils.possibleCopy(this.#results.discard_overall(), copy);
-   }
 
     /**
      * @param {object} [options] - Optional parameters.
@@ -76,6 +46,34 @@ export class PerCellAdtQcFiltersResults {
     }
 
     /**
+     * @return {number} Number of blocks in this object.
+     */
+    numberOfBlocks() {
+        return this.#results.num_blocks();
+    }
+
+    /**
+     * @param {PerCellAdtQcMetricsResults} metrics - Per-cell QC metrics, usually computed by {@linkcode perCellAdtQcMetrics}.
+     * @param {object} [options={}] - Optional parameters.
+     * @param {?(Int32WasmArray|Array|TypedArray)} [options.block=null] - Array containing the block assignment for each cell in `metrics`.
+     * This should have length equal to the number of cells and contain all values in `[0, n)` where `n` is the return value of {@linkcode SuggestAdtQcFilters#numberOfBlocks numberOfBlocks}.
+     *
+     * Alternatively, this may be `null`, in which case all cells are assumed to be in the same block.
+     * This will raise an error if multiple blocks were used to compute the thresholds.
+     * @param {?Uint8WasmArray} [options.buffer=null] - Array of length equal to the number of cells in `metrics`, to be used to store the low-quality calls.
+     *
+     * @return {Uint8Array} Array of length equal to the number of cells in `metrics`.
+     * Each entry is truthy if the corresponding cell is deemed to be of low-quality based on its values in `metrics`.
+     * If `buffer` is supplied, the returned array is a view on `buffer`.
+     */
+    filter(metrics, { block = null, buffer = null } = {}) {
+        if (!(metrics instanceof PerCellAdtQcMetricsResults)) {
+            throw new Error("'metrics' should be a PerCellAdtQcMetricsResults object");
+        }
+        return internal.applyFilter(this.#results, metrics, block, buffer); 
+    }
+
+    /**
      * @return Frees the memory allocated on the Wasm heap for this object.
      * This invalidates this object and all references to it.
      */
@@ -91,7 +89,7 @@ export class PerCellAdtQcFiltersResults {
 /**
  * Define filters based on the per-cell QC metrics from the ADT count matrix.
  *
- * @param {PerCellQCMetrics} metrics - Per-cell QC metrics, usually computed by {@linkcode computePerCellAdtQcMetrics}.
+ * @param {PerCellAdtQcMetricsResults} metrics - Per-cell QC metrics, usually computed by {@linkcode perCellAdtQcMetrics}.
  * @param {object} [options] - Optional parameters.
  * @param {number} [options.numberOfMADs=3] - Number of median absolute deviations to use to define low-quality outliers.
  * @param {number} [options.minDetectedDrop=0.1] - Minimum relative drop in the number of detected features before a cell is to be considered a low-quality cell.
@@ -101,34 +99,35 @@ export class PerCellAdtQcFiltersResults {
  * This is used to segregate cells in order to compute filters within each block.
  * Alternatively, this may be `null`, in which case all cells are assumed to be in the same block.
  *
- * @return {PerCellAdtQcFiltersResults} Object containing the filtering results.
+ * @return {SuggestAdtQcFiltersResults} Object containing the filtering results.
  */
-export function computePerCellAdtQcFilters(metrics, { numberOfMADs = 3, minDetectedDrop = 0.1, block = null } = {}) {
+export function suggestAdtQcFilters(metrics, { numberOfMADs = 3, minDetectedDrop = 0.1, block = null } = {}) {
+    if (!(metrics instanceof PerCellAdtQcMetricsResults)) {
+        throw new Error("'metrics' should be a PerCellAdtQcMetricsResults object");
+    }
     return internal.computePerCellQcFilters(
         metrics, 
         block,
-        x => x.detected().length,
         (x, use_blocks, bptr) => gc.call(
-            module => module.per_cell_adt_qc_filters(x.results, use_blocks, bptr, numberOfMADs, minDetectedDrop),
-            PerCellAdtQcFiltersResults
+            module => module.suggest_adt_qc_filters(x.results.$$.ptr, use_blocks, bptr, numberOfMADs, minDetectedDrop),
+            SuggestAdtQcFiltersResults
         )
     );
 }
 
 /**
- * Create an empty {@linkplain PerCellAdtQcFiltersResults} object, to be filled with custom results.
+ * Create an empty {@linkplain SuggestAdtQcFiltersResults} object, to be filled with custom results.
  * This is typically used to generate a convenient input into later {@linkcode filterCells} calls.
  * Note that filling requires use of `copy: false` in the various getters to obtain a writeable memory view.
  *
- * @param {number} numberOfCells Number of cells in the dataset.
  * @param {number} numberOfSubsets Number of feature subsets.
  * @param {number} numberOfBlocks Number of blocks in the dataset.
  *
- * @return {PerCellAdtQcFiltersResults} Object with allocated memory to store QC filters, but no actual values.
+ * @return {SuggestAdtQcFiltersResults} Object with allocated memory to store QC filters, but no actual values.
  */
-export function emptyPerCellAdtQcFiltersResults(numberOfGenes, numberOfSubsets, numberOfBlocks) {
+export function emptySuggestAdtQcFiltersResults(numberOfSubsets, numberOfBlocks) {
     return gc.call(
-        module => new module.PerCellAdtQcFilters_Results(numberOfGenes, numberOfSubsets, numberOfBlocks),
-        PerCellAdtQcFiltersResults
+        module => new module.SuggestAdtQcFilters_Results(numberOfSubsets, numberOfBlocks),
+        SuggestAdtQcFiltersResults
     );
 }

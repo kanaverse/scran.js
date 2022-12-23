@@ -43,6 +43,10 @@ struct PerCellAdtQcMetrics_Results {
     int num_subsets() const {
         return store.subset_totals.size();
     }
+
+    int num_cells() const {
+        return store.sums.size();
+    }
 };
 
 PerCellAdtQcMetrics_Results per_cell_adt_qc_metrics(const NumericMatrix& mat, int nsubsets, uintptr_t subsets, int nthreads) {
@@ -103,7 +107,6 @@ SuggestAdtQcFilters_Results suggest_adt_qc_filters(uintptr_t metrics, bool use_b
     if (use_blocks) {
         bptr = reinterpret_cast<const int32_t*>(blocks);
     }
-
     auto thresholds = qc.run_blocked(reinterpret_cast<const PerCellAdtQcMetrics_Results*>(metrics)->store, bptr);
     return SuggestAdtQcFilters_Results(std::move(thresholds));
 }
@@ -117,6 +120,7 @@ EMSCRIPTEN_BINDINGS(quality_control_adt) {
         .function("detected", &PerCellAdtQcMetrics_Results::detected)
         .function("subset_totals", &PerCellAdtQcMetrics_Results::subset_totals)
         .function("num_subsets", &PerCellAdtQcMetrics_Results::num_subsets)
+        .function("num_cells", &PerCellAdtQcMetrics_Results::num_cells)
         ;
 
     emscripten::function("suggest_adt_qc_filters", &suggest_adt_qc_filters);
@@ -127,5 +131,6 @@ EMSCRIPTEN_BINDINGS(quality_control_adt) {
         .function("thresholds_subset_totals", &SuggestAdtQcFilters_Results::thresholds_subset_totals)
         .function("num_subsets", &SuggestAdtQcFilters_Results::num_subsets)
         .function("num_blocks", &SuggestAdtQcFilters_Results::num_blocks)
+        .function("filter", &SuggestAdtQcFilters_Results::filter)
         ;
 }
