@@ -11,11 +11,14 @@ test("per-cell ADT-based QC metrics can be computed", () => {
     var mat = simulate.simulateMatrix(ngenes, ncells);
     var subs = simulate.simulateSubsets(ngenes, 1);
 
-    var qc = scran.computePerCellAdtQcMetrics(mat, subs);
+    var qc = scran.perCellAdtQcMetrics(mat, subs);
+    expect(qc.numberOfCells()).toBe(ncells);
+    expect(qc.numberOfSubsets()).toBe(1);
+
     expect(qc.sums().length).toBe(ncells);
     expect(qc.detected().length).toBe(ncells);
-    let prop = qc.subsetTotals(0);
-    expect(prop.length).toBe(ncells);
+    let tot = qc.subsetTotals(0);
+    expect(tot.length).toBe(ncells);
 
     mat.free();
     qc.free();

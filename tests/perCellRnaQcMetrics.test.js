@@ -11,14 +11,16 @@ test("per-cell QC metrics can be computed", () => {
     var mat = simulate.simulateMatrix(ngenes, ncells);
     var subs = simulate.simulateSubsets(ngenes, 1);
 
-    var qc = scran.computePerCellQCMetrics(mat, subs);
+    var qc = scran.perCellRnaQcMetrics(mat, subs);
+    expect(qc.numberOfCells()).toBe(ncells);
+    expect(qc.numberOfSubsets()).toBe(1);
+    
     expect(qc.sums().length).toBe(ncells);
     expect(qc.detected().length).toBe(ncells);
     let prop = qc.subsetProportions(0);
     expect(prop.length).toBe(ncells);
 
     // Everything's still a proportion.
-    expect(qc.isProportion()).toBe(true);
     let failures = 0;
     prop.forEach(x => { failures += (x < 0 || x > 1) }); 
     expect(failures).toBe(0);
@@ -27,34 +29,18 @@ test("per-cell QC metrics can be computed", () => {
     qc.free();
 });
 
-test("subset totals can be computed", () => {
-    var ngenes = 100;
-    var ncells = 20;
-    var mat = simulate.simulateMatrix(ngenes, ncells);
-    var subs = simulate.simulateSubsets(ngenes, 1);
-
-    var qc = scran.computePerCellQCMetrics(mat, subs, { subsetProportions: false });
-    let prop = qc.subsetProportions(0);
-
-    // Not a proportion anymore!
-    expect(qc.isProportion()).toBe(false);
-    let has_big = 0;
-    prop.forEach(x => { has_big += (x > 1) }); 
-    expect(has_big).toBeGreaterThan(0);
-});
-
 test("per-cell QC metrics gets the same results with an input WasmArray", () => {
     var ngenes = 100;
     var ncells = 20;
     var mat = simulate.simulateMatrix(ngenes, ncells);
     var subs = simulate.simulateSubsets(ngenes, 2);
-    var qc1 = scran.computePerCellQCMetrics(mat, subs);
+    var qc1 = scran.perCellRnaQcMetrics(mat, subs);
 
     var wa1 = scran.createUint8WasmArray(ngenes);
     wa1.set(subs[0]);
     var wa2 = scran.createUint8WasmArray(ngenes);
     wa2.set(subs[1]);
-    var qc2 = scran.computePerCellQCMetrics(mat, [wa1, wa2]);
+    var qc2 = scran.perCellRnaQcMetrics(mat, [wa1, wa2]);
 
     expect(compare.equalArrays(qc1.sums(), qc2.sums())).toBe(true);
     expect(compare.equalArrays(qc1.detected(), qc2.detected())).toBe(true);
@@ -72,7 +58,7 @@ test("per-cell QC metrics can be mocked up", () => {
     var ngenes = 100;
     var nsubs = 2;
 
-    var qc = scran.emptyPerCellQCMetricsResults(ngenes, nsubs);
+    var qc = scran.emptyPerCellRnaQcMetricsResults(ngenes, nsubs);
     expect(qc.numberOfSubsets()).toBe(2);
 
     for (const y of [ "sums", "detected" ]) {

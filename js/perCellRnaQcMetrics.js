@@ -3,10 +3,10 @@ import * as utils from "./utils.js";
 import * as internal from "./internal/computePerCellQcMetrics.js";
 
 /**
- * Wrapper for the metrics allocated on the Wasm heap, produced by {@linkcode computePerCellQCMetrics}.
+ * Wrapper for the RNA-based metrics allocated on the Wasm heap, produced by {@linkcode perCellRnaQcMetrics}.
  * @hideconstructor
  */
-export class PerCellQCMetricsResults {
+export class PerCellRnaQcMetricsResults {
     #id;
     #results;
 
@@ -47,17 +47,9 @@ export class PerCellQCMetricsResults {
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      *
      * @return {Float64Array|Float64WasmArray} Array containing the proportion of counts in the subset `i` for each cell.
-     * If {@linkcode PerCellQCMetrics#isProportion isProportion} is `false`, the total count of subset `i` is returned instead.
      */
     subsetProportions(i, { copy = true } = {}) {
         return utils.possibleCopy(this.#results.subset_proportions(i), copy);
-    }
-
-    /**
-     * @return {boolean} Whether the subset proportions were computed in {@linkcode computePerCellQCMetrics}.
-     */
-    isProportion() {
-        return this.#results.is_proportion();
     }
 
     /**
@@ -65,6 +57,13 @@ export class PerCellQCMetricsResults {
      */
     numberOfSubsets() {
         return this.#results.num_subsets();
+    }
+
+    /**
+     * @return {number} Number of cells in this object.
+     */
+    numberOfCells() {
+        return this.#results.num_cells();
     }
 
     /**
@@ -81,9 +80,9 @@ export class PerCellQCMetricsResults {
 }
 
 /**
- * Compute the per-cell QC metrics.
+ * PerCell the per-cell RNA-based QC metrics.
  *
- * @param {ScranMatrix} x - The count matrix.
+ * @param {ScranMatrix} x - The count matrix for RNA features.
  * @param {?Array} subsets - Array of arrays of boolean values specifying the feature subsets.
  * Each internal array corresponds to a subset and should be of length equal to the number of rows.
  * Each entry of each internal array specifies whether the corresponding row of `x` belongs to that subset; 
@@ -94,41 +93,36 @@ export class PerCellQCMetricsResults {
  *
  * Alternatively `null`, which is taken to mean that there are no subsets.
  * @param {object} [options] - Optional parameters.
- * @param {boolean} [options.subsetProportions=true] - Whether to compute proportions for each subset.
- * If `false`, the total count for each subset is computed instead.
  * @param {?number} [options.numberOfThreads=null] - Number of threads to use.
  * If `null`, defaults to {@linkcode maximumThreads}.
  *
- * @return {PerCellQCMetricsResults} Object containing the QC metrics.
+ * @return {PerCellRnaQcMetricsResults} Object containing the QC metrics.
  */
-export function computePerCellQCMetrics(x, subsets, { subsetProportions = true, numberOfThreads = null } = {}) {
+export function perCellRnaQcMetrics(x, subsets, { numberOfThreads = null } = {}) {
     let nthreads = utils.chooseNumberOfThreads(numberOfThreads);
-    return internal.computePerCellQcMetrics(
+     return internal.computePerCellQcMetrics(
         x, 
         subsets, 
         (matrix, nsubsets, subset_offset) => gc.call(
-            module => module.per_cell_qc_metrics(matrix, nsubsets, subset_offset, subsetProportions, nthreads),
-            PerCellQCMetricsResults
+            module => module.per_cell_rna_qc_metrics(matrix, nsubsets, subset_offset, nthreads),
+            PerCellRnaQcMetricsResults
         )
     );
 }
 
 /**
- * Create an empty {@linkplain PerCellQCMetricsResults} object, to be filled with custom results.
- * This is typically used to generate a convenient input into later {@linkcode computePerCellQCFilters} calls.
+ * Create an empty {@linkplain PerCellRnaQcMetricsResults} object, to be filled with custom results.
+ * This is typically used to generate a convenient input into later {@linkcode suggestRnaQcFilters} calls.
  * Note that filling requires use of `copy: false` in the various getters to obtain a writeable memory view.
  *
  * @param {number} numberOfCells - Number of cells in the dataset.
  * @param {number} numberOfSubsets - Number of feature subsets.
- * @param {object} [options] - Optional parameters.
- * @param {boolean} [options.subsetProportions=true] - Whether to store proportions for each subset.
- * If `false`, the total count for each subset is stored instead.
  *
- * @return {PerCellQCMetricsResults} Object with allocated memory to store QC metrics, but no actual values.
+ * @return {PerCellRnaQcMetricsResults} Object with allocated memory to store QC metrics, but no actual values.
  */
-export function emptyPerCellQCMetricsResults(numberOfGenes, numberOfSubsets, { subsetProportions = true } = {}) {
+export function emptyPerCellRnaQcMetricsResults(numberOfGenes, numberOfSubsets) {
     return gc.call(
-        module => new module.PerCellQCMetrics_Results(numberOfGenes, numberOfSubsets, subsetProportions),
-        PerCellQCMetricsResults
+        module => new module.PerCellRnaQcMetrics_Results(numberOfGenes, numberOfSubsets),
+        PerCellRnaQcMetricsResults
     );
 }
