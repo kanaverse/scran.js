@@ -2707,7 +2707,7 @@ If <code>null</code>, defaults to <a href="global.html#maximumThreads"><code>max
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="clusterSNNGraph.js.html">clusterSNNGraph.js</a>, <a href="clusterSNNGraph.js.html#line322">line 322</a>
+        <a href="clusterSNNGraph.js.html">clusterSNNGraph.js</a>, <a href="clusterSNNGraph.js.html#line317">line 317</a>
     </li></ul></dd>
     
 
@@ -5556,7 +5556,7 @@ Note that filling requires use of <code>copy: false</code> in the various getter
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="clusterSNNGraph.js.html">clusterSNNGraph.js</a>, <a href="clusterSNNGraph.js.html#line366">line 366</a>
+        <a href="clusterSNNGraph.js.html">clusterSNNGraph.js</a>, <a href="clusterSNNGraph.js.html#line361">line 361</a>
     </li></ul></dd>
     
 
@@ -6473,7 +6473,7 @@ Note that filling requires use of <code>copy: false</code> in the various getter
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="runPCA.js.html">runPCA.js</a>, <a href="runPCA.js.html#line186">line 186</a>
+        <a href="runPCA.js.html">runPCA.js</a>, <a href="runPCA.js.html#line188">line 188</a>
     </li></ul></dd>
     
 
@@ -7532,7 +7532,7 @@ Note that filling requires use of <code>copy: false</code> in the various getter
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="initializeSparseMatrix.js.html">initializeSparseMatrix.js</a>, <a href="initializeSparseMatrix.js.html#line313">line 313</a>
+        <a href="initializeSparseMatrix.js.html">initializeSparseMatrix.js</a>, <a href="initializeSparseMatrix.js.html#line308">line 308</a>
     </li></ul></dd>
     
 
@@ -8036,7 +8036,7 @@ HDF5 datasets are represented by strings specifying the data type - i.e., <code>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="initializeSparseMatrix.js.html">initializeSparseMatrix.js</a>, <a href="initializeSparseMatrix.js.html#line228">line 228</a>
+        <a href="initializeSparseMatrix.js.html">initializeSparseMatrix.js</a>, <a href="initializeSparseMatrix.js.html#line223">line 223</a>
     </li></ul></dd>
     
 
@@ -10308,7 +10308,7 @@ If the bindings were already initialized (e.g., by a previous call), nothing is 
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="initializeSparseMatrix.js.html">initializeSparseMatrix.js</a>, <a href="initializeSparseMatrix.js.html#line349">line 349</a>
+        <a href="initializeSparseMatrix.js.html">initializeSparseMatrix.js</a>, <a href="initializeSparseMatrix.js.html#line344">line 344</a>
     </li></ul></dd>
     
 
@@ -11517,7 +11517,7 @@ If <code>layered = false</code>, this is <code>null</code>.</li>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="initializeSparseMatrix.js.html">initializeSparseMatrix.js</a>, <a href="initializeSparseMatrix.js.html#line275">line 275</a>
+        <a href="initializeSparseMatrix.js.html">initializeSparseMatrix.js</a>, <a href="initializeSparseMatrix.js.html#line270">line 270</a>
     </li></ul></dd>
     
 
@@ -12199,7 +12199,7 @@ If <code>layered = false</code>, this is <code>null</code>.</li>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="initializeSparseMatrix.js.html">initializeSparseMatrix.js</a>, <a href="initializeSparseMatrix.js.html#line394">line 394</a>
+        <a href="initializeSparseMatrix.js.html">initializeSparseMatrix.js</a>, <a href="initializeSparseMatrix.js.html#line389">line 389</a>
     </li></ul></dd>
     
 
@@ -17807,7 +17807,7 @@ If <code>null</code>, defaults to <a href="global.html#maximumThreads"><code>max
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="utils.js.html">utils.js</a>, <a href="utils.js.html#line134">line 134</a>
+        <a href="utils.js.html">utils.js</a>, <a href="utils.js.html#line129">line 129</a>
     </li></ul></dd>
     
 
@@ -19411,7 +19411,7 @@ If <code>path</code> does not exist, this function is a no-op.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="runPCA.js.html">runPCA.js</a>, <a href="runPCA.js.html#line113">line 113</a>
+        <a href="runPCA.js.html">runPCA.js</a>, <a href="runPCA.js.html#line115">line 115</a>
     </li></ul></dd>
     
 
@@ -19788,9 +19788,12 @@ Alternatively, this may be <code>null</code>, in which case all cells are assume
                 </td>
             
 
-            <td class="description last"><p>How to modify the PCA for the blocking factor.
-The default <code>&quot;regress&quot;</code> will regress out the factor, effectively performing a PCA on the residuals.
-Alternatively, <code>&quot;weight&quot;</code> will weight the contribution of each blocking level equally so that larger blocks do not dominate the PCA.</p>
+            <td class="description last"><p>How to modify the PCA for the blocking factor.</p>
+<ul>
+<li><code>&quot;regress&quot;</code> will regress out the factor, effectively performing a PCA on the residuals.</li>
+<li><code>&quot;weight&quot;</code> will weight the contribution of each blocking level equally so that larger blocks do not dominate the PCA.</li>
+<li><code>&quot;none&quot;</code> will ignore any blocking factor, i.e., as if <code>block = null</code>.</li>
+</ul>
 <p>This option is only used if <code>block</code> is not <code>null</code>.</p></td>
         </tr>
 
@@ -24282,7 +24285,7 @@ This can be used with <code>createWasmArray()</code> and related functions from 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.11</a> on Fri Dec 23 2022 10:33:48 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.11</a> on Fri Dec 23 2022 10:42:26 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>
