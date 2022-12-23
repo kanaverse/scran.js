@@ -20,11 +20,6 @@ test("per-cell ADT-based QC metrics can be computed", () => {
     let tot = qc.subsetTotals(0);
     expect(tot.length).toBe(ncells);
 
-    // At least one thing is not a proportion.
-    let above_one = 0;
-    tot.forEach(x => { above_one += x > 1 }); 
-    expect(above_one).toBeGreaterThan(0);
-
     mat.free();
     qc.free();
 });
