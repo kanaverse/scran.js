@@ -48,6 +48,12 @@
 import * as wasm from "./wasm.js";
 import * as utils from "./utils.js";
 
+function checkFillness2(group, summary, fillable, copy, fillcheck, method) {
+    return utils.checkFillness(fillable, copy, 
+        fillcheck.filled || fillcheck.details[group][summary] || false, 
+        () => { fillcheck.details[group][summary] = true }, method);
+}
+
 /**
  * Wrapper around the marker scoring results on the Wasm heap, typically produced by {@linkcode scoreMarkers}.
  * @hideconstructor
@@ -56,10 +62,49 @@ export class ScoreMarkersResults {
     #id;
     #results;
 
-    constructor(id, raw) {
+    #filledMeans;
+    #filledDetected;
+    #filledCohen;
+    #filledLfc;
+    #filledAuc;
+    #filledDeltaDetected;
+
+    constructor(id, raw, filled = true) {
         this.#id = id;
         this.#results = raw;
+
+        this.#filledMeans = utils.spawnArray(this.numberOfBlocks() + 1, filled);
+        this.#filledDetected = utils.spawnArray(this.numberOfBlocks() + 1, filled);
+
+        let n = this.numberOfGroups();
+        function createEffectsFilled(filled) {
+            let output = { filled };
+            if (!filled) {
+                output.details = new Array(n);
+                for (var g = 0; g &lt; n; g++) {
+                    output.details[g] = {};
+                }
+            }
+            return output;
+        }
+
+        this.#filledCohen = createEffectsFilled(filled); 
+        this.#filledLfc = createEffectsFilled(filled); 
+        this.#filledAuc = createEffectsFilled(filled); 
+        this.#filledDeltaDetected = createEffectsFilled(filled); 
+
         return;
+    }
+
+    #extractBlockedStat(group, block, copy, fillable, fillcheck, method) {
+        let index = block;
+        if (block == null) {
+            let nblocks = this.numberOfBlocks();
+            index = (nblocks > 1 ? nblocks : 0);
+            block = -1;
+        }
+        copy = utils.checkFillness(fillable, copy, fillcheck[index], () => { fillcheck[index] = true }, method);
+        return utils.possibleCopy(this.#results[method](group, block), copy);
     }
 
     /**
@@ -80,32 +125,36 @@ export class ScoreMarkersResults {
      * @param {number} group - Group of interest.
      * Should be non-negative and less than {@linkcode ScoreMarkersResults#numberOfGroups numberOfGroups}.
      * @param {object} [options] - Optional parameters.
-     * @param {number} [options.block=-1] - Number of the block for which to extract statistics.
-     * If negative, the average across all blocks is returned.
+     * @param {?number} [options.block=null] - Number of the block for which to extract statistics.
+     * If `null`, the average across all blocks is returned.
      * Otherwise, should be less than the value returned by {@linkcode ModelGeneVarResults#numberOfBlocks numberOfBlocks}.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
+     * @param {boolean} [options.fillable=false] - Whether to return a fillable array, to write to this object.
+     * Automatically sets `copy = false` if `copy` was previously true.
      *
      * @return {Float64Array|Float64WasmArray} Array of length equal to the number of genes,
      * containing the mean expression for the requested group in the requested block.
      */
-    means(group, { block = -1, copy = true } = {}) {
-        return utils.possibleCopy(this.#results.means(group, block), copy);
+    means(group, { block = null, copy = true, fillable = false } = {}) {
+        return this.#extractBlockedStat(group, block, copy, fillable, this.#filledMeans, "means");
     }
 
     /**
      * @param {number} group - Group of interest.
      * Should be non-negative and less than {@linkcode ScoreMarkersResults#numberOfGroups numberOfGroups}.
      * @param {object} [options] - Optional parameters.
-     * @param {number} [options.block=-1] - Number of the block for which to extract statistics.
-     * If negative, the average across all blocks is returned.
+     * @param {?number} [options.block=null] - Number of the block for which to extract statistics.
+     * If `null`, the average across all blocks is returned.
      * Otherwise, should be less than the value returned by {@linkcode ModelGeneVarResults#numberOfBlocks numberOfBlocks}.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
+     * @param {boolean} [options.fillable=false] - Whether to return a fillable array, to write to this object.
+     * Automatically sets `copy = false` if `copy` was previously true.
      *
      * @return {Float64Array|Float64WasmArray} Array of length equal to the number of genes,
      * containing the proportion of cells with detectable expression for the requested group in the requested block.
      */
-    detected(group, { block = -1, copy = true } = {}) {
-        return utils.possibleCopy(this.#results.detected(group, block), copy);
+    detected(group, { block = null, copy = true, fillable = false } = {}) {
+        return this.#extractBlockedStat(group, block, copy, fillable, this.#filledDetected, "detected");
     }
 
     /**
@@ -115,11 +164,14 @@ export class ScoreMarkersResults {
      * @param {number} [options.summary=1] - Summary statistic to be computed from the Cohen's d values of all pairwise comparisons involving `group`.
      * This can be the minimum across comparisons (0), mean (1) or min-rank (4).
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
+     * @param {boolean} [options.fillable=false] - Whether to return a fillable array, to write to this object.
+     * Automatically sets `copy = false` if `copy` was previously true.
      *
      * @return {Float64Array|Float64WasmArray} Array of length equal to the number of genes,
      * containing the summarized Cohen's d for the comparisons between `group` and all other groups.
      */
-    cohen(group, { summary = 1, copy = true } = {}) {
+    cohen(group, { summary = 1, copy = true, fillable = false } = {}) {
+        copy = checkFillness2(group, summary, fillable, copy, this.#filledCohen, "cohen");
         return utils.possibleCopy(this.#results.cohen(group, summary), copy);
     }
 
@@ -137,7 +189,8 @@ export class ScoreMarkersResults {
      * @return {Float64Array|Float64WasmArray} Array of length equal to the number of genes,
      * containing the summarized AUC for the comparisons between `group` and all other groups.
      */
-    auc(group, { summary = 1, copy = true } = {}) {
+    auc(group, { summary = 1, copy = true, fillable = false } = {}) {
+        copy = checkFillness2(group, summary, fillable, copy, this.#filledAuc, "auc");
         return wasm.call(module => utils.possibleCopy(this.#results.auc(group, summary), copy));
     }
 
@@ -152,7 +205,8 @@ export class ScoreMarkersResults {
      * @return {Float64Array|Float64WasmArray} Array of length equal to the number of genes,
      * containing the summarized log-fold change for the comparisons between `group` and all other groups.
      */
-    lfc(group, { summary = 1, copy = true } = {}) {
+    lfc(group, { summary = 1, copy = true, fillable = false } = {}) {
+        copy = checkFillness2(group, summary, fillable, copy, this.#filledLfc, "lfc");
         return utils.possibleCopy(this.#results.lfc(group, summary), copy);
     }
 
@@ -167,7 +221,8 @@ export class ScoreMarkersResults {
      * @return {Float64Array|Float64WasmArray} Array of length equal to the number of genes,
      * containing the summarized delta-detected for the comparisons between `group` and all other groups.
      */
-    deltaDetected(group, { summary = 1, copy = true } = {}) {
+    deltaDetected(group, { summary = 1, copy = true, fillable = false } = {}) {
+        copy = checkFillness2(group, summary, fillable, copy, this.#filledDeltaDetected, "deltaDetected");
         return utils.possibleCopy(this.#results.delta_detected(group, summary), copy);
     }
 
@@ -246,7 +301,7 @@ export function scoreMarkers(x, groups, { block = null, numberOfThreads = null, 
 
 /**
  * Create an empty {@linkplain ScoreMarkersResults} object, to be filled with custom results.
- * Note that filling requires use of `copy: false` in the various getters to obtain a writeable memory view.
+ * Note that filling requires use of `fillable: true` in the various getters to obtain a writeable memory view.
  *
  * @param {number} numberOfGenes - Number of genes in the dataset.
  * @param {number} numberOfGroups - Number of groups for which to store marker detection statistics.
@@ -259,7 +314,8 @@ export function scoreMarkers(x, groups, { block = null, numberOfThreads = null, 
 export function emptyScoreMarkersResults(numberOfGenes, numberOfGroups, numberOfBlocks, { computeAuc = true } = {}) {
     return gc.call(
         module => new module.ScoreMarkers_Results(numberOfGenes, numberOfGroups, numberOfBlocks, computeAuc),
-        ScoreMarkersResults
+        ScoreMarkersResults,
+        /* filled = */ false
     );
 }
 </code></pre>
@@ -276,7 +332,7 @@ export function emptyScoreMarkersResults(numberOfGenes, numberOfGroups, numberOf
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.11</a> on Fri Dec 23 2022 12:26:30 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.11</a> on Sat Dec 24 2022 12:18:24 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>

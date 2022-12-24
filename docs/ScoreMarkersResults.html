@@ -99,7 +99,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="scoreMarkers.js.html">scoreMarkers.js</a>, <a href="scoreMarkers.js.html#line94">line 94</a>
+        <a href="scoreMarkers.js.html">scoreMarkers.js</a>, <a href="scoreMarkers.js.html#line146">line 146</a>
     </li></ul></dd>
     
 
@@ -415,7 +415,7 @@ containing the summarized AUC for the comparisons between <code>group</code> and
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="scoreMarkers.js.html">scoreMarkers.js</a>, <a href="scoreMarkers.js.html#line76">line 76</a>
+        <a href="scoreMarkers.js.html">scoreMarkers.js</a>, <a href="scoreMarkers.js.html#line127">line 127</a>
     </li></ul></dd>
     
 
@@ -655,6 +655,46 @@ This can be the minimum across comparisons (0), mean (1) or min-rank (4).</p></t
         </tr>
 
     
+
+        <tr>
+            
+                <td class="name"><code>fillable</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    <code>false</code>
+                
+                </td>
+            
+
+            <td class="description last"><p>Whether to return a fillable array, to write to this object.
+Automatically sets <code>copy = false</code> if <code>copy</code> was previously true.</p></td>
+        </tr>
+
+    
     </tbody>
 </table>
 
@@ -726,7 +766,7 @@ containing the summarized Cohen's d for the comparisons between <code>group</cod
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="scoreMarkers.js.html">scoreMarkers.js</a>, <a href="scoreMarkers.js.html#line124">line 124</a>
+        <a href="scoreMarkers.js.html">scoreMarkers.js</a>, <a href="scoreMarkers.js.html#line178">line 178</a>
     </li></ul></dd>
     
 
@@ -1035,7 +1075,7 @@ containing the summarized delta-detected for the comparisons between <code>group
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="scoreMarkers.js.html">scoreMarkers.js</a>, <a href="scoreMarkers.js.html#line61">line 61</a>
+        <a href="scoreMarkers.js.html">scoreMarkers.js</a>, <a href="scoreMarkers.js.html#line110">line 110</a>
     </li></ul></dd>
     
 
@@ -1218,6 +1258,8 @@ Should be non-negative and less than <a href="ScoreMarkersResults.html#numberOfG
                 
 
                 
+                    &lt;nullable><br>
+                
 
                 
                 </td>
@@ -1226,13 +1268,13 @@ Should be non-negative and less than <a href="ScoreMarkersResults.html#numberOfG
             
                 <td class="default">
                 
-                    <code>-1</code>
+                    <code>null</code>
                 
                 </td>
             
 
             <td class="description last"><p>Number of the block for which to extract statistics.
-If negative, the average across all blocks is returned.
+If <code>null</code>, the average across all blocks is returned.
 Otherwise, should be less than the value returned by <a href="ModelGeneVarResults.html#numberOfBlocks"><code>numberOfBlocks</code></a>.</p></td>
         </tr>
 
@@ -1273,6 +1315,46 @@ Otherwise, should be less than the value returned by <a href="ModelGeneVarResult
             
 
             <td class="description last"><p>Whether to copy the results from the Wasm heap, see <a href="global.html#possibleCopy"><code>possibleCopy</code></a>.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>fillable</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    <code>false</code>
+                
+                </td>
+            
+
+            <td class="description last"><p>Whether to return a fillable array, to write to this object.
+Automatically sets <code>copy = false</code> if <code>copy</code> was previously true.</p></td>
         </tr>
 
     
@@ -1347,7 +1429,7 @@ containing the proportion of cells with detectable expression for the requested 
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="scoreMarkers.js.html">scoreMarkers.js</a>, <a href="scoreMarkers.js.html#line132">line 132</a>
+        <a href="scoreMarkers.js.html">scoreMarkers.js</a>, <a href="scoreMarkers.js.html#line187">line 187</a>
     </li></ul></dd>
     
 
@@ -1441,7 +1523,7 @@ This invalidates this object and all references to it.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="scoreMarkers.js.html">scoreMarkers.js</a>, <a href="scoreMarkers.js.html#line109">line 109</a>
+        <a href="scoreMarkers.js.html">scoreMarkers.js</a>, <a href="scoreMarkers.js.html#line162">line 162</a>
     </li></ul></dd>
     
 
@@ -1752,7 +1834,7 @@ containing the summarized log-fold change for the comparisons between <code>grou
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="scoreMarkers.js.html">scoreMarkers.js</a>, <a href="scoreMarkers.js.html#line45">line 45</a>
+        <a href="scoreMarkers.js.html">scoreMarkers.js</a>, <a href="scoreMarkers.js.html#line92">line 92</a>
     </li></ul></dd>
     
 
@@ -1935,6 +2017,8 @@ Should be non-negative and less than <a href="ScoreMarkersResults.html#numberOfG
                 
 
                 
+                    &lt;nullable><br>
+                
 
                 
                 </td>
@@ -1943,13 +2027,13 @@ Should be non-negative and less than <a href="ScoreMarkersResults.html#numberOfG
             
                 <td class="default">
                 
-                    <code>-1</code>
+                    <code>null</code>
                 
                 </td>
             
 
             <td class="description last"><p>Number of the block for which to extract statistics.
-If negative, the average across all blocks is returned.
+If <code>null</code>, the average across all blocks is returned.
 Otherwise, should be less than the value returned by <a href="ModelGeneVarResults.html#numberOfBlocks"><code>numberOfBlocks</code></a>.</p></td>
         </tr>
 
@@ -1990,6 +2074,46 @@ Otherwise, should be less than the value returned by <a href="ModelGeneVarResult
             
 
             <td class="description last"><p>Whether to copy the results from the Wasm heap, see <a href="global.html#possibleCopy"><code>possibleCopy</code></a>.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>fillable</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    <code>false</code>
+                
+                </td>
+            
+
+            <td class="description last"><p>Whether to return a fillable array, to write to this object.
+Automatically sets <code>copy = false</code> if <code>copy</code> was previously true.</p></td>
         </tr>
 
     
@@ -2064,7 +2188,7 @@ containing the mean expression for the requested group in the requested block.</
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="scoreMarkers.js.html">scoreMarkers.js</a>, <a href="scoreMarkers.js.html#line22">line 22</a>
+        <a href="scoreMarkers.js.html">scoreMarkers.js</a>, <a href="scoreMarkers.js.html#line67">line 67</a>
     </li></ul></dd>
     
 
@@ -2169,7 +2293,7 @@ containing the mean expression for the requested group in the requested block.</
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="scoreMarkers.js.html">scoreMarkers.js</a>, <a href="scoreMarkers.js.html#line29">line 29</a>
+        <a href="scoreMarkers.js.html">scoreMarkers.js</a>, <a href="scoreMarkers.js.html#line74">line 74</a>
     </li></ul></dd>
     
 
@@ -2277,7 +2401,7 @@ containing the mean expression for the requested group in the requested block.</
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.11</a> on Fri Dec 23 2022 12:26:30 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.11</a> on Sat Dec 24 2022 12:18:25 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>

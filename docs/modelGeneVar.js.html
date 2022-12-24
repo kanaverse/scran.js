@@ -55,70 +55,100 @@ export class ModelGeneVarResults {
     #id;
     #results;
 
-    constructor(id, raw) {
+    #filledMeans;
+    #filledVariances;
+    #filledFitted;
+    #filledResiduals;
+
+    constructor(id, raw, filled = true) {
         this.#id = id;
         this.#results = raw;
+
+        this.#filledMeans = utils.spawnArray(this.numberOfBlocks() + 1, filled);
+        this.#filledVariances = utils.spawnArray(this.numberOfBlocks() + 1, filled);
+        this.#filledFitted = utils.spawnArray(this.numberOfBlocks() + 1, filled);
+        this.#filledResiduals = utils.spawnArray(this.numberOfBlocks() + 1, filled);
+
         return;
     }
 
-    /**
-     * @param {object} [options] - Optional parameters.
-     * @param {number} [options.block=-1] - Number of the block for which to extract statistics.
-     * If negative, the average across all blocks is returned.
-     * Otherwise, should be less than the value returned by {@linkcode ModelGeneVarResults#numberOfBlocks numberOfBlocks}.
-     * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
-     *
-     * @return {Float64Array|Float64WasmArray} Array of length equal to the number of genes,
-     * containing the mean log-expression across all cells in the specified `block` 
-     * (or the average across all blocks, if `block &lt; 0`).
-     */
-    means({ block = -1, copy = true } = {}) {
-        return utils.possibleCopy(this.#results.means(block), copy);
+    #extract(block, copy, fillable, fillcheck, method) {
+        let fillindex = block;
+        if (block == null) {
+            let nblocks = this.numberOfBlocks();
+            fillindex = (nblocks > 1 ? nblocks : 0);
+            block = -1;
+        }
+        copy = utils.checkFillness(fillable, copy, fillcheck[fillindex], () => { fillcheck[fillindex] = true }, method);
+        return utils.possibleCopy(this.#results[method](block), copy);
     }
 
     /**
      * @param {object} [options] - Optional parameters.
-     * @param {number} [options.block=-1] - Number of the block for which to extract statistics.
-     * If negative, the average across all blocks is returned.
+     * @param {?number} [options.block=null] - Number of the block for which to extract statistics.
+     * If `null`, the average across all blocks is returned.
      * Otherwise, should be less than the value returned by {@linkcode ModelGeneVarResults#numberOfBlocks numberOfBlocks}.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
+     * @param {boolean} [options.fillable=false] - Whether to return a fillable array, to write to this object.
+     * Automatically sets `copy = false` if `copy` was previously true.
+     *
+     * @return {Float64Array|Float64WasmArray} Array of length equal to the number of genes,
+     * containing the mean log-expression across all cells in the specified `block`
+     * (or the average across all blocks, if `block &lt; 0`).
+     */
+    means({ block = null, copy = true, fillable = false } = {}) {
+        return this.#extract(block, copy, fillable, this.#filledMeans, "means");
+    }
+
+    /**
+     * @param {object} [options] - Optional parameters.
+     * @param {?number} [options.block=null] - Number of the block for which to extract statistics.
+     * If `null`, the average across all blocks is returned.
+     * Otherwise, should be less than the value returned by {@linkcode ModelGeneVarResults#numberOfBlocks numberOfBlocks}.
+     * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
+     * @param {boolean} [options.fillable=false] - Whether to return a fillable array, to write to this object.
+     * Automatically sets `copy = false` if `copy` was previously true.
      *
      * @return {Float64Array|Float64WasmArray} Array of length equal to the number of genes,
      * containing the variance of log-expression across all cells in the specified `block`
      * (or the average across all blocks, if `block &lt; 0`).
      */
-    variances({ block = -1, copy = true } = {}) {
-        return utils.possibleCopy(this.#results.variances(block), copy);
+    variances({ block = null, copy = true, fillable = false } = {}) {
+        return this.#extract(block, copy, fillable, this.#filledVariances, "variances");
     }
 
     /**
      * @param {object} [options] - Optional parameters.
-     * @param {number} [options.block] - Number of the block for which to extract statistics.
-     * If negative, the average across all blocks is returned.
+     * @param {?number} [options.block=null] - Number of the block for which to extract statistics.
+     * If `null`, the average across all blocks is returned.
      * Otherwise, should be less than the value returned by {@linkcode ModelGeneVarResults#numberOfBlocks numberOfBlocks}.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
+     * @param {boolean} [options.fillable=false] - Whether to return a fillable array, to write to this object.
+     * Automatically sets `copy = false` if `copy` was previously true.
      *
      * @return {Float64Array|Float64WasmArray} Array of length equal to the number of genes,
      * containing the fitted value of the mean-variance trend for the specified `block`
      * (or the average across all blocks, if `block &lt; 0`).
      */
-    fitted({ block = -1, copy = true } = {}) {
-        return utils.possibleCopy(this.#results.fitted(block), copy);
+    fitted({ block = null, copy = true, fillable = false } = {}) {
+        return this.#extract(block, copy, fillable, this.#filledFitted, "fitted");
     }
 
     /**
      * @param {object} [options] - Optional parameters.
-     * @param {number} [options.block] - Number of the block for which to extract statistics.
-     * If negative, the average across all blocks is returned.
+     * @param {?number} [options.block=null] - Number of the block for which to extract statistics.
+     * If `null`, the average across all blocks is returned.
      * Otherwise, should be less than the value returned by {@linkcode ModelGeneVarResults#numberOfBlocks numberOfBlocks}.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
+     * @param {boolean} [options.fillable=false] - Whether to return a fillable array, to write to this object.
+     * Automatically sets `copy = false` if `copy` was previously true.
      *
      * @return {Float64Array|Float64WasmArray} Array of length equal to the number of genes,
      * containing the residuals from the mean-variance trend for the specified `block`
      * (or the average across all blocks, if `block &lt; 0`).
      */
-    residuals({ block = -1, copy = true } = {}) {
-        return utils.possibleCopy(this.#results.residuals(block), copy);
+    residuals({ block = null, copy = true, fillable = false } = {}) {
+        return this.#extract(block, copy, fillable, this.#filledResiduals, "residuals");
     }
 
     /**
@@ -193,7 +223,7 @@ export function modelGeneVar(x, { block = null, span = 0.3, numberOfThreads = nu
 /**
  * Create an empty {@linkplain ModelGeneVarResults} object, to be filled with custom results.
  * This is typically used to generate a convenient input into later {@linkcode chooseHVGs} calls.
- * Note that filling requires use of `copy: false` in the various getters to obtain a writeable memory view.
+ * Note that filling requires use of `fillable: true` in the various getters to obtain a writeable memory view.
  *
  * @param {number} numberOfGenes - Number of genes in the dataset.
  * @param {number} numberOfBlocks - Number of blocks in the dataset.
@@ -203,7 +233,8 @@ export function modelGeneVar(x, { block = null, span = 0.3, numberOfThreads = nu
 export function emptyModelGeneVarResults(numberOfGenes, numberOfBlocks) {
     return gc.call(
         module => new module.ModelGeneVar_Results(numberOfGenes, numberOfBlocks),
-        ModelGeneVarResults 
+        ModelGeneVarResults,
+        /* filled = */ false
     );
 }
 </code></pre>
@@ -220,7 +251,7 @@ export function emptyModelGeneVarResults(numberOfGenes, numberOfBlocks) {
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.11</a> on Fri Dec 23 2022 12:26:29 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.11</a> on Sat Dec 24 2022 12:18:24 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>

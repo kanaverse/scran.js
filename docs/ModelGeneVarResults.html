@@ -99,7 +99,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="modelGeneVar.js.html">modelGeneVar.js</a>, <a href="modelGeneVar.js.html#line59">line 59</a>
+        <a href="modelGeneVar.js.html">modelGeneVar.js</a>, <a href="modelGeneVar.js.html#line87">line 87</a>
     </li></ul></dd>
     
 
@@ -250,6 +250,8 @@
                 
 
                 
+                    &lt;nullable><br>
+                
 
                 
                 </td>
@@ -258,11 +260,13 @@
             
                 <td class="default">
                 
+                    <code>null</code>
+                
                 </td>
             
 
             <td class="description last"><p>Number of the block for which to extract statistics.
-If negative, the average across all blocks is returned.
+If <code>null</code>, the average across all blocks is returned.
 Otherwise, should be less than the value returned by <a href="ModelGeneVarResults.html#numberOfBlocks"><code>numberOfBlocks</code></a>.</p></td>
         </tr>
 
@@ -303,6 +307,46 @@ Otherwise, should be less than the value returned by <a href="ModelGeneVarResult
             
 
             <td class="description last"><p>Whether to copy the results from the Wasm heap, see <a href="global.html#possibleCopy"><code>possibleCopy</code></a>.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>fillable</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    <code>false</code>
+                
+                </td>
+            
+
+            <td class="description last"><p>Whether to return a fillable array, to write to this object.
+Automatically sets <code>copy = false</code> if <code>copy</code> was previously true.</p></td>
         </tr>
 
     
@@ -378,7 +422,7 @@ containing the fitted value of the mean-variance trend for the specified <code>b
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="modelGeneVar.js.html">modelGeneVar.js</a>, <a href="modelGeneVar.js.html#line89">line 89</a>
+        <a href="modelGeneVar.js.html">modelGeneVar.js</a>, <a href="modelGeneVar.js.html#line119">line 119</a>
     </li></ul></dd>
     
 
@@ -472,7 +516,7 @@ This invalidates this object and all references to it.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="modelGeneVar.js.html">modelGeneVar.js</a>, <a href="modelGeneVar.js.html#line29">line 29</a>
+        <a href="modelGeneVar.js.html">modelGeneVar.js</a>, <a href="modelGeneVar.js.html#line53">line 53</a>
     </li></ul></dd>
     
 
@@ -623,6 +667,8 @@ This invalidates this object and all references to it.</p>
                 
 
                 
+                    &lt;nullable><br>
+                
 
                 
                 </td>
@@ -631,13 +677,13 @@ This invalidates this object and all references to it.</p>
             
                 <td class="default">
                 
-                    <code>-1</code>
+                    <code>null</code>
                 
                 </td>
             
 
             <td class="description last"><p>Number of the block for which to extract statistics.
-If negative, the average across all blocks is returned.
+If <code>null</code>, the average across all blocks is returned.
 Otherwise, should be less than the value returned by <a href="ModelGeneVarResults.html#numberOfBlocks"><code>numberOfBlocks</code></a>.</p></td>
         </tr>
 
@@ -678,6 +724,46 @@ Otherwise, should be less than the value returned by <a href="ModelGeneVarResult
             
 
             <td class="description last"><p>Whether to copy the results from the Wasm heap, see <a href="global.html#possibleCopy"><code>possibleCopy</code></a>.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>fillable</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    <code>false</code>
+                
+                </td>
+            
+
+            <td class="description last"><p>Whether to return a fillable array, to write to this object.
+Automatically sets <code>copy = false</code> if <code>copy</code> was previously true.</p></td>
         </tr>
 
     
@@ -753,7 +839,7 @@ containing the mean log-expression across all cells in the specified <code>block
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="modelGeneVar.js.html">modelGeneVar.js</a>, <a href="modelGeneVar.js.html#line81">line 81</a>
+        <a href="modelGeneVar.js.html">modelGeneVar.js</a>, <a href="modelGeneVar.js.html#line111">line 111</a>
     </li></ul></dd>
     
 
@@ -858,7 +944,7 @@ containing the mean log-expression across all cells in the specified <code>block
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="modelGeneVar.js.html">modelGeneVar.js</a>, <a href="modelGeneVar.js.html#line74">line 74</a>
+        <a href="modelGeneVar.js.html">modelGeneVar.js</a>, <a href="modelGeneVar.js.html#line104">line 104</a>
     </li></ul></dd>
     
 
@@ -1009,6 +1095,8 @@ containing the mean log-expression across all cells in the specified <code>block
                 
 
                 
+                    &lt;nullable><br>
+                
 
                 
                 </td>
@@ -1017,11 +1105,13 @@ containing the mean log-expression across all cells in the specified <code>block
             
                 <td class="default">
                 
+                    <code>null</code>
+                
                 </td>
             
 
             <td class="description last"><p>Number of the block for which to extract statistics.
-If negative, the average across all blocks is returned.
+If <code>null</code>, the average across all blocks is returned.
 Otherwise, should be less than the value returned by <a href="ModelGeneVarResults.html#numberOfBlocks"><code>numberOfBlocks</code></a>.</p></td>
         </tr>
 
@@ -1062,6 +1152,46 @@ Otherwise, should be less than the value returned by <a href="ModelGeneVarResult
             
 
             <td class="description last"><p>Whether to copy the results from the Wasm heap, see <a href="global.html#possibleCopy"><code>possibleCopy</code></a>.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>fillable</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    <code>false</code>
+                
+                </td>
+            
+
+            <td class="description last"><p>Whether to return a fillable array, to write to this object.
+Automatically sets <code>copy = false</code> if <code>copy</code> was previously true.</p></td>
         </tr>
 
     
@@ -1137,7 +1267,7 @@ containing the residuals from the mean-variance trend for the specified <code>bl
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="modelGeneVar.js.html">modelGeneVar.js</a>, <a href="modelGeneVar.js.html#line44">line 44</a>
+        <a href="modelGeneVar.js.html">modelGeneVar.js</a>, <a href="modelGeneVar.js.html#line70">line 70</a>
     </li></ul></dd>
     
 
@@ -1288,6 +1418,8 @@ containing the residuals from the mean-variance trend for the specified <code>bl
                 
 
                 
+                    &lt;nullable><br>
+                
 
                 
                 </td>
@@ -1296,13 +1428,13 @@ containing the residuals from the mean-variance trend for the specified <code>bl
             
                 <td class="default">
                 
-                    <code>-1</code>
+                    <code>null</code>
                 
                 </td>
             
 
             <td class="description last"><p>Number of the block for which to extract statistics.
-If negative, the average across all blocks is returned.
+If <code>null</code>, the average across all blocks is returned.
 Otherwise, should be less than the value returned by <a href="ModelGeneVarResults.html#numberOfBlocks"><code>numberOfBlocks</code></a>.</p></td>
         </tr>
 
@@ -1343,6 +1475,46 @@ Otherwise, should be less than the value returned by <a href="ModelGeneVarResult
             
 
             <td class="description last"><p>Whether to copy the results from the Wasm heap, see <a href="global.html#possibleCopy"><code>possibleCopy</code></a>.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>fillable</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    <code>false</code>
+                
+                </td>
+            
+
+            <td class="description last"><p>Whether to return a fillable array, to write to this object.
+Automatically sets <code>copy = false</code> if <code>copy</code> was previously true.</p></td>
         </tr>
 
     
@@ -1421,7 +1593,7 @@ containing the variance of log-expression across all cells in the specified <cod
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.11</a> on Fri Dec 23 2022 12:26:30 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.11</a> on Sat Dec 24 2022 12:18:24 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>
