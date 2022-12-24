@@ -152,3 +152,23 @@ export function matchOptions(name, value, choices) {
         throw new Error("'" + name + "=' should be one of '" + choices.join("', '") + "'");
     }
 }
+
+export function spawnArray(n, fill) {
+    let output = new Array(n);
+    output.fill(fill);
+    return output;
+}
+
+export function checkFillness(fill, copy, check, set, name) {
+    if (!check) {
+        if (fill) {
+            set();
+            if (copy) {
+                copy = false;
+            }
+        } else {
+            throw new Error("'" + name + "' not yet filled, set 'fillable: true' to write values to this object");
+        }
+    }
+    return copy;
+}

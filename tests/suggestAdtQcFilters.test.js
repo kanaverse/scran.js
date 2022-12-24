@@ -112,14 +112,16 @@ test("per-cell ADT-based QC filters can be mocked up", () => {
     expect(qc.numberOfSubsets()).toBe(2);
 
     {
-        let x = qc.thresholdsDetected({ copy: false });
+        expect(() => qc.thresholdsDetected()).toThrow("fillable");
+        let x = qc.thresholdsDetected({ fillable: true });
         expect(x.length).toEqual(nblocks);
         x[1] = 20;
         expect(qc.thresholdsDetected()[1]).toEqual(20);
     }
     
     for (var s = 0; s < nsubs; s++) {
-        var x = qc.thresholdsSubsetTotals(s, {copy: false});
+        expect(() => qc.thresholdsSubsetTotals(s)).toThrow("fillable");
+        var x = qc.thresholdsSubsetTotals(s, { fillable: true });
         expect(x.length).toBe(nblocks);
         x[0] = 0.9;
         expect(qc.thresholdsSubsetTotals(s)[0]).toEqual(0.9);

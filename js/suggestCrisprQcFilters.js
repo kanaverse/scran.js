@@ -11,19 +11,26 @@ export class SuggestCrisprQcFiltersResults {
     #id;
     #results;
 
-    constructor(id, raw) {
+    #filledMaxCount;
+
+    constructor(id, raw, filled = true) {
         this.#id = id;
         this.#results = raw;
+
+        this.#filledMaxCount = filled;
         return;
     }
 
     /**
      * @param {object} [options] - Optional parameters.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
+     * @param {boolean} [options.fillable=false] - Whether to return a fillable array, to write to this object.
+     * Automatically sets `copy = false` if `copy` was previously true.
      *
      * @return {Float64Array|Float64WasmArray} Array containing the filtering threshold on the maximum count in each batch.
      */
-    thresholdsMaxCount({ copy = true } = {}) {
+    thresholdsMaxCount({ copy = true, fillable = false } = {}) {
+        copy = utils.checkFillness(fillable, copy, this.#filledMaxCount, () => { this.#filledMaxCount = true }, "thresholdsMaxCount");
         return utils.possibleCopy(this.#results.thresholds_max_count(), copy);
     }
 
@@ -97,7 +104,7 @@ export function suggestCrisprQcFilters(metrics, { numberOfMADs = 3, block = null
 
 /**
  * Create an empty {@linkplain SuggestCrisprQcFiltersResults} object, to be filled with custom results.
- * Note that filling requires use of `copy: false` in the various getters to obtain a writeable memory view.
+ * Note that filling requires use of `fillable: true` in the various getters to obtain a writeable memory view.
  *
  * @param {number} numberOfBlocks Number of blocks in the dataset.
  *
@@ -106,6 +113,7 @@ export function suggestCrisprQcFilters(metrics, { numberOfMADs = 3, block = null
 export function emptySuggestCrisprQcFiltersResults(numberOfBlocks) {
     return gc.call(
         module => new module.SuggestCrisprQcFilters_Results(numberOfBlocks),
-        SuggestCrisprQcFiltersResults
+        SuggestCrisprQcFiltersResults,
+        /* filled = */ false 
     );
 }

@@ -150,7 +150,8 @@ test("ScoreMarkersResults can be mocked up", () => {
         let mock = scran.emptyScoreMarkersResults(ngenes, ngroups, 1);
         expect(mock.numberOfBlocks()).toBe(1);
 
-        let means = mock.means(0, { copy: false });
+        expect(() => mock.means()).toThrow("fillable");
+        let means = mock.means(0, { fillable: true });
         means[0] = 100;
         means[100] = 1;
 
@@ -158,7 +159,8 @@ test("ScoreMarkersResults can be mocked up", () => {
         expect(means2[0]).toBe(100);
         expect(means2[100]).toBe(1);
 
-        let auc = mock.auc(1, { copy: false });
+        expect(() => mock.auc(1)).toThrow("fillable");
+        let auc = mock.auc(1, { fillable: true });
         auc[0] = 0.6;
         expect(mock.auc(1)[0]).toBe(0.6);
     }
@@ -168,11 +170,13 @@ test("ScoreMarkersResults can be mocked up", () => {
         let mock = scran.emptyScoreMarkersResults(ngenes, ngroups, 2);
         expect(mock.numberOfBlocks()).toBe(2);
 
-        let detected = mock.detected(1, { copy: false });
+        expect(() => mock.detected(1)).toThrow("fillable");
+        let detected = mock.detected(1, { fillable: true });
         detected[0] = 100;
         detected[100] = 1;
 
-        let detected_b = mock.detected(1, { block: 0, copy: false });
+        expect(() => mock.detected(1, { block: 0 })).toThrow("fillable");
+        let detected_b = mock.detected(1, { block: 0, fillable: true });
         detected_b[0] = -100;
         detected_b[100] = -1;
 
@@ -184,7 +188,8 @@ test("ScoreMarkersResults can be mocked up", () => {
         expect(detected_b2[0]).toBe(-100);
         expect(detected_b2[100]).toBe(-1);
 
-        let cd = mock.cohen(2, { copy: false });
+        expect(() => mock.auc(2)).toThrow("fillable");
+        let cd = mock.cohen(2, { fillable: true });
         cd[0] = 0.5;
         cd[1] = -0.5;
 
@@ -196,6 +201,6 @@ test("ScoreMarkersResults can be mocked up", () => {
     // Skip the AUC calculation.
     {
         let mock = scran.emptyScoreMarkersResults(ngenes, ngroups, 1, { computeAuc: false });
-        expect(() => mock.auc(1)).toThrow("AUC");
+        expect(() => mock.auc(1, { fillable: true })).toThrow("AUC");
     }
 })

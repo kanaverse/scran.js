@@ -10,9 +10,18 @@ export class PerCellAdtQcMetricsResults {
     #id;
     #results;
 
-    constructor(id, raw) {
+    #filledSums;
+    #filledDetected;
+    #filledSubsetTotals;
+
+    constructor(id, raw, filled = true) {
         this.#id = id;
         this.#results = raw;
+
+        this.#filledSums = filled;
+        this.#filledDetected = filled;
+        this.#filledSubsetTotals = utils.spawnArray(this.numberOfSubsets(), filled);
+
         return;
     }
 
@@ -24,20 +33,26 @@ export class PerCellAdtQcMetricsResults {
     /**
      * @param {object} [options] - Optional parameters.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
+     * @param {boolean} [options.fillable=false] - Whether to return a fillable array, to write to this object.
+     * Automatically sets `copy = false` if `copy` was previously true.
      *
      * @return {Float64Array|Float64WasmArray} Array containing the total ADT count for each cell.
      */
-    sums({ copy = true } = {}) {
+    sums({ copy = true, fillable = false } = {}) {
+        copy = utils.checkFillness(fillable, copy, this.#filledSums, () => { this.#filledSums = true }, "sums");
         return utils.possibleCopy(this.#results.sums(), copy);
     }
 
     /**
      * @param {object} [options] - Optional parameters.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
+     * @param {boolean} [options.fillable=false] - Whether to return a fillable array, to write to this object.
+     * Automatically sets `copy = false` if `copy` was previously true.
      *
      * @return {Int32Array|Int32WasmArray} Array containing the total number of detected ADT features for each cell.
      */
-    detected({ copy = true } = {}) {
+    detected({ copy = true, fillable = false } = {}) {
+        copy = utils.checkFillness(fillable, copy, this.#filledDetected, () => { this.#filledDetected = true }, "detected");
         return utils.possibleCopy(this.#results.detected(), copy);
     }
 
@@ -45,10 +60,13 @@ export class PerCellAdtQcMetricsResults {
      * @param {number} i - Index of the feature subset of interest.
      * @param {object} [options] - Optional parameters.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
+     * @param {boolean} [options.fillable=false] - Whether to return a fillable array, to write to this object.
+     * Automatically sets `copy = false` if `copy` was previously true.
      *
      * @return {Float64Array|Float64WasmArray} Array containing the total count in the ADT subset `i` for each cell.
      */
-    subsetTotals(i, { copy = true } = {}) {
+    subsetTotals(i, { copy = true, fillable = false } = {}) {
+        copy = utils.checkFillness(fillable, copy, this.#filledSubsetTotals[i], () => { this.#filledSubsetTotals[i] = true }, "subsetTotals");
         return utils.possibleCopy(this.#results.subset_totals(i), copy);
     }
 
@@ -113,7 +131,7 @@ export function perCellAdtQcMetrics(x, subsets, { numberOfThreads = null } = {})
 /**
  * Create an empty {@linkplain PerCellAdtQcMetricsResults} object, to be filled with custom results.
  * This is typically used to generate a convenient input into later {@linkcode computePerCellAdtQcFilters} calls.
- * Note that filling requires use of `copy: false` in the various getters to obtain a writeable memory view.
+ * Note that filling requires use of `fillable: true` in the various getters to obtain a writeable memory view.
  *
  * @param {number} numberOfCells - Number of cells in the dataset.
  * @param {number} numberOfSubsets - Number of feature subsets.
@@ -123,6 +141,7 @@ export function perCellAdtQcMetrics(x, subsets, { numberOfThreads = null } = {})
 export function emptyPerCellAdtQcMetricsResults(numberOfCells, numberOfSubsets) {
     return gc.call(
         module => new module.PerCellAdtQcMetrics_Results(numberOfCells, numberOfSubsets),
-        PerCellAdtQcMetricsResults
+        PerCellAdtQcMetricsResults,
+        /* filled = */ false 
     );
 }

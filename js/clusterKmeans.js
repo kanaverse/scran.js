@@ -10,9 +10,24 @@ export class ClusterKmeansResults {
     #id;
     #results;
 
-    constructor(id, raw) {
+    #filledClusters;
+    #filledSizes;
+    #filledCenters;
+    #filledWcss;
+    #filledIterations;
+    #filledStatus;
+
+    constructor(id, raw, filled = true) {
         this.#results = raw;
         this.#id = id;
+
+        this.#filledClusters = filled;
+        this.#filledSizes = filled;
+        this.#filledCenters = filled;
+        this.#filledWcss = filled;
+        this.#filledIterations = filled;
+        this.#filledStatus = filled;
+
         return;
     }
 
@@ -36,6 +51,9 @@ export class ClusterKmeansResults {
      * Typically only used after {@linkcode emptyClusterKmeansResults}.
      */
     setIterations(iterations) {
+        if (!this.#filledIterations) {
+            this.#filledIterations = true;
+        }
         this.#results.set_iterations(iterations);
         return;
     }
@@ -46,6 +64,9 @@ export class ClusterKmeansResults {
      * Typically only used after {@linkcode emptyClusterKmeansResults}.
      */
     setStatus(status) {
+        if (!this.#filledStatus) {
+            this.#filledStatus = true;
+        }
         this.#results.set_status(status);
         return;
     }
@@ -53,41 +74,53 @@ export class ClusterKmeansResults {
     /**
      * @param {object} [options] - Optional parameters.
      * @param {boolean|string} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
+     * @param {boolean} [options.fillable=false] - Whether to return a fillable array, to write to this object.
+     * Automatically sets `copy = false` if `copy` was previously true.
      *
      * @return {Int32Array|Int32WasmArray} Array containing the cluster assignment for each cell.
      */
-    clusters({ copy = true } = {}) {
+    clusters({ copy = true, fillable = false } = {}) {
+        copy = utils.checkFillness(fillable, copy, this.#filledClusters, () => { this.#filledClusters = true }, "clusters");
         return utils.possibleCopy(this.#results.clusters(), copy);
     }
 
     /**
      * @param {object} [options] - Optional parameters.
      * @param {boolean|string} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
+     * @param {boolean} [options.fillable=false] - Whether to return a fillable array, to write to this object.
+     * Automatically sets `copy = false` if `copy` was previously true.
      *
      * @return {Int32Array|Int32WasmArray} Array containing the number of cells in each cluster.
      */
-    clusterSizes({ copy = true } = {}) {
+    clusterSizes({ copy = true, fillable = false } = {}) {
+        copy = utils.checkFillness(fillable, copy, this.#filledSizes, () => { this.#filledSizes = true }, "clusterSizes");
         return utils.possibleCopy(this.#results.cluster_sizes(), copy);
     }
 
     /**
      * @param {object} [options] - Optional parameters.
      * @param {boolean|string} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
+     * @param {boolean} [options.fillable=false] - Whether to return a fillable array, to write to this object.
+     * Automatically sets `copy = false` if `copy` was previously true.
      *
      * @return {Float64Array|Float64WasmArray} Array containing the within-cluster sum of squares in each cluster.
      */
-    withinClusterSumSquares({ copy = true } = {}) {
+    withinClusterSumSquares({ copy = true, fillable = false } = {}) {
+        copy = utils.checkFillness(fillable, copy, this.#filledWcss, () => { this.#filledWcss = true }, "withinClusterSumSquares");
         return utils.possibleCopy(this.#results.wcss(), copy);
     }
 
     /**
      * @param {object} [options] - Optional parameters.
      * @param {boolean|string} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
+     * @param {boolean} [options.fillable=false] - Whether to return a fillable array, to write to this object.
+     * Automatically sets `copy = false` if `copy` was previously true.
      *
      * @return {Float64Array|Float64WasmArray} Array containing the cluster centers in column-major format,
      * where rows are dimensions and columns are the clusters.
      */
-    clusterCenters({ copy = true } = {}) {
+    clusterCenters({ copy = true, fillable = false } = {}) {
+        copy = utils.checkFillness(fillable, copy, this.#filledCenters, () => { this.#filledCenters = true }, "clusterCenters");
         return utils.possibleCopy(this.#results.centers(), copy);
     }
 
@@ -95,6 +128,9 @@ export class ClusterKmeansResults {
      * @return {number} Number of refinement iterations performed by the algorithm.
      */
     iterations() {
+        if (!this.#filledIterations) {
+            throw new Error("'iterations' has not yet been set via 'setIterations'");
+        }
         return this.#results.iterations();
     }
 
@@ -102,6 +138,9 @@ export class ClusterKmeansResults {
      * @return {number} Status of the algorithm - anything other than zero usually indicates a problem with convergence.
      */
     status() {
+        if (!this.#filledStatus) {
+            throw new Error("'status' has not yet been set via 'setStatus'");
+        }
         return this.#results.status();
     }
 
@@ -188,7 +227,7 @@ export function clusterKmeans(x, clusters, { numberOfDims = null, numberOfCells 
 
 /**
  * Create an empty {@linkplain ClusterKmeansResults} object, to be filled with custom results.
- * Note that filling requires use of `copy: false` in the various getters to obtain a writeable memory view.
+ * Note that filling requires use of `fillable: true` in the various getters to obtain a writeable memory view.
  *
  * @param {number} numberOfCells - Number of cells in the dataset.
  * @param {number} numberOfClusters - Number of clusters in the dataset.
@@ -199,6 +238,7 @@ export function clusterKmeans(x, clusters, { numberOfDims = null, numberOfCells 
 export function emptyClusterKmeansResults(numberOfCells, numberOfClusters, numberOfDimensions) {
     return gc.call(
         module => new module.ClusterKmeans_Result(numberOfCells, numberOfClusters, numberOfDimensions),
-        ClusterKmeansResults 
+        ClusterKmeansResults,
+        /* filled = */ false
     );
 }

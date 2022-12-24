@@ -9,20 +9,32 @@ export class RunPCAResults {
     #id;
     #results;
 
-    constructor(id, raw) {
+    #filledComponents;
+    #filledVariances;
+    #filledTotalVariance;
+
+    constructor(id, raw, filled = true) {
         this.#id = id;
         this.#results = raw;
+
+        this.#filledComponents = filled;
+        this.#filledVariances = filled;
+        this.#filledTotalVariance = filled;
+
         return;
     }
 
     /**
      * @param {object} [options] - Optional parameters.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
+     * @param {boolean} [options.fillable=false] - Whether to return a fillable array, to write to this object.
+     * Automatically sets `copy = false` if `copy` was previously true.
      * 
      * @return {Float64Array|Float64Wasmarray} Array containing the principal components for all cells.
      * This should be treated as a column-major array where the rows are the PCs and columns are the cells.
      */
-    principalComponents({ copy = true } = {}) {
+    principalComponents({ copy = true, fillable = false } = {}) {
+        copy = utils.checkFillness(fillable, copy, this.#filledComponents, () => { this.#filledComponents = true }, "principalComponents");
         return utils.possibleCopy(this.#results.pcs(), copy);
     }
 
@@ -34,6 +46,9 @@ export class RunPCAResults {
      * This is primarily intended for use with {@linkcode emptyRunPCAResults}.
      */
     setTotalVariance(total) {
+        if (!this.#filledTotalVariance) {
+            this.#filledTotalVariance = true;
+        }
         this.#results.set_total_variance(total);
         return;
     }
@@ -41,10 +56,13 @@ export class RunPCAResults {
     /**
      * @param {object} [options] - Optional parameters.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
+     * @param {boolean} [options.fillable=false] - Whether to return a fillable array, to write to this object.
+     * Automatically sets `copy = false` if `copy` was previously true.
      * 
      * @return {Float64Array|Float64WasmArray} Array containing the variance explained for each requested PC.
      */
-    varianceExplained({ copy = true } = {}) {
+    varianceExplained({ copy = true, fillable = false } = {}) {
+        copy = utils.checkFillness(fillable, copy, this.#filledVariances, () => { this.#filledVariances = true }, "varianceExplained");
         return utils.possibleCopy(this.#results.variance_explained(), copy);
     }
 
@@ -52,7 +70,10 @@ export class RunPCAResults {
      * @return {number} The total variance in the dataset,
      * typically used with {@linkcode PCAResults#varianceExplained varianceExplained} to compute the proportion of variance explained.
      */
-    totalVariance () {
+    totalVariance() {
+        if (!this.#filledTotalVariance) {
+            throw new Error("'totalVariance' has not yet been set by 'setTotalVariance'");
+        }
         return this.#results.total_variance();
     }
 
@@ -178,7 +199,7 @@ export function runPCA(x, { features = null, numberOfPCs = 25, scale = false, bl
 /**
  * Create an empty {@linkplain RunPCAResults} object, to be filled with custom results.
  * This is typically used to generate a convenient input into later {@linkcode clusterKmeans} calls.
- * Note that filling requires use of `copy: false` in the various getters to obtain a writeable memory view.
+ * Note that filling requires use of `fillable: true` in the various getters to obtain a writeable memory view.
  *
  * @param {number} numberOfCells - Number of cells in the dataset, usually after QC filtering.
  * @param {number} numberOfPCs - Number of PCs to be computed.
@@ -188,6 +209,7 @@ export function runPCA(x, { features = null, numberOfPCs = 25, scale = false, bl
 export function emptyRunPCAResults(numberOfCells, numberOfPCs) {
     return gc.call(
         module => new module.RunPCA_Results(numberOfCells, numberOfPCs),
-        RunPCAResults
+        RunPCAResults,
+        /* filled = */ false
     );
 }

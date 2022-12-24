@@ -11,19 +11,29 @@ export class SuggestAdtQcFiltersResults {
     #results;
     #id;
 
-    constructor(id, raw) {
+    #filledDetected;
+    #filledSubsetTotals;
+
+    constructor(id, raw, filled = true) {
         this.#id = id;
         this.#results = raw;
+
+        this.#filledDetected = filled;
+        this.#filledSubsetTotals = utils.spawnArray(this.numberOfSubsets(), filled);
+
         return;
     }
 
     /**
      * @param {object} [options] - Optional parameters.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
+     * @param {boolean} [options.fillable=false] - Whether to return a fillable array, to write to this object.
+     * Automatically sets `copy = false` if `copy` was previously true.
      *
      * @return {Float64Array|Float64WasmArray} Array containing the filtering threshold on the number of detected ADTs for each batch.
      */
-    thresholdsDetected({ copy = true } = {}) {
+    thresholdsDetected({ copy = true, fillable = false } = {}) {
+        copy = utils.checkFillness(fillable, copy, this.#filledDetected, () => { this.#filledDetected = true }, "thresholdsDetected");
         return utils.possibleCopy(this.#results.thresholds_detected(), copy);
     }
 
@@ -31,10 +41,13 @@ export class SuggestAdtQcFiltersResults {
      * @param {number} i - Index of the feature subset of interest.
      * @param {object} [options] - Optional parameters.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
+     * @param {boolean} [options.fillable=false] - Whether to return a fillable array, to write to this object.
+     * Automatically sets `copy = false` if `copy` was previously true.
      *
      * @return {Float64Array|Float64WasmArray} Array containing the filtering threshold on the total counts for subset `i` in each batch.
      */
-    thresholdsSubsetTotals(i, { copy = true } = {}) {
+    thresholdsSubsetTotals(i, { copy = true, fillable = false } = {}) {
+        copy = utils.checkFillness(fillable, copy, this.#filledSubsetTotals[i], () => { this.#filledSubsetTotals[i] = true }, "thresholdsSubsetTotals");
         return utils.possibleCopy(this.#results.thresholds_subset_totals(i), copy);
     }
 
@@ -118,7 +131,7 @@ export function suggestAdtQcFilters(metrics, { numberOfMADs = 3, minDetectedDrop
 /**
  * Create an empty {@linkplain SuggestAdtQcFiltersResults} object, to be filled with custom results.
  * This is typically used to generate a convenient input into later {@linkcode filterCells} calls.
- * Note that filling requires use of `copy: false` in the various getters to obtain a writeable memory view.
+ * Note that filling requires use of `fillable: true` in the various getters to obtain a writeable memory view.
  *
  * @param {number} numberOfSubsets Number of feature subsets.
  * @param {number} numberOfBlocks Number of blocks in the dataset.
@@ -128,6 +141,7 @@ export function suggestAdtQcFilters(metrics, { numberOfMADs = 3, minDetectedDrop
 export function emptySuggestAdtQcFiltersResults(numberOfSubsets, numberOfBlocks) {
     return gc.call(
         module => new module.SuggestAdtQcFilters_Results(numberOfSubsets, numberOfBlocks),
-        SuggestAdtQcFiltersResults
+        SuggestAdtQcFiltersResults,
+        /* filled = */ false 
     );
 }

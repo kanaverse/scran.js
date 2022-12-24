@@ -90,9 +90,18 @@ export class ClusterSNNGraphMultiLevelResults {
     #id;
     #results;
 
-    constructor(id, raw) {
+    #filledBest;
+    #filledModularity;
+    #filledMembership;
+
+    constructor(id, raw, filled = true) {
         this.#id = id;
         this.#results = raw;
+
+        this.#filledBest = filled;
+        this.#filledModularity = utils.spawnArray(this.numberOfLevels(), filled);
+        this.#filledMembership = utils.spawnArray(this.numberOfLevels(), filled);
+
         return;
     }
 
@@ -100,6 +109,9 @@ export class ClusterSNNGraphMultiLevelResults {
      * @return {number} The clustering level with the highest modularity.
      */
     best() {
+        if (!this.#filledBest) {
+            throw new Error("'best' has not yet been set via 'setBest'");
+        }
         return this.#results.best();
     }
 
@@ -109,6 +121,9 @@ export class ClusterSNNGraphMultiLevelResults {
      * This is typically only used after {@linkcode emptyClusterSNNGraphResults}.
      */
     setBest(best) {
+        if (!this.#filledBest) {
+            this.#filledBest = true;
+        }
         this.#results.set_best(best);
         return;
     }
@@ -131,6 +146,9 @@ export class ClusterSNNGraphMultiLevelResults {
         if (level === null) {
             level = this.best();
         }
+        if (!this.#filledModularity[level]) {
+            throw new Error("'modularity' has not yet been set via 'setModularity'");
+        }
         return this.#results.modularity(level);
     }
 
@@ -142,6 +160,9 @@ export class ClusterSNNGraphMultiLevelResults {
      * This is typically only used after {@linkcode emptyClusterSNNGraphResults}.
      */
     setModularity(level, modularity) {
+        if (!this.#filledModularity[level]) {
+            this.#filledModularity[level] = true;
+        }
         return this.#results.set_modularity(level, modularity);
     }
 
@@ -150,13 +171,16 @@ export class ClusterSNNGraphMultiLevelResults {
      * @param {?number} [options.level=null] - The clustering level for which to obtain the cluster membership.
      * Defaults to the best clustering level from {@linkcode ClusterSNNGraphMultiLevelResults#best best}.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
+     * @param {boolean} [options.fillable=false] - Whether to return a fillable array, to write to this object.
+     * Automatically sets `copy = false` if `copy` was previously true.
      *
      * @return {Int32Array|Int32WasmArray} Array containing the cluster membership for each cell.
      */
-    membership({ level = null, copy = true } = {}) {
+    membership({ level = null, copy = true, fillable = false } = {}) {
         if (level === null) {
             level = this.best();
         }
+        copy = utils.checkFillness(fillable, copy, this.#filledMembership[level], () => { this.#filledMembership[level] = true; }, "membership");
         return utils.possibleCopy(this.#results.membership(level), copy);
     }
 
@@ -181,9 +205,21 @@ export class ClusterSNNGraphWalktrapResults {
     #id;
     #results;
 
-    constructor(id, raw) {
+    #filledModularity;
+    #filledModularityDetails;
+    #filledMembership;
+
+    constructor(id, raw, filled = true) {
         this.#id = id;
         this.#results = raw;
+
+        this.#filledModularity = filled;
+        this.#filledMembership = filled;
+        if (!filled) {
+            let n = this.numberOfMergeSteps() + 1;
+            this.#filledModularityDetails = { which: utils.spawnArray(n, false), remaining: n };
+        }
+
         return;
     }
 
@@ -203,8 +239,18 @@ export class ClusterSNNGraphWalktrapResults {
      * @return {number} The modularity at the specified merge step, or the maximum modularity across all merge steps.
      */
     modularity({ at = null } = {}) {
+        let fail = false;
         if (at === null) {
+            if (!this.#filledModularity) {
+                fail = true;
+            }
             at = -1;
+        } else if (!this.#filledModularity && !this.#filledModularityDetails[at]) {
+            fail = true;
+        }
+
+        if (fail) {
+            throw new Error("'modularity' has not yet been set via 'setModularity'");
         }
         return this.#results.modularity(at);
     }
@@ -218,16 +264,27 @@ export class ClusterSNNGraphWalktrapResults {
      * This is typically used after calling {@linkcode emptyClusterSNNGraphResults}.
      */
     setModularity(at, modularity) {
+        if (!this.#filledModularity) {
+            this.#filledModularityDetails.which[at] = true;
+            this.#filledModularityDetails.remaining--;
+            if (this.#filledModularityDetails.remaining == 0) {
+                this.#filledModularity = true;
+            }
+        }
         this.#results.set_modularity(at, modularity);
         return;
     }
 
     /**
+     * @param {object} [options] - Optional parameters.
      * @param {boolean|string} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
+     * @param {boolean} [options.fillable=false] - Whether to return a fillable array, to write to this object.
+     * Automatically sets `copy = false` if `copy` was previously true.
      *
      * @return {Int32Array|Int32WasmArray} Array containing the cluster membership for each cell.
      */
-    membership({ copy = true } = {}) {
+    membership({ copy = true, fillable = false } = {}) {
+        copy = utils.checkFillness(fillable, copy, this.#filledMembership, () => { this.#filledMembership = true; }, "membership");
         return utils.possibleCopy(this.#results.membership(), copy);
     }
 
@@ -252,9 +309,15 @@ export class ClusterSNNGraphLeidenResults {
     #id;
     #results;
 
-    constructor(id, raw) {
+    #filledModularity;
+    #filledMembership;
+
+    constructor(id, raw, filled = true) {
         this.#id = id;
         this.#results = raw;
+
+        this.#filledModularity = filled;
+        this.#filledMembership = filled;
         return;
     }
 
@@ -265,6 +328,9 @@ export class ClusterSNNGraphLeidenResults {
      * Nonetheless, we use `modularity` for consistency with the other SNN clustering result classes.
      */
     modularity() {
+        if (!this.#filledModularity) {
+            throw new Error("'modularity' has not yet been set via 'setModularity'");
+        }
         return this.#results.modularity();
     }
 
@@ -274,16 +340,23 @@ export class ClusterSNNGraphLeidenResults {
      * This is typically used after calling {@linkcode emptyClusterSNNGraphResults}.
      */
     setModularity(modularity) {
+        if (!this.#filledModularity) {
+            this.#filledModularity = true;
+        }
         this.#results.set_modularity(modularity);
         return;
     }
 
     /**
+     * @param {object} [options] - Optional parameters.
      * @param {boolean|string} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
+     * @param {boolean} [options.fillable=false] - Whether to return a fillable array, to write to this object.
+     * Automatically sets `copy = false` if `copy` was previously true.
      *
      * @return {Int32Array|Int32WasmArray} Array containing the cluster membership for each cell.
      */
-    membership({ copy = true } = {}) {
+    membership({ copy = true, fillable = false } = {}) {
+        copy = utils.checkFillness(fillable, copy, this.#filledMembership, () => { this.#filledMembership = true; }, "membership");
         return utils.possibleCopy(this.#results.membership(), copy);
     }
 
@@ -346,7 +419,7 @@ export function clusterSNNGraph(x, { method = "multilevel", resolution = 1, walk
 
 /**
  * Create an empty {@linkplain ClusterSNNGraphMultiLevelResults} object (or one of its counterparts), to be filled with custom results.
- * Note that filling requires use of `copy: false` in the various getters to obtain a writeable memory view.
+ * Note that filling requires use of `fillable: true` in the various getters to obtain a writeable memory view.
  *
  * @param {number} numberOfCells - Number of cells in the dataset.
  * @param {object} [options={}] - Optional parameters.
@@ -362,17 +435,20 @@ export function emptyClusterSNNGraphResults(numberOfCells, { method = "multileve
     if (method == "multilevel") {
         return gc.call(
             module => new module.ClusterSNNGraphMultiLevel_Result(numberOfCells, numberOfLevels),
-            ClusterSNNGraphMultiLevelResults
+            ClusterSNNGraphMultiLevelResults,
+            /* filled = */ false
         );
     } else if (method == "walktrap") {
         return gc.call(
             module => new module.ClusterSNNGraphWalktrap_Result(numberOfCells, numberOfMergeSteps),
-            ClusterSNNGraphWalktrapResults
+            ClusterSNNGraphWalktrapResults,
+            /* filled = */ false
         );
     } else if (method == "leiden") {
         return gc.call(
             module => new module.ClusterSNNGraphLeiden_Result(numberOfCells),
-            ClusterSNNGraphLeidenResults
+            ClusterSNNGraphLeidenResults,
+            /* filled = */ false
         );
     } else {
         throw new Error("unknown method '" + method + "'")

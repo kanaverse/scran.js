@@ -11,29 +11,44 @@ export class SuggestRnaQcFiltersResults {
     #id;
     #results;
 
-    constructor(id, raw) {
+    #filledSums;
+    #filledDetected;
+    #filledSubsetProportions;
+
+    constructor(id, raw, filled = true) {
         this.#id = id;
         this.#results = raw;
+
+        this.#filledSums = filled;
+        this.#filledDetected = filled;
+        this.#filledSubsetProportions = utils.spawnArray(this.numberOfSubsets(), filled);
+
         return;
     }
 
     /**
      * @param {object} [options] - Optional parameters.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
+     * @param {boolean} [options.fillable=false] - Whether to return a fillable array, to write to this object.
+     * Automatically sets `copy = false` if `copy` was previously true.
      *
      * @return {Float64Array|Float64WasmArray} Array containing the filtering threshold on the sums for each batch.
      */
-    thresholdsSums({ copy = true } = {}) {
+    thresholdsSums({ copy = true, fillable = false } = {}) {
+        copy = utils.checkFillness(fillable, copy, this.#filledSums, () => { this.#filledSums = true }, "thresholdsSums");
         return utils.possibleCopy(this.#results.thresholds_sums(), copy);
     }
 
     /**
      * @param {object} [options] - Optional parameters.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
+     * @param {boolean} [options.fillable=false] - Whether to return a fillable array, to write to this object.
+     * Automatically sets `copy = false` if `copy` was previously true.
      *
      * @return {Float64Array|Float64WasmArray} Array containing the filtering threshold on the number of detected genes for each batch.
      */
-    thresholdsDetected({ copy = true } = {}) {
+    thresholdsDetected({ copy = true, fillable = false } = {}) {
+        copy = utils.checkFillness(fillable, copy, this.#filledDetected, () => { this.#filledDetected = true }, "thresholdsDetected");
         return utils.possibleCopy(this.#results.thresholds_detected(), copy);
     }
 
@@ -41,10 +56,13 @@ export class SuggestRnaQcFiltersResults {
      * @param {number} i - Index of the feature subset of interest.
      * @param {object} [options] - Optional parameters.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
+     * @param {boolean} [options.fillable=false] - Whether to return a fillable array, to write to this object.
+     * Automatically sets `copy = false` if `copy` was previously true.
      *
      * @return {Float64Array|Float64WasmArray} Array containing the filtering threshold on the proportions for subset `i` in each batch.
      */
-    thresholdsSubsetProportions(i, { copy = true } = {}) {
+    thresholdsSubsetProportions(i, { copy = true, fillable = false } = {}) {
+        copy = utils.checkFillness(fillable, copy, this.#filledSubsetProportions[i], () => { this.#filledSubsetProportions[i] = true }, "thresholdsSubsetProportions");
         return utils.possibleCopy(this.#results.thresholds_proportions(i), copy);
     }
 
@@ -125,7 +143,7 @@ export function suggestRnaQcFilters(metrics, { numberOfMADs = 3, block = null } 
 
 /**
  * Create an empty {@linkplain SuggestRnaQcFiltersResults} object, to be filled with custom results.
- * Note that filling requires use of `copy: false` in the various getters to obtain a writeable memory view.
+ * Note that filling requires use of `fillable: true` in the various getters to obtain a writeable memory view.
  *
  * @param {number} numberOfSubsets Number of feature subsets.
  * @param {number} numberOfBlocks Number of blocks in the dataset.
@@ -135,6 +153,7 @@ export function suggestRnaQcFilters(metrics, { numberOfMADs = 3, block = null } 
 export function emptySuggestRnaQcFiltersResults(numberOfSubsets, numberOfBlocks) {
     return gc.call(
         module => new module.SuggestRnaQcFilters_Results(numberOfSubsets, numberOfBlocks),
-        SuggestRnaQcFiltersResults
+        SuggestRnaQcFiltersResults,
+        /* filled = */ false 
     );
 }
