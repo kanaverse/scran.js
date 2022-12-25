@@ -87,7 +87,7 @@
 
     
 
-    <h4 class="name" id="clusterCenters"><span class="type-signature"></span>clusterCenters<span class="signature">(options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Float64Array|Float64WasmArray}</span></h4>
+    <h4 class="name" id="clusterCenters"><span class="type-signature"></span>clusterCenters<span class="signature">(options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; (nullable) {Float64Array|Float64WasmArray}</span></h4>
 
     
 
@@ -99,7 +99,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="clusterKmeans.js.html">clusterKmeans.js</a>, <a href="clusterKmeans.js.html#line122">line 122</a>
+        <a href="clusterKmeans.js.html">clusterKmeans.js</a>, <a href="clusterKmeans.js.html#line147">line 147</a>
     </li></ul></dd>
     
 
@@ -306,7 +306,8 @@
             
 
             <td class="description last"><p>Whether to return a fillable array, to write to this object.
-Automatically sets <code>copy = false</code> if <code>copy</code> was previously true.</p></td>
+If <code>true</code>, this method automatically sets <code>copy = false</code> if <code>copy</code> was previously true.
+If <code>false</code> and the array was not previously filled, <code>null</code> is returned.</p></td>
         </tr>
 
     
@@ -340,7 +341,8 @@ Automatically sets <code>copy = false</code> if <code>copy</code> was previously
         
 <div class="param-desc">
     <p>Array containing the cluster centers in column-major format,
-where rows are dimensions and columns are the clusters.</p>
+where rows are dimensions and columns are the clusters.
+Alternatively <code>null</code>, if <code>fillable = false</code> and the array was not already filled.</p>
 </div>
 
 
@@ -369,7 +371,7 @@ where rows are dimensions and columns are the clusters.</p>
 
     
 
-    <h4 class="name" id="clusters"><span class="type-signature"></span>clusters<span class="signature">(options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Int32Array|Int32WasmArray}</span></h4>
+    <h4 class="name" id="clusters"><span class="type-signature"></span>clusters<span class="signature">(options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; (nullable) {Int32Array|Int32WasmArray}</span></h4>
 
     
 
@@ -381,7 +383,7 @@ where rows are dimensions and columns are the clusters.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="clusterKmeans.js.html">clusterKmeans.js</a>, <a href="clusterKmeans.js.html#line82">line 82</a>
+        <a href="clusterKmeans.js.html">clusterKmeans.js</a>, <a href="clusterKmeans.js.html#line84">line 84</a>
     </li></ul></dd>
     
 
@@ -588,7 +590,8 @@ where rows are dimensions and columns are the clusters.</p>
             
 
             <td class="description last"><p>Whether to return a fillable array, to write to this object.
-Automatically sets <code>copy = false</code> if <code>copy</code> was previously true.</p></td>
+If <code>true</code>, this method automatically sets <code>copy = false</code> if <code>copy</code> was previously true.
+If <code>false</code> and the array was not previously filled, <code>null</code> is returned.</p></td>
         </tr>
 
     
@@ -621,7 +624,8 @@ Automatically sets <code>copy = false</code> if <code>copy</code> was previously
 
         
 <div class="param-desc">
-    <p>Array containing the cluster assignment for each cell.</p>
+    <p>Array containing the cluster assignment for each cell.
+Alternatively <code>null</code>, if <code>fillable = false</code> and the array was not already filled.</p>
 </div>
 
 
@@ -650,7 +654,7 @@ Automatically sets <code>copy = false</code> if <code>copy</code> was previously
 
     
 
-    <h4 class="name" id="clusterSizes"><span class="type-signature"></span>clusterSizes<span class="signature">(options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Int32Array|Int32WasmArray}</span></h4>
+    <h4 class="name" id="clusterSizes"><span class="type-signature"></span>clusterSizes<span class="signature">(options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; (nullable) {Int32Array|Int32WasmArray}</span></h4>
 
     
 
@@ -662,7 +666,7 @@ Automatically sets <code>copy = false</code> if <code>copy</code> was previously
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="clusterKmeans.js.html">clusterKmeans.js</a>, <a href="clusterKmeans.js.html#line95">line 95</a>
+        <a href="clusterKmeans.js.html">clusterKmeans.js</a>, <a href="clusterKmeans.js.html#line105">line 105</a>
     </li></ul></dd>
     
 
@@ -869,7 +873,8 @@ Automatically sets <code>copy = false</code> if <code>copy</code> was previously
             
 
             <td class="description last"><p>Whether to return a fillable array, to write to this object.
-Automatically sets <code>copy = false</code> if <code>copy</code> was previously true.</p></td>
+If <code>true</code>, this method automatically sets <code>copy = false</code> if <code>copy</code> was previously true.
+If <code>false</code> and the array was not previously filled, <code>null</code> is returned.</p></td>
         </tr>
 
     
@@ -902,7 +907,8 @@ Automatically sets <code>copy = false</code> if <code>copy</code> was previously
 
         
 <div class="param-desc">
-    <p>Array containing the number of cells in each cluster.</p>
+    <p>Array containing the number of cells in each cluster.
+Alternatively <code>null</code>, if <code>fillable = false</code> and the array was not already filled.</p>
 </div>
 
 
@@ -943,7 +949,7 @@ Automatically sets <code>copy = false</code> if <code>copy</code> was previously
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="clusterKmeans.js.html">clusterKmeans.js</a>, <a href="clusterKmeans.js.html#line151">line 151</a>
+        <a href="clusterKmeans.js.html">clusterKmeans.js</a>, <a href="clusterKmeans.js.html#line185">line 185</a>
     </li></ul></dd>
     
 
@@ -1025,7 +1031,7 @@ This invalidates this object and all references to it.</p>
 
     
 
-    <h4 class="name" id="iterations"><span class="type-signature"></span>iterations<span class="signature">()</span><span class="type-signature"> &rarr; {number}</span></h4>
+    <h4 class="name" id="iterations"><span class="type-signature"></span>iterations<span class="signature">()</span><span class="type-signature"> &rarr; (nullable) {number}</span></h4>
 
     
 
@@ -1037,7 +1043,7 @@ This invalidates this object and all references to it.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="clusterKmeans.js.html">clusterKmeans.js</a>, <a href="clusterKmeans.js.html#line130">line 130</a>
+        <a href="clusterKmeans.js.html">clusterKmeans.js</a>, <a href="clusterKmeans.js.html#line161">line 161</a>
     </li></ul></dd>
     
 
@@ -1104,7 +1110,8 @@ This invalidates this object and all references to it.</p>
 
         
 <div class="param-desc">
-    <p>Number of refinement iterations performed by the algorithm.</p>
+    <p>Number of refinement iterations performed by the algorithm.
+Alternatively <code>null</code>, if this value has not been filled by <a href="ClusterKmeansResults.html#setIterations"><code>setIterations</code></a>.</p>
 </div>
 
 
@@ -1626,7 +1633,7 @@ Typically only used after <a href="global.html#emptyClusterKmeansResults"><code>
 
     
 
-    <h4 class="name" id="status"><span class="type-signature"></span>status<span class="signature">()</span><span class="type-signature"> &rarr; {number}</span></h4>
+    <h4 class="name" id="status"><span class="type-signature"></span>status<span class="signature">()</span><span class="type-signature"> &rarr; (nullable) {number}</span></h4>
 
     
 
@@ -1638,7 +1645,7 @@ Typically only used after <a href="global.html#emptyClusterKmeansResults"><code>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="clusterKmeans.js.html">clusterKmeans.js</a>, <a href="clusterKmeans.js.html#line140">line 140</a>
+        <a href="clusterKmeans.js.html">clusterKmeans.js</a>, <a href="clusterKmeans.js.html#line173">line 173</a>
     </li></ul></dd>
     
 
@@ -1705,7 +1712,8 @@ Typically only used after <a href="global.html#emptyClusterKmeansResults"><code>
 
         
 <div class="param-desc">
-    <p>Status of the algorithm - anything other than zero usually indicates a problem with convergence.</p>
+    <p>Status of the algorithm - anything other than zero usually indicates a problem with convergence.
+Alternatively <code>null</code>, if this value has not been filled by <a href="ClusterKmeansResults.html#setStatus"><code>setStatus</code></a>.</p>
 </div>
 
 
@@ -1731,7 +1739,7 @@ Typically only used after <a href="global.html#emptyClusterKmeansResults"><code>
 
     
 
-    <h4 class="name" id="withinClusterSumSquares"><span class="type-signature"></span>withinClusterSumSquares<span class="signature">(options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Float64Array|Float64WasmArray}</span></h4>
+    <h4 class="name" id="withinClusterSumSquares"><span class="type-signature"></span>withinClusterSumSquares<span class="signature">(options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; (nullable) {Float64Array|Float64WasmArray}</span></h4>
 
     
 
@@ -1743,7 +1751,7 @@ Typically only used after <a href="global.html#emptyClusterKmeansResults"><code>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="clusterKmeans.js.html">clusterKmeans.js</a>, <a href="clusterKmeans.js.html#line108">line 108</a>
+        <a href="clusterKmeans.js.html">clusterKmeans.js</a>, <a href="clusterKmeans.js.html#line126">line 126</a>
     </li></ul></dd>
     
 
@@ -1950,7 +1958,8 @@ Typically only used after <a href="global.html#emptyClusterKmeansResults"><code>
             
 
             <td class="description last"><p>Whether to return a fillable array, to write to this object.
-Automatically sets <code>copy = false</code> if <code>copy</code> was previously true.</p></td>
+If <code>true</code>, this method automatically sets <code>copy = false</code> if <code>copy</code> was previously true.
+If <code>false</code> and the array was not previously filled, <code>null</code> is returned.</p></td>
         </tr>
 
     
@@ -1983,7 +1992,8 @@ Automatically sets <code>copy = false</code> if <code>copy</code> was previously
 
         
 <div class="param-desc">
-    <p>Array containing the within-cluster sum of squares in each cluster.</p>
+    <p>Array containing the within-cluster sum of squares in each cluster.
+Alternatively <code>null</code>, if <code>fillable = false</code> and the array was not already filled.</p>
 </div>
 
 
@@ -2027,7 +2037,7 @@ Automatically sets <code>copy = false</code> if <code>copy</code> was previously
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.11</a> on Sat Dec 24 2022 12:18:24 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.11</a> on Sun Dec 25 2022 06:44:16 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>

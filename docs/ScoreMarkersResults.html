@@ -87,7 +87,7 @@
 
     
 
-    <h4 class="name" id="auc"><span class="type-signature"></span>auc<span class="signature">(group, options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Float64Array|Float64WasmArray}</span></h4>
+    <h4 class="name" id="auc"><span class="type-signature"></span>auc<span class="signature">(group, options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; (nullable) {Float64Array|Float64WasmArray}</span></h4>
 
     
 
@@ -99,7 +99,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="scoreMarkers.js.html">scoreMarkers.js</a>, <a href="scoreMarkers.js.html#line146">line 146</a>
+        <a href="scoreMarkers.js.html">scoreMarkers.js</a>, <a href="scoreMarkers.js.html#line172">line 172</a>
     </li></ul></dd>
     
 
@@ -344,6 +344,47 @@ This can be the minimum across comparisons (0), mean (1) or min-rank (4).</p></t
         </tr>
 
     
+
+        <tr>
+            
+                <td class="name"><code>fillable</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    <code>false</code>
+                
+                </td>
+            
+
+            <td class="description last"><p>Whether to return a fillable array, to write to this object.
+If <code>true</code>, this method automatically sets <code>copy = false</code> if <code>copy</code> was previously true.
+If <code>false</code> and the array was not previously filled, <code>null</code> is returned.</p></td>
+        </tr>
+
+    
     </tbody>
 </table>
 
@@ -374,7 +415,8 @@ This can be the minimum across comparisons (0), mean (1) or min-rank (4).</p></t
         
 <div class="param-desc">
     <p>Array of length equal to the number of genes,
-containing the summarized AUC for the comparisons between <code>group</code> and all other groups.</p>
+containing the summarized AUC for the comparisons between <code>group</code> and all other groups.
+Alternatively <code>null</code>, if <code>fillable = false</code> and the array was not already filled.</p>
 </div>
 
 
@@ -403,7 +445,7 @@ containing the summarized AUC for the comparisons between <code>group</code> and
 
     
 
-    <h4 class="name" id="cohen"><span class="type-signature"></span>cohen<span class="signature">(group, options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Float64Array|Float64WasmArray}</span></h4>
+    <h4 class="name" id="cohen"><span class="type-signature"></span>cohen<span class="signature">(group, options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; (nullable) {Float64Array|Float64WasmArray}</span></h4>
 
     
 
@@ -415,7 +457,7 @@ containing the summarized AUC for the comparisons between <code>group</code> and
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="scoreMarkers.js.html">scoreMarkers.js</a>, <a href="scoreMarkers.js.html#line127">line 127</a>
+        <a href="scoreMarkers.js.html">scoreMarkers.js</a>, <a href="scoreMarkers.js.html#line143">line 143</a>
     </li></ul></dd>
     
 
@@ -691,7 +733,8 @@ This can be the minimum across comparisons (0), mean (1) or min-rank (4).</p></t
             
 
             <td class="description last"><p>Whether to return a fillable array, to write to this object.
-Automatically sets <code>copy = false</code> if <code>copy</code> was previously true.</p></td>
+If <code>true</code>, this method automatically sets <code>copy = false</code> if <code>copy</code> was previously true.
+If <code>false</code> and the array was not previously filled, <code>null</code> is returned.</p></td>
         </tr>
 
     
@@ -725,7 +768,8 @@ Automatically sets <code>copy = false</code> if <code>copy</code> was previously
         
 <div class="param-desc">
     <p>Array of length equal to the number of genes,
-containing the summarized Cohen's d for the comparisons between <code>group</code> and all other groups.</p>
+containing the summarized Cohen's d for the comparisons between <code>group</code> and all other groups.
+Alternatively <code>null</code>, if <code>fillable = false</code> and the array was not already filled.</p>
 </div>
 
 
@@ -766,7 +810,7 @@ containing the summarized Cohen's d for the comparisons between <code>group</cod
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="scoreMarkers.js.html">scoreMarkers.js</a>, <a href="scoreMarkers.js.html#line178">line 178</a>
+        <a href="scoreMarkers.js.html">scoreMarkers.js</a>, <a href="scoreMarkers.js.html#line224">line 224</a>
     </li></ul></dd>
     
 
@@ -1004,6 +1048,47 @@ This can be the minimum across comparisons (0), mean (1) or min-rank (4).</p></t
         </tr>
 
     
+
+        <tr>
+            
+                <td class="name"><code>fillable</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    <code>false</code>
+                
+                </td>
+            
+
+            <td class="description last"><p>Whether to return a fillable array, to write to this object.
+If <code>true</code>, this method automatically sets <code>copy = false</code> if <code>copy</code> was previously true.
+If <code>false</code> and the array was not previously filled, <code>null</code> is returned.</p></td>
+        </tr>
+
+    
     </tbody>
 </table>
 
@@ -1034,7 +1119,8 @@ This can be the minimum across comparisons (0), mean (1) or min-rank (4).</p></t
         
 <div class="param-desc">
     <p>Array of length equal to the number of genes,
-containing the summarized delta-detected for the comparisons between <code>group</code> and all other groups.</p>
+containing the summarized delta-detected for the comparisons between <code>group</code> and all other groups.
+Alternatively <code>null</code>, if <code>fillable = false</code> and the array was not already filled.</p>
 </div>
 
 
@@ -1063,7 +1149,7 @@ containing the summarized delta-detected for the comparisons between <code>group
 
     
 
-    <h4 class="name" id="detected"><span class="type-signature"></span>detected<span class="signature">(group, options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Float64Array|Float64WasmArray}</span></h4>
+    <h4 class="name" id="detected"><span class="type-signature"></span>detected<span class="signature">(group, options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; (nullable) {Float64Array|Float64WasmArray}</span></h4>
 
     
 
@@ -1075,7 +1161,7 @@ containing the summarized delta-detected for the comparisons between <code>group
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="scoreMarkers.js.html">scoreMarkers.js</a>, <a href="scoreMarkers.js.html#line110">line 110</a>
+        <a href="scoreMarkers.js.html">scoreMarkers.js</a>, <a href="scoreMarkers.js.html#line124">line 124</a>
     </li></ul></dd>
     
 
@@ -1354,7 +1440,8 @@ Otherwise, should be less than the value returned by <a href="ModelGeneVarResult
             
 
             <td class="description last"><p>Whether to return a fillable array, to write to this object.
-Automatically sets <code>copy = false</code> if <code>copy</code> was previously true.</p></td>
+If <code>true</code>, this method automatically sets <code>copy = false</code> if <code>copy</code> was previously true.
+If <code>false</code> and the array was not previously filled, <code>null</code> is returned.</p></td>
         </tr>
 
     
@@ -1388,7 +1475,8 @@ Automatically sets <code>copy = false</code> if <code>copy</code> was previously
         
 <div class="param-desc">
     <p>Array of length equal to the number of genes,
-containing the proportion of cells with detectable expression for the requested group in the requested block.</p>
+containing the proportion of cells with detectable expression for the requested group in the requested block.
+Alternatively <code>null</code>, if <code>fillable = false</code> and the array was not already filled.</p>
 </div>
 
 
@@ -1429,7 +1517,7 @@ containing the proportion of cells with detectable expression for the requested 
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="scoreMarkers.js.html">scoreMarkers.js</a>, <a href="scoreMarkers.js.html#line187">line 187</a>
+        <a href="scoreMarkers.js.html">scoreMarkers.js</a>, <a href="scoreMarkers.js.html#line239">line 239</a>
     </li></ul></dd>
     
 
@@ -1511,7 +1599,7 @@ This invalidates this object and all references to it.</p>
 
     
 
-    <h4 class="name" id="lfc"><span class="type-signature"></span>lfc<span class="signature">(group, options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Float64Array|Float64WasmArray}</span></h4>
+    <h4 class="name" id="lfc"><span class="type-signature"></span>lfc<span class="signature">(group, options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; (nullable) {Float64Array|Float64WasmArray}</span></h4>
 
     
 
@@ -1523,7 +1611,7 @@ This invalidates this object and all references to it.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="scoreMarkers.js.html">scoreMarkers.js</a>, <a href="scoreMarkers.js.html#line162">line 162</a>
+        <a href="scoreMarkers.js.html">scoreMarkers.js</a>, <a href="scoreMarkers.js.html#line198">line 198</a>
     </li></ul></dd>
     
 
@@ -1763,6 +1851,47 @@ This can be the minimum across comparisons (0), mean (1) or min-rank (4).</p></t
         </tr>
 
     
+
+        <tr>
+            
+                <td class="name"><code>fillable</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    <code>false</code>
+                
+                </td>
+            
+
+            <td class="description last"><p>Whether to return a fillable array, to write to this object.
+If <code>true</code>, this method automatically sets <code>copy = false</code> if <code>copy</code> was previously true.
+If <code>false</code> and the array was not previously filled, <code>null</code> is returned.</p></td>
+        </tr>
+
+    
     </tbody>
 </table>
 
@@ -1793,7 +1922,8 @@ This can be the minimum across comparisons (0), mean (1) or min-rank (4).</p></t
         
 <div class="param-desc">
     <p>Array of length equal to the number of genes,
-containing the summarized log-fold change for the comparisons between <code>group</code> and all other groups.</p>
+containing the summarized log-fold change for the comparisons between <code>group</code> and all other groups.
+Alternatively <code>null</code>, if <code>fillable = false</code> and the array was not already filled.</p>
 </div>
 
 
@@ -1822,7 +1952,7 @@ containing the summarized log-fold change for the comparisons between <code>grou
 
     
 
-    <h4 class="name" id="means"><span class="type-signature"></span>means<span class="signature">(group, options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Float64Array|Float64WasmArray}</span></h4>
+    <h4 class="name" id="means"><span class="type-signature"></span>means<span class="signature">(group, options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; (nullable) {Float64Array|Float64WasmArray}</span></h4>
 
     
 
@@ -1834,7 +1964,7 @@ containing the summarized log-fold change for the comparisons between <code>grou
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="scoreMarkers.js.html">scoreMarkers.js</a>, <a href="scoreMarkers.js.html#line92">line 92</a>
+        <a href="scoreMarkers.js.html">scoreMarkers.js</a>, <a href="scoreMarkers.js.html#line104">line 104</a>
     </li></ul></dd>
     
 
@@ -2113,7 +2243,8 @@ Otherwise, should be less than the value returned by <a href="ModelGeneVarResult
             
 
             <td class="description last"><p>Whether to return a fillable array, to write to this object.
-Automatically sets <code>copy = false</code> if <code>copy</code> was previously true.</p></td>
+If <code>true</code>, this method automatically sets <code>copy = false</code> if <code>copy</code> was previously true.
+If <code>false</code> and the array was not previously filled, <code>null</code> is returned.</p></td>
         </tr>
 
     
@@ -2147,7 +2278,8 @@ Automatically sets <code>copy = false</code> if <code>copy</code> was previously
         
 <div class="param-desc">
     <p>Array of length equal to the number of genes,
-containing the mean expression for the requested group in the requested block.</p>
+containing the mean expression for the requested group in the requested block.
+Alternatively <code>null</code>, if <code>fillable = false</code> and the array was not already filled.</p>
 </div>
 
 
@@ -2188,7 +2320,7 @@ containing the mean expression for the requested group in the requested block.</
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="scoreMarkers.js.html">scoreMarkers.js</a>, <a href="scoreMarkers.js.html#line67">line 67</a>
+        <a href="scoreMarkers.js.html">scoreMarkers.js</a>, <a href="scoreMarkers.js.html#line77">line 77</a>
     </li></ul></dd>
     
 
@@ -2293,7 +2425,7 @@ containing the mean expression for the requested group in the requested block.</
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="scoreMarkers.js.html">scoreMarkers.js</a>, <a href="scoreMarkers.js.html#line74">line 74</a>
+        <a href="scoreMarkers.js.html">scoreMarkers.js</a>, <a href="scoreMarkers.js.html#line84">line 84</a>
     </li></ul></dd>
     
 
@@ -2401,7 +2533,7 @@ containing the mean expression for the requested group in the requested block.</
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.11</a> on Sat Dec 24 2022 12:18:25 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.11</a> on Sun Dec 25 2022 06:44:16 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>

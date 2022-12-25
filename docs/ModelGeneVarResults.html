@@ -99,7 +99,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="modelGeneVar.js.html">modelGeneVar.js</a>, <a href="modelGeneVar.js.html#line87">line 87</a>
+        <a href="modelGeneVar.js.html">modelGeneVar.js</a>, <a href="modelGeneVar.js.html#line99">line 99</a>
     </li></ul></dd>
     
 
@@ -165,6 +165,8 @@
         
 
         
+        <th>Default</th>
+        
 
         <th class="last">Description</th>
     </tr>
@@ -199,6 +201,12 @@
                 </td>
             
 
+            
+                <td class="default">
+                
+                    <code>{}</code>
+                
+                </td>
             
 
             <td class="description last"><p>Optional parameters.</p>
@@ -346,7 +354,8 @@ Otherwise, should be less than the value returned by <a href="ModelGeneVarResult
             
 
             <td class="description last"><p>Whether to return a fillable array, to write to this object.
-Automatically sets <code>copy = false</code> if <code>copy</code> was previously true.</p></td>
+If <code>true</code>, this method automatically sets <code>copy = false</code> if <code>copy</code> was previously true.
+If <code>false</code> and the array was not previously filled, <code>null</code> is returned.</p></td>
         </tr>
 
     
@@ -381,7 +390,8 @@ Automatically sets <code>copy = false</code> if <code>copy</code> was previously
 <div class="param-desc">
     <p>Array of length equal to the number of genes,
 containing the fitted value of the mean-variance trend for the specified <code>block</code>
-(or the average across all blocks, if <code>block &lt; 0</code>).</p>
+(or the average across all blocks, if <code>block &lt; 0</code>).
+Alternatively <code>null</code>, if <code>fillable = false</code> and the array was not already filled.</p>
 </div>
 
 
@@ -422,7 +432,7 @@ containing the fitted value of the mean-variance trend for the specified <code>b
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="modelGeneVar.js.html">modelGeneVar.js</a>, <a href="modelGeneVar.js.html#line119">line 119</a>
+        <a href="modelGeneVar.js.html">modelGeneVar.js</a>, <a href="modelGeneVar.js.html#line133">line 133</a>
     </li></ul></dd>
     
 
@@ -504,7 +514,7 @@ This invalidates this object and all references to it.</p>
 
     
 
-    <h4 class="name" id="means"><span class="type-signature"></span>means<span class="signature">(options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Float64Array|Float64WasmArray}</span></h4>
+    <h4 class="name" id="means"><span class="type-signature"></span>means<span class="signature">(options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; (nullable) {Float64Array|Float64WasmArray}</span></h4>
 
     
 
@@ -516,7 +526,7 @@ This invalidates this object and all references to it.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="modelGeneVar.js.html">modelGeneVar.js</a>, <a href="modelGeneVar.js.html#line53">line 53</a>
+        <a href="modelGeneVar.js.html">modelGeneVar.js</a>, <a href="modelGeneVar.js.html#line61">line 61</a>
     </li></ul></dd>
     
 
@@ -582,6 +592,8 @@ This invalidates this object and all references to it.</p>
         
 
         
+        <th>Default</th>
+        
 
         <th class="last">Description</th>
     </tr>
@@ -616,6 +628,12 @@ This invalidates this object and all references to it.</p>
                 </td>
             
 
+            
+                <td class="default">
+                
+                    <code>{}</code>
+                
+                </td>
             
 
             <td class="description last"><p>Optional parameters.</p>
@@ -763,7 +781,8 @@ Otherwise, should be less than the value returned by <a href="ModelGeneVarResult
             
 
             <td class="description last"><p>Whether to return a fillable array, to write to this object.
-Automatically sets <code>copy = false</code> if <code>copy</code> was previously true.</p></td>
+If <code>true</code>, this method automatically sets <code>copy = false</code> if <code>copy</code> was previously true.
+If <code>false</code> and the array was not previously filled, <code>null</code> is returned.</p></td>
         </tr>
 
     
@@ -798,7 +817,8 @@ Automatically sets <code>copy = false</code> if <code>copy</code> was previously
 <div class="param-desc">
     <p>Array of length equal to the number of genes,
 containing the mean log-expression across all cells in the specified <code>block</code>
-(or the average across all blocks, if <code>block &lt; 0</code>).</p>
+(or the average across all blocks, if <code>block &lt; 0</code>).
+Alternatively <code>null</code>, if <code>fillable = false</code> and the array was not already filled.</p>
 </div>
 
 
@@ -839,7 +859,7 @@ containing the mean log-expression across all cells in the specified <code>block
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="modelGeneVar.js.html">modelGeneVar.js</a>, <a href="modelGeneVar.js.html#line111">line 111</a>
+        <a href="modelGeneVar.js.html">modelGeneVar.js</a>, <a href="modelGeneVar.js.html#line125">line 125</a>
     </li></ul></dd>
     
 
@@ -944,7 +964,7 @@ containing the mean log-expression across all cells in the specified <code>block
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="modelGeneVar.js.html">modelGeneVar.js</a>, <a href="modelGeneVar.js.html#line104">line 104</a>
+        <a href="modelGeneVar.js.html">modelGeneVar.js</a>, <a href="modelGeneVar.js.html#line118">line 118</a>
     </li></ul></dd>
     
 
@@ -1010,6 +1030,8 @@ containing the mean log-expression across all cells in the specified <code>block
         
 
         
+        <th>Default</th>
+        
 
         <th class="last">Description</th>
     </tr>
@@ -1044,6 +1066,12 @@ containing the mean log-expression across all cells in the specified <code>block
                 </td>
             
 
+            
+                <td class="default">
+                
+                    <code>{}</code>
+                
+                </td>
             
 
             <td class="description last"><p>Optional parameters.</p>
@@ -1191,7 +1219,8 @@ Otherwise, should be less than the value returned by <a href="ModelGeneVarResult
             
 
             <td class="description last"><p>Whether to return a fillable array, to write to this object.
-Automatically sets <code>copy = false</code> if <code>copy</code> was previously true.</p></td>
+If <code>true</code>, this method automatically sets <code>copy = false</code> if <code>copy</code> was previously true.
+If <code>false</code> and the array was not previously filled, <code>null</code> is returned.</p></td>
         </tr>
 
     
@@ -1226,7 +1255,8 @@ Automatically sets <code>copy = false</code> if <code>copy</code> was previously
 <div class="param-desc">
     <p>Array of length equal to the number of genes,
 containing the residuals from the mean-variance trend for the specified <code>block</code>
-(or the average across all blocks, if <code>block &lt; 0</code>).</p>
+(or the average across all blocks, if <code>block &lt; 0</code>).
+Alternatively <code>null</code>, if <code>fillable = false</code> and the array was not already filled.</p>
 </div>
 
 
@@ -1255,7 +1285,7 @@ containing the residuals from the mean-variance trend for the specified <code>bl
 
     
 
-    <h4 class="name" id="variances"><span class="type-signature"></span>variances<span class="signature">(options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Float64Array|Float64WasmArray}</span></h4>
+    <h4 class="name" id="variances"><span class="type-signature"></span>variances<span class="signature">(options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; (nullable) {Float64Array|Float64WasmArray}</span></h4>
 
     
 
@@ -1267,7 +1297,7 @@ containing the residuals from the mean-variance trend for the specified <code>bl
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="modelGeneVar.js.html">modelGeneVar.js</a>, <a href="modelGeneVar.js.html#line70">line 70</a>
+        <a href="modelGeneVar.js.html">modelGeneVar.js</a>, <a href="modelGeneVar.js.html#line80">line 80</a>
     </li></ul></dd>
     
 
@@ -1333,6 +1363,8 @@ containing the residuals from the mean-variance trend for the specified <code>bl
         
 
         
+        <th>Default</th>
+        
 
         <th class="last">Description</th>
     </tr>
@@ -1367,6 +1399,12 @@ containing the residuals from the mean-variance trend for the specified <code>bl
                 </td>
             
 
+            
+                <td class="default">
+                
+                    <code>{}</code>
+                
+                </td>
             
 
             <td class="description last"><p>Optional parameters.</p>
@@ -1514,7 +1552,8 @@ Otherwise, should be less than the value returned by <a href="ModelGeneVarResult
             
 
             <td class="description last"><p>Whether to return a fillable array, to write to this object.
-Automatically sets <code>copy = false</code> if <code>copy</code> was previously true.</p></td>
+If <code>true</code>, this method automatically sets <code>copy = false</code> if <code>copy</code> was previously true.
+If <code>false</code> and the array was not previously filled, <code>null</code> is returned.</p></td>
         </tr>
 
     
@@ -1549,7 +1588,8 @@ Automatically sets <code>copy = false</code> if <code>copy</code> was previously
 <div class="param-desc">
     <p>Array of length equal to the number of genes,
 containing the variance of log-expression across all cells in the specified <code>block</code>
-(or the average across all blocks, if <code>block &lt; 0</code>).</p>
+(or the average across all blocks, if <code>block &lt; 0</code>).
+Alternatively <code>null</code>, if <code>fillable = false</code> and the array was not already filled.</p>
 </div>
 
 
@@ -1593,7 +1633,7 @@ containing the variance of log-expression across all cells in the specified <cod
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.11</a> on Sat Dec 24 2022 12:18:24 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.11</a> on Sun Dec 25 2022 06:44:16 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>

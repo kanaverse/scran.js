@@ -87,7 +87,7 @@
 
     
 
-    <h4 class="name" id="best"><span class="type-signature"></span>best<span class="signature">()</span><span class="type-signature"> &rarr; {number}</span></h4>
+    <h4 class="name" id="best"><span class="type-signature"></span>best<span class="signature">()</span><span class="type-signature"> &rarr; (nullable) {number}</span></h4>
 
     
 
@@ -99,7 +99,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="clusterSNNGraph.js.html">clusterSNNGraph.js</a>, <a href="clusterSNNGraph.js.html#line111">line 111</a>
+        <a href="clusterSNNGraph.js.html">clusterSNNGraph.js</a>, <a href="clusterSNNGraph.js.html#line112">line 112</a>
     </li></ul></dd>
     
 
@@ -166,7 +166,8 @@
 
         
 <div class="param-desc">
-    <p>The clustering level with the highest modularity.</p>
+    <p>The clustering level with the highest modularity.
+Alternatively <code>null</code>, if this has not been previously set via <a href="ClusterSNNGraphMultiLevelResults.html#setBest"><code>setBest</code></a>.</p>
 </div>
 
 
@@ -204,7 +205,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="clusterSNNGraph.js.html">clusterSNNGraph.js</a>, <a href="clusterSNNGraph.js.html#line191">line 191</a>
+        <a href="clusterSNNGraph.js.html">clusterSNNGraph.js</a>, <a href="clusterSNNGraph.js.html#line209">line 209</a>
     </li></ul></dd>
     
 
@@ -286,7 +287,7 @@ This invalidates this object and all references to it.</p>
 
     
 
-    <h4 class="name" id="membership"><span class="type-signature"></span>membership<span class="signature">(options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Int32Array|Int32WasmArray}</span></h4>
+    <h4 class="name" id="membership"><span class="type-signature"></span>membership<span class="signature">(options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; (nullable) {Int32Array|Int32WasmArray}</span></h4>
 
     
 
@@ -298,7 +299,7 @@ This invalidates this object and all references to it.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="clusterSNNGraph.js.html">clusterSNNGraph.js</a>, <a href="clusterSNNGraph.js.html#line179">line 179</a>
+        <a href="clusterSNNGraph.js.html">clusterSNNGraph.js</a>, <a href="clusterSNNGraph.js.html#line194">line 194</a>
     </li></ul></dd>
     
 
@@ -544,7 +545,8 @@ Defaults to the best clustering level from <a href="ClusterSNNGraphMultiLevelRes
             
 
             <td class="description last"><p>Whether to return a fillable array, to write to this object.
-Automatically sets <code>copy = false</code> if <code>copy</code> was previously true.</p></td>
+If <code>true</code>, this method automatically sets <code>copy = false</code> if <code>copy</code> was previously true.
+If <code>false</code> and the array was not previously filled, <code>null</code> is returned.</p></td>
         </tr>
 
     
@@ -577,7 +579,8 @@ Automatically sets <code>copy = false</code> if <code>copy</code> was previously
 
         
 <div class="param-desc">
-    <p>Array containing the cluster membership for each cell.</p>
+    <p>Array containing the cluster membership for each cell.
+Alternatively <code>null</code>, if <code>fillable = false</code> and the array was not already filled.</p>
 </div>
 
 
@@ -606,7 +609,7 @@ Automatically sets <code>copy = false</code> if <code>copy</code> was previously
 
     
 
-    <h4 class="name" id="modularity"><span class="type-signature"></span>modularity<span class="signature">(options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {number}</span></h4>
+    <h4 class="name" id="modularity"><span class="type-signature"></span>modularity<span class="signature">(options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; (nullable) {number}</span></h4>
 
     
 
@@ -618,7 +621,7 @@ Automatically sets <code>copy = false</code> if <code>copy</code> was previously
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="clusterSNNGraph.js.html">clusterSNNGraph.js</a>, <a href="clusterSNNGraph.js.html#line145">line 145</a>
+        <a href="clusterSNNGraph.js.html">clusterSNNGraph.js</a>, <a href="clusterSNNGraph.js.html#line158">line 158</a>
     </li></ul></dd>
     
 
@@ -818,7 +821,8 @@ Defaults to the best clustering level from <a href="ClusterSNNGraphMultiLevelRes
 
         
 <div class="param-desc">
-    <p>The modularity at the specified level.</p>
+    <p>The modularity at the specified level.
+Alternatively <code>null</code>, if this has not been set by <a href="ClusterSNNGraphMultiLevelResults.html#setModularity"><code>setModularity</code></a>.</p>
 </div>
 
 
@@ -856,7 +860,7 @@ Defaults to the best clustering level from <a href="ClusterSNNGraphMultiLevelRes
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="clusterSNNGraph.js.html">clusterSNNGraph.js</a>, <a href="clusterSNNGraph.js.html#line134">line 134</a>
+        <a href="clusterSNNGraph.js.html">clusterSNNGraph.js</a>, <a href="clusterSNNGraph.js.html#line146">line 146</a>
     </li></ul></dd>
     
 
@@ -961,7 +965,7 @@ Defaults to the best clustering level from <a href="ClusterSNNGraphMultiLevelRes
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="clusterSNNGraph.js.html">clusterSNNGraph.js</a>, <a href="clusterSNNGraph.js.html#line123">line 123</a>
+        <a href="clusterSNNGraph.js.html">clusterSNNGraph.js</a>, <a href="clusterSNNGraph.js.html#line135">line 135</a>
     </li></ul></dd>
     
 
@@ -1104,7 +1108,7 @@ This is typically only used after <a href="global.html#emptyClusterSNNGraphResul
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="clusterSNNGraph.js.html">clusterSNNGraph.js</a>, <a href="clusterSNNGraph.js.html#line162">line 162</a>
+        <a href="clusterSNNGraph.js.html">clusterSNNGraph.js</a>, <a href="clusterSNNGraph.js.html#line174">line 174</a>
     </li></ul></dd>
     
 
@@ -1273,7 +1277,7 @@ This is typically only used after <a href="global.html#emptyClusterSNNGraphResul
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.11</a> on Sat Dec 24 2022 12:18:24 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.11</a> on Sun Dec 25 2022 06:44:16 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>

@@ -99,7 +99,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="suggestRnaQcFilters.js.html">suggestRnaQcFilters.js</a>, <a href="suggestRnaQcFilters.js.html#line97">line 97</a>
+        <a href="suggestRnaQcFilters.js.html">suggestRnaQcFilters.js</a>, <a href="suggestRnaQcFilters.js.html#line118">line 118</a>
     </li></ul></dd>
     
 
@@ -431,7 +431,7 @@ If <code>buffer</code> is supplied, the returned array is a view on <code>buffer
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="suggestRnaQcFilters.js.html">suggestRnaQcFilters.js</a>, <a href="suggestRnaQcFilters.js.html#line108">line 108</a>
+        <a href="suggestRnaQcFilters.js.html">suggestRnaQcFilters.js</a>, <a href="suggestRnaQcFilters.js.html#line129">line 129</a>
     </li></ul></dd>
     
 
@@ -525,7 +525,7 @@ This invalidates this object and all references to it.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="suggestRnaQcFilters.js.html">suggestRnaQcFilters.js</a>, <a href="suggestRnaQcFilters.js.html#line79">line 79</a>
+        <a href="suggestRnaQcFilters.js.html">suggestRnaQcFilters.js</a>, <a href="suggestRnaQcFilters.js.html#line100">line 100</a>
     </li></ul></dd>
     
 
@@ -630,7 +630,7 @@ This invalidates this object and all references to it.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="suggestRnaQcFilters.js.html">suggestRnaQcFilters.js</a>, <a href="suggestRnaQcFilters.js.html#line72">line 72</a>
+        <a href="suggestRnaQcFilters.js.html">suggestRnaQcFilters.js</a>, <a href="suggestRnaQcFilters.js.html#line93">line 93</a>
     </li></ul></dd>
     
 
@@ -723,7 +723,7 @@ This invalidates this object and all references to it.</p>
 
     
 
-    <h4 class="name" id="thresholdsDetected"><span class="type-signature"></span>thresholdsDetected<span class="signature">(options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Float64Array|Float64WasmArray}</span></h4>
+    <h4 class="name" id="thresholdsDetected"><span class="type-signature"></span>thresholdsDetected<span class="signature">(options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; (nullable) {Float64Array|Float64WasmArray}</span></h4>
 
     
 
@@ -735,7 +735,7 @@ This invalidates this object and all references to it.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="suggestRnaQcFilters.js.html">suggestRnaQcFilters.js</a>, <a href="suggestRnaQcFilters.js.html#line50">line 50</a>
+        <a href="suggestRnaQcFilters.js.html">suggestRnaQcFilters.js</a>, <a href="suggestRnaQcFilters.js.html#line59">line 59</a>
     </li></ul></dd>
     
 
@@ -801,6 +801,8 @@ This invalidates this object and all references to it.</p>
         
 
         
+        <th>Default</th>
+        
 
         <th class="last">Description</th>
     </tr>
@@ -835,6 +837,12 @@ This invalidates this object and all references to it.</p>
                 </td>
             
 
+            
+                <td class="default">
+                
+                    <code>{}</code>
+                
+                </td>
             
 
             <td class="description last"><p>Optional parameters.</p>
@@ -939,7 +947,8 @@ This invalidates this object and all references to it.</p>
             
 
             <td class="description last"><p>Whether to return a fillable array, to write to this object.
-Automatically sets <code>copy = false</code> if <code>copy</code> was previously true.</p></td>
+If <code>true</code>, this method automatically sets <code>copy = false</code> if <code>copy</code> was previously true.
+If <code>false</code> and the array was not previously filled, <code>null</code> is returned.</p></td>
         </tr>
 
     
@@ -972,7 +981,8 @@ Automatically sets <code>copy = false</code> if <code>copy</code> was previously
 
         
 <div class="param-desc">
-    <p>Array containing the filtering threshold on the number of detected genes for each batch.</p>
+    <p>Array containing the filtering threshold on the number of detected genes for each batch.
+Alternatively <code>null</code>, if <code>fillable = false</code> and the array was not already filled.</p>
 </div>
 
 
@@ -1001,7 +1011,7 @@ Automatically sets <code>copy = false</code> if <code>copy</code> was previously
 
     
 
-    <h4 class="name" id="thresholdsSubsetProportions"><span class="type-signature"></span>thresholdsSubsetProportions<span class="signature">(i, options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Float64Array|Float64WasmArray}</span></h4>
+    <h4 class="name" id="thresholdsSubsetProportions"><span class="type-signature"></span>thresholdsSubsetProportions<span class="signature">(i, options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; (nullable) {Float64Array|Float64WasmArray}</span></h4>
 
     
 
@@ -1013,7 +1023,7 @@ Automatically sets <code>copy = false</code> if <code>copy</code> was previously
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="suggestRnaQcFilters.js.html">suggestRnaQcFilters.js</a>, <a href="suggestRnaQcFilters.js.html#line64">line 64</a>
+        <a href="suggestRnaQcFilters.js.html">suggestRnaQcFilters.js</a>, <a href="suggestRnaQcFilters.js.html#line80">line 80</a>
     </li></ul></dd>
     
 
@@ -1078,6 +1088,8 @@ Automatically sets <code>copy = false</code> if <code>copy</code> was previously
         <th>Attributes</th>
         
 
+        
+        <th>Default</th>
         
 
         <th class="last">Description</th>
@@ -1112,6 +1124,10 @@ Automatically sets <code>copy = false</code> if <code>copy</code> was previously
             
 
             
+                <td class="default">
+                
+                </td>
+            
 
             <td class="description last"><p>Index of the feature subset of interest.</p></td>
         </tr>
@@ -1144,6 +1160,12 @@ Automatically sets <code>copy = false</code> if <code>copy</code> was previously
                 </td>
             
 
+            
+                <td class="default">
+                
+                    <code>{}</code>
+                
+                </td>
             
 
             <td class="description last"><p>Optional parameters.</p>
@@ -1248,7 +1270,8 @@ Automatically sets <code>copy = false</code> if <code>copy</code> was previously
             
 
             <td class="description last"><p>Whether to return a fillable array, to write to this object.
-Automatically sets <code>copy = false</code> if <code>copy</code> was previously true.</p></td>
+If <code>true</code>, this method automatically sets <code>copy = false</code> if <code>copy</code> was previously true.
+If <code>false</code> and the array was not previously filled, <code>null</code> is returned.</p></td>
         </tr>
 
     
@@ -1281,7 +1304,8 @@ Automatically sets <code>copy = false</code> if <code>copy</code> was previously
 
         
 <div class="param-desc">
-    <p>Array containing the filtering threshold on the proportions for subset <code>i</code> in each batch.</p>
+    <p>Array containing the filtering threshold on the proportions for subset <code>i</code> in each batch.
+Alternatively <code>null</code>, if <code>fillable = false</code> and the array was not already filled.</p>
 </div>
 
 
@@ -1310,7 +1334,7 @@ Automatically sets <code>copy = false</code> if <code>copy</code> was previously
 
     
 
-    <h4 class="name" id="thresholdsSums"><span class="type-signature"></span>thresholdsSums<span class="signature">(options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Float64Array|Float64WasmArray}</span></h4>
+    <h4 class="name" id="thresholdsSums"><span class="type-signature"></span>thresholdsSums<span class="signature">(options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; (nullable) {Float64Array|Float64WasmArray}</span></h4>
 
     
 
@@ -1322,7 +1346,7 @@ Automatically sets <code>copy = false</code> if <code>copy</code> was previously
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="suggestRnaQcFilters.js.html">suggestRnaQcFilters.js</a>, <a href="suggestRnaQcFilters.js.html#line37">line 37</a>
+        <a href="suggestRnaQcFilters.js.html">suggestRnaQcFilters.js</a>, <a href="suggestRnaQcFilters.js.html#line39">line 39</a>
     </li></ul></dd>
     
 
@@ -1388,6 +1412,8 @@ Automatically sets <code>copy = false</code> if <code>copy</code> was previously
         
 
         
+        <th>Default</th>
+        
 
         <th class="last">Description</th>
     </tr>
@@ -1422,6 +1448,12 @@ Automatically sets <code>copy = false</code> if <code>copy</code> was previously
                 </td>
             
 
+            
+                <td class="default">
+                
+                    <code>{}</code>
+                
+                </td>
             
 
             <td class="description last"><p>Optional parameters.</p>
@@ -1526,7 +1558,8 @@ Automatically sets <code>copy = false</code> if <code>copy</code> was previously
             
 
             <td class="description last"><p>Whether to return a fillable array, to write to this object.
-Automatically sets <code>copy = false</code> if <code>copy</code> was previously true.</p></td>
+If <code>true</code>, this method automatically sets <code>copy = false</code> if <code>copy</code> was previously true.
+If <code>false</code> and the array was not previously filled, <code>null</code> is returned.</p></td>
         </tr>
 
     
@@ -1559,7 +1592,8 @@ Automatically sets <code>copy = false</code> if <code>copy</code> was previously
 
         
 <div class="param-desc">
-    <p>Array containing the filtering threshold on the sums for each batch.</p>
+    <p>Array containing the filtering threshold on the sums for each batch.
+Alternatively <code>null</code>, if <code>fillable = false</code> and the array was not already filled.</p>
 </div>
 
 
@@ -1603,7 +1637,7 @@ Automatically sets <code>copy = false</code> if <code>copy</code> was previously
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.11</a> on Sat Dec 24 2022 12:18:25 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.11</a> on Sun Dec 25 2022 06:44:16 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>
