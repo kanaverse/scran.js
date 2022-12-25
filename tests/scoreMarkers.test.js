@@ -150,19 +150,21 @@ test("ScoreMarkersResults can be mocked up", () => {
         let mock = scran.emptyScoreMarkersResults(ngenes, ngroups, 1);
         expect(mock.numberOfBlocks()).toBe(1);
 
-        expect(mock.means()).toBeNull();
-        let means = mock.means(0, { fillable: true });
-        means[0] = 100;
-        means[100] = 1;
+        for (var g = 0; g < ngroups; g++) {
+            expect(mock.means(g)).toBeNull();
+            let means = mock.means(g, { fillable: true });
+            means[0] = 100;
+            means[100] = 1;
 
-        let means2 = mock.means(0);
-        expect(means2[0]).toBe(100);
-        expect(means2[100]).toBe(1);
+            let means2 = mock.means(g);
+            expect(means2[0]).toBe(100);
+            expect(means2[100]).toBe(1);
 
-        expect(mock.auc(1)).toBeNull();
-        let auc = mock.auc(1, { fillable: true });
-        auc[0] = 0.6;
-        expect(mock.auc(1)[0]).toBe(0.6);
+            expect(mock.auc(g)).toBeNull();
+            let auc = mock.auc(g, { fillable: true });
+            auc[0] = 0.6;
+            expect(mock.auc(g)[0]).toBe(0.6);
+        }
     }
 
     // Blocked.
@@ -170,32 +172,34 @@ test("ScoreMarkersResults can be mocked up", () => {
         let mock = scran.emptyScoreMarkersResults(ngenes, ngroups, 2);
         expect(mock.numberOfBlocks()).toBe(2);
 
-        expect(mock.detected(1)).toBeNull();
-        let detected = mock.detected(1, { fillable: true });
-        detected[0] = 100;
-        detected[100] = 1;
+        for (var g = 0; g < ngroups; g++) {
+            expect(mock.detected(g)).toBeNull();
+            let detected = mock.detected(g, { fillable: true });
+            detected[0] = 100;
+            detected[100] = 1;
 
-        expect(mock.detected(1, { block: 0 })).toBeNull();
-        let detected_b = mock.detected(1, { block: 0, fillable: true });
-        detected_b[0] = -100;
-        detected_b[100] = -1;
+            expect(mock.detected(g, { block: 0 })).toBeNull();
+            let detected_b = mock.detected(g, { block: 0, fillable: true });
+            detected_b[0] = -100;
+            detected_b[100] = -1;
 
-        let detected2 = mock.detected(1);
-        expect(detected2[0]).toBe(100);
-        expect(detected2[100]).toBe(1);
+            let detected2 = mock.detected(g);
+            expect(detected2[0]).toBe(100);
+            expect(detected2[100]).toBe(1);
 
-        let detected_b2 = mock.detected(1, { block: 0 });
-        expect(detected_b2[0]).toBe(-100);
-        expect(detected_b2[100]).toBe(-1);
+            let detected_b2 = mock.detected(g, { block: 0 });
+            expect(detected_b2[0]).toBe(-100);
+            expect(detected_b2[100]).toBe(-1);
 
-        expect(mock.auc(2)).toBeNull();
-        let cd = mock.cohen(2, { fillable: true });
-        cd[0] = 0.5;
-        cd[1] = -0.5;
+            expect(mock.auc(g)).toBeNull();
+            let cd = mock.cohen(g, { fillable: true });
+            cd[0] = 0.5;
+            cd[1] = -0.5;
 
-        let cd2 = mock.cohen(2);
-        expect(cd2[0]).toBe(0.5);
-        expect(cd2[1]).toBe(-0.5);
+            let cd2 = mock.cohen(g);
+            expect(cd2[0]).toBe(0.5);
+            expect(cd2[1]).toBe(-0.5);
+        }
     }
 
     // Skip the AUC calculation.

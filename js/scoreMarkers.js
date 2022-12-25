@@ -31,10 +31,23 @@ export class ScoreMarkersResults {
         this.#id = id;
         this.#results = raw;
 
-        this.#filledMeans = utils.spawnArray(this.numberOfBlocks() + 1, filled);
-        this.#filledDetected = utils.spawnArray(this.numberOfBlocks() + 1, filled);
-
         let n = this.numberOfGroups();
+        let b = this.numberOfBlocks();
+
+        function createBlockedStatsFilled(filled) {
+            let output = { filled };
+            if (!filled) {
+                output.details = new Array(n);
+                for (var g = 0; g < n; g++) {
+                    output.details[g] = utils.spawnArray(b + 1, filled);
+                }
+            }
+            return output;
+        }
+
+        this.#filledMeans = createBlockedStatsFilled(filled);
+        this.#filledDetected = createBlockedStatsFilled(filled);
+
         function createEffectsFilled(filled) {
             let output = { filled };
             if (!filled) {
@@ -65,8 +78,8 @@ export class ScoreMarkersResults {
         return utils.checkFillness(
             fillable, 
             copy, 
-            fillcheck[index], 
-            () => { fillcheck[index] = true }, 
+            fillcheck.filled || fillcheck.details[group][index] || false, 
+            () => { fillcheck.details[group][index] = true }, 
             COPY => utils.possibleCopy(this.#results[method](group, block), COPY)
         );
     }
