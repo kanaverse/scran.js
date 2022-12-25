@@ -103,7 +103,7 @@ test("per-cell CRISPR-based QC filters can be mocked up", () => {
     expect(qc.numberOfBlocks()).toBe(2);
 
     {
-        expect(() => qc.thresholdsMaxCount()).toThrow("fillable");
+        expect(qc.thresholdsMaxCount()).toBeNull();
         let x = qc.thresholdsMaxCount({ fillable: true });
         expect(x.length).toEqual(nblocks);
         x[1] = 20;

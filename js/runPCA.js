@@ -25,17 +25,24 @@ export class RunPCAResults {
     }
 
     /**
-     * @param {object} [options] - Optional parameters.
+     * @param {object} [options={}] - Optional parameters.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      * @param {boolean} [options.fillable=false] - Whether to return a fillable array, to write to this object.
-     * Automatically sets `copy = false` if `copy` was previously true.
+     * If `true`, this method automatically sets `copy = false` if `copy` was previously true.
+     * If `false` and the array was not previously filled, `null` is returned.
      * 
-     * @return {Float64Array|Float64Wasmarray} Array containing the principal components for all cells.
+     * @return {?(Float64Array|Float64Wasmarray)} Array containing the principal components for all cells.
      * This should be treated as a column-major array where the rows are the PCs and columns are the cells.
+     * Alternatively `null`, if `fillable = false` and the array was not already filled.
      */
     principalComponents({ copy = true, fillable = false } = {}) {
-        copy = utils.checkFillness(fillable, copy, this.#filledComponents, () => { this.#filledComponents = true }, "principalComponents");
-        return utils.possibleCopy(this.#results.pcs(), copy);
+        return utils.checkFillness(
+            fillable, 
+            copy, 
+            this.#filledComponents, 
+            () => { this.#filledComponents = true }, 
+            COPY => utils.possibleCopy(this.#results.pcs(), COPY)
+        );
     }
 
     /**
@@ -54,27 +61,36 @@ export class RunPCAResults {
     }
 
     /**
-     * @param {object} [options] - Optional parameters.
+     * @param {object} [options={}] - Optional parameters.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      * @param {boolean} [options.fillable=false] - Whether to return a fillable array, to write to this object.
-     * Automatically sets `copy = false` if `copy` was previously true.
+     * If `true`, this method automatically sets `copy = false` if `copy` was previously true.
+     * If `false` and the array was not previously filled, `null` is returned.
      * 
-     * @return {Float64Array|Float64WasmArray} Array containing the variance explained for each requested PC.
+     * @return {?(Float64Array|Float64WasmArray)} Array containing the variance explained for each requested PC.
+     * Alternatively `null`, if `fillable = false` and the array was not already filled.
      */
     varianceExplained({ copy = true, fillable = false } = {}) {
-        copy = utils.checkFillness(fillable, copy, this.#filledVariances, () => { this.#filledVariances = true }, "varianceExplained");
-        return utils.possibleCopy(this.#results.variance_explained(), copy);
+        return utils.checkFillness(
+            fillable, 
+            copy, 
+            this.#filledVariances, 
+            () => { this.#filledVariances = true }, 
+            COPY => utils.possibleCopy(this.#results.variance_explained(), COPY)
+        );
     }
 
     /**
-     * @return {number} The total variance in the dataset,
+     * @return {?number} The total variance in the dataset,
      * typically used with {@linkcode PCAResults#varianceExplained varianceExplained} to compute the proportion of variance explained.
+     * Alternatively `null`, if this value has not been filled by {@linkcode ClusterKmeansResults#setTotalVariance setTotalVariance}.
      */
     totalVariance() {
         if (!this.#filledTotalVariance) {
-            throw new Error("'totalVariance' has not yet been set by 'setTotalVariance'");
+            return null;
+        } else {
+            return this.#results.total_variance();
         }
-        return this.#results.total_variance();
     }
 
     /**

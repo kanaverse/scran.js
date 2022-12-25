@@ -62,7 +62,7 @@ test("per-cell QC metrics can be mocked up", () => {
     expect(qc.numberOfSubsets()).toBe(2);
 
     for (const y of [ "sums", "detected" ]) {
-        expect(() => qc[y]()).toThrow("fillable");
+        expect(qc[y]()).toBeNull();
         var x = qc[y]({ fillable: true });
         expect(x.length).toBe(ncells);
         x[0] = 100;
@@ -71,7 +71,7 @@ test("per-cell QC metrics can be mocked up", () => {
     }
 
     for (var s = 0; s < nsubs; s++) {
-        expect(() => qc.subsetProportions(s)).toThrow("fillable");
+        expect(qc.subsetProportions(s)).toBeNull();
         var x = qc.subsetProportions(s, { fillable: true });
         expect(x.length).toBe(ncells);
         x[10] = 0.5;

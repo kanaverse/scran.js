@@ -85,7 +85,7 @@ test("PCA results can be mocked up", () => {
 
     let dummy = scran.emptyRunPCAResults(ncells, npcs);
 
-    expect(() => dummy.principalComponents()).toThrow("fillable");
+    expect(dummy.principalComponents()).toBeNull();
     let pcs = dummy.principalComponents({ fillable: true });
     pcs[0] = 5;
     pcs[npcs * ncells - 1] = 100;
@@ -94,7 +94,7 @@ test("PCA results can be mocked up", () => {
     expect(pcs2[0]).toEqual(5);
     expect(pcs2[npcs * ncells - 1]).toEqual(100);
 
-    expect(() => dummy.varianceExplained()).toThrow("fillable");
+    expect(dummy.varianceExplained()).toBeNull();
     let ve = dummy.varianceExplained({ fillable: true });
     ve[0] = 100;
     ve[npcs - 1] = 1;
@@ -103,7 +103,7 @@ test("PCA results can be mocked up", () => {
     expect(ve2[0]).toEqual(100);
     expect(ve2[npcs - 1]).toEqual(1);
 
-    expect(() => dummy.totalVariance()).toThrow("setTotalVariance");
+    expect(dummy.totalVariance()).toBeNull();
     dummy.setTotalVariance(200);
     expect(dummy.totalVariance()).toEqual(200);
 })

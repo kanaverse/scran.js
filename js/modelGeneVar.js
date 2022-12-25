@@ -33,73 +33,87 @@ export class ModelGeneVarResults {
             fillindex = (nblocks > 1 ? nblocks : 0);
             block = -1;
         }
-        copy = utils.checkFillness(fillable, copy, fillcheck[fillindex], () => { fillcheck[fillindex] = true }, method);
-        return utils.possibleCopy(this.#results[method](block), copy);
+
+        return utils.checkFillness(
+            fillable, 
+            copy, 
+            fillcheck[fillindex], 
+            () => { fillcheck[fillindex] = true }, 
+            COPY => utils.possibleCopy(this.#results[method](block), COPY)
+        );
     }
 
     /**
-     * @param {object} [options] - Optional parameters.
+     * @param {object} [options={}] - Optional parameters.
      * @param {?number} [options.block=null] - Number of the block for which to extract statistics.
      * If `null`, the average across all blocks is returned.
      * Otherwise, should be less than the value returned by {@linkcode ModelGeneVarResults#numberOfBlocks numberOfBlocks}.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      * @param {boolean} [options.fillable=false] - Whether to return a fillable array, to write to this object.
-     * Automatically sets `copy = false` if `copy` was previously true.
+     * If `true`, this method automatically sets `copy = false` if `copy` was previously true.
+     * If `false` and the array was not previously filled, `null` is returned.
      *
-     * @return {Float64Array|Float64WasmArray} Array of length equal to the number of genes,
+     * @return {?(Float64Array|Float64WasmArray)} Array of length equal to the number of genes,
      * containing the mean log-expression across all cells in the specified `block`
      * (or the average across all blocks, if `block < 0`).
+     * Alternatively `null`, if `fillable = false` and the array was not already filled.
      */
     means({ block = null, copy = true, fillable = false } = {}) {
         return this.#extract(block, copy, fillable, this.#filledMeans, "means");
     }
 
     /**
-     * @param {object} [options] - Optional parameters.
+     * @param {object} [options={}] - Optional parameters.
      * @param {?number} [options.block=null] - Number of the block for which to extract statistics.
      * If `null`, the average across all blocks is returned.
      * Otherwise, should be less than the value returned by {@linkcode ModelGeneVarResults#numberOfBlocks numberOfBlocks}.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      * @param {boolean} [options.fillable=false] - Whether to return a fillable array, to write to this object.
-     * Automatically sets `copy = false` if `copy` was previously true.
+     * If `true`, this method automatically sets `copy = false` if `copy` was previously true.
+     * If `false` and the array was not previously filled, `null` is returned.
      *
-     * @return {Float64Array|Float64WasmArray} Array of length equal to the number of genes,
+     * @return {?(Float64Array|Float64WasmArray)} Array of length equal to the number of genes,
      * containing the variance of log-expression across all cells in the specified `block`
      * (or the average across all blocks, if `block < 0`).
+     * Alternatively `null`, if `fillable = false` and the array was not already filled.
      */
     variances({ block = null, copy = true, fillable = false } = {}) {
         return this.#extract(block, copy, fillable, this.#filledVariances, "variances");
     }
 
     /**
-     * @param {object} [options] - Optional parameters.
+     * @param {object} [options={}] - Optional parameters.
      * @param {?number} [options.block=null] - Number of the block for which to extract statistics.
      * If `null`, the average across all blocks is returned.
      * Otherwise, should be less than the value returned by {@linkcode ModelGeneVarResults#numberOfBlocks numberOfBlocks}.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      * @param {boolean} [options.fillable=false] - Whether to return a fillable array, to write to this object.
-     * Automatically sets `copy = false` if `copy` was previously true.
+     * If `true`, this method automatically sets `copy = false` if `copy` was previously true.
+     * If `false` and the array was not previously filled, `null` is returned.
      *
      * @return {Float64Array|Float64WasmArray} Array of length equal to the number of genes,
      * containing the fitted value of the mean-variance trend for the specified `block`
      * (or the average across all blocks, if `block < 0`).
+     * Alternatively `null`, if `fillable = false` and the array was not already filled.
      */
     fitted({ block = null, copy = true, fillable = false } = {}) {
         return this.#extract(block, copy, fillable, this.#filledFitted, "fitted");
     }
 
     /**
-     * @param {object} [options] - Optional parameters.
+     * @param {object} [options={}] - Optional parameters.
      * @param {?number} [options.block=null] - Number of the block for which to extract statistics.
      * If `null`, the average across all blocks is returned.
      * Otherwise, should be less than the value returned by {@linkcode ModelGeneVarResults#numberOfBlocks numberOfBlocks}.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      * @param {boolean} [options.fillable=false] - Whether to return a fillable array, to write to this object.
-     * Automatically sets `copy = false` if `copy` was previously true.
+     * If `true`, this method automatically sets `copy = false` if `copy` was previously true.
+     * If `false` and the array was not previously filled, `null` is returned.
      *
      * @return {Float64Array|Float64WasmArray} Array of length equal to the number of genes,
      * containing the residuals from the mean-variance trend for the specified `block`
      * (or the average across all blocks, if `block < 0`).
+     * Alternatively `null`, if `fillable = false` and the array was not already filled.
      */
     residuals({ block = null, copy = true, fillable = false } = {}) {
         return this.#extract(block, copy, fillable, this.#filledResiduals, "residuals");

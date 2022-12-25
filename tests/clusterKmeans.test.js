@@ -84,7 +84,7 @@ test("clusterKmeans results can be mocked up", () => {
     expect(mock.numberOfClusters()).toBe(nclust);
 
     {
-        expect(() => mock.clusters()).toThrow("fillable");
+        expect(mock.clusters()).toBeNull();
         let x = mock.clusters({ fillable: true });
         x[0] = 1;
         x[ncells - 1] = 5;
@@ -94,7 +94,7 @@ test("clusterKmeans results can be mocked up", () => {
     }
 
     {
-        expect(() => mock.clusterSizes()).toThrow("fillable");
+        expect(mock.clusterSizes()).toBeNull();
         let x = mock.clusterSizes({ fillable: true });
         x[0] = 100;
         x[nclust - 1] = 200;
@@ -104,11 +104,11 @@ test("clusterKmeans results can be mocked up", () => {
     }
 
     {
-        expect(() => mock.iterations()).toThrow("setIterations");
+        expect(mock.iterations()).toBeNull();
         mock.setIterations(5);
         expect(mock.iterations()).toEqual(5);
 
-        expect(() => mock.status()).toThrow("setStatus");
+        expect(mock.status()).toBeNull();
         mock.setStatus(2);
         expect(mock.status()).toEqual(2);
     }

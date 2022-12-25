@@ -159,16 +159,16 @@ export function spawnArray(n, fill) {
     return output;
 }
 
-export function checkFillness(fill, copy, check, set, name) {
+export function checkFillness(fill, copy, check, setFilledFun, getFun) {
     if (!check) {
         if (fill) {
-            set();
+            setFilledFun();
             if (copy) {
                 copy = false;
             }
         } else {
-            throw new Error("'" + name + "' not yet filled, set 'fillable: true' to write values to this object");
+            return null;
         }
     }
-    return copy;
+    return getFun(copy);
 }

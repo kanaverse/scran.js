@@ -85,7 +85,7 @@ test("Variance modelling results can be mocked up", () => {
         var nblocks = 1;
         var res = scran.emptyModelGeneVarResults(ngenes, nblocks);
 
-        expect(() => res.means()).toThrow("fillable");
+        expect(res.means()).toBeNull();
         let x = res.means({ fillable: true });
         x[0] = 2000;
 
@@ -102,7 +102,7 @@ test("Variance modelling results can be mocked up", () => {
         let x = res.residuals({ fillable: true });
         x[0] = 2000;
 
-        expect(() => res.residuals({ block: 0 })).toThrow("fillable");
+        expect( res.residuals({ block: 0 })).toBeNull();
         let y = res.residuals({ block: 0, fillable: true });
         y[0] = 1000;
 

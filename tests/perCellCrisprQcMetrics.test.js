@@ -41,7 +41,7 @@ test("per-cell QC metrics can be mocked up", () => {
     var qc = scran.emptyPerCellCrisprQcMetricsResults(ncells);
 
     for (const y of [ "sums", "detected", "maxProportions", "maxIndex" ]) {
-        expect(() => qc[y]()).toThrow("fillable");
+        expect(qc[y]()).toBeNull();
         var x = qc[y]({ fillable: true });
         expect(x.length).toBe(ncells);
         x[0] = 100;

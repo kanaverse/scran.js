@@ -71,15 +71,16 @@ test("clusterSNNGraph results can be mocked up", () => {
         let x = scran.emptyClusterSNNGraphResults(1234, { numberOfLevels: 2 });
         expect(x.numberOfLevels()).toBe(2);
 
-        expect(() => x.best()).toThrow("setBest");
+        expect(x.best()).toBeNull();
         x.setBest(1);
-        expect(() => x.modularity(0)).toThrow("setModularity");
+
+        expect(x.modularity(0)).toBeNull();
         x.setModularity(0, 5);
         x.setModularity(1, 10);
         expect(x.modularity()).toBe(10);
         expect(x.modularity({ level: 0 })).toBe(5);
 
-        expect(() => x.membership()).toThrow("fillable");
+        expect(x.membership()).toBeNull();
         let mem = x.membership({ fillable: true });
         mem[0] = 100;
         mem[1233] = 1000;
@@ -92,7 +93,7 @@ test("clusterSNNGraph results can be mocked up", () => {
         let x = scran.emptyClusterSNNGraphResults(1234, { method: "walktrap", numberOfMergeSteps: 3 });
         expect(x.numberOfMergeSteps()).toBe(3);
 
-        expect(() => x.membership()).toThrow("fillable");
+        expect(x.membership()).toBeNull();
         let mem = x.membership({ fillable: true });
         mem[0] = 100;
         mem[1233] = 1000;
@@ -100,7 +101,7 @@ test("clusterSNNGraph results can be mocked up", () => {
         expect(mem2[0]).toEqual(100);
         expect(mem2[1233]).toEqual(1000);
 
-        expect(() => x.modularity()).toThrow("setModularity");
+        expect(x.modularity()).toBeNull();
         x.setModularity(0, 1);
         x.setModularity(1, 10);
         x.setModularity(2, 100);
@@ -112,7 +113,7 @@ test("clusterSNNGraph results can be mocked up", () => {
     {
         let x = scran.emptyClusterSNNGraphResults(1234, { method: "leiden" });
 
-        expect(() => x.membership()).toThrow("fillable");
+        expect(x.membership()).toBeNull();
         let mem = x.membership({ fillable: true });
         mem[0] = 100;
         mem[1233] = 1000;
@@ -120,7 +121,7 @@ test("clusterSNNGraph results can be mocked up", () => {
         expect(mem2[0]).toEqual(100);
         expect(mem2[1233]).toEqual(1000);
 
-        expect(() => x.modularity()).toThrow("setModularity");
+        expect(x.modularity()).toBeNull();
         x.setModularity(100);
         expect(x.modularity()).toBe(100);
     }

@@ -106,13 +106,25 @@ export class ClusterSNNGraphMultiLevelResults {
     }
 
     /**
-     * @return {number} The clustering level with the highest modularity.
+     * @return {?number} The clustering level with the highest modularity.
+     * Alternatively `null`, if this has not been previously set via {@linkcode ClusterSNNGraphMultiLevelResults#setBest setBest}.
      */
     best() {
         if (!this.#filledBest) {
-            throw new Error("'best' has not yet been set via 'setBest'");
+            return null;
+        } else {
+            return this.#results.best();
         }
-        return this.#results.best();
+    }
+
+    #chooseLevel(level) {
+        if (level === null) {
+            level = this.best();
+            if (level == null) {
+                throw new Error("'best' has not yet been set via 'setBest'");
+            }
+        }
+        return level;
     }
 
     /**
@@ -140,16 +152,16 @@ export class ClusterSNNGraphMultiLevelResults {
      * @param {?number} [options.level=null] - The clustering level for which to obtain the modularity.
      * Defaults to the best clustering level from {@linkcode ClusterSNNGraphMultiLevelResults#best best}.
      *
-     * @return {number} The modularity at the specified level.
+     * @return {?number} The modularity at the specified level.
+     * Alternatively `null`, if this has not been set by {@linkcode ClusterSNNGraphMultiLevelResults#setModularity setModularity}.
      */
     modularity({ level = null } = {}) {
-        if (level === null) {
-            level = this.best();
-        }
+        level = this.#chooseLevel(level);
         if (!this.#filledModularity[level]) {
-            throw new Error("'modularity' has not yet been set via 'setModularity'");
+            return null;
+        } else {
+            return this.#results.modularity(level);
         }
-        return this.#results.modularity(level);
     }
 
     /**
@@ -163,7 +175,8 @@ export class ClusterSNNGraphMultiLevelResults {
         if (!this.#filledModularity[level]) {
             this.#filledModularity[level] = true;
         }
-        return this.#results.set_modularity(level, modularity);
+        this.#results.set_modularity(level, modularity);
+        return;
     }
 
     /**
@@ -172,16 +185,21 @@ export class ClusterSNNGraphMultiLevelResults {
      * Defaults to the best clustering level from {@linkcode ClusterSNNGraphMultiLevelResults#best best}.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      * @param {boolean} [options.fillable=false] - Whether to return a fillable array, to write to this object.
-     * Automatically sets `copy = false` if `copy` was previously true.
+     * If `true`, this method automatically sets `copy = false` if `copy` was previously true.
+     * If `false` and the array was not previously filled, `null` is returned.
      *
-     * @return {Int32Array|Int32WasmArray} Array containing the cluster membership for each cell.
+     * @return {?(Int32Array|Int32WasmArray)} Array containing the cluster membership for each cell.
+     * Alternatively `null`, if `fillable = false` and the array was not already filled.
      */
     membership({ level = null, copy = true, fillable = false } = {}) {
-        if (level === null) {
-            level = this.best();
-        }
-        copy = utils.checkFillness(fillable, copy, this.#filledMembership[level], () => { this.#filledMembership[level] = true; }, "membership");
-        return utils.possibleCopy(this.#results.membership(level), copy);
+        level = this.#chooseLevel(level);
+        return utils.checkFillness(
+            fillable, 
+            copy, 
+            this.#filledMembership[level], 
+            () => { this.#filledMembership[level] = true; }, 
+            COPY => utils.possibleCopy(this.#results.membership(level), COPY)
+        );
     }
 
     /**
@@ -236,22 +254,20 @@ export class ClusterSNNGraphWalktrapResults {
      * This can be any value from 0 to {@linkcode ClusterSNNGraphWalktrapResults#numberOfMergeSteps numberOfMergeSteps} plus 1.
      * Set to `null` to obtain the largest modularity across all merge steps.
      *
-     * @return {number} The modularity at the specified merge step, or the maximum modularity across all merge steps.
+     * @return {?number} The modularity at the specified merge step, or the maximum modularity across all merge steps.
+     * Alternatively `null`, if this has not been set by {@linkcode ClusterSNNGraphWalktrapResults#setModularity setModularity}.
      */
     modularity({ at = null } = {}) {
         let fail = false;
         if (at === null) {
             if (!this.#filledModularity) {
-                fail = true;
+                return null;
             }
             at = -1;
         } else if (!this.#filledModularity && !this.#filledModularityDetails[at]) {
-            fail = true;
+            return null;
         }
 
-        if (fail) {
-            throw new Error("'modularity' has not yet been set via 'setModularity'");
-        }
         return this.#results.modularity(at);
     }
 
@@ -279,13 +295,20 @@ export class ClusterSNNGraphWalktrapResults {
      * @param {object} [options] - Optional parameters.
      * @param {boolean|string} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      * @param {boolean} [options.fillable=false] - Whether to return a fillable array, to write to this object.
-     * Automatically sets `copy = false` if `copy` was previously true.
+     * If `true`, this method automatically sets `copy = false` if `copy` was previously true.
+     * If `false` and the array was not previously filled, `null` is returned.
      *
-     * @return {Int32Array|Int32WasmArray} Array containing the cluster membership for each cell.
+     * @return {?(Int32Array|Int32WasmArray)} Array containing the cluster membership for each cell.
+     * Alternatively `null`, if `fillable = false` and the array was not already filled.
      */
     membership({ copy = true, fillable = false } = {}) {
-        copy = utils.checkFillness(fillable, copy, this.#filledMembership, () => { this.#filledMembership = true; }, "membership");
-        return utils.possibleCopy(this.#results.membership(), copy);
+        return utils.checkFillness(
+            fillable, 
+            copy, 
+            this.#filledMembership, 
+            () => { this.#filledMembership = true; }, 
+            COPY => utils.possibleCopy(this.#results.membership(), COPY)
+        );
     }
 
     /**
@@ -322,16 +345,18 @@ export class ClusterSNNGraphLeidenResults {
     }
 
     /**
-     * @return {number} The quality of the Leiden clustering.
+     * @return {?number} The quality of the Leiden clustering.
+     * Alternatively `null`, if this has not been set by {@linkcode ClusterSNNGraphLeidenResults#setModularity setModularity}.
      *
      * Note that Leiden's quality score is technically a different measure from modularity.
      * Nonetheless, we use `modularity` for consistency with the other SNN clustering result classes.
      */
     modularity() {
         if (!this.#filledModularity) {
-            throw new Error("'modularity' has not yet been set via 'setModularity'");
+            return null;
+        } else {
+            return this.#results.modularity();
         }
-        return this.#results.modularity();
     }
 
     /**
@@ -351,13 +376,20 @@ export class ClusterSNNGraphLeidenResults {
      * @param {object} [options] - Optional parameters.
      * @param {boolean|string} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      * @param {boolean} [options.fillable=false] - Whether to return a fillable array, to write to this object.
-     * Automatically sets `copy = false` if `copy` was previously true.
+     * If `true`, this method automatically sets `copy = false` if `copy` was previously true.
+     * If `false` and the array was not previously filled, `null` is returned.
      *
-     * @return {Int32Array|Int32WasmArray} Array containing the cluster membership for each cell.
+     * @return {?(Int32Array|Int32WasmArray)} Array containing the cluster membership for each cell.
+     * Alternatively `null`, if `fillable = false` and the array was not already filled.
      */
     membership({ copy = true, fillable = false } = {}) {
-        copy = utils.checkFillness(fillable, copy, this.#filledMembership, () => { this.#filledMembership = true; }, "membership");
-        return utils.possibleCopy(this.#results.membership(), copy);
+        return utils.checkFillness(
+            fillable, 
+            copy, 
+            this.#filledMembership, 
+            () => { this.#filledMembership = true; }, 
+            COPY => utils.possibleCopy(this.#results.membership(), COPY)
+        );
     }
 
     /**

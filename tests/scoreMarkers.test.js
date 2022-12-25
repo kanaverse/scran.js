@@ -150,7 +150,7 @@ test("ScoreMarkersResults can be mocked up", () => {
         let mock = scran.emptyScoreMarkersResults(ngenes, ngroups, 1);
         expect(mock.numberOfBlocks()).toBe(1);
 
-        expect(() => mock.means()).toThrow("fillable");
+        expect(mock.means()).toBeNull();
         let means = mock.means(0, { fillable: true });
         means[0] = 100;
         means[100] = 1;
@@ -159,7 +159,7 @@ test("ScoreMarkersResults can be mocked up", () => {
         expect(means2[0]).toBe(100);
         expect(means2[100]).toBe(1);
 
-        expect(() => mock.auc(1)).toThrow("fillable");
+        expect(mock.auc(1)).toBeNull();
         let auc = mock.auc(1, { fillable: true });
         auc[0] = 0.6;
         expect(mock.auc(1)[0]).toBe(0.6);
@@ -170,12 +170,12 @@ test("ScoreMarkersResults can be mocked up", () => {
         let mock = scran.emptyScoreMarkersResults(ngenes, ngroups, 2);
         expect(mock.numberOfBlocks()).toBe(2);
 
-        expect(() => mock.detected(1)).toThrow("fillable");
+        expect(mock.detected(1)).toBeNull();
         let detected = mock.detected(1, { fillable: true });
         detected[0] = 100;
         detected[100] = 1;
 
-        expect(() => mock.detected(1, { block: 0 })).toThrow("fillable");
+        expect(mock.detected(1, { block: 0 })).toBeNull();
         let detected_b = mock.detected(1, { block: 0, fillable: true });
         detected_b[0] = -100;
         detected_b[100] = -1;
@@ -188,7 +188,7 @@ test("ScoreMarkersResults can be mocked up", () => {
         expect(detected_b2[0]).toBe(-100);
         expect(detected_b2[100]).toBe(-1);
 
-        expect(() => mock.auc(2)).toThrow("fillable");
+        expect(mock.auc(2)).toBeNull();
         let cd = mock.cohen(2, { fillable: true });
         cd[0] = 0.5;
         cd[1] = -0.5;

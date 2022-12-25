@@ -2,10 +2,14 @@ import * as gc from "./gc.js";
 import * as wasm from "./wasm.js";
 import * as utils from "./utils.js";
 
-function checkFillness2(group, summary, fillable, copy, fillcheck, method) {
-    return utils.checkFillness(fillable, copy, 
+function checkFillness2(group, summary, fillable, copy, fillcheck, getfun) {
+    return utils.checkFillness(
+        fillable, 
+        copy, 
         fillcheck.filled || fillcheck.details[group][summary] || false, 
-        () => { fillcheck.details[group][summary] = true }, method);
+        () => { fillcheck.details[group][summary] = true }, 
+        getfun  
+    );
 }
 
 /**
@@ -57,8 +61,14 @@ export class ScoreMarkersResults {
             index = (nblocks > 1 ? nblocks : 0);
             block = -1;
         }
-        copy = utils.checkFillness(fillable, copy, fillcheck[index], () => { fillcheck[index] = true }, method);
-        return utils.possibleCopy(this.#results[method](group, block), copy);
+
+        return utils.checkFillness(
+            fillable, 
+            copy, 
+            fillcheck[index], 
+            () => { fillcheck[index] = true }, 
+            COPY => utils.possibleCopy(this.#results[method](group, block), COPY)
+        );
     }
 
     /**
@@ -84,10 +94,12 @@ export class ScoreMarkersResults {
      * Otherwise, should be less than the value returned by {@linkcode ModelGeneVarResults#numberOfBlocks numberOfBlocks}.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      * @param {boolean} [options.fillable=false] - Whether to return a fillable array, to write to this object.
-     * Automatically sets `copy = false` if `copy` was previously true.
+     * If `true`, this method automatically sets `copy = false` if `copy` was previously true.
+     * If `false` and the array was not previously filled, `null` is returned.
      *
-     * @return {Float64Array|Float64WasmArray} Array of length equal to the number of genes,
+     * @return {?(Float64Array|Float64WasmArray)} Array of length equal to the number of genes,
      * containing the mean expression for the requested group in the requested block.
+     * Alternatively `null`, if `fillable = false` and the array was not already filled.
      */
     means(group, { block = null, copy = true, fillable = false } = {}) {
         return this.#extractBlockedStat(group, block, copy, fillable, this.#filledMeans, "means");
@@ -102,10 +114,12 @@ export class ScoreMarkersResults {
      * Otherwise, should be less than the value returned by {@linkcode ModelGeneVarResults#numberOfBlocks numberOfBlocks}.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      * @param {boolean} [options.fillable=false] - Whether to return a fillable array, to write to this object.
-     * Automatically sets `copy = false` if `copy` was previously true.
+     * If `true`, this method automatically sets `copy = false` if `copy` was previously true.
+     * If `false` and the array was not previously filled, `null` is returned.
      *
-     * @return {Float64Array|Float64WasmArray} Array of length equal to the number of genes,
+     * @return {?(Float64Array|Float64WasmArray)} Array of length equal to the number of genes,
      * containing the proportion of cells with detectable expression for the requested group in the requested block.
+     * Alternatively `null`, if `fillable = false` and the array was not already filled.
      */
     detected(group, { block = null, copy = true, fillable = false } = {}) {
         return this.#extractBlockedStat(group, block, copy, fillable, this.#filledDetected, "detected");
@@ -119,14 +133,22 @@ export class ScoreMarkersResults {
      * This can be the minimum across comparisons (0), mean (1) or min-rank (4).
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      * @param {boolean} [options.fillable=false] - Whether to return a fillable array, to write to this object.
-     * Automatically sets `copy = false` if `copy` was previously true.
+     * If `true`, this method automatically sets `copy = false` if `copy` was previously true.
+     * If `false` and the array was not previously filled, `null` is returned.
      *
-     * @return {Float64Array|Float64WasmArray} Array of length equal to the number of genes,
+     * @return {?(Float64Array|Float64WasmArray)} Array of length equal to the number of genes,
      * containing the summarized Cohen's d for the comparisons between `group` and all other groups.
+     * Alternatively `null`, if `fillable = false` and the array was not already filled.
      */
     cohen(group, { summary = 1, copy = true, fillable = false } = {}) {
-        copy = checkFillness2(group, summary, fillable, copy, this.#filledCohen, "cohen");
-        return utils.possibleCopy(this.#results.cohen(group, summary), copy);
+        return checkFillness2(
+            group, 
+            summary, 
+            fillable, 
+            copy, 
+            this.#filledCohen,
+            COPY => utils.possibleCopy(this.#results.cohen(group, summary), COPY)
+        );
     }
 
     /**
@@ -139,13 +161,23 @@ export class ScoreMarkersResults {
      * @param {number} [options.summary=1] - Summary statistic to be computed from the AUCs of all pairwise comparisons involving `group`.
      * This can be the minimum across comparisons (0), mean (1) or min-rank (4).
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
+     * @param {boolean} [options.fillable=false] - Whether to return a fillable array, to write to this object.
+     * If `true`, this method automatically sets `copy = false` if `copy` was previously true.
+     * If `false` and the array was not previously filled, `null` is returned.
      *
-     * @return {Float64Array|Float64WasmArray} Array of length equal to the number of genes,
+     * @return {?(Float64Array|Float64WasmArray)} Array of length equal to the number of genes,
      * containing the summarized AUC for the comparisons between `group` and all other groups.
+     * Alternatively `null`, if `fillable = false` and the array was not already filled.
      */
     auc(group, { summary = 1, copy = true, fillable = false } = {}) {
-        copy = checkFillness2(group, summary, fillable, copy, this.#filledAuc, "auc");
-        return wasm.call(module => utils.possibleCopy(this.#results.auc(group, summary), copy));
+        return checkFillness2(
+            group, 
+            summary, 
+            fillable, 
+            copy, 
+            this.#filledAuc, 
+            COPY => utils.possibleCopy(wasm.call(module => this.#results.auc(group, summary)), COPY)
+        );
     }
 
     /**
@@ -155,13 +187,23 @@ export class ScoreMarkersResults {
      * @param {number} [options.summary=1] - Summary statistic to be computed from the log-fold changes of all pairwise comparisons involving `group`.
      * This can be the minimum across comparisons (0), mean (1) or min-rank (4).
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
+     * @param {boolean} [options.fillable=false] - Whether to return a fillable array, to write to this object.
+     * If `true`, this method automatically sets `copy = false` if `copy` was previously true.
+     * If `false` and the array was not previously filled, `null` is returned.
      *
-     * @return {Float64Array|Float64WasmArray} Array of length equal to the number of genes,
+     * @return {?(Float64Array|Float64WasmArray)} Array of length equal to the number of genes,
      * containing the summarized log-fold change for the comparisons between `group` and all other groups.
+     * Alternatively `null`, if `fillable = false` and the array was not already filled.
      */
     lfc(group, { summary = 1, copy = true, fillable = false } = {}) {
-        copy = checkFillness2(group, summary, fillable, copy, this.#filledLfc, "lfc");
-        return utils.possibleCopy(this.#results.lfc(group, summary), copy);
+        return checkFillness2(
+            group, 
+            summary, 
+            fillable, 
+            copy, 
+            this.#filledLfc, 
+            COPY => utils.possibleCopy(this.#results.lfc(group, summary), COPY)
+        );
     }
 
     /**
@@ -171,13 +213,23 @@ export class ScoreMarkersResults {
      * @param {number} [options.summary] - Summary statistic to be computed from the delta-detected values of all pairwise comparisons involving `group`.
      * This can be the minimum across comparisons (0), mean (1) or min-rank (4).
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
+     * @param {boolean} [options.fillable=false] - Whether to return a fillable array, to write to this object.
+     * If `true`, this method automatically sets `copy = false` if `copy` was previously true.
+     * If `false` and the array was not previously filled, `null` is returned.
      *
      * @return {Float64Array|Float64WasmArray} Array of length equal to the number of genes,
      * containing the summarized delta-detected for the comparisons between `group` and all other groups.
+     * Alternatively `null`, if `fillable = false` and the array was not already filled.
      */
     deltaDetected(group, { summary = 1, copy = true, fillable = false } = {}) {
-        copy = checkFillness2(group, summary, fillable, copy, this.#filledDeltaDetected, "deltaDetected");
-        return utils.possibleCopy(this.#results.delta_detected(group, summary), copy);
+        return checkFillness2(
+            group, 
+            summary, 
+            fillable, 
+            copy, 
+            this.#filledDeltaDetected, 
+            COPY => utils.possibleCopy(this.#results.delta_detected(group, summary), COPY)
+        );
     }
 
     /**
