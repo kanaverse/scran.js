@@ -205,6 +205,6 @@ test("ScoreMarkersResults can be mocked up", () => {
     // Skip the AUC calculation.
     {
         let mock = scran.emptyScoreMarkersResults(ngenes, ngroups, 1, { computeAuc: false });
-        expect(() => mock.auc(1, { fillable: true })).toThrow("AUC");
+        expect(() => mock.auc(1)).toThrow("AUC");
     }
 })

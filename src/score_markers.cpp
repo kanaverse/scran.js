@@ -138,11 +138,12 @@ struct ScoreMarkers_Results {
      * Each entry contains the summarized AUC across all pairwise comparisons between `g` and every other group for a particular gene.
      */
     emscripten::val auc(int g, int s=1) const {
-        if (store.auc.empty()) {
-            throw std::runtime_error("no AUCs computed for this result");
-        }
         const auto& current = store.auc[s][g];
         return emscripten::val(emscripten::typed_memory_view(current.size(), current.data()));
+    }
+
+    bool has_auc() const {
+        return !store.auc.empty();
     }
 
     /**
@@ -253,6 +254,7 @@ EMSCRIPTEN_BINDINGS(score_markers) {
         .function("detected", &ScoreMarkers_Results::detected)
         .function("cohen", &ScoreMarkers_Results::cohen)
         .function("auc", &ScoreMarkers_Results::auc)
+        .function("has_auc", &ScoreMarkers_Results::has_auc)
         .function("lfc", &ScoreMarkers_Results::lfc)
         .function("delta_detected", &ScoreMarkers_Results::delta_detected)
         .function("num_groups", &ScoreMarkers_Results::num_groups)

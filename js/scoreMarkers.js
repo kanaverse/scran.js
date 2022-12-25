@@ -183,13 +183,16 @@ export class ScoreMarkersResults {
      * Alternatively `null`, if `fillable = false` and the array was not already filled.
      */
     auc(group, { summary = 1, copy = true, fillable = false } = {}) {
+        if (!this.#results.has_auc()) {
+            throw new Error("no AUCs computed for this ScoreMarkersResults object");
+        }
         return checkFillness2(
             group, 
             summary, 
             fillable, 
             copy, 
             this.#filledAuc, 
-            COPY => utils.possibleCopy(wasm.call(module => this.#results.auc(group, summary)), COPY)
+            COPY => utils.possibleCopy(this.#results.auc(group, summary), COPY)
         );
     }
 
