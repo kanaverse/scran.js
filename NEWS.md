@@ -1,5 +1,26 @@
 # scran.js news
 
+## 2.0.0-alpha.1
+
+**New**
+
+- Added `perCellCrisprQcMetrics()` and `suggestCrisprQcFilters()`,
+  to compute the QC metrics and filters for CRISPR guide count data.
+
+**Changes**
+
+- Renamed `perCell*QcFilters()` functions to `suggest*QcFilters()`.
+  These now return a `Suggest*QcFiltersResults` object containing filter thresholds but not the discard vector itself.
+  Instead, the `filter()` method can be called with a `PerCell*QcMetricsResults()` object to generate a discard vector,
+  either for the same dataset or for a related set of cells.
+  The filter thresholds themselves can also be adjusted by the application before calling `filter()`.
+  All in all, this provides greater flexibility for applications to perform quality control.
+- Renamed `perCellQCMetrics()` to `perCellRnaQcMetrics()` (similarly for the name of the corresponding result class).
+  This is more consistent with the namings of the QC functions for the other modalities.
+- Getters for empty results will now return `null` if the corresponding field has not been filled,
+  either using a dedicated setter or by extracting a memory view with `fillable: true`.
+  This allows applications to fail gracefully upon encountering an object where the required fields have not been filled.
+
 ## 1.2.1
 
 **New**
