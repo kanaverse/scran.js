@@ -290,6 +290,8 @@ Of those features in the intersection, only the <code>top</code> markers from ea
         
 
         
+        <th>Default</th>
+        
 
         <th class="last">Description</th>
     </tr>
@@ -323,6 +325,10 @@ Of those features in the intersection, only the <code>top</code> markers from ea
             
 
             
+                <td class="default">
+                
+                </td>
+            
 
             <td class="description last"><p>An array of feature identifiers (usually strings) of length equal to the number of rows in the test matrix.
 Each entry should contain the identifier for the corresponding row of the test matrix.</p></td>
@@ -355,6 +361,10 @@ Each entry should contain the identifier for the corresponding row of the test m
             
 
             
+                <td class="default">
+                
+                </td>
+            
 
             <td class="description last"><p>A reference dataset, typically loaded with <a href="global.html#loadLabelledReferenceFromBuffers"><code>loadLabelledReferenceFromBuffers</code></a>.</p></td>
         </tr>
@@ -385,6 +395,10 @@ Each entry should contain the identifier for the corresponding row of the test m
                 </td>
             
 
+            
+                <td class="default">
+                
+                </td>
             
 
             <td class="description last"><p>An array of feature identifiers (usually strings) of length equal to the number of features in <code>reference</code>.
@@ -419,6 +433,12 @@ This is expected to exhibit some overlap with those in <code>features</code>.</p
                 </td>
             
 
+            
+                <td class="default">
+                
+                    <code>{}</code>
+                
+                </td>
             
 
             <td class="description last"><p>Optional parameters.</p>
@@ -667,6 +687,8 @@ If <code>null</code>, defaults to <a href="global.html#maximumThreads"><code>max
         
 
         
+        <th>Default</th>
+        
 
         <th class="last">Description</th>
     </tr>
@@ -709,6 +731,10 @@ If <code>null</code>, defaults to <a href="global.html#maximumThreads"><code>max
             
 
             
+                <td class="default">
+                
+                </td>
+            
 
             <td class="description last"><p>Numeric coordinates of each cell in the dataset.
 For array inputs, this is expected to be in column-major format where the rows are the variables and the columns are the cells.
@@ -743,6 +769,12 @@ For a <a href="RunPCAResults.html">RunPCAResults</a> input, we extract the princ
                 </td>
             
 
+            
+                <td class="default">
+                
+                    <code>{}</code>
+                
+                </td>
             
 
             <td class="description last"><p>Optional parameters.</p>
@@ -1032,6 +1064,8 @@ Only used (and required) for array-like <code>x</code>.</p></td>
         
 
         
+        <th>Default</th>
+        
 
         <th class="last">Description</th>
     </tr>
@@ -1068,6 +1102,10 @@ Only used (and required) for array-like <code>x</code>.</p></td>
             
 
             
+                <td class="default">
+                
+                </td>
+            
 
             <td class="description last"><p>Either a pre-built neighbor search index for the dataset (see <a href="global.html#buildNeighborSearchIndex"><code>buildNeighborSearchIndex</code></a>),
 or a pre-computed set of neighbor search results for all cells (see <a href="global.html#findNearestNeighbors"><code>findNearestNeighbors</code></a>).</p></td>
@@ -1101,6 +1139,12 @@ or a pre-computed set of neighbor search results for all cells (see <a href="glo
                 </td>
             
 
+            
+                <td class="default">
+                
+                    <code>{}</code>
+                
+                </td>
             
 
             <td class="description last"><p>Optional parameters.</p>
@@ -1741,6 +1785,8 @@ This is constructed by indexing the first entry of <code>names</code> with <code
         
 
         
+        <th>Default</th>
+        
 
         <th class="last">Description</th>
     </tr>
@@ -1777,6 +1823,10 @@ This is constructed by indexing the first entry of <code>names</code> with <code
             
 
             
+                <td class="default">
+                
+                </td>
+            
 
             <td class="description last"><p>A TypedArray of statistics, where larger values correspond to higher variability;
 or a <a href="ModelGeneVarResults.html">ModelGeneVarResults</a> object, in which case the residuals are used as the statistics.</p></td>
@@ -1810,6 +1860,12 @@ or a <a href="ModelGeneVarResults.html">ModelGeneVarResults</a> object, in which
                 </td>
             
 
+            
+                <td class="default">
+                
+                    <code>{}</code>
+                
+                </td>
             
 
             <td class="description last"><p>Optional parameters.</p>
@@ -2017,6 +2073,8 @@ This can be used to enable environment-agnostic creation of temporary files.</p>
         
 
         
+        <th>Default</th>
+        
 
         <th class="last">Description</th>
     </tr>
@@ -2051,6 +2109,12 @@ This can be used to enable environment-agnostic creation of temporary files.</p>
                 </td>
             
 
+            
+                <td class="default">
+                
+                    <code>{}</code>
+                
+                </td>
             
 
             <td class="description last"><p>Optional parameters.</p>
@@ -2256,6 +2320,8 @@ This can be used to enable environment-agnostic creation of temporary files.</p>
         
 
         
+        <th>Default</th>
+        
 
         <th class="last">Description</th>
     </tr>
@@ -2298,6 +2364,10 @@ This can be used to enable environment-agnostic creation of temporary files.</p>
             
 
             
+                <td class="default">
+                
+                </td>
+            
 
             <td class="description last"><p>Numeric coordinates of each cell in the dataset.
 For array inputs, this is expected to be in column-major format where the rows are the variables and the columns are the cells.
@@ -2330,6 +2400,10 @@ For a <a href="RunPCAResults.html">RunPCAResults</a> input, we extract the princ
                 </td>
             
 
+            
+                <td class="default">
+                
+                </td>
             
 
             <td class="description last"><p>Number of clusters to create.
@@ -2364,6 +2438,12 @@ This should not be greater than the number of cells.</p></td>
                 </td>
             
 
+            
+                <td class="default">
+                
+                    <code>{}</code>
+                
+                </td>
             
 
             <td class="description last"><p>Optional parameters.</p>
@@ -2777,6 +2857,8 @@ If <code>null</code>, defaults to <a href="global.html#maximumThreads"><code>max
         
 
         
+        <th>Default</th>
+        
 
         <th class="last">Description</th>
     </tr>
@@ -2810,6 +2892,10 @@ If <code>null</code>, defaults to <a href="global.html#maximumThreads"><code>max
             
 
             
+                <td class="default">
+                
+                </td>
+            
 
             <td class="description last"><p>The shared nearest neighbor graph constructed by <a href="global.html#buildSNNGraph"><code>buildSNNGraph</code></a>.</p></td>
         </tr>
@@ -2842,6 +2928,12 @@ If <code>null</code>, defaults to <a href="global.html#maximumThreads"><code>max
                 </td>
             
 
+            
+                <td class="default">
+                
+                    <code>{}</code>
+                
+                </td>
             
 
             <td class="description last"><p>Optional parameters.</p>
@@ -3134,6 +3226,8 @@ The class of this object depends on the choice of <code>method</code>.</p>
         
 
         
+        <th>Default</th>
+        
 
         <th class="last">Description</th>
     </tr>
@@ -3170,6 +3264,10 @@ The class of this object depends on the choice of <code>method</code>.</p>
             
 
             
+                <td class="default">
+                
+                </td>
+            
 
             <td class="description last"><p>Array containing a blocking factor, where each unique level specifies the assigned block for each cell.</p>
 <p>Note that TypedArray views on Wasm-allocated buffers should only be provided if <code>buffer</code> is also provided;
@@ -3204,6 +3302,12 @@ otherwise, a Wasm memory allocation may invalidate the view.</p></td>
                 </td>
             
 
+            
+                <td class="default">
+                
+                    <code>{}</code>
+                
+                </td>
             
 
             <td class="description last"><p>Optional parameters.</p>
@@ -3574,6 +3678,8 @@ Note that no protection is provided against empty blocks; if this is a possibili
         
 
         
+        <th>Default</th>
+        
 
         <th class="last">Description</th>
     </tr>
@@ -3610,6 +3716,10 @@ Note that no protection is provided against empty blocks; if this is a possibili
             
 
             
+                <td class="default">
+                
+                </td>
+            
 
             <td class="description last"><p>Array of integers specifying the number of cells in each block.</p>
 <p>Note that TypedArray views on Wasm-allocated buffers should only be provided if <code>buffer</code> is also provided;
@@ -3644,6 +3754,12 @@ otherwise, a Wasm memory allocation may invalidate the view.</p></td>
                 </td>
             
 
+            
+                <td class="default">
+                
+                    <code>{}</code>
+                
+                </td>
             
 
             <td class="description last"><p>Optional parameters.</p>
@@ -4487,6 +4603,8 @@ A <a href="H5File.html">H5File</a> object is returned.</p>
         
 
         
+        <th>Default</th>
+        
 
         <th class="last">Description</th>
     </tr>
@@ -4520,6 +4638,10 @@ A <a href="H5File.html">H5File</a> object is returned.</p>
             
 
             
+                <td class="default">
+                
+                </td>
+            
 
             <td class="description last"><p>A ScranMatrix object.</p></td>
         </tr>
@@ -4550,6 +4672,10 @@ A <a href="H5File.html">H5File</a> object is returned.</p>
                 </td>
             
 
+            
+                <td class="default">
+                
+                </td>
             
 
             <td class="description last"><p>The operation to perform, one of <code>&quot;+&quot;</code>, <code>&quot;*&quot;</code>, <code>&quot;/&quot;</code> or <code>&quot;-&quot;</code>.</p></td>
@@ -4591,6 +4717,10 @@ A <a href="H5File.html">H5File</a> object is returned.</p>
             
 
             
+                <td class="default">
+                
+                </td>
+            
 
             <td class="description last"><p>The other operand in the arithmetic operation.
 If a scalar, this is applied element-wise to each entry of <code>x</code>.
@@ -4625,6 +4755,12 @@ If a vector, it is assumed to map to either the rows or columns of <code>x</code
                 </td>
             
 
+            
+                <td class="default">
+                
+                    <code>{}</code>
+                
+                </td>
             
 
             <td class="description last"><p>Optional parameters.</p>
@@ -4913,6 +5049,8 @@ If <code>inPlace = true</code>, this is a reference to <code>x</code>, otherwise
         
 
         
+        <th>Default</th>
+        
 
         <th class="last">Description</th>
     </tr>
@@ -4946,6 +5084,10 @@ If <code>inPlace = true</code>, this is a reference to <code>x</code>, otherwise
             
 
             
+                <td class="default">
+                
+                </td>
+            
 
             <td class="description last"><p>A ScranMatrix object.</p></td>
         </tr>
@@ -4976,6 +5118,10 @@ If <code>inPlace = true</code>, this is a reference to <code>x</code>, otherwise
                 </td>
             
 
+            
+                <td class="default">
+                
+                </td>
             
 
             <td class="description last"><p>The operation to perform, one of <code>&quot;log&quot;</code>, <code>&quot;sqrt&quot;</code>, <code>&quot;abs&quot;</code>, <code>&quot;log1p&quot;</code>, <code>&quot;round&quot;</code> or <code>&quot;exp&quot;</code>.</p></td>
@@ -5009,6 +5155,12 @@ If <code>inPlace = true</code>, this is a reference to <code>x</code>, otherwise
                 </td>
             
 
+            
+                <td class="default">
+                
+                    <code>{}</code>
+                
+                </td>
             
 
             <td class="description last"><p>Optional parameters.</p>
@@ -8111,6 +8263,8 @@ For the latter, both H5AD and 10X-style sparse formats are supported.</p></td>
         
 
         
+        <th>Default</th>
+        
 
         <th class="last">Description</th>
     </tr>
@@ -8143,6 +8297,10 @@ For the latter, both H5AD and 10X-style sparse formats are supported.</p></td>
                 </td>
             
 
+            
+                <td class="default">
+                
+                </td>
             
 
             <td class="description last"><p>Path to a HDF5 file.
@@ -8177,6 +8335,12 @@ For web applications, this should be saved to the virtual filesystem with <a hre
                 </td>
             
 
+            
+                <td class="default">
+                
+                    <code>{}</code>
+                
+                </td>
             
 
             <td class="description last"><p>Optional parameters.</p>
@@ -8425,6 +8589,8 @@ HDF5 datasets are represented by strings specifying the data type - i.e., <code>
         
 
         
+        <th>Default</th>
+        
 
         <th class="last">Description</th>
     </tr>
@@ -8467,6 +8633,10 @@ HDF5 datasets are represented by strings specifying the data type - i.e., <code>
             
 
             
+                <td class="default">
+                
+                </td>
+            
 
             <td class="description last"><p>Byte array containing the contents of a Matrix Market file with non-negative counts.
 This can be raw text or Gzip-compressed.</p>
@@ -8502,6 +8672,12 @@ On browsers, this should be a path in the virtual filesystem, typically created 
                 </td>
             
 
+            
+                <td class="default">
+                
+                    <code>{}</code>
+                
+                </td>
             
 
             <td class="description last"><p>Optional parameters.</p>
@@ -8709,6 +8885,8 @@ Note that no protection is provided against empty blocks; if this is a possibili
         
 
         
+        <th>Default</th>
+        
 
         <th class="last">Description</th>
     </tr>
@@ -8741,6 +8919,10 @@ Note that no protection is provided against empty blocks; if this is a possibili
                 </td>
             
 
+            
+                <td class="default">
+                
+                </td>
             
 
             <td class="description last"><p>A blocking factor, typically produced by <a href="global.html#convertBlock"><code>convertBlock</code></a> or <a href="global.html#createBlock"><code>createBlock</code></a>.</p></td>
@@ -8779,6 +8961,10 @@ Note that no protection is provided against empty blocks; if this is a possibili
             
 
             
+                <td class="default">
+                
+                </td>
+            
 
             <td class="description last"><p>Array of length equal to that of <code>x</code>.
 Each value is interpreted as a boolean and, if truthy, indicates that the corresponding entry of <code>x</code> should be filtered out.</p>
@@ -8814,6 +9000,12 @@ otherwise, a Wasm memory allocation may invalidate the view.</p></td>
                 </td>
             
 
+            
+                <td class="default">
+                
+                    <code>{}</code>
+                
+                </td>
             
 
             <td class="description last"><p>Optional parameters.</p>
@@ -8953,7 +9145,7 @@ If provided, this should be of length equal to the number of falsey elements in 
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="filterCells.js.html">filterCells.js</a>, <a href="filterCells.js.html#line16">line 16</a>
+        <a href="filterCells.js.html">filterCells.js</a>, <a href="filterCells.js.html#line13">line 13</a>
     </li></ul></dd>
     
 
@@ -9076,9 +9268,7 @@ If provided, this should be of length equal to the number of falsey elements in 
 
             
 
-            <td class="description last"><p>If a PerCellQCFiltersResults object is supplied, the overall filter (in <code>filters.discard_overall()</code>) is used.</p>
-<p>Otherwise, an array of length equal to the number of columns in <code>x</code> should be supplied,
-where truthy elements specify the cells to be discarded.</p></td>
+            <td class="description last"><p>An array of length equal to the number of columns in <code>x</code>, where truthy elements specify the cells to be discarded.</p></td>
         </tr>
 
     
@@ -9212,6 +9402,8 @@ where truthy elements specify the cells to be discarded.</p></td>
         
 
         
+        <th>Default</th>
+        
 
         <th class="last">Description</th>
     </tr>
@@ -9245,6 +9437,10 @@ where truthy elements specify the cells to be discarded.</p></td>
             
 
             
+                <td class="default">
+                
+                </td>
+            
 
             <td class="description last"><p>The neighbor search index built by <a href="global.html#buildNeighborSearchIndex"><code>buildNeighborSearchIndex</code></a>.</p></td>
         </tr>
@@ -9275,6 +9471,10 @@ where truthy elements specify the cells to be discarded.</p></td>
                 </td>
             
 
+            
+                <td class="default">
+                
+                </td>
             
 
             <td class="description last"><p>Number of neighbors to find.</p></td>
@@ -9308,6 +9508,12 @@ where truthy elements specify the cells to be discarded.</p></td>
                 </td>
             
 
+            
+                <td class="default">
+                
+                    <code>{}</code>
+                
+                </td>
             
 
             <td class="description last"><p>Optional parameters.</p>
@@ -9676,6 +9882,8 @@ This allows us to generate per-cell size factors in spite of the sparsity.</p>
         
 
         
+        <th>Default</th>
+        
 
         <th class="last">Description</th>
     </tr>
@@ -9708,6 +9916,10 @@ This allows us to generate per-cell size factors in spite of the sparsity.</p>
                 </td>
             
 
+            
+                <td class="default">
+                
+                </td>
             
 
             <td class="description last"><p>The count matrix, usually after filtering.</p></td>
@@ -9746,6 +9958,10 @@ This allows us to generate per-cell size factors in spite of the sparsity.</p>
             
 
             
+                <td class="default">
+                
+                </td>
+            
 
             <td class="description last"><p>Array containing the group assignment for each cell.
 This should have length equal to the number of cells and contain all values from 0 to <code>n - 1</code> at least once, where <code>n</code> is the number of groups.</p></td>
@@ -9779,6 +9995,12 @@ This should have length equal to the number of cells and contain all values from
                 </td>
             
 
+            
+                <td class="default">
+                
+                    <code>{}</code>
+                
+                </td>
             
 
             <td class="description last"><p>Optional parameters.</p>
@@ -10415,6 +10637,8 @@ A <code>confidence</code> value is reported which defines the percentage of entr
         
 
         
+        <th>Default</th>
+        
 
         <th class="last">Description</th>
     </tr>
@@ -10449,6 +10673,12 @@ A <code>confidence</code> value is reported which defines the percentage of entr
                 </td>
             
 
+            
+                <td class="default">
+                
+                    <code>{}</code>
+                
+                </td>
             
 
             <td class="description last"><p>Optional parameters.</p>
@@ -10697,6 +10927,8 @@ If the bindings were already initialized (e.g., by a previous call), nothing is 
         
 
         
+        <th>Default</th>
+        
 
         <th class="last">Description</th>
     </tr>
@@ -10730,6 +10962,10 @@ If the bindings were already initialized (e.g., by a previous call), nothing is 
             
 
             
+                <td class="default">
+                
+                </td>
+            
 
             <td class="description last"><p>Number of rows.</p></td>
         </tr>
@@ -10760,6 +10996,10 @@ If the bindings were already initialized (e.g., by a previous call), nothing is 
                 </td>
             
 
+            
+                <td class="default">
+                
+                </td>
             
 
             <td class="description last"><p>Number of columns.</p></td>
@@ -10798,6 +11038,10 @@ If the bindings were already initialized (e.g., by a previous call), nothing is 
             
 
             
+                <td class="default">
+                
+                </td>
+            
 
             <td class="description last"><p>Array of length equal to the product of <code>numberOfRows</code> and <code>numberOfColumns</code>,
 containing the values to store in the array.</p></td>
@@ -10831,6 +11075,12 @@ containing the values to store in the array.</p></td>
                 </td>
             
 
+            
+                <td class="default">
+                
+                    <code>{}</code>
+                
+                </td>
             
 
             <td class="description last"><p>Optional parameters.</p>
@@ -11036,6 +11286,8 @@ containing the values to store in the array.</p></td>
         
 
         
+        <th>Default</th>
+        
 
         <th class="last">Description</th>
     </tr>
@@ -11069,6 +11321,10 @@ containing the values to store in the array.</p></td>
             
 
             
+                <td class="default">
+                
+                </td>
+            
 
             <td class="description last"><p>Number of rows in the matrix.</p></td>
         </tr>
@@ -11100,6 +11356,10 @@ containing the values to store in the array.</p></td>
             
 
             
+                <td class="default">
+                
+                </td>
+            
 
             <td class="description last"><p>Number of columns in the matrix.</p></td>
         </tr>
@@ -11130,6 +11390,10 @@ containing the values to store in the array.</p></td>
                 </td>
             
 
+            
+                <td class="default">
+                
+                </td>
             
 
             <td class="description last"><p>Values of the non-zero elements.
@@ -11163,6 +11427,10 @@ This is generally expected to contain non-negative integers; otherwise, users sh
             
 
             
+                <td class="default">
+                
+                </td>
+            
 
             <td class="description last"><p>Row indices of the non-zero elements.
 This should be of the same length as <code>values</code>.</p></td>
@@ -11194,6 +11462,10 @@ This should be of the same length as <code>values</code>.</p></td>
                 </td>
             
 
+            
+                <td class="default">
+                
+                </td>
             
 
             <td class="description last"><p>Pointers specifying the start of each column in <code>indices</code>.
@@ -11228,6 +11500,12 @@ This should have length equal to <code>numberOfColumns + 1</code>.</p></td>
                 </td>
             
 
+            
+                <td class="default">
+                
+                    <code>{}</code>
+                
+                </td>
             
 
             <td class="description last"><p>Optional parameters.</p>
@@ -11520,6 +11798,8 @@ If <code>layered = false</code>, this is <code>null</code>.</li>
         
 
         
+        <th>Default</th>
+        
 
         <th class="last">Description</th>
     </tr>
@@ -11553,6 +11833,10 @@ If <code>layered = false</code>, this is <code>null</code>.</li>
             
 
             
+                <td class="default">
+                
+                </td>
+            
 
             <td class="description last"><p>Number of rows in the matrix.</p></td>
         </tr>
@@ -11583,6 +11867,10 @@ If <code>layered = false</code>, this is <code>null</code>.</li>
                 </td>
             
 
+            
+                <td class="default">
+                
+                </td>
             
 
             <td class="description last"><p>Number of columns in the matrix.</p></td>
@@ -11621,6 +11909,10 @@ If <code>layered = false</code>, this is <code>null</code>.</li>
             
 
             
+                <td class="default">
+                
+                </td>
+            
 
             <td class="description last"><p>Values of all elements in the matrix, stored in column-major order.
 This is generally expected to contain non-negative integers; otherwise, users should set <code>forceInteger = false</code>.</p></td>
@@ -11654,6 +11946,12 @@ This is generally expected to contain non-negative integers; otherwise, users sh
                 </td>
             
 
+            
+                <td class="default">
+                
+                    <code>{}</code>
+                
+                </td>
             
 
             <td class="description last"><p>Optional parameters.</p>
@@ -11906,6 +12204,8 @@ If <code>layered = false</code>, this is <code>null</code>.</li>
         
 
         
+        <th>Default</th>
+        
 
         <th class="last">Description</th>
     </tr>
@@ -11939,6 +12239,10 @@ If <code>layered = false</code>, this is <code>null</code>.</li>
             
 
             
+                <td class="default">
+                
+                </td>
+            
 
             <td class="description last"><p>Path to the HDF5 file.
 For browsers, the file should have been saved to the virtual filesystem.</p></td>
@@ -11970,6 +12274,10 @@ For browsers, the file should have been saved to the virtual filesystem.</p></td
                 </td>
             
 
+            
+                <td class="default">
+                
+                </td>
             
 
             <td class="description last"><p>Name of the dataset inside the file.
@@ -12005,6 +12313,12 @@ For the latter, both H5AD and 10X-style sparse formats are supported.</p></td>
                 </td>
             
 
+            
+                <td class="default">
+                
+                    <code>{}</code>
+                
+                </td>
             
 
             <td class="description last"><p>Optional parameters.</p>
@@ -12257,6 +12571,8 @@ If <code>layered = false</code>, this is <code>null</code>.</li>
         
 
         
+        <th>Default</th>
+        
 
         <th class="last">Description</th>
     </tr>
@@ -12299,6 +12615,10 @@ If <code>layered = false</code>, this is <code>null</code>.</li>
             
 
             
+                <td class="default">
+                
+                </td>
+            
 
             <td class="description last"><p>Byte array containing the contents of a Matrix Market file with non-negative counts.
 This can be raw text or Gzip-compressed.</p>
@@ -12334,6 +12654,12 @@ On browsers, this should be a path in the virtual filesystem, typically created 
                 </td>
             
 
+            
+                <td class="default">
+                
+                    <code>{}</code>
+                
+                </td>
             
 
             <td class="description last"><p>Optional parameters.</p>
@@ -12588,6 +12914,8 @@ If <code>layered = false</code>, this is <code>null</code>.</li>
         
 
         
+        <th>Default</th>
+        
 
         <th class="last">Description</th>
     </tr>
@@ -12620,6 +12948,10 @@ If <code>layered = false</code>, this is <code>null</code>.</li>
                 </td>
             
 
+            
+                <td class="default">
+                
+                </td>
             
 
             <td class="description last"><p>Handle to an object inside an RDS file.
@@ -12654,6 +12986,12 @@ This should be an integer/numeric matrix, <code>dgCMatrix</code> or <code>dgTMat
                 </td>
             
 
+            
+                <td class="default">
+                
+                    <code>{}</code>
+                
+                </td>
             
 
             <td class="description last"><p>Optional parameters.</p>
@@ -12942,6 +13280,8 @@ If <code>layered = false</code>, this is <code>null</code>.</li>
         
 
         
+        <th>Default</th>
+        
 
         <th class="last">Description</th>
     </tr>
@@ -12978,6 +13318,10 @@ If <code>layered = false</code>, this is <code>null</code>.</li>
             
 
             
+                <td class="default">
+                
+                </td>
+            
 
             <td class="description last"><p>Either a pre-built neighbor search index for the dataset (see <a href="global.html#buildNeighborSearchIndex"><code>buildNeighborSearchIndex</code></a>),
 or a pre-computed set of neighbor search results for all cells (see <a href="global.html#findNearestNeighbors"><code>findNearestNeighbors</code></a>).</p></td>
@@ -13011,6 +13355,12 @@ or a pre-computed set of neighbor search results for all cells (see <a href="glo
                 </td>
             
 
+            
+                <td class="default">
+                
+                    <code>{}</code>
+                
+                </td>
             
 
             <td class="description last"><p>Optional parameters.</p>
@@ -13294,6 +13644,8 @@ If <code>null</code>, defaults to <a href="global.html#maximumThreads"><code>max
         
 
         
+        <th>Default</th>
+        
 
         <th class="last">Description</th>
     </tr>
@@ -13330,6 +13682,10 @@ If <code>null</code>, defaults to <a href="global.html#maximumThreads"><code>max
             
 
             
+                <td class="default">
+                
+                </td>
+            
 
             <td class="description last"><p>Either a pre-built neighbor search index for the dataset (see <a href="global.html#buildNeighborSearchIndex"><code>buildNeighborSearchIndex</code></a>),
 or a pre-computed set of neighbor search results for all cells (see <a href="global.html#findNearestNeighbors"><code>findNearestNeighbors</code></a>).</p></td>
@@ -13363,6 +13719,12 @@ or a pre-computed set of neighbor search results for all cells (see <a href="glo
                 </td>
             
 
+            
+                <td class="default">
+                
+                    <code>{}</code>
+                
+                </td>
             
 
             <td class="description last"><p>Optional parameters.</p>
@@ -13689,6 +14051,8 @@ If <code>null</code>, defaults to <a href="global.html#maximumThreads"><code>max
         
 
         
+        <th>Default</th>
+        
 
         <th class="last">Description</th>
     </tr>
@@ -13725,6 +14089,10 @@ If <code>null</code>, defaults to <a href="global.html#maximumThreads"><code>max
             
 
             
+                <td class="default">
+                
+                </td>
+            
 
             <td class="description last"><p>The count matrix, or log-normalized matrix, containing features in the rows and cells in the columns.
 If a Float64WasmArray is supplied, it is assumed to contain a column-major dense matrix.</p></td>
@@ -13757,6 +14125,10 @@ If a Float64WasmArray is supplied, it is assumed to contain a column-major dense
             
 
             
+                <td class="default">
+                
+                </td>
+            
 
             <td class="description last"><p>An integrated set of reference datasets, typically generated by <a href="global.html#integrateLabelledReferences"><code>integrateLabelledReferences</code></a>.</p></td>
         </tr>
@@ -13787,6 +14159,10 @@ If a Float64WasmArray is supplied, it is assumed to contain a column-major dense
                 </td>
             
 
+            
+                <td class="default">
+                
+                </td>
             
 
             <td class="description last"><p>An array of length equal to the number of references in <code>integrated</code>.
@@ -13822,6 +14198,12 @@ Each element should be an Array, TypedArray or Int32WasmArray of length equal to
                 </td>
             
 
+            
+                <td class="default">
+                
+                    <code>{}</code>
+                
+                </td>
             
 
             <td class="description last"><p>Optional parameters.</p>
@@ -14194,6 +14576,8 @@ Note that this may be invalidated on the next allocation on the Wasm heap.</p>
         
 
         
+        <th>Default</th>
+        
 
         <th class="last">Description</th>
     </tr>
@@ -14227,6 +14611,10 @@ Note that this may be invalidated on the next allocation on the Wasm heap.</p>
             
 
             
+                <td class="default">
+                
+                </td>
+            
 
             <td class="description last"><p>An array of feature identifiers (usually strings) of length equal to the number of rows in the test matrix.
 Each entry should contain the identifier for the corresponding row of the test matrix.</p></td>
@@ -14259,6 +14647,10 @@ Each entry should contain the identifier for the corresponding row of the test m
             
 
             
+                <td class="default">
+                
+                </td>
+            
 
             <td class="description last"><p>Array of LabelledReference objects, typically created with <a href="global.html#loadLabelledReferenceFromBuffers"><code>loadLabelledReferenceFromBuffers</code></a>.</p></td>
         </tr>
@@ -14289,6 +14681,10 @@ Each entry should contain the identifier for the corresponding row of the test m
                 </td>
             
 
+            
+                <td class="default">
+                
+                </td>
             
 
             <td class="description last"><p>Array of length equal to <code>loaded</code>,
@@ -14323,6 +14719,10 @@ This is expected to exhibit some overlap with those in <code>features</code>.</p
             
 
             
+                <td class="default">
+                
+                </td>
+            
 
             <td class="description last"><p>Array of <a href="BuildLabelledReferenceResults.html">BuildLabelledReferenceResults</a> objects, typically generated by <a href="global.html#buildLabelledReference"><code>buildLabelledReference</code></a>.
 This should have length equal to that of <code>loaded</code>.</p></td>
@@ -14356,6 +14756,12 @@ This should have length equal to that of <code>loaded</code>.</p></td>
                 </td>
             
 
+            
+                <td class="default">
+                
+                    <code>{}</code>
+                
+                </td>
             
 
             <td class="description last"><p>Optional parameters.</p>
@@ -14564,6 +14970,8 @@ If <code>null</code>, defaults to <a href="global.html#maximumThreads"><code>max
         
 
         
+        <th>Default</th>
+        
 
         <th class="last">Description</th>
     </tr>
@@ -14600,6 +15008,10 @@ If <code>null</code>, defaults to <a href="global.html#maximumThreads"><code>max
             
 
             
+                <td class="default">
+                
+                </td>
+            
 
             <td class="description last"><p>The count matrix, or log-normalized matrix, containing features in the rows and cells in the columns.
 If a Float64WasmArray is supplied, it is assumed to contain a column-major dense matrix.</p></td>
@@ -14631,6 +15043,10 @@ If a Float64WasmArray is supplied, it is assumed to contain a column-major dense
                 </td>
             
 
+            
+                <td class="default">
+                
+                </td>
             
 
             <td class="description last"><p>A built reference dataset, typically generated by <a href="global.html#buildLabelledReference"><code>buildLabelledReference</code></a>.</p></td>
@@ -14664,6 +15080,12 @@ If a Float64WasmArray is supplied, it is assumed to contain a column-major dense
                 </td>
             
 
+            
+                <td class="default">
+                
+                    <code>{}</code>
+                
+                </td>
             
 
             <td class="description last"><p>Optional parameters.</p>
@@ -15437,6 +15859,8 @@ The actual names of the labels are usually held elsewhere.</p></td>
         
 
         
+        <th>Default</th>
+        
 
         <th class="last">Description</th>
     </tr>
@@ -15470,6 +15894,10 @@ The actual names of the labels are usually held elsewhere.</p></td>
             
 
             
+                <td class="default">
+                
+                </td>
+            
 
             <td class="description last"><p>The count matrix, usually after filtering.</p></td>
         </tr>
@@ -15502,6 +15930,12 @@ The actual names of the labels are usually held elsewhere.</p></td>
                 </td>
             
 
+            
+                <td class="default">
+                
+                    <code>{}</code>
+                
+                </td>
             
 
             <td class="description last"><p>Optional parameters.</p>
@@ -15920,6 +16354,8 @@ and the factors can be directly used in <a href="global.html#logNormCounts"><cod
         
 
         
+        <th>Default</th>
+        
 
         <th class="last">Description</th>
     </tr>
@@ -15953,6 +16389,10 @@ and the factors can be directly used in <a href="global.html#logNormCounts"><cod
             
 
             
+                <td class="default">
+                
+                </td>
+            
 
             <td class="description last"><p>The count matrix, usually after filtering.</p></td>
         </tr>
@@ -15985,6 +16425,12 @@ and the factors can be directly used in <a href="global.html#logNormCounts"><cod
                 </td>
             
 
+            
+                <td class="default">
+                
+                    <code>{}</code>
+                
+                </td>
             
 
             <td class="description last"><p>Optional parameters.</p>
@@ -16366,6 +16812,8 @@ This is primarily used to remove batch effects.</p>
         
 
         
+        <th>Default</th>
+        
 
         <th class="last">Description</th>
     </tr>
@@ -16408,6 +16856,10 @@ This is primarily used to remove batch effects.</p>
             
 
             
+                <td class="default">
+                
+                </td>
+            
 
             <td class="description last"><p>A matrix of low-dimensional results where rows are dimensions and columns are cells.
 If this is a <a href="RunPCAResults.html">RunPCAResults</a> object, the PCs are automatically extracted.
@@ -16447,6 +16899,10 @@ Otherwise, the matrix should be provided as an array in column-major form, with 
             
 
             
+                <td class="default">
+                
+                </td>
+            
 
             <td class="description last"><p>Array containing the block assignment for each cell.
 This should have length equal to the number of cells and contain all values from 0 to <code>n - 1</code> at least once, where <code>n</code> is the number of blocks.
@@ -16481,6 +16937,12 @@ This is used to segregate cells in order to perform normalization within each bl
                 </td>
             
 
+            
+                <td class="default">
+                
+                    <code>{}</code>
+                
+                </td>
             
 
             <td class="description last"><p>Further optional parameters.</p>
@@ -17056,6 +17518,8 @@ This is equal to <code>buffer</code> if provided.</p>
         
 
         
+        <th>Default</th>
+        
 
         <th class="last">Description</th>
     </tr>
@@ -17089,6 +17553,10 @@ This is equal to <code>buffer</code> if provided.</p>
             
 
             
+                <td class="default">
+                
+                </td>
+            
 
             <td class="description last"><p>The normalized log-expression matrix.</p></td>
         </tr>
@@ -17121,6 +17589,12 @@ This is equal to <code>buffer</code> if provided.</p>
                 </td>
             
 
+            
+                <td class="default">
+                
+                    <code>{}</code>
+                
+                </td>
             
 
             <td class="description last"><p>Optional parameters.</p>
@@ -17418,6 +17892,8 @@ If <code>null</code>, defaults to <a href="global.html#maximumThreads"><code>max
         
 
         
+        <th>Default</th>
+        
 
         <th class="last">Description</th>
     </tr>
@@ -17451,6 +17927,10 @@ If <code>null</code>, defaults to <a href="global.html#maximumThreads"><code>max
             
 
             
+                <td class="default">
+                
+                </td>
+            
 
             <td class="description last"><p>The ADT count matrix.</p></td>
         </tr>
@@ -17483,6 +17963,10 @@ If <code>null</code>, defaults to <a href="global.html#maximumThreads"><code>max
                 </td>
             
 
+            
+                <td class="default">
+                
+                </td>
             
 
             <td class="description last"><p>Array of arrays of boolean values specifying the feature subsets.
@@ -17522,6 +18006,12 @@ Each array should be of length equal to the number of rows and values are interp
                 </td>
             
 
+            
+                <td class="default">
+                
+                    <code>{}</code>
+                
+                </td>
             
 
             <td class="description last"><p>Optional parameters.</p>
@@ -17730,6 +18220,8 @@ If <code>null</code>, defaults to <a href="global.html#maximumThreads"><code>max
         
 
         
+        <th>Default</th>
+        
 
         <th class="last">Description</th>
     </tr>
@@ -17763,6 +18255,10 @@ If <code>null</code>, defaults to <a href="global.html#maximumThreads"><code>max
             
 
             
+                <td class="default">
+                
+                </td>
+            
 
             <td class="description last"><p>The count matrix for CRISPR guides.</p></td>
         </tr>
@@ -17795,6 +18291,12 @@ If <code>null</code>, defaults to <a href="global.html#maximumThreads"><code>max
                 </td>
             
 
+            
+                <td class="default">
+                
+                    <code>{}</code>
+                
+                </td>
             
 
             <td class="description last"><p>Optional parameters.</p>
@@ -18003,6 +18505,8 @@ If <code>null</code>, defaults to <a href="global.html#maximumThreads"><code>max
         
 
         
+        <th>Default</th>
+        
 
         <th class="last">Description</th>
     </tr>
@@ -18036,6 +18540,10 @@ If <code>null</code>, defaults to <a href="global.html#maximumThreads"><code>max
             
 
             
+                <td class="default">
+                
+                </td>
+            
 
             <td class="description last"><p>The RNA count matrix for genes.</p></td>
         </tr>
@@ -18068,6 +18576,10 @@ If <code>null</code>, defaults to <a href="global.html#maximumThreads"><code>max
                 </td>
             
 
+            
+                <td class="default">
+                
+                </td>
             
 
             <td class="description last"><p>Array of arrays of boolean values specifying the feature subsets.
@@ -18107,6 +18619,12 @@ Each array should be of length equal to the number of rows and values are interp
                 </td>
             
 
+            
+                <td class="default">
+                
+                    <code>{}</code>
+                
+                </td>
             
 
             <td class="description last"><p>Optional parameters.</p>
@@ -18667,6 +19185,8 @@ The aim is to account for composition biases that are common in ADT-based data, 
         
 
         
+        <th>Default</th>
+        
 
         <th class="last">Description</th>
     </tr>
@@ -18700,6 +19220,10 @@ The aim is to account for composition biases that are common in ADT-based data, 
             
 
             
+                <td class="default">
+                
+                </td>
+            
 
             <td class="description last"><p>An ADT count matrix.</p></td>
         </tr>
@@ -18732,6 +19256,12 @@ The aim is to account for composition biases that are common in ADT-based data, 
                 </td>
             
 
+            
+                <td class="default">
+                
+                    <code>{}</code>
+                
+                </td>
             
 
             <td class="description last"><p>Optional parameters.</p>
@@ -19645,6 +20175,8 @@ This can be raw text or Gzip-compressed.</p>
         
 
         
+        <th>Default</th>
+        
 
         <th class="last">Description</th>
     </tr>
@@ -19681,6 +20213,10 @@ This can be raw text or Gzip-compressed.</p>
             
 
             
+                <td class="default">
+                
+                </td>
+            
 
             <td class="description last"><p>In general, a Uint8Array buffer containing the file contents.
 For Node.js, this may also be a string containing a path to a file.</p></td>
@@ -19714,6 +20250,12 @@ For Node.js, this may also be a string containing a path to a file.</p></td>
                 </td>
             
 
+            
+                <td class="default">
+                
+                    <code>{}</code>
+                
+                </td>
             
 
             <td class="description last"><p>Optional parameters.</p>
@@ -20074,6 +20616,8 @@ This is usually done on a subset of features, and possibly with some kind of blo
         
 
         
+        <th>Default</th>
+        
 
         <th class="last">Description</th>
     </tr>
@@ -20107,6 +20651,10 @@ This is usually done on a subset of features, and possibly with some kind of blo
             
 
             
+                <td class="default">
+                
+                </td>
+            
 
             <td class="description last"><p>The log-normalized expression matrix.</p></td>
         </tr>
@@ -20139,6 +20687,12 @@ This is usually done on a subset of features, and possibly with some kind of blo
                 </td>
             
 
+            
+                <td class="default">
+                
+                    <code>{}</code>
+                
+                </td>
             
 
             <td class="description last"><p>Optional parameters.</p>
@@ -20569,6 +21123,8 @@ If <code>null</code>, defaults to <a href="global.html#maximumThreads"><code>max
         
 
         
+        <th>Default</th>
+        
 
         <th class="last">Description</th>
     </tr>
@@ -20601,6 +21157,10 @@ If <code>null</code>, defaults to <a href="global.html#maximumThreads"><code>max
                 </td>
             
 
+            
+                <td class="default">
+                
+                </td>
             
 
             <td class="description last"><p>A previously initialized status object from <a href="global.html#initializeTSNE"><code>initializeTSNE</code></a>.
@@ -20635,6 +21195,12 @@ This may be passed through <a href="global.html#runTSNE"><code>runTSNE</code></a
                 </td>
             
 
+            
+                <td class="default">
+                
+                    <code>{}</code>
+                
+                </td>
             
 
             <td class="description last"><p>Optional parameters.</p>
@@ -20872,6 +21438,8 @@ or until the requested run time is exceeded, whichever comes first.</p>
         
 
         
+        <th>Default</th>
+        
 
         <th class="last">Description</th>
     </tr>
@@ -20904,6 +21472,10 @@ or until the requested run time is exceeded, whichever comes first.</p>
                 </td>
             
 
+            
+                <td class="default">
+                
+                </td>
             
 
             <td class="description last"><p>A previously initialized status object from <a href="global.html#initializeUMAP"><code>initializeUMAP</code></a>.
@@ -20938,6 +21510,12 @@ This may be passed through <a href="global.html#runUMAP"><code>runUMAP</code></a
                 </td>
             
 
+            
+                <td class="default">
+                
+                    <code>{}</code>
+                
+                </td>
             
 
             <td class="description last"><p>Optional parameters.</p>
@@ -21137,6 +21715,8 @@ allowing them to be combined into a single embedding for coordinated downstream 
         
 
         
+        <th>Default</th>
+        
 
         <th class="last">Description</th>
     </tr>
@@ -21170,6 +21750,10 @@ allowing them to be combined into a single embedding for coordinated downstream 
             
 
             
+                <td class="default">
+                
+                </td>
+            
 
             <td class="description last"><p>Array of Float64WasmArrays containing column-major matrices where rows are dimensions and columns are cells.
 All entries of this array should contain data for the same number and ordering of cells.</p></td>
@@ -21201,6 +21785,10 @@ All entries of this array should contain data for the same number and ordering o
                 </td>
             
 
+            
+                <td class="default">
+                
+                </td>
             
 
             <td class="description last"><p>Number of cells in all embeddings.</p></td>
@@ -21234,6 +21822,12 @@ All entries of this array should contain data for the same number and ordering o
                 </td>
             
 
+            
+                <td class="default">
+                
+                    <code>{}</code>
+                
+                </td>
             
 
             <td class="description last"><p>Optional parameters.</p>
@@ -21656,6 +22250,8 @@ If <code>null</code>, defaults to <a href="global.html#maximumThreads"><code>max
         
 
         
+        <th>Default</th>
+        
 
         <th class="last">Description</th>
     </tr>
@@ -21688,6 +22284,10 @@ If <code>null</code>, defaults to <a href="global.html#maximumThreads"><code>max
                 </td>
             
 
+            
+                <td class="default">
+                
+                </td>
             
 
             <td class="description last"><p>Log-normalized expression matrix.</p></td>
@@ -21726,6 +22326,10 @@ If <code>null</code>, defaults to <a href="global.html#maximumThreads"><code>max
             
 
             
+                <td class="default">
+                
+                </td>
+            
 
             <td class="description last"><p>Array containing the group assignment for each cell.
 This should have length equal to the number of cells and contain all values from 0 to <code>n - 1</code> at least once, where <code>n</code> is the number of groups.</p></td>
@@ -21759,6 +22363,12 @@ This should have length equal to the number of cells and contain all values from
                 </td>
             
 
+            
+                <td class="default">
+                
+                    <code>{}</code>
+                
+                </td>
             
 
             <td class="description last"><p>Optional parameters.</p>
@@ -22097,6 +22707,8 @@ This can be set to <code>false</code> for greater speed and memory efficiency.</
         
 
         
+        <th>Default</th>
+        
 
         <th class="last">Description</th>
     </tr>
@@ -22130,6 +22742,10 @@ This can be set to <code>false</code> for greater speed and memory efficiency.</
             
 
             
+                <td class="default">
+                
+                </td>
+            
 
             <td class="description last"><p>A ScranMatrix object.</p></td>
         </tr>
@@ -22160,6 +22776,10 @@ This can be set to <code>false</code> for greater speed and memory efficiency.</
                 </td>
             
 
+            
+                <td class="default">
+                
+                </td>
             
 
             <td class="description last"><p>Object specifying how rows should be split.
@@ -22194,6 +22814,12 @@ Each value should be an Array/TypedArray of 0-based row indices.</p></td>
                 </td>
             
 
+            
+                <td class="default">
+                
+                    <code>{}</code>
+                
+                </td>
             
 
             <td class="description last"><p>Optional parameters.</p>
@@ -22444,6 +23070,8 @@ Note that no protection is provided against empty blocks; if this is a possibili
         
 
         
+        <th>Default</th>
+        
 
         <th class="last">Description</th>
     </tr>
@@ -22476,6 +23104,10 @@ Note that no protection is provided against empty blocks; if this is a possibili
                 </td>
             
 
+            
+                <td class="default">
+                
+                </td>
             
 
             <td class="description last"><p>A blocking factor, typically produced by <a href="global.html#convertBlock"><code>convertBlock</code></a> or <a href="global.html#createBlock"><code>createBlock</code></a>.</p></td>
@@ -22513,6 +23145,10 @@ Note that no protection is provided against empty blocks; if this is a possibili
                 </td>
             
 
+            
+                <td class="default">
+                
+                </td>
             
 
             <td class="description last"><p>Array specifying the subset to retain or filter out, depending on <code>filter</code>.</p>
@@ -22554,6 +23190,12 @@ otherwise, a Wasm memory allocation may invalidate the view.</p></td>
                 </td>
             
 
+            
+                <td class="default">
+                
+                    <code>{}</code>
+                
+                </td>
             
 
             <td class="description last"><p>Optional parameters.</p>
@@ -22807,6 +23449,8 @@ If <code>buffer</code> is supplied, the returned array will be a view into <code
         
 
         
+        <th>Default</th>
+        
 
         <th class="last">Description</th>
     </tr>
@@ -22840,6 +23484,10 @@ If <code>buffer</code> is supplied, the returned array will be a view into <code
             
 
             
+                <td class="default">
+                
+                </td>
+            
 
             <td class="description last"><p>The matrix of interest.</p></td>
         </tr>
@@ -22870,6 +23518,10 @@ If <code>buffer</code> is supplied, the returned array will be a view into <code
                 </td>
             
 
+            
+                <td class="default">
+                
+                </td>
             
 
             <td class="description last"><p>Column indices to extract.
@@ -22904,6 +23556,12 @@ Al indices must be a non-negative integer less than <code>mat.numberOfColumns()<
                 </td>
             
 
+            
+                <td class="default">
+                
+                    <code>{}</code>
+                
+                </td>
             
 
             <td class="description last"><p>Optional parameters.</p>
@@ -23111,6 +23769,8 @@ If <code>inPlace = true</code>, this is a reference to <code>x</code>, otherwise
         
 
         
+        <th>Default</th>
+        
 
         <th class="last">Description</th>
     </tr>
@@ -23144,6 +23804,10 @@ If <code>inPlace = true</code>, this is a reference to <code>x</code>, otherwise
             
 
             
+                <td class="default">
+                
+                </td>
+            
 
             <td class="description last"><p>The matrix of interest.</p></td>
         </tr>
@@ -23174,6 +23838,10 @@ If <code>inPlace = true</code>, this is a reference to <code>x</code>, otherwise
                 </td>
             
 
+            
+                <td class="default">
+                
+                </td>
             
 
             <td class="description last"><p>Row indices to extract.
@@ -23208,6 +23876,12 @@ All indices must be non-negative integers less than <code>mat.numberOfRows()</co
                 </td>
             
 
+            
+                <td class="default">
+                
+                    <code>{}</code>
+                
+                </td>
             
 
             <td class="description last"><p>Optional parameters.</p>
@@ -23415,6 +24089,8 @@ If <code>inPlace = true</code>, this is a reference to <code>x</code>, otherwise
         
 
         
+        <th>Default</th>
+        
 
         <th class="last">Description</th>
     </tr>
@@ -23448,6 +24124,10 @@ If <code>inPlace = true</code>, this is a reference to <code>x</code>, otherwise
             
 
             
+                <td class="default">
+                
+                </td>
+            
 
             <td class="description last"><p>Per-cell QC metrics, usually computed by <a href="global.html#perCellAdtQcMetrics"><code>perCellAdtQcMetrics</code></a>.</p></td>
         </tr>
@@ -23480,6 +24160,12 @@ If <code>inPlace = true</code>, this is a reference to <code>x</code>, otherwise
                 </td>
             
 
+            
+                <td class="default">
+                
+                    <code>{}</code>
+                
+                </td>
             
 
             <td class="description last"><p>Optional parameters.</p>
@@ -23775,6 +24461,8 @@ Alternatively, this may be <code>null</code>, in which case all cells are assume
         
 
         
+        <th>Default</th>
+        
 
         <th class="last">Description</th>
     </tr>
@@ -23808,6 +24496,10 @@ Alternatively, this may be <code>null</code>, in which case all cells are assume
             
 
             
+                <td class="default">
+                
+                </td>
+            
 
             <td class="description last"><p>Per-cell QC metrics, usually computed by <a href="global.html#perCellCrisprQcMetrics"><code>perCellCrisprQcMetrics</code></a>.</p></td>
         </tr>
@@ -23840,6 +24532,12 @@ Alternatively, this may be <code>null</code>, in which case all cells are assume
                 </td>
             
 
+            
+                <td class="default">
+                
+                    <code>{}</code>
+                
+                </td>
             
 
             <td class="description last"><p>Optional parameters.</p>
@@ -24095,6 +24793,8 @@ Alternatively, this may be <code>null</code>, in which case all cells are assume
         
 
         
+        <th>Default</th>
+        
 
         <th class="last">Description</th>
     </tr>
@@ -24128,6 +24828,10 @@ Alternatively, this may be <code>null</code>, in which case all cells are assume
             
 
             
+                <td class="default">
+                
+                </td>
+            
 
             <td class="description last"><p>Per-cell QC metrics, usually computed by <a href="global.html#perCellRnaQcMetrics"><code>perCellRnaQcMetrics</code></a>.</p></td>
         </tr>
@@ -24160,6 +24864,12 @@ Alternatively, this may be <code>null</code>, in which case all cells are assume
                 </td>
             
 
+            
+                <td class="default">
+                
+                    <code>{}</code>
+                
+                </td>
             
 
             <td class="description last"><p>Optional parameters.</p>
@@ -24510,6 +25220,8 @@ otherwise the workers will be shut done ungracefully on program exit.</p>
         
 
         
+        <th>Default</th>
+        
 
         <th class="last">Description</th>
     </tr>
@@ -24543,6 +25255,10 @@ otherwise the workers will be shut done ungracefully on program exit.</p>
             
 
             
+                <td class="default">
+                
+                </td>
+            
 
             <td class="description last"><p>A ScranMatrix object.</p></td>
         </tr>
@@ -24575,6 +25291,12 @@ otherwise the workers will be shut done ungracefully on program exit.</p>
                 </td>
             
 
+            
+                <td class="default">
+                
+                    <code>{}</code>
+                
+                </td>
             
 
             <td class="description last"><p>Optional parameters.</p>
@@ -25197,7 +25919,7 @@ This can be used with <code>createWasmArray()</code> and related functions from 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.11</a> on Sun Dec 25 2022 11:47:28 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.11</a> on Mon Dec 26 2022 02:18:25 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>
