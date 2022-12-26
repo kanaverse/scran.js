@@ -40,7 +40,7 @@ export class BuildSNNGraphResults {
  * @param {(BuildNeighborSearchIndexResults|FindNearestNeighborsResults)} x 
  * Either a pre-built neighbor search index for the dataset (see {@linkcode buildNeighborSearchIndex}),
  * or a pre-computed set of neighbor search results for all cells (see {@linkcode findNearestNeighbors}).
- * @param {object} [options] - Optional parameters.
+ * @param {object} [options={}] - Optional parameters.
  * @param {number} [options.scheme="rank"] - Weighting scheme for the edges between cells.
  * This can be based on the top ranks of the shared neighbors (`"rank"`),
  * the number of shared neighbors (`"number"`) 
@@ -148,7 +148,7 @@ export class ClusterSNNGraphMultiLevelResults {
     }
 
     /**
-     * @param {object} [options] - Optional parameters.
+     * @param {object} [options={}] - Optional parameters.
      * @param {?number} [options.level=null] - The clustering level for which to obtain the modularity.
      * Defaults to the best clustering level from {@linkcode ClusterSNNGraphMultiLevelResults#best best}.
      *
@@ -180,7 +180,7 @@ export class ClusterSNNGraphMultiLevelResults {
     }
 
     /**
-     * @param {object} [options] - Optional parameters.
+     * @param {object} [options={}] - Optional parameters.
      * @param {?number} [options.level=null] - The clustering level for which to obtain the cluster membership.
      * Defaults to the best clustering level from {@linkcode ClusterSNNGraphMultiLevelResults#best best}.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
@@ -292,7 +292,7 @@ export class ClusterSNNGraphWalktrapResults {
     }
 
     /**
-     * @param {object} [options] - Optional parameters.
+     * @param {object} [options={}] - Optional parameters.
      * @param {boolean|string} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      * @param {boolean} [options.fillable=false] - Whether to return a fillable array, to write to this object.
      * If `true`, this method automatically sets `copy = false` if `copy` was previously true.
@@ -373,7 +373,7 @@ export class ClusterSNNGraphLeidenResults {
     }
 
     /**
-     * @param {object} [options] - Optional parameters.
+     * @param {object} [options={}] - Optional parameters.
      * @param {boolean|string} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      * @param {boolean} [options.fillable=false] - Whether to return a fillable array, to write to this object.
      * If `true`, this method automatically sets `copy = false` if `copy` was previously true.
@@ -409,7 +409,7 @@ export class ClusterSNNGraphLeidenResults {
  * Cluster cells using community detection on the SNN graph.
  *
  * @param {BuildSNNGraphResults} x - The shared nearest neighbor graph constructed by {@linkcode buildSNNGraph}.
- * @param {object} [options] - Optional parameters.
+ * @param {object} [options={}] - Optional parameters.
  * @param {string} [options.method="multilevel"] - Community detection method to use.
  * This should be one of `"multilevel"`, `"walktrap"` or `"leiden"`.
  * @param {number} [options.resolution=1] - The resolution of the multi-level or Leiden clustering.

@@ -254,7 +254,7 @@ export class H5Group extends H5Base {
 
     /**
      * @param {string} name - Name of the child element to open.
-     * @param {object} [options] - Further options to pass to the {@linkplain H5Group} or {@linkplain H5DataSet} constructors.
+     * @param {object} [options={}] - Further options to pass to the {@linkplain H5Group} or {@linkplain H5DataSet} constructors.
      *
      * @return {H5Group|H5DataSet} Object representing the child element.
      */
@@ -303,7 +303,7 @@ export class H5Group extends H5Base {
      * or `"String"`.
      * @param {Array} shape - Array containing the dimensions of the dataset to create.
      * This can be set to an empty array to create a scalar dataset.
-     * @param {object} [options] - Optional parameters.
+     * @param {object} [options={}] - Optional parameters.
      * @param {number} [options.maxStringLength=10] - Maximum length of the strings to be saved.
      * Only used when `type = "String"`.
      * @param {number} [options.compression=6] - Deflate compression level.
@@ -353,7 +353,7 @@ export class H5Group extends H5Base {
      * If set to an empty array, this will create a scalar dataset.
      * If set to `null`, this is determined from `x`.
      * @param {(TypedArray|Array|string|number)} x - Values to be written to the new dataset, see {@linkcode H5DataSet#write write}.
-     * @param {object} [options] - Optional parameters.
+     * @param {object} [options={}] - Optional parameters.
      * @param {number} [options.compression=6] - Deflate compression level.
      * @param {?Array} [options.chunks=null] - Array containing the chunk dimensions.
      * This should have length equal to `shape`, with each value being no greater than the corresponding value of `shape`.
@@ -468,7 +468,7 @@ export class H5DataSet extends H5Base {
     /**
      * @param {string} file - Path to the HDF5 file.
      * @param {string} name - Name of the dataset inside the file.
-     * @param {object} [options] - Optional parameters.
+     * @param {object} [options={}] - Optional parameters.
      * @param {boolean} [options.load=false] - Whether or not to load the contents of the dataset in the constructor.
      * If `false`, the contents can be loaded later with {@linkcode H5DataSet#load load}.
      */
@@ -572,7 +572,7 @@ export class H5DataSet extends H5Base {
      * @param {(Array|TypedArray|number|string)} x - Values to write to the dataset.
      * This should be of length equal to the product of {@linkcode H5DataSet#shape shape};
      * unless `shape` is empty, in which case it should either be of length 1, or a single number or string.
-     * @param {object} [options] - Optional parameters.
+     * @param {object} [options={}] - Optional parameters.
      * @param {boolean} [options.cache=false] - Whether to cache the written values in this {@linkplain H5DataSet} object.
      *
      * @return `x` is written to the dataset on file.
@@ -638,7 +638,7 @@ function extract_names(host, output, recursive = true) {
  *
  * @param {string} path - Path to a HDF5 file.
  * For web applications, this should be saved to the virtual filesystem with {@linkcode writeFile}.
- * @param {object} [options] - Optional parameters.
+ * @param {object} [options={}] - Optional parameters.
  * @param {string} [options.group=""] - Group to use as the root of the search.
  * If an empty string is supplied, the entire file is used as the root.
  * @param {boolean} [options.recursive=true] - Whether to recursively extract names inside child groups.

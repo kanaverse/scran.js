@@ -7,7 +7,7 @@ import { ModelGeneVarResults } from "./modelGeneVar.js";
  * @param {(TypedArray|ModelGeneVarResults)} x -
  * A TypedArray of statistics, where larger values correspond to higher variability;
  * or a {@linkplain ModelGeneVarResults} object, in which case the residuals are used as the statistics.
- * @param {object} [options] - Optional parameters.
+ * @param {object} [options={}] - Optional parameters.
  * @param {number} [options.number=4000] - Number of highly variable genes to select.
  *
  * @return {Uint8WasmArray} Array of length equal to the total number of genes,

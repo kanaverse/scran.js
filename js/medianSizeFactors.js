@@ -9,7 +9,7 @@ import * as wa from "wasmarrays.js";
  * and the factors can be directly used in {@linkcode logNormCounts}.
  *
  * @param {ScranMatrix} x The count matrix, usually after filtering.
- * @param {object} [options] - Optional parameters.
+ * @param {object} [options={}] - Optional parameters.
  * @param {boolean} [options.center=true] - Whether to return centered size factors.
  * If `false`, the size factors can be interpreted as the scaling to match `reference`.
  * @param {?(Array|TypedArray|Float64WasmArray)} [options.reference=null] - Reference profile to normalize against.

@@ -5,7 +5,7 @@ import * as areal from "./abstract/realize.js";
  * Choose a temporary file path on the system's default temporary directory (Node.js) or on the virtual file system (browser).
  * This can be used to enable environment-agnostic creation of temporary files.
  *
- * @param {object} [options] - Optional parameters.
+ * @param {object} [options={}] - Optional parameters.
  * @param {string} [options.extension=""] - File extension to use for any temporary file that might be created.
  *
  * @return {string} Temporary file path.
@@ -19,7 +19,7 @@ export function chooseTemporaryPath({ extension = "" } = {}) {
  *
  * @param {string|Uint8Array} file - In general, a Uint8Array buffer containing the file contents.
  * For Node.js, this may also be a string containing a path to a file.
- * @param {object} [options] - Optional parameters.
+ * @param {object} [options={}] - Optional parameters.
  * @param {string} [options.extension=""] - File extension to use for any temporary file that might be created.
  *
  * @return {Object} Object with the following properties:

@@ -143,7 +143,7 @@ export class ModelGeneVarResults {
  * Model the mean-variance trend across genes.
  *
  * @param {ScranMatrix} x - The normalized log-expression matrix.
- * @param {object} [options] - Optional parameters.
+ * @param {object} [options={}] - Optional parameters.
  * @param {?(Int32WasmArray|Array|TypedArray)} [options.block=null] - Array containing the block assignment for each cell.
  * This should have length equal to the number of cells and contain all values from 0 to `n - 1` at least once, where `n` is the number of blocks.
  * This is used to segregate cells in order to fit the mean-variance trend within each block.

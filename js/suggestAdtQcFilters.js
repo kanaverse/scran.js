@@ -25,7 +25,7 @@ export class SuggestAdtQcFiltersResults {
     }
 
     /**
-     * @param {object} [options] - Optional parameters.
+     * @param {object} [options={}] - Optional parameters.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      * @param {boolean} [options.fillable=false] - Whether to return a fillable array, to write to this object.
      * If `true`, this method automatically sets `copy = false` if `copy` was previously true.
@@ -46,7 +46,7 @@ export class SuggestAdtQcFiltersResults {
 
     /**
      * @param {number} i - Index of the feature subset of interest.
-     * @param {object} [options] - Optional parameters.
+     * @param {object} [options={}] - Optional parameters.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      * @param {boolean} [options.fillable=false] - Whether to return a fillable array, to write to this object.
      * If `true`, this method automatically sets `copy = false` if `copy` was previously true.
@@ -117,7 +117,7 @@ export class SuggestAdtQcFiltersResults {
  * Define filters based on the per-cell QC metrics from the ADT count matrix.
  *
  * @param {PerCellAdtQcMetricsResults} metrics - Per-cell QC metrics, usually computed by {@linkcode perCellAdtQcMetrics}.
- * @param {object} [options] - Optional parameters.
+ * @param {object} [options={}] - Optional parameters.
  * @param {number} [options.numberOfMADs=3] - Number of median absolute deviations to use to define low-quality outliers.
  * @param {number} [options.minDetectedDrop=0.1] - Minimum relative drop in the number of detected ADTs before a cell is to be considered a low-quality cell.
  * By default, cells must exhibit at least a 10% decrease from the median before filtering is applied.

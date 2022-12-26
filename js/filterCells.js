@@ -6,10 +6,7 @@ import * as utils from "./utils.js";
  *
  * @param {ScranMatrix} x The count matrix.
  * @param {(Uint8WasmArray|Array|TypedArray)} filters 
- * If a {@linkplain PerCellQCFiltersResults} object is supplied, the overall filter (in `filters.discard_overall()`) is used.
- *
- * Otherwise, an array of length equal to the number of columns in `x` should be supplied,
- * where truthy elements specify the cells to be discarded.
+ * An array of length equal to the number of columns in `x`, where truthy elements specify the cells to be discarded.
  *
  * @return {ScranMatrix} A matrix of the same type as `x`, filtered by column to remove all cells specified in `filters`. 
  */

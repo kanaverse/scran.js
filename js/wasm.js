@@ -5,7 +5,7 @@ import * as afile from "./abstract/file.js";
 const cache = {};
 
 /**
- * @param {object} [options] - Optional parameters.
+ * @param {object} [options={}] - Optional parameters.
  * @param {number} [options.numberOfThreads=4] - Number of threads to use for calculations.
  * This will spin up the requested number of Web Workers during module initialization.
  * @param {boolean} [options.localFile=false] - Whether or not to look for the Wasm and worker scripts locally.

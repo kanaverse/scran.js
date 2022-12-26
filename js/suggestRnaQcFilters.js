@@ -139,7 +139,7 @@ export class SuggestRnaQcFiltersResults {
  * Define filters based on the per-cell QC metrics computed from an RNA count matrix.
  *
  * @param {PerCellRnaQcMetricsResults} metrics - Per-cell QC metrics, usually computed by {@linkcode perCellRnaQcMetrics}.
- * @param {object} [options] - Optional parameters.
+ * @param {object} [options={}] - Optional parameters.
  * @param {number} [options.numberOfMADs=3] - Number of median absolute deviations to use to define low-quality outliers.
  * @param {?(Int32WasmArray|Array|TypedArray)} [options.block=null] - Array containing the block assignment for each cell.
  * This should have length equal to the number of cells and contain all values from 0 to `n - 1` at least once, where `n` is the number of blocks.

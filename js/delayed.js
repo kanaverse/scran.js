@@ -9,7 +9,7 @@ import * as wasm from "./wasm.js";
  * @param {number|Array|WasmArray|TypedArray} value - The other operand in the arithmetic operation.
  * If a scalar, this is applied element-wise to each entry of `x`.
  * If a vector, it is assumed to map to either the rows or columns of `x` (see `along`) and each entry is applied to all values of the corresponding row/column.
- * @param {object} [options] - Optional parameters.
+ * @param {object} [options={}] - Optional parameters.
  * @param {boolean} [options.right=true] - Whether `value` is applied to the right of `x`.
  * Only relevant for subtraction or division.
  * @param {string} [options.along="row"] - Whether an array-like `value` maps to the rows (`"row"`) or columns (`"column"`).
@@ -59,7 +59,7 @@ export function delayedArithmetic(x, operation, value, { right = true, along = "
  *
  * @param {ScranMatrix} x - A ScranMatrix object.
  * @param {string} operation - The operation to perform, one of `"log"`, `"sqrt"`, `"abs"`, `"log1p"`, `"round"` or `"exp"`.
- * @param {object} [options] - Optional parameters.
+ * @param {object} [options={}] - Optional parameters.
  * @param {number} [options.logBase=null] - Base of the logarithm to use when `operation = "log"`.
  * Defaults to the natural base.
  * @param {boolean} [options.inPlace=false] - Whether to modify `x` in place.
@@ -97,7 +97,7 @@ export function delayedMath(x, operation, { logBase = null, inPlace = false } = 
  * Transpose a {@linkplain ScranMatrix} object.
  *
  * @param {ScranMatrix} x - A ScranMatrix object.
- * @param {object} [options] - Optional parameters.
+ * @param {object} [options={}] - Optional parameters.
  * @param {boolean} [options.inPlace=false] - Whether to modify `x` in place.
  * If `false`, a new ScranMatrix is returned.
  *

@@ -12,7 +12,7 @@ import * as wasm from "./wasm.js";
  * @param {(Int32WasmArray|Array|TypedArray)} block - Array containing the block assignment for each cell.
  * This should have length equal to the number of cells and contain all values from 0 to `n - 1` at least once, where `n` is the number of blocks.
  * This is used to segregate cells in order to perform normalization within each block.
- * @param {object} [options] - Further optional parameters.
+ * @param {object} [options={}] - Further optional parameters.
  * @param {?Float64WasmArray} [options.buffer=null] - Buffer of length equal to the product of the number of cells and dimensions,
  * to be used to store the corrected coordinates for each cell.
  * If `null`, this is allocated and returned by the function.

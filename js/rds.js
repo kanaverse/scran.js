@@ -96,7 +96,7 @@ export class RdsIntegerVector extends RdsVector {
     }
 
     /**
-     * @param {object} [options] - Optional parameters.
+     * @param {object} [options={}] - Optional parameters.
      * @param {boolean|string} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      *
      * @return {Int32Array|Int32WasmArray} Values of the integer vector.
@@ -118,7 +118,7 @@ export class RdsBooleanVector extends RdsVector {
     }
 
     /**
-     * @param {object} [options] - Optional parameters.
+     * @param {object} [options={}] - Optional parameters.
      * @param {boolean|string} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      *
      * @return {Int32Array|Int32WasmArray} Values of the logical vector.
@@ -141,7 +141,7 @@ export class RdsDoubleVector extends RdsVector {
     }
 
     /**
-     * @param {object} [options] - Optional parameters.
+     * @param {object} [options={}] - Optional parameters.
      * @param {boolean|string} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      *
      * @return {Float64Array|Float64WasmArray} Values of the double vector.

@@ -31,7 +31,7 @@ export class PerCellRnaQcMetricsResults {
     }
 
     /**
-     * @param {object} [options] - Optional parameters.
+     * @param {object} [options={}] - Optional parameters.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      * @param {boolean} [options.fillable=false] - Whether to return a fillable array, to write to this object.
      * If `true`, this method automatically sets `copy = false` if `copy` was previously true.
@@ -51,7 +51,7 @@ export class PerCellRnaQcMetricsResults {
     }
 
     /**
-     * @param {object} [options] - Optional parameters.
+     * @param {object} [options={}] - Optional parameters.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      * @param {boolean} [options.fillable=false] - Whether to return a fillable array, to write to this object.
      * If `true`, this method automatically sets `copy = false` if `copy` was previously true.
@@ -72,7 +72,7 @@ export class PerCellRnaQcMetricsResults {
 
     /**
      * @param {number} i - Index of the feature subset of interest.
-     * @param {object} [options] - Optional parameters.
+     * @param {object} [options={}] - Optional parameters.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      * @param {boolean} [options.fillable=false] - Whether to return a fillable array, to write to this object.
      * If `true`, this method automatically sets `copy = false` if `copy` was previously true.
@@ -131,7 +131,7 @@ export class PerCellRnaQcMetricsResults {
  * Each array should be of length equal to the number of rows and values are interpreted as booleans.
  *
  * Alternatively `null`, which is taken to mean that there are no subsets.
- * @param {object} [options] - Optional parameters.
+ * @param {object} [options={}] - Optional parameters.
  * @param {?number} [options.numberOfThreads=null] - Number of threads to use.
  * If `null`, defaults to {@linkcode maximumThreads}.
  *

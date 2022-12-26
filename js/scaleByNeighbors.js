@@ -10,7 +10,7 @@ import { buildNeighborSearchIndex, BuildNeighborSearchIndexResults } from "./fin
  * @param {Array} embeddings - Array of Float64WasmArrays containing column-major matrices where rows are dimensions and columns are cells.
  * All entries of this array should contain data for the same number and ordering of cells.
  * @param {number} numberOfCells - Number of cells in all embeddings.
- * @param {object} [options] - Optional parameters.
+ * @param {object} [options={}] - Optional parameters.
  * @param {number} [options.neighbors=20] - Number of neighbors to use for quantifying variation.
  * Larger values provide a more stable calculation but assume larger subpopulations.
  * @param {?Array} [options.indices=null] - Array of {@linkplain BuildNeighborSearchIndexResults} objects, 

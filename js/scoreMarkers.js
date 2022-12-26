@@ -101,7 +101,7 @@ export class ScoreMarkersResults {
     /**
      * @param {number} group - Group of interest.
      * Should be non-negative and less than {@linkcode ScoreMarkersResults#numberOfGroups numberOfGroups}.
-     * @param {object} [options] - Optional parameters.
+     * @param {object} [options={}] - Optional parameters.
      * @param {?number} [options.block=null] - Number of the block for which to extract statistics.
      * If `null`, the average across all blocks is returned.
      * Otherwise, should be less than the value returned by {@linkcode ModelGeneVarResults#numberOfBlocks numberOfBlocks}.
@@ -121,7 +121,7 @@ export class ScoreMarkersResults {
     /**
      * @param {number} group - Group of interest.
      * Should be non-negative and less than {@linkcode ScoreMarkersResults#numberOfGroups numberOfGroups}.
-     * @param {object} [options] - Optional parameters.
+     * @param {object} [options={}] - Optional parameters.
      * @param {?number} [options.block=null] - Number of the block for which to extract statistics.
      * If `null`, the average across all blocks is returned.
      * Otherwise, should be less than the value returned by {@linkcode ModelGeneVarResults#numberOfBlocks numberOfBlocks}.
@@ -141,7 +141,7 @@ export class ScoreMarkersResults {
     /**
      * @param {number} group - Group of interest.
      * Should be non-negative and less than {@linkcode ScoreMarkersResults#numberOfGroups numberOfGroups}.
-     * @param {object} [options] - Optional parameters.
+     * @param {object} [options={}] - Optional parameters.
      * @param {number} [options.summary=1] - Summary statistic to be computed from the Cohen's d values of all pairwise comparisons involving `group`.
      * This can be the minimum across comparisons (0), mean (1) or min-rank (4).
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
@@ -170,7 +170,7 @@ export class ScoreMarkersResults {
      *
      * @param {number} group - Group of interest.
      * Should be non-negative and less than {@linkcode ScoreMarkersResults#numberOfGroups numberOfGroups}.
-     * @param {object} [options] - Optional parameters.
+     * @param {object} [options={}] - Optional parameters.
      * @param {number} [options.summary=1] - Summary statistic to be computed from the AUCs of all pairwise comparisons involving `group`.
      * This can be the minimum across comparisons (0), mean (1) or min-rank (4).
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
@@ -199,7 +199,7 @@ export class ScoreMarkersResults {
     /**
      * @param {number} group - Group of interest.
      * Should be non-negative and less than {@linkcode ScoreMarkersResults#numberOfGroups numberOfGroups}.
-     * @param {object} [options] - Optional parameters.
+     * @param {object} [options={}] - Optional parameters.
      * @param {number} [options.summary=1] - Summary statistic to be computed from the log-fold changes of all pairwise comparisons involving `group`.
      * This can be the minimum across comparisons (0), mean (1) or min-rank (4).
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
@@ -225,8 +225,8 @@ export class ScoreMarkersResults {
     /**
      * @param {number} group - Group of interest.
      * Should be non-negative and less than {@linkcode ScoreMarkersResults#numberOfGroups numberOfGroups}.
-     * @param {object} [options] - Optional parameters.
-     * @param {number} [options.summary] - Summary statistic to be computed from the delta-detected values of all pairwise comparisons involving `group`.
+     * @param {object} [options={}] - Optional parameters.
+     * @param {number} [options.summary=1] - Summary statistic to be computed from the delta-detected values of all pairwise comparisons involving `group`.
      * This can be the minimum across comparisons (0), mean (1) or min-rank (4).
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      * @param {boolean} [options.fillable=false] - Whether to return a fillable array, to write to this object.
@@ -267,7 +267,7 @@ export class ScoreMarkersResults {
  * @param {ScranMatrix} x - Log-normalized expression matrix.
  * @param {(Int32WasmArray|Array|TypedArray)} groups - Array containing the group assignment for each cell.
  * This should have length equal to the number of cells and contain all values from 0 to `n - 1` at least once, where `n` is the number of groups.
- * @param {object} [options] - Optional parameters.
+ * @param {object} [options={}] - Optional parameters.
  * @param {?(Int32WasmArray|Array|TypedArray)} [options.block=null] - Array containing the block assignment for each cell.
  * This should have length equal to the number of cells and contain all values from 0 to `n - 1` at least once, where `n` is the number of blocks.
  * This is used to segregate cells in order to perform comparisons within each block.

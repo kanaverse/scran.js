@@ -22,7 +22,7 @@ export class SuggestCrisprQcFiltersResults {
     }
 
     /**
-     * @param {object} [options] - Optional parameters.
+     * @param {object} [options={}] - Optional parameters.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      * @param {boolean} [options.fillable=false] - Whether to return a fillable array, to write to this object.
      * If `true`, this method automatically sets `copy = false` if `copy` was previously true.
@@ -86,7 +86,7 @@ export class SuggestCrisprQcFiltersResults {
  * Define filters based on the per-cell QC metrics for CRISPR guide counts.
  *
  * @param {PerCellCrisprQcMetricsResults} metrics - Per-cell QC metrics, usually computed by {@linkcode perCellCrisprQcMetrics}.
- * @param {object} [options] - Optional parameters.
+ * @param {object} [options={}] - Optional parameters.
  * @param {number} [options.numberOfMADs=3] - Number of median absolute deviations to use to define low-quality outliers.
  * @param {?(Int32WasmArray|Array|TypedArray)} [options.block=null] - Array containing the block assignment for each cell.
  * This should have length equal to the number of cells and contain all values from 0 to `n - 1` at least once, where `n` is the number of blocks.

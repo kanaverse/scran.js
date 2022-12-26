@@ -10,7 +10,7 @@ import { ScranMatrix } from "./ScranMatrix.js";
  * @param {number} numberOfColumns Number of columns in the matrix.
  * @param {WasmArray|Array|TypedArray} values Values of all elements in the matrix, stored in column-major order.
  * This is generally expected to contain non-negative integers; otherwise, users should set `forceInteger = false`.
- * @param {object} [options] - Optional parameters.
+ * @param {object} [options={}] - Optional parameters.
  * @param {boolean} [options.forceInteger=true] - Whether to coerce `values` to integers via truncation.
  * @param {boolean} [options.layered=true] - Whether to create a layered sparse matrix, which reorders the rows of the loaded matrix for better memory efficiency.
  * Only used if `forceInteger = true`, and assumes that `values` contains only non-negative integers.
@@ -72,7 +72,7 @@ export function initializeSparseMatrixFromDenseArray(numberOfRows, numberOfColum
  * This should be of the same length as `values`.
  * @param {WasmArray} pointers Pointers specifying the start of each column in `indices`.
  * This should have length equal to `numberOfColumns + 1`.
- * @param {object} [options] - Optional parameters.
+ * @param {object} [options={}] - Optional parameters.
  * @param {boolean} [options.byColumn=true] - Whether the input arrays are supplied in the compressed sparse column format.
  * If `true`, `indices` should contain column indices and `pointers` should specify the start of each row in `indices`.
  * @param {boolean} [options.forceInteger=true] - Whether to coerce `values` to integers via truncation.
@@ -148,7 +148,7 @@ export function initializeSparseMatrixFromCompressedVectors(numberOfRows, number
  * 
  * Alternatively, this can be a string containing a file path to a MatrixMarket file.
  * On browsers, this should be a path in the virtual filesystem, typically created with {@linkcode writeFile}. 
- * @param {object} [options] - Optional parameters.
+ * @param {object} [options={}] - Optional parameters.
  * @param {?boolean} [options.compressed=null] - Whether the buffer is Gzip-compressed.
  * If `null`, we detect this automatically from the magic number in the header.
  * @param {boolean} [options.layered=true] - Whether to create a layered sparse matrix, which reorders the rows of the loaded matrix for better memory efficiency.
@@ -214,7 +214,7 @@ function convert_compressed(compressed) {
  * 
  * Alternatively, this can be a string containing a file path to a MatrixMarket file.
  * On browsers, this should be a path in the virtual filesystem, typically created with {@linkcode writeFile}. 
- * @param {object} [options] - Optional parameters.
+ * @param {object} [options={}] - Optional parameters.
  * @param {boolean} [options.compressed=null] - Whether the buffer is Gzip-compressed.
  * If `null`, we detect this automatically from the magic number in the header.
  *
@@ -255,7 +255,7 @@ export function extractMatrixMarketDimensions(x, { compressed = null } = {}) {
  * @param {string} name Name of the dataset inside the file.
  * This can be a HDF5 Dataset for dense matrices or a HDF5 Group for sparse matrices.
  * For the latter, both H5AD and 10X-style sparse formats are supported.
- * @param {object} [options] - Optional parameters.
+ * @param {object} [options={}] - Optional parameters.
  * @param {boolean} [options.forceInteger=true] - Whether to coerce all elements to integers via truncation.
  * @param {boolean} [options.layered=true] - Whether to create a layered sparse matrix, which reorders the rows of the loaded matrix for better memory efficiency.
  * Only used if `forceInteger = true`, and assumes that the matrix contains only non-negative integers.
@@ -336,7 +336,7 @@ export function extractHDF5MatrixDetails(file, name) {
  * @param {number} numberOfColumns - Number of columns.
  * @param {(WasmArray|TypedArray|Array)} values - Array of length equal to the product of `numberOfRows` and `numberOfColumns`,
  * containing the values to store in the array.
- * @param {object} [options] - Optional parameters.
+ * @param {object} [options={}] - Optional parameters.
  * @param {boolean} [options.forceInteger=true] - Whether to coerce `values` to integers via truncation.
  *
  * @return {ScranMatrix} A dense matrix, filled by column with the contents of `values`.
@@ -372,7 +372,7 @@ export function initializeDenseMatrixFromDenseArray(numberOfRows, numberOfColumn
  *
  * @param {RdsObject} x - Handle to an object inside an RDS file.
  * This should be an integer/numeric matrix, `dgCMatrix` or `dgTMatrix` object.
- * @param {object} [options] - Optional parameters.
+ * @param {object} [options={}] - Optional parameters.
  * @param {boolean} [options.consume=false] - Whether to consume the values in `x` when creating the output sparse matrix.
  * Setting this to `true` improves memory efficiency at the cost of preventing any further use of `x`.
  * @param {boolean} [options.forceInteger=true] - Whether to coerce all elements to integers via truncation.

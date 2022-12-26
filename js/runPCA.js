@@ -127,7 +127,7 @@ export class RunPCAResults {
  * This is usually done on a subset of features, and possibly with some kind of blocking on a per-cell batch factor.
  *
  * @param {ScranMatrix} x - The log-normalized expression matrix.
- * @param {object} [options] - Optional parameters. 
+ * @param {object} [options={}] - Optional parameters. 
  * @param {?(Uint8WasmArray|Array|TypedArray)} [options.features=null] - Array specifying which features should be retained (e.g., HVGs).
  * This should be of length equal to the number of rows in `x`; elements should be `true` to retain each row.
  * If `null`, all features are retained.
