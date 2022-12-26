@@ -20,6 +20,12 @@
 - Getters for empty results will now return `null` if the corresponding field has not been filled,
   either using a dedicated setter or by extracting a memory view with `fillable: true`.
   This allows applications to fail gracefully upon encountering an object where the required fields have not been filled.
+- Removed deprecated functionality from previous version:
+  - Removed `ScranMatrix.isPermuted()`.
+  - `clusterSNNGraph()` no longer accepts integer arguments for `scheme=`.
+  - Removed `initializeSparseMatrixFromMatrixMarketBuffer()`.
+  - `runPCA()` no longer accepts `blockMethod="block"`.
+  - Removed `safeFree()`.
 
 ## 1.2.1
 
