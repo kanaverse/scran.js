@@ -1,6 +1,6 @@
 # scran.js news
 
-## 2.0.0-alpha.1
+## 2.0.0-alpha.2
 
 **New**
 
@@ -26,6 +26,11 @@
   - Removed `initializeSparseMatrixFromMatrixMarketBuffer()`.
   - `runPCA()` no longer accepts `blockMethod="block"`.
   - Removed `safeFree()`.
+- Added a `leidenModularityObjective` option to `clusterSNNGraph()`, to use the modularity as the objective function.
+  This allows for a more stable interpretation of the magnitude of the resolution.
+- Separated resolution arguments to `multiLevelResolution` and `leidenResolution` for `clusterSNNGraph()`,
+  allowing them to have different defaults.
+  This is especially relevant when `leidenModularityObjective = false`.
 
 ## 1.2.1
 

@@ -225,9 +225,10 @@ struct ClusterSNNGraphLeiden_Result {
     }
 };
 
-ClusterSNNGraphLeiden_Result cluster_snn_graph_leiden(const BuildSNNGraph_Result& graph, double resolution) {
+ClusterSNNGraphLeiden_Result cluster_snn_graph_leiden(const BuildSNNGraph_Result& graph, double resolution, bool use_modularity) {
     scran::ClusterSNNGraphLeiden clust;
     clust.set_resolution(resolution);
+    clust.set_modularity(use_modularity);
     auto output = clust.run(graph.graph);
     return ClusterSNNGraphLeiden_Result(std::move(output));
 }

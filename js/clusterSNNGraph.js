@@ -414,20 +414,31 @@ export class ClusterSNNGraphLeidenResults {
  * @param {object} [options={}] - Optional parameters.
  * @param {string} [options.method="multilevel"] - Community detection method to use.
  * This should be one of `"multilevel"`, `"walktrap"` or `"leiden"`.
- * @param {number} [options.resolution=1] - The resolution of the multi-level or Leiden clustering.
+ * @param {number} [options.multiLevelResolution=1] - The resolution of the multi-level clustering, when `method = "multilevel"`.
  * Larger values result in more fine-grained clusters.
- * @param {number} [options.walktrapSteps=4] - Number of steps for the Walktrap algorithm.
+ * @param {number} [options.leidenResolution=1] - The resolution of the Leiden clustering, when `method = "leiden"`.
+ * Larger values result in more fine-grained clusters.
+ * @param {boolean} [options.leidenModularityObjective=false] - Whether to use the modularity as the objective function when `method = "leiden"`.
+ * By default, the Constant-Potts Model is used instead.
+ * Set to `true` to get an interpretation of the resolution on par with that of `method = "multilevel"`.
+ * @param {number} [options.walktrapSteps=4] - Number of steps for the Walktrap algorithm, when `method = "walktrap"`.
  *
  * @return {ClusterSNNGraphMultiLevelResults|ClusterSNNGraphWalktrapResults|ClusterSNNGraphLeidenResults} Object containing the clustering results.
  * The class of this object depends on the choice of `method`.
  */
-export function clusterSNNGraph(x, { method = "multilevel", resolution = 1, walktrapSteps = 4 } = {}) {
+export function clusterSNNGraph(x, { 
+    method = "multilevel", 
+    multiLevelResolution = 1, 
+    leidenResolution = 1, 
+    leidenModularityObjective = false,
+    walktrapSteps = 4
+} = {}) {
     var output;
 
     try {
         if (method == "multilevel") {
             output = gc.call(
-                module => module.cluster_snn_graph_multilevel(x.graph, resolution),
+                module => module.cluster_snn_graph_multilevel(x.graph, multiLevelResolution),
                 ClusterSNNGraphMultiLevelResults
             );
         } else if (method == "walktrap") {
@@ -437,7 +448,7 @@ export function clusterSNNGraph(x, { method = "multilevel", resolution = 1, walk
             );
         } else if (method == "leiden") {
             output = gc.call(
-                module => module.cluster_snn_graph_leiden(x.graph, resolution),
+                module => module.cluster_snn_graph_leiden(x.graph, leidenResolution, leidenModularityObjective),
                 ClusterSNNGraphLeidenResults
             );
         } else {

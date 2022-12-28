@@ -28,7 +28,7 @@ test("clusterSNNGraph works as expected", () => {
     expect(compare.equalArrays(clust2, clust)).toBe(true);
 
     // Responds to the resolution specification.
-    var clusters3 = scran.clusterSNNGraph(graph2, { resolution: 0.5 });
+    var clusters3 = scran.clusterSNNGraph(graph2, { multiLevelResolution: 0.5 });
     var clust3 = clusters3.membership();
     expect(compare.equalArrays(clust2, clust3)).toBe(false);
 
