@@ -58,8 +58,12 @@ test("Log-normalization works as expected with blocking", () => {
     var ncells = 100;
     var mat = simulate.simulateMatrix(ngenes, ncells);
 
+    // Using a prime number so that it's more likely that we get different mean
+    // size factors between blocks; otherwise, the blocking wouldn't have any
+    // effect if the means were the same.
+    var half = 43; 
+
     var block = new Array(ncells);
-    var half = ncells / 2;
     block.fill(0, 0, half);
     block.fill(1, half, ncells);
     var normed_full = scran.logNormCounts(mat, { block: block });
