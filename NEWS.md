@@ -31,6 +31,7 @@
 - Separated resolution arguments to `multiLevelResolution` and `leidenResolution` for `clusterSNNGraph()`,
   allowing them to have different defaults.
   This is especially relevant when `leidenModularityObjective = false`.
+- Removed the `updateRowIdentities()` function, as this has little relation with other functions in **scran.js**.
 
 ## 1.2.1
 

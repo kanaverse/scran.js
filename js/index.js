@@ -6,7 +6,6 @@ export * from "./hdf5.js";
 export * from "./rds.js";
 export * from "./file.js"; 
 
-export * from "./permute.js";
 export * from "./guessFeatures.js";
 export * from "./block.js";
 

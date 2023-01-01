@@ -1,5 +1,3 @@
-import * as permute from "./permute.js";
-
 /**
  * Guess the identity of the features from their names.
  *
