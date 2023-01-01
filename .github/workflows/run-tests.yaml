@@ -37,6 +37,11 @@ jobs:
         git fetch --all
         git checkout $GITHUB_SHA
 
+    - name: Set up Node
+      uses: actions/setup-node@v3
+      with:
+        node-version: 16
+
     - name: Update node build 
       run: bash build.sh main
 
@@ -48,11 +53,6 @@ jobs:
       with:
         name: rds-files
         path: /scran.js/tests/rds
-
-    - name: Set up Node
-      uses: actions/setup-node@v3
-      with:
-        node-version: 16
 
     - name: Run tests
       run: |

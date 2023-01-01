@@ -15,13 +15,14 @@ RUN wget https://github.com/Kitware/CMake/releases/download/v3.22.2/cmake-3.22.2
     bash cmake_install.sh --prefix=cmake --skip-license && \
     rm cmake_install.sh
 
-ENV PATH="/emsdk:/emsdk/node/14.18.2_64bit/bin:/emsdk/upstream/emscripten:/cmake/bin:${PATH}"
+ENV FINALPATH="/emsdk:/emsdk/upstream/emscripten:/cmake/bin:${PATH}"
+ENV PATH="/emsdk/node/14.18.2_64bit/bin:${FINALPATH}"
 
 RUN git clone https://github.com/jkanche/scran.js
 
 WORKDIR scran.js
 
-# Grabbing the node modules (happily enough, npm is installed along with emscripten).
+# Grabbing the node modules 
 RUN npm i --include=dev
 
 # Revert any NPM-induced changes to these files.
@@ -30,3 +31,6 @@ RUN git checkout -- package.json
 # Running the builds.
 RUN ./build.sh main
 RUN ./build.sh browser
+
+# Removing Node from the path.
+ENV PATH="${FINALPATH}"
