@@ -92,7 +92,7 @@ export class InitializeUMAPResults {
  * @param {(BuildNeighborSearchIndexResults|FindNearestNeighborsResults)} x 
  * Either a pre-built neighbor search index for the dataset (see {@linkcode buildNeighborSearchIndex}),
  * or a pre-computed set of neighbor search results for all cells (see {@linkcode findNearestNeighbors}).
- * @param {object} [options] - Optional parameters.
+ * @param {object} [options={}] - Optional parameters.
  * @param {number} [options.neighbors=15] - Number of neighbors to use in the UMAP algorithm.
  * Ignored if `x` is a {@linkplain FindNearestNeighborsResults} object.
  * @param {number} [options.epochs=500] - Number of epochs to run the UMAP algorithm.
@@ -142,7 +142,7 @@ export function initializeUMAP(x, { neighbors = 15, epochs = 500, minDist = 0.01
  *
  * @param {InitializeUMAPResults} x A previously initialized status object from {@linkcode initializeUMAP}.
  * This may be passed through {@linkcode runUMAP} any number of times.
- * @param {object} [options] - Optional parameters.
+ * @param {object} [options={}] - Optional parameters.
  * @param {?number} [options.runTime=null] - Number of milliseconds for which the algorithm is allowed to run before returning.
  * If `null`, no limit is imposed on the runtime.
  *

@@ -8,7 +8,7 @@ import { MultiMatrix } from "./MultiMatrix.js";
  * @param {ScranMatrix} x - The matrix of interest.
  * @param {Array} indices - Row indices to extract.
  * All indices must be non-negative integers less than `mat.numberOfRows()`.
- * @param {object} [options] - Optional parameters.
+ * @param {object} [options={}] - Optional parameters.
  * @param {boolean} [options.inPlace=false] - Whether to modify `x` in place.
  * If `false`, a new ScranMatrix is returned.
  *
@@ -49,7 +49,7 @@ export function subsetRows(x, indices, { inPlace = false } = {}) {
  * @param {ScranMatrix} x - The matrix of interest.
  * @param {Array} indices - Column indices to extract.
  * Al indices must be a non-negative integer less than `mat.numberOfColumns()`.
- * @param {object} [options] - Optional parameters.
+ * @param {object} [options={}] - Optional parameters.
  * @param {boolean} [options.inPlace=false] - Whether to modify `x` in place.
  * If `false`, a new ScranMatrix is returned.
  *
@@ -90,7 +90,7 @@ export function subsetColumns(x, indices, { inPlace = false } = {}) {
  * @param {ScranMatrix} matrix - A ScranMatrix object.
  * @param {object} split - Object specifying how rows should be split.
  * Each value should be an Array/TypedArray of 0-based row indices.
- * @param {object} [options] - Optional parameters.
+ * @param {object} [options={}] - Optional parameters.
  * @param {boolean} [options.singleNull=false] - Whether `null` should be returned if `split` only contains one level and all rows are represented exactly once.
  * This can be used to avoid the creation of a redundant {@linkplain ScranMatrix} object.
  * @param {boolean} [options.createMultiMatrix=false] - Whether the output should be returned as a {@linkplain MultiMatrix}.

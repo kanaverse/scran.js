@@ -1,5 +1,60 @@
 # scran.js news
 
+## 2.0.0-alpha.2
+
+**New**
+
+- Added `perCellCrisprQcMetrics()` and `suggestCrisprQcFilters()`,
+  to compute the QC metrics and filters for CRISPR guide count data.
+
+**Changes**
+
+- Renamed `perCell*QcFilters()` functions to `suggest*QcFilters()`.
+  These now return a `Suggest*QcFiltersResults` object containing filter thresholds but not the discard vector itself.
+  Instead, the `filter()` method can be called with a `PerCell*QcMetricsResults()` object to generate a discard vector,
+  either for the same dataset or for a related set of cells.
+  The filter thresholds themselves can also be adjusted by the application before calling `filter()`.
+  All in all, this provides greater flexibility for applications to perform quality control.
+- Renamed `perCellQCMetrics()` to `perCellRnaQcMetrics()` (similarly for the name of the corresponding result class).
+  This is more consistent with the namings of the QC functions for the other modalities.
+- Getters for empty results will now return `null` if the corresponding field has not been filled,
+  either using a dedicated setter or by extracting a memory view with `fillable: true`.
+  This allows applications to fail gracefully upon encountering an object where the required fields have not been filled.
+- Removed deprecated functionality from previous version:
+  - Removed `ScranMatrix.isPermuted()`.
+  - `clusterSNNGraph()` no longer accepts integer arguments for `scheme=`.
+  - Removed `initializeSparseMatrixFromMatrixMarketBuffer()`.
+  - `runPCA()` no longer accepts `blockMethod="block"`.
+  - Removed `safeFree()`.
+- Added a `leidenModularityObjective` option to `clusterSNNGraph()`, to use the modularity as the objective function.
+  This allows for a more stable interpretation of the magnitude of the resolution.
+- Separated resolution arguments to `multiLevelResolution` and `leidenResolution` for `clusterSNNGraph()`,
+  allowing them to have different defaults.
+  This is especially relevant when `leidenModularityObjective = false`.
+- Removed the `updateRowIdentities()` function, as this has little relation with other functions in **scran.js**.
+
+## 1.2.1
+
+**New**
+
+- Added more `empty*()` functions to construct empty instances of various result objects.
+  This is useful for mimicking the output of functions without actually running them.
+
+**Changes**
+
+- Added more methods and options for the `ClusterSNNGraph*Results` classes,
+  mostly to facilitate filling of empty objects.
+
+## 1.2.0
+
+**Changes**
+
+- Added the `lfcThreshold` and `computeAuc` options to the `scoreMarkers()` function.
+  In particular, skipping the AUCs can improve speed and memory efficiency if they are not required.
+- Switched the default `referencePolicy` to `"max-rss"` in the `mnnCorrect()` function.
+  This favors the use of more heterogeneous batches as the initial reference.
+- Actually exported the `ScranMatrix` class.
+
 ## 1.1.0
 
 **Changes**

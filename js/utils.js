@@ -99,11 +99,6 @@ export function free(x) {
     return x.free();
 }
 
-// Exported for back-compatibility, deprecated as of 0.3.0.
-export function safeFree(x) {
-    return free(x);
-}
-
 export function extractXY(ncells, coordinates) {
     let x = new Float64Array(ncells);
     let y = new Float64Array(ncells);
@@ -156,4 +151,24 @@ export function matchOptions(name, value, choices) {
     if (choices.indexOf(value) == -1) {
         throw new Error("'" + name + "=' should be one of '" + choices.join("', '") + "'");
     }
+}
+
+export function spawnArray(n, fill) {
+    let output = new Array(n);
+    output.fill(fill);
+    return output;
+}
+
+export function checkFillness(fill, copy, check, setFilledFun, getFun) {
+    if (!check) {
+        if (fill) {
+            setFilledFun();
+            if (copy) {
+                copy = false;
+            }
+        } else {
+            return null;
+        }
+    }
+    return getFun(copy);
 }

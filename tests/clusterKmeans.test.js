@@ -73,3 +73,43 @@ test("clusterKmeans works with other options", () => {
     var res2 = scran.clusterKmeans(pcs, k, { numberOfCells: ncells, numberOfDims: ndim, initMethod: "random" });
     checkClusterConsistency(res2, ncells, k);
 });
+
+test("clusterKmeans results can be mocked up", () => {
+    var ndim = 5;
+    var nclust = 3;
+    var ncells = 100;
+
+    let mock = scran.emptyClusterKmeansResults(ncells, nclust, ndim);
+    expect(mock.numberOfCells()).toBe(ncells);
+    expect(mock.numberOfClusters()).toBe(nclust);
+
+    {
+        expect(mock.clusters()).toBeNull();
+        let x = mock.clusters({ fillable: true });
+        x[0] = 1;
+        x[ncells - 1] = 5;
+        let y = mock.clusters();
+        expect(y[0]).toBe(1);
+        expect(y[ncells-1]).toBe(5);
+    }
+
+    {
+        expect(mock.clusterSizes()).toBeNull();
+        let x = mock.clusterSizes({ fillable: true });
+        x[0] = 100;
+        x[nclust - 1] = 200;
+        let y = mock.clusterSizes();
+        expect(y[0]).toBe(100);
+        expect(y[nclust - 1]).toBe(200);
+    }
+
+    {
+        expect(mock.iterations()).toBeNull();
+        mock.setIterations(5);
+        expect(mock.iterations()).toEqual(5);
+
+        expect(mock.status()).toBeNull();
+        mock.setStatus(2);
+        expect(mock.status()).toEqual(2);
+    }
+})

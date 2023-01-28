@@ -79,6 +79,16 @@ struct ClusterSNNGraphMultiLevel_Result {
 
     ClusterSNNGraphMultiLevel_Result(Store s) : store(std::move(s)) {}
 
+    ClusterSNNGraphMultiLevel_Result(int num_cells, int num_levels) {
+        store.membership.resize(num_levels);
+        for (auto& m : store.membership) {
+            m.resize(num_cells);
+        }
+        store.modularity.resize(num_levels);
+        store.max = 0;
+        return;
+    }
+
     Store store;
     /**
      * @endcond
@@ -98,12 +108,22 @@ struct ClusterSNNGraphMultiLevel_Result {
         return store.max;
     }
 
+    void set_best(int b) {
+        store.max = b;
+        return;
+    }
+
     /**
      * @param i Index of the level of interest.
      * @return Modularity of the clustering at that level.
      */
     double modularity(int i) const {
         return store.modularity[i];
+    }
+
+    void set_modularity(int i, double m) {
+        store.modularity[i] = m;
+        return;
     }
 
     /**
@@ -135,14 +155,34 @@ struct ClusterSNNGraphWalktrap_Result {
 
     ClusterSNNGraphWalktrap_Result(Store s) : store(std::move(s)) {}
 
+    ClusterSNNGraphWalktrap_Result(int num_cells, int num_merges) {
+        store.membership.resize(num_cells);
+        store.merges.resize(num_merges);
+        store.modularity.resize(num_merges + 1);
+        return;
+    }
+
     Store store;
 
-    double modularity() const {
-        if (store.modularity.empty()) {
-            return 0;
+    int num_merge_steps() const {
+        return store.merges.size();
+    }
+
+    double modularity(int i) const {
+        if (i == -1) {
+            if (store.modularity.empty()) {
+                return 0;
+            } else {
+                return *std::max_element(store.modularity.begin(), store.modularity.end());
+            }
         } else {
-            return *std::max_element(store.modularity.begin(), store.modularity.end());
+            return store.modularity[i];
         }
+    }
+
+    void set_modularity(int i, double m) {
+        store.modularity[i] = m;
+        return;
     }
 
     emscripten::val membership() const {
@@ -163,10 +203,20 @@ struct ClusterSNNGraphLeiden_Result {
 
     ClusterSNNGraphLeiden_Result(Store s) : store(std::move(s)) {}
 
+    ClusterSNNGraphLeiden_Result(int num_cells) {
+        store.membership.resize(num_cells);
+        return;
+    }
+
     Store store;
 
     double modularity() const {
         return store.quality;
+    }
+
+    void set_modularity(double m) {
+        store.quality = m;
+        return;
     }
 
     emscripten::val membership() const {
@@ -175,9 +225,10 @@ struct ClusterSNNGraphLeiden_Result {
     }
 };
 
-ClusterSNNGraphLeiden_Result cluster_snn_graph_leiden(const BuildSNNGraph_Result& graph, double resolution) {
+ClusterSNNGraphLeiden_Result cluster_snn_graph_leiden(const BuildSNNGraph_Result& graph, double resolution, bool use_modularity) {
     scran::ClusterSNNGraphLeiden clust;
     clust.set_resolution(resolution);
+    clust.set_modularity(use_modularity);
     auto output = clust.run(graph.graph);
     return ClusterSNNGraphLeiden_Result(std::move(output));
 }
@@ -193,22 +244,33 @@ EMSCRIPTEN_BINDINGS(cluster_snn_graph) {
     emscripten::function("cluster_snn_graph_multilevel", &cluster_snn_graph_multilevel);
 
     emscripten::class_<ClusterSNNGraphMultiLevel_Result>("ClusterSNNGraphMultiLevel_Result")
+        .constructor<int, int>()
         .function("number", &ClusterSNNGraphMultiLevel_Result::number)
         .function("best", &ClusterSNNGraphMultiLevel_Result::best)
+        .function("set_best", &ClusterSNNGraphMultiLevel_Result::set_best)
         .function("modularity", &ClusterSNNGraphMultiLevel_Result::modularity)
-        .function("membership", &ClusterSNNGraphMultiLevel_Result::membership);
+        .function("set_modularity", &ClusterSNNGraphMultiLevel_Result::set_modularity)
+        .function("membership", &ClusterSNNGraphMultiLevel_Result::membership)
+        ;
 
     emscripten::function("cluster_snn_graph_walktrap", &cluster_snn_graph_walktrap);
 
     emscripten::class_<ClusterSNNGraphWalktrap_Result>("ClusterSNNGraphWalktrap_Result")
+        .constructor<int, int>()
         .function("modularity", &ClusterSNNGraphWalktrap_Result::modularity)
-        .function("membership", &ClusterSNNGraphWalktrap_Result::membership);
+        .function("membership", &ClusterSNNGraphWalktrap_Result::membership)
+        .function("set_modularity", &ClusterSNNGraphWalktrap_Result::set_modularity)
+        .function("num_merge_steps", &ClusterSNNGraphWalktrap_Result::num_merge_steps)
+        ;
 
     emscripten::function("cluster_snn_graph_leiden", &cluster_snn_graph_leiden);
 
     emscripten::class_<ClusterSNNGraphLeiden_Result>("ClusterSNNGraphLeiden_Result")
+        .constructor<int>()
         .function("modularity", &ClusterSNNGraphLeiden_Result::modularity)
-        .function("membership", &ClusterSNNGraphLeiden_Result::membership);
+        .function("membership", &ClusterSNNGraphLeiden_Result::membership)
+        .function("set_modularity", &ClusterSNNGraphLeiden_Result::set_modularity)
+        ;
 }
 /**
  * @endcond

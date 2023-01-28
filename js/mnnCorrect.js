@@ -12,7 +12,7 @@ import * as wasm from "./wasm.js";
  * @param {(Int32WasmArray|Array|TypedArray)} block - Array containing the block assignment for each cell.
  * This should have length equal to the number of cells and contain all values from 0 to `n - 1` at least once, where `n` is the number of blocks.
  * This is used to segregate cells in order to perform normalization within each block.
- * @param {object} [options] - Further optional parameters.
+ * @param {object} [options={}] - Further optional parameters.
  * @param {?Float64WasmArray} [options.buffer=null] - Buffer of length equal to the product of the number of cells and dimensions,
  * to be used to store the corrected coordinates for each cell.
  * If `null`, this is allocated and returned by the function.
@@ -27,7 +27,7 @@ import * as wasm from "./wasm.js";
  * see comments [here](https://ltla.github.io/CppMnnCorrect).
  * @param {number} [options.robustTrim=0.25] - Proportion of furthest observations to remove during robustness iterations, 
  * see comments [here](https://ltla.github.io/CppMnnCorrect).
- * @param {string} [options.referencePolicy="max-size"] - What policy to use to choose the first reference batch.
+ * @param {string} [options.referencePolicy="max-rss"] - What policy to use to choose the first reference batch.
  * This can be the largest batch (`"max-size"`), the most variable batch (`"max-variance"`), the batch with the highest RSS (`"max-rss"`) or batch 0 in `block` (`"input"`).
  * @param {boolean} [options.approximate=true] - Whether to perform an approximate nearest neighbor search.
  * @param {?number} [options.numberOfThreads=null] - Number of threads to use.
@@ -45,7 +45,7 @@ export function mnnCorrect(x, block, {
     numberOfMADs = 3, 
     robustIterations = 2, 
     robustTrim = 0.25,
-    referencePolicy = "max-size",
+    referencePolicy = "max-rss",
     approximate = true,
     numberOfThreads = null
 } = {}) {

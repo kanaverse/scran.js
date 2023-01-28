@@ -10,7 +10,7 @@ import * as utils from "./utils.js";
  * The aim is to account for composition biases that are common in ADT-based data, while avoiding problems with per-cell sparsity.
  *
  * @param {ScranMatrix} x - An ADT count matrix.
- * @param {object} [options] - Optional parameters.
+ * @param {object} [options={}] - Optional parameters.
  * @param {number} [options.numberOfClusters=20] - Number of clusters to create.
  * More clusters improves the accuracy of the size factors at the cost of precision.
  * @param {number} [options.numberOfPCs=25] - Number of PCs to use.

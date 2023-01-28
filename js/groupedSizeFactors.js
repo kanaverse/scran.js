@@ -10,7 +10,7 @@ import * as wa from "wasmarrays.js";
  * @param {ScranMatrix} x The count matrix, usually after filtering.
  * @param {(Int32WasmArray|Array|TypedArray)} groups - Array containing the group assignment for each cell.
  * This should have length equal to the number of cells and contain all values from 0 to `n - 1` at least once, where `n` is the number of groups.
- * @param {object} [options] - Optional parameters.
+ * @param {object} [options={}] - Optional parameters.
  * @param {boolean} [options.center=true] - Whether to return centered size factors.
  * If `false`, the size factors can be interpreted as the scaling to match `reference`.
  * @param {?Float64WasmArray} [options.buffer=null] - Output buffer for the size factors.

@@ -50,6 +50,22 @@ struct ScoreMarkers_Results {
         }
     }
 
+    static scran::ScoreMarkers::ComputeSummaries default_choice() {
+        scran::ScoreMarkers::ComputeSummaries out;
+        std::fill(out.begin(), out.end(), false);
+        out[scran::differential_analysis::MIN] = true;
+        out[scran::differential_analysis::MEAN] = true;
+        out[scran::differential_analysis::MIN_RANK] = true;
+        return out;
+    }
+
+    ScoreMarkers_Results(int ngenes, int ngroups, int nblocks, bool compute_auc) : store(ngenes, ngroups, nblocks, default_choice(), (compute_auc ?  default_choice() : scran::ScoreMarkers::Defaults::compute_no_summaries()), default_choice(), default_choice()) {
+        if (nblocks > 1) {
+            ave_means.resize(ngroups, std::vector<double>(ngenes));
+            ave_detected.resize(ngroups, std::vector<double>(ngenes));
+        }
+    }
+
     Store store;
 
     std::vector<std::vector<double> > ave_means;
@@ -124,6 +140,10 @@ struct ScoreMarkers_Results {
     emscripten::val auc(int g, int s=1) const {
         const auto& current = store.auc[s][g];
         return emscripten::val(emscripten::typed_memory_view(current.size(), current.data()));
+    }
+
+    bool has_auc() const {
+        return !store.auc.empty();
     }
 
     /**
@@ -203,7 +223,7 @@ std::vector<std::vector<Stat*> > vector_to_pointers2(std::vector<std::vector<std
  *
  * @return A `ScoreMarkers_Results` containing summary statistics from comparisons between groups of cells.
  */
-ScoreMarkers_Results score_markers(const NumericMatrix& mat, uintptr_t groups, bool use_blocks, uintptr_t blocks, int nthreads) {
+ScoreMarkers_Results score_markers(const NumericMatrix& mat, uintptr_t groups, bool use_blocks, uintptr_t blocks, double lfc_threshold, bool compute_auc, int nthreads) {
     const int32_t* gptr = reinterpret_cast<const int32_t*>(groups);
     const int32_t* bptr = NULL;
     if (use_blocks) {
@@ -214,6 +234,9 @@ ScoreMarkers_Results score_markers(const NumericMatrix& mat, uintptr_t groups, b
     mrk.set_summary_max(false);
     mrk.set_summary_median(false);
     mrk.set_num_threads(nthreads);
+    mrk.set_threshold(lfc_threshold);
+    mrk.set_compute_auc(compute_auc);
+
     auto store = mrk.run_blocked(mat.ptr.get(), gptr, bptr);
 
     return ScoreMarkers_Results(std::move(store));
@@ -226,10 +249,12 @@ EMSCRIPTEN_BINDINGS(score_markers) {
     emscripten::function("score_markers", &score_markers);
 
     emscripten::class_<ScoreMarkers_Results>("ScoreMarkers_Results")
+        .constructor<int, int, int, bool>()
         .function("means", &ScoreMarkers_Results::means)
         .function("detected", &ScoreMarkers_Results::detected)
         .function("cohen", &ScoreMarkers_Results::cohen)
         .function("auc", &ScoreMarkers_Results::auc)
+        .function("has_auc", &ScoreMarkers_Results::has_auc)
         .function("lfc", &ScoreMarkers_Results::lfc)
         .function("delta_detected", &ScoreMarkers_Results::delta_detected)
         .function("num_groups", &ScoreMarkers_Results::num_groups)

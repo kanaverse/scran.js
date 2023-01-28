@@ -32,21 +32,22 @@ jobs:
     - name: Update NPM packages
       run: npm i --include=dev
 
+    - name: Set up Node
+      uses: actions/setup-node@v3
+      with:
+        registry-url: 'https://registry.npmjs.org'
+        node-version: 16
+
     # We only run the remaining (remote-touching) steps if the version has actually changed.
     - name: Extract package versions
       shell: bash
       run: |
-        current_version=$(cat package.json | grep "version" | sed -e 's/.*"\([0-9\.]*\)".*/\1/')
+        current_version=$(npm pkg get version | sed 's/"//g')
         echo "NEW_SCRANJS_VERSION=${current_version}" >> $GITHUB_ENV
         old_version=$(npm view scran.js version)
         update=0 && [[ $old_version != $current_version ]] && update=1
         echo "UPDATE_SCRANJS=${update}" >> $GITHUB_ENV
         echo "Current version is ${current_version} (published ${old_version})"
-
-    - uses: actions/setup-node@v2
-      if: env.UPDATE_SCRANJS == 1
-      with:
-        registry-url: 'https://registry.npmjs.org'
 
     - name: Publish to NPM
       if: env.UPDATE_SCRANJS == 1

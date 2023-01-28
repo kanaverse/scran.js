@@ -37,6 +37,11 @@ jobs:
         git fetch --all
         git checkout $GITHUB_SHA
 
+    - name: Set up Node
+      uses: actions/setup-node@v3
+      with:
+        node-version: 16
+
     - name: Update node build 
       run: bash build.sh main
 
@@ -52,5 +57,4 @@ jobs:
     - name: Run tests
       run: |
         export CHECK_RDS=1
-        node --experimental-vm-modules --experimental-wasm-threads --experimental-wasm-bigint node_modules/jest/bin/jest.js --runInBand
-
+        npm run test

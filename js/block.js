@@ -10,7 +10,7 @@ import * as wa from "wasmarrays.js";
  *
  * Note that TypedArray views on Wasm-allocated buffers should only be provided if `buffer` is also provided;
  * otherwise, a Wasm memory allocation may invalidate the view.
- * @param {object} [options] - Optional parameters.
+ * @param {object} [options={}] - Optional parameters.
  * @param {?Int32WasmArray} [options.buffer=null] - Array in which the output is to be stored.
  * If provided, this should be of length equal to the sum of `ncells`.
  *
@@ -55,7 +55,7 @@ export function createBlock(ncells, { buffer = null } = {}) {
  *
  * Note that TypedArray views on Wasm-allocated buffers should only be provided if `buffer` is also provided;
  * otherwise, a Wasm memory allocation may invalidate the view.
- * @param {object} [options] - Optional parameters.
+ * @param {object} [options={}] - Optional parameters.
  * @param {?Int32WasmArray} [options.buffer=null] - Array in which the output is to be stored.
  * If provided, this should be of length equal to that of `x`.
  *
@@ -116,9 +116,9 @@ export function convertBlock(x, { buffer = null } = {}) {
  *
  * Note that TypedArray views on Wasm-allocated buffers should only be provided if `buffer` is also provided;
  * otherwise, a Wasm memory allocation may invalidate the view.
- * @param {object} [options] - Optional parameters.
- * @param {?boolean} [options.filter=null] - Whether `subset` to filter
- * If provided, this should be of length equal to the number of `false`s in `filter`.
+ * @param {object} [options={}] - Optional parameters.
+ * @param {?boolean} [options.filter=null] - Whether to retain truthy or falsey values in a `subset` boolean filter.
+ * If `null`, `subset` should instead contain the indices of elements to retain.
  * @param {?Int32WasmArray} [options.buffer=null] - Array in which the output is to be stored.
  * If provided, this should be of length equal to `subset`, if `filter = null`; 
  * the number of falsey elements in `subset`, if `filter = false`;
@@ -197,7 +197,7 @@ export function subsetBlock(x, subset, { filter = null, buffer = null } = {}) {
  *
  * Note that TypedArray views on Wasm-allocated buffers should only be provided if `buffer` is also provided;
  * otherwise, a Wasm memory allocation may invalidate the view.
- * @param {object} [options] - Optional parameters.
+ * @param {object} [options={}] - Optional parameters.
  * @param {?Int32WasmArray} [options.buffer=null] - Array in which the output is to be stored.
  * If provided, this should be of length equal to the number of falsey elements in `filter`.
  *

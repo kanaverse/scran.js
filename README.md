@@ -69,11 +69,12 @@ await scran.initialize({ numberOfThreads: 4 });
 // Reading in the count matrix.
 let input = scran.initializeSparseMatrixFromMatrixMarketBuffer("matrix.mtx.gz");
 let mat = input.matrix;
+let feature_ids = input.row_ids; // for cross-referencing with gene annotations.
 
 // Performing QC.
-let qc_metrics = scran.computePerCellQCMetrics(mat, [ /* specify mito subset here */ ]);
-let qc_thresholds = scran.computePerCellQCFilters(qc_metrics);
-let filtered = scran.filterCells(mat, qc_thresholds.discardOverall());
+let qc_metrics = scran.perCellRnaQcMetrics(mat, [ /* specify mito subset here */ ]);
+let qc_thresholds = scran.suggestRnaQcFilters(qc_metrics);
+let filtered = scran.filterCells(mat, qc_thresholds.filter(qc_metrics));
 
 // Log-normalizing.
 let normalized = scran.logNormCounts(filtered);

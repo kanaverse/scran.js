@@ -9,7 +9,7 @@ export class MultiMatrix {
     #ncols;
 
     /**
-     * @param {object} [options] - Optional parameters.
+     * @param {object} [options={}] - Optional parameters.
      * @param {object} [options.store={}] - Existing store of {@linkplain ScranMatrix} objects.
      * Each matrix should correspond to a different modality, named according to its key.
      * All matrices should have data for the same set of cells, i.e., same number of columns.

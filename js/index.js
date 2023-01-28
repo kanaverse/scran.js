@@ -1,12 +1,11 @@
 export { initialize, terminate, wasmArraySpace, heapSize, maximumThreads } from "./wasm.js";
-export { createUint8WasmArray, createInt32WasmArray, createFloat64WasmArray, free, safeFree } from "./utils.js";
+export { createUint8WasmArray, createInt32WasmArray, createFloat64WasmArray, free } from "./utils.js";
 
 export * from "./initializeSparseMatrix.js";
 export * from "./hdf5.js";
 export * from "./rds.js";
 export * from "./file.js"; 
 
-export * from "./permute.js";
 export * from "./guessFeatures.js";
 export * from "./block.js";
 
@@ -14,10 +13,12 @@ export * from "./cbind.js";
 export * from "./subset.js";
 export * from "./delayed.js";
 
-export * from "./computePerCellQCMetrics.js";
-export * from "./computePerCellAdtQcMetrics.js";
-export * from "./computePerCellQCFilters.js";
-export * from "./computePerCellAdtQcFilters.js";
+export * from "./perCellRnaQcMetrics.js";
+export * from "./perCellAdtQcMetrics.js";
+export * from "./perCellCrisprQcMetrics.js";
+export * from "./suggestRnaQcFilters.js";
+export * from "./suggestAdtQcFilters.js";
+export * from "./suggestCrisprQcFilters.js";
 export * from "./filterCells.js";
 
 export * from "./medianSizeFactors.js";
@@ -43,6 +44,7 @@ export * from "./scaleByNeighbors.js";
 export * from "./scoreMarkers.js";
 export * from "./labelCells.js";
 
+export * from "./ScranMatrix.js";
 export * from "./MultiMatrix.js";
 
 export * from "./realizeFile.js";

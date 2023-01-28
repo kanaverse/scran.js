@@ -9,39 +9,88 @@ export class RunPCAResults {
     #id;
     #results;
 
-    constructor(id, raw) {
+    #filledComponents;
+    #filledVariances;
+    #filledTotalVariance;
+
+    constructor(id, raw, filled = true) {
         this.#id = id;
         this.#results = raw;
+
+        this.#filledComponents = filled;
+        this.#filledVariances = filled;
+        this.#filledTotalVariance = filled;
+
         return;
     }
 
     /**
-     * @param {object} [options] - Optional parameters.
+     * @param {object} [options={}] - Optional parameters.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
+     * @param {boolean} [options.fillable=false] - Whether to return a fillable array, to write to this object.
+     * If `true`, this method automatically sets `copy = false` if `copy` was previously true.
+     * If `false` and the array was not previously filled, `null` is returned.
      * 
-     * @return {Float64Array|Float64Wasmarray} Array containing the principal components for all cells.
+     * @return {?(Float64Array|Float64Wasmarray)} Array containing the principal components for all cells.
      * This should be treated as a column-major array where the rows are the PCs and columns are the cells.
+     * Alternatively `null`, if `fillable = false` and the array was not already filled.
      */
-    principalComponents({ copy = true } = {}) {
-        return utils.possibleCopy(this.#results.pcs(), copy);
+    principalComponents({ copy = true, fillable = false } = {}) {
+        return utils.checkFillness(
+            fillable, 
+            copy, 
+            this.#filledComponents, 
+            () => { this.#filledComponents = true }, 
+            COPY => utils.possibleCopy(this.#results.pcs(), COPY)
+        );
     }
 
     /**
-     * @param {object} [options] - Optional parameters.
+     * @param {number} total - Total variance in the dataset,
+     * equal to the sum of the variances across all PCs (including those that were not explicitly computed).
+     *
+     * @return Total varaiance in this object is set to `total`.
+     * This is primarily intended for use with {@linkcode emptyRunPCAResults}.
+     */
+    setTotalVariance(total) {
+        if (!this.#filledTotalVariance) {
+            this.#filledTotalVariance = true;
+        }
+        this.#results.set_total_variance(total);
+        return;
+    }
+
+    /**
+     * @param {object} [options={}] - Optional parameters.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
+     * @param {boolean} [options.fillable=false] - Whether to return a fillable array, to write to this object.
+     * If `true`, this method automatically sets `copy = false` if `copy` was previously true.
+     * If `false` and the array was not previously filled, `null` is returned.
      * 
-     * @return {Float64Array|Float64WasmArray} Array containing the variance explained for each requested PC.
+     * @return {?(Float64Array|Float64WasmArray)} Array containing the variance explained for each requested PC.
+     * Alternatively `null`, if `fillable = false` and the array was not already filled.
      */
-    varianceExplained({ copy = true } = {}) {
-        return utils.possibleCopy(this.#results.variance_explained(), copy);
+    varianceExplained({ copy = true, fillable = false } = {}) {
+        return utils.checkFillness(
+            fillable, 
+            copy, 
+            this.#filledVariances, 
+            () => { this.#filledVariances = true }, 
+            COPY => utils.possibleCopy(this.#results.variance_explained(), COPY)
+        );
     }
 
     /**
-     * @return {number} The total variance in the dataset,
+     * @return {?number} The total variance in the dataset,
      * typically used with {@linkcode PCAResults#varianceExplained varianceExplained} to compute the proportion of variance explained.
+     * Alternatively `null`, if this value has not been filled by {@linkcode ClusterKmeansResults#setTotalVariance setTotalVariance}.
      */
-    totalVariance () {
-        return this.#results.total_variance();
+    totalVariance() {
+        if (!this.#filledTotalVariance) {
+            return null;
+        } else {
+            return this.#results.total_variance();
+        }
     }
 
     /**
@@ -78,7 +127,7 @@ export class RunPCAResults {
  * This is usually done on a subset of features, and possibly with some kind of blocking on a per-cell batch factor.
  *
  * @param {ScranMatrix} x - The log-normalized expression matrix.
- * @param {object} [options] - Optional parameters. 
+ * @param {object} [options={}] - Optional parameters. 
  * @param {?(Uint8WasmArray|Array|TypedArray)} [options.features=null] - Array specifying which features should be retained (e.g., HVGs).
  * This should be of length equal to the number of rows in `x`; elements should be `true` to retain each row.
  * If `null`, all features are retained.
@@ -89,8 +138,10 @@ export class RunPCAResults {
  * This is used to segregate cells in order to compute filters within each block.
  * Alternatively, this may be `null`, in which case all cells are assumed to be in the same block.
  * @param {string} [options.blockMethod="regress"] - How to modify the PCA for the blocking factor.
- * The default `"regress"` will regress out the factor, effectively performing a PCA on the residuals.
- * Alternatively, `"weight"` will weight the contribution of each blocking level equally so that larger blocks do not dominate the PCA.
+ *
+ * - `"regress"` will regress out the factor, effectively performing a PCA on the residuals.
+ * - `"weight"` will weight the contribution of each blocking level equally so that larger blocks do not dominate the PCA.
+ * - `"none"` will ignore any blocking factor, i.e., as if `block = null`.
  *
  * This option is only used if `block` is not `null`.
  * @param {?number} [options.numberOfThreads=null] - Number of threads to use.
@@ -103,7 +154,7 @@ export function runPCA(x, { features = null, numberOfPCs = 25, scale = false, bl
     var block_data;
     var output;
 
-    utils.matchOptions("blockMethod", blockMethod, ["none", "regress", "weight", "block"]);
+    utils.matchOptions("blockMethod", blockMethod, ["none", "regress", "weight" ]);
     let nthreads = utils.chooseNumberOfThreads(numberOfThreads);
 
     try {
@@ -134,7 +185,7 @@ export function runPCA(x, { features = null, numberOfPCs = 25, scale = false, bl
             if (block_data.length != x.numberOfColumns()) {
                 throw new Error("length of 'block' should be equal to the number of columns in 'x'");
             }
-            if (blockMethod == "regress" || blockMethod == "block") { // latter for back-compatibility.
+            if (blockMethod == "regress") {
                 output = gc.call(
                     module => module.run_blocked_pca(x.matrix, numberOfPCs, use_feat, fptr, scale, block_data.offset, nthreads),
                     RunPCAResults
@@ -159,4 +210,22 @@ export function runPCA(x, { features = null, numberOfPCs = 25, scale = false, bl
     }
 
     return output;
+}
+
+/**
+ * Create an empty {@linkplain RunPCAResults} object, to be filled with custom results.
+ * This is typically used to generate a convenient input into later {@linkcode clusterKmeans} calls.
+ * Note that filling requires use of `fillable: true` in the various getters to obtain a writeable memory view.
+ *
+ * @param {number} numberOfCells - Number of cells in the dataset, usually after QC filtering.
+ * @param {number} numberOfPCs - Number of PCs to be computed.
+ *
+ * @return {RunPCAResults} Object with allocated memory to store the PCs, but no actual values.
+ */
+export function emptyRunPCAResults(numberOfCells, numberOfPCs) {
+    return gc.call(
+        module => new module.RunPCA_Results(numberOfCells, numberOfPCs),
+        RunPCAResults,
+        /* filled = */ false
+    );
 }

@@ -28,7 +28,7 @@ FetchContent_MakeAvailable(igraph)
 FetchContent_Declare(
   tatami 
   GIT_REPOSITORY https://github.com/LTLA/tatami
-  GIT_TAG ee16eaf47871db8cda82e5c0e2c73e026895f96c
+  GIT_TAG 52a4f542a93704f3f236cba9e592b9997a97cf93
 )
 FetchContent_MakeAvailable(tatami)
 
@@ -42,7 +42,7 @@ FetchContent_MakeAvailable(kmeans)
 FetchContent_Declare(
   scran 
   GIT_REPOSITORY https://github.com/LTLA/libscran
-  GIT_TAG 3dc38191c1f8481d5482597ab35c5f24e21d3a21
+  GIT_TAG 09f12cf3e9ad29a6cdf800daff661c7c06f1190c
 )
 FetchContent_MakeAvailable(scran)
 

@@ -32,6 +32,13 @@ struct PCA_Results {
      * @endcond
      */
 
+    PCA_Results(int num_cells, int num_pcs) {
+        store.pcs.resize(num_pcs, num_cells);
+        store.variance_explained.resize(num_pcs);
+        return;
+    }
+
+
     /**
      * @return `Float64Array` view into a column-major 2D array of PCs.
      * Each row is a PC and each column is a cell.
@@ -52,6 +59,11 @@ struct PCA_Results {
      */
     double total_variance() const {
         return store.total_variance;
+    }
+
+    void set_total_variance(double v) {
+        store.total_variance = v;
+        return;
     }
 
     /**
@@ -204,9 +216,11 @@ EMSCRIPTEN_BINDINGS(run_pca) {
     emscripten::function("run_multibatch_pca", &run_multibatch_pca);
 
     emscripten::class_<RunPCA_Results>("RunPCA_Results")
+        .constructor<int, int>()
         .function("pcs", &RunPCA_Results::pcs)
         .function("variance_explained", &RunPCA_Results::variance_explained)
         .function("total_variance", &RunPCA_Results::total_variance)
+        .function("set_total_variance", &RunPCA_Results::set_total_variance)
         .function("num_cells", &RunPCA_Results::num_cells)
         .function("num_pcs", &RunPCA_Results::num_pcs)
         ;

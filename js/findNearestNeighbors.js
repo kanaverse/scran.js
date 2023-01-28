@@ -54,7 +54,7 @@ export class BuildNeighborSearchIndexResults {
  * @param {(RunPCAResults|Float64WasmArray|Array|TypedArray)} x - Numeric coordinates of each cell in the dataset.
  * For array inputs, this is expected to be in column-major format where the rows are the variables and the columns are the cells.
  * For a {@linkplain RunPCAResults} input, we extract the principal components.
- * @param {object} [options] - Optional parameters.
+ * @param {object} [options={}] - Optional parameters.
  * @param {?number} [options.numberOfDims=null] - Number of variables/dimensions per cell.
  * Only used (and required) for array-like `x`.
  * @param {?number} [options.numberOfCells=null] - Number of cells.
@@ -140,7 +140,7 @@ export class FindNearestNeighborsResults {
     }
 
     /**
-     * @param {object} [options] - Optional parameters.
+     * @param {object} [options={}] - Optional parameters.
      * @param {?Int32WasmArray} [options.runs=null] - A Wasm-allocated array of length equal to `numberOfCells()`,
      * to be used to store the number of neighbors per cell.
      * @param {?Int32WasmArray} [options.indices=null] - A Wasm-allocated array of length equal to `size()`,
@@ -255,7 +255,7 @@ export class FindNearestNeighborsResults {
  *
  * @param {NeighborSearchIndex} x The neighbor search index built by {@linkcode buildNeighborSearchIndex}.
  * @param {number} k Number of neighbors to find.
- * @param {object} [options] - Optional parameters.
+ * @param {object} [options={}] - Optional parameters.
  * @param {?number} [options.numberOfThreads=null] - Number of threads to use.
  * If `null`, defaults to {@linkcode maximumThreads}.
  *

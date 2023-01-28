@@ -31,6 +31,23 @@ struct ClusterKmeans_Result {
      * @endcond
      */
 
+    ClusterKmeans_Result(int num_cells, int num_clusters, int num_dims) : store(num_dims, num_cells, num_clusters) {
+        store.clusters.resize(num_cells);
+        store.details.sizes.resize(num_clusters);
+        store.details.withinss.resize(num_clusters);
+        store.centers.resize(num_clusters * num_dims);
+    }
+
+    void set_iterations(int i) {
+        store.details.iterations = i;
+        return;
+    }
+
+    void set_status(int s) {
+        store.details.status = s;
+        return;
+    }
+
     /**
      * @return Number of observations used for clustering.
      */
@@ -148,6 +165,7 @@ EMSCRIPTEN_BINDINGS(cluster_kmeans) {
     emscripten::function("cluster_kmeans", &cluster_kmeans);
 
     emscripten::class_<ClusterKmeans_Result>("ClusterKmeans_Result")
+        .constructor<int, int, int>()
         .function("num_obs", &ClusterKmeans_Result::num_obs)
         .function("num_clusters", &ClusterKmeans_Result::num_clusters)
         .function("cluster_sizes", &ClusterKmeans_Result::cluster_sizes)
@@ -155,7 +173,10 @@ EMSCRIPTEN_BINDINGS(cluster_kmeans) {
         .function("clusters", &ClusterKmeans_Result::clusters)
         .function("centers", &ClusterKmeans_Result::centers)
         .function("iterations", &ClusterKmeans_Result::iterations)
-        .function("status", &ClusterKmeans_Result::status);
+        .function("set_iterations", &ClusterKmeans_Result::set_iterations)
+        .function("status", &ClusterKmeans_Result::status)
+        .function("set_status", &ClusterKmeans_Result::set_status)
+        ;
 }
 /**
  * @endcond

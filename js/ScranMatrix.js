@@ -48,7 +48,7 @@ export class ScranMatrix {
     /**
      * @param {number} i - Index of the row to extract.
      * This should be a non-negative integer less than {@linkcode ScranMatrix#numberOfRows numberOfRows}.
-     * @param {object} [options] - Optional parameters.
+     * @param {object} [options={}] - Optional parameters.
      * @param {?Float64WasmArray} [options.buffer=null] - Buffer for storing the extracted data.
      * If supplied, this should have length equal to {@linkcode ScranMatrix#numberOfColumns numberOfColumns}.
      *
@@ -77,7 +77,7 @@ export class ScranMatrix {
     /**
      * @param {number} i - Index of the column to extract.
      * This should be a non-negative integer less than {@linkcode ScranMatrix#numberOfColumns numberOfColumns}.
-     * @param {object} [options] - Optional parameters.
+     * @param {object} [options={}] - Optional parameters.
      * @param {?Float64WasmArray} [options.buffer=null] - Buffer for storing the extracted data.
      * If supplied, this should have length equal to {@linkcode ScranMatrix#numberOfRows numberOfRows}.
      *
@@ -125,11 +125,6 @@ export class ScranMatrix {
     // Internal use only, by initialize* functions.
     isReorganized() {
         return this.#matrix.reorganized();
-    }
-
-    // Deprecated, kept around for back-compatibility as of 0.1.1.
-    isPermuted() {
-        return this.isReorganized();
     }
 
     // Internal use only, by initialize* functions.
