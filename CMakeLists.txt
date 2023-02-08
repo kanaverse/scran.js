@@ -42,6 +42,8 @@ add_executable(
     src/get_error_message.cpp
     src/rds_utils.cpp
     src/initialize_from_rds.cpp
+
+    src/score_feature_set.cpp
 )
 
 target_compile_options(
