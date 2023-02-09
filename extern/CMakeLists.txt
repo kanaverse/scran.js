@@ -42,9 +42,25 @@ FetchContent_MakeAvailable(kmeans)
 FetchContent_Declare(
   scran 
   GIT_REPOSITORY https://github.com/LTLA/libscran
-  GIT_TAG aca4da597769bc39e56e73061a5c92382de253c1
+  GIT_TAG 025247f2ca6c4cb18d994bea83e8ad4d7a99331e
 )
 FetchContent_MakeAvailable(scran)
+
+# After scran's implicit include of igraph. 
+# TODO: replace with igraph-wasm.
+target_compile_options(igraph PUBLIC -pthread) 
+target_compile_options(bliss PUBLIC -pthread) 
+target_compile_options(cliquer PUBLIC -pthread)
+target_compile_options(cxsparse_vendored PUBLIC -pthread)
+target_compile_options(pcg PUBLIC -pthread)
+target_compile_options(prpack PUBLIC -pthread)
+target_compile_options(f2c_vendored PUBLIC -pthread)
+target_compile_options(glpk_vendored PUBLIC -pthread)
+target_compile_options(blas_vendored PUBLIC -pthread)
+target_compile_options(lapack_vendored PUBLIC -pthread)
+target_compile_options(arpack_vendored PUBLIC -pthread)
+target_compile_options(gmp_vendored PUBLIC -pthread)
+target_compile_options(plfit_vendored PUBLIC -pthread)
 
 FetchContent_Declare(
   mnncorrect 
