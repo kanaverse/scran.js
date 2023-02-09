@@ -29,14 +29,14 @@ jobs:
     - name: Update browser build
       run: bash build.sh browser
 
-    - name: Update NPM packages
-      run: npm i --include=dev
-
     - name: Set up Node
       uses: actions/setup-node@v3
       with:
         registry-url: 'https://registry.npmjs.org'
         node-version: 16
+
+    - name: Update NPM packages
+      run: npm i --include=dev
 
     # We only run the remaining (remote-touching) steps if the version has actually changed.
     - name: Extract package versions
