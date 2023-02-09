@@ -6,9 +6,9 @@
 #include "parallel.h"
 
 #include "H5Cpp.h"
-#include "tatami/ext/HDF5DenseMatrix.hpp"
-#include "tatami/ext/HDF5CompressedSparseMatrix.hpp"
-#include "tatami/ext/load_hdf5_matrix.hpp"
+#include "tatami/ext/hdf5/HDF5DenseMatrix.hpp"
+#include "tatami/ext/hdf5/HDF5CompressedSparseMatrix.hpp"
+#include "tatami/ext/hdf5/load_hdf5_matrix.hpp"
 
 struct Hdf5MatrixDetails {
     bool is_dense;

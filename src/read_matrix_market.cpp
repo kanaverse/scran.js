@@ -7,7 +7,7 @@
 #include "NumericMatrix.h"
 #include "parallel.h"
 
-#include "tatami/ext/MatrixMarket_layered.hpp"
+#include "tatami/ext/MatrixMarket/layered.hpp"
 
 NumericMatrix read_matrix_market_from_buffer(uintptr_t buffer, int size, int compressed, bool layered) {
     unsigned char* bufptr = reinterpret_cast<unsigned char*>(buffer);

@@ -4,7 +4,7 @@
 #include "read_utils.h"
 #include "parallel.h"
 
-#include "tatami/ext/SomeNumericArray.hpp"
+#include "tatami/utils/SomeNumericArray.hpp"
 
 template<typename T>
 tatami::SomeNumericArray<T> create_SomeNumericArray(uintptr_t ptr, size_t len, const std::string& type) {

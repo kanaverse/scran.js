@@ -3,7 +3,7 @@
 
 #include "parallel.h"
 
-#include "tatami/tatami.h"
+#include "tatami/tatami.hpp"
 
 /**
  * @file NumericMatrix.h

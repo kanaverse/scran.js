@@ -32,14 +32,6 @@ endif()
 # Fetching all the other content.
 include(FetchContent)
 
-# TODO: update the dependency in libscran.
-FetchContent_Declare(
-  tatami 
-  GIT_REPOSITORY https://github.com/LTLA/tatami
-  GIT_TAG 52a4f542a93704f3f236cba9e592b9997a97cf93
-)
-FetchContent_MakeAvailable(tatami)
-
 FetchContent_Declare(
   kmeans 
   GIT_REPOSITORY https://github.com/LTLA/CppKmeans
@@ -50,7 +42,7 @@ FetchContent_MakeAvailable(kmeans)
 FetchContent_Declare(
   scran 
   GIT_REPOSITORY https://github.com/LTLA/libscran
-  GIT_TAG 09f12cf3e9ad29a6cdf800daff661c7c06f1190c
+  GIT_TAG aca4da597769bc39e56e73061a5c92382de253c1
 )
 FetchContent_MakeAvailable(scran)
 
