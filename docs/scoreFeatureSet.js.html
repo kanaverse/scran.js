@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>rds.js - Documentation</title>
+    <title>scoreFeatureSet.js - Documentation</title>
     
     
     <script src="scripts/prettify/prettify.js"></script>
@@ -34,7 +34,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">rds.js</h1>
+    <h1 class="page-title">scoreFeatureSet.js</h1>
     
 
     
@@ -44,393 +44,90 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>import * as utils from "./utils.js";
+            <pre class="prettyprint source linenums"><code>import * as gc from "./gc.js";
 import * as wasm from "./wasm.js";
-import * as gc from "./gc.js";
-import * as packer from "./internal/pack_strings.js";
+import * as utils from "./utils.js";
+import * as wa from "wasmarrays.js";
 
 /**
- * Base class for RDS objects.
- * @hideconstructor
- */
-export class RdsObject {
-    constructor(id, raw, par) {
-        this.id = id;
-        this.object = raw;
-        this.parent = par;
-    }
-
-    /**
-     * @return {string} Type of the object.
-     */
-    type() {
-        return this.object.type();
-    }
-
-    /**
-     * Free the memory on the Wasm heap for this object.
-     */
-    free() {
-        if (this.object !== null) {
-            gc.release(this.id);
-            this.object = null;
-        }
-    }
-}
-
-/**
- * Vector-like R object.
+ * Compute per-cell scores for the activity of a feature set.
  *
- * @augments RdsObject
- * @hideconstructor
- */
-export class RdsVector extends RdsObject {
-    constructor(id, raw, par) {
-        super(id, raw, par);
-    }
-
-    /**
-     * @return{number} Length of the vector.
-     */
-    length() {
-        return this.object.size();
-    }
-
-    /**
-     * @return {Array} Names of all attributes.
-     */
-    attributeNames() {
-        return wasm.call(mod => {
-            this.object.fill_attribute_names();
-            let anames_buf = this.object.attribute_names_buffer();
-            let anames_len = this.object.attribute_names_length();
-            return packer.unpack_strings(anames_buf, anames_len);
-        });
-    }
-
-    /**
-     * @param {string} name - Name of the attribute of interest.
-     * @return {number} Index of `name` in the array of attributes from {@linkcode RdsVector#attributeNames attributeNames}.
-     * If `name` is not present, -1 is returned.
-     */
-    findAttribute(name) {
-        return wasm.call(mod => this.object.find_attribute(name));
-    }
-
-    /**
-     * @param {number|string} i - Index or name of the attribute of interest.
-     * @return {RdsObject} Value of the attribute.
-     */
-    attribute(i) {
-        if (typeof i == "number") {
-            return dispatch(mod => this.object.load_attribute_by_index(i), this.parent);
-        } else {
-            return dispatch(mod => this.object.load_attribute_by_name(i), this.parent);
-        }
-    }
-}
-
-/**
- * Integer vector from R.
+ * @param {ScranMatrix} x - Log-normalized expression matrix.
+ * @param {Uint8Array|Uint8WasmArray|TypedArray|Array} features - Identity of features (i.e., rows of `x`) in the set.
  *
- * @augments RdsVector 
- * @hideconstructor
- */
-export class RdsIntegerVector extends RdsVector {
-    constructor(id, raw, par) {
-        super(id, raw, par);
-    }
-
-    /**
-     * @param {object} [options={}] - Optional parameters.
-     * @param {boolean|string} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
-     *
-     * @return {Int32Array|Int32WasmArray} Values of the integer vector.
-     */
-    values({ copy = true } = {}) {
-        return utils.possibleCopy(this.object.numeric_vector(), copy);
-    }
-}
-
-/**
- * Boolean (i.e., boolean) vector from R.
+ * If `features` is a Uint8Array or Uint8WasmArray, its length should be equal to the number of rows in `x`.
+ * A non-zero value for any entry indicates that the corresponding row of `x` is part of the feature set.
  *
- * @augments RdsVector 
- * @hideconstructor
- */
-export class RdsBooleanVector extends RdsVector {
-    constructor(id, raw, par) {
-        super(id, raw, par);
-    }
-
-    /**
-     * @param {object} [options={}] - Optional parameters.
-     * @param {boolean|string} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
-     *
-     * @return {Int32Array|Int32WasmArray} Values of the logical vector.
-     * Zero values are falsey and values of 1 are truthy.
-     */
-    values({ copy = true } = {}) {
-        return utils.possibleCopy(this.object.numeric_vector(), copy);
-    }
-}
-
-/**
- * Double-precision vector from R.
+ * For all other array types, `features` should contain the sorted and unique indices of the rows in `x` that belong to the set.
+ * @param {object} [options={}] - Optional parameters.
+ * @param {?(Int32WasmArray|Array|TypedArray)} [options.block=null] - Array containing the block assignment for each cell.
+ * This should have length equal to the number of cells and contain all values from 0 to `n - 1` at least once, where `n` is the number of blocks.
+ * Alternatively, this may be `null`, in which case all cells are assumed to be in the same block.
+ * @param {?number} [options.numberOfThreads=null] - Number of threads to use.
+ * If `null`, defaults to {@linkcode maximumThreads}.
  *
- * @augments RdsVector 
- * @hideconstructor
- */
-export class RdsDoubleVector extends RdsVector {
-    constructor(id, raw, par) {
-        super(id, raw, par);
-    }
-
-    /**
-     * @param {object} [options={}] - Optional parameters.
-     * @param {boolean|string} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
-     *
-     * @return {Float64Array|Float64WasmArray} Values of the double vector.
-     */
-    values({ copy = true } = {}) {
-        return utils.possibleCopy(this.object.numeric_vector(), copy);
-    }
-}
-
-/**
- * String vector from R.
+ * @return {object} Object containing:
  *
- * @augments RdsVector 
- * @hideconstructor
+ * - `weights`, a Float64Array containing per-gene weights for each feature in the set.
+ * - `scores`, a Float64Array containing the per-cell scores for each column of `x`.
  */
-export class RdsStringVector extends RdsVector {
-    constructor(id, raw, par) {
-        super(id, raw, par);
-    }
-
-    /**
-     * @return {Array} Values of the string vector.
-     */
-    values() {
-        return wasm.call(mod => {
-            this.object.fill_string_vector();
-            let buf = this.object.string_vector_buffer();
-            let len = this.object.string_vector_length();
-            return packer.unpack_strings(buf, len);
-        });
-    }
-}
-
-/**
- * Generic vector from R, typically known as a "list".
- *
- * @augments RdsVector 
- * @hideconstructor
- */
-export class RdsGenericVector extends RdsVector {
-    constructor(id, raw, par) {
-        super(id, raw, par);
-    }
-
-    /**
-     * @param {number} index - Index of the list element of interest.
-     * @return {RdsObject} Value of the list element.
-     */
-    load(index) {
-        return dispatch(mod => this.object.load_list_element(index), this.parent);
-    }
-}
-
-/**
- * S4 object from R, containing slot data in its attributes.
- *
- * @augments RdsObject
- * @hideconstructor
- */
-export class RdsS4Object extends RdsObject {
-    constructor(id, raw, par) {
-        super(id, raw, par);
-    }
-
-    /**
-     * Name of the R class.
-     */
-    className() {
-        return wasm.call(mod => this.object.class_name());
-    }
-
-    /**
-     * Name of the package that defines the class.
-     */
-    packageName() {
-        return wasm.call(mod => this.object.package_name());
-    }
-
-    /**
-     * @return {Array} Names of all attributes.
-     */
-    attributeNames() {
-        return wasm.call(mod => {
-            this.object.fill_attribute_names();
-            let anames_buf = this.object.attribute_names_buffer();
-            let anames_len = this.object.attribute_names_length();
-            return packer.unpack_strings(anames_buf, anames_len);
-        });
-    }
-
-    /**
-     * @param {string} name - Name of the attribute of interest.
-     * @return {number} Index of `name` in the array of attributes from {@linkcode RdsVector#attributeNames attributeNames}.
-     * If `name` is not present, -1 is returned.
-     */
-    findAttribute(name) {
-        return wasm.call(mod => this.object.find_attribute(name));
-    }
-
-    /**
-     * @param {number|string} i - Index or name of the attribute of interest.
-     * @return {RdsObject} Value of the attribute.
-     */
-    attribute(i) {
-        if (typeof i == "number") {
-            return dispatch(mod => this.object.load_attribute_by_index(i), this.parent);
-        } else {
-            return dispatch(mod => this.object.load_attribute_by_name(i), this.parent);
-        }
-    }
-}
-
-/**
- * NULL type in R.
- *
- * @augments RdsObject
- * @hideconstructor
- */
-export class RdsNull extends RdsVector {
-    constructor(id, raw, par) {
-        super(id, raw, par);
-    }
-};
-
-function dispatch(fun, par) {
-    let obj = wasm.call(fun);
-
-    let tt = null;
-    try {
-        tt = obj.type();
-    } catch (e) {
-        obj.delete();
-        throw e;
-    }
-
-    // Remaining steps until gc.call() should be no-throw!
-    let cons;
-    if (tt == "integer") {
-        cons = RdsIntegerVector;
-    } else if (tt == "double") {
-        cons = RdsDoubleVector;
-    } else if (tt == "boolean") {
-        cons = RdsBooleanVector;
-    } else if (tt == "string") {
-        cons = RdsStringVector;
-    } else if (tt == "vector") {
-        cons = RdsGenericVector;
-    } else if (tt == "S4") {
-        cons = RdsS4Object;
-    } else if (tt == "null") {
-        cons = RdsNull;
-    } else {
-        cons = RdsObject;
-    }
-
-    return gc.call(mod => obj, cons, par);
-}
-
-/**
- * Details of the RDS file.
- * @hideconstructor
- */
-export class RdsDetails {
-    #id;
-    #obj;
-
-    constructor(id, obj) {
-        this.#id = id;
-        this.#obj = obj;
-    }
-
-    /**
-     * @return {number} Version of the RDS format. This should be 3.
-     */
-    formatVersion() {
-        return this.#obj.format_version();
-    }
-
-    /**
-     * @return {string} The R version used to create the file.
-     */
-    writerVersion() {
-        let info = this.#obj.writer_version();
-        return String(info[0]) + "." + String(info[1]) + "." + String(info[2]);
-    }
-
-    /**
-     * @return {string} The minimum R version that can read the file.
-     */
-    readerVersion() {
-        let info = this.#obj.reader_version();
-        return String(info[0]) + "." + String(info[1]) + "." + String(info[2]);
-    }
-
-    /**
-     * @return {RdsObject} Interface into the underlying R object.
-     */
-    value() {
-        return dispatch(mod => this.#obj.load(), this); 
-    }
-
-    /**
-     * Free the memory on the Wasm heap for this object.
-     * Doing so will invalidate all {@linkplain RdsObject} instances derived from this object, 
-     * directly via {@linkcode RdsDetails#load} or indirectly 
-     * (e.g., from further {@linkcode RdsVector#attribute RdsVector.attribute} or {@linkcode RdsGenericVector#load RdsGenericVector.load} calls).
-     */
-    free() {
-        if (this.#obj !== null) {
-            gc.release(this.#id);
-            this.#obj = null;
-        }
-    }
-}
-
-/**
- * Read the contents of an RDS file.
- *
- * @param {Uint8WasmArray|Array|TypedArray|string} buffer Byte array containing the contents of an RDS file.
- * This can be raw text or Gzip-compressed.
- * 
- * Alternatively, this can be a string containing a file path to a MatrixMarket file.
- *
- * @return {RdsDetails} Details of the file.
- */
-export function readRds(x) {
-    let tmp;
-    let output;
+export function scoreFeatureSet(x, features, { block = null, numberOfThreads = null } = {}) {
+    let temp;
+    let output = {};
+    let feature_data, block_data;
+    let nthreads = utils.chooseNumberOfThreads(numberOfThreads);
 
     try {
-        if (typeof x == "string") {
-            output = gc.call(module => module.parse_rds_from_file(x), RdsDetails)
+        // Setting up the features.
+        if (features instanceof Uint8Array || features instanceof wa.Uint8WasmArray) {
+            if (features.length !== x.numberOfRows()) {
+                throw new Error("Uint8Array 'features' must be of length equal to the number of rows in 'x'");
+            }
+            feature_data = utils.wasmifyArray(features, "Uint8WasmArray");
         } else {
-            tmp = utils.wasmifyArray(x, "Uint8WasmArray");
-            output = gc.call(module => module.parse_rds_from_buffer(tmp.offset, tmp.length), RdsDetails);
+            feature_data = utils.createUint8WasmArray(x.numberOfRows());
+            let feat_array = feature_data.array();
+            feat_array.fill(0);
+
+            let last = -1;
+            for (const i of features) {
+                if (i &lt; 0 || i >= x.numberOfRows()) {
+                    throw new Error("Non-Uint8Array 'features' contains out-of-range indices");
+                }
+                if (i &lt;= last) {
+                    throw new Error("Non-Uint8Array 'features' must contain sorted and unique indices");
+                }
+                feat_array[i] = 1;
+                last = i;
+            }
         }
+
+        // Setting up the blocks.
+        var bptr = 0;
+        var use_blocks = false;
+        if (block !== null) {
+            block_data = utils.wasmifyArray(block, "Int32WasmArray");
+            if (block_data.length != x.numberOfColumns()) {
+                throw new Error("'block' must be of length equal to the number of columns in 'x'");
+            }
+            use_blocks = true;
+            bptr = block_data.offset;
+        }
+
+        temp = wasm.call(module => module.score_feature_set(x.matrix, feature_data.offset, use_blocks, bptr, nthreads));
+        output.weights = temp.weights().slice();
+        output.scores = temp.scores().slice();
+
     } finally {
-        utils.free(tmp);
+        utils.free(block_data);
+        utils.free(feature_data);
+        if (temp) {
+            temp.delete();
+        }
     }
 
     return output;
 }
-
 </code></pre>
         </article>
     </section>
