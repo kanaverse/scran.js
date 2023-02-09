@@ -44,6 +44,7 @@ add_executable(
     src/initialize_from_rds.cpp
 
     src/score_feature_set.cpp
+    src/hypergeometric_test.cpp
 )
 
 target_compile_options(
