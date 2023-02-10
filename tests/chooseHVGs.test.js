@@ -64,11 +64,22 @@ test("computeTopThreshold works correctly", () => {
     expect(scran.computeTopThreshold([3,4,5,1,2], 2, { largest: false })).toEqual(2);
     expect(scran.computeTopThreshold([3,4,5,1,2], 200, { largest: false })).toEqual(5);
 
+    // Behaves correctly for numeric arrays.
+    expect(scran.computeTopThreshold([10,11,12,1,2], 2, { largest: false })).toEqual(2);
+    expect(scran.computeTopThreshold([10,11,12,1,2], 1)).toEqual(12);
+
     // Same for typed arrays.
     expect(scran.computeTopThreshold(new Float64Array([5,2,1,4,3]), 1)).toEqual(5);
     expect(scran.computeTopThreshold(new Float64Array([3,2,5,4,1]), 2)).toEqual(4);
     expect(scran.computeTopThreshold(new Float64Array([2,1,3,4,5]), 1, { largest: false })).toEqual(1);
     expect(scran.computeTopThreshold(new Float64Array([4,3,2,5,1]), 2, { largest: false })).toEqual(2);
+
+    // Makes a copy when sorting by default.
+    let original = [ 99, 98, 97 ];
+    scran.computeTopThreshold(original, 1);
+    expect(original).toEqual([99, 98, 97]);
+    scran.computeTopThreshold(original, 1, { copy: false });
+    expect(original).toEqual([97, 98, 99]);
 
     expect(scran.computeTopThreshold([], 20)).toEqual(Number.NaN);
 })

@@ -10,13 +10,19 @@ import { ModelGeneVarResults } from "./modelGeneVar.js";
  * @param {object} [options={}] - Optional parameters.
  * @param {boolean} [options.largest=true] - Whether the top values in `x` are defined as the largest numeric values.
  * If `false`, the top values are considered to be the smallest.
+ * @param {boolean} [options.copy=true] - Whether to copy `x` before sorting.
+ * If `false`, `x` may be modified in-place.
  *
  * @return {number} Threshold to be applied to `x` to obtain the top (approximately) `number` values.
  * If `largest = true`, filtering is performed by taking all values in `x` that are greater than or equal to the returned threshold;
  * if `false`, filtering is performed by taking all values in `x` that are less than or equal to the returned threshold.
  * If `x` is zero-length, NaN is returned.
  */
-export function computeTopThreshold(x, number, { largest = true } = {}) {
+export function computeTopThreshold(x, number, { copy = true, largest = true } = {}) {
+    if (copy) {
+        x = x.slice();
+    }
+
     if (x instanceof Array) {
         x.sort((a, b) => a - b); // just in case...
     } else {
@@ -56,7 +62,7 @@ export function chooseHVGs(x, { number = 4000, minimum = 0 } = {}) {
         stat = x.slice();
     }
 
-    let threshold = computeTopThreshold(stat, number, { largest: true });
+    let threshold = computeTopThreshold(stat, number, { largest: true, copy: false });
     if (threshold < minimum) {
         threshold = minimum;
     }
