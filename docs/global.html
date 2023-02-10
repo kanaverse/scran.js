@@ -21313,7 +21313,7 @@ For Node.js, this will be a no-op if <code>file</code> is already a path.</li>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="testFeatureSetEnrichment.js.html">testFeatureSetEnrichment.js</a>, <a href="testFeatureSetEnrichment.js.html#line117">line 117</a>
+        <a href="testFeatureSetEnrichment.js.html">testFeatureSetEnrichment.js</a>, <a href="testFeatureSetEnrichment.js.html#line85">line 85</a>
     </li></ul></dd>
     
 
@@ -26657,7 +26657,7 @@ otherwise the workers will be shut done ungracefully on program exit.</p>
 
     
 
-    <h4 class="name" id="testFeatureSetEnrichment"><span class="type-signature"></span>testFeatureSetEnrichment<span class="signature">(markers, featureSets, options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {object}</span></h4>
+    <h4 class="name" id="testFeatureSetEnrichment"><span class="type-signature"></span>testFeatureSetEnrichment<span class="signature">(markers, featureSets, totalFeatures, options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {object}</span></h4>
 
     
 
@@ -26669,7 +26669,7 @@ otherwise the workers will be shut done ungracefully on program exit.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="testFeatureSetEnrichment.js.html">testFeatureSetEnrichment.js</a>, <a href="testFeatureSetEnrichment.js.html#line33">line 33</a>
+        <a href="testFeatureSetEnrichment.js.html">testFeatureSetEnrichment.js</a>, <a href="testFeatureSetEnrichment.js.html#line24">line 24</a>
     </li></ul></dd>
     
 
@@ -26784,10 +26784,8 @@ i.e., users are responsible for choosing a common namespace between the dataset 
                 </td>
             
 
-            <td class="description last"><p>Array of marker identities.</p>
-<p>If this is not a Uint8Array, each entry of the array is assumed to be an index identifying a marker feature, where the total number of features must be defined with <code>totalFeatures</code>.</p>
-<p>If this is a Uint8Array, it should be of length equal to the total number of features.
-Each entry is treated as a true/false value, indicating whether the feature corresponding to that index is a marker.</p></td>
+            <td class="description last"><p>Array of marker identities.
+Each entry of the array is a unique index identifying a marker feature, where the total number of features must be defined with <code>totalFeatures</code>.</p></td>
         </tr>
 
     
@@ -26823,10 +26821,43 @@ Each entry is treated as a true/false value, indicating whether the feature corr
             
 
             <td class="description last"><p>Array containing the feature sets.
-Each entry corresponds to a single feature set and may be a Uint8Array, Array or TypedArray.</p>
-<p>If a feature set is represented by a non-Uint8Array value, it should contain indices for the features belonging to the set.</p>
-<p>If the feature set is represented by a Uint8Array, it should be of length equal to the total number of features
-Each entry of the Uint8Array is treated as a true/false value, indicating whether the feature corresponding to that index belongs to the set.</p></td>
+Each entry corresponds to a single feature set and may be an Array or TypedArray.
+Each array should contain unique indices for the features belonging to the set.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>totalFeatures</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last"><p>Total number of features in the common namespace.</p></td>
         </tr>
 
     
@@ -26891,48 +26922,6 @@ Each entry of the Uint8Array is treated as a true/false value, indicating whethe
     </thead>
 
     <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>totalFeatures</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-                    &lt;nullable><br>
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                    <code>null</code>
-                
-                </td>
-            
-
-            <td class="description last"><p>Total number of features in the common namespace.
-Only required if <code>markers</code> is not a Uint8Array.</p></td>
-        </tr>
-
     
 
         <tr>
@@ -27609,7 +27598,7 @@ This can be used with <code>createWasmArray()</code> and related functions from 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.11</a> on Fri Feb 10 2023 18:29:14 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.11</a> on Fri Feb 10 2023 19:31:58 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>
