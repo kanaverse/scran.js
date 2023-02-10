@@ -4,7 +4,7 @@ import * as utils from "./utils.js";
 /**
  * Test for feature set enrichment among markers using the {@linkcode hypergeometricTest} function.
  * We assume that all features have already been mapped onto integer indices before running this function,
- * i.e., users are responsible for choosing a common namespace between the dataset markers and the feature sets.
+ * i.e., users are responsible for choosing a common namespace between the dataset markers and the feature sets (see {@linkcode remapFeatureSets}).
  *
  * @param {Array|TypedArray} markers - Array of marker identities.
  *
@@ -88,5 +88,64 @@ export function testFeatureSetEnrichment(markers, featureSets, { totalFeatures =
         count: intersection,
         size: set_sizes,
         pvalue: hypergeometricTest(intersection, num_markers, set_sizes, markers.length, { numberOfThreads })
+    };
+}
+
+/**
+ * Remap feature sets from a "reference" feature namespace to a "target" namespace.
+ * This involves defining a common namespace consisting of feature names that are shared in both namespaces,
+ * and then mapping the feature sets to the common namespace.
+ *
+ * @param {Array} targetFeatures - Array of strings containing the feature names in the target namespace.
+ * @param {Array} referenceFeatures - Array of strings containing the feature names in the reference namespace.
+ * @param {Array} referenceFeatureSets - Array of feature sets.
+ * Each entry corresponds to a set and is an Array/TypedArray containing integer indices of features in that set.
+ * Indices are relative to `referenceFeatures`.
+ *
+ * @return {object} Object containing:
+ *
+ * - `target_indices`: an Int32Array of length equal to the number of common features between `targetFeatures` and `referenceFeatures`.
+ *   Each entry is an index into `targetFeatures` to identify the feature in the common namespace,
+ *   i.e., the common namespace can be defined as `Array.from(target_indices).map(i => targetFeatures[i])`.
+ * - `reference_indices`: an Int32Array of length equal to the size of the common namespace.
+ *   Each entry is an index into `referenceFeatures` to identify the feature in the common namespace.
+ *   i.e., the common namespace can be defined as `Array.from(reference_indices).map(i => referenceFeatures[i])`
+ *   (which is guaranteed to be the same as the corresponding operation on `target_indices`).
+ * - `sets`: an Array of Int32Arrays containing the membership of each feature set.
+ *   Each integer is an index into `target_indices` or `reference_indices`.
+ */
+export function remapFeatureSets(targetFeatures, referenceFeatures, referenceFeatureSets) {
+    let valid = new Map;
+    for (var i = 0; i < targetFeatures.length; i++) {
+        valid.set(targetFeatures[i], i);
+    }
+
+    let data_indices = [];
+    let ref_map = new Map;
+    for (var i = 0; i < referenceFeatures.length; i++) {
+        let x = referenceFeatures[i];
+        let y = valid.get(x);
+        if (typeof y === "number") {
+            ref_map.set(i, data_indices.length);
+            data_indices.push(y);
+        }
+    }
+
+    let new_sets = [];
+    for (const set of referenceFeatureSets) {
+        let remapped = [];
+        for (const x of set) {
+            let y = ref_map.get(x);
+            if (typeof y === "number") {
+                remapped.push(y);
+            }
+        }
+        new_sets.push(new Int32Array(remapped));
+    }
+
+    return { 
+        target_indices: new Int32Array(data_indices),
+        reference_indices: new Int32Array(ref_map.keys()),
+        sets: new_sets
     };
 }

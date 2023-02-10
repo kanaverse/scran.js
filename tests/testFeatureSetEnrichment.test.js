@@ -35,3 +35,11 @@ test("testFeatureSetEnrichment works as expected with Uint8Array inputs", () => 
 
     expect(() => scran.testFeatureSetEnrichment(markers, [ new Uint8Array([0, 1, 2, 3]) ] )).toThrow("total number of features");
 })
+
+test("remapFeatureSets works as expected", () => {
+    let output = scran.remapFeatureSets([ "B", "C", "A", "D", "E" ], [ "a", "E", "B", "c", "D" ], [ [ 0, 1 ], [ 2, 3, 4 ] ]);
+    expect(output.target_indices).toEqual(new Int32Array([4, 0, 3]));
+    expect(output.reference_indices).toEqual(new Int32Array([1, 2, 4]));
+    expect(output.sets).toEqual([ new Int32Array([ 0 ]), new Int32Array([ 1, 2 ]) ]);
+})
+
