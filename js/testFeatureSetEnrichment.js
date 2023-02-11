@@ -46,10 +46,9 @@ export function testFeatureSetEnrichment(markers, featureSets, totalFeatures, { 
                 present++;
             }
         }
-        set_size = current.length;
 
         intersection[i] = present;
-        set_sizes[i] = set_size;
+        set_sizes[i] = current.length;
     }
 
     return {
