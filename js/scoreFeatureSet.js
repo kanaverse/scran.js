@@ -13,6 +13,8 @@ import * as wa from "wasmarrays.js";
  * @param {?(Int32WasmArray|Array|TypedArray)} [options.block=null] - Array containing the block assignment for each cell.
  * This should have length equal to the number of cells and contain all values from 0 to `n - 1` at least once, where `n` is the number of blocks.
  * Alternatively, this may be `null`, in which case all cells are assumed to be in the same block.
+ * @param {boolean} [options.scale=false] - Whether to scale the expression matrix to unit variance for each feature before computing the per-feature weights.
+ * Setting to `true` improves robustness (or reduces sensitivity) to the behavior of highly variable features in the set.
  * @param {?number} [options.numberOfThreads=null] - Number of threads to use.
  * If `null`, defaults to {@linkcode maximumThreads}.
  *
@@ -21,7 +23,7 @@ import * as wa from "wasmarrays.js";
  * - `weights`, a Float64Array containing per-gene weights for each feature in the set.
  * - `scores`, a Float64Array containing the per-cell scores for each column of `x`.
  */
-export function scoreFeatureSet(x, features, { block = null, numberOfThreads = null } = {}) {
+export function scoreFeatureSet(x, features, { block = null, scale = false, numberOfThreads = null } = {}) {
     let temp;
     let output = {};
     let feature_data, block_data;
@@ -46,7 +48,7 @@ export function scoreFeatureSet(x, features, { block = null, numberOfThreads = n
             bptr = block_data.offset;
         }
 
-        temp = wasm.call(module => module.score_feature_set(x.matrix, feature_data.offset, use_blocks, bptr, nthreads));
+        temp = wasm.call(module => module.score_feature_set(x.matrix, feature_data.offset, use_blocks, bptr, scale, nthreads));
         output.weights = temp.weights().slice();
         output.scores = temp.scores().slice();
 

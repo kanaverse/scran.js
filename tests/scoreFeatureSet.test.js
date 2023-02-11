@@ -21,6 +21,21 @@ test("scoreFeatureSet works as expected with Uint8Array inputs", () => {
     expect(() => scran.scoreFeatureSet(norm, features.slice(0, 10))).toThrow("number of rows");
 })
 
+test("scoreFeatureSet gives different results after scaling", () => {
+    var ngenes = 1000;
+    var ncells = 20;
+    var mat = simulate.simulateMatrix(ngenes, ncells);
+    var norm = scran.logNormCounts(mat);
+
+    let features = new Uint8Array(ngenes);
+    features.fill(1, 10, 20);
+
+    let scores = scran.scoreFeatureSet(norm, features);
+    let scaled = scran.scoreFeatureSet(norm, features, { scale: true });
+    expect(scores.weights).not.toEqual(scaled.weights);
+    expect(scores.scores).not.toEqual(scaled.scores);
+})
+
 test("scoreFeatureSet works with blocking", () => {
     var ngenes = 1000;
     var ncells = 50;

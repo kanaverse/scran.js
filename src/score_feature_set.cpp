@@ -24,9 +24,10 @@ struct ScoreFeatureSet_Results {
     }
 };
 
-ScoreFeatureSet_Results score_feature_set(const NumericMatrix& mat, uintptr_t features, bool use_blocks, uintptr_t blocks, int nthreads) {
+ScoreFeatureSet_Results score_feature_set(const NumericMatrix& mat, uintptr_t features, bool use_blocks, uintptr_t blocks, bool scale, int nthreads) {
     scran::ScoreFeatureSet scorer;
     scorer.set_num_threads(nthreads);
+    scorer.set_scale(scale);
 
     const uint8_t* fptr = reinterpret_cast<const uint8_t*>(features);
     const int32_t* bptr = NULL;
