@@ -26,6 +26,7 @@ This can either use k-means or community detection on a shared nearest neighbor 
 - Marker detection using a variety of effect sizes such as Cohen's d and the area under the curve (AUC).
 - Cell type annotation with a port of the [**SingleR**](https://bioconductor.org/packages/SingleR) algorithm.
 - Batch correction via the mutual nearest neighbors method.
+- Gene set enrichment tests and calculation of per-cell gene set activity scores.
 
 The theory behind these methods is described in more detail in the [**Orchestrating Single Cell Analysis with Bioconductor**](https://bioconductor.org/books/release/OSCA/) book. 
 All steps are implemented in C++ and compiled to WebAssembly for near-native performance - see the [developer notes](docs/related/developer_notes.md) for details.
@@ -67,7 +68,7 @@ import * as scran from "scran.js";
 await scran.initialize({ numberOfThreads: 4 });
 
 // Reading in the count matrix.
-let input = scran.initializeSparseMatrixFromMatrixMarketBuffer("matrix.mtx.gz");
+let input = scran.initializeSparseMatrixFromMatrixMarket("matrix.mtx.gz");
 let mat = input.matrix;
 let feature_ids = input.row_ids; // for cross-referencing with gene annotations.
 
