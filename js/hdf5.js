@@ -149,7 +149,7 @@ export class H5Base {
      * This can be `"IntX"` or `"UintX"` for `X` of 8, 16, 32, or 64;
      * or `"FloatX"` for `X` of 32 or 64;
      * or `"String"`.
-     * @param {Array} shape - Array containing the dimensions of the dataset to create.
+     * @param {?Array} shape - Array containing the dimensions of the dataset to create.
      * If set to an empty array, this will create a scalar dataset.
      * If set to `null`, this is determined from `x`.
      * @param {(TypedArray|Array|string|number)} x - Values to be written to the new dataset, see {@linkcode H5DataSet#write write}.
@@ -361,7 +361,7 @@ export class H5Group extends H5Base {
      * @param {boolean} [options.cache=false] - Whether to cache the written values in the returned {@linkplain H5DataSet} object.
      *
      * @return {H5DataSet} A dataset of the specified type and shape is created as an immediate child of the current group.
-     * Then it is and filled with the contents of `x`.
+     * The same dataset is then filled with the contents of `x`.
      * A {@linkplain H5DataSet} object is returned representing this new dataset.
      */
      writeDataSet(name, type, shape, x, { compression = 6, chunks = null, cache = false } = {}) {
