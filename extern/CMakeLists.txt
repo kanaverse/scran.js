@@ -33,6 +33,13 @@ endif()
 include(FetchContent)
 
 FetchContent_Declare(
+  tatami
+  GIT_REPOSITORY https://github.com/LTLA/tatami
+  GIT_TAG 573f1fb772db0580ff80f0318006af1555c0b24e
+)
+FetchContent_MakeAvailable(tatami)
+
+FetchContent_Declare(
   kmeans 
   GIT_REPOSITORY https://github.com/LTLA/CppKmeans
   GIT_TAG 698cd1279530675e8ea10bf58d3a1d1508fa1fb8

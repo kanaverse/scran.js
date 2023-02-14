@@ -44,10 +44,15 @@ export function simulateSparseData(primary, secondary, injectBigValues = false) 
     };
 }
 
-export function simulateMatrix(numberOfRows, numberOfColumns, density = 0.2, maxValue = 10) {
-    var buffer = scran.createInt32WasmArray(numberOfRows * numberOfColumns);
-    let output;
+export function simulateMatrix(numberOfRows, numberOfColumns, density = 0.2, maxValue = 10, forceInteger = true) {
+    var buffer;
+    if (forceInteger) {
+        buffer = scran.createInt32WasmArray(numberOfRows * numberOfColumns);
+    } else {
+        buffer = scran.createFloat64WasmArray(numberOfRows * numberOfColumns);
+    }
 
+    let output;
     try {
         var x = buffer.array();
         for (var c = 0; c < numberOfColumns; c++) {
@@ -60,7 +65,7 @@ export function simulateMatrix(numberOfRows, numberOfColumns, density = 0.2, max
             }
         }
 
-        output = scran.initializeSparseMatrixFromDenseArray(numberOfRows, numberOfColumns, buffer);
+        output = scran.initializeSparseMatrixFromDenseArray(numberOfRows, numberOfColumns, buffer, { forceInteger });
     } finally {
         buffer.free();
     }
