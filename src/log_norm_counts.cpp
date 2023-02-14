@@ -34,12 +34,19 @@ NumericMatrix log_norm_counts(const NumericMatrix& mat,
     }
 }
 
-/**
- * @cond 
- */
+void center_size_factors(size_t n, uintptr_t ptr, bool use_blocks, uintptr_t blocks) {
+    scran::CenterSizeFactors centerer;
+
+    if (use_blocks) {
+        centerer.run_blocked(n, reinterpret_cast<double*>(ptr), reinterpret_cast<const int32_t*>(blocks));
+    } else {
+        centerer.run(n, reinterpret_cast<double*>(ptr));
+    }
+
+    return;
+}
+ 
 EMSCRIPTEN_BINDINGS(log_norm_counts) {
     emscripten::function("log_norm_counts", &log_norm_counts);
+    emscripten::function("center_size_factors", &center_size_factors);
 }
-/**
- * @endcond 
- */

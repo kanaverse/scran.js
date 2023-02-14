@@ -112,3 +112,52 @@ test("Log-normalization behaves with zeros", () => {
 
     mat.free();
 })
+
+test("centering of size factors gives the same results", () => {
+    var ngenes = 1000;
+    var ncells = 20;
+    var mat = simulate.simulateMatrix(ngenes, ncells);
+    let qc = scran.perCellRnaQcMetrics(mat);
+
+    let rounder = x => Math.round(x * 1000000); // Check for equality to 6 decimal points of precision.
+
+    // Unblocked.
+    {
+        var norm = scran.logNormCounts(mat);
+        let sf = scran.centerSizeFactors(qc.sums());
+
+        for (var c = 0; c < ncells; c++) {
+            let rawcol = mat.column(c);
+            let cursf = sf.array()[c];
+            let expected = rawcol.map(x => Math.log2(x / cursf + 1));
+            expect(norm.column(c).map(rounder)).toEqual(expected.map(rounder));
+        }
+
+        norm.free();
+        sf.free();
+    }
+
+    // Blocked.
+    {
+        var block = new Array(ncells);
+        let half = ncells * 0.3;
+        block.fill(0, 0, half);
+        block.fill(1, half, ncells);
+
+        var norm = scran.logNormCounts(mat, { block });
+        let sf = scran.createFloat64WasmArray(ncells);
+        scran.centerSizeFactors(qc.sums(), { block: block, buffer: sf });
+
+        for (var c = 0; c < ncells; c++) {
+            let rawcol = mat.column(c);
+            let cursf = sf.array()[c];
+            let expected = rawcol.map(x => Math.log2(x / cursf + 1));
+            expect(norm.column(c).map(rounder)).toEqual(expected.map(rounder));
+        }
+
+        norm.free();
+        sf.free();
+    }
+
+    mat.free();
+})

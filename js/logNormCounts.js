@@ -1,5 +1,7 @@
 import * as gc from "./gc.js";
 import * as utils from "./utils.js";
+import * as wa from "wasmarrays.js";
+import * as wasm from "./wasm.js";
 
 /**
  * Compute log-transformed normalized expression values.
@@ -64,4 +66,56 @@ export function logNormCounts(x, { sizeFactors = null, block = null, allowZeros 
     }
     
     return output;
+}
+
+/**
+ * Center size factors in preparation for log-transformation.
+ * This is usually called by {@linkcode logNormCounts} internally, but can also be directly called by users to reconstitute the size factors used in the log-normalized matrix.
+ *
+ * @param {TypedArray|WasmArray} sizeFactors - Array of non-negative size factors, one per cell.
+ * @param {object} [options={}] - Optional parameters.
+ * @param {?(Int32WasmArray|Array|TypedArray)} [options.block=null] - Array containing the block assignment for each cell, see {@linkcode logNormCounts}.
+ * @param {?Float64WasmArray} [options.buffer=null] - Buffer in which to store the output size factors.
+ * Length should be equal to that of `sizeFactors`.
+ * If `null`, an array is allocated by the function.
+ *
+ * @return {Float64WasmArray} Array containing the centered size factors.
+ */
+export function centerSizeFactors(sizeFactors, { block = null, buffer = null } = {}) {
+    let local_buffer;
+    let block_data;
+
+    try {
+        if (buffer === null) {
+            local_buffer = utils.createFloat64WasmArray(sizeFactors.length);
+            buffer = local_buffer;
+        }
+
+        if (buffer !== sizeFactors) {
+            buffer.set(sizeFactors instanceof wa.WasmArray ? sizeFactors.array() : sizeFactors);
+        }
+
+        var bptr = 0;
+        var use_blocks = false;
+
+        if (block !== null) {
+            block_data = utils.wasmifyArray(block, "Int32WasmArray");
+            if (block_data.length != buffer.length) {
+                throw new Error("'block' must be of length equal to that of 'sizeFactors'");
+            }
+            use_blocks = true;
+            bptr = block_data.offset;
+        }
+
+        wasm.call(module => module.center_size_factors(buffer.length, buffer.offset, use_blocks, bptr));
+
+    } catch(e) {
+        utils.free(local_buffer);
+        throw e;
+
+    } finally {
+        utils.free(block_data);
+    }
+
+    return buffer;
 }
