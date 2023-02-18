@@ -60,7 +60,7 @@ let mat = scran.initializeSparseMatrixFromMatrixMarketBuffer(buffer);
 ## Basic analyses
 
 The code chunk below implements a basic analysis, starting from count matrix loading and terminating at the markers for each cluster.
-This uses the Node.js API to read in one of our example [Matrix Market files](https://github.com/jkanche/random-test-files),
+This uses the Node.js API to read in one of our example [Matrix Market files](https://github.com/kanaverse/random-test-files),
 but the same approach can be used on the buffer created from a `File` input in the browser.
 
 ```js
@@ -109,7 +109,7 @@ scran.terminate();
 
 ## More documentation
 
-Reference documentation for the Javascript API is available [here](https://jkanche.github.io/scran.js).
+Reference documentation for the Javascript API is available [here](https://kanaverse.github.io/scran.js).
 
 Specific topics are discussed in more detail below:
 
