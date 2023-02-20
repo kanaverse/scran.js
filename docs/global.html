@@ -8904,7 +8904,7 @@ Note that filling requires use of <code>fillable: true</code> in the various get
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="initializeSparseMatrix.js.html">initializeSparseMatrix.js</a>, <a href="initializeSparseMatrix.js.html#line308">line 308</a>
+        <a href="initializeSparseMatrix.js.html">initializeSparseMatrix.js</a>, <a href="initializeSparseMatrix.js.html#line317">line 317</a>
     </li></ul></dd>
     
 
@@ -9420,7 +9420,7 @@ HDF5 datasets are represented by strings specifying the data type - i.e., <code>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="initializeSparseMatrix.js.html">initializeSparseMatrix.js</a>, <a href="initializeSparseMatrix.js.html#line223">line 223</a>
+        <a href="initializeSparseMatrix.js.html">initializeSparseMatrix.js</a>, <a href="initializeSparseMatrix.js.html#line229">line 229</a>
     </li></ul></dd>
     
 
@@ -12227,7 +12227,7 @@ If the bindings were already initialized (e.g., by a previous call), nothing is 
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="initializeSparseMatrix.js.html">initializeSparseMatrix.js</a>, <a href="initializeSparseMatrix.js.html#line344">line 344</a>
+        <a href="initializeSparseMatrix.js.html">initializeSparseMatrix.js</a>, <a href="initializeSparseMatrix.js.html#line353">line 353</a>
     </li></ul></dd>
     
 
@@ -12586,7 +12586,7 @@ containing the values to store in the array.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="initializeSparseMatrix.js.html">initializeSparseMatrix.js</a>, <a href="initializeSparseMatrix.js.html#line89">line 89</a>
+        <a href="initializeSparseMatrix.js.html">initializeSparseMatrix.js</a>, <a href="initializeSparseMatrix.js.html#line95">line 95</a>
     </li></ul></dd>
     
 
@@ -13020,7 +13020,8 @@ If <code>true</code>, <code>indices</code> should contain column indices and <co
             
 
             <td class="description last"><p>Whether to create a layered sparse matrix, which reorders the rows of the loaded matrix for better memory efficiency.
-Only used if <code>forceInteger = true</code>, and assumes that <code>values</code> contains only non-negative integers.</p></td>
+Only used if <code>values</code> contains an integer type and/or <code>forceInteger = true</code>.
+Setting to <code>true</code> assumes that <code>values</code> contains only non-negative integers.</p></td>
         </tr>
 
     
@@ -13056,11 +13057,12 @@ Only used if <code>forceInteger = true</code>, and assumes that <code>values</co
     <p>An object containing:</p>
 <ul>
 <li><code>matrix</code>, a <a href="ScranMatrix.html">ScranMatrix</a> containing the sparse matrix data.
-If <code>layered = true</code>, rows are shuffled to enable use of smaller integer types for low-abundance genes.</li>
+If layering is enabled, rows are shuffled to enable use of smaller integer types for low-abundance features.</li>
 <li><code>row_ids</code>, an Int32Array specifying the identity of each row in <code>matrix</code>.
 This can be interpreted as the row slicing that was applied to the original matrix to obtain <code>matrix</code>.
-If <code>layered = false</code>, this is <code>null</code>.</li>
+If layering is not enabled, this is <code>null</code>.</li>
 </ul>
+<p>Layering is enabled if the matrix contains integer data (either directly or via <code>forceInteger = true</code>) and <code>layered = true</code>.</p>
 </div>
 
 
@@ -13098,7 +13100,7 @@ If <code>layered = false</code>, this is <code>null</code>.</li>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="initializeSparseMatrix.js.html">initializeSparseMatrix.js</a>, <a href="initializeSparseMatrix.js.html#line25">line 25</a>
+        <a href="initializeSparseMatrix.js.html">initializeSparseMatrix.js</a>, <a href="initializeSparseMatrix.js.html#line28">line 28</a>
     </li></ul></dd>
     
 
@@ -13426,7 +13428,8 @@ This is generally expected to contain non-negative integers; otherwise, users sh
             
 
             <td class="description last"><p>Whether to create a layered sparse matrix, which reorders the rows of the loaded matrix for better memory efficiency.
-Only used if <code>forceInteger = true</code>, and assumes that <code>values</code> contains only non-negative integers.</p></td>
+Only used if <code>values</code> contains an integer type and/or <code>forceInteger = true</code>.
+Setting to <code>true</code> assumes that <code>values</code> contains only non-negative integers.</p></td>
         </tr>
 
     
@@ -13462,11 +13465,12 @@ Only used if <code>forceInteger = true</code>, and assumes that <code>values</co
     <p>An object containing:</p>
 <ul>
 <li><code>matrix</code>, a <a href="ScranMatrix.html">ScranMatrix</a> containing the sparse matrix data.
-If <code>layered = true</code>, rows are shuffled to enable use of smaller integer types for low-abundance genes.</li>
+If layering is enabled, rows are shuffled to enable use of smaller integer types for low-abundance features.</li>
 <li><code>row_ids</code>, an Int32Array specifying the identity of each row in <code>matrix</code>.
 This can be interpreted as the row slicing that was applied to the original matrix to obtain <code>matrix</code>.
-If <code>layered = false</code>, this is <code>null</code>.</li>
+If layering is not enabled, this is <code>null</code>.</li>
 </ul>
+<p>Layering is enabled if the matrix contains integer data (either directly or via <code>forceInteger = true</code>) and <code>layered = true</code>.</p>
 </div>
 
 
@@ -13504,7 +13508,7 @@ If <code>layered = false</code>, this is <code>null</code>.</li>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="initializeSparseMatrix.js.html">initializeSparseMatrix.js</a>, <a href="initializeSparseMatrix.js.html#line270">line 270</a>
+        <a href="initializeSparseMatrix.js.html">initializeSparseMatrix.js</a>, <a href="initializeSparseMatrix.js.html#line279">line 279</a>
     </li></ul></dd>
     
 
@@ -13793,7 +13797,8 @@ For the latter, both H5AD and 10X-style sparse formats are supported.</p></td>
             
 
             <td class="description last"><p>Whether to create a layered sparse matrix, which reorders the rows of the loaded matrix for better memory efficiency.
-Only used if <code>forceInteger = true</code>, and assumes that the matrix contains only non-negative integers.</p></td>
+Only used if the relevant HDF5 dataset contains an integer type and/or <code>forceInteger = true</code>.
+Setting to <code>true</code> assumes that the matrix contains only non-negative integers.</p></td>
         </tr>
 
     
@@ -13829,11 +13834,12 @@ Only used if <code>forceInteger = true</code>, and assumes that the matrix conta
     <p>An object containing:</p>
 <ul>
 <li><code>matrix</code>, a <a href="ScranMatrix.html">ScranMatrix</a> containing the sparse matrix data.
-If <code>layered = true</code>, rows are shuffled to enable use of smaller integer types for low-abundance genes.</li>
+If layering is enabled, rows are shuffled to enable use of smaller integer types for low-abundance features.</li>
 <li><code>row_ids</code>, an Int32Array specifying the identity of each row in <code>matrix</code>.
 This can be interpreted as the row slicing that was applied to the original matrix to obtain <code>matrix</code>.
-If <code>layered = false</code>, this is <code>null</code>.</li>
+If layering is not enabled, this is <code>null</code>.</li>
 </ul>
+<p>Layering is enabled if the matrix contains integer data (either directly or via <code>forceInteger = true</code>) and <code>layered = true</code>.</p>
 </div>
 
 
@@ -13871,7 +13877,7 @@ If <code>layered = false</code>, this is <code>null</code>.</li>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="initializeSparseMatrix.js.html">initializeSparseMatrix.js</a>, <a href="initializeSparseMatrix.js.html#line163">line 163</a>
+        <a href="initializeSparseMatrix.js.html">initializeSparseMatrix.js</a>, <a href="initializeSparseMatrix.js.html#line169">line 169</a>
     </li></ul></dd>
     
 
@@ -14172,7 +14178,7 @@ If <code>null</code>, we detect this automatically from the magic number in the 
     <p>An object containing:</p>
 <ul>
 <li><code>matrix</code>, a <a href="ScranMatrix.html">ScranMatrix</a> containing the sparse matrix data.
-If <code>layered = true</code>, rows are shuffled to enable use of smaller integer types for low-abundance genes.</li>
+If <code>layered = true</code>, rows are shuffled to enable use of smaller integer types for low-abundance features.</li>
 <li><code>row_ids</code>, an Int32Array specifying the identity of each row in <code>matrix</code>.
 This can be interpreted as the row slicing that was applied to the original matrix to obtain <code>matrix</code>.
 If <code>layered = false</code>, this is <code>null</code>.</li>
@@ -14214,7 +14220,7 @@ If <code>layered = false</code>, this is <code>null</code>.</li>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="initializeSparseMatrix.js.html">initializeSparseMatrix.js</a>, <a href="initializeSparseMatrix.js.html#line389">line 389</a>
+        <a href="initializeSparseMatrix.js.html">initializeSparseMatrix.js</a>, <a href="initializeSparseMatrix.js.html#line401">line 401</a>
     </li></ul></dd>
     
 
@@ -14506,7 +14512,8 @@ Setting this to <code>true</code> improves memory efficiency at the cost of prev
             
 
             <td class="description last"><p>Whether to create a layered sparse matrix, which reorders the rows of the loaded matrix for better memory efficiency.
-Only used if <code>forceInteger = true</code>, and assumes that the matrix contains only non-negative integers.</p></td>
+Only used if the R matrix is of an integer type and/or <code>forceInteger = true</code>.
+Setting to <code>true</code> assumes that the matrix contains only non-negative integers.</p></td>
         </tr>
 
     
@@ -14542,11 +14549,12 @@ Only used if <code>forceInteger = true</code>, and assumes that the matrix conta
     <p>An object containing:</p>
 <ul>
 <li><code>matrix</code>, a <a href="ScranMatrix.html">ScranMatrix</a> containing the sparse matrix data.
-If <code>layered = true</code>, rows are shuffled to enable use of smaller integer types for low-abundance genes.</li>
+If layering is enabled, rows are shuffled to enable use of smaller integer types for low-abundance features.</li>
 <li><code>row_ids</code>, an Int32Array specifying the identity of each row in <code>matrix</code>.
 This can be interpreted as the row slicing that was applied to the original matrix to obtain <code>matrix</code>.
-If <code>layered = false</code>, this is <code>null</code>.</li>
+If layering is not enabled, this is <code>null</code>.</li>
 </ul>
+<p>Layering is enabled if the matrix contains integer data (either directly or via <code>forceInteger = true</code>) and <code>layered = true</code>.</p>
 </div>
 
 
@@ -28564,7 +28572,7 @@ Discrepancy is for the same reason as described for <code>csr_matrix</code>.</li
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.11</a> on Sat Feb 18 2023 21:48:27 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.11</a> on Mon Feb 20 2023 20:46:11 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>
