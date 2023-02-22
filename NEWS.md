@@ -6,6 +6,12 @@
 
 - Added `perCellCrisprQcMetrics()` and `suggestCrisprQcFilters()`,
   to compute the QC metrics and filters for CRISPR guide count data.
+- Added `scoreFeatureSet()` to compute per-cell scores for a feature set's activity.
+- Added `hypergeometricTest()`, `testFeatureSetEnrichment()` and `remapFeatureSets()`,
+  to compute simple enrichment p-values for the top markers in each feature set.
+- Added `computeTopThreshold()` to more easily identify the top markers for 
+- Added `writeSparseMatrixToHdf5()` to dump a `ScranMatrix` back into a HDF5 file.
+- Added `centerSizeFactors()` to allow users to center the size factors manually.
 
 **Changes**
 
@@ -20,18 +26,25 @@
 - Getters for empty results will now return `null` if the corresponding field has not been filled,
   either using a dedicated setter or by extracting a memory view with `fillable: true`.
   This allows applications to fail gracefully upon encountering an object where the required fields have not been filled.
-- Removed deprecated functionality from previous version:
-  - Removed `ScranMatrix.isPermuted()`.
-  - `clusterSNNGraph()` no longer accepts integer arguments for `scheme=`.
-  - Removed `initializeSparseMatrixFromMatrixMarketBuffer()`.
-  - `runPCA()` no longer accepts `blockMethod="block"`.
-  - Removed `safeFree()`.
 - Added a `leidenModularityObjective` option to `clusterSNNGraph()`, to use the modularity as the objective function.
   This allows for a more stable interpretation of the magnitude of the resolution.
 - Separated resolution arguments to `multiLevelResolution` and `leidenResolution` for `clusterSNNGraph()`,
   allowing them to have different defaults.
   This is especially relevant when `leidenModularityObjective = false`.
 - Removed the `updateRowIdentities()` function, as this has little relation with other functions in **scran.js**.
+- Updated to the latest version of **libscran** (and thus **igraph**, which changes some of the clustering outputs).
+- Added a `minimum=` argument to `chooseHVGs()` to avoid choosing HVGs with negative residuals.
+- Modified `summary=` argument to accept a string in `ScoreMarkerResults`, which is more interpretable.
+- Support calculation of median and maximum effect sizes in `scoreMarkers()`.
+- Pass along `block=` to the internal PCA in `quickAdtSizeFactors()`. 
+- Allow size factor centering to turned off in `logNormCounts()`, in case the input size factors are already centered.
+- Ignore `null`s in the feature ID vectors when building references for labelling.
+- Removed deprecated functionality from previous version:
+  - Removed `ScranMatrix.isPermuted()`.
+  - `clusterSNNGraph()` no longer accepts integer arguments for `scheme=`.
+  - Removed `initializeSparseMatrixFromMatrixMarketBuffer()`.
+  - `runPCA()` no longer accepts `blockMethod="block"`.
+  - Removed `safeFree()`.
 
 ## 1.2.1
 
