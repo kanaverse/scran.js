@@ -22,5 +22,13 @@ test("remapFeatureSets works as expected", () => {
     expect(output.target_indices).toEqual(new Int32Array([4, 0, 3]));
     expect(output.reference_indices).toEqual(new Int32Array([1, 2, 4]));
     expect(output.sets).toEqual([ new Int32Array([ 0 ]), new Int32Array([ 1, 2 ]) ]);
+
+    // Handles nulls properly.
+    {
+        let output = scran.remapFeatureSets([ null, "C", "D", null ], [ "D", null, "b", null, "C" ], [ [ 0, 1 ], [ 2, 3, 4 ] ]);
+        expect(output.target_indices).toEqual(new Int32Array([2, 1]));
+        expect(output.reference_indices).toEqual(new Int32Array([0, 4]));
+        expect(output.sets).toEqual([ new Int32Array([ 0 ]), new Int32Array([ 1 ]) ]);
+    }
 })
 

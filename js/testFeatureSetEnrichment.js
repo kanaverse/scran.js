@@ -64,9 +64,11 @@ export function testFeatureSetEnrichment(markers, featureSets, totalFeatures, { 
  * and then mapping the feature sets to the common namespace.
  *
  * @param {Array} targetFeatures - Array of strings containing the feature names in the target namespace.
+ * Any `null` entries are considered to be incomparable.
  * @param {Array} referenceFeatures - Array of strings containing the feature names in the reference namespace.
+ * Any `null` entries are considered to be incomparable.
  * @param {Array} referenceFeatureSets - Array of feature sets.
- * Each entry corresponds to a set and is an Array/TypedArray containing integer indices of features in that set.
+ * Each entry corresponds to a set and is an Array/TypedArray containing integer indices of features belonging to that set.
  * Indices are relative to `referenceFeatures`.
  *
  * @return {object} Object containing:
@@ -84,17 +86,21 @@ export function testFeatureSetEnrichment(markers, featureSets, totalFeatures, { 
 export function remapFeatureSets(targetFeatures, referenceFeatures, referenceFeatureSets) {
     let valid = new Map;
     for (var i = 0; i < targetFeatures.length; i++) {
-        valid.set(targetFeatures[i], i);
+        if (targetFeatures[i] !== null) {
+            valid.set(targetFeatures[i], i);
+        }
     }
 
     let data_indices = [];
     let ref_map = new Map;
     for (var i = 0; i < referenceFeatures.length; i++) {
         let x = referenceFeatures[i];
-        let y = valid.get(x);
-        if (typeof y === "number") {
-            ref_map.set(i, data_indices.length);
-            data_indices.push(y);
+        if (x !== null) {
+            let y = valid.get(x);
+            if (typeof y === "number") {
+                ref_map.set(i, data_indices.length);
+                data_indices.push(y);
+            }
         }
     }
 
