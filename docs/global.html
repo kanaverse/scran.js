@@ -21746,7 +21746,7 @@ For Node.js, this will be a no-op if <code>file</code> is already a path.</li>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="testFeatureSetEnrichment.js.html">testFeatureSetEnrichment.js</a>, <a href="testFeatureSetEnrichment.js.html#line86">line 86</a>
+        <a href="testFeatureSetEnrichment.js.html">testFeatureSetEnrichment.js</a>, <a href="testFeatureSetEnrichment.js.html#line103">line 103</a>
     </li></ul></dd>
     
 
@@ -21789,6 +21789,15 @@ For Node.js, this will be a no-op if <code>file</code> is already a path.</li>
     <p>Remap feature sets from a &quot;reference&quot; feature namespace to a &quot;target&quot; namespace.
 This involves defining a common namespace consisting of feature names that are shared in both namespaces,
 and then mapping the feature sets to the common namespace.</p>
+<p>The <code>target_indices</code> property returned by this function can be used to generate the indices of <code>markers</code> in <a href="global.html#testFeatureSetEnrichment"><code>testFeatureSetEnrichment</code></a>.
+Given a function that determines whether a feature in the target namespace is a marker, we can populate <code>markers</code> as below:</p>
+<pre class="prettyprint source"><code>let markers = [];
+target_indices.forEach((x, i) => {
+    if (is_marker(x)) { // in other words, 'targetFeatures[x]' is a marker.
+        markers.push(i); // we want to store 'i' as this is the index into the common namespace.
+    }
+});
+</code></pre>
 </div>
 
 
@@ -21928,7 +21937,7 @@ Each entry is an index into <code>referenceFeatures</code> to identify the featu
 i.e., the common namespace can be defined as <code>Array.from(reference_indices).map(i =&gt; referenceFeatures[i])</code>
 (which is guaranteed to be the same as the corresponding operation on <code>target_indices</code>).</li>
 <li><code>sets</code>: an Array of Int32Arrays containing the membership of each feature set.
-Each integer is an index into <code>target_indices</code> or <code>reference_indices</code>.</li>
+Each integer is an index into the common namespace defined by <code>target_indices</code> and <code>reference_indices</code>.</li>
 </ul>
 </div>
 
@@ -27222,7 +27231,7 @@ otherwise the workers will be shut done ungracefully on program exit.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="testFeatureSetEnrichment.js.html">testFeatureSetEnrichment.js</a>, <a href="testFeatureSetEnrichment.js.html#line24">line 24</a>
+        <a href="testFeatureSetEnrichment.js.html">testFeatureSetEnrichment.js</a>, <a href="testFeatureSetEnrichment.js.html#line29">line 29</a>
     </li></ul></dd>
     
 
@@ -27263,8 +27272,9 @@ otherwise the workers will be shut done ungracefully on program exit.</p>
 
 <div class="description usertext">
     <p>Test for feature set enrichment among markers using the <a href="global.html#hypergeometricTest"><code>hypergeometricTest</code></a> function.
-We assume that all features have already been mapped onto integer indices before running this function,
-i.e., users are responsible for choosing a common namespace between the dataset markers and the feature sets (see <a href="global.html#remapFeatureSets"><code>remapFeatureSets</code></a>).</p>
+We assume that all feature names have already been converted into integer indices before running this function;
+i.e., features are represented as indices into a &quot;common namespace&quot; consisting of an array of unique feature names.
+See <a href="global.html#remapFeatureSets"><code>remapFeatureSets</code></a> for more details.</p>
 </div>
 
 
@@ -27338,7 +27348,8 @@ i.e., users are responsible for choosing a common namespace between the dataset 
             
 
             <td class="description last"><p>Array of marker identities.
-Each entry of the array is a unique index identifying a marker feature, where the total number of features must be defined with <code>totalFeatures</code>.</p></td>
+Each entry of the array is a unique integer index identifying a marker feature in the common namespace, where each index lies in <code>[0, totalFeatures)</code>.</p>
+<p>In other words, given a common namespace array <code>X</code> containing the feature names, the marker names can be obtained as <code>Array.from(markers).map(i =&gt; X[i])</code>.</p></td>
         </tr>
 
     
@@ -27375,7 +27386,8 @@ Each entry of the array is a unique index identifying a marker feature, where th
 
             <td class="description last"><p>Array containing the feature sets.
 Each entry corresponds to a single feature set and may be an Array or TypedArray.
-Each array should contain unique indices for the features belonging to the set.</p></td>
+Each array should contain unique indices for the features belonging to the set.</p>
+<p>In other words, given a common namespace array <code>X</code> containing the feature names, the names of the features in set <code>s</code> can be obtained as <code>Array.from(featureSets[s]).map(i =&gt; X[i])</code>.</p></td>
         </tr>
 
     
@@ -28543,7 +28555,7 @@ Discrepancy is for the same reason as described for <code>csr_matrix</code>.</li
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.11</a> on Wed Feb 22 2023 22:00:02 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.11</a> on Wed Feb 22 2023 22:50:52 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>
