@@ -3,15 +3,20 @@ import * as utils from "./utils.js";
 
 /**
  * Test for feature set enrichment among markers using the {@linkcode hypergeometricTest} function.
- * We assume that all features have already been mapped onto integer indices before running this function,
- * i.e., users are responsible for choosing a common namespace between the dataset markers and the feature sets (see {@linkcode remapFeatureSets}).
+ * We assume that all feature names have already been converted into integer indices before running this function;
+ * i.e., features are represented as indices into a "common namespace" consisting of an array of unique feature names.
+ * See {@linkcode remapFeatureSets} for more details.
  *
  * @param {Array|TypedArray} markers - Array of marker identities.
- * Each entry of the array is a unique index identifying a marker feature, where the total number of features must be defined with `totalFeatures`.
+ * Each entry of the array is a unique integer index identifying a marker feature in the common namespace, where each index lies in `[0, totalFeatures)`.
+ *
+ * In other words, given a common namespace array `X` containing the feature names, the marker names can be obtained as `Array.from(markers).map(i => X[i])`.
  * @param {Array} featureSets - Array containing the feature sets.
  * Each entry corresponds to a single feature set and may be an Array or TypedArray.
  * Each array should contain unique indices for the features belonging to the set.
- * @param {number} totalFeatures - Total number of features in the common namespace.
+ * 
+ * In other words, given a common namespace array `X` containing the feature names, the names of the features in set `s` can be obtained as `Array.from(featureSets[s]).map(i => X[i])`.
+ * @param {number} totalFeatures - Total number of features in the common namespace. 
  * @param {object} [options={}] - Optional parameters.
  * @param {?number} [options.numberOfThreads=null] - Number of threads to use for computing the p-values, see {@linkcode hypergeometricTest}.
  *
@@ -63,6 +68,18 @@ export function testFeatureSetEnrichment(markers, featureSets, totalFeatures, { 
  * This involves defining a common namespace consisting of feature names that are shared in both namespaces,
  * and then mapping the feature sets to the common namespace.
  *
+ * The `target_indices` property returned by this function can be used to generate the indices of `markers` in {@linkcode testFeatureSetEnrichment}.
+ * Given a function that determines whether a feature in the target namespace is a marker, we can populate `markers` as below:
+ * 
+ * ```
+ * let markers = [];
+ * target_indices.forEach((x, i) => {
+ *     if (is_marker(x)) { // in other words, 'targetFeatures[x]' is a marker.
+ *         markers.push(i); // we want to store 'i' as this is the index into the common namespace.
+ *     }
+ * });
+ * ```
+ *
  * @param {Array} targetFeatures - Array of strings containing the feature names in the target namespace.
  * Any `null` entries are considered to be incomparable.
  * @param {Array} referenceFeatures - Array of strings containing the feature names in the reference namespace.
@@ -81,7 +98,7 @@ export function testFeatureSetEnrichment(markers, featureSets, totalFeatures, { 
  *   i.e., the common namespace can be defined as `Array.from(reference_indices).map(i => referenceFeatures[i])`
  *   (which is guaranteed to be the same as the corresponding operation on `target_indices`).
  * - `sets`: an Array of Int32Arrays containing the membership of each feature set.
- *   Each integer is an index into `target_indices` or `reference_indices`.
+ *   Each integer is an index into the common namespace defined by `target_indices` and `reference_indices`.
  */
 export function remapFeatureSets(targetFeatures, referenceFeatures, referenceFeatureSets) {
     let valid = new Map;
