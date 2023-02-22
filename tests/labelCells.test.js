@@ -138,6 +138,54 @@ test("labelCells works correctly with intersections", () => {
     built2.free();
 });
 
+test("labelCells ignores nulls correctly", () => {
+    let ref = mockReferenceData(nlabels, profiles_per_label, nfeatures, 20); 
+    let refinfo = scran.loadLabelledReferenceFromBuffers(ref.ranks, ref.markers, ref.labels);
+
+    let mat = simulate.simulateMatrix(nfeatures, 20);
+    let mockids = mockIDs(nfeatures);
+    let refbuilt = scran.buildLabelledReference(mockids, refinfo, mockids);
+    let reflabels = scran.labelCells(mat, refbuilt); 
+
+    // Injecting nulls in half the features - there should be some effect!
+    let copy = mockids.slice();
+    let until = Math.round(nfeatures/2);
+    for (var i = 0; i < until; i++) {
+        copy[i] = null;
+    }
+    let built = scran.buildLabelledReference(copy, refinfo, mockids);
+    expect(built.sharedFeatures() > 0).toBe(true);
+    let labels = scran.labelCells(mat, built); 
+    expect(compare.equalArrays(labels, reflabels)).toBe(false);
+
+    // Manually removing the first gene from the test matrix.
+    {
+        let built2 = scran.buildLabelledReference(mockids.slice(until), refinfo, mockids);
+        let feat = new Int32Array(nfeatures-until);
+        feat.forEach((x, i) => feat[i] = until + i);
+        let sub = scran.subsetRows(mat, feat);
+        let labels2 = scran.labelCells(sub, built2); 
+        expect(compare.equalArrays(labels, labels2)).toBe(true);
+
+        built2.free();
+        sub.free();
+    }
+
+    // null is also ignored in the reference features.
+    {
+        let built2 = scran.buildLabelledReference(copy, refinfo, mockids);
+        let labels2 = scran.labelCells(mat, built2); 
+        expect(compare.equalArrays(labels, labels2)).toBe(true);
+        built2.free();
+    }
+
+    // Freeing the objects.
+    refinfo.free();
+    mat.free();
+    built.free();
+});
+
+
 test("labelCells works correctly with a dense matrix", () => {
     let ref = mockReferenceData(nlabels, profiles_per_label, nfeatures, 20); 
     let refinfo = scran.loadLabelledReferenceFromBuffers(ref.ranks, ref.markers, ref.labels);
