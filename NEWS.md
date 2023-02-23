@@ -1,6 +1,13 @@
 # scran.js news
 
-## 2.0.0-alpha.2
+## 2.0.1
+
+**Changes**
+
+- Greatly expanded the range of species that can be guessed in `guessFeatures()`.
+  Also added the ability to force the function to report taxonomy IDs instead of common names for human/mouse.
+
+## 2.0.0
 
 **New**
 
@@ -38,7 +45,7 @@
 - Support calculation of median and maximum effect sizes in `scoreMarkers()`.
 - Pass along `block=` to the internal PCA in `quickAdtSizeFactors()`. 
 - Allow size factor centering to turned off in `logNormCounts()`, in case the input size factors are already centered.
-- Ignore `null`s in the feature ID vectors when building references for labelling.
+- Ignore `null`s in the feature ID vectors in `buildLabelledReference()`.
 - Removed deprecated functionality from previous version:
   - Removed `ScranMatrix.isPermuted()`.
   - `clusterSNNGraph()` no longer accepts integer arguments for `scheme=`.
