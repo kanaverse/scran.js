@@ -11119,7 +11119,7 @@ If <code>null</code>, defaults to <a href="global.html#maximumThreads"><code>max
 
     
 
-    <h4 class="name" id="guessFeatures"><span class="type-signature"></span>guessFeatures<span class="signature">(features)</span><span class="type-signature"> &rarr; {object}</span></h4>
+    <h4 class="name" id="guessFeatures"><span class="type-signature"></span>guessFeatures<span class="signature">(features, options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {object}</span></h4>
 
     
 
@@ -11131,7 +11131,7 @@ If <code>null</code>, defaults to <a href="global.html#maximumThreads"><code>max
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="guessFeatures.js.html">guessFeatures.js</a>, <a href="guessFeatures.js.html#line11">line 11</a>
+        <a href="guessFeatures.js.html">guessFeatures.js</a>, <a href="guessFeatures.js.html#line19">line 19</a>
     </li></ul></dd>
     
 
@@ -11197,7 +11197,11 @@ If <code>null</code>, defaults to <a href="global.html#maximumThreads"><code>max
         <th>Type</th>
 
         
+        <th>Attributes</th>
+        
 
+        
+        <th>Default</th>
         
 
         <th class="last">Description</th>
@@ -11222,11 +11226,132 @@ If <code>null</code>, defaults to <a href="global.html#maximumThreads"><code>max
             </td>
 
             
+                <td class="attributes">
+                
 
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
             
 
             <td class="description last"><p>Array of strings containing feature identifiers, typically Ensembl IDs or gene symbols.
 Elements may also be <code>null</code> or undefined if an identifier is missing.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>options</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    <code>{}</code>
+                
+                </td>
+            
+
+            <td class="description last"><p>Optional parameters.</p>
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>forceTaxonomy</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    <code>false</code>
+                
+                </td>
+            
+
+            <td class="description last"><p>Whether to force the use of taxonomy IDs for human and mouse.
+This is <code>false</code> for back compatibility.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
         </tr>
 
     
@@ -11252,9 +11377,15 @@ Elements may also be <code>null</code> or undefined if an identifier is missing.
 
         
 <div class="param-desc">
-    <p>An object containing the inferred <code>species</code>, which can be either <code>&quot;human&quot;</code> or <code>&quot;mouse&quot;</code>;
-and the identifier <code>type</code>, which can be either <code>&quot;ensembl&quot;</code> or <code>&quot;symbol&quot;</code>.
-A <code>confidence</code> value is reported which defines the percentage of entries in <code>x</code> that are consistent with the inferred identity.</p>
+    <p>An object containing:</p>
+<ul>
+<li><code>species</code>, the inferred species as a string.
+This can be either <code>&quot;human&quot;</code> or <code>&quot;mouse&quot;</code>, or an NCBI taxonomy ID (one of 6239, 10116, 9541, 7227, 7955, 9598).
+If <code>forceTaxonomy = true</code>, human and mouse are replaced with 9606 and 10090, respectively.</li>
+<li><code>type</code>: the feature identifier type.
+This can either be <code>&quot;ensembl&quot;</code> or <code>&quot;symbol&quot;</code>.</li>
+<li><code>confidence</code>: the percentage of entries in <code>x</code> that are consistent with the inferred identity.</li>
+</ul>
 </div>
 
 
@@ -28555,7 +28686,7 @@ Discrepancy is for the same reason as described for <code>csr_matrix</code>.</li
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.11</a> on Wed Feb 22 2023 22:50:52 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.11</a> on Thu Feb 23 2023 19:27:40 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>
