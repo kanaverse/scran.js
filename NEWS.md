@@ -1,5 +1,12 @@
 # scran.js news
 
+## 2.0.2
+
+**Changes**
+
+- Reduce the impact of duplicated feature identifiers in `guessFeatures()`.
+  This avoids treating strings like "Chr1" as mouse identifiers.
+
 ## 2.0.1
 
 **Changes**

@@ -87,3 +87,14 @@ test("guessFeatures handles null values properly", () => {
     expect(output2.type).toBe("ensembl");
     expect(output2.species).toBe("human");
 })
+
+test("guessFeatures penalizes duplicates properly", () => {
+    let positions = new Array(50);
+    positions.fill("Chr1");
+
+    let output = scran.guessFeatures(positions);
+    expect(output.confidence).toBe(1/50);
+    expect(output.type).toEqual("symbol");
+    expect(output.species).toEqual("mouse");
+})
+

@@ -24,6 +24,12 @@ export function guessFeatures(features, { forceTaxonomy = false } = {}) {
         return payload;
     };
 
+    // Duplicated entries only count as one match, so as to avoid problems with
+    // chromosome positions, feature type specifications, etc. Note that we
+    // still need to use the full length to compute 'ntotal', otherwise we
+    // wouldn't be penalizing the duplicates properly.
+    features = new Set(features); 
+
     let ensembl_human = 0;
     let ensembl_mouse = 0;
     let ensembl_6239 = 0;
