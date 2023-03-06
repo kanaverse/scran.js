@@ -1,7 +1,9 @@
 import * as wa from "wasmarrays.js";
+import * as utils from "./utils.js";
 
 /**
  * Convert an arbitrary array into a R-style factor, with integer indices into an array of levels.
+ * This is useful for formatting grouping or blocking vectors for {@linkcode scoreMarkers}, {@linkcode modelGeneVar}, etc.
  *
  * @param {Array|TypedArray} x - Array of values to be converted into a factor.
  * @param {object} [options={}] - Optional parameters.
@@ -25,7 +27,7 @@ import * as wa from "wasmarrays.js";
  *
  * If `buffer` was supplied, it is used as the value of the `ids` property.
  */
-export function factorize(x, { asWasmArray = true, buffer = null, action = "warn", placeholder = -1 }) {
+export function factorize(x, { asWasmArray = true, buffer = null, action = "error", placeholder = -1 } = {}) {
     let levels = [];
     let local_buffer;
 
@@ -42,7 +44,7 @@ export function factorize(x, { asWasmArray = true, buffer = null, action = "warn
         failure = () => {};
     } else if (action == "error") {
         failure = () => {
-            throw new Error("replacing invalid values with the placeholder index '" + String(placeholder) + "'");
+            throw new Error("detected invalid value (e.g., null, NaN) in 'x'");
         };
     } else {
         throw new Error("unknown action '" + action + "' for handling invalid entries");
@@ -61,7 +63,6 @@ export function factorize(x, { asWasmArray = true, buffer = null, action = "warn
 
         let barr = (asWasmArray ? buffer.array() : buffer); // no allocations from this point onwards!
         let mapping = new Map;
-        let levels = [];
 
         for (var i = 0; i < x.length; i++) {
             let y = x[i];
@@ -74,7 +75,7 @@ export function factorize(x, { asWasmArray = true, buffer = null, action = "warn
             let existing = mapping.get(y);
             if (typeof existing == "undefined") {
                 let n = levels.length;
-                mapping.set(x[i], n);
+                mapping.set(y, n);
                 levels.push(y);
                 barr[i] = n;
             } else {
