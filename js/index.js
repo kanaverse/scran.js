@@ -10,6 +10,7 @@ export * from "./writeSparseMatrixToHdf5.js";
 
 export * from "./guessFeatures.js";
 export * from "./block.js";
+export * from "./factorize.js";
 
 export * from "./cbind.js";
 export * from "./subset.js";

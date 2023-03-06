@@ -1,5 +1,6 @@
 import * as utils from "./utils.js";
 import * as wa from "wasmarrays.js";
+import * as fac from "./factorize.js";
 
 /**
  * Create a blocking factor for a set of contiguous blocks, usually to accompany the output of {@linkcode cbind} on matrices representing different batches.
@@ -48,54 +49,11 @@ export function createBlock(ncells, { buffer = null } = {}) {
     return buffer;
 }
 
-/**
- * Convert an existing array into a blocking factor for use in **scran.js** functions such as {@linkcode modelGeneVar} or {@linkcode scoreMarkers}.
- *
- * @param {(Array|TypedArray)} x - Array containing a blocking factor, where each unique level specifies the assigned block for each cell.
- *
- * Note that TypedArray views on Wasm-allocated buffers should only be provided if `buffer` is also provided;
- * otherwise, a Wasm memory allocation may invalidate the view.
- * @param {object} [options={}] - Optional parameters.
- * @param {?Int32WasmArray} [options.buffer=null] - Array in which the output is to be stored.
- * If provided, this should be of length equal to that of `x`.
- *
- * @return {object} Object containing `ids`, an Int32WasmArray of length equal to `x` with the block IDs for each cell;
- * and `levels`, an array of unique levels corresponding to the block IDs.
- *
- * If `buffer` was supplied, it is used as the value of the `ids` property.
- */
+// Soft-deprecated in favor of the more general factorize().
 export function convertBlock(x, { buffer = null } = {}) {
-    let levels = [];
-    let local_buffer;
-
-    try {
-        if (buffer == null) {
-            local_buffer = utils.createInt32WasmArray(x.length);
-            buffer = local_buffer;
-        } else if (buffer.length !== x.length) {
-            throw new Error("'buffer' should have length equal to that of 'x'");
-        }
-
-        let barr = buffer.array();
-        let mapping = {};
-
-        x.forEach((y, i) => {
-            if (!(y in mapping)) {
-                mapping[y] = levels.length;
-                levels.push(y);
-            }
-            barr[i] = mapping[y];
-        });
-
-    } catch (e) {
-        utils.free(local_buffer);
-        throw e;
-    }
-
-    return {
-        ids: buffer,
-        levels: levels
-    };
+    let output = fac.factorize(x, { buffer, action: "warn", placeholder: 0 });
+    output.levels = output.levels.map(String);
+    return output;
 }
 
 /**
