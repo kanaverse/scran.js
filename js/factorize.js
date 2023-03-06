@@ -6,6 +6,9 @@ import * as utils from "./utils.js";
  * This is useful for formatting grouping or blocking vectors for {@linkcode scoreMarkers}, {@linkcode modelGeneVar}, etc.
  *
  * @param {Array|TypedArray} x - Array of values to be converted into a factor.
+ * 
+ * Note that TypedArray views on Wasm-allocated buffers should only be provided if `buffer` is also provided;
+ * otherwise, a Wasm memory allocation may invalidate the view.
  * @param {object} [options={}] - Optional parameters.
  * @param {boolean} [options.asWasmArray=true] - Whether to return an Int32WasmArray instance for the indices.
  * If `false`, an Int32Array is returned instead.
