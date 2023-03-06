@@ -51,7 +51,9 @@ export function createBlock(ncells, { buffer = null } = {}) {
 
 // Soft-deprecated in favor of the more general factorize().
 export function convertBlock(x, { buffer = null } = {}) {
-    return fac.factorize(x, { buffer, action: "error" });
+    let output = fac.factorize(x, { buffer, action: "warn", placeholder: 0 });
+    output.levels = output.levels.map(String);
+    return output;
 }
 
 /**

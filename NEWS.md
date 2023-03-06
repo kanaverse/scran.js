@@ -5,7 +5,11 @@
 **New**
 
 - Added a `factorize()` function to convert an arbitrary array into an R-style factor.
-  This provides a superset of the functionality of the `convertBlock()` function, which now just calls `factorize()` directly.
+  This provides a superset of the functionality of the `convertBlock()` function. 
+
+**Changes**
+
+- `convertBlock()` now raises a warning upon detecting `null` or `NaN` values.
 
 ## 2.0.2
 
