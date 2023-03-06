@@ -1,5 +1,12 @@
 # scran.js news
 
+## 2.0.3
+
+**New**
+
+- Added a `factorize()` function to convert an arbitrary array into an R-style factor.
+  This provides a superset of the functionality of the `convertBlock()` function, which now just calls `factorize()` directly.
+
 ## 2.0.2
 
 **Changes**
