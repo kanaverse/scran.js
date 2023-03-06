@@ -1,5 +1,6 @@
 import * as utils from "./utils.js";
 import * as wa from "wasmarrays.js";
+import * as fac from "./factorize.js";
 
 /**
  * Create a blocking factor for a set of contiguous blocks, usually to accompany the output of {@linkcode cbind} on matrices representing different batches.
@@ -65,37 +66,7 @@ export function createBlock(ncells, { buffer = null } = {}) {
  * If `buffer` was supplied, it is used as the value of the `ids` property.
  */
 export function convertBlock(x, { buffer = null } = {}) {
-    let levels = [];
-    let local_buffer;
-
-    try {
-        if (buffer == null) {
-            local_buffer = utils.createInt32WasmArray(x.length);
-            buffer = local_buffer;
-        } else if (buffer.length !== x.length) {
-            throw new Error("'buffer' should have length equal to that of 'x'");
-        }
-
-        let barr = buffer.array();
-        let mapping = {};
-
-        x.forEach((y, i) => {
-            if (!(y in mapping)) {
-                mapping[y] = levels.length;
-                levels.push(y);
-            }
-            barr[i] = mapping[y];
-        });
-
-    } catch (e) {
-        utils.free(local_buffer);
-        throw e;
-    }
-
-    return {
-        ids: buffer,
-        levels: levels
-    };
+    return fac.factorize(x, { buffer, action: "error" });
 }
 
 /**
