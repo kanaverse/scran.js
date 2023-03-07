@@ -30,7 +30,7 @@ import * as utils from "./utils.js";
  *
  * If `buffer` was supplied, it is used as the value of the `ids` property.
  */
-export function factorize(x, { asWasmArray = true, buffer = null, action = "error", placeholder = -1 } = {}) {
+export function convertToFactor(x, { asWasmArray = true, buffer = null, action = "error", placeholder = -1 } = {}) {
     let levels = [];
     let local_buffer;
 
@@ -97,11 +97,16 @@ export function factorize(x, { asWasmArray = true, buffer = null, action = "erro
     };
 }
 
+// Back-compatible renaming.
+export function factorize(x, options = {}) {
+    return convertToFactor(x, options);
+}
+
 /**
  * Reindex the factor indices to remove unused levels.
  * This is done by adjusting the indices such that every index from `[0, N)` is represented at least once, where `N` is the number of (used) levels.
  *
- * @param {Int32WasmArray|TypedArray|Array} x - Array of factor indices such as that produced by {@linkcode factorize}. 
+ * @param {Int32WasmArray|TypedArray|Array} x - Array of factor indices such as that produced by {@linkcode convertToFactor}. 
  *
  * @return {Array} `x` is modified in place to remove unused levels.
  *
@@ -136,7 +141,7 @@ export function dropUnusedLevels(x) {
  * - `ids`: An Int32Array or Int32WasmArray of integer indices.
  * - `levels`: An array of levels that can be indexed by entries of `ids`.
  *
- * This is typically produced by {@linkcode factorize}. 
+ * This is typically produced by {@linkcode convertToFactor}. 
  * @param {(Array|TypedArray|WasmArray)} subset - Array specifying the subset to retain or filter out, depending on `filter`.
  *
  * If `filter = null`, the array is expected to contain integer indices specifying the entries in `x` to retain.

@@ -5,7 +5,7 @@ afterAll(async () => { await scran.terminate() });
 
 test("factorization works as expected", () => {
     {
-        let out = scran.factorize(["A", "A", "B", "B", "B"]);
+        let out = scran.convertToFactor(["A", "A", "B", "B", "B"]);
         expect(Array.from(out.ids.array())).toEqual([0,0,1,1,1]);
         expect(out.levels).toEqual(["A", "B"]);
         out.ids.free();
@@ -13,7 +13,7 @@ test("factorization works as expected", () => {
 
     // Respects the input order.
     {
-        let out = scran.factorize(["B", "B", "B", "A", "A"]);
+        let out = scran.convertToFactor(["B", "B", "B", "A", "A"]);
         expect(Array.from(out.ids.array())).toEqual([0,0,0,1,1]);
         expect(out.levels).toEqual(["B", "A"]);
         out.ids.free();
@@ -21,7 +21,7 @@ test("factorization works as expected", () => {
 
     // Multiple levels.
     {
-        let out = scran.factorize(["C", "A", "B", "A", "C"]);
+        let out = scran.convertToFactor(["C", "A", "B", "A", "C"]);
         expect(Array.from(out.ids.array())).toEqual([0,1,2,1,0]);
         expect(out.levels).toEqual(["C", "A", "B"]);
         out.ids.free();
@@ -29,10 +29,10 @@ test("factorization works as expected", () => {
 
     // Handles invalid values.
     {
-        expect(() => scran.factorize(["C", "A", null])).toThrow("detected invalid value");
-        expect(() => scran.factorize([Number.NaN, 1, 2, 3])).toThrow("detected invalid value");
+        expect(() => scran.convertToFactor(["C", "A", null])).toThrow("detected invalid value");
+        expect(() => scran.convertToFactor([Number.NaN, 1, 2, 3])).toThrow("detected invalid value");
 
-        let out = scran.factorize([Number.NaN, 1, "V", 3], { action: "none" });
+        let out = scran.convertToFactor([Number.NaN, 1, "V", 3], { action: "none" });
         expect(Array.from(out.ids.array())).toEqual([-1, 0, 1, 2]);
         expect(out.levels).toEqual([1,"V",3]);
         out.ids.free();
@@ -41,12 +41,12 @@ test("factorization works as expected", () => {
     // Works with TypedArrays.
     {
         let thing = new Float32Array([2,1,0,1,2]);
-        let out = scran.factorize(thing);
+        let out = scran.convertToFactor(thing);
         expect(Array.from(out.ids.array())).toEqual([0,1,2,1,0]);
         expect(out.levels).toEqual([2,1,0]);
         out.ids.free();
 
-        let out2 = scran.factorize(thing, { asWasmArray: false });
+        let out2 = scran.convertToFactor(thing, { asWasmArray: false });
         expect(out2.ids).toEqual(new Int32Array([0,1,2,1,0]));
         expect(out2.levels).toEqual([2,1,0]);
     }

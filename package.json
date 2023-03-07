@@ -39,6 +39,6 @@
     "repository": "github:kanaverse/scran.js",
     "homepage": "https://github.com/kanaverse/scran.js#readme",
     "dependencies": {
-        "wasmarrays.js": "^0.1.2"
+        "wasmarrays.js": "^0.1.3"
     }
 }
