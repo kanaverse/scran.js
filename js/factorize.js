@@ -38,7 +38,7 @@ export function factorize(x, { asWasmArray = true, buffer = null, action = "erro
     if (action == "warn") {
         let warned = false;
         failure = () => {
-            if (warned) {
+            if (!warned) {
                 console.warn ("replacing invalid values with the placeholder index '" + String(placeholder) + "'");
                 warned = true;
             }
