@@ -97,4 +97,93 @@ export function factorize(x, { asWasmArray = true, buffer = null, action = "erro
     };
 }
 
+/**
+ * Reindex the factor indices to remove unused levels.
+ * This is done by adjusting the indices such that every index from `[0, N)` is represented at least once, where `N` is the number of (used) levels.
+ *
+ * @param {Int32WasmArray|TypedArray|Array} x - Array of factor indices such as that produced by {@linkcode factorize}. 
+ *
+ * @return {Array} `x` is modified in place to remove unused levels.
+ *
+ * An array (denoted here as `y`) is returned that represents the mapping between the original and modified IDs,
+ * i.e., running `x.map(i => y[i])` will recover the input `x`.
+ * This is most commonly used to create a new array of levels, i.e., `y.map(i => old_levels[i])` will drop the unused levels. 
+ */
+export function dropUnusedLevels(x) {
+    if (x instanceof wa.WasmArray) {
+        // No more wasm allocations past this point!
+        x = x.array();
+    }
 
+    let uniq = new Set(x);
+    let uniq_arr = Array.from(uniq).sort();
+    let mapping = {};
+    uniq_arr.forEach((y, i) => { mapping[y] = i; });
+
+    x.forEach((y, i) => {
+        x[i] = mapping[y];
+    });
+
+    return uniq_arr;
+}
+
+/**
+ * Subset a factor, possibly also dropping its unused levels.
+ * This is typically based on the same filtering vector as {@linkcode filterCells}.
+ *
+ * @param {object} x - An object representing a factor, containing the following properties:
+ *
+ * - `ids`: An Int32Array or Int32WasmArray of integer indices.
+ * - `levels`: An array of levels that can be indexed by entries of `ids`.
+ *
+ * This is typically produced by {@linkcode factorize}. 
+ * @param {(Array|TypedArray|WasmArray)} subset - Array specifying the subset to retain or filter out, depending on `filter`.
+ *
+ * If `filter = null`, the array is expected to contain integer indices specifying the entries in `x` to retain.
+ * The ordering of indices in `subset` will be respected in the subsetted array.
+ *
+ * If `filter = true`, the array should be of length equal to that of `x`.
+ * Each value is interpreted as a boolean and, if truthy, indicates that the corresponding entry of `x` should be filtered out.
+ *
+ * If `filter = false`, the array should be of length equal to that of `x`.
+ * Each value is interpreted as a boolean and, if truthy, indicates that the corresponding entry of `x` should be retained.
+ *
+ * Note that TypedArray views on Wasm-allocated buffers should only be provided if `buffer` is also provided;
+ * otherwise, a Wasm memory allocation may invalidate the view.
+ * @param {object} [options={}] - Optional parameters.
+ * @param {boolean} [options.drop=true] - Whether to drop unused levels in the output, see {@linkcode dropUnusedLevels}.
+ * @param {?boolean} [options.filter=null] - Whether to retain truthy or falsey values in a `subset` boolean filter.
+ * If `null`, `subset` should instead contain the indices of elements to retain.
+ * @param {?(Int32Array|Int32WasmArray)} [options.buffer=null] - Array in which the output is to be stored, of the same type as `x.ids`.
+ * If provided, this should be of length equal to `subset`, if `filter = null`;
+ * the number of truthy elements in `subset`, if `filter = false`;
+ * or the number of falsey elements in `subset`, if `filter = true`.
+ *
+ * @return {object} An object like `x`, containing:
+ *
+ * - `ids`: An Int32Array or Int32WasmArray of integer indices, subsetted from those in `x.ids`.
+ * - `levels`: Array of levels that can be indexed by entries of the output `ids`.
+ *   If `drop = true`, this may be a subset of `x.levels` where every entry is represented at least once in the output `ids`.
+ *
+ * If `buffer` is supplied, the returned `ids` will be set to `buffer`.
+ */
+export function subsetFactor(x, subset, { drop = true, filter = null, buffer = null } = {}) {
+    let output = { ids: null, levels: x.levels };
+
+    if (x.ids instanceof wa.WasmArray) {
+        output.ids = wa.subsetWasmArray(x.ids, subset, { filter, buffer });
+    } else {
+        let n = wa.checkSubsetLength(subset, filter, x.length, "x");
+        if (buffer == null) {
+            buffer = new x.ids.constructor(n);
+        }
+        wa.fillSubset(subset, filter, x.ids, buffer);
+        output.ids = buffer;
+    }
+
+    if (drop) {
+        let remapping = dropUnusedLevels(output.ids);
+        output.levels = remapping.map(i => x.levels[i]);
+    }
+    return output;
+}

@@ -64,3 +64,95 @@ test("factorization works as expected", () => {
         expect(buffer).toEqual(new Int32Array([0,0,1,2]));
     }
 })
+
+test("dropUnusedLevels works as expected", () => {
+    let buffer = scran.createInt32WasmArray(6);
+    buffer.set([2,1,4,1,2,4]);
+    let mapping = scran.dropUnusedLevels(buffer);
+    expect(Array.from(buffer.array())).toEqual([1,0,2,0,1,2]);
+    expect(mapping).toEqual([1,2,4]);
+
+    // Also works for arrays.
+    let arr = [3,5,2,9,3];
+    mapping = scran.dropUnusedLevels(arr);
+    expect(arr).toEqual([1,2,0,3,1]);
+    expect(mapping).toEqual([2,3,5,9]);
+})
+
+test("subsetFactor works as expected for WasmArray inputs", () => {
+    let x = {
+        ids: scran.createInt32WasmArray(6),
+        levels: [ "A", "B", "C" ]
+    };
+    x.ids.set([0,1,2,0,1,2]);
+
+    {
+        let filtered = scran.subsetFactor(x, [0, 1, 0, 1, 0, 1], { filter: true });
+        expect(Array.from(filtered.ids.array())).toEqual([0,2,1]);
+        expect(filtered.levels).toEqual(x.levels);
+        filtered.ids.free();
+    }
+
+    // Works with WasmArrays in the subset.
+    {
+        let filter = scran.createUint8WasmArray(6);
+        filter.set([1, 0, 0, 0, 0, 1]);
+
+        let filtered = scran.subsetFactor(x, filter, { filter: true });
+        expect(Array.from(filtered.ids.array())).toEqual([1,2,0,1]);
+        expect(filtered.levels).toEqual(x.levels);
+        filtered.ids.free();
+    }
+
+    // Works with a WasmArray buffer.
+    {
+        let buffer = scran.createInt32WasmArray(2);
+        let filter = new Uint8Array(6);
+        filter.set([0, 1, 1, 1, 1, 0]);
+
+        let filtered = scran.subsetFactor(x, filter, { filter: true, buffer: buffer });
+        expect(Array.from(filtered.ids.array())).toEqual([0, 1]);
+        expect(filtered.levels).toEqual(["A", "C"]); // auto-drop levels.
+        filtered.ids.free();
+    }
+
+    // Works with TypedArray filters.
+    {
+        let filter = new Uint8Array(6);
+        filter.set([0, 0, 1, 1, 0, 0]);
+
+        let filtered = scran.subsetFactor(x, filter, { filter: true });
+        expect(Array.from(filtered.ids.array())).toEqual([0,1,1,2]);
+        expect(filtered.levels).toEqual(x.levels);
+        filtered.ids.free();
+    }
+
+    x.ids.free();
+})
+
+test("subsetFactor works as expected for TypedArray inputs", () => {
+    let x = {
+        ids: new Int32Array([0,1,2,0,1,2]),
+        levels: [ "x", "y", "z" ]
+    };
+
+    {
+        let filtered = scran.subsetFactor(x, [0, 2, 4]);
+        expect(Array.from(filtered.ids)).toEqual([0,2,1]);
+        expect(filtered.levels).toEqual(x.levels);
+    }
+
+    // With a buffer.
+    {
+        let buffer = new Int32Array(2);
+
+        let filtered = scran.subsetFactor(x, [1, 4], { buffer: buffer });
+        expect(Array.from(filtered.ids)).toEqual([0,0]);
+        expect(filtered.levels).toEqual(["y"]);
+
+        filtered = scran.subsetFactor(x, [1, 4], { buffer: buffer, drop: false });
+        expect(Array.from(filtered.ids)).toEqual([1,1]);
+        expect(filtered.levels).toEqual(x.levels);
+    }
+})
+
