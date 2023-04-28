@@ -47,6 +47,8 @@ add_executable(
 
     src/score_feature_set.cpp
     src/hypergeometric_test.cpp
+
+    src/aggregate_across_cells.cpp
 )
 
 target_compile_options(

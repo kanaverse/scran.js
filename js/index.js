@@ -51,6 +51,8 @@ export * from "./scoreFeatureSet.js";
 export * from "./hypergeometricTest.js";
 export * from "./testFeatureSetEnrichment.js";
 
+export * from "./aggregateAcrossCells.js";
+
 export * from "./ScranMatrix.js";
 export * from "./MultiMatrix.js";
 
