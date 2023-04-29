@@ -13,6 +13,9 @@
 #include <memory>
 #include <cstdint>
 
+/*****************************************
+ *****************************************/
+
 /**
  * @brief A reference dataset for **singlepp** annotation.
  */
@@ -146,17 +149,55 @@ BuiltSinglePPReference build_singlepp_reference(size_t nfeatures, uintptr_t mat_
     return BuiltSinglePPReference(std::move(built));
 }
 
-/**
- * @param mat Matrix containing the test dataset, with cells in columns and features in rows.
- * @param built The pre-built reference dataset to use for annotation, see `build_singlepp_reference()`.
- * @param quantile Quantile on the correlations to use when computing a score for each label.
- * @param[out] output Offset to an integer array of length equal to the number of columns in `mat`.
- * This will be filled with the index of the assigned label for each cell in the test dataset.
- *
- * @return `output` is filled with the label assignments from the reference dataset.
- */
-void run_singlepp(const NumericMatrix& mat, const BuiltSinglePPReference& built, double quantile, uintptr_t output, int nthreads) {
-    std::vector<double*> empty(built.num_labels(), nullptr);
+/*****************************************
+ *****************************************/
+
+struct SinglePPResults {
+    std::vector<int> best;
+    std::unique_ptr<tatami::DenseColumnMatrix<double, int> > scores;
+    std::vector<double> delta;
+
+    int num_samples() const {
+        return scores->nrow();
+    }
+
+    int num_labels() {
+        return scores->ncol();
+    }
+
+    emscripten::val get_best() const {
+        return emscripten::val(emscripten::typed_memory_view(best.size(), best.data()));
+    }
+
+    void get_scores_for_sample(int i, uintptr_t output) {
+        auto optr = reinterpret_cast<double*>(output);
+        scores->row_copy(i, optr);
+    }
+
+    void get_scores_for_label(int i, uintptr_t output) {
+        auto optr = reinterpret_cast<double*>(output);
+        scores->column_copy(i, optr);
+    }
+
+    emscripten::val get_delta() const {
+        return emscripten::val(emscripten::typed_memory_view(best.size(), best.data()));
+    }
+};
+
+SinglePPResults run_singlepp(const NumericMatrix& mat, const BuiltSinglePPReference& built, double quantile, int nthreads) {
+    size_t nlabs = built.num_labels();
+    size_t NC =  mat.ptr->ncol();
+
+    std::vector<double> scores(nlabs * NC);
+    std::vector<double*> ptrs;
+    ptrs.reserve(nlabs);
+    for (size_t l = 0; l < nlabs; ++l) {
+        ptrs.push_back(scores.data() + NC * l);
+    }
+
+    SinglePPResults output;
+    output.best.resize(NC);
+    output.delta.resize(NC);
 
     singlepp::BasicScorer runner;
     runner.set_quantile(quantile).set_num_threads(nthreads);
@@ -164,12 +205,17 @@ void run_singlepp(const NumericMatrix& mat, const BuiltSinglePPReference& built,
     runner.run(
         mat.ptr.get(), 
         built.built,
-        reinterpret_cast<int*>(output),
-        empty,
-        nullptr
+        output.best.data(),
+        ptrs,
+        output.delta.data()
     );
-    return;
+
+    output.scores.reset(new tatami::DenseColumnMatrix<double, int>(NC, nlabs, std::move(scores)));
+    return output;
 }
+
+/*****************************************
+ *****************************************/
 
 /**
  * @brief Integrated references for **singlepp** annotation.
@@ -243,20 +289,21 @@ IntegratedSinglePPReferences integrate_singlepp_references(
     return IntegratedSinglePPReferences(inter.finish());
 }
 
-/**
- * @param mat Matrix containing the test dataset, with cells in columns and features in rows.
- * @param[in] assigned Offset to an array of 64-bit pointers.
- * This array should be of length `nref`, where each pointer corresponds to a reference.
- * Each pointer should refer to an integer array of length equal to the number of cells in `mat`, where each value is the label assigned to a cell in the corresponding reference.
- * @param integrated An integrated set of reference datasets, see `integrate_singlepp_references()`.
- * @param quantile Quantile on the correlations to use when computing a score for each label.
- * @param[out] output Offset to an integer array of length equal to the number of columns in `mat`.
- * This will be filled with the index of the reference with the top-scoring label for each cell in the test dataset.
- *
- * @return `output` is filled with the reference indices.
- */
-void integrate_singlepp(const NumericMatrix& mat, uintptr_t assigned, const IntegratedSinglePPReferences& integrated, double quantile, uintptr_t output, int nthreads) {
-    std::vector<double*> empty(integrated.num_references(), nullptr);
+SinglePPResults integrate_singlepp(const NumericMatrix& mat, uintptr_t assigned, const IntegratedSinglePPReferences& integrated, double quantile, int nthreads) {
+    size_t nrefs = integrated.num_references();
+    size_t NC =  mat.ptr->ncol();
+
+    std::vector<double> scores(nrefs * NC);
+    std::vector<double*> ptrs;
+    ptrs.reserve(nrefs);
+    for (size_t l = 0; l < nrefs; ++l) {
+        ptrs.push_back(scores.data() + NC * l);
+    }
+
+    SinglePPResults output;
+    output.best.resize(NC);
+    output.delta.resize(NC);
+
     auto aptrs = convert_array_of_offsets<const int*>(integrated.num_references(), assigned);
 
     singlepp::IntegratedScorer runner;
@@ -266,13 +313,17 @@ void integrate_singlepp(const NumericMatrix& mat, uintptr_t assigned, const Inte
         mat.ptr.get(), 
         aptrs,
         integrated.references,
-        reinterpret_cast<int*>(output),
-        empty,
-        nullptr
+        output.best.data(),
+        ptrs,
+        output.delta.data()
     );
 
-    return;
+    output.scores.reset(new tatami::DenseColumnMatrix<double, int>(NC, nrefs, std::move(scores)));
+    return output;
 }
+
+/*****************************************
+ *****************************************/
 
 /**
  * @cond
@@ -301,6 +352,15 @@ EMSCRIPTEN_BINDINGS(run_singlepp) {
 
     emscripten::class_<IntegratedSinglePPReferences>("IntegratedSinglePPReferences")
         .function("num_references", &IntegratedSinglePPReferences::num_references)
+        ;
+
+    emscripten::class_<SinglePPResults>("SinglePPResults")
+        .function("num_samples", &SinglePPResults::num_samples) 
+        .function("num_labels", &SinglePPResults::num_labels)
+        .function("get_best", &SinglePPResults::get_best)
+        .function("get_scores_for_sample", &SinglePPResults::get_scores_for_sample)
+        .function("get_scores_for_label", &SinglePPResults::get_scores_for_label)
+        .function("get_delta", &SinglePPResults::get_delta)
         ;
 }
 /**
