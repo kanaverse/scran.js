@@ -52,7 +52,7 @@ struct NumericMatrix {
      * @param nc Number of columns.
      * @param values Offset to the start of an input array of `double`s of length `nr*nc`.
      */
-    NumericMatrix(int nr, int nc, uintptr_t values);
+    NumericMatrix(int nr, int nc, uintptr_t values, bool, bool);
 
     /** 
      * @return Number of rows in the matrix.
