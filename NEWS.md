@@ -1,5 +1,17 @@
 # scran.js news
 
+## 2.1.0
+
+**New**
+
+- Added an `aggregateAcrossCells()` function to aggregate expression values across groups of cells.
+  This is typically used to obtain cluster-level summaries for plotting or per-cluster analyses. 
+
+**Changes**
+
+- Provide more details (scores, fine-tuning deltas) in `labelCells()` and `integrateCellLabels()`.
+  These functions now return full-fledged objects that need to be explicitly freed after use.
+
 ## 2.0.3
 
 **New**
