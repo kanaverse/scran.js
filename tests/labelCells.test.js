@@ -246,6 +246,107 @@ test("labelCells ignores nulls correctly", () => {
     refresults.free();
 });
 
+test("labelCells handles synonyms correctly", () => {
+    let ref = mockReferenceData(nlabels, profiles_per_label, nfeatures, 20); 
+    let info = scran.loadLabelledReferenceFromBuffers(ref.ranks, ref.markers, ref.labels);
+
+    let mat = simulate.simulateMatrix(nfeatures, 20);
+    let mockids = mockIDs(nfeatures);
+    let built = scran.buildLabelledReference(mockids, info, mockids);
+    let results = scran.labelCells(mat, built); 
+    let labels = results.predictedLabels();
+
+    // Synonyms in the reference.
+    {
+        let refids = mockids.slice();
+        let dataids = mockids.slice();
+        refids[0] = [ "A", "B" ];
+        dataids[0] = "B";
+
+        let built2 = scran.buildLabelledReference(dataids, info, refids);
+        let results2 = scran.labelCells(mat, built2); 
+        expect(compare.equalArrays(labels, results2.predictedLabels({ copy: false }))).toBe(true);
+
+        built2.free();
+        results2.free();
+    }
+
+    // First matching synonym wins.
+    {
+        let refids = mockids.slice();
+        let dataids = mockids.slice();
+        dataids[0] = "A";
+        dataids[1] = "B";
+        refids[0] = ["A", "B"];
+        refids[1] = ["C", "B"]; 
+
+        let built2 = scran.buildLabelledReference(dataids, info, refids);
+        let results2 = scran.labelCells(mat, built2); 
+        expect(compare.equalArrays(labels, results2.predictedLabels({ copy: false }))).toBe(true);
+
+        built2.free();
+        results2.free();
+    }
+
+    // Freeing the objects.
+    info.free();
+    mat.free();
+    built.free();
+    results.free();
+});
+
+test("labelCells ignores duplicated feature IDs", () => {
+    let ref = mockReferenceData(nlabels, profiles_per_label, nfeatures, 20); 
+    let refinfo = scran.loadLabelledReferenceFromBuffers(ref.ranks, ref.markers, ref.labels);
+    let mat = simulate.simulateMatrix(nfeatures, 20);
+    let mockids = mockIDs(nfeatures);
+
+    // Duplicates in the reference.
+    {
+        let refids = mockids.slice();
+        let dataids = mockids.slice();
+
+        refids[1] = refids[0];
+        let built = scran.buildLabelledReference(dataids, refinfo, refids);
+        let results = scran.labelCells(mat, built); 
+
+        // Gives the same output as if the duplicate was unmatchable.
+        refids[1] = "FOOBAR";
+        let built2 = scran.buildLabelledReference(dataids, refinfo, refids);
+        let results2 = scran.labelCells(mat, built2); 
+        expect(compare.equalArrays(results.predictedLabels({copy: false}), results2.predictedLabels({ copy: false }))).toBe(true);
+
+        built.free();
+        results.free();
+        built2.free();
+        results2.free();
+    }
+
+    // Duplicates in the data IDs.
+    {
+        let refids = mockids.slice();
+        let dataids = mockids.slice();
+
+        dataids[1] = dataids[0];
+        let built = scran.buildLabelledReference(dataids, refinfo, refids);
+        let results = scran.labelCells(mat, built); 
+
+        // Gives the same output as if the duplicate was unmatchable.
+        dataids[1] = "FOOBAR";
+        let built2 = scran.buildLabelledReference(dataids, refinfo, refids);
+        let results2 = scran.labelCells(mat, built2); 
+        expect(compare.equalArrays(results.predictedLabels({copy: false}), results2.predictedLabels({ copy: false }))).toBe(true);
+
+        built.free();
+        results.free();
+        built2.free();
+        results2.free();
+    }
+
+    mat.free();
+    refinfo.free();
+})
+
 test("labelCells works correctly with a dense matrix", () => {
     let ref = mockReferenceData(nlabels, profiles_per_label, nfeatures, 20); 
     let refinfo = scran.loadLabelledReferenceFromBuffers(ref.ranks, ref.markers, ref.labels);

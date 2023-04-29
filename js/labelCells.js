@@ -146,27 +146,23 @@ class BuildLabelledReferenceResults {
     }
 }
 
-function new_registry() {
-    return { contents: new Map, counter: 0 };
-}
+function register_features(features, id_array) {
+    let registry_contents = new Map;
 
-function register_features(features, registry) {
-    let set = id => {
-        if (!registry.contents.has(id)) {
-            registry.contents.set(id, registry.counter);
-            registry.counter++;
-        }
-    };
-
-    for (const y of features) {
-        if (y !== null) {
-            if (y instanceof Array) { // Multiple IDs are supported.
-                y.forEach(set);
-            } else {
-                set(y);
+    // All features in the data are guaranteed to get the a unique ID,
+    // but only non-null and non-duplicated (or the first of a duplicate set)
+    // are actually registered.
+    for (var i = 0; i < features.length; i++) {
+        let id = features[i];
+        if (id !== null) {
+            if (!registry_contents.has(id)) {
+                registry_contents.set(id, i);
             }
         }
+        id_array[i] = i;
     }
+
+    return { contents: registry_contents, counter: features.length };
 }
 
 function convert_features(features, registry, id_array) {  
@@ -174,7 +170,7 @@ function convert_features(features, registry, id_array) {
     let set = (id, index) => {
         let found = registry.contents.get(id);
         if (typeof found !== "undefined") {
-            if (!used.has(found)) { // if entries of 'features' are duplicated, only the first entry gets to match to the ID.
+            if (!used.has(found)) { // if entries of 'features' match to the same ID, only the first entry gets to match to the ID.
                 id_array[index] = found;
                 used.add(found);
                 return true;
@@ -183,6 +179,7 @@ function convert_features(features, registry, id_array) {
         return false;
     };
 
+    let counter = registry.counter;
     for (var i = 0; i < features.length; i++) {
         let y = features[i];
         let found = false;
@@ -202,8 +199,8 @@ function convert_features(features, registry, id_array) {
 
         // If something isn't found, they get a unique ID.
         if (!found) {
-            id_array[i] = registry.counter;
-            ++registry.counter;
+            id_array[i] = counter;
+            ++counter;
         }
     }
 
@@ -220,13 +217,14 @@ function convert_features(features, registry, id_array) {
  *
  * @param {Array} features - An array of feature identifiers (usually strings) of length equal to the number of rows in the test matrix.
  * Each entry should contain the identifier for the corresponding row of the test matrix.
- * Each entry may also be an strings for features that have synonymous identifiers.
  * Any `null` entries are considered to be incomparable.
+ * If any identifiers are duplicated, only the first occurrence is used and the rest are ignored.
  * @param {LoadLabelledReferenceResults} loaded - A reference dataset, typically loaded with {@linkcode loadLabelledReferenceFromBuffers}.
- * @param {Array} referenceFeatures - An array of feature identifiers of length equal to the number of features in `reference`.
- * Each entry is typically a string but may also be an array for features that have synonymous identifiers.
+ * @param {Array} referenceFeatures - An array of feature identifiers (usually strings) of length equal to the number of features in `reference`.
+ * Each entry may also be an array of synonymous identifiers, in which case the first identifier that matches to an entry of `features` is used.
  * Contents of `referenceFeatures` are expected to exhibit some overlap with identifiers in `features`.
  * Any `null` entries are considered to be incomparable.
+ * If multiple entries of `referenceFeatures` match to the same feature in `features`, only the first matching entry is used and the rest are ignored.
  * @param {object} [options={}] - Optional parameters.
  * @param {number} [options.top=20] - Number of top marker features to use.
  * These features are taken from each pairwise comparison between labels.
@@ -249,11 +247,7 @@ export function buildLabelledReference(features, loaded, referenceFeatures, { to
             throw new Error("length of 'referenceFeatures' should be equal to the number of features in 'reference'");
         }
 
-        let registry = new_registry();
-        register_features(features, registry);
-        register_features(referenceFeatures, registry);
-
-        convert_features(features, registry, mat_id_buffer.array());
+        let registry = register_features(features, mat_id_buffer.array());
         convert_features(referenceFeatures, registry, ref_id_buffer.array());
 
         output = gc.call(
@@ -497,15 +491,16 @@ class IntegrateLabelledReferencesResults {
  * Integrate multiple reference datasets.
  *
  * @param {Array} features - An array of feature identifiers (usually strings) of length equal to the number of rows in the test matrix.
- * Each entry should contain the identifier for the corresponding row of the test matrix.
- * Each entry may also be an array of synonymous identifiers for a single feature.
+ * Each entry should contain a single identifier for the corresponding row of the test matrix.
  * Any `null` entries are considered to be incomparable.
+ * If any entries are duplicated, only the first occurrence is used and the rest are ignored.
  * @param {Array} loaded - Array of {@linkplain LabelledReference} objects, typically created with {@linkcode loadLabelledReferenceFromBuffers}.
  * @param {Array} referenceFeatures - Array of length equal to `loaded`, 
  * containing arrays of feature identifiers (usually strings) of length equal to the number of features the corresponding entry of `loaded`.
- * Each entry may also be an array of synonymous identifiers.
+ * Each entry may also be an array of synonymous identifiers, in which case the first identifier that matches to an entry of `features` is used.
  * Contents of `referenceFeatures` are expected to exhibit some overlap with identifiers in `features`.
  * Any `null` entries are considered to be incomparable.
+ * If multiple entries of `referenceFeatures` match to the same feature in `features`, only the first matching entry is used and the rest are ignored.
  * @param {Array} reference - Array of {@linkplain BuildLabelledReferenceResults} objects, typically generated by calling {@linkcode buildLabelledReference} 
  * on the same `features` and the corresponding entries of `loaded` and `referenceFeatures`.
  * This should have length equal to that of `loaded`.
@@ -537,14 +532,10 @@ export function integrateLabelledReferences(features, loaded, referenceFeatures,
         }
     }
 
-    let registry = new_registry();
-    register_features(features, registry);
-    referenceFeatures.forEach(current => register_features(current, registry));
-
     let ref_arr = new Array(nrefs);
     try {
         id_arr = utils.createInt32WasmArray(features.length);
-        convert_features(features, registry, id_arr.array());
+        let registry = register_features(features, id_arr.array());
 
         loaded_arr2 = utils.createBigUint64WasmArray(nrefs);
         let la2 = loaded_arr2.array();
