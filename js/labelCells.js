@@ -146,37 +146,67 @@ class BuildLabelledReferenceResults {
     }
 }
 
-function create_feature_availability(features, mat_id_buffer) {
-    let mat_id_array = mat_id_buffer.array();
-    let available = {};
-    let counter = 0;
-
-    features.forEach(y => {
-        // Nulls get incremented but they don't fall into the 'available' 
-        // dictionary. The strategy is that each null is unique and can 
-        // never match anything else.
-        if (y !== null) {
-            available[y] = counter;
-        }
-        mat_id_array[counter] = counter;
-        counter++;
-    });
-
-    return available;
+function new_registry() {
+    return { contents: new Map, counter: 0 };
 }
 
-function convert_reference_features(referenceFeatures, available, ref_id_buffer) {  
-    let ref_id_array = ref_id_buffer.array();
-    let counter = Object.keys(available).length;
-    referenceFeatures.forEach((y, i) => {
-        // If y is null, we force it to be incremented so that it's always unique.
-        if (y !== null && y in available) {
-            ref_id_array[i] = available[y];
-        } else {
-            ref_id_array[i] = counter;
-            counter++;
+function register_features(features, registry) {
+    let set = id => {
+        if (!registry.contents.has(id)) {
+            registry.contents.set(id, registry.counter);
+            registry.counter++;
         }
-    });
+    };
+
+    for (const y of features) {
+        if (y !== null) {
+            if (y instanceof Array) { // Multiple IDs are supported.
+                y.forEach(set);
+            } else {
+                set(y);
+            }
+        }
+    }
+}
+
+function convert_features(features, registry, id_array) {  
+    let used = new Set;
+    let set = (id, index) => {
+        let found = registry.contents.get(id);
+        if (typeof found !== "undefined") {
+            if (!used.has(found)) { // if entries of 'features' are duplicated, only the first entry gets to match to the ID.
+                id_array[index] = found;
+                used.add(found);
+                return true;
+            }
+        }
+        return false;
+    };
+
+    for (var i = 0; i < features.length; i++) {
+        let y = features[i];
+        let found = false;
+
+        if (y !== null) {
+            if (y instanceof Array) {
+                for (const z of y) {
+                    if (set(z, i)) { // if an entry of 'features' has multiple names, the first matching name wins.
+                        found = true;
+                        break;
+                    }
+                }
+            } else {
+                found = set(y, i);
+            }
+        }
+
+        // If something isn't found, they get a unique ID.
+        if (!found) {
+            id_array[i] = registry.counter;
+            ++registry.counter;
+        }
+    }
+
     return;
 }
 
@@ -190,10 +220,12 @@ function convert_reference_features(referenceFeatures, available, ref_id_buffer)
  *
  * @param {Array} features - An array of feature identifiers (usually strings) of length equal to the number of rows in the test matrix.
  * Each entry should contain the identifier for the corresponding row of the test matrix.
+ * Each entry may also be an strings for features that have synonymous identifiers.
  * Any `null` entries are considered to be incomparable.
  * @param {LoadLabelledReferenceResults} loaded - A reference dataset, typically loaded with {@linkcode loadLabelledReferenceFromBuffers}.
- * @param {Array} referenceFeatures - An array of feature identifiers (usually strings) of length equal to the number of features in `reference`.
- * This is expected to exhibit some overlap with those in `features`.
+ * @param {Array} referenceFeatures - An array of feature identifiers of length equal to the number of features in `reference`.
+ * Each entry is typically a string but may also be an array for features that have synonymous identifiers.
+ * Contents of `referenceFeatures` are expected to exhibit some overlap with identifiers in `features`.
  * Any `null` entries are considered to be incomparable.
  * @param {object} [options={}] - Optional parameters.
  * @param {number} [options.top=20] - Number of top marker features to use.
@@ -217,8 +249,12 @@ export function buildLabelledReference(features, loaded, referenceFeatures, { to
             throw new Error("length of 'referenceFeatures' should be equal to the number of features in 'reference'");
         }
 
-        let available = create_feature_availability(features, mat_id_buffer);
-        convert_reference_features(referenceFeatures, available, ref_id_buffer);
+        let registry = new_registry();
+        register_features(features, registry);
+        register_features(referenceFeatures, registry);
+
+        convert_features(features, registry, mat_id_buffer.array());
+        convert_features(referenceFeatures, registry, ref_id_buffer.array());
 
         output = gc.call(
             module => module.build_singlepp_reference(nfeat, mat_id_buffer.offset, loaded.reference, ref_id_buffer.offset, top, nthreads),
@@ -462,11 +498,13 @@ class IntegrateLabelledReferencesResults {
  *
  * @param {Array} features - An array of feature identifiers (usually strings) of length equal to the number of rows in the test matrix.
  * Each entry should contain the identifier for the corresponding row of the test matrix.
+ * Each entry may also be an array of synonymous identifiers for a single feature.
  * Any `null` entries are considered to be incomparable.
  * @param {Array} loaded - Array of {@linkplain LabelledReference} objects, typically created with {@linkcode loadLabelledReferenceFromBuffers}.
  * @param {Array} referenceFeatures - Array of length equal to `loaded`, 
  * containing arrays of feature identifiers (usually strings) of length equal to the number of features the corresponding entry of `loaded`.
- * This is expected to exhibit some overlap with those in `features`.
+ * Each entry may also be an array of synonymous identifiers.
+ * Contents of `referenceFeatures` are expected to exhibit some overlap with identifiers in `features`.
  * Any `null` entries are considered to be incomparable.
  * @param {Array} reference - Array of {@linkplain BuildLabelledReferenceResults} objects, typically generated by calling {@linkcode buildLabelledReference} 
  * on the same `features` and the corresponding entries of `loaded` and `referenceFeatures`.
@@ -499,11 +537,14 @@ export function integrateLabelledReferences(features, loaded, referenceFeatures,
         }
     }
 
-    let ref_arr = new Array(nrefs);
+    let registry = new_registry();
+    register_features(features, registry);
+    referenceFeatures.forEach(current => register_features(current, registry));
 
+    let ref_arr = new Array(nrefs);
     try {
         id_arr = utils.createInt32WasmArray(features.length);
-        let available = create_feature_availability(features, id_arr);
+        convert_features(features, registry, id_arr.array());
 
         loaded_arr2 = utils.createBigUint64WasmArray(nrefs);
         let la2 = loaded_arr2.array();
@@ -515,13 +556,9 @@ export function integrateLabelledReferences(features, loaded, referenceFeatures,
         let ra2 = ref_arr2.array();
         for (var i = 0; i < nrefs; i++) {
             let current = referenceFeatures[i];
-            if (current instanceof wa.Int32WasmArray) {
-                ra2[i] = BigInt(current.offset);
-            } else {
-                ref_arr[i] = utils.createInt32WasmArray(current.length);
-                convert_reference_features(current, available, ref_arr[i]);
-                ra2[i] = BigInt(ref_arr[i].offset);
-            }
+            ref_arr[i] = utils.createInt32WasmArray(current.length);
+            convert_features(current, registry, ref_arr[i].array());
+            ra2[i] = BigInt(ref_arr[i].offset);
         }
 
         built_arr2 = utils.createBigUint64WasmArray(nrefs);
