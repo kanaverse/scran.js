@@ -1,5 +1,12 @@
 # scran.js news
 
+## 2.1.1
+
+**Changes**
+
+- Improved the intersection of feature identifiers in `labelCells()` and `integrateCellLabels()`.
+  Reference features may now contain synonyms, and if feature identifiers are duplicated, only the first occurrence is used.
+
 ## 2.1.0
 
 **New**
