@@ -29,20 +29,12 @@ struct AggregateAcrossCells_Results {
         return emscripten::val(emscripten::typed_memory_view(ngenes, sums.data() + i * ngenes));
     }
 
-    NumericMatrix sums_as_matrix() const {
-        return NumericMatrix(new tatami::DenseColumnMatrix<double, int, tatami::ArrayView<double> >(ngenes, ngroups, tatami::ArrayView(sums.data(), sums.size())));
-    }
-
     emscripten::val all_detected() const {
         return emscripten::val(emscripten::typed_memory_view(detected.size(), detected.data()));
     }
 
     emscripten::val group_detected(int i) const {
         return emscripten::val(emscripten::typed_memory_view(ngenes, detected.data() + i * ngenes));
-    }
-
-    NumericMatrix detected_as_matrix() const {
-        return NumericMatrix(new tatami::DenseColumnMatrix<double, int, tatami::ArrayView<double> >(ngenes, ngroups, tatami::ArrayView(detected.data(), detected.size())));
     }
 };
 
@@ -97,10 +89,8 @@ EMSCRIPTEN_BINDINGS(aggregate_across_cells) {
     emscripten::class_<AggregateAcrossCells_Results>("AggregateAcrossCells_Results")
         .function("group_sums", &AggregateAcrossCells_Results::group_sums)
         .function("all_sums", &AggregateAcrossCells_Results::all_sums)
-        .function("sums_as_matrix", &AggregateAcrossCells_Results::sums_as_matrix)
         .function("group_detected", &AggregateAcrossCells_Results::group_detected)
         .function("all_detected", &AggregateAcrossCells_Results::all_detected)
-        .function("detected_as_matrix", &AggregateAcrossCells_Results::detected_as_matrix)
         .function("num_genes", &AggregateAcrossCells_Results::num_genes)
         .function("num_groups", &AggregateAcrossCells_Results::num_groups)
         ;

@@ -1,5 +1,6 @@
 import * as utils from "./utils.js";
 import * as gc from "./gc.js";
+import * as wa from "wasmarrays.js";
 
 /**
  * Wrapper around a matrix allocated on the Wasm heap.
@@ -13,6 +14,30 @@ export class ScranMatrix {
         this.#id = id;
         this.#matrix = raw;
         return;
+    }
+
+    /**
+     * Create a dense matrix from an existing Wasm-allocated buffer.
+     *
+     * @param {number} rows - Number of rows.
+     * @param {number} columns - Number of columns.
+     * @param {Float64WasmArray} contents - Array of matrix contents.
+     * @param {object} [options={}] - Optional parameters.
+     * @param {boolean} [options.columnMajor=true] - Whether the array in `contents` is column-major.
+     * @param {boolean} [options.copy=true] - Whether to copy `contents` when constructing the {@linkplain ScranMatrix}.
+     * If `false`, the returned {@linkplain ScranMatrix} will refer to the same allocation as `contents`,
+     * so callers should make sure that it does not outlive `contents`.
+     *
+     * @return A {@linkplain ScranMatrix} containing the matrix contents.
+     */
+    static createDenseMatrix(rows, columns, contents, { columnMajor = true , copy = true } = {}) {
+        if (!(contents instanceof wa.Float64WasmArray)) {
+            throw new Error("'contents' should be a Float64WasmArray");
+        }
+        if (contents.length != rows * columns) {
+            throw new Error("length of 'contents' should equal the product of 'rows' and 'columns'");
+        }
+        return gc.call(module => new module.NumericMatrix(rows, columns, contents.offset, columnMajor, copy), ScranMatrix);
     }
 
     /**

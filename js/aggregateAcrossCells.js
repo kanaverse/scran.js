@@ -31,65 +31,41 @@ export class AggregateAcrossCellsResults {
     }
 
     /**
+     * @param {?number} group - Index of the group.
+     * If a number, it should be non-negative and less than {@linkcode AggregateAcrossCellsResults#numberOfGroups numberOfGroups}.
+     * This may also be `null` to obtain values for all groups.
      * @param {object} [options={}] - Optional parameters.
-     * @param {boolean} [options.asMatrix=false] - Whether to return a {@linkplain NumericMatrix} object.
-     * @param {(string|boolean)} [options.copy="view"] - Copying mode to use when `asMatrix = false`, see {@linkcode possibleCopy} for details.
-     *
-     * @return {Float64Array|Float64WasmArray|NumericMatrix}
-     * If `asMatrix = true`, a {@linkplain NumericMatrix} is returned where rows are genes, columns are groups, and values are the summed value for that gene in that group.
-     * If {@linkcode aggregateAcrossCells} was run with `average = true`, the matrix contains the mean value instead of the sum.
-     *
-     * If `asMatrix = false`, a Float64Array or Float64WasmArray (depending on `copy`) is returned, containing the matrix contents as a vector in column-major form.
-     */
-    allSums({ asMatrix = true, copy = "view" } = {}) {
-        if (!asMatrix) {
-            return utils.possibleCopy(this.#results.all_sums(), copy);
-        } else {
-            return gc.call(() => this.#results.sums_as_matrix(), ScranMatrix);
-        }
-    }
-
-    /**
-     * @param {number} group - Index of the group.
-     * This should be non-negative and less than {@linkcode AggregateAcrossCellsResults#numberOfGroups numberOfGroups}.
+     * @param {(string|boolean)} [options.copy=true] - Copying mode to use when `asMatrix = false`, see {@linkcode possibleCopy} for details.
      *
      * @return {Float64Array|Float64WasmArray}
-     * Array where each entry corresponds to a gene and contains the summed value across all cells in the specified `group`.
+     * If `group` is a number, an array is returned where each entry corresponds to a gene and contains the summed value across all cells in the specified `group`.
      * If {@linkcode aggregateAcrossCells} was run with `average = true`, the array contains the mean value instead of the sum.
-     */
-    groupSums(group, { copy = "view" } = {}) {
-        return utils.possibleCopy(this.#results.group_sums(group), copy);
-    }
-
-    /**
-     * @param {object} [options={}] - Optional parameters.
-     * @param {boolean} [options.asMatrix=false] - Whether to return a {@linkplain NumericMatrix} object.
-     * @param {(string|boolean)} [options.copy="view"] - Copying mode to use when `asMatrix = false`, see {@linkcode possibleCopy} for details.
      *
-     * @return {Float64Array|Float64WasmArray|NumericMatrix}
-     * If `asMatrix = true`, a {@linkplain NumericMatrix} is returned where rows are genes, columns are groups, and values are the number of detected cells for that gene in that group.
-     * If {@linkcode aggregateAcrossCells} was run with `average = true`, each value is the proportion of cells with detected expression.
-     *
-     * If `asMatrix = false`, a Float64Array or Float64WasmArray (depending on `copy`) is returned, containing the matrix contents as a vector in column-major form.
+     * If `group = null`, an array is returned containing the concatenation of the arrays for all groups.
+     * If `copy = "view"`, the output can be used in {@linkcode ScranMatrix#create ScranMatrix.create} to create a {@linkcode ScranMatrix} for input into other functions.
      */
-    allDetected({ asMatrix = true, copy = "view" } = {}) {
-        if (!asMatrix) {
-            return utils.possibleCopy(this.#results.all_detected(), copy);
-        } else {
-            return gc.call(() => this.#results.detected_as_matrix(), ScranMatrix);
-        }
+    sums(group, { copy = true } = {}) {
+        let vec = (group !== null ? this.#results.group_sums(group) : this.#results.all_sums());
+        return utils.possibleCopy(vec, copy);
     }
 
     /**
      * @param {number} group - Index of the group.
      * This should be non-negative and less than {@linkcode AggregateAcrossCellsResults#numberOfGroups numberOfGroups}.
+     * This may also be `null` to obtain values for all groups.
+     * @param {object} [options={}] - Optional parameters.
+     * @param {(string|boolean)} [options.copy=true] - Copying mode to use when `asMatrix = false`, see {@linkcode possibleCopy} for details.
      *
      * @return {Float64Array|Float64WasmArray}
-     * Array where each entry corresponds to a gene and contains the number of detected cells in the specified `group`.
+     * If `group` is a number, an array is returned where each entry corresponds to a gene and contains the number of detected cells in the specified `group`.
      * If {@linkcode aggregateAcrossCells} was run with `average = true`, each value is the proportion of cells with detected expression.
+     * 
+     * If `group = null`, an array is returned containing the concatenation of the arrays for all groups.
+     * If `copy = "view"`, the output can be used in {@linkcode ScranMatrix#create ScranMatrix.create} to create a {@linkcode ScranMatrix} for input into other functions.
      */
-    groupDetected(group, { copy = "view" } = {}) {
-        return utils.possibleCopy(this.#results.group_detected(group), copy);
+    detected(group, { copy = true } = {}) {
+        let vec = (group !== null ? this.#results.group_detected(group) : this.#results.all_detected());
+        return utils.possibleCopy(vec, copy);
     }
 
     /**
