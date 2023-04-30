@@ -28,7 +28,7 @@ export class ScranMatrix {
      * If `false`, the returned {@linkplain ScranMatrix} will refer to the same allocation as `contents`,
      * so callers should make sure that it does not outlive `contents`.
      *
-     * @return A {@linkplain ScranMatrix} containing the matrix contents.
+     * @return {ScranMatrix} A {@linkplain ScranMatrix} containing the matrix contents.
      */
     static createDenseMatrix(rows, columns, contents, { columnMajor = true , copy = true } = {}) {
         if (!(contents instanceof wa.Float64WasmArray)) {

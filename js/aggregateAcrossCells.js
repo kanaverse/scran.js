@@ -42,7 +42,7 @@ export class AggregateAcrossCellsResults {
      * If {@linkcode aggregateAcrossCells} was run with `average = true`, the array contains the mean value instead of the sum.
      *
      * If `group = null`, an array is returned containing the concatenation of the arrays for all groups.
-     * If `copy = "view"`, the output can be used in {@linkcode ScranMatrix#create ScranMatrix.create} to create a {@linkcode ScranMatrix} for input into other functions.
+     * If `copy = "view"`, the output can be used in {@linkcode ScranMatrix#createDenseMatrix ScranMatrix.createDenseMatrix} to create a {@linkcode ScranMatrix} for input into other functions.
      */
     sums(group, { copy = true } = {}) {
         let vec = (group !== null ? this.#results.group_sums(group) : this.#results.all_sums());
@@ -61,7 +61,7 @@ export class AggregateAcrossCellsResults {
      * If {@linkcode aggregateAcrossCells} was run with `average = true`, each value is the proportion of cells with detected expression.
      * 
      * If `group = null`, an array is returned containing the concatenation of the arrays for all groups.
-     * If `copy = "view"`, the output can be used in {@linkcode ScranMatrix#create ScranMatrix.create} to create a {@linkcode ScranMatrix} for input into other functions.
+     * If `copy = "view"`, the output can be used in {@linkcode ScranMatrix#createDenseMatrix ScranMatrix.createDenseMatrix} to create a {@linkcode ScranMatrix} for input into other functions.
      */
     detected(group, { copy = true } = {}) {
         let vec = (group !== null ? this.#results.group_detected(group) : this.#results.all_detected());
