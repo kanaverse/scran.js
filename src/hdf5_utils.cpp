@@ -81,6 +81,10 @@ std::string guess_hdf5_type(const Handle& handle, const H5::DataType& dtype) {
 
     } else if (dclass == H5T_STRING) {
         type = "String";
+            
+    } else if (dclass == H5T_ENUM) {
+        type = "Enum";
+
     } else {
         type = "Other";
     }
@@ -222,38 +226,110 @@ struct LoadedH5Base {
     // For strings.
     std::vector<int> lengths_;
 
-    emscripten::val values_() const {
-        if (type_ == "Uint8") {
+    // For enums.
+    bool is_enum = false;
+    std::string enum_type;
+
+private:
+    emscripten::val raw_values(const std::string& t) const {
+        if (t == "Uint8") {
             return emscripten::val(emscripten::typed_memory_view(u8_data.size(), u8_data.data()));
-        } else if (type_ == "Int8") {
+        } else if (t == "Int8") {
             return emscripten::val(emscripten::typed_memory_view(i8_data.size(), i8_data.data()));
-        } else if (type_ == "Uint16") {
+        } else if (t == "Uint16") {
             return emscripten::val(emscripten::typed_memory_view(u16_data.size(), u16_data.data()));
-        } else if (type_ == "Int16") {
+        } else if (t == "Int16") {
             return emscripten::val(emscripten::typed_memory_view(i16_data.size(), i16_data.data()));
-        } else if (type_ == "Uint32") {
+        } else if (t == "Uint32") {
             return emscripten::val(emscripten::typed_memory_view(u32_data.size(), u32_data.data()));
-        } else if (type_ == "Int32") {
+        } else if (t == "Int32") {
             return emscripten::val(emscripten::typed_memory_view(i32_data.size(), i32_data.data()));
-        } else if (type_ == "Uint64") {
+        } else if (t == "Uint64") {
             return emscripten::val(emscripten::typed_memory_view(u64_data.size(), u64_data.data()));
-        } else if (type_ == "Int64") {
+        } else if (t == "Int64") {
             return emscripten::val(emscripten::typed_memory_view(i64_data.size(), i64_data.data()));
-        } else if (type_ == "Float32") {
+        } else if (t == "Float32") {
             return emscripten::val(emscripten::typed_memory_view(f32_data.size(), f32_data.data()));
-        } else if (type_ == "Float64") {
+        } else if (t == "Float64") {
             return emscripten::val(emscripten::typed_memory_view(f64_data.size(), f64_data.data()));
         } else {
             return emscripten::val(emscripten::typed_memory_view(str_data.size(), str_data.data()));
         }
     }
 
+public:
+    emscripten::val values_() const {
+        if (type_ == "Enum") {
+            return raw_values(enum_type);
+        } else {
+            return raw_values(type_);
+        }
+    }
+
+private:
+    template<typename T>
+    void fill_enum_levels(const H5::EnumType& etype) {
+        int nlevels = etype.getNmembers();
+        for (int l = 0; l < nlevels; ++l) {
+            T v;
+            etype.getMemberValue(l, &v);
+            std::string name = etype.nameOf(&v, 1000); // name better be shorter than 1000 bytes!
+            str_data.insert(str_data.end(), name.begin(), name.end());
+            lengths_.push_back(name.size());
+        }
+    }
+
+    template<class Reader, class Handle>
+    void fill_numeric_contents(const Handle& handle, const std::string& curtype, hsize_t full_length) {
+        if (curtype == "Uint8") {
+            u8_data.resize(full_length);
+            Reader::read(handle, u8_data.data(), H5::PredType::NATIVE_UINT8);
+
+        } else if (curtype == "Int8") {
+            i8_data.resize(full_length);
+            Reader::read(handle, i8_data.data(), H5::PredType::NATIVE_INT8);
+
+        } else if (curtype == "Uint16") {
+            u16_data.resize(full_length);
+            Reader::read(handle, u16_data.data(), H5::PredType::NATIVE_UINT16);
+
+        } else if (curtype == "Int16") {
+            i16_data.resize(full_length);
+            Reader::read(handle, i16_data.data(), H5::PredType::NATIVE_INT16);
+
+        } else if (curtype == "Uint32") {
+            u32_data.resize(full_length);
+            Reader::read(handle, u32_data.data(), H5::PredType::NATIVE_UINT32);
+
+        } else if (curtype == "Int32") {
+            i32_data.resize(full_length);
+            Reader::read(handle, i32_data.data(), H5::PredType::NATIVE_INT32);
+
+        } else if (curtype == "Uint64") {
+            u64_data.resize(full_length);
+            Reader::read(handle, u64_data.data(), H5::PredType::NATIVE_DOUBLE); // see comments above about embind.
+
+        } else if (curtype == "Int64") {
+            i64_data.resize(full_length);
+            Reader::read(handle, i64_data.data(), H5::PredType::NATIVE_DOUBLE); // see comments above about embind.
+
+        } else if (curtype == "Float32") {
+            f32_data.resize(full_length);
+            Reader::read(handle, f32_data.data(), H5::PredType::NATIVE_FLOAT);
+
+        } else if (curtype == "Float64") {
+            f64_data.resize(full_length);
+            Reader::read(handle, f64_data.data(), H5::PredType::NATIVE_DOUBLE);
+        }
+    }
+
+protected:
     template<class Reader, class Handle>
     void fill_contents(const Handle& handle) {
-        auto dspace = handle.getSpace();
         auto dtype = handle.getDataType();
         type_ = guess_hdf5_type(handle, dtype);
 
+        auto dspace = handle.getSpace();
         int ndims = dspace.getSimpleExtentNdims();
         std::vector<hsize_t> dims(ndims);
         dspace.getSimpleExtentDims(dims.data());
@@ -265,45 +341,38 @@ struct LoadedH5Base {
             full_length *= d;
         }
 
-        if (type_ == "Uint8") {
-            u8_data.resize(full_length);
-            Reader::read(handle, u8_data.data(), H5::PredType::NATIVE_UINT8);
+        if (type_ == "Enum") {
+            H5::IntType itype;
+            H5::EnumType etype;
+            if constexpr(std::is_same<Handle, H5::DataSet>::value) {
+                itype = H5::IntType(handle);
+                etype = H5::EnumType(handle);
+            } else {
+                itype = handle.getIntType(); // Assume it's an attribute.
+                etype = handle.getEnumType(); // Assume it's an attribute.
+            }
+            enum_type = guess_hdf5_type(handle, itype);
+            fill_numeric_contents<Reader>(handle, enum_type, full_length);
 
-        } else if (type_ == "Int8") {
-            i8_data.resize(full_length);
-            Reader::read(handle, i8_data.data(), H5::PredType::NATIVE_INT8);
-
-        } else if (type_ == "Uint16") {
-            u16_data.resize(full_length);
-            Reader::read(handle, u16_data.data(), H5::PredType::NATIVE_UINT16);
-
-        } else if (type_ == "Int16") {
-            i16_data.resize(full_length);
-            Reader::read(handle, i16_data.data(), H5::PredType::NATIVE_INT16);
-
-        } else if (type_ == "Uint32") {
-            u32_data.resize(full_length);
-            Reader::read(handle, u32_data.data(), H5::PredType::NATIVE_UINT32);
-
-        } else if (type_ == "Int32") {
-            i32_data.resize(full_length);
-            Reader::read(handle, i32_data.data(), H5::PredType::NATIVE_INT32);
-
-        } else if (type_ == "Uint64") {
-            u64_data.resize(full_length);
-            Reader::read(handle, u64_data.data(), H5::PredType::NATIVE_DOUBLE); // see comments above about embind.
-
-        } else if (type_ == "Int64") {
-            i64_data.resize(full_length);
-            Reader::read(handle, i64_data.data(), H5::PredType::NATIVE_DOUBLE); // see comments above about embind.
-
-        } else if (type_ == "Float32") {
-            f32_data.resize(full_length);
-            Reader::read(handle, f32_data.data(), H5::PredType::NATIVE_FLOAT);
-
-        } else if (type_ == "Float64") {
-            f64_data.resize(full_length);
-            Reader::read(handle, f64_data.data(), H5::PredType::NATIVE_DOUBLE);
+            if (enum_type == "Uint8") {
+                fill_enum_levels<uint8_t>(etype);
+            } else if (enum_type == "Int8") {
+                fill_enum_levels<int8_t>(etype);
+            } else if (enum_type == "Uint16") {
+                fill_enum_levels<uint16_t>(etype);
+            } else if (enum_type == "Int16") {
+                fill_enum_levels<int16_t>(etype);
+            } else if (enum_type == "Uint32") {
+                fill_enum_levels<uint32_t>(etype);
+            } else if (enum_type == "Int32") {
+                fill_enum_levels<int32_t>(etype);
+            } else if (enum_type == "Uint64") {
+                fill_enum_levels<uint64_t>(etype);
+            } else if (enum_type == "Int64") {
+                fill_enum_levels<int64_t>(etype);
+            } else {
+                throw std::runtime_error("unrecognized enum level type '" + enum_type + "'");
+            }
 
         } else if (type_ == "String") {
             lengths_.resize(full_length);
@@ -335,6 +404,12 @@ struct LoadedH5Base {
                     str_data.insert(str_data.end(), start, start + j);
                 }
             }
+
+        } else if (type_ == "Enum") {
+            fill_numeric_contents<Reader>(handle, type_, full_length);
+
+        } else {
+            throw std::runtime_error("cannot load unrecognized data type '" + type_ + "'");
         }
     }
 };
