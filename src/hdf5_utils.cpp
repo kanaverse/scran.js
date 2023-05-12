@@ -5,6 +5,7 @@
 #include <string>
 #include <cstdint>
 #include <algorithm>
+#include <unordered_map>
 
 struct H5AttrDetails {
     void fill_attribute_names(const H5::H5Object& handle) {
@@ -224,14 +225,13 @@ struct LoadedH5Base {
     std::vector<double> i64_data;
 
     // For strings.
-    std::vector<int> lengths_;
+    std::vector<int32_t> lengths_;
 
     // For enums.
-    bool is_enum = false;
     std::string enum_type;
 
-private:
-    emscripten::val raw_values(const std::string& t) const {
+protected:
+    emscripten::val numeric_values_(const std::string& t) const {
         if (t == "Uint8") {
             return emscripten::val(emscripten::typed_memory_view(u8_data.size(), u8_data.data()));
         } else if (t == "Int8") {
@@ -248,34 +248,51 @@ private:
             return emscripten::val(emscripten::typed_memory_view(u64_data.size(), u64_data.data()));
         } else if (t == "Int64") {
             return emscripten::val(emscripten::typed_memory_view(i64_data.size(), i64_data.data()));
-        } else if (t == "Float32") {
+        } else if (type_ == "Float32") {
             return emscripten::val(emscripten::typed_memory_view(f32_data.size(), f32_data.data()));
-        } else if (t == "Float64") {
+        } else { // a.k.a. if (type_ == "Float64") {
             return emscripten::val(emscripten::typed_memory_view(f64_data.size(), f64_data.data()));
+        } 
+    }
+
+    emscripten::val numeric_values_() const {
+        if (type_ == "Enum") {
+            return numeric_values_(enum_type);
         } else {
-            return emscripten::val(emscripten::typed_memory_view(str_data.size(), str_data.data()));
+            return numeric_values_(type_);
         }
     }
 
-public:
-    emscripten::val values_() const {
-        if (type_ == "Enum") {
-            return raw_values(enum_type);
-        } else {
-            return raw_values(type_);
-        }
+    emscripten::val string_buffer_() const {
+        return emscripten::val(emscripten::typed_memory_view(str_data.size(), str_data.data()));
+    }
+
+    emscripten::val string_lengths_() const {
+        return emscripten::val(emscripten::typed_memory_view(lengths_.size(), lengths_.data()));
     }
 
 private:
-    template<typename T>
-    void fill_enum_levels(const H5::EnumType& etype) {
+    template<typename T, typename Tout>
+    void fill_enum_levels(const H5::EnumType& etype, std::vector<Tout>& index) {
         int nlevels = etype.getNmembers();
+        std::unordered_map<Tout, Tout> mapping;
+
         for (int l = 0; l < nlevels; ++l) {
             T v;
             etype.getMemberValue(l, &v);
             std::string name = etype.nameOf(&v, 1000); // name better be shorter than 1000 bytes!
             str_data.insert(str_data.end(), name.begin(), name.end());
             lengths_.push_back(name.size());
+            mapping[v] = l;
+        }
+
+        for (auto& i : index) {
+            auto it = mapping.find(i);
+            if (it != mapping.end()) { 
+                i = it->second;
+            } else {
+                i = nlevels; // some kind of fail flag here.
+            }
         }
     }
 
@@ -355,21 +372,21 @@ protected:
             fill_numeric_contents<Reader>(handle, enum_type, full_length);
 
             if (enum_type == "Uint8") {
-                fill_enum_levels<uint8_t>(etype);
+                fill_enum_levels<uint8_t>(etype, u8_data);
             } else if (enum_type == "Int8") {
-                fill_enum_levels<int8_t>(etype);
+                fill_enum_levels<int8_t>(etype, i8_data);
             } else if (enum_type == "Uint16") {
-                fill_enum_levels<uint16_t>(etype);
+                fill_enum_levels<uint16_t>(etype, u16_data);
             } else if (enum_type == "Int16") {
-                fill_enum_levels<int16_t>(etype);
+                fill_enum_levels<int16_t>(etype, i16_data);
             } else if (enum_type == "Uint32") {
-                fill_enum_levels<uint32_t>(etype);
+                fill_enum_levels<uint32_t>(etype, u32_data);
             } else if (enum_type == "Int32") {
-                fill_enum_levels<int32_t>(etype);
+                fill_enum_levels<int32_t>(etype, i32_data);
             } else if (enum_type == "Uint64") {
-                fill_enum_levels<uint64_t>(etype);
+                fill_enum_levels<uint64_t>(etype, u64_data);
             } else if (enum_type == "Int64") {
-                fill_enum_levels<int64_t>(etype);
+                fill_enum_levels<int64_t>(etype, i64_data);
             } else {
                 throw std::runtime_error("unrecognized enum level type '" + enum_type + "'");
             }
@@ -405,11 +422,8 @@ protected:
                 }
             }
 
-        } else if (type_ == "Enum") {
+        } else if (type_ != "Other") { // don't fail outright; we want to be able to construct the LoadedH5Dataset so that users can call type().
             fill_numeric_contents<Reader>(handle, type_, full_length);
-
-        } else {
-            throw std::runtime_error("cannot load unrecognized data type '" + type_ + "'");
         }
     }
 };
@@ -443,13 +457,16 @@ public:
         return emscripten::val(emscripten::typed_memory_view(shape_.size(), shape_.data()));        
     }
 
-    // Strings only.
-    emscripten::val lengths() const {
-        return emscripten::val(emscripten::typed_memory_view(lengths_.size(), lengths_.data()));
+    emscripten::val string_lengths() const {
+        return string_lengths_();
     }
 
-    emscripten::val values() const {
-        return values_();
+    emscripten::val string_buffer() const {
+        return string_buffer_();
+    }
+
+    emscripten::val numeric_values() const {
+        return numeric_values_();
     }
 
 public:
@@ -503,13 +520,16 @@ public:
         return emscripten::val(emscripten::typed_memory_view(shape_.size(), shape_.data()));        
     }
 
-    // Strings only.
-    emscripten::val lengths() const {
-        return emscripten::val(emscripten::typed_memory_view(lengths_.size(), lengths_.data()));
+    emscripten::val string_lengths() const {
+        return string_lengths_();
     }
 
-    emscripten::val values() const {
-        return values_();
+    emscripten::val string_buffer() const {
+        return string_buffer_();
+    }
+
+    emscripten::val numeric_values() const {
+        return numeric_values_();
     }
 };
 
@@ -667,19 +687,19 @@ void create_hdf5_dataset(const std::string& path, const std::string& name, const
     handle.createDataSet(name, dtype, dspace, plist);
 }
 
-void create_numeric_hdf5_dataset(std::string path, std::string name, std::string type, int nshape, uintptr_t shape, int deflate_level, uintptr_t chunks) {
+void create_numeric_hdf5_dataset(std::string path, std::string name, int nshape, uintptr_t shape, int deflate_level, uintptr_t chunks, std::string type) {
     H5::DataType dtype = choose_numeric_data_type(type);
     create_hdf5_dataset(path, name, dtype, nshape, shape, deflate_level, chunks);
     return;
 }
 
-void create_string_hdf5_dataset(std::string path, std::string name, int nshape, uintptr_t shape, int max_str_len, int deflate_level, uintptr_t chunks) {
+void create_string_hdf5_dataset(std::string path, std::string name, int nshape, uintptr_t shape, int deflate_level, uintptr_t chunks, int max_str_len) {
     H5::DataType dtype = choose_string_data_type(max_str_len);
     create_hdf5_dataset(path, name, dtype, nshape, shape, deflate_level, chunks);
     return;
 }
 
-void create_enum_hdf5_dataset(std::string path, std::string name, int nshape, uintptr_t shape, size_t nlevels, uintptr_t levlen, uintptr_t levbuffer, int deflate_level, uintptr_t chunks) {
+void create_enum_hdf5_dataset(std::string path, std::string name, int nshape, uintptr_t shape, int deflate_level, uintptr_t chunks, size_t nlevels, uintptr_t levlen, uintptr_t levbuffer) {
     H5::DataType dtype = choose_enum_data_type(nlevels, levlen, levbuffer);
     create_hdf5_dataset(path, name, dtype, nshape, shape, deflate_level, chunks);
     return;
@@ -742,7 +762,7 @@ void create_hdf5_attribute(const std::string& path, const std::string& name, con
     }
 } 
 
-void create_numeric_hdf5_attribute(std::string path, std::string name, std::string attr, std::string type, int nshape, uintptr_t shape) {
+void create_numeric_hdf5_attribute(std::string path, std::string name, std::string attr, int nshape, uintptr_t shape, std::string type) {
     H5::DataType dtype = choose_numeric_data_type(type);
     create_hdf5_attribute(path, name, attr, dtype, nshape, shape);
     return;
@@ -754,7 +774,7 @@ void create_string_hdf5_attribute(std::string path, std::string name, std::strin
     return;
 }
 
-void create_enum_hdf5_attribute(std::string path, std::string name, std::string attr, size_t nlevels, uintptr_t levlen, uintptr_t levbuffer, int nshape, uintptr_t shape) {
+void create_enum_hdf5_attribute(std::string path, std::string name, std::string attr, int nshape, uintptr_t shape, size_t nlevels, uintptr_t levlen, uintptr_t levbuffer) {
     H5::DataType dtype = choose_enum_data_type(nlevels, levlen, levbuffer);
     create_hdf5_attribute(path, name, attr, dtype, nshape, shape);
     return;
@@ -827,8 +847,9 @@ EMSCRIPTEN_BINDINGS(hdf5_utils) {
         .constructor<std::string, std::string>()
         .function("type", &LoadedH5DataSet::type)
         .function("shape", &LoadedH5DataSet::shape)
-        .function("values", &LoadedH5DataSet::values)
-        .function("lengths", &LoadedH5DataSet::lengths)
+        .function("numeric_values", &LoadedH5DataSet::numeric_values)
+        .function("string_buffer", &LoadedH5DataSet::string_buffer)
+        .function("string_lengths", &LoadedH5DataSet::string_lengths)
         .function("attr_buffer", &LoadedH5DataSet::attr_buffer)
         .function("attr_lengths", &LoadedH5DataSet::attr_lengths)
         ;
@@ -837,8 +858,9 @@ EMSCRIPTEN_BINDINGS(hdf5_utils) {
         .constructor<std::string, std::string, std::string>()
         .function("type", &LoadedH5Attr::type)
         .function("shape", &LoadedH5Attr::shape)
-        .function("values", &LoadedH5Attr::values)
-        .function("lengths", &LoadedH5Attr::lengths)
+        .function("numeric_values", &LoadedH5Attr::numeric_values)
+        .function("string_buffer", &LoadedH5Attr::string_buffer)
+        .function("string_lengths", &LoadedH5Attr::string_lengths)
         ;
 
    emscripten::function("create_hdf5_file", &create_hdf5_file);

@@ -390,3 +390,10 @@ test("HDF5 string attribute creation and loading works as expected", () => {
         expect(recolleagues.shape).toEqual([5]);
     }
 })
+
+test("HDF5 enum reading and writing works as expected", () => {
+    const path = dir + "/test.load.h5";
+    purge(path)
+})
+
+
