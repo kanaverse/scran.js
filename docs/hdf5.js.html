@@ -47,6 +47,7 @@
             <pre class="prettyprint source linenums"><code>import * as utils from "./utils.js";
 import * as wasm from "./wasm.js";
 import * as packer from "./internal/pack_strings.js";
+import * as fac from "./factorize.js";
 
 function check_shape(x, shape) {
     if (shape.length > 0) {
@@ -101,6 +102,28 @@ function fetch_max_string_length(lengths) {
     return maxlen;
 }
 
+function process_enum_input(values, levels, arg) {
+    if (levels !== null) {
+        for (const i of values) {
+            if (!Number.isInteger(i) || i &lt; 0 || i >= levels.length) {
+                throw new Error("'" + arg + "' must contain non-negative integers less than 'levels.length' for 'type = \"Enum\"'");
+            }
+        }
+
+    } else {
+        let out = fac.convertToFactor(values, { asWasmArray: false });
+        values = out.ids;
+        levels = out.levels;
+        for (const l of levels) {
+            if (typeof l !== "string") {
+                throw new Error("'" + arg + "' should only contain string levels for 'type = \"Enum\"'");
+            }
+        }
+    }
+
+    return { values: values, levels: levels }
+}
+
 /**
  * Base class for HDF5 objects.
  */
@@ -151,14 +174,14 @@ export class H5Base {
      *
      * @param {string} attr - Name of the attribute.
      * @return {object} Object containing the attribute `values` and the `shape` of the attribute.
+     * For HDF5 enums, an additional `level` property is present, containing the levels indexed by the integer `values`.
      */
     readAttribute(attr) {
-        let vals;
-        let shape;
+        let output = { values: null, shape: null };
 
         let x = wasm.call(module => new module.LoadedH5Attr(this.file, this.name, attr));
         try {
-            shape = Array.from(x.shape());
+            output.shape = Array.from(x.shape());
 
             let type = x.type();
             if (type == "other") {
@@ -166,21 +189,34 @@ export class H5Base {
             }
 
             if (type == "String") {
-                vals = packer.unpack_strings(x.values(), x.lengths());
+                output.values = packer.unpack_strings(x.string_buffer(), x.string_lengths());
+            } else if (type == "Enum") {
+                output.values = x.numeric_values().slice();
+                output.levels = packer.unpack_strings(x.string_buffer(), x.string_lengths());
             } else {
-                vals = x.values().slice();
+                output.values = x.numeric_values().slice();
             }
         } finally {
             x.delete();
         }
 
-        return { values: vals, shape: shape };
+        return output;
     }
 
-    #create_attribute(attr, type, shape, { maxStringLength = 10 } = {}) { // internal use only.
+    #create_attribute(attr, type, shape, { maxStringLength = null, levels = null } = {}) { // internal use only.
         let shape_arr = utils.wasmifyArray(shape, "Int32WasmArray");
         try {
-            wasm.call(module => module.create_hdf5_attribute(this.file, this.name, attr, type, shape_arr.length, shape_arr.offset, maxStringLength));
+            if (type == "String") {
+                wasm.call(module => module.create_string_hdf5_attribute(this.file, this.name, attr, shape_arr.length, shape_arr.offset, maxStringLength));
+            } else if (type == "Enum") {
+                if (levels == null) {
+                    throw new Error("levels must be supplied if 'type = \"Enum\"'");
+                }
+                let [ lengths, buffer ] = packer.repack_strings(levels);
+                wasm.call(module => module.create_enum_hdf5_attribute(this.file, this.name, attr, shape_arr.length, shape_arr.offset, lengths.length, lengths.offset, buffer.offset));
+            } else {
+                wasm.call(module => module.create_numeric_hdf5_attribute(this.file, this.name, attr, shape_arr.length, shape_arr.offset, type));
+            }
             this.#attributes.push(attr);
         } finally {
             shape_arr.free();
@@ -194,18 +230,23 @@ export class H5Base {
      * @param {string} type - Type of dataset to create.
      * This can be `"IntX"` or `"UintX"` for `X` of 8, 16, 32, or 64;
      * or `"FloatX"` for `X` of 32 or 64;
-     * or `"String"`.
+     * or `"String"`;
+     * or `"Enum"`.
      * @param {?Array} shape - Array containing the dimensions of the dataset to create.
      * If set to an empty array, this will create a scalar dataset.
      * If set to `null`, this is determined from `x`.
      * @param {(TypedArray|Array|string|number)} x - Values to be written to the new dataset, see {@linkcode H5DataSet#write write}.
      * This should be of length equal to the product of `shape`;
      * unless `shape` is empty, in which case it should either be of length 1, or a single number or string.
+     * @param {object} [options={}] - Optional parameters.
      * @param {?number} [options.maxStringLength=null] - Maximum length of the strings to be saved.
      * Only used when `type = "String"`.
      * If `null`, this is inferred from the maximum length of strings in `x`.
+     * @param {?Array} [options.levels=null] - Array of strings containing enum levels when `type = "Enum"`.
+     * If supplied, `x` should be an array of integers that index into `levels`.
+     * Alternatively, `levels` may be `null`, in which case `x` should be an array of strings that is used to infer `levels`.
      */
-    writeAttribute(attr, type, shape, x, { maxStringLength = null } = {}) {
+    writeAttribute(attr, type, shape, x, { maxStringLength = null, levels = null } = {}) {
         if (x === null) {
             throw new Error("cannot write 'null' to HDF5"); 
         }
@@ -226,6 +267,17 @@ export class H5Base {
                 utils.free(buffer);
                 utils.free(lengths);
             }
+
+        } else if (type == "Enum") {
+            let processed = process_enum_input(x, levels, "x");
+            let y = utils.wasmifyArray(processed.values, "Int32WasmArray");
+            try {
+                this.#create_attribute(attr, type, shape, { levels: processed.levels });
+                wasm.call(module => module.write_enum_hdf5_attribute(this.file, this.name, attr, y.offset));
+            } finally {
+                y.free();
+            }
+
         } else {
             forbid_strings(x);
             let y = utils.wasmifyArray(x, null);
@@ -346,7 +398,8 @@ export class H5Group extends H5Base {
      * @param {string} type - Type of dataset to create.
      * This can be `"IntX"` or `"UintX"` for `X` of 8, 16, 32, or 64;
      * or `"FloatX"` for `X` of 32 or 64;
-     * or `"String"`.
+     * or `"String"`;
+     * or `"Enum"`.
      * @param {Array} shape - Array containing the dimensions of the dataset to create.
      * This can be set to an empty array to create a scalar dataset.
      * @param {object} [options={}] - Optional parameters.
@@ -356,11 +409,13 @@ export class H5Group extends H5Base {
      * @param {?Array} [options.chunks=null] - Array containing the chunk dimensions.
      * This should have length equal to `shape`, with each value being no greater than the corresponding value of `shape`.
      * If `null`, it defaults to `shape`.
+     * @param {?Array} [options.levels=null] - Array of strings containing enum levels.
+     * Only used (and mandatory) when `type = "Enum"`.
      *
      * @return {H5DataSet} A dataset of the specified type and shape is created as an immediate child of the current group.
      * A {@linkplain H5DataSet} object is returned representing this new dataset.
      */
-    createDataSet(name, type, shape, { maxStringLength = 10, compression = 6, chunks = null } = {}) {
+    createDataSet(name, type, shape, { maxStringLength = 10, levels = null, compression = 6, chunks = null } = {}) {
         let new_name = this.#child_name(name);
 
         let shape_arr;
@@ -377,7 +432,18 @@ export class H5Group extends H5Base {
                 chunk_offset = chunk_arr.offset;
             }
 
-            wasm.call(module => module.create_hdf5_dataset(this.file, new_name, type, shape_arr.length, shape_arr.offset, maxStringLength, compression, chunk_offset));
+            if (type == "String") {
+                wasm.call(module => module.create_string_hdf5_dataset(this.file, new_name, shape_arr.length, shape_arr.offset, compression, chunk_offset, maxStringLength));
+            } else if (type == "Enum") {
+                if (levels == null) {
+                    throw new Error("levels must be supplied if 'type = \"Enum\"'");
+                }
+                let [ lengths, buffer ] = packer.repack_strings(levels);
+                wasm.call(module => module.create_enum_hdf5_dataset(this.file, new_name, shape_arr.length, shape_arr.offset, compression, chunk_offset, lengths.length, lengths.offset, buffer.offset));
+            } else {
+                wasm.call(module => module.create_numeric_hdf5_dataset(this.file, new_name, shape_arr.length, shape_arr.offset, compression, chunk_offset, type));
+            }
+
         } finally {
             shape_arr.free();
         }
@@ -400,6 +466,9 @@ export class H5Group extends H5Base {
      * If set to `null`, this is determined from `x`.
      * @param {(TypedArray|Array|string|number)} x - Values to be written to the new dataset, see {@linkcode H5DataSet#write write}.
      * @param {object} [options={}] - Optional parameters.
+     * @param {?Array} [options.levels=null] - Array of strings containing enum levels when `type = "Enum"`.
+     * If supplied, `x` should be an array of integers that index into `levels`.
+     * Alternatively, `levels` may be `null`, in which case `x` should be an array of strings that is used to infer `levels`.
      * @param {number} [options.compression=6] - Deflate compression level.
      * @param {?Array} [options.chunks=null] - Array containing the chunk dimensions.
      * This should have length equal to `shape`, with each value being no greater than the corresponding value of `shape`.
@@ -410,7 +479,7 @@ export class H5Group extends H5Base {
      * The same dataset is then filled with the contents of `x`.
      * A {@linkplain H5DataSet} object is returned representing this new dataset.
      */
-     writeDataSet(name, type, shape, x, { compression = 6, chunks = null, cache = false } = {}) {
+     writeDataSet(name, type, shape, x, { levels = null, compression = 6, chunks = null, cache = false } = {}) {
         if (x === null) {
             throw new Error("cannot write 'null' to HDF5"); 
         }
@@ -431,6 +500,12 @@ export class H5Group extends H5Base {
                 utils.free(buffer);
             }
             handle.cache_loaded(x, cache);
+
+        } else if (type == "Enum") {
+            let processed = process_enum_input(x, levels, "x");
+            handle = this.createDataSet(name, type, shape, { levels: processed.levels, compression: compression, chunks: chunks });
+            handle.write(processed.values, { cache: cache });
+
         } else {
             handle = this.createDataSet(name, type, shape, { compression: compression, chunks: chunks });
             handle.write(x, { cache: cache });
@@ -476,6 +551,7 @@ export class H5DataSet extends H5Base {
     #shape;
     #type;
     #values;
+    #levels;
     #loaded;
 
     static #load(file, name) {
@@ -483,6 +559,7 @@ export class H5DataSet extends H5Base {
         let type;
         let shape;
         let attr;
+        let levels = null;
 
         let x = wasm.call(module => new module.LoadedH5DataSet(file, name));
         try {
@@ -492,9 +569,12 @@ export class H5DataSet extends H5Base {
             }
 
             if (type == "String") {
-                vals = packer.unpack_strings(x.values(), x.lengths());
+                vals = packer.unpack_strings(x.string_buffer(), x.string_lengths());
+            } else if (type == "Enum") {
+                vals = x.numeric_values().slice();
+                levels = packer.unpack_strings(x.string_buffer(), x.string_lengths());
             } else {
-                vals = x.values().slice();
+                vals = x.numeric_values().slice();
             }
 
             shape = Array.from(x.shape());
@@ -507,6 +587,7 @@ export class H5DataSet extends H5Base {
             "values": vals, 
             "type": type, 
             "shape": shape, 
+            "levels": levels,
             "attributes": attr
         };
     }
@@ -546,6 +627,7 @@ export class H5DataSet extends H5Base {
                 this.#type = deets.type;
                 this.#shape = deets.shape;
                 this.#values = deets.values;
+                this.#levels = deets.levels;
                 this.set_attributes(deets.attributes);
             }
             this.#loaded = load;
@@ -557,8 +639,7 @@ export class H5DataSet extends H5Base {
      * @desc String containing the type of the dataset.
      * This may be `"IntX"` or `"UintX"` for `X` of 8, 16, 32, or 64;
      * or `"FloatX"` for `X` of 32 or 64;
-     * `"String"`, or `"Other"`.
-     * 
+     * `"String"`, `"Enum"`, or `"Other"`.
      */
     get type() {
         return this.#type;
@@ -589,6 +670,15 @@ export class H5DataSet extends H5Base {
      */
     get values() {
         return this.#values;
+    }
+
+    /**
+     * @member {?Array}
+     * @desc Levels of a HDF5 enum, to be indexed by the integer `values`.
+     * For non-enum data, this is set to `null`.
+     */
+    get levels() {
+        return this.#levels;
     }
 
     /**
@@ -640,6 +730,15 @@ export class H5DataSet extends H5Base {
                 utils.free(lengths);
             }
             this.cache_loaded(x, cache);
+
+        } else if (this.type == "Enum") {
+            let y = utils.wasmifyArray(x, "Int32WasmArray");
+            try {
+                wasm.call(module => module.write_enum_hdf5_dataset(this.file, this.name, y.offset));
+            } finally {
+                y.free();
+            }
+
         } else {
             forbid_strings(x);
             let y = utils.wasmifyArray(x, null);
@@ -738,7 +837,7 @@ export function loadHDF5Dataset(path, name) {
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.11</a> on Sun Apr 30 2023 02:40:17 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.11</a> on Fri May 12 2023 21:16:15 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>

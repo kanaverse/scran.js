@@ -77,7 +77,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hdf5.js.html">hdf5.js</a>, <a href="hdf5.js.html#line203">line 203</a>
+        <a href="hdf5.js.html">hdf5.js</a>, <a href="hdf5.js.html#line255">line 255</a>
     </li></ul></dd>
     
 
@@ -265,7 +265,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hdf5.js.html">hdf5.js</a>, <a href="hdf5.js.html#line95">line 95</a>
+        <a href="hdf5.js.html">hdf5.js</a>, <a href="hdf5.js.html#line118">line 118</a>
     </li></ul></dd>
     
 
@@ -343,7 +343,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hdf5.js.html">hdf5.js</a>, <a href="hdf5.js.html#line242">line 242</a>
+        <a href="hdf5.js.html">hdf5.js</a>, <a href="hdf5.js.html#line294">line 294</a>
     </li></ul></dd>
     
 
@@ -417,7 +417,7 @@ Each string can be one of <code>&quot;Group&quot;</code>, <code>&quot;DataSet&qu
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hdf5.js.html">hdf5.js</a>, <a href="hdf5.js.html#line79">line 79</a>
+        <a href="hdf5.js.html">hdf5.js</a>, <a href="hdf5.js.html#line102">line 102</a>
     </li></ul></dd>
     
 
@@ -495,7 +495,7 @@ Each string can be one of <code>&quot;Group&quot;</code>, <code>&quot;DataSet&qu
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hdf5.js.html">hdf5.js</a>, <a href="hdf5.js.html#line87">line 87</a>
+        <a href="hdf5.js.html">hdf5.js</a>, <a href="hdf5.js.html#line110">line 110</a>
     </li></ul></dd>
     
 
@@ -583,7 +583,7 @@ Each string can be one of <code>&quot;Group&quot;</code>, <code>&quot;DataSet&qu
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hdf5.js.html">hdf5.js</a>, <a href="hdf5.js.html#line317">line 317</a>
+        <a href="hdf5.js.html">hdf5.js</a>, <a href="hdf5.js.html#line372">line 372</a>
     </li></ul></dd>
     
 
@@ -727,7 +727,8 @@ Each string can be one of <code>&quot;Group&quot;</code>, <code>&quot;DataSet&qu
             <td class="description last"><p>Type of dataset to create.
 This can be <code>&quot;IntX&quot;</code> or <code>&quot;UintX&quot;</code> for <code>X</code> of 8, 16, 32, or 64;
 or <code>&quot;FloatX&quot;</code> for <code>X</code> of 32 or 64;
-or <code>&quot;String&quot;</code>.</p></td>
+or <code>&quot;String&quot;</code>;
+or <code>&quot;Enum&quot;</code>.</p></td>
         </tr>
 
     
@@ -951,6 +952,48 @@ If <code>null</code>, it defaults to <code>shape</code>.</p></td>
         </tr>
 
     
+
+        <tr>
+            
+                <td class="name"><code>levels</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+                    &lt;nullable><br>
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    <code>null</code>
+                
+                </td>
+            
+
+            <td class="description last"><p>Array of strings containing enum levels.
+Only used (and mandatory) when <code>type = &quot;Enum&quot;</code>.</p></td>
+        </tr>
+
+    
     </tbody>
 </table>
 
@@ -1019,7 +1062,7 @@ A <a href="H5DataSet.html">H5DataSet</a> object is returned representing this ne
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hdf5.js.html">hdf5.js</a>, <a href="hdf5.js.html#line283">line 283</a>
+        <a href="hdf5.js.html">hdf5.js</a>, <a href="hdf5.js.html#line335">line 335</a>
     </li></ul></dd>
     
 
@@ -1163,7 +1206,7 @@ If a group already exists at <code>name</code>, it is returned directly.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hdf5.js.html">hdf5.js</a>, <a href="hdf5.js.html#line261">line 261</a>
+        <a href="hdf5.js.html">hdf5.js</a>, <a href="hdf5.js.html#line313">line 313</a>
     </li></ul></dd>
     
 
@@ -1375,7 +1418,7 @@ If a group already exists at <code>name</code>, it is returned directly.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hdf5.js.html">hdf5.js</a>, <a href="hdf5.js.html#line109">line 109</a>
+        <a href="hdf5.js.html">hdf5.js</a>, <a href="hdf5.js.html#line133">line 133</a>
     </li></ul></dd>
     
 
@@ -1500,7 +1543,8 @@ If a group already exists at <code>name</code>, it is returned directly.</p>
 
         
 <div class="param-desc">
-    <p>Object containing the attribute <code>values</code> and the <code>shape</code> of the attribute.</p>
+    <p>Object containing the attribute <code>values</code> and the <code>shape</code> of the attribute.
+For HDF5 enums, an additional <code>level</code> property is present, containing the levels indexed by the integer <code>values</code>.</p>
 </div>
 
 
@@ -1526,7 +1570,7 @@ If a group already exists at <code>name</code>, it is returned directly.</p>
 
     
 
-    <h4 class="name" id="writeAttribute"><span class="type-signature"></span>writeAttribute<span class="signature">(attr, type, shape<span class="signature-attributes">nullable</span>, x)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="writeAttribute"><span class="type-signature"></span>writeAttribute<span class="signature">(attr, type, shape<span class="signature-attributes">nullable</span>, x, options<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
 
     
 
@@ -1538,7 +1582,7 @@ If a group already exists at <code>name</code>, it is returned directly.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hdf5.js.html">hdf5.js</a>, <a href="hdf5.js.html#line162">line 162</a>
+        <a href="hdf5.js.html">hdf5.js</a>, <a href="hdf5.js.html#line203">line 203</a>
     </li></ul></dd>
     
 
@@ -1691,7 +1735,8 @@ If a group already exists at <code>name</code>, it is returned directly.</p>
             <td class="description last"><p>Type of dataset to create.
 This can be <code>&quot;IntX&quot;</code> or <code>&quot;UintX&quot;</code> for <code>X</code> of 8, 16, 32, or 64;
 or <code>&quot;FloatX&quot;</code> for <code>X</code> of 32 or 64;
-or <code>&quot;String&quot;</code>.</p></td>
+or <code>&quot;String&quot;</code>;
+or <code>&quot;Enum&quot;</code>.</p></td>
         </tr>
 
     
@@ -1783,7 +1828,69 @@ unless <code>shape</code> is empty, in which case it should either be of length 
 
         <tr>
             
-                <td class="name"><code>options.maxStringLength</code></td>
+                <td class="name"><code>options</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    <code>{}</code>
+                
+                </td>
+            
+
+            <td class="description last"><p>Optional parameters.</p>
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>maxStringLength</code></td>
             
 
             <td class="type">
@@ -1820,6 +1927,56 @@ unless <code>shape</code> is empty, in which case it should either be of length 
             <td class="description last"><p>Maximum length of the strings to be saved.
 Only used when <code>type = &quot;String&quot;</code>.
 If <code>null</code>, this is inferred from the maximum length of strings in <code>x</code>.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>levels</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+                    &lt;nullable><br>
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    <code>null</code>
+                
+                </td>
+            
+
+            <td class="description last"><p>Array of strings containing enum levels when <code>type = &quot;Enum&quot;</code>.
+If supplied, <code>x</code> should be an array of integers that index into <code>levels</code>.
+Alternatively, <code>levels</code> may be <code>null</code>, in which case <code>x</code> should be an array of strings that is used to infer <code>levels</code>.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
         </tr>
 
     
@@ -1861,7 +2018,7 @@ If <code>null</code>, this is inferred from the maximum length of strings in <co
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hdf5.js.html">hdf5.js</a>, <a href="hdf5.js.html#line367">line 367</a>
+        <a href="hdf5.js.html">hdf5.js</a>, <a href="hdf5.js.html#line436">line 436</a>
     </li></ul></dd>
     
 
@@ -2160,6 +2317,49 @@ If set to <code>null</code>, this is determined from <code>x</code>.</p></td>
 
         <tr>
             
+                <td class="name"><code>levels</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+                    &lt;nullable><br>
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    <code>null</code>
+                
+                </td>
+            
+
+            <td class="description last"><p>Array of strings containing enum levels when <code>type = &quot;Enum&quot;</code>.
+If supplied, <code>x</code> should be an array of integers that index into <code>levels</code>.
+Alternatively, <code>levels</code> may be <code>null</code>, in which case <code>x</code> should be an array of strings that is used to infer <code>levels</code>.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
                 <td class="name"><code>compression</code></td>
             
 
@@ -2350,7 +2550,7 @@ A <a href="H5DataSet.html">H5DataSet</a> object is returned representing this ne
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.11</a> on Sun Apr 30 2023 02:40:17 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.11</a> on Fri May 12 2023 21:16:16 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>
