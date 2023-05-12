@@ -535,7 +535,7 @@ std::vector<hsize_t> process_shape(int nshape, uintptr_t shape) {
     return dims;
 }
 
-H5::DataType choose_data_type(const std::string& type, int max_str_len) {
+H5::DataType choose_numeric_data_type(const std::string& type) {
     if (type == "Uint8") {
         return H5::PredType::NATIVE_UINT8;
     } else if (type == "Int8") {
@@ -554,15 +554,32 @@ H5::DataType choose_data_type(const std::string& type, int max_str_len) {
         return H5::PredType::NATIVE_INT64;
     } else if (type == "Float32") {
         return H5::PredType::NATIVE_FLOAT;
-   } else if (type == "Float64") {
+   } else { // a.k.a. if (type == "Float64") {
         return H5::PredType::NATIVE_DOUBLE;
-    } else if (type == "String") {
-        // Make sure that it is at least of length 1.
-        return H5::StrType(0, std::max(1, max_str_len));
-    } else {
-        throw std::runtime_error("unknown HDF5 data type '" + type + "'");
+   }
+}
+
+H5::DataType choose_string_data_type(int max_str_len) {
+    return H5::StrType(0, std::max(1, max_str_len)); // Make sure that is at least of length 1.
+}
+
+H5::DataType choose_enum_data_type(size_t nlevels, uintptr_t level_lengths, uintptr_t level_buffer) {
+    auto buf_ptr = reinterpret_cast<const uint8_t*>(level_buffer); 
+    auto len_ptr = reinterpret_cast<const int32_t*>(level_lengths);
+    H5::EnumType dtype(H5::PredType::NATIVE_UINT32);
+
+    std::vector<uint8_t> name_buffer;
+    for (size_t i = 0; i < nlevels; ++i) {
+        name_buffer.resize(len_ptr[i] + 1);
+        std::copy(buf_ptr, buf_ptr + len_ptr[i], name_buffer.data());
+        name_buffer.back() = 0; // set null terminator.
+
+        uint32_t type = i;
+        dtype.insert(reinterpret_cast<char*>(name_buffer.data()), &type);
+        buf_ptr += len_ptr[i];
     }
-    return H5::PredType::NATIVE_INT;
+    
+    return dtype;
 }
 
 template<class Reader, class Handle>
@@ -614,37 +631,57 @@ void write_string_hdf5_base(Handle& handle, size_t n, uintptr_t lengths, uintptr
     return;
 }
 
+void configure_dataset_parameters(H5::DataSpace& dspace, int nshape, uintptr_t shape, H5::DSetCreatPropList& plist, int deflate_level, uintptr_t chunks) {
+    if (nshape == 0) { // if zero, it's a scalar, and the default DataSpace is correct.
+        return;
+    }
+
+    auto dims = process_shape(nshape, shape);
+    dspace = H5::DataSpace(nshape, dims.data());
+
+    // Checking for non-zero length, otherwise chunking will fail.
+    bool all_nonzero = true;
+    for (auto d : dims) {
+        if (d == 0) {
+            all_nonzero = false;
+            break;
+        }
+    }
+
+    if (deflate_level >= 0 && all_nonzero) {
+        plist.setDeflate(deflate_level);
+        auto cptr = reinterpret_cast<const int32_t*>(chunks);
+        std::copy(cptr, cptr + nshape, dims.begin());
+        plist.setChunk(nshape, dims.data());
+    }
+}
+
 /************* Dataset writers **************/
 
-void create_hdf5_dataset(std::string path, std::string name, std::string type, int nshape, uintptr_t shape, int max_str_len, int deflate_level, uintptr_t chunks) {
+void create_hdf5_dataset(const std::string& path, const std::string& name, const H5::DataType& dtype, int nshape, uintptr_t shape, int deflate_level, uintptr_t chunks) {
     H5::H5File handle(path, H5F_ACC_RDWR);
 
     H5::DataSpace dspace;
  	H5::DSetCreatPropList plist;
-
-    if (nshape) { // if zero, it's a scalar.
-        auto dims = process_shape(nshape, shape);
-        dspace = H5::DataSpace(nshape, dims.data());
-
-        // Checking for non-zero length, otherwise chunking will fail.
-        bool all_nonzero = true;
-        for (auto d : dims) {
-            if (d == 0) {
-                all_nonzero = false;
-                break;
-            }
-        }
-
-        if (deflate_level >= 0 && all_nonzero) {
-            plist.setDeflate(deflate_level);
-            auto cptr = reinterpret_cast<const int32_t*>(chunks);
-            std::copy(cptr, cptr + nshape, dims.begin());
-            plist.setChunk(nshape, dims.data());
-        }
-    }
-
-    H5::DataType dtype = choose_data_type(type, max_str_len);
+    configure_dataset_parameters(dspace, nshape, shape, plist, deflate_level, chunks);
     handle.createDataSet(name, dtype, dspace, plist);
+}
+
+void create_numeric_hdf5_dataset(std::string path, std::string name, std::string type, int nshape, uintptr_t shape, int deflate_level, uintptr_t chunks) {
+    H5::DataType dtype = choose_numeric_data_type(type);
+    create_hdf5_dataset(path, name, dtype, nshape, shape, deflate_level, chunks);
+    return;
+}
+
+void create_string_hdf5_dataset(std::string path, std::string name, int nshape, uintptr_t shape, int max_str_len, int deflate_level, uintptr_t chunks) {
+    H5::DataType dtype = choose_string_data_type(max_str_len);
+    create_hdf5_dataset(path, name, dtype, nshape, shape, deflate_level, chunks);
+    return;
+}
+
+void create_enum_hdf5_dataset(std::string path, std::string name, int nshape, uintptr_t shape, size_t nlevels, uintptr_t levlen, uintptr_t levbuffer, int deflate_level, uintptr_t chunks) {
+    H5::DataType dtype = choose_enum_data_type(nlevels, levlen, levbuffer);
+    create_hdf5_dataset(path, name, dtype, nshape, shape, deflate_level, chunks);
     return;
 }
 
@@ -668,9 +705,16 @@ void write_string_hdf5_dataset(std::string path, std::string name, size_t n, uin
     write_string_hdf5_base<DataSetHandleWriter>(dhandle, n, lengths, buffer);
 }
 
+void write_enum_hdf5_dataset(std::string path, std::string name, uintptr_t data) {
+    H5::H5File handle(path, H5F_ACC_RDWR);
+    auto dhandle = handle.openDataSet(name);
+    DataSetHandleWriter::write(dhandle, reinterpret_cast<const uint32_t*>(data), H5::PredType::NATIVE_UINT32);
+    return;
+}
+
 /************* Attribute writers **************/
 
-void create_hdf5_attribute(std::string path, std::string name, std::string attr, std::string type, int nshape, uintptr_t shape, int max_str_len) {
+void create_hdf5_attribute(const std::string& path, const std::string& name, const std::string& attr, const H5::DataType& dtype, int nshape, uintptr_t shape) {
     try {
         H5::H5File handle(path, H5F_ACC_RDWR);
 
@@ -680,7 +724,6 @@ void create_hdf5_attribute(std::string path, std::string name, std::string attr,
                 auto dims = process_shape(nshape, shape);
                 dspace = H5::DataSpace(nshape, dims.data());
             }
-            H5::DataType dtype = choose_data_type(type, max_str_len);
             handle.createAttribute(attr, dtype, dspace);
         };
 
@@ -699,6 +742,24 @@ void create_hdf5_attribute(std::string path, std::string name, std::string attr,
     }
 } 
 
+void create_numeric_hdf5_attribute(std::string path, std::string name, std::string attr, std::string type, int nshape, uintptr_t shape) {
+    H5::DataType dtype = choose_numeric_data_type(type);
+    create_hdf5_attribute(path, name, attr, dtype, nshape, shape);
+    return;
+}
+
+void create_string_hdf5_attribute(std::string path, std::string name, std::string attr, int nshape, uintptr_t shape, int max_str_len) {
+    H5::DataType dtype = choose_string_data_type(max_str_len);
+    create_hdf5_attribute(path, name, attr, dtype, nshape, shape);
+    return;
+}
+
+void create_enum_hdf5_attribute(std::string path, std::string name, std::string attr, size_t nlevels, uintptr_t levlen, uintptr_t levbuffer, int nshape, uintptr_t shape) {
+    H5::DataType dtype = choose_enum_data_type(nlevels, levlen, levbuffer);
+    create_hdf5_attribute(path, name, attr, dtype, nshape, shape);
+    return;
+}
+
 struct AttributeHandleWriter {
     template<class Handle, typename T, class MemType>
     static void write(Handle& handle, T* data, const MemType& memtype) {
@@ -706,44 +767,40 @@ struct AttributeHandleWriter {
     }
 };
 
-void write_numeric_hdf5_attribute(std::string path, std::string name, std::string attr, std::string type, uintptr_t data) {
+template<class Function>
+void write_hdf5_attribute(const std::string& path, const std::string& name, const std::string& attr, Function writer) {
     H5::H5File handle(path, H5F_ACC_RDWR);
-
-    auto writer = [&](const H5::H5Object& handle) -> void {
-        auto ahandle = handle.openAttribute(attr);
-        write_numeric_hdf5_base<AttributeHandleWriter>(ahandle, type, data);
-    };
 
     auto child_type = handle.childObjType(name);
     if (child_type == H5O_TYPE_GROUP) {
         auto ghandle = handle.openGroup(name);
-        writer(ghandle);
+        auto ahandle = handle.openAttribute(attr);
+        writer(ahandle);
     } else if (child_type == H5O_TYPE_DATASET) {
         auto dhandle = handle.openDataSet(name);
-        writer(dhandle);
+        auto ahandle = handle.openAttribute(attr);
+        writer(ahandle);
     } else {
         throw std::runtime_error("cannot fetch attribute from unknown HDF5 object '" + name + "'");
     }
 }
 
+void write_numeric_hdf5_attribute(std::string path, std::string name, std::string attr, std::string type, uintptr_t data) {
+    write_hdf5_attribute(path, name, attr, [&](auto& ahandle) -> void {
+        write_numeric_hdf5_base<AttributeHandleWriter>(ahandle, type, data);
+    });
+}
+
 void write_string_hdf5_attribute(std::string path, std::string name, std::string attr, size_t n, uintptr_t lengths, uintptr_t buffer) {
-    H5::H5File handle(path, H5F_ACC_RDWR);
-
-    auto writer = [&](const H5::H5Object& handle) -> void {
-        auto ahandle = handle.openAttribute(attr);
+    write_hdf5_attribute(path, name, attr, [&](auto& ahandle) -> void {
         write_string_hdf5_base<AttributeHandleWriter>(ahandle, n, lengths, buffer);
-    };
+    });
+}
 
-    auto child_type = handle.childObjType(name);
-    if (child_type == H5O_TYPE_GROUP) {
-        auto ghandle = handle.openGroup(name);
-        writer(ghandle);
-    } else if (child_type == H5O_TYPE_DATASET) {
-        auto dhandle = handle.openDataSet(name);
-        writer(dhandle);
-    } else {
-        throw std::runtime_error("cannot fetch attribute from unknown HDF5 object '" + name + "'");
-    }
+void write_enum_hdf5_attribute(std::string path, std::string name, std::string attr, uintptr_t data) {
+    write_hdf5_attribute(path, name, attr, [&](auto& ahandle) -> void {
+        AttributeHandleWriter::write(ahandle, reinterpret_cast<const uint32_t*>(data), H5::PredType::NATIVE_UINT32);
+    });
 }
 
 /************* Emscripten bindings **************/
@@ -787,11 +844,17 @@ EMSCRIPTEN_BINDINGS(hdf5_utils) {
    emscripten::function("create_hdf5_file", &create_hdf5_file);
    emscripten::function("create_hdf5_group", &create_hdf5_group);
 
-   emscripten::function("create_hdf5_dataset", &create_hdf5_dataset);
+   emscripten::function("create_numeric_hdf5_dataset", &create_numeric_hdf5_dataset);
    emscripten::function("write_numeric_hdf5_dataset", &write_numeric_hdf5_dataset);
+   emscripten::function("create_string_hdf5_dataset", &create_string_hdf5_dataset);
    emscripten::function("write_string_hdf5_dataset", &write_string_hdf5_dataset);
+   emscripten::function("create_enum_hdf5_dataset", &create_enum_hdf5_dataset);
+   emscripten::function("write_enum_hdf5_dataset", &write_enum_hdf5_dataset);
 
-   emscripten::function("create_hdf5_attribute", &create_hdf5_attribute);
+   emscripten::function("create_numeric_hdf5_attribute", &create_numeric_hdf5_attribute);
    emscripten::function("write_numeric_hdf5_attribute", &write_numeric_hdf5_attribute);
+   emscripten::function("create_string_hdf5_attribute", &create_string_hdf5_attribute);
    emscripten::function("write_string_hdf5_attribute", &write_string_hdf5_attribute);
+   emscripten::function("create_enum_hdf5_attribute", &create_enum_hdf5_attribute);
+   emscripten::function("write_enum_hdf5_attribute", &write_enum_hdf5_attribute);
 }
