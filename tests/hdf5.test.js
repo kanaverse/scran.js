@@ -299,8 +299,8 @@ test("HDF5 enum dataset creation and loading works as expected", () => {
         fhandle.writeDataSet("idols", "Enum", [2,3], idols);
 
         let dhandle2 = fhandle.open("idols", { load: true });
-        expect(dhandle2.values).toEqual(new Int32Array([0,1,2,3,1,0]));
-        expect(dhandle2.levels).toEqual(["uzuki", "shizuka", "kaori", "kaede" ]);
+        expect(dhandle2.values).toEqual(new Int32Array([3,2,1,0,2,3]));
+        expect(dhandle2.levels).toEqual(["kaede", "kaori", "shizuka", "uzuki"]);
         expect(dhandle2.shape).toEqual([2, 3]);
     }
 

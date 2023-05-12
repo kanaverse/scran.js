@@ -11,19 +11,24 @@ test("factorization works as expected", () => {
         out.ids.free();
     }
 
-    // Respects the input order.
+    // Multiple levels.
     {
-        let out = scran.convertToFactor(["B", "B", "B", "A", "A"]);
-        expect(Array.from(out.ids.array())).toEqual([0,0,0,1,1]);
-        expect(out.levels).toEqual(["B", "A"]);
+        let out = scran.convertToFactor(["A", "B", "C", "A", "C"]);
+        expect(Array.from(out.ids.array())).toEqual([0,1,2,0,2]);
+        expect(out.levels).toEqual(["A", "B", "C"]);
         out.ids.free();
     }
 
-    // Multiple levels.
+    // Resorts on the input order for strings and ints.
     {
-        let out = scran.convertToFactor(["C", "A", "B", "A", "C"]);
-        expect(Array.from(out.ids.array())).toEqual([0,1,2,1,0]);
-        expect(out.levels).toEqual(["C", "A", "B"]);
+        let out = scran.convertToFactor(["B", "B", "B", "A", "A"]);
+        expect(Array.from(out.ids.array())).toEqual([1,1,1,0,0]);
+        expect(out.levels).toEqual(["A", "B"]);
+        out.ids.free();
+
+        let out2 = scran.convertToFactor([3,2,1,2,3]);
+        expect(Array.from(out2.ids.array())).toEqual([2,1,0,1,2]);
+        expect(out2.levels).toEqual([1,2,3]);
         out.ids.free();
     }
 
@@ -42,26 +47,40 @@ test("factorization works as expected", () => {
     {
         let thing = new Float32Array([2,1,0,1,2]);
         let out = scran.convertToFactor(thing);
-        expect(Array.from(out.ids.array())).toEqual([0,1,2,1,0]);
-        expect(out.levels).toEqual([2,1,0]);
+        expect(Array.from(out.ids.array())).toEqual([2,1,0,1,2]);
+        expect(out.levels).toEqual([0,1,2]);
         out.ids.free();
 
         let out2 = scran.convertToFactor(thing, { asWasmArray: false });
-        expect(out2.ids).toEqual(new Int32Array([0,1,2,1,0]));
-        expect(out2.levels).toEqual([2,1,0]);
+        expect(Array.from(out2.ids)).toEqual([2,1,0,1,2]);
+        expect(out2.levels).toEqual([0,1,2]);
     }
 
     // Works with a buffer.
     {
         let buffer = scran.createInt32WasmArray(5);
-        scran.convertBlock(["B", "B", "C", "A", "A"], { buffer: buffer });
-        expect(Array.from(buffer.array())).toEqual([0,0,1,2,2]);
+        let out = scran.convertToFactor(["B", "B", "C", "A", "A"], { buffer: buffer });
+        expect(Array.from(buffer.array())).toEqual([1,1,2,0,0]);
+        expect(out.levels).toEqual(["A", "B", "C"]);
         buffer.free();
 
         buffer = new Int32Array(4);
-        expect(() => scran.convertBlock([2,1], { buffer: buffer })).toThrow("length");
-        scran.convertBlock([3,3,2,1], { buffer: buffer });
-        expect(buffer).toEqual(new Int32Array([0,0,1,2]));
+        expect(() => scran.convertToFactor([2,1], { buffer: buffer })).toThrow("length");
+        out = scran.convertToFactor([3,3,2,1], { buffer: buffer });
+        expect(buffer).toEqual(new Int32Array([2,2,1,0]));
+        expect(out.levels).toEqual([1,2,3]);
+    }
+
+    // Works with existing levels.
+    {
+        let out = scran.convertToFactor(["B", "B", "C", "A", "A"], { levels: [ "C", "B", "A" ] });
+        expect(Array.from(out.ids.array())).toEqual([1,1,0,2,2]);
+        out.ids.free();
+
+        expect(() => scran.convertToFactor(["D", "B", "B", "C", "A", "A"], { levels: [ "C", "B", "A" ] })).toThrow("invalid");
+        let out2 = scran.convertToFactor(["D", "B", "B", "C", "A", "A"], { levels: [ "C", "B", "A" ], action: "none" });
+        expect(Array.from(out2.ids.array())).toEqual([-1,1,1,0,2,2]);
+        out2.ids.free();
     }
 })
 
@@ -77,6 +96,23 @@ test("dropUnusedLevels works as expected", () => {
     mapping = scran.dropUnusedLevels(arr);
     expect(arr).toEqual([1,2,0,3,1]);
     expect(mapping).toEqual([2,3,5,9]);
+})
+
+test("resetLevels works as expected", () => {
+    {
+        let out = scran.convertToFactor(["C", "A", "B", "A", "B", "C"], { asWasmArray: false });
+        scran.resetLevels(out, ["D", "C", "A", "B"]);
+        expect(Array.from(out.ids)).toEqual([1,2,3,2,3,1]);
+        expect(out.levels).toEqual(["D", "C", "A", "B"]);
+    }
+
+    {
+        let out = scran.convertToFactor(["C", "A", "B", "A", "B", "C"], { asWasmArray: false });
+        expect(() => scran.resetLevels(out, ["D"])).toThrow("detected level");
+        scran.resetLevels(out, ["D", "B"], { action: "none" });
+        expect(Array.from(out.ids)).toEqual([-1, -1, 1, -1, 1, -1]);
+        expect(out.levels).toEqual(["D", "B"]);
+    }
 })
 
 test("subsetFactor works as expected for WasmArray inputs", () => {
