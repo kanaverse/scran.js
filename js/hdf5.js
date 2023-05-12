@@ -59,7 +59,7 @@ function fetch_max_string_length(lengths) {
 function process_enum_input(values, levels, arg) {
     if (levels !== null) {
         for (const i of values) {
-            if (Number.isInteger(i) || i < 0 || i >= levels.length) {
+            if (!Number.isInteger(i) || i < 0 || i >= levels.length) {
                 throw new Error("'" + arg + "' must contain non-negative integers less than 'levels.length' for 'type = \"Enum\"'");
             }
         }
@@ -223,10 +223,11 @@ export class H5Base {
             }
 
         } else if (type == "Enum") {
-            let processed = process_enum_input(x, levels);
+            let processed = process_enum_input(x, levels, "x");
             let y = utils.wasmifyArray(processed.values, "Int32WasmArray");
             try {
-                wasm.call(module => module.write_eum_hdf5_attribute(this.file, this.name, attr, y.offset));
+                this.#create_attribute(attr, type, shape, { levels: processed.levels });
+                wasm.call(module => module.write_enum_hdf5_attribute(this.file, this.name, attr, y.offset));
             } finally {
                 y.free();
             }
@@ -455,7 +456,7 @@ export class H5Group extends H5Base {
             handle.cache_loaded(x, cache);
 
         } else if (type == "Enum") {
-            let processed = process_enum_inputs(x, levels);
+            let processed = process_enum_input(x, levels, "x");
             handle = this.createDataSet(name, type, shape, { levels: processed.levels, compression: compression, chunks: chunks });
             handle.write(processed.values, { cache: cache });
 
@@ -685,7 +686,7 @@ export class H5DataSet extends H5Base {
             this.cache_loaded(x, cache);
 
         } else if (this.type == "Enum") {
-            let y = utils.wasmifyArray(processed.values, "Int32WasmArray");
+            let y = utils.wasmifyArray(x, "Int32WasmArray");
             try {
                 wasm.call(module => module.write_enum_hdf5_dataset(this.file, this.name, y.offset));
             } finally {

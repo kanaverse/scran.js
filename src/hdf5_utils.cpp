@@ -38,6 +38,30 @@ struct H5AttrDetails {
     std::vector<int> attr_runs_;
 };
 
+std::string guess_hdf5_type(const H5::IntType& itype) {
+    std::string type;
+
+    bool is_unsigned = (itype.getSign() == H5T_SGN_NONE);
+    if (is_unsigned) {
+        type += "Uint";
+    } else {
+        type += "Int";
+    }
+
+    auto isize = itype.getSize();
+    if (isize <= 1) {
+        type += "8";
+    } else if (isize <= 2) {
+        type += "16";
+    } else if (isize <= 4) {
+        type += "32";
+    } else {
+        type += "64";
+    }
+
+    return type;
+}
+
 template<class Handle>
 std::string guess_hdf5_type(const Handle& handle, const H5::DataType& dtype) {
     auto dclass = dtype.getClass();
@@ -47,28 +71,11 @@ std::string guess_hdf5_type(const Handle& handle, const H5::DataType& dtype) {
         bool is_unsigned = false;
         if constexpr(std::is_same<Handle, H5::DataSet>::value) {
             H5::IntType itype(handle);
-            is_unsigned = (itype.getSign() == H5T_SGN_NONE);
+            type = guess_hdf5_type(itype);
         } else {
             // Assume it's an attribute.
             auto itype = handle.getIntType();
-            is_unsigned = (itype.getSign() == H5T_SGN_NONE);
-        }
-
-        if (is_unsigned) {
-            type += "Uint";
-        } else {
-            type += "Int";
-        }
-
-        auto isize = dtype.getSize();
-        if (isize <= 1) {
-            type += "8";
-        } else if (isize <= 2) {
-            type += "16";
-        } else if (isize <= 4) {
-            type += "32";
-        } else {
-            type += "64";
+            type = guess_hdf5_type(itype);
         }
 
     } else if (dclass == H5T_FLOAT) {
@@ -368,7 +375,7 @@ protected:
                 itype = handle.getIntType(); // Assume it's an attribute.
                 etype = handle.getEnumType(); // Assume it's an attribute.
             }
-            enum_type = guess_hdf5_type(handle, itype);
+            enum_type = guess_hdf5_type(itype);
             fill_numeric_contents<Reader>(handle, enum_type, full_length);
 
             if (enum_type == "Uint8") {
@@ -586,7 +593,7 @@ H5::DataType choose_string_data_type(int max_str_len) {
 H5::DataType choose_enum_data_type(size_t nlevels, uintptr_t level_lengths, uintptr_t level_buffer) {
     auto buf_ptr = reinterpret_cast<const uint8_t*>(level_buffer); 
     auto len_ptr = reinterpret_cast<const int32_t*>(level_lengths);
-    H5::EnumType dtype(H5::PredType::NATIVE_UINT32);
+    H5::EnumType dtype(H5::PredType::NATIVE_INT32);
 
     std::vector<uint8_t> name_buffer;
     for (size_t i = 0; i < nlevels; ++i) {
@@ -728,7 +735,7 @@ void write_string_hdf5_dataset(std::string path, std::string name, size_t n, uin
 void write_enum_hdf5_dataset(std::string path, std::string name, uintptr_t data) {
     H5::H5File handle(path, H5F_ACC_RDWR);
     auto dhandle = handle.openDataSet(name);
-    DataSetHandleWriter::write(dhandle, reinterpret_cast<const uint32_t*>(data), H5::PredType::NATIVE_UINT32);
+    DataSetHandleWriter::write(dhandle, reinterpret_cast<const int32_t*>(data), dhandle.getDataType());
     return;
 }
 
@@ -819,7 +826,7 @@ void write_string_hdf5_attribute(std::string path, std::string name, std::string
 
 void write_enum_hdf5_attribute(std::string path, std::string name, std::string attr, uintptr_t data) {
     write_hdf5_attribute(path, name, attr, [&](auto& ahandle) -> void {
-        AttributeHandleWriter::write(ahandle, reinterpret_cast<const uint32_t*>(data), H5::PredType::NATIVE_UINT32);
+        AttributeHandleWriter::write(ahandle, reinterpret_cast<const int32_t*>(data), ahandle.getDataType());
     });
 }
 
