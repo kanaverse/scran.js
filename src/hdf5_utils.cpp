@@ -794,11 +794,11 @@ void write_hdf5_attribute(const std::string& path, const std::string& name, cons
     auto child_type = handle.childObjType(name);
     if (child_type == H5O_TYPE_GROUP) {
         auto ghandle = handle.openGroup(name);
-        auto ahandle = handle.openAttribute(attr);
+        auto ahandle = ghandle.openAttribute(attr);
         writer(ahandle);
     } else if (child_type == H5O_TYPE_DATASET) {
         auto dhandle = handle.openDataSet(name);
-        auto ahandle = handle.openAttribute(attr);
+        auto ahandle = dhandle.openAttribute(attr);
         writer(ahandle);
     } else {
         throw std::runtime_error("cannot fetch attribute from unknown HDF5 object '" + name + "'");
