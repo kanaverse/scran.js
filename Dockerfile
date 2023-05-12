@@ -16,7 +16,7 @@ RUN wget https://github.com/Kitware/CMake/releases/download/v3.22.2/cmake-3.22.2
     rm cmake_install.sh
 
 ENV FINALPATH="/emsdk:/emsdk/upstream/emscripten:/cmake/bin:${PATH}"
-ENV PATH="/emsdk/node/14.18.2_64bit/bin:${FINALPATH}"
+ENV PATH="/emsdk/node/15.14.0_64bit/bin:${FINALPATH}"
 
 RUN git clone https://github.com/kanaverse/scran.js
 
