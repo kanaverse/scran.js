@@ -287,6 +287,36 @@ test("HDF5 string dataset creation works as expected", () => {
     expect(content3[2]).toBe("");
 })
 
+test("HDF5 enum dataset creation and loading works as expected", () => {
+    const path = dir + "/test.write.h5";
+    purge(path)
+
+    let fhandle = scran.createNewHDF5File(path);
+
+    // Using the auto-leveller.
+    {
+        let idols = [ "uzuki", "shizuka", "kaori", "kaede", "shizuka", "uzuki" ];
+        fhandle.writeDataSet("idols", "Enum", [2,3], idols);
+
+        let dhandle2 = fhandle.open("idols", { load: true });
+        expect(dhandle2.values).toEqual(new Int32Array([0,1,2,3,1,0]));
+        expect(dhandle2.levels).toEqual(["uzuki", "shizuka", "kaori", "kaede" ]);
+        expect(dhandle2.shape).toEqual([2, 3]);
+    }
+
+    // Using explicit levels.
+    {
+        let idol_levels = [ "rin", "mio", "mika", "rika" ]
+        let idol_chosen = [3,1,2,0,0,2,1,1];
+        fhandle.writeDataSet("idols2", "Enum", [4,2], idol_chosen, { levels: idol_levels });
+
+        let dhandle2 = fhandle.open("idols2", { load: true });
+        expect(dhandle2.values).toEqual(new Int32Array(idol_chosen));
+        expect(dhandle2.levels).toEqual(idol_levels);
+        expect(dhandle2.shape).toEqual([4, 2]);
+    }
+})
+
 test("HDF5 64-bit integer dataset creation works as expected", () => {
     const path = dir + "/test.write.h5";
     purge(path)
@@ -388,5 +418,44 @@ test("HDF5 string attribute creation and loading works as expected", () => {
         let recolleagues = dhandle2.readAttribute("colleagues");
         expect(recolleagues.values).toEqual(colleagues);
         expect(recolleagues.shape).toEqual([5]);
+    }
+})
+
+test("HDF5 enum attribute creation and loading works as expected", () => {
+    const path = dir + "/test.write.h5";
+    purge(path)
+
+    let fhandle = scran.createNewHDF5File(path);
+    let dhandle = fhandle.writeDataSet("stuffX", "Int32", null, [1,2,3,4,5]);
+
+    // Using the auto-leveller.
+    {
+        let idols = ["chihaya", "haruka", "miki", "miki", "haruka", "chihaya"];
+        dhandle.writeAttribute("idols", "Enum", null, idols);
+        expect(dhandle.attributes.indexOf("idols")).toBe(0);
+
+        let dhandle2 = fhandle.open("stuffX");
+        expect(dhandle2.attributes.indexOf("idols")).toBe(0);
+
+        let reidols = dhandle2.readAttribute("idols");
+        expect(reidols.values).toEqual(new Int32Array([0,1,2,2,1,0]));
+        expect(reidols.levels).toEqual(["chihaya", "haruka", "miki"]);
+        expect(reidols.shape).toEqual([6]);
+    }
+
+    // Using explicit levels.
+    {
+        let idol_levels = ["iori", "mami", "ami", "azusa", "takane"];
+        let idol_chosen = [4,1,2,3,0,0,1,1,2];
+        dhandle.writeAttribute("idols2", "Enum", null, idol_chosen, { levels: idol_levels });
+        expect(dhandle.attributes.indexOf("idols2")).toBe(1);
+
+        let dhandle2 = fhandle.open("stuffX");
+        expect(dhandle2.attributes.indexOf("idols2")).toBe(1);
+
+        let reidols = dhandle2.readAttribute("idols2");
+        expect(reidols.values).toEqual(new Int32Array(idol_chosen));
+        expect(reidols.levels).toEqual(idol_levels);
+        expect(reidols.shape).toEqual([idol_chosen.length]);
     }
 })
