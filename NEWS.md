@@ -1,5 +1,17 @@
 # scran.js news
 
+## 2.1.2
+
+**New**
+
+- Added a `resetLevels()` function to change the levels of an existing factor.
+
+**Changes**
+
+- Improved the predictability of level ordering in `convertToFactor()`.
+  All-string/all-number levels that are inferred from the array are now sorted.
+  Users may also pass in their own `levels`.
+
 ## 2.1.1
 
 **Changes**
