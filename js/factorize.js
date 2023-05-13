@@ -120,7 +120,9 @@ export function convertToFactor(x, { asWasmArray = true, buffer = null, levels =
         }
 
     } catch (e) {
-        utils.free(local_buffer);
+        if (local_buffer instanceof wa.WasmArray) {
+            utils.free(local_buffer);
+        }
         throw e;
     }
 
