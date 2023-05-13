@@ -1,5 +1,11 @@
 # scran.js news
 
+## 2.1.3
+
+**Changes**
+
+- Preserve placeholder entries for factor indices in `resetLevels()`.
+
 ## 2.1.2
 
 **New**
