@@ -112,6 +112,12 @@ test("resetLevels works as expected", () => {
         scran.resetLevels(out, ["D", "B"], { action: "none" });
         expect(Array.from(out.ids)).toEqual([-1, -1, 1, -1, 1, -1]);
         expect(out.levels).toEqual(["D", "B"]);
+
+        out = scran.convertToFactor(["C", "A", "B", "A", "B", "C"], { asWasmArray: false, levels: [ "C", "A" ], action: "none" });
+        expect(Array.from(out.ids)).toEqual([0, 1, -1, 1, -1, 0]);
+        scran.resetLevels(out, ["A", "C"]);
+        expect(Array.from(out.ids)).toEqual([1, 0, -1, 0, -1, 1]);
+        expect(out.levels).toEqual(["A", "C"]);
     }
 })
 

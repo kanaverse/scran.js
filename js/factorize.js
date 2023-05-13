@@ -174,8 +174,10 @@ export function dropUnusedLevels(x) {
  * @param {object} [options={}] - Optional parameters.
  * @param {string} [options.action="error"] - Action to take when `newLevels` is not a superset of `x.levels`.
  * This can be `"error"`, `"warn"` or `"none"`.
- * @param {number} [options.placeholder=-1] - Placeholder index to use upon detecting values in `x.levels` that are missing in `newLevels`.
- * Only used if `action = "warn"` or `"none"`.
+ * @param {number} [options.placeholder=-1] - Placeholder index corresponding to invalid values of `x.ids`.
+ * Any placeholders in `x.ids` will be preserved on function return.
+ * Additionally, if entries of `x.ids` refer to entries of `x.levels` that are missing in `newLevels`, they will be set to the placeholder value on function return;
+ * this is only relevant if `action = "warn"` or `"none"`.
  *
  * @return `x` is modified by reference such that `x.levels` is set to `newLevels`.
  * `x.ids` is updated so that the indices now refer to the appropriate value in `newLevels`.
@@ -225,7 +227,9 @@ export function resetLevels(x, newLevels, { action = "error", placeholder = -1 }
         target = target.array();
     }
     target.forEach((y, i) => {
-        target[i] = conversion[y];
+        if (y !== placeholder) {
+            target[i] = conversion[y];
+        }
     });
 }
 
