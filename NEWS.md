@@ -1,5 +1,11 @@
 # scran.js news
 
+## 2.1.4
+
+**Changes**
+
+- Ignore non-string values in the `features=` for `guessFeatures()`.
+
 ## 2.1.3
 
 **Changes**

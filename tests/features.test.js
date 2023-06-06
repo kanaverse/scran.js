@@ -76,7 +76,7 @@ test("guessFeatures works as expected for some other symbols", () => {
     expect(output.species).toBe("7955");
 })
 
-test("guessFeatures handles null values properly", () => {
+test("guessFeatures handles null and non-string values properly", () => {
     let output = scran.guessFeatures(["ENSG00000000003", "ENSG00000230003", null]);
     expect(output.confidence).toBe(2/3);
     expect(output.type).toBe("ensembl");
@@ -86,6 +86,11 @@ test("guessFeatures handles null values properly", () => {
     expect(output2.confidence).toBe(2/3);
     expect(output2.type).toBe("ensembl");
     expect(output2.species).toBe("human");
+
+    let output3 = scran.guessFeatures(["ENSG00000000003", "ENSG00000230003", 12345]);
+    expect(output3.confidence).toBe(2/3);
+    expect(output3.type).toBe("ensembl");
+    expect(output3.species).toBe("human");
 })
 
 test("guessFeatures penalizes duplicates properly", () => {

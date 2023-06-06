@@ -28,7 +28,12 @@ export function guessFeatures(features, { forceTaxonomy = false } = {}) {
     // chromosome positions, feature type specifications, etc. Note that we
     // still need to use the full length to compute 'ntotal', otherwise we
     // wouldn't be penalizing the duplicates properly.
-    features = new Set(features); 
+    let unique_features = new Set;
+    for (const f of features) {
+        if (typeof f == "string") {
+            unique_features.add(f);
+        }
+    }
 
     let ensembl_human = 0;
     let ensembl_mouse = 0;
@@ -50,14 +55,14 @@ export function guessFeatures(features, { forceTaxonomy = false } = {}) {
 
     // Checking if it's any type of Ensembl.
     let any_ens = 0;
-    features.forEach(x => {
+    for (const x of unique_features) {
         if (x && x.match(/^ENS[A-Z]*G[0-9]{11}$/)) {
             any_ens++;
         }
-    });
+    }
 
     if (any_ens) {
-        features.forEach(x => {
+        for (const x of unique_features) {
             if (x) {
                 if (x.startsWith("ENSG")) {
                     ensembl_human++;
@@ -73,7 +78,7 @@ export function guessFeatures(features, { forceTaxonomy = false } = {}) {
                     ensembl_9598++;
                 }
             }
-        });
+        }
 
         collected.push({ species: hsid, type: "ensembl", confidence: ensembl_human });
         collected.push({ species: mmid, type: "ensembl", confidence: ensembl_mouse });
@@ -91,11 +96,11 @@ export function guessFeatures(features, { forceTaxonomy = false } = {}) {
     }
 
     // Human symbol; starts with upper case, no lower case, and not an Ensembl of any kind.
-    features.forEach(x => {
+    for (const x of unique_features) {
         if (x && x.match(/^[A-Z][^a-z]+$/) && !x.match(/^ENS[A-Z]+[0-9]{11}/)) {
             symbol_human++;
         }
-    });
+    }
     {
         let payload = { species: hsid, type: "symbol", confidence: symbol_human };
         if (payload.confidence >= early_threshold) {
@@ -105,11 +110,11 @@ export function guessFeatures(features, { forceTaxonomy = false } = {}) {
     }
 
     // Mouse symbol; starts with upper case, but no upper case after that.
-    features.forEach(x => {
+    for (const x of unique_features) {
         if (x && x.match(/^[A-Z][^A-Z]+$/)) {
             symbol_mouse++;
         }
-    });
+    }
     {
         let payload = { species: mmid, type: "symbol", confidence: symbol_mouse };
         if (payload.confidence >= early_threshold) {
@@ -119,11 +124,11 @@ export function guessFeatures(features, { forceTaxonomy = false } = {}) {
     }
 
     // Worm Ensembl (WormBase).
-    features.forEach(x => {
+    for (const x of unique_features) {
         if (x && x.match(/^WBGene[0-9]+$/)) {
             ensembl_6239++;
         }
-    });
+    }
     {
         let payload = { species: "6239", type: "ensembl", confidence: ensembl_6239 };
         if (payload.confidence >= early_threshold) {
@@ -133,11 +138,11 @@ export function guessFeatures(features, { forceTaxonomy = false } = {}) {
     }
 
     // Fly Ensembl (FlyBase).
-    features.forEach(x => {
+    for (const x of unique_features) {
         if (x && x.match(/^FBgn[0-9]+$/)) {
             ensembl_7227++;
         }
-    });
+    }
     {
         let payload = { species: "7227", type: "ensembl", confidence: ensembl_7227 };
         if (payload.confidence >= early_threshold) {
@@ -147,11 +152,11 @@ export function guessFeatures(features, { forceTaxonomy = false } = {}) {
     }
 
     // Worm symbols; at least three lower case with a dash and numbers.
-    features.forEach(x => {
+    for (const x of unique_features) {
         if (x && x.match(/^[a-z]{3,}-[0-9]+$/)) {
             symbol_6239++;
         }
-    });
+    }
     {
         let payload = { species: "6239", type: "symbol", confidence: symbol_6239 };
         if (payload.confidence >= early_threshold) {
@@ -161,11 +166,11 @@ export function guessFeatures(features, { forceTaxonomy = false } = {}) {
     }
 
     // Zebrafish symbols; at least three lower case letters, no dash, followed by numbers and/or more lower case.
-    features.forEach(x => {
+    for (const x of unique_features) {
         if (x && x.match(/^[a-z]{3,}[0-9a-z]+$/)) {
             symbol_7955++;
         }
-    });
+    }
     {
         let payload = { species: "7955", type: "symbol", confidence: symbol_7955 };
         if (payload.confidence >= early_threshold) {
