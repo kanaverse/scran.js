@@ -1,6 +1,7 @@
 #include <emscripten.h>
 #include <emscripten/bind.h>
 
+#include "utils.h"
 #include "read_utils.h"
 #include "NumericMatrix.h"
 #include "parallel.h"
@@ -114,8 +115,22 @@ void extract_hdf5_matrix_details(std::string path, std::string name, uintptr_t p
 }
 
 template<typename T>
-NumericMatrix read_hdf5_matrix_internal(size_t nr, size_t nc, bool is_dense, bool csc, const std::string& path, const std::string name, bool layered) {
-    if (!is_dense && csc && !layered) {
+NumericMatrix read_hdf5_matrix_internal(
+    size_t nr, 
+    size_t nc, 
+    bool is_dense, 
+    bool csc, 
+    const std::string& path, 
+    const std::string name, 
+    bool layered, 
+    bool row_subset, 
+    uintptr_t row_offset, 
+    int row_length,
+    bool col_subset, 
+    uintptr_t col_offset,
+    int col_length)
+{
+    if (!is_dense && csc && !layered && !row_subset && !col_subset) {
         return NumericMatrix(new tatami::CompressedSparseColumnMatrix<double, int, std::vector<T> >(
             tatami::load_hdf5_compressed_sparse_matrix<false, double, int, std::vector<T> >(nr, nc, path, name + "/data", name + "/indices", name + "/indptr")
         ));
@@ -133,11 +148,36 @@ NumericMatrix read_hdf5_matrix_internal(size_t nr, size_t nc, bool is_dense, boo
             throw std::runtime_error(e.getCDetailMsg());
         }
 
+        if (row_subset) {
+            auto offset_ptr = reinterpret_cast<const int*>(row_offset);
+            check_subset_indices<true>(offset_ptr, row_length, mat->nrow());
+            auto smat = tatami::make_DelayedSubset<0>(std::move(mat), std::vector<int>(offset_ptr, offset_ptr + row_length));
+            mat = std::move(smat);
+        }
+
+        if (col_subset) {
+            auto offset_ptr = reinterpret_cast<const int*>(col_offset);
+            check_subset_indices<false>(offset_ptr, col_length, mat->ncol());
+            auto smat = tatami::make_DelayedSubset<1>(std::move(mat), std::vector<int>(offset_ptr, offset_ptr + col_length));
+            mat = std::move(smat);
+        }
+
         return sparse_from_tatami(mat.get(), layered);
     }
 }
 
-NumericMatrix read_hdf5_matrix(std::string path, std::string name, bool force_integer, bool layered) {
+NumericMatrix read_hdf5_matrix(
+    std::string path, 
+    std::string name, 
+    bool force_integer, 
+    bool layered,
+    bool row_subset, 
+    uintptr_t row_offset, 
+    int row_length,
+    bool col_subset, 
+    uintptr_t col_offset,
+    int col_length)
+{
     auto details = extract_hdf5_matrix_details_internal(path, name);
     const auto& is_dense = details.is_dense;
     const auto& csc = details.csc;
@@ -145,9 +185,9 @@ NumericMatrix read_hdf5_matrix(std::string path, std::string name, bool force_in
     const auto& nc = details.nc;
 
     if (force_integer || details.is_integer) {
-        return read_hdf5_matrix_internal<int>(nr, nc, is_dense, csc, path, name, layered);
+        return read_hdf5_matrix_internal<int>(nr, nc, is_dense, csc, path, name, layered, row_subset, row_offset, row_length, col_subset, col_offset, col_length);
     } else {
-        return read_hdf5_matrix_internal<double>(nr, nc, is_dense, csc, path, name, false);
+        return read_hdf5_matrix_internal<double>(nr, nc, is_dense, csc, path, name, false, row_subset, row_offset, row_length, col_subset, col_offset, col_length);
     }
 }
 

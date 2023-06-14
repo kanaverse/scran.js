@@ -266,6 +266,10 @@ export function extractMatrixMarketDimensions(x, { compressed = null } = {}) {
  * @param {boolean} [options.layered=true] - Whether to create a layered sparse matrix, which reorders the rows of the loaded matrix for better memory efficiency.
  * Only used if the relevant HDF5 dataset contains an integer type and/or `forceInteger = true`.
  * Setting to `true` assumes that the matrix contains only non-negative integers.
+ * @param {?(Array|TypedArray|Int32WasmArray)} [options.subsetRow=null] - Row indices to extract.
+ * All indices must be non-negative integers less than the number of rows in the sparse matrix.
+ * @param {?(Array|TypedArray|Int32WasmArray)} [options.subsetColumn=null] - Column indices to extract.
+ * All indices must be non-negative integers less than the number of columns in the sparse matrix.
  *
  * @return {object} An object containing:
  * - `matrix`, a {@linkplain ScranMatrix} containing the sparse matrix data.
@@ -273,16 +277,34 @@ export function extractMatrixMarketDimensions(x, { compressed = null } = {}) {
  * - `row_ids`, an Int32Array specifying the identity of each row in `matrix`. 
  *   This can be interpreted as the row slicing that was applied to the original matrix to obtain `matrix`.
  *   If layering is not enabled, this is `null`.
+ *   If `subsetRow` was provided, `row_ids` contains indices into `subsetRow`, i.e., the i-th row in `matrix` is the `subsetRow[row_ids[i]]` row in the original matrix.
  *
  * Layering is enabled if the matrix contains integer data (either directly or via `forceInteger = true`) and `layered = true`.
  */
-export function initializeSparseMatrixFromHDF5(file, name, { forceInteger = true, layered = true } = {}) {
+export function initializeSparseMatrixFromHDF5(file, name, { forceInteger = true, layered = true, subsetRow = null, subsetColumn = null } = {}) {
     var ids = null;
     var output;
+    let wasm_row, wasm_col;
 
     try {
+        let use_row_subset = (subsetRow !== null);
+        let row_offset = 0, row_length = 0;
+        if (use_row_subset) {
+            wasm_row = utils.wasmifyArray(subsetRow, "Int32WasmArray");
+            row_offset = wasm_row.offset;
+            row_length = wasm_row.length;
+        }
+
+        let use_col_subset = (subsetColumn !== null);
+        let col_offset = 0, col_length = 0;
+        if (use_col_subset) {
+            wasm_col = utils.wasmifyArray(subsetColumn, "Int32WasmArray");
+            col_offset = wasm_col.offset;
+            col_length = wasm_col.length;
+        }
+
         output = gc.call(
-            module => module.read_hdf5_matrix(file, name, forceInteger, layered),
+            module => module.read_hdf5_matrix(file, name, forceInteger, layered, use_row_subset, row_offset, row_length, use_col_offset, col_offset, col_length),
             ScranMatrix
         );
 
@@ -294,6 +316,9 @@ export function initializeSparseMatrixFromHDF5(file, name, { forceInteger = true
     } catch(e) {
         utils.free(output);
         throw e;
+    } finally {
+        utils.free(wasm_row);
+        utils.free(wasm_column);
     }
 
     return { "matrix": output, "row_ids": ids };
