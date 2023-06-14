@@ -9375,7 +9375,7 @@ Note that filling requires use of <code>fillable: true</code> in the various get
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="initializeSparseMatrix.js.html">initializeSparseMatrix.js</a>, <a href="initializeSparseMatrix.js.html#line317">line 317</a>
+        <a href="initializeSparseMatrix.js.html">initializeSparseMatrix.js</a>, <a href="initializeSparseMatrix.js.html#line342">line 342</a>
     </li></ul></dd>
     
 
@@ -12498,7 +12498,7 @@ If the bindings were already initialized (e.g., by a previous call), nothing is 
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="initializeSparseMatrix.js.html">initializeSparseMatrix.js</a>, <a href="initializeSparseMatrix.js.html#line353">line 353</a>
+        <a href="initializeSparseMatrix.js.html">initializeSparseMatrix.js</a>, <a href="initializeSparseMatrix.js.html#line378">line 378</a>
     </li></ul></dd>
     
 
@@ -13779,7 +13779,7 @@ If layering is not enabled, this is <code>null</code>.</li>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="initializeSparseMatrix.js.html">initializeSparseMatrix.js</a>, <a href="initializeSparseMatrix.js.html#line279">line 279</a>
+        <a href="initializeSparseMatrix.js.html">initializeSparseMatrix.js</a>, <a href="initializeSparseMatrix.js.html#line284">line 284</a>
     </li></ul></dd>
     
 
@@ -14073,6 +14073,102 @@ Setting to <code>true</code> assumes that the matrix contains only non-negative 
         </tr>
 
     
+
+        <tr>
+            
+                <td class="name"><code>subsetRow</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array</span>
+|
+
+<span class="param-type">TypedArray</span>
+|
+
+<span class="param-type">Int32WasmArray</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+                    &lt;nullable><br>
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    <code>null</code>
+                
+                </td>
+            
+
+            <td class="description last"><p>Row indices to extract.
+All indices must be non-negative integers less than the number of rows in the sparse matrix.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>subsetColumn</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array</span>
+|
+
+<span class="param-type">TypedArray</span>
+|
+
+<span class="param-type">Int32WasmArray</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+                    &lt;nullable><br>
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    <code>null</code>
+                
+                </td>
+            
+
+            <td class="description last"><p>Column indices to extract.
+All indices must be non-negative integers less than the number of columns in the sparse matrix.</p></td>
+        </tr>
+
+    
     </tbody>
 </table>
 
@@ -14108,7 +14204,8 @@ Setting to <code>true</code> assumes that the matrix contains only non-negative 
 If layering is enabled, rows are shuffled to enable use of smaller integer types for low-abundance features.</li>
 <li><code>row_ids</code>, an Int32Array specifying the identity of each row in <code>matrix</code>.
 This can be interpreted as the row slicing that was applied to the original matrix to obtain <code>matrix</code>.
-If layering is not enabled, this is <code>null</code>.</li>
+If layering is not enabled, this is <code>null</code>.
+If <code>subsetRow</code> was provided, <code>row_ids</code> contains indices into <code>subsetRow</code>, i.e., the i-th row in <code>matrix</code> is the <code>subsetRow[row_ids[i]]</code> row in the original matrix.</li>
 </ul>
 <p>Layering is enabled if the matrix contains integer data (either directly or via <code>forceInteger = true</code>) and <code>layered = true</code>.</p>
 </div>
@@ -14491,7 +14588,7 @@ If <code>layered = false</code>, this is <code>null</code>.</li>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="initializeSparseMatrix.js.html">initializeSparseMatrix.js</a>, <a href="initializeSparseMatrix.js.html#line401">line 401</a>
+        <a href="initializeSparseMatrix.js.html">initializeSparseMatrix.js</a>, <a href="initializeSparseMatrix.js.html#line426">line 426</a>
     </li></ul></dd>
     
 
@@ -29220,7 +29317,7 @@ Discrepancy is for the same reason as described for <code>csr_matrix</code>.</li
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.11</a> on Tue Jun 06 2023 22:46:46 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.11</a> on Wed Jun 14 2023 22:52:09 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>
