@@ -1,5 +1,11 @@
 # scran.js news
 
+## 2.1.5
+
+**Changes**
+
+- Added the `subsetRow=` and `subsetColumn=` options to enable loading of a subset of rows/columns from `initializeSparseMatrixFromHDF5()`.
+
 ## 2.1.4
 
 **Changes**
