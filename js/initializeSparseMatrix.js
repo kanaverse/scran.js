@@ -304,7 +304,7 @@ export function initializeSparseMatrixFromHDF5(file, name, { forceInteger = true
         }
 
         output = gc.call(
-            module => module.read_hdf5_matrix(file, name, forceInteger, layered, use_row_subset, row_offset, row_length, use_col_offset, col_offset, col_length),
+            module => module.read_hdf5_matrix(file, name, forceInteger, layered, use_row_subset, row_offset, row_length, use_col_subset, col_offset, col_length),
             ScranMatrix
         );
 
@@ -318,7 +318,7 @@ export function initializeSparseMatrixFromHDF5(file, name, { forceInteger = true
         throw e;
     } finally {
         utils.free(wasm_row);
-        utils.free(wasm_column);
+        utils.free(wasm_col);
     }
 
     return { "matrix": output, "row_ids": ids };
