@@ -1,5 +1,11 @@
 # scran.js news
 
+## 2.1.7
+
+**Changes**
+
+- Ignore all MGI identifiers in `guessFeatures()` to avoid confusing them with human gene symbols.
+
 ## 2.1.6
 
 **Changes**

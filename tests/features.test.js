@@ -103,8 +103,8 @@ test("guessFeatures penalizes duplicates properly", () => {
     expect(output.species).toEqual("mouse");
 })
 
-test("guessFeatures ignores VEGA gene symbols", () => {
-    let content = [ "OTTMUSG00000000000.1", "OTTHUMT00000000000", "OTTHUMG00000000230.5" ];
+test("guessFeatures ignores non-Ensembl all-caps identifiers", () => {
+    let content = [ "OTTMUSG00000000000.1", "OTTHUMT00000000000", "OTTHUMG00000000230.5", "MGI:928374", "MGI:98722" ];
     let output = scran.guessFeatures(content);
     expect(output.confidence).toBe(0/50);
     expect(output.type).toEqual("symbol");
