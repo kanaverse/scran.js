@@ -96,8 +96,9 @@ export function guessFeatures(features, { forceTaxonomy = false } = {}) {
     }
 
     // Human symbol; starts with upper case, no lower case, and not an Ensembl of any kind.
+    // We also ignore VEGA gene identifiers, as these are antiquated.
     for (const x of unique_features) {
-        if (x && x.match(/^[A-Z][^a-z]+$/) && !x.match(/^ENS[A-Z]+[0-9]{11}/)) {
+        if (x && x.match(/^[A-Z][^a-z]+$/) && !x.match(/^ENS[A-Z]+[0-9]{11}/) && !x.match(/^OTT.{4}[0-9]{11}/)) {
             symbol_human++;
         }
     }
