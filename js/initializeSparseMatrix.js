@@ -270,6 +270,8 @@ export function extractMatrixMarketDimensions(x, { compressed = null } = {}) {
  * All indices must be non-negative integers less than the number of rows in the sparse matrix.
  * @param {?(Array|TypedArray|Int32WasmArray)} [options.subsetColumn=null] - Column indices to extract.
  * All indices must be non-negative integers less than the number of columns in the sparse matrix.
+ * @param {number} [options.cacheSize=100000000] - Size of the cache for loading chunks from HDF5 files. 
+ * Only really relevant when reading dense matrices, where a larger cache size may be necessary for handling large chunk dimensions efficiently.
  *
  * @return {object} An object containing:
  * - `matrix`, a {@linkplain ScranMatrix} containing the sparse matrix data.
@@ -281,7 +283,7 @@ export function extractMatrixMarketDimensions(x, { compressed = null } = {}) {
  *
  * Layering is enabled if the matrix contains integer data (either directly or via `forceInteger = true`) and `layered = true`.
  */
-export function initializeSparseMatrixFromHDF5(file, name, { forceInteger = true, layered = true, subsetRow = null, subsetColumn = null } = {}) {
+export function initializeSparseMatrixFromHDF5(file, name, { forceInteger = true, layered = true, subsetRow = null, subsetColumn = null, cacheSize = 100000000 } = {}) {
     var ids = null;
     var output;
     let wasm_row, wasm_col;
@@ -304,7 +306,7 @@ export function initializeSparseMatrixFromHDF5(file, name, { forceInteger = true
         }
 
         output = gc.call(
-            module => module.read_hdf5_matrix(file, name, forceInteger, layered, use_row_subset, row_offset, row_length, use_col_subset, col_offset, col_length),
+            module => module.read_hdf5_matrix(file, name, forceInteger, layered, use_row_subset, row_offset, row_length, use_col_subset, col_offset, col_length, cacheSize),
             ScranMatrix
         );
 
