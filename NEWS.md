@@ -1,5 +1,11 @@
 # scran.js news
 
+## 2.1.8
+
+**Changes**
+
+- Added a `cacheSize=` option to `initializeSparseMatrixFromHDF5()`, mostly to increase the cache size for awkward chunk sizes in dense HDF5 datasets.
+
 ## 2.1.7
 
 **Changes**

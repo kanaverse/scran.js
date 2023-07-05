@@ -128,7 +128,8 @@ NumericMatrix read_hdf5_matrix_internal(
     int row_length,
     bool col_subset, 
     uintptr_t col_offset,
-    int col_length)
+    int col_length,
+    int cache_size)
 {
     if (!is_dense && csc && !layered && !row_subset && !col_subset) {
         return NumericMatrix(new tatami::CompressedSparseColumnMatrix<double, int, std::vector<T> >(
@@ -138,11 +139,11 @@ NumericMatrix read_hdf5_matrix_internal(
         std::shared_ptr<tatami::Matrix<T, int> > mat;
         try {
             if (is_dense) {
-                mat.reset(new tatami::HDF5DenseMatrix<T, int, true>(path, name));
+                mat.reset(new tatami::HDF5DenseMatrix<T, int, true>(path, name, cache_size));
             } else if (csc) {
-                mat.reset(new tatami::HDF5CompressedSparseMatrix<false, T, int>(nr, nc, path, name + "/data", name + "/indices", name + "/indptr"));
+                mat.reset(new tatami::HDF5CompressedSparseMatrix<false, T, int>(nr, nc, path, name + "/data", name + "/indices", name + "/indptr", cache_size));
             } else {
-                mat.reset(new tatami::HDF5CompressedSparseMatrix<true, T, int>(nr, nc, path, name + "/data", name + "/indices", name + "/indptr"));
+                mat.reset(new tatami::HDF5CompressedSparseMatrix<true, T, int>(nr, nc, path, name + "/data", name + "/indices", name + "/indptr", cache_size));
             }
         } catch (H5::Exception& e) {
             throw std::runtime_error(e.getCDetailMsg());
@@ -176,7 +177,8 @@ NumericMatrix read_hdf5_matrix(
     int row_length,
     bool col_subset, 
     uintptr_t col_offset,
-    int col_length)
+    int col_length,
+    int cache_size)
 {
     auto details = extract_hdf5_matrix_details_internal(path, name);
     const auto& is_dense = details.is_dense;
@@ -185,9 +187,9 @@ NumericMatrix read_hdf5_matrix(
     const auto& nc = details.nc;
 
     if (force_integer || details.is_integer) {
-        return read_hdf5_matrix_internal<int>(nr, nc, is_dense, csc, path, name, layered, row_subset, row_offset, row_length, col_subset, col_offset, col_length);
+        return read_hdf5_matrix_internal<int>(nr, nc, is_dense, csc, path, name, layered, row_subset, row_offset, row_length, col_subset, col_offset, col_length, cache_size);
     } else {
-        return read_hdf5_matrix_internal<double>(nr, nc, is_dense, csc, path, name, false, row_subset, row_offset, row_length, col_subset, col_offset, col_length);
+        return read_hdf5_matrix_internal<double>(nr, nc, is_dense, csc, path, name, false, row_subset, row_offset, row_length, col_subset, col_offset, col_length, cache_size);
     }
 }
 
