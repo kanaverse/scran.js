@@ -38,7 +38,7 @@ LoadedRds parse_rds_from_file(std::string path) {
     return LoadedRds(rds2cpp::parse_rds(path));
 }
 
-EMSCRIPTEN_BINDINGS(hdf5_utils) {
+EMSCRIPTEN_BINDINGS(rds_utils) {
     emscripten::class_<LoadedRds>("LoadedRds")
         .function("load", &LoadedRds::load)
         .function("format_version", &LoadedRds::format_version)
