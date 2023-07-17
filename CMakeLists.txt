@@ -52,7 +52,9 @@ add_executable(
 )
 
 target_compile_options(
-    scran_wasm PUBLIC -O3 -s USE_PTHREADS=1
+    scran_wasm PUBLIC 
+    -O3
+    -sUSE_PTHREADS=1
 )
 
 target_link_libraries(
@@ -69,10 +71,11 @@ target_link_libraries(
 target_compile_definitions(scran_wasm PRIVATE TATAMI_USE_ZLIB=1)
 
 target_link_options(scran_wasm PRIVATE 
-    -O3 
+    -O3
     --bind 
     -sALLOW_MEMORY_GROWTH=1 
     -sMAXIMUM_MEMORY=4GB 
+    -sSTACK_SIZE=2MB
     -sUSE_ZLIB=1 
     -sMODULARIZE=1 
     -sEXPORT_NAME=loadScran 
