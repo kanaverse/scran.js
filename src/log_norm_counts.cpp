@@ -14,10 +14,12 @@ NumericMatrix log_norm_counts(const NumericMatrix& mat,
     uintptr_t size_factors,
     bool use_blocks, 
     uintptr_t blocks,
+    bool center,
     bool allow_zero)
 {
     scran::LogNormCounts norm;
     norm.set_handle_zeros(allow_zero);
+    norm.set_center(center);
     
     std::vector<double> sf;
     if (use_size_factors) {
@@ -34,12 +36,19 @@ NumericMatrix log_norm_counts(const NumericMatrix& mat,
     }
 }
 
-/**
- * @cond 
- */
+void center_size_factors(size_t n, uintptr_t ptr, bool use_blocks, uintptr_t blocks) {
+    scran::CenterSizeFactors centerer;
+
+    if (use_blocks) {
+        centerer.run_blocked(n, reinterpret_cast<double*>(ptr), reinterpret_cast<const int32_t*>(blocks));
+    } else {
+        centerer.run(n, reinterpret_cast<double*>(ptr));
+    }
+
+    return;
+}
+ 
 EMSCRIPTEN_BINDINGS(log_norm_counts) {
     emscripten::function("log_norm_counts", &log_norm_counts);
+    emscripten::function("center_size_factors", &center_size_factors);
 }
-/**
- * @endcond 
- */

@@ -20,9 +20,23 @@ NumericMatrix::NumericMatrix(std::shared_ptr<const tatami::NumericMatrix> p, std
     }
 }
 
-NumericMatrix::NumericMatrix(int nr, int nc, uintptr_t values) {
-    JSVector<double> thing(reinterpret_cast<const double*>(values), nr*nc);
-    ptr = std::shared_ptr<tatami::NumericMatrix>(new tatami::DenseRowMatrix<double, int, decltype(thing)>(nr, nc, thing));
+template<class Vector_>
+void create_NumericMatrix(int nr, int nc, Vector_ vec, bool colmajor, std::shared_ptr<const tatami::NumericMatrix>& ptr) {
+    if (colmajor) {
+        ptr.reset(new tatami::DenseColumnMatrix<double, int, Vector_>(nr, nc, std::move(vec)));
+    } else {
+        ptr.reset(new tatami::DenseRowMatrix<double, int, Vector_>(nr, nc, std::move(vec)));
+    }
+}
+
+NumericMatrix::NumericMatrix(int nr, int nc, uintptr_t values, bool colmajor, bool copy) {
+    size_t product = static_cast<size_t>(nr) * static_cast<size_t>(nc);
+    auto iptr = reinterpret_cast<const double*>(values);
+    if (!copy) {
+        create_NumericMatrix(nr, nc, JSVector<double>(iptr, product), colmajor, ptr);
+    } else {
+        create_NumericMatrix(nr, nc, std::vector<double>(iptr, iptr + product), colmajor, ptr);
+    }
     return;
 }
 
@@ -84,7 +98,7 @@ NumericMatrix NumericMatrix::clone() const {
  */
 EMSCRIPTEN_BINDINGS(NumericMatrix) {
     emscripten::class_<NumericMatrix>("NumericMatrix")
-        .constructor<int, int, uintptr_t>()
+        .constructor<int, int, uintptr_t, bool, bool>()
         .function("nrow", &NumericMatrix::nrow)
         .function("ncol", &NumericMatrix::ncol)
         .function("row", &NumericMatrix::row)

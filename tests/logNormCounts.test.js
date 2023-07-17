@@ -112,3 +112,62 @@ test("Log-normalization behaves with zeros", () => {
 
     mat.free();
 })
+
+test("centering of size factors gives the same results", () => {
+    var ngenes = 1000;
+    var ncells = 20;
+    var mat = simulate.simulateMatrix(ngenes, ncells);
+    let qc = scran.perCellRnaQcMetrics(mat);
+
+    let rounder = x => Math.round(x * 1000000); // Check for equality to 6 decimal points of precision.
+
+    // Unblocked.
+    {
+        let sf = scran.centerSizeFactors(qc.sums());
+        var norm = scran.logNormCounts(mat);
+        let norm2 = scran.logNormCounts(mat, { sizeFactors: sf, center: false });
+
+        for (var c = 0; c < ncells; c++) {
+            let rawcol = mat.column(c);
+            let cursf = sf.array()[c];
+            let expected = rawcol.map(x => Math.log2(x / cursf + 1));
+            expect(norm.column(c).map(rounder)).toEqual(expected.map(rounder));
+            expect(norm2.column(c).map(rounder)).toEqual(expected.map(rounder));
+        }
+
+        norm2.free();
+        norm.free();
+        sf.free();
+    }
+
+    // Blocked.
+    {
+        var block = new Array(ncells);
+        let half = ncells * 0.3;
+        block.fill(0, 0, half);
+        block.fill(1, half, ncells);
+
+        let sf = scran.createFloat64WasmArray(ncells); // check that the buffer argument works.
+        scran.centerSizeFactors(qc.sums(), { block: block, buffer: sf });
+        let ref = scran.centerSizeFactors(qc.sums()); // check that blocking has an effect.
+        expect(ref.array()).not.toEqual(sf.array());
+
+        var norm = scran.logNormCounts(mat, { block });
+        let norm2 = scran.logNormCounts(mat, { sizeFactors: sf, center: false });
+
+        for (var c = 0; c < ncells; c++) {
+            let rawcol = mat.column(c);
+            let cursf = sf.array()[c];
+            let expected = rawcol.map(x => Math.log2(x / cursf + 1));
+            expect(norm.column(c).map(rounder)).toEqual(expected.map(rounder));
+            expect(norm2.column(c).map(rounder)).toEqual(expected.map(rounder));
+        }
+
+        norm2.free();
+        norm.free();
+        sf.free();
+        ref.free();
+    }
+
+    mat.free();
+})

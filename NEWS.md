@@ -1,11 +1,109 @@
 # scran.js news
 
-## 2.0.0-alpha.2
+## 2.1.8
+
+**Changes**
+
+- Added a `cacheSize=` option to `initializeSparseMatrixFromHDF5()`, mostly to increase the cache size for awkward chunk sizes in dense HDF5 datasets.
+
+## 2.1.7
+
+**Changes**
+
+- Ignore all MGI identifiers in `guessFeatures()` to avoid confusing them with human gene symbols.
+
+## 2.1.6
+
+**Changes**
+
+- Ignore all VEGA identifiers in `guessFeatures()` to avoid confusing them with human gene symbols.
+
+## 2.1.5
+
+**Changes**
+
+- Added the `subsetRow=` and `subsetColumn=` options to enable loading of a subset of rows/columns from `initializeSparseMatrixFromHDF5()`.
+
+## 2.1.4
+
+**Changes**
+
+- Ignore non-string values in the `features=` for `guessFeatures()`.
+
+## 2.1.3
+
+**Changes**
+
+- Preserve placeholder entries for factor indices in `resetLevels()`.
+
+## 2.1.2
+
+**New**
+
+- Added a `resetLevels()` function to change the levels of an existing factor.
+
+**Changes**
+
+- Improved the predictability of level ordering in `convertToFactor()`.
+  All-string/all-number levels that are inferred from the array are now sorted.
+  Users may also pass in their own `levels`.
+
+## 2.1.1
+
+**Changes**
+
+- Improved the intersection of feature identifiers in `labelCells()` and `integrateCellLabels()`.
+  Reference features may now contain synonyms, and if feature identifiers are duplicated, only the first occurrence is used.
+
+## 2.1.0
+
+**New**
+
+- Added an `aggregateAcrossCells()` function to aggregate expression values across groups of cells.
+  This is typically used to obtain cluster-level summaries for plotting or per-cluster analyses. 
+
+**Changes**
+
+- Provide more details (scores, fine-tuning deltas) in `labelCells()` and `integrateCellLabels()`.
+  These functions now return full-fledged objects that need to be explicitly freed after use.
+
+## 2.0.3
+
+**New**
+
+- Added a `factorize()` function to convert an arbitrary array into an R-style factor.
+  This provides a superset of the functionality of the `convertBlock()` function. 
+
+**Changes**
+
+- `convertBlock()` now raises a warning upon detecting `null` or `NaN` values.
+
+## 2.0.2
+
+**Changes**
+
+- Reduce the impact of duplicated feature identifiers in `guessFeatures()`.
+  This avoids treating strings like "Chr1" as mouse identifiers.
+
+## 2.0.1
+
+**Changes**
+
+- Greatly expanded the range of species that can be guessed in `guessFeatures()`.
+  Also added the ability to force the function to report taxonomy IDs instead of common names for human/mouse.
+
+## 2.0.0
 
 **New**
 
 - Added `perCellCrisprQcMetrics()` and `suggestCrisprQcFilters()`,
   to compute the QC metrics and filters for CRISPR guide count data.
+- Added `scoreFeatureSet()` to compute per-cell scores for a feature set's activity.
+- Added `hypergeometricTest()`, `testFeatureSetEnrichment()` and `remapFeatureSets()`,
+  to compute simple enrichment p-values for the top markers in each feature set.
+- Added `computeTopThreshold()` to more easily identify the top markers for 
+- Added `writeSparseMatrixToHdf5()` to dump a `ScranMatrix` back into a HDF5 file.
+- Added `centerSizeFactors()` to allow users to center the size factors manually.
 
 **Changes**
 
@@ -20,18 +118,25 @@
 - Getters for empty results will now return `null` if the corresponding field has not been filled,
   either using a dedicated setter or by extracting a memory view with `fillable: true`.
   This allows applications to fail gracefully upon encountering an object where the required fields have not been filled.
-- Removed deprecated functionality from previous version:
-  - Removed `ScranMatrix.isPermuted()`.
-  - `clusterSNNGraph()` no longer accepts integer arguments for `scheme=`.
-  - Removed `initializeSparseMatrixFromMatrixMarketBuffer()`.
-  - `runPCA()` no longer accepts `blockMethod="block"`.
-  - Removed `safeFree()`.
 - Added a `leidenModularityObjective` option to `clusterSNNGraph()`, to use the modularity as the objective function.
   This allows for a more stable interpretation of the magnitude of the resolution.
 - Separated resolution arguments to `multiLevelResolution` and `leidenResolution` for `clusterSNNGraph()`,
   allowing them to have different defaults.
   This is especially relevant when `leidenModularityObjective = false`.
 - Removed the `updateRowIdentities()` function, as this has little relation with other functions in **scran.js**.
+- Updated to the latest version of **libscran** (and thus **igraph**, which changes some of the clustering outputs).
+- Added a `minimum=` argument to `chooseHVGs()` to avoid choosing HVGs with negative residuals.
+- Modified `summary=` argument to accept a string in `ScoreMarkerResults`, which is more interpretable.
+- Support calculation of median and maximum effect sizes in `scoreMarkers()`.
+- Pass along `block=` to the internal PCA in `quickAdtSizeFactors()`. 
+- Allow size factor centering to turned off in `logNormCounts()`, in case the input size factors are already centered.
+- Ignore `null`s in the feature ID vectors in `buildLabelledReference()`.
+- Removed deprecated functionality from previous version:
+  - Removed `ScranMatrix.isPermuted()`.
+  - `clusterSNNGraph()` no longer accepts integer arguments for `scheme=`.
+  - Removed `initializeSparseMatrixFromMatrixMarketBuffer()`.
+  - `runPCA()` no longer accepts `blockMethod="block"`.
+  - Removed `safeFree()`.
 
 ## 1.2.1
 

@@ -261,3 +261,65 @@ test("initialization from HDF5 works correctly with forced integers", () => {
     mat1.matrix.free();
     mat2.matrix.free();
 })
+
+test("initialization from HDF5 works correctly with subsetting", () => {
+    const path = dir + "/test.sparse_tenx.h5";
+    purge(path);
+
+    // Creating a CSC sparse matrix, injecting in some big numbers.
+    let nr = 50;
+    let nc = 20;
+    const { data, indices, indptrs } = simulate.simulateSparseData(nc, nr, /* injectBigValues = */ true);
+
+    let f = new hdf5.File(path, "w");
+    f.create_group("foobar");
+    f.get("foobar").create_dataset("data", data);
+    f.get("foobar").create_dataset("indices", indices);
+    f.get("foobar").create_dataset("indptr", indptrs);
+    f.get("foobar").create_dataset("shape", [nr, nc], null, "<i");
+    f.close();
+
+    // Loading various flavors into memory.
+    var full = scran.initializeSparseMatrixFromHDF5(path, "foobar", { layered: false });
+
+    let rs = [];
+    for (var i = 1; i < nr; i += 2) {
+        rs.push(i);
+    }
+    var row_sub = scran.initializeSparseMatrixFromHDF5(path, "foobar", { layered: false, subsetRow: rs });
+    expect(row_sub.matrix.numberOfRows()).toEqual(rs.length);
+    expect(row_sub.matrix.numberOfColumns()).toEqual(nc);
+
+    let cs = [];
+    for (var i = 0; i < nc; i += 2) {
+        cs.push(i);
+    }
+    var col_sub = scran.initializeSparseMatrixFromHDF5(path, "foobar", { layered: false, subsetColumn: cs });
+    expect(col_sub.matrix.numberOfRows()).toEqual(nr);
+    expect(col_sub.matrix.numberOfColumns()).toEqual(cs.length);
+
+    var both_sub = scran.initializeSparseMatrixFromHDF5(path, "foobar", { layered: false, subsetRow: rs, subsetColumn: cs });
+    expect(both_sub.matrix.numberOfRows()).toEqual(rs.length);
+    expect(both_sub.matrix.numberOfColumns()).toEqual(cs.length);
+
+    // Checking the contents.
+    for (var c = 0; c < nc; ++c) {
+        let raw_ref = full.matrix.column(c);
+        let ref = rs.map(i => raw_ref[i]);
+        let sub = row_sub.matrix.column(c);
+        expect(compare.equalFloatArrays(ref, sub)).toBe(true);
+    }
+
+    for (var r = 0; r < nr; ++r) {
+        let raw_ref = full.matrix.row(r);
+        let ref = cs.map(i => raw_ref[i]);
+        let sub = col_sub.matrix.row(r);
+        expect(compare.equalFloatArrays(ref, sub)).toBe(true);
+    }
+
+    for (var i = 0; i < rs.length; ++i) {
+        let ref = col_sub.matrix.row(rs[i]);
+        let sub = both_sub.matrix.row(i);
+        expect(compare.equalFloatArrays(ref, sub)).toBe(true);
+    }
+})

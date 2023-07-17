@@ -12,6 +12,33 @@ function checkFillness2(group, summary, fillable, copy, fillcheck, getfun) {
     );
 }
 
+function intifySummary(summary) {
+    if (typeof summary == "number") {
+        return summary; // for back-compatibility with numeric summaries.
+    }
+    let output;
+    switch (summary) {
+        case "minimum": 
+            output = 0;
+            break;
+        case "mean": 
+            output = 1;
+            break;
+        case "median":
+            output = 2;
+            break;
+        case "maximum": 
+            output = 3;
+            break;
+        case "min-rank":
+            output = 4;
+            break;
+        default:
+            throw new Error("unknown summary type '" + summary + "'");
+    }
+    return output;
+}
+
 /**
  * Wrapper around the marker scoring results on the Wasm heap, typically produced by {@linkcode scoreMarkers}.
  * @hideconstructor
@@ -142,8 +169,8 @@ export class ScoreMarkersResults {
      * @param {number} group - Group of interest.
      * Should be non-negative and less than {@linkcode ScoreMarkersResults#numberOfGroups numberOfGroups}.
      * @param {object} [options={}] - Optional parameters.
-     * @param {number} [options.summary=1] - Summary statistic to be computed from the Cohen's d values of all pairwise comparisons involving `group`.
-     * This can be the minimum across comparisons (0), mean (1) or min-rank (4).
+     * @param {string} [options.summary="mean"] - Summary statistic to be computed from the Cohen's d values of all pairwise comparisons involving `group`.
+     * This can be the `"minimum"` across comparisons, `"mean"` or `"min-rank"`.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      * @param {boolean} [options.fillable=false] - Whether to return a fillable array, to write to this object.
      * If `true`, this method automatically sets `copy = false` if `copy` was previously true.
@@ -153,14 +180,18 @@ export class ScoreMarkersResults {
      * containing the summarized Cohen's d for the comparisons between `group` and all other groups.
      * Alternatively `null`, if `fillable = false` and the array was not already filled.
      */
-    cohen(group, { summary = 1, copy = true, fillable = false } = {}) {
+    cohen(group, { summary = "mean", copy = true, fillable = false } = {}) {
+        summary = intifySummary(summary);
         return checkFillness2(
             group, 
             summary, 
             fillable, 
             copy, 
             this.#filledCohen,
-            COPY => utils.possibleCopy(this.#results.cohen(group, summary), COPY)
+            COPY => utils.possibleCopy(
+                wasm.call(_ => this.#results.cohen(group, summary)),
+                COPY
+            )
         );
     }
 
@@ -171,8 +202,8 @@ export class ScoreMarkersResults {
      * @param {number} group - Group of interest.
      * Should be non-negative and less than {@linkcode ScoreMarkersResults#numberOfGroups numberOfGroups}.
      * @param {object} [options={}] - Optional parameters.
-     * @param {number} [options.summary=1] - Summary statistic to be computed from the AUCs of all pairwise comparisons involving `group`.
-     * This can be the minimum across comparisons (0), mean (1) or min-rank (4).
+     * @param {string} [options.summary="mean"] - Summary statistic to be computed from the AUCs of all pairwise comparisons involving `group`.
+     * This can be the `"minimum"` across comparisons, `"mean"` or `"min-rank"`.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      * @param {boolean} [options.fillable=false] - Whether to return a fillable array, to write to this object.
      * If `true`, this method automatically sets `copy = false` if `copy` was previously true.
@@ -182,17 +213,18 @@ export class ScoreMarkersResults {
      * containing the summarized AUC for the comparisons between `group` and all other groups.
      * Alternatively `null`, if `fillable = false` and the array was not already filled.
      */
-    auc(group, { summary = 1, copy = true, fillable = false } = {}) {
-        if (!this.#results.has_auc()) {
-            throw new Error("no AUCs computed for this ScoreMarkersResults object");
-        }
+    auc(group, { summary = "mean", copy = true, fillable = false } = {}) {
+        summary = intifySummary(summary);
         return checkFillness2(
             group, 
             summary, 
             fillable, 
             copy, 
             this.#filledAuc, 
-            COPY => utils.possibleCopy(this.#results.auc(group, summary), COPY)
+            COPY => utils.possibleCopy(
+                wasm.call(_ => this.#results.auc(group, summary)),
+                COPY
+            )
         );
     }
 
@@ -200,8 +232,8 @@ export class ScoreMarkersResults {
      * @param {number} group - Group of interest.
      * Should be non-negative and less than {@linkcode ScoreMarkersResults#numberOfGroups numberOfGroups}.
      * @param {object} [options={}] - Optional parameters.
-     * @param {number} [options.summary=1] - Summary statistic to be computed from the log-fold changes of all pairwise comparisons involving `group`.
-     * This can be the minimum across comparisons (0), mean (1) or min-rank (4).
+     * @param {string} [options.summary="mean"] - Summary statistic to be computed from the log-fold changes of all pairwise comparisons involving `group`.
+     * This can be the `"minimum"` across comparisons, `"mean"` or `"min-rank"`.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      * @param {boolean} [options.fillable=false] - Whether to return a fillable array, to write to this object.
      * If `true`, this method automatically sets `copy = false` if `copy` was previously true.
@@ -211,14 +243,18 @@ export class ScoreMarkersResults {
      * containing the summarized log-fold change for the comparisons between `group` and all other groups.
      * Alternatively `null`, if `fillable = false` and the array was not already filled.
      */
-    lfc(group, { summary = 1, copy = true, fillable = false } = {}) {
+    lfc(group, { summary = "mean", copy = true, fillable = false } = {}) {
+        summary = intifySummary(summary);
         return checkFillness2(
             group, 
             summary, 
             fillable, 
             copy, 
             this.#filledLfc, 
-            COPY => utils.possibleCopy(this.#results.lfc(group, summary), COPY)
+            COPY => utils.possibleCopy(
+                wasm.call(_ => this.#results.lfc(group, summary)),
+                COPY
+            )
         );
     }
 
@@ -226,8 +262,8 @@ export class ScoreMarkersResults {
      * @param {number} group - Group of interest.
      * Should be non-negative and less than {@linkcode ScoreMarkersResults#numberOfGroups numberOfGroups}.
      * @param {object} [options={}] - Optional parameters.
-     * @param {number} [options.summary=1] - Summary statistic to be computed from the delta-detected values of all pairwise comparisons involving `group`.
-     * This can be the minimum across comparisons (0), mean (1) or min-rank (4).
+     * @param {string} [options.summary="mean"] - Summary statistic to be computed from the delta-detected values of all pairwise comparisons involving `group`.
+     * This can be the `"minimum"` across comparisons, `"mean"` or `"min-rank"`.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      * @param {boolean} [options.fillable=false] - Whether to return a fillable array, to write to this object.
      * If `true`, this method automatically sets `copy = false` if `copy` was previously true.
@@ -237,14 +273,18 @@ export class ScoreMarkersResults {
      * containing the summarized delta-detected for the comparisons between `group` and all other groups.
      * Alternatively `null`, if `fillable = false` and the array was not already filled.
      */
-    deltaDetected(group, { summary = 1, copy = true, fillable = false } = {}) {
+    deltaDetected(group, { summary = "mean", copy = true, fillable = false } = {}) {
+        summary = intifySummary(summary);
         return checkFillness2(
             group, 
             summary, 
             fillable, 
             copy, 
             this.#filledDeltaDetected, 
-            COPY => utils.possibleCopy(this.#results.delta_detected(group, summary), COPY)
+            COPY => utils.possibleCopy(
+                wasm.call(_ => this.#results.delta_detected(group, summary)),
+                COPY
+            )
         );
     }
 
@@ -278,10 +318,14 @@ export class ScoreMarkersResults {
  * Large positive values favor markers with large log-fold changes over those with low variance.
  * @param {boolean} [options.computeAuc=true] - Whether to compute the AUCs as an effect size.
  * This can be set to `false` for greater speed and memory efficiency.
+ * @param {boolean} [options.computeMedian=false] - Whether to compute the median effect sizes across all pairwise comparisons for each group.
+ * This can be used as a more robust/less sensitive alternative to the mean.
+ * @param {boolean} [options.computeMaximum=false] - Whether to compute the maximum effect size across all pairwise comparisons for each group.
+ * This could be used to find uniquely downregulated genes.
  *
  * @return {ScoreMarkersResults} Object containing the marker scoring results.
  */
-export function scoreMarkers(x, groups, { block = null, numberOfThreads = null, lfcThreshold = 0, computeAuc = true } = {}) {
+export function scoreMarkers(x, groups, { block = null, numberOfThreads = null, lfcThreshold = 0, computeAuc = true, computeMedian = false, computeMaximum = false } = {}) {
     var output;
     var block_data;
     var group_data;
@@ -305,7 +349,7 @@ export function scoreMarkers(x, groups, { block = null, numberOfThreads = null, 
         }
 
         output = gc.call(
-            module => module.score_markers(x.matrix, group_data.offset, use_blocks, bptr, lfcThreshold, computeAuc, nthreads),
+            module => module.score_markers(x.matrix, group_data.offset, use_blocks, bptr, lfcThreshold, computeAuc, computeMedian, computeMaximum, nthreads),
             ScoreMarkersResults
         );
 
@@ -330,12 +374,14 @@ export function scoreMarkers(x, groups, { block = null, numberOfThreads = null, 
  * @param {number} numberOfBlocks - Number of blocks in the dataset.
  * @param {object} [options={}] - Optional parameters.
  * @param {boolean} [options.computeAuc=true] - Whether to allocate memory for storing AUCs.
+ * @param {boolean} [options.computeMedian=false] - Whether to allocate memory for storing median effect sizes.
+ * @param {boolean} [options.computeMaximum=false] - Whether to allocate memory for storing maximum effect sizes.
  *
  * @return {ScoreMarkersResults} Object with memory allocated to store marker statistics, but not containing any actual values.
  */
-export function emptyScoreMarkersResults(numberOfGenes, numberOfGroups, numberOfBlocks, { computeAuc = true } = {}) {
+export function emptyScoreMarkersResults(numberOfGenes, numberOfGroups, numberOfBlocks, { computeAuc = true, computeMedian = false, computeMaximum = false } = {}) {
     return gc.call(
-        module => new module.ScoreMarkers_Results(numberOfGenes, numberOfGroups, numberOfBlocks, computeAuc),
+        module => new module.ScoreMarkers_Results(numberOfGenes, numberOfGroups, numberOfBlocks, computeAuc, computeMedian, computeMaximum),
         ScoreMarkersResults,
         /* filled = */ false
     );

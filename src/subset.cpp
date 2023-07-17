@@ -10,20 +10,9 @@
 
 #include "tatami/tatami.hpp"
 
-template<bool row>
-void check_limit(const int* ptr, size_t len, size_t limit) {
-    for (size_t i = 0; i < len; ++i) {
-        if (ptr[i] < 0) {
-            throw std::runtime_error("subset indices should be non-negative");
-        } else if (ptr[i] >= limit) {
-            throw std::runtime_error("subset indices should be less than the number of " + (row ? std::string("rows") : std::string("columns")));
-        }
-    }
-}
-
 void column_subset(NumericMatrix& matrix, uintptr_t offset, size_t length) {
     auto offset_ptr = reinterpret_cast<const int*>(offset);
-    check_limit<false>(offset_ptr, length, matrix.ncol());
+    check_subset_indices<false>(offset_ptr, length, matrix.ncol());
     auto ptr = tatami::make_DelayedSubset<1>(matrix.ptr, std::vector<int>(offset_ptr, offset_ptr + length));
     matrix.ptr = std::move(ptr);
     return;
@@ -31,7 +20,7 @@ void column_subset(NumericMatrix& matrix, uintptr_t offset, size_t length) {
 
 void row_subset(NumericMatrix& matrix, uintptr_t offset, size_t length) {
     auto offset_ptr = reinterpret_cast<const int*>(offset);
-    check_limit<true>(offset_ptr, length, matrix.nrow());
+    check_subset_indices<true>(offset_ptr, length, matrix.nrow());
     auto ptr = tatami::make_DelayedSubset<0>(std::move(matrix.ptr), std::vector<int>(offset_ptr, offset_ptr + length));
     matrix.ptr = std::move(ptr);
     return;

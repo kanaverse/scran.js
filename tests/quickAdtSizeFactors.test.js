@@ -22,6 +22,33 @@ test("Quick ADT size factor calculation works as expected", () => {
     buffer.free();
 })
 
+test("Quick ADT size factor calculation works with blocking", () => {
+    var ngenes = 100;
+    var ncells = 200;
+    var mat = simulate.simulateMatrix(ngenes, ncells, 1);
+
+    // Mocking up a blocking factor.
+    var block = new Int32Array(ncells);
+    var nblocks = 4;
+    for (var i = 0; i < ncells; i++) {
+        block[i] = Math.floor(Math.random() * nblocks);
+    }
+    for (var j = 0; j < nblocks; j++) {
+        block[j] = j;
+    }
+
+    var buffer = scran.quickAdtSizeFactors(mat, { block: block });
+    expect(buffer.length).toBe(ncells);
+
+    // Everything should be positive.
+    var ok = 0;
+    buffer.forEach(x => { ok += (x > 0); });
+    expect(ok).toBe(ncells);
+
+    mat.free();
+    buffer.free();
+})
+
 test("Quick ADT size factors are computed correctly for input buffers", () => {
     var ngenes = 100;
     var ncells = 100;

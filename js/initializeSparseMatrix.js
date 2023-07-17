@@ -13,14 +13,17 @@ import { ScranMatrix } from "./ScranMatrix.js";
  * @param {object} [options={}] - Optional parameters.
  * @param {boolean} [options.forceInteger=true] - Whether to coerce `values` to integers via truncation.
  * @param {boolean} [options.layered=true] - Whether to create a layered sparse matrix, which reorders the rows of the loaded matrix for better memory efficiency.
- * Only used if `forceInteger = true`, and assumes that `values` contains only non-negative integers.
+ * Only used if `values` contains an integer type and/or `forceInteger = true`.
+ * Setting to `true` assumes that `values` contains only non-negative integers.
  *
  * @return {object} An object containing:
  * - `matrix`, a {@linkplain ScranMatrix} containing the sparse matrix data.
- *   If `layered = true`, rows are shuffled to enable use of smaller integer types for low-abundance genes.
+ *   If layering is enabled, rows are shuffled to enable use of smaller integer types for low-abundance features.
  * - `row_ids`, an Int32Array specifying the identity of each row in `matrix`.
  *   This can be interpreted as the row slicing that was applied to the original matrix to obtain `matrix`.
- *   If `layered = false`, this is `null`.
+ *   If layering is not enabled, this is `null`.
+ *
+ * Layering is enabled if the matrix contains integer data (either directly or via `forceInteger = true`) and `layered = true`.
  */
 export function initializeSparseMatrixFromDenseArray(numberOfRows, numberOfColumns, values, { forceInteger = true, layered = true } = {}) {
     var val_data; 
@@ -77,14 +80,17 @@ export function initializeSparseMatrixFromDenseArray(numberOfRows, numberOfColum
  * If `true`, `indices` should contain column indices and `pointers` should specify the start of each row in `indices`.
  * @param {boolean} [options.forceInteger=true] - Whether to coerce `values` to integers via truncation.
  * @param {boolean} [options.layered=true] - Whether to create a layered sparse matrix, which reorders the rows of the loaded matrix for better memory efficiency.
- * Only used if `forceInteger = true`, and assumes that `values` contains only non-negative integers.
+ * Only used if `values` contains an integer type and/or `forceInteger = true`.
+ * Setting to `true` assumes that `values` contains only non-negative integers.
  *
  * @return {object} An object containing:
  * - `matrix`, a {@linkplain ScranMatrix} containing the sparse matrix data.
- *   If `layered = true`, rows are shuffled to enable use of smaller integer types for low-abundance genes.
+ *   If layering is enabled, rows are shuffled to enable use of smaller integer types for low-abundance features.
  * - `row_ids`, an Int32Array specifying the identity of each row in `matrix`. 
  *   This can be interpreted as the row slicing that was applied to the original matrix to obtain `matrix`.
- *   If `layered = false`, this is `null`.
+ *   If layering is not enabled, this is `null`.
+ * 
+ * Layering is enabled if the matrix contains integer data (either directly or via `forceInteger = true`) and `layered = true`.
  */ 
 export function initializeSparseMatrixFromCompressedVectors(numberOfRows, numberOfColumns, values, indices, pointers, { byColumn = true, forceInteger = true, layered = true } = {}) {
     var val_data;
@@ -155,7 +161,7 @@ export function initializeSparseMatrixFromCompressedVectors(numberOfRows, number
  *
  * @return {object} An object containing:
  * - `matrix`, a {@linkplain ScranMatrix} containing the sparse matrix data.
- *   If `layered = true`, rows are shuffled to enable use of smaller integer types for low-abundance genes.
+ *   If `layered = true`, rows are shuffled to enable use of smaller integer types for low-abundance features.
  * - `row_ids`, an Int32Array specifying the identity of each row in `matrix`. 
  *   This can be interpreted as the row slicing that was applied to the original matrix to obtain `matrix`.
  *   If `layered = false`, this is `null`.
@@ -258,22 +264,49 @@ export function extractMatrixMarketDimensions(x, { compressed = null } = {}) {
  * @param {object} [options={}] - Optional parameters.
  * @param {boolean} [options.forceInteger=true] - Whether to coerce all elements to integers via truncation.
  * @param {boolean} [options.layered=true] - Whether to create a layered sparse matrix, which reorders the rows of the loaded matrix for better memory efficiency.
- * Only used if `forceInteger = true`, and assumes that the matrix contains only non-negative integers.
+ * Only used if the relevant HDF5 dataset contains an integer type and/or `forceInteger = true`.
+ * Setting to `true` assumes that the matrix contains only non-negative integers.
+ * @param {?(Array|TypedArray|Int32WasmArray)} [options.subsetRow=null] - Row indices to extract.
+ * All indices must be non-negative integers less than the number of rows in the sparse matrix.
+ * @param {?(Array|TypedArray|Int32WasmArray)} [options.subsetColumn=null] - Column indices to extract.
+ * All indices must be non-negative integers less than the number of columns in the sparse matrix.
+ * @param {number} [options.cacheSize=100000000] - Size of the cache for loading chunks from HDF5 files. 
+ * Only really relevant when reading dense matrices, where a larger cache size may be necessary for handling large chunk dimensions efficiently.
  *
  * @return {object} An object containing:
  * - `matrix`, a {@linkplain ScranMatrix} containing the sparse matrix data.
- *   If `layered = true`, rows are shuffled to enable use of smaller integer types for low-abundance genes.
+ *   If layering is enabled, rows are shuffled to enable use of smaller integer types for low-abundance features.
  * - `row_ids`, an Int32Array specifying the identity of each row in `matrix`. 
  *   This can be interpreted as the row slicing that was applied to the original matrix to obtain `matrix`.
- *   If `layered = false`, this is `null`.
+ *   If layering is not enabled, this is `null`.
+ *   If `subsetRow` was provided, `row_ids` contains indices into `subsetRow`, i.e., the i-th row in `matrix` is the `subsetRow[row_ids[i]]` row in the original matrix.
+ *
+ * Layering is enabled if the matrix contains integer data (either directly or via `forceInteger = true`) and `layered = true`.
  */
-export function initializeSparseMatrixFromHDF5(file, name, { forceInteger = true, layered = true } = {}) {
+export function initializeSparseMatrixFromHDF5(file, name, { forceInteger = true, layered = true, subsetRow = null, subsetColumn = null, cacheSize = 100000000 } = {}) {
     var ids = null;
     var output;
+    let wasm_row, wasm_col;
 
     try {
+        let use_row_subset = (subsetRow !== null);
+        let row_offset = 0, row_length = 0;
+        if (use_row_subset) {
+            wasm_row = utils.wasmifyArray(subsetRow, "Int32WasmArray");
+            row_offset = wasm_row.offset;
+            row_length = wasm_row.length;
+        }
+
+        let use_col_subset = (subsetColumn !== null);
+        let col_offset = 0, col_length = 0;
+        if (use_col_subset) {
+            wasm_col = utils.wasmifyArray(subsetColumn, "Int32WasmArray");
+            col_offset = wasm_col.offset;
+            col_length = wasm_col.length;
+        }
+
         output = gc.call(
-            module => module.read_hdf5_matrix(file, name, forceInteger, layered),
+            module => module.read_hdf5_matrix(file, name, forceInteger, layered, use_row_subset, row_offset, row_length, use_col_subset, col_offset, col_length, cacheSize),
             ScranMatrix
         );
 
@@ -285,6 +318,9 @@ export function initializeSparseMatrixFromHDF5(file, name, { forceInteger = true
     } catch(e) {
         utils.free(output);
         throw e;
+    } finally {
+        utils.free(wasm_row);
+        utils.free(wasm_col);
     }
 
     return { "matrix": output, "row_ids": ids };
@@ -377,14 +413,17 @@ export function initializeDenseMatrixFromDenseArray(numberOfRows, numberOfColumn
  * Setting this to `true` improves memory efficiency at the cost of preventing any further use of `x`.
  * @param {boolean} [options.forceInteger=true] - Whether to coerce all elements to integers via truncation.
  * @param {boolean} [options.layered=true] - Whether to create a layered sparse matrix, which reorders the rows of the loaded matrix for better memory efficiency.
- * Only used if `forceInteger = true`, and assumes that the matrix contains only non-negative integers.
+ * Only used if the R matrix is of an integer type and/or `forceInteger = true`.
+ * Setting to `true` assumes that the matrix contains only non-negative integers.
  *
  * @return {object} An object containing:
  * - `matrix`, a {@linkplain ScranMatrix} containing the sparse matrix data.
- *   If `layered = true`, rows are shuffled to enable use of smaller integer types for low-abundance genes.
+ *   If layering is enabled, rows are shuffled to enable use of smaller integer types for low-abundance features.
  * - `row_ids`, an Int32Array specifying the identity of each row in `matrix`. 
  *   This can be interpreted as the row slicing that was applied to the original matrix to obtain `matrix`.
- *   If `layered = false`, this is `null`.
+ *   If layering is not enabled, this is `null`.
+ *
+ * Layering is enabled if the matrix contains integer data (either directly or via `forceInteger = true`) and `layered = true`.
  */
 export function initializeSparseMatrixFromRds(x, { consume = false, forceInteger = true, layered = true } = {}) {
     var ids = null;

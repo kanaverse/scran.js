@@ -1,6 +1,6 @@
 import * as scran from "../js/index.js";
 
-export function simulateSparseData(primary, secondary, injectBigValues = false) {
+export function simulateSparseData(primary, secondary, injectBigValues = false, forceInteger = true) {
     let data = [];
     let indices = [];
     let indptrs = new Uint32Array(primary + 1);
@@ -30,24 +30,23 @@ export function simulateSparseData(primary, secondary, injectBigValues = false) 
         }
     }
 
-    let data2 = new Uint16Array(data.length);
-    data2.set(data);
-    let indices2 = new Int32Array(indices.length);
-    indices2.set(indices);
-    let indptrs2 = new Uint32Array(indptrs.length);
-    indptrs2.set(indptrs);
-
+    let data_constructor = (forceInteger ? Uint32Array : Float64Array);
     return {
-        "data": data2,
-        "indices": indices2,
-        "indptrs": indptrs2
+        "data": new data_constructor(data),
+        "indices": new Int32Array(indices),
+        "indptrs": indptrs
     };
 }
 
-export function simulateMatrix(numberOfRows, numberOfColumns, density = 0.2, maxValue = 10) {
-    var buffer = scran.createInt32WasmArray(numberOfRows * numberOfColumns);
-    let output;
+export function simulateMatrix(numberOfRows, numberOfColumns, density = 0.2, maxValue = 10, forceInteger = true) {
+    var buffer;
+    if (forceInteger) {
+        buffer = scran.createInt32WasmArray(numberOfRows * numberOfColumns);
+    } else {
+        buffer = scran.createFloat64WasmArray(numberOfRows * numberOfColumns);
+    }
 
+    let output;
     try {
         var x = buffer.array();
         for (var c = 0; c < numberOfColumns; c++) {
@@ -60,7 +59,7 @@ export function simulateMatrix(numberOfRows, numberOfColumns, density = 0.2, max
             }
         }
 
-        output = scran.initializeSparseMatrixFromDenseArray(numberOfRows, numberOfColumns, buffer);
+        output = scran.initializeSparseMatrixFromDenseArray(numberOfRows, numberOfColumns, buffer, { forceInteger });
     } finally {
         buffer.free();
     }

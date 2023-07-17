@@ -5,7 +5,7 @@
 #include "parallel.h"
 
 #include "tatami/tatami.hpp"
-#include "tatami/ext/convert_to_layered_sparse.hpp"
+#include "tatami/ext/layered/convert_to_layered_sparse.hpp"
 
 inline std::vector<size_t> permutation_to_indices(const std::vector<size_t>& permutation) { 
     std::vector<size_t> ids(permutation.size());

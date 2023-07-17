@@ -80,41 +80,39 @@ test("labelCells works correctly", () => {
     let built = scran.buildLabelledReference(mockids, refinfo, mockids);
     expect(built.sharedFeatures() > 0).toBe(true);
 
-    let labels = scran.labelCells(mat, built);
-    expect(labels.length).toBe(20);
+    let results = scran.labelCells(mat, built);
+    expect(results.numberOfCells()).toBe(20);
+    expect(results.numberOfLabels()).toBe(nlabels);
+    expect(results.fineTuningDelta().length).toBe(20);
+    expect(results.predictedLabels().length).toBe(20);
+    expect(results.scoresForCell(1).length).toBe(nlabels);
+    expect(results.scoresForLabel(3).length).toBe(20);
 
     let min = Infinity, max = -1;
-    labels.forEach(x => {
+    results.predictedLabels({ copy: false }).forEach(x => {
         if (x < min) { min = x; }
         if (x > max) { max = x; }
     });
     expect(min >= 0).toBe(true);
     expect(max < 5).toBe(true);
 
-    // Works with a buffer.
-    let buf = scran.createInt32WasmArray(20);
-    let labels2 = scran.labelCells(mat, built, { buffer: buf });
-    expect(compare.equalArrays(labels, labels2)).toBe(true);
-
     // Freeing the objects.
     refinfo.free();
     built.free();
+    results.free();
     mat.free();
 })
 
-test("labelCells works correctly with intersections", () => {
+test("labelCells works correctly with shuffling", () => {
     let ref = mockReferenceData(nlabels, profiles_per_label, nfeatures, 20); 
     let refinfo = scran.loadLabelledReferenceFromBuffers(ref.ranks, ref.markers, ref.labels);
 
     let mat = simulate.simulateMatrix(nfeatures, 20);
     let mockids = mockIDs(nfeatures);
-
-    // No intersection reference.
     let built = scran.buildLabelledReference(mockids, refinfo, mockids);
-    expect(built.sharedFeatures() > 0).toBe(true);
-    let labels = scran.labelCells(mat, built); 
+    let results = scran.labelCells(mat, built); 
 
-    // Throwing in some intersections.
+    // Shuffling the input order.
     var inter = [];
     for (var i = 0; i < nfeatures; i++) {
         inter.push("Gene" + i);
@@ -126,17 +124,228 @@ test("labelCells works correctly with intersections", () => {
     var inter2 = indices.map(i => inter[i]);
 
     let built2 = scran.buildLabelledReference(inter, refinfo, inter2);
-    let labels2 = scran.labelCells(mat, built2);
+    let results2 = scran.labelCells(mat, built2);
+    let labels2 = results2.predictedLabels();
+    expect(compare.equalArrays(results.predictedLabels({ copy: false }), labels2)).toBe(false); // There should be some difference!
 
-    // There should be some difference!
-    expect(compare.equalArrays(labels, labels2)).toBe(false);
+    // Shuffling the input matrix so that the features now match.
+    {
+        let built3 = scran.buildLabelledReference(inter2, refinfo, inter2);
+        let sub = scran.subsetRows(mat, indices);
+        let results3 = scran.labelCells(sub, built3);
+        expect(compare.equalArrays(results3.predictedLabels({ copy: false }), labels2)).toBe(true);
+
+        sub.free();
+        built3.free();
+        results3.free();
+    }
 
     // Freeing the objects.
     refinfo.free();
     mat.free();
     built.free();
     built2.free();
+    results.free();
+    results2.free();
 });
+
+test("labelCells works correctly with intersections", () => {
+    let ref = mockReferenceData(nlabels, profiles_per_label, nfeatures, 20); 
+    let refinfo = scran.loadLabelledReferenceFromBuffers(ref.ranks, ref.markers, ref.labels);
+
+    let mat = simulate.simulateMatrix(nfeatures, 20);
+    let mockids = mockIDs(nfeatures);
+    let built = scran.buildLabelledReference(mockids, refinfo, mockids);
+    let results = scran.labelCells(mat, built); 
+
+    // Renaming the back half.
+    let start = nfeatures / 2;
+    let copy = mockids.slice();
+    for (var i = start; i < nfeatures; i++) {
+        copy[i] += "_____";
+    }
+
+    let built2 = scran.buildLabelledReference(copy, refinfo, mockids);
+    let results2 = scran.labelCells(mat, built2);
+    let labels2 = results2.predictedLabels();
+    expect(compare.equalArrays(results.predictedLabels({ copy: false }), labels2)).toBe(false); // There should be some difference!
+
+    // Subsetting the input matrix to remove non-matching features.
+    {
+        let built3 = scran.buildLabelledReference(copy.slice(0, start), refinfo, mockids);
+        let feat = new Int32Array(start);
+        feat.forEach((x, i) => feat[i] = i);
+        let sub = scran.subsetRows(mat, feat);
+        let results3 = scran.labelCells(sub, built3);
+        expect(compare.equalArrays(results3.predictedLabels({ copy: false }), labels2)).toBe(true);
+
+        sub.free();
+        built3.free();
+        results3.free();
+    }
+
+    // Freeing the objects.
+    refinfo.free();
+    mat.free();
+    built.free();
+    built2.free();
+    results.free();
+    results2.free();
+});
+
+test("labelCells ignores nulls correctly", () => {
+    let ref = mockReferenceData(nlabels, profiles_per_label, nfeatures, 20); 
+    let refinfo = scran.loadLabelledReferenceFromBuffers(ref.ranks, ref.markers, ref.labels);
+
+    let mat = simulate.simulateMatrix(nfeatures, 20);
+    let mockids = mockIDs(nfeatures);
+    let refbuilt = scran.buildLabelledReference(mockids, refinfo, mockids);
+    let refresults = scran.labelCells(mat, refbuilt); 
+
+    // Injecting nulls in half the features - there should be some effect!
+    let copy = mockids.slice();
+    let until = Math.round(nfeatures/2);
+    for (var i = 0; i < until; i++) {
+        copy[i] = null;
+    }
+    let built = scran.buildLabelledReference(copy, refinfo, mockids);
+    expect(built.sharedFeatures() > 0).toBe(true);
+    let results = scran.labelCells(mat, built); 
+    let labels = results.predictedLabels();
+    expect(compare.equalArrays(labels, refresults.predictedLabels({ copy: false }))).toBe(false);
+
+    // Manually removing the first gene from the test matrix.
+    {
+        let built2 = scran.buildLabelledReference(mockids.slice(until), refinfo, mockids);
+        let feat = new Int32Array(nfeatures-until);
+        feat.forEach((x, i) => feat[i] = until + i);
+        let sub = scran.subsetRows(mat, feat);
+        let results2 = scran.labelCells(sub, built2); 
+        expect(compare.equalArrays(labels, results2.predictedLabels({ copy: false }))).toBe(true);
+
+        built2.free();
+        sub.free();
+        results2.free();
+    }
+
+    // null is also ignored in the reference features.
+    {
+        let built2 = scran.buildLabelledReference(copy, refinfo, mockids);
+        let results2 = scran.labelCells(mat, built2); 
+        expect(compare.equalArrays(labels, results2.predictedLabels({ copy: false }))).toBe(true);
+
+        built2.free();
+        results2.free();
+    }
+
+    // Freeing the objects.
+    refinfo.free();
+    mat.free();
+    built.free();
+    results.free();
+    refresults.free();
+});
+
+test("labelCells handles synonyms correctly", () => {
+    let ref = mockReferenceData(nlabels, profiles_per_label, nfeatures, 20); 
+    let info = scran.loadLabelledReferenceFromBuffers(ref.ranks, ref.markers, ref.labels);
+
+    let mat = simulate.simulateMatrix(nfeatures, 20);
+    let mockids = mockIDs(nfeatures);
+    let built = scran.buildLabelledReference(mockids, info, mockids);
+    let results = scran.labelCells(mat, built); 
+    let labels = results.predictedLabels();
+
+    // Synonyms in the reference.
+    {
+        let refids = mockids.slice();
+        let dataids = mockids.slice();
+        refids[0] = [ "A", "B" ];
+        dataids[0] = "B";
+
+        let built2 = scran.buildLabelledReference(dataids, info, refids);
+        let results2 = scran.labelCells(mat, built2); 
+        expect(compare.equalArrays(labels, results2.predictedLabels({ copy: false }))).toBe(true);
+
+        built2.free();
+        results2.free();
+    }
+
+    // First matching synonym wins.
+    {
+        let refids = mockids.slice();
+        let dataids = mockids.slice();
+        dataids[0] = "A";
+        dataids[1] = "B";
+        refids[0] = ["A", "B"];
+        refids[1] = ["C", "B"]; 
+
+        let built2 = scran.buildLabelledReference(dataids, info, refids);
+        let results2 = scran.labelCells(mat, built2); 
+        expect(compare.equalArrays(labels, results2.predictedLabels({ copy: false }))).toBe(true);
+
+        built2.free();
+        results2.free();
+    }
+
+    // Freeing the objects.
+    info.free();
+    mat.free();
+    built.free();
+    results.free();
+});
+
+test("labelCells ignores duplicated feature IDs", () => {
+    let ref = mockReferenceData(nlabels, profiles_per_label, nfeatures, 20); 
+    let refinfo = scran.loadLabelledReferenceFromBuffers(ref.ranks, ref.markers, ref.labels);
+    let mat = simulate.simulateMatrix(nfeatures, 20);
+    let mockids = mockIDs(nfeatures);
+
+    // Duplicates in the reference.
+    {
+        let refids = mockids.slice();
+        let dataids = mockids.slice();
+
+        refids[1] = refids[0];
+        let built = scran.buildLabelledReference(dataids, refinfo, refids);
+        let results = scran.labelCells(mat, built); 
+
+        // Gives the same output as if the duplicate was unmatchable.
+        refids[1] = "FOOBAR";
+        let built2 = scran.buildLabelledReference(dataids, refinfo, refids);
+        let results2 = scran.labelCells(mat, built2); 
+        expect(compare.equalArrays(results.predictedLabels({copy: false}), results2.predictedLabels({ copy: false }))).toBe(true);
+
+        built.free();
+        results.free();
+        built2.free();
+        results2.free();
+    }
+
+    // Duplicates in the data IDs.
+    {
+        let refids = mockids.slice();
+        let dataids = mockids.slice();
+
+        dataids[1] = dataids[0];
+        let built = scran.buildLabelledReference(dataids, refinfo, refids);
+        let results = scran.labelCells(mat, built); 
+
+        // Gives the same output as if the duplicate was unmatchable.
+        dataids[1] = "FOOBAR";
+        let built2 = scran.buildLabelledReference(dataids, refinfo, refids);
+        let results2 = scran.labelCells(mat, built2); 
+        expect(compare.equalArrays(results.predictedLabels({copy: false}), results2.predictedLabels({ copy: false }))).toBe(true);
+
+        built.free();
+        results.free();
+        built2.free();
+        results2.free();
+    }
+
+    mat.free();
+    refinfo.free();
+})
 
 test("labelCells works correctly with a dense matrix", () => {
     let ref = mockReferenceData(nlabels, profiles_per_label, nfeatures, 20); 
@@ -148,7 +357,7 @@ test("labelCells works correctly with a dense matrix", () => {
 
     // Sparse reference.
     let mat = simulate.simulateMatrix(nfeatures, 30);
-    let labels = scran.labelCells(mat, built); 
+    let results = scran.labelCells(mat, built); 
 
     // Densifying it.
     let buffer = scran.createFloat64WasmArray(nfeatures * 30);
@@ -156,14 +365,16 @@ test("labelCells works correctly with a dense matrix", () => {
         buffer.set(mat.column(i), i * nfeatures);
     }
 
-    let labels2 = scran.labelCells(buffer, built, { numberOfFeatures: nfeatures, numberOfCells: 30 }); 
-    expect(compare.equalArrays(labels, labels2)).toBe(true);
+    let results2 = scran.labelCells(buffer, built, { numberOfFeatures: nfeatures, numberOfCells: 30 }); 
+    expect(compare.equalArrays(results.predictedLabels({ copy: false }), results.predictedLabels({ copy: false }))).toBe(true);
 
     // Freeing the objects.
     refinfo.free();
     mat.free();
     built.free();
     buffer.free();
+    results.free();
+    results2.free();
 });
 
 test("multi-reference integration works correctly", () => {
@@ -186,14 +397,22 @@ test("multi-reference integration works correctly", () => {
 
     // Using the various objects for classification of the test matrix.
     // Not much checks we can do here other than to verify that the ints are wihtin range.
-    let labA = scran.createInt32WasmArray(test.numberOfColumns());
-    scran.labelCells(test, builtA, { buffer: labA });
-    let labB = scran.labelCells(test, builtB);
+    let resA =  scran.labelCells(test, builtA);
+    let resB = scran.labelCells(test, builtB);
+    let labB = resB.predictedLabels();
+    resB.free();
 
-    let combined = scran.integrateCellLabels(test, [labA, labB], inter);
+    let combined = scran.integrateCellLabels(test, [resA, labB], inter);
+    expect(combined.numberOfCells()).toBe(test.numberOfColumns());
+    expect(combined.numberOfReferences()).toBe(2);
+    expect(combined.fineTuningDelta().length).toBe(test.numberOfColumns());
+    expect(combined.predictedReferences().length).toBe(test.numberOfColumns());
+    expect(combined.scoresForCell(0).length).toBe(2);
+    expect(combined.scoresForReference(1).length).toBe(test.numberOfColumns());
+
     let min = 1000;
     let max = -1;
-    combined.forEach(x => {
+    combined.predictedReferences({ copy: false }).forEach(x => {
         if (x < min) {
             min = x;
         }
@@ -203,7 +422,6 @@ test("multi-reference integration works correctly", () => {
     });
     expect(min >= 0 && min <= 1).toBe(true);
     expect(max >= 0 && max <= 1).toBe(true);
-    expect(combined.length).toBe(test.numberOfColumns());
 
     // Freeing all the bits and pieces.
     refinfoA.free();
@@ -211,6 +429,6 @@ test("multi-reference integration works correctly", () => {
     refinfoB.free();
     builtB.free();
     inter.free();
-    labA.free();
+    resA.free();
 });
 

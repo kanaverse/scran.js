@@ -27,6 +27,11 @@ test("scoreMarkers works as expected", () => {
     expect(output.lfc(0).length).toBe(ngenes);
     expect(output.deltaDetected(1).length).toBe(ngenes);
 
+    // Fetch other types of summaries.
+    expect(output.cohen(0, { summary: "min-rank" }).length).toBe(ngenes);
+    expect(() => output.cohen(0, { summary: "foo" })).toThrow("foo");
+    expect(() => output.cohen(0, { summary: "median" })).toThrow("summary type 2 not available");
+
     mat.free();
     norm.free();
     output.free();
@@ -80,13 +85,35 @@ test("scoreMarkers works after turning off AUCs", () => {
         expect(compare.equalFloatArrays(output.detected(i), ref.detected(i))).toBe(true);
     }
 
-    expect(() => output.auc(0)).toThrow("no AUCs computed"); 
+    expect(() => output.auc(0)).toThrow("no AUCs available"); 
 
     mat.free();
     norm.free();
     output.free();
     ref.free();
 });
+
+test("scoreMarkers works with maximum and medians", () => {
+    var ngenes = 1000;
+    var ncells = 20;
+    var mat = simulate.simulateMatrix(ngenes, ncells);
+    var norm = scran.logNormCounts(mat);
+
+    var groups = [];
+    for (var i = 0; i < ncells; i++) {
+        groups.push(i % 3);
+    }
+
+    var output = scran.scoreMarkers(mat, groups, { computeMaximum: true, computeMedian: true });
+    expect(output.cohen(2, { summary: "maximum" }).length).toEqual(ngenes);
+    expect(output.auc(2, { summary: "median" }).length).toEqual(ngenes);
+    expect(output.lfc(2, { summary: "maximum" }).length).toEqual(ngenes);
+    expect(output.deltaDetected(2, { summary: "median" }).length).toEqual(ngenes);
+
+    mat.free();
+    norm.free();
+    output.free();
+})
 
 test("scoreMarkers works as expected with blocking", () => {
     var ngenes = 1000;
@@ -205,6 +232,13 @@ test("ScoreMarkersResults can be mocked up", () => {
     // Skip the AUC calculation.
     {
         let mock = scran.emptyScoreMarkersResults(ngenes, ngroups, 1, { computeAuc: false });
-        expect(() => mock.auc(1)).toThrow("AUC");
+        expect(() => mock.auc(1, { fillable: true })).toThrow("AUC");
+    }
+
+    // Check that space can be allocated for medians and maxima.
+    {
+        let mock = scran.emptyScoreMarkersResults(ngenes, ngroups, 1, { computeMedian: true, computeMaximum: true });
+        expect(mock.lfc(0, { summary: "median", fillable: true }).length).toEqual(ngenes);
+        expect(mock.deltaDetected(0, { summary: "maximum", fillable: true }).length).toEqual(ngenes);
     }
 })

@@ -11,9 +11,11 @@ add_subdirectory(extern)
 
 add_executable(
     scran_wasm 
+
     src/read_matrix_market.cpp
     src/read_hdf5_matrix.cpp
     src/hdf5_utils.cpp
+    src/write_sparse_matrix_to_hdf5.cpp
     src/initialize_sparse_matrix.cpp
 
     src/quality_control_rna.cpp
@@ -42,6 +44,11 @@ add_executable(
     src/get_error_message.cpp
     src/rds_utils.cpp
     src/initialize_from_rds.cpp
+
+    src/score_feature_set.cpp
+    src/hypergeometric_test.cpp
+
+    src/aggregate_across_cells.cpp
 )
 
 target_compile_options(

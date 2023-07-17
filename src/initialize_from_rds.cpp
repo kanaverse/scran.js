@@ -6,7 +6,7 @@
 #include "rds_utils.h"
 #include "read_utils.h"
 #include "tatami/tatami.hpp"
-#include "tatami/ext/ArrayView.hpp"
+#include "tatami/utils/ArrayView.hpp"
 
 #include <unordered_map>
 

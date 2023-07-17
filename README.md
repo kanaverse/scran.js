@@ -26,6 +26,7 @@ This can either use k-means or community detection on a shared nearest neighbor 
 - Marker detection using a variety of effect sizes such as Cohen's d and the area under the curve (AUC).
 - Cell type annotation with a port of the [**SingleR**](https://bioconductor.org/packages/SingleR) algorithm.
 - Batch correction via the mutual nearest neighbors method.
+- Gene set enrichment tests and calculation of per-cell gene set activity scores.
 
 The theory behind these methods is described in more detail in the [**Orchestrating Single Cell Analysis with Bioconductor**](https://bioconductor.org/books/release/OSCA/) book. 
 All steps are implemented in C++ and compiled to WebAssembly for near-native performance - see the [developer notes](docs/related/developer_notes.md) for details.
@@ -59,7 +60,7 @@ let mat = scran.initializeSparseMatrixFromMatrixMarketBuffer(buffer);
 ## Basic analyses
 
 The code chunk below implements a basic analysis, starting from count matrix loading and terminating at the markers for each cluster.
-This uses the Node.js API to read in one of our example [Matrix Market files](https://github.com/jkanche/random-test-files),
+This uses the Node.js API to read in one of our example [Matrix Market files](https://github.com/kanaverse/random-test-files),
 but the same approach can be used on the buffer created from a `File` input in the browser.
 
 ```js
@@ -67,7 +68,7 @@ import * as scran from "scran.js";
 await scran.initialize({ numberOfThreads: 4 });
 
 // Reading in the count matrix.
-let input = scran.initializeSparseMatrixFromMatrixMarketBuffer("matrix.mtx.gz");
+let input = scran.initializeSparseMatrixFromMatrixMarket("matrix.mtx.gz");
 let mat = input.matrix;
 let feature_ids = input.row_ids; // for cross-referencing with gene annotations.
 
@@ -108,7 +109,7 @@ scran.terminate();
 
 ## More documentation
 
-Reference documentation for the Javascript API is available [here](https://jkanche.github.io/scran.js).
+Reference documentation for the Javascript API is available [here](https://kanaverse.github.io/scran.js).
 
 Specific topics are discussed in more detail below:
 

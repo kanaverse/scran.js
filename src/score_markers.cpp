@@ -50,16 +50,28 @@ struct ScoreMarkers_Results {
         }
     }
 
-    static scran::ScoreMarkers::ComputeSummaries default_choice() {
+    static scran::ScoreMarkers::ComputeSummaries default_choice(bool median, bool max) {
         scran::ScoreMarkers::ComputeSummaries out;
         std::fill(out.begin(), out.end(), false);
         out[scran::differential_analysis::MIN] = true;
         out[scran::differential_analysis::MEAN] = true;
+        out[scran::differential_analysis::MEDIAN] = median;
+        out[scran::differential_analysis::MAX] = max;
         out[scran::differential_analysis::MIN_RANK] = true;
         return out;
     }
 
-    ScoreMarkers_Results(int ngenes, int ngroups, int nblocks, bool compute_auc) : store(ngenes, ngroups, nblocks, default_choice(), (compute_auc ?  default_choice() : scran::ScoreMarkers::Defaults::compute_no_summaries()), default_choice(), default_choice()) {
+    ScoreMarkers_Results(int ngenes, int ngroups, int nblocks, bool compute_auc, bool compute_median, bool compute_maximum) : 
+        store(
+            ngenes, 
+            ngroups, 
+            nblocks, 
+            default_choice(compute_median, compute_maximum), 
+            (compute_auc ? default_choice(compute_median, compute_maximum) : scran::ScoreMarkers::Defaults::compute_no_summaries()), 
+            default_choice(compute_median, compute_maximum), 
+            default_choice(compute_median, compute_maximum)
+        ) 
+    {
         if (nblocks > 1) {
             ave_means.resize(ngroups, std::vector<double>(ngenes));
             ave_detected.resize(ngroups, std::vector<double>(ngenes));
@@ -125,7 +137,11 @@ struct ScoreMarkers_Results {
      * Each entry contains the summarized Cohen's D across all pairwise comparisons between `g` and every other group for a particular gene.
      */
     emscripten::val cohen(int g, int s=1) const {
-        const auto& current = store.cohen[s][g];
+        const auto& current0 = store.cohen[s];
+        if (current0.size() == 0) {
+            throw std::runtime_error("summary type " + std::to_string(s) + " not available for Cohen's d");
+        }
+        const auto& current = current0[g];
         return emscripten::val(emscripten::typed_memory_view(current.size(), current.data()));
     }
 
@@ -138,12 +154,16 @@ struct ScoreMarkers_Results {
      * Each entry contains the summarized AUC across all pairwise comparisons between `g` and every other group for a particular gene.
      */
     emscripten::val auc(int g, int s=1) const {
-        const auto& current = store.auc[s][g];
-        return emscripten::val(emscripten::typed_memory_view(current.size(), current.data()));
-    }
+        if (store.auc.empty()) {
+            throw std::runtime_error("no AUCs available in the scoreMarkers results");
+        }
+        const auto& current0 = store.auc[s];
 
-    bool has_auc() const {
-        return !store.auc.empty();
+        if (current0.size() == 0) {
+            throw std::runtime_error("summary type " + std::to_string(s) + " not available for AUCs");
+        }
+        const auto& current = current0[g];
+        return emscripten::val(emscripten::typed_memory_view(current.size(), current.data()));
     }
 
     /**
@@ -155,7 +175,11 @@ struct ScoreMarkers_Results {
      * Each entry contains the summarized log-fold change across all pairwise comparisons between `g` and every other group for a particular gene.
      */
     emscripten::val lfc(int g, int s=1) const {
-        const auto& current = store.lfc[s][g];
+        const auto& current0 = store.lfc[s];
+        if (current0.size() == 0) {
+            throw std::runtime_error("summary type " + std::to_string(s) + " not available for log-fold changes");
+        }
+        const auto& current = current0[g];
         return emscripten::val(emscripten::typed_memory_view(current.size(), current.data()));
     }
 
@@ -168,7 +192,11 @@ struct ScoreMarkers_Results {
      * Each entry contains the summarized delta-detected across all pairwise comparisons between `g` and every other group for a particular gene.
      */
     emscripten::val delta_detected(int g, int s=1) const {
-        const auto& current = store.delta_detected[s][g];
+        const auto& current0 = store.delta_detected[s];
+        if (current0.size() == 0) {
+            throw std::runtime_error("summary type " + std::to_string(s) + " not available for the delta detected");
+        }
+        const auto& current = current0[g];
         return emscripten::val(emscripten::typed_memory_view(current.size(), current.data()));
     }
 
@@ -223,7 +251,17 @@ std::vector<std::vector<Stat*> > vector_to_pointers2(std::vector<std::vector<std
  *
  * @return A `ScoreMarkers_Results` containing summary statistics from comparisons between groups of cells.
  */
-ScoreMarkers_Results score_markers(const NumericMatrix& mat, uintptr_t groups, bool use_blocks, uintptr_t blocks, double lfc_threshold, bool compute_auc, int nthreads) {
+ScoreMarkers_Results score_markers(
+    const NumericMatrix& mat, 
+    uintptr_t groups, 
+    bool use_blocks, 
+    uintptr_t blocks, 
+    double lfc_threshold, 
+    bool compute_auc, 
+    bool compute_med,
+    bool compute_max,
+    int nthreads) 
+{
     const int32_t* gptr = reinterpret_cast<const int32_t*>(groups);
     const int32_t* bptr = NULL;
     if (use_blocks) {
@@ -231,8 +269,8 @@ ScoreMarkers_Results score_markers(const NumericMatrix& mat, uintptr_t groups, b
     }
 
     scran::ScoreMarkers mrk;
-    mrk.set_summary_max(false);
-    mrk.set_summary_median(false);
+    mrk.set_summary_max(compute_med);
+    mrk.set_summary_median(compute_max);
     mrk.set_num_threads(nthreads);
     mrk.set_threshold(lfc_threshold);
     mrk.set_compute_auc(compute_auc);
@@ -249,12 +287,11 @@ EMSCRIPTEN_BINDINGS(score_markers) {
     emscripten::function("score_markers", &score_markers);
 
     emscripten::class_<ScoreMarkers_Results>("ScoreMarkers_Results")
-        .constructor<int, int, int, bool>()
+        .constructor<int, int, int, bool, bool, bool>()
         .function("means", &ScoreMarkers_Results::means)
         .function("detected", &ScoreMarkers_Results::detected)
         .function("cohen", &ScoreMarkers_Results::cohen)
         .function("auc", &ScoreMarkers_Results::auc)
-        .function("has_auc", &ScoreMarkers_Results::has_auc)
         .function("lfc", &ScoreMarkers_Results::lfc)
         .function("delta_detected", &ScoreMarkers_Results::delta_detected)
         .function("num_groups", &ScoreMarkers_Results::num_groups)

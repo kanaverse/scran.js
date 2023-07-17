@@ -1,7 +1,7 @@
 FROM ghcr.io/ltla/emcmake-docker/builder:2023-07-17
 ENV PATH="/emsdk/node/16.20.0_64bit/bin:${FINALPATH}"
 
-RUN git clone https://github.com/jkanche/scran.js
+RUN git clone https://github.com/kanaverse/scran.js
 
 WORKDIR scran.js
 

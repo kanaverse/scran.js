@@ -29,40 +29,11 @@ test("block creation works", () => {
 })
 
 test("block conversion works", () => {
-    {
-        let out = scran.convertBlock(["A", "A", "B", "B", "B"]);
-        expect(Array.from(out.ids.array())).toEqual([0,0,1,1,1]);
-        expect(out.levels).toEqual(["A", "B"]);
-        out.ids.free();
-    }
-
-    // Respects the input order.
-    {
-        let out = scran.convertBlock(["B", "B", "B", "A", "A"]);
-        expect(Array.from(out.ids.array())).toEqual([0,0,0,1,1]);
-        expect(out.levels).toEqual(["B", "A"]);
-        out.ids.free();
-    }
-
-    // Works with TypedArrays.
-    {
-        let thing = new Int32Array(5);
-        thing.set([2,1,0,1,2]);
-        let out = scran.convertBlock(thing);
-        expect(Array.from(out.ids.array())).toEqual([0,1,2,1,0]);
-        expect(out.levels).toEqual([2,1,0]);
-        out.ids.free();
-    }
-
-    // Works with a buffer.
-    {
-        let buffer = scran.createInt32WasmArray(5);
-        scran.convertBlock(["B", "B", "C", "A", "A"], { buffer: buffer });
-        expect(Array.from(buffer.array())).toEqual([0,0,1,2,2]);
-        buffer.free();
-
-        expect(() => scran.convertBlock([2,1], { buffer: buffer })).toThrow("length");
-    }
+    // This is just a wrapper around factorize(), so we'll skimp on the testing.
+    let out = scran.convertBlock(["A", "A", "B", "B", "B"]);
+    expect(Array.from(out.ids.array())).toEqual([0,0,1,1,1]);
+    expect(out.levels).toEqual(["A", "B"]);
+    out.ids.free();
 })
 
 test("block filtering works", () => {

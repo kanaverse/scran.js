@@ -1,6 +1,6 @@
 {
     "name": "scran.js",
-    "version": "2.0.0-alpha.2",
+    "version": "2.1.8",
     "description": "Single cell RNA-seq analysis in Javascript",
     "license": "MIT",
     "main": "main/index.js",
@@ -29,16 +29,16 @@
             "url": "https://github.com/LTLA"
         }
     ],
-    "bugs": "https://github.com/jkanche/scran.js/issues",
+    "bugs": "https://github.com/kanaverse/scran.js/issues",
     "keywords": [
         "bioinformatics",
         "scRNA-seq",
         "single-cell",
         "webassembly"
     ],
-    "repository": "github:jkanche/scran.js",
-    "homepage": "https://github.com/jkanche/scran.js#readme",
+    "repository": "github:kanaverse/scran.js",
+    "homepage": "https://github.com/kanaverse/scran.js#readme",
     "dependencies": {
-        "wasmarrays.js": "^0.0.3"
+        "wasmarrays.js": "^0.1.3"
     }
 }

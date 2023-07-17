@@ -5,6 +5,9 @@ import { ScranMatrix } from "./ScranMatrix.js";
 import * as wa from "wasmarrays.js";
 import * as init from "./initializeSparseMatrix.js";
 
+/**************************************************
+ **************************************************/
+
 /**
  * Wrapper around a labelled reference dataset on the Wasm heap, typically produced by {@linkcode loadLabelledReferenceFromBuffers}.
  * @hideconstructor
@@ -143,29 +146,64 @@ class BuildLabelledReferenceResults {
     }
 }
 
-function create_feature_availability(features, mat_id_buffer) {
-    let mat_id_array = mat_id_buffer.array();
-    let available = {};
-    let counter = 0;
-    features.forEach(y => {
-        available[y] = counter;
-        mat_id_array[counter] = counter;
-        counter++;
-    });
-    return available;
+function register_features(features, id_array) {
+    let registry_contents = new Map;
+
+    // All features in the data are guaranteed to get the a unique ID,
+    // but only non-null and non-duplicated (or the first of a duplicate set)
+    // are actually registered.
+    for (var i = 0; i < features.length; i++) {
+        let id = features[i];
+        if (id !== null) {
+            if (!registry_contents.has(id)) {
+                registry_contents.set(id, i);
+            }
+        }
+        id_array[i] = i;
+    }
+
+    return { contents: registry_contents, counter: features.length };
 }
 
-function convert_reference_features(referenceFeatures, available, ref_id_buffer) {  
-    let ref_id_array = ref_id_buffer.array();
-    let counter = Object.keys(available).length;
-    referenceFeatures.forEach((y, i) => {
-        if (y in available) {
-            ref_id_array[i] = available[y];
-        } else {
-            ref_id_array[i] = counter;
-            counter++;
+function convert_features(features, registry, id_array) {  
+    let used = new Set;
+    let set = (id, index) => {
+        let found = registry.contents.get(id);
+        if (typeof found !== "undefined") {
+            if (!used.has(found)) { // if entries of 'features' match to the same ID, only the first entry gets to match to the ID.
+                id_array[index] = found;
+                used.add(found);
+                return true;
+            }
         }
-    });
+        return false;
+    };
+
+    let counter = registry.counter;
+    for (var i = 0; i < features.length; i++) {
+        let y = features[i];
+        let found = false;
+
+        if (y !== null) {
+            if (y instanceof Array) {
+                for (const z of y) {
+                    if (set(z, i)) { // if an entry of 'features' has multiple names, the first matching name wins.
+                        found = true;
+                        break;
+                    }
+                }
+            } else {
+                found = set(y, i);
+            }
+        }
+
+        // If something isn't found, they get a unique ID.
+        if (!found) {
+            id_array[i] = counter;
+            ++counter;
+        }
+    }
+
     return;
 }
 
@@ -179,9 +217,14 @@ function convert_reference_features(referenceFeatures, available, ref_id_buffer)
  *
  * @param {Array} features - An array of feature identifiers (usually strings) of length equal to the number of rows in the test matrix.
  * Each entry should contain the identifier for the corresponding row of the test matrix.
+ * Any `null` entries are considered to be incomparable.
+ * If any identifiers are duplicated, only the first occurrence is used and the rest are ignored.
  * @param {LoadLabelledReferenceResults} loaded - A reference dataset, typically loaded with {@linkcode loadLabelledReferenceFromBuffers}.
  * @param {Array} referenceFeatures - An array of feature identifiers (usually strings) of length equal to the number of features in `reference`.
- * This is expected to exhibit some overlap with those in `features`.
+ * Each entry may also be an array of synonymous identifiers, in which case the first identifier that matches to an entry of `features` is used.
+ * Contents of `referenceFeatures` are expected to exhibit some overlap with identifiers in `features`.
+ * Any `null` entries are considered to be incomparable.
+ * If multiple entries of `referenceFeatures` match to the same feature in `features`, only the first matching entry is used and the rest are ignored.
  * @param {object} [options={}] - Optional parameters.
  * @param {number} [options.top=20] - Number of top marker features to use.
  * These features are taken from each pairwise comparison between labels.
@@ -204,8 +247,8 @@ export function buildLabelledReference(features, loaded, referenceFeatures, { to
             throw new Error("length of 'referenceFeatures' should be equal to the number of features in 'reference'");
         }
 
-        let available = create_feature_availability(features, mat_id_buffer);
-        convert_reference_features(referenceFeatures, available, ref_id_buffer);
+        let registry = register_features(features, mat_id_buffer.array());
+        convert_features(referenceFeatures, registry, ref_id_buffer.array());
 
         output = gc.call(
             module => module.build_singlepp_reference(nfeat, mat_id_buffer.offset, loaded.reference, ref_id_buffer.offset, top, nthreads),
@@ -226,12 +269,134 @@ export function buildLabelledReference(features, loaded, referenceFeatures, { to
     return output;
 }
 
-function label_cells(x, expectedNumberOfFeatures, buffer, numberOfFeatures, numberOfCells, FUN, msg) {
+/**************************************************
+ **************************************************/
+
+/**
+ * Wrapper around the cell labelling results on the Wasm heap, typically produced by {@linkcode labelCells}.
+ * @hideconstructor
+ */
+class LabelCellsResults {
+    #id;
+    #results;
+    #cell_buffer;
+    #label_buffer;
+
+    constructor(id, raw) {
+        this.#id = id;
+        this.#results = raw;
+        return;
+    }
+
+    /**
+     * @return {number} Number of labels used in {@linkcode labelCells}.
+     */
+    numberOfLabels() {
+        return this.#results.num_labels();
+    }
+
+    /**
+     * @return {number} Number of cells that were labelled.
+     */
+    numberOfCells() {
+        return this.#results.num_samples();
+    }
+
+    /**
+     * @param {object} [options={}] - Optional parameters.
+     * @param {boolean|string} [options.copy=true] - Copying mode, see {@linkcode possibleCopy} for details.
+     *
+     * @return {Int32Array|Int32WasmArray} Array of length equal to the number of cells,
+     * containing the index of the best label for each cell.
+     */
+    predictedLabels({ copy = true } = {}) {
+        return utils.possibleCopy(this.#results.get_best(), copy);
+    }
+
+    /**
+     * @param {number} i - Index of the cell of interest.
+     * @param {object} [options={}] - Optional parameters.
+     * @param {boolean|string} [options.copy=true] - Copying mode, see {@linkcode possibleCopy} for details.
+     * Only used if `buffer` is not supplied.
+     * @param {?Float64WasmArray} [options.buffer=null] - Buffer in which to store the output.
+     * This should have the same length as the {@linkcode LabelCellsResults#numberOfLabels numberOfLabels}.
+     *
+     * @return {Float64Array|Float64WasmArray} Array containing the scores for this cell across all labels.
+     * If `buffer` is supplied, it is used as the return value.
+     */
+    scoresForCell(i, { copy = true, buffer = null } = {}) {
+        if (buffer == null) {
+            if (typeof this.#cell_buffer == "undefined") {
+                this.#cell_buffer = utils.createFloat64WasmArray(this.#results.num_labels());
+            }
+            this.#results.get_scores_for_sample(i, this.#cell_buffer.offset);
+            return utils.possibleCopy(this.#cell_buffer.array(), copy);
+        } else {
+            if (buffer.length !== this.#results.num_labels()) {
+                throw new Error("length of 'buffer' should equal the number of labels");
+            }
+            this.#results.get_scores_for_sample(i, buffer.offset);
+            return buffer;
+        }
+    }
+
+    /**
+     * @param {number} i - Index of the label of interest.
+     * @param {object} [options={}] - Optional parameters.
+     * @param {boolean|string} [options.copy=true] - Copying mode, see {@linkcode possibleCopy} for details.
+     * Only used if `buffer` is not supplied.
+     * @param {?Float64WasmArray} [options.buffer=null] - Buffer in which to store the output.
+     * This should have the same length as the {@linkcode LabelCellsResults#numberOfCells numberOfCells}.
+     *
+     * @return {Float64Array|Float64WasmArray} Array containing the scores across all cells for this label.
+     * If `buffer` is supplied, it is used as the return value.
+     */
+    scoresForLabel(i, { copy = true, buffer = null } = {}) {
+        if (buffer == null) {
+            if (typeof this.#label_buffer == "undefined") {
+                this.#label_buffer = utils.createFloat64WasmArray(this.#results.num_samples());
+            }
+            this.#results.get_scores_for_label(i, this.#label_buffer.offset);
+            return utils.possibleCopy(this.#label_buffer.array(), copy);
+        } else {
+            if (buffer.length !== this.#results.num_samples()) {
+                throw new Error("length of 'buffer' should equal the number of cells");
+            }
+            this.#results.get_scores_for_label(i, buffer.offset);
+            return utils.possibleCopy(this.#label_buffer.array(), copy);
+        }
+    }
+
+    /**
+     * @param {object} [options={}] - Optional parameters.
+     * @param {boolean|string} [options.copy=true] - Copying mode, see {@linkcode possibleCopy} for details.
+     *
+     * @return {Float64Array|Float64WasmArray} Array of length equal to the number of cells,
+     * containing the difference in scores between the best and second-best label during fine-tuning.
+     */
+    fineTuningDelta({ copy = true } = {}) {
+        return utils.possibleCopy(this.#results.get_delta(), copy);
+    }
+
+    /**
+     * @return Frees the memory allocated on the Wasm heap for this object.
+     * This invalidates this object and all references to it.
+     */
+    free() {
+        if (this.#results !== null) {
+            gc.release(this.#id);
+            this.#results = null;
+
+            utils.free(this.#label_buffer);
+            utils.free(this.#cell_buffer);
+        }
+    }
+}
+
+function label_cells(x, expectedNumberOfFeatures, numberOfFeatures, numberOfCells, FUN, msg) {
     var output = null;
     var matbuf;
     var tempmat;
-    var tempbuf;
-    let use_buffer = (buffer instanceof wa.Int32WasmArray);
 
     try {
         let target;
@@ -248,23 +413,11 @@ function label_cells(x, expectedNumberOfFeatures, buffer, numberOfFeatures, numb
             throw new Error("number of rows in 'x' should be equal to length of 'features' used to build '" + msg + "'");
         }
 
-        let ptr;
-        if (!use_buffer) {
-            tempbuf = utils.createInt32WasmArray(target.ncol());
-            ptr = tempbuf.offset;
-        } else {
-            ptr = buffer.offset;
-        }
-
-        FUN(target, ptr);
-        if (!use_buffer) {
-            output = tempbuf.slice();
-        }
+        output = FUN(target);
 
     } finally {
         utils.free(matbuf);
         utils.free(tempmat);
-        utils.free(tempbuf);
     }
 
     return output;
@@ -277,34 +430,24 @@ function label_cells(x, expectedNumberOfFeatures, buffer, numberOfFeatures, numb
  * If a Float64WasmArray is supplied, it is assumed to contain a column-major dense matrix.
  * @param {BuildLabelledReferenceResults} reference - A built reference dataset, typically generated by {@linkcode buildLabelledReference}.
  * @param {object} [options={}] - Optional parameters.
- * @param {?Int32WasmArray} [options.buffer=null] - An existing buffer to store the output labels, of length equal to the number of columns in `x`.
  * @param {?number} [options.numberOfFeatures=null] - Number of features, used when `x` is a Float64WasmArray.
  * @param {?number} [options.numberOfCells=null] - Number of cells, used when `x` is a Float64WasmArray.
  * @param {number} [options.quantile=0.8] - Quantile on the correlations to use to compute the score for each label.
  * @param {?number} [options.numberOfThreads=null] - Number of threads to use.
  * If `null`, defaults to {@linkcode maximumThreads}.
  *
- * @return {Int32Array} Array containing the labels for each cell in `x`.
- *
- * If `buffer` was supplied, the returned array is a view into it.
- * Note that this may be invalidated on the next allocation on the Wasm heap.
+ * @return {LabelCellsResults} Labelling results for each cell in `x`.
  */
-export function labelCells(x, reference, { buffer = null, numberOfFeatures = null, numberOfCells = null, quantile = 0.8, numberOfThreads = null } = {}) {
+export function labelCells(x, reference, { numberOfFeatures = null, numberOfCells = null, quantile = 0.8, numberOfThreads = null } = {}) {
     let nthreads = utils.chooseNumberOfThreads(numberOfThreads);
     let FUN = (target, ptr) => {
-        wasm.call(module => module.run_singlepp(target, reference.reference, quantile, ptr, nthreads));
+        return gc.call(module => module.run_singlepp(target, reference.reference, quantile, nthreads), LabelCellsResults);
     };
-
-    let output = label_cells(x, reference.expectedNumberOfFeatures, buffer, numberOfFeatures, numberOfCells, FUN, "reference");
-
-    // This is done as the final step to avoid invalidation upon any touching
-    // of the Wasm heap, anywhere... even upon freeing.
-    if (output === null) {
-        output = buffer.array();
-    }
-
-    return output;
+    return label_cells(x, reference.expectedNumberOfFeatures, numberOfFeatures, numberOfCells, FUN, "reference");
 }
+
+/**************************************************
+ **************************************************/
 
 /**
  * Wrapper around integrated reference datasets on the Wasm heap, typically produced by {@linkcode integrateLabelledReferences}.
@@ -348,12 +491,18 @@ class IntegrateLabelledReferencesResults {
  * Integrate multiple reference datasets.
  *
  * @param {Array} features - An array of feature identifiers (usually strings) of length equal to the number of rows in the test matrix.
- * Each entry should contain the identifier for the corresponding row of the test matrix.
+ * Each entry should contain a single identifier for the corresponding row of the test matrix.
+ * Any `null` entries are considered to be incomparable.
+ * If any entries are duplicated, only the first occurrence is used and the rest are ignored.
  * @param {Array} loaded - Array of {@linkplain LabelledReference} objects, typically created with {@linkcode loadLabelledReferenceFromBuffers}.
  * @param {Array} referenceFeatures - Array of length equal to `loaded`, 
  * containing arrays of feature identifiers (usually strings) of length equal to the number of features the corresponding entry of `loaded`.
- * This is expected to exhibit some overlap with those in `features`.
- * @param {Array} reference - Array of {@linkplain BuildLabelledReferenceResults} objects, typically generated by {@linkcode buildLabelledReference}.
+ * Each entry may also be an array of synonymous identifiers, in which case the first identifier that matches to an entry of `features` is used.
+ * Contents of `referenceFeatures` are expected to exhibit some overlap with identifiers in `features`.
+ * Any `null` entries are considered to be incomparable.
+ * If multiple entries of `referenceFeatures` match to the same feature in `features`, only the first matching entry is used and the rest are ignored.
+ * @param {Array} reference - Array of {@linkplain BuildLabelledReferenceResults} objects, typically generated by calling {@linkcode buildLabelledReference} 
+ * on the same `features` and the corresponding entries of `loaded` and `referenceFeatures`.
  * This should have length equal to that of `loaded`.
  * @param {object} [options={}] - Optional parameters.
  * @param {?number} [options.numberOfThreads=null] - Number of threads to use.
@@ -384,10 +533,9 @@ export function integrateLabelledReferences(features, loaded, referenceFeatures,
     }
 
     let ref_arr = new Array(nrefs);
-
     try {
         id_arr = utils.createInt32WasmArray(features.length);
-        let available = create_feature_availability(features, id_arr);
+        let registry = register_features(features, id_arr.array());
 
         loaded_arr2 = utils.createBigUint64WasmArray(nrefs);
         let la2 = loaded_arr2.array();
@@ -399,13 +547,9 @@ export function integrateLabelledReferences(features, loaded, referenceFeatures,
         let ra2 = ref_arr2.array();
         for (var i = 0; i < nrefs; i++) {
             let current = referenceFeatures[i];
-            if (current instanceof wa.Int32WasmArray) {
-                ra2[i] = BigInt(current.offset);
-            } else {
-                ref_arr[i] = utils.createInt32WasmArray(current.length);
-                convert_reference_features(current, available, ref_arr[i]);
-                ra2[i] = BigInt(ref_arr[i].offset);
-            }
+            ref_arr[i] = utils.createInt32WasmArray(current.length);
+            convert_features(current, registry, ref_arr[i].array());
+            ra2[i] = BigInt(ref_arr[i].offset);
         }
 
         built_arr2 = utils.createBigUint64WasmArray(nrefs);
@@ -447,28 +591,114 @@ export function integrateLabelledReferences(features, loaded, referenceFeatures,
 }
 
 /**
- * Label cells based on similarity in expression to a reference dataset.
+ * Wrapper around the integrated cell labelling results on the Wasm heap, typically produced by {@linkcode labelCells}.
+ * @hideconstructor
+ */
+class IntegrateCellLabelsResults {
+    #results;
+
+    constructor(raw) {
+        this.#results = raw;
+        return;
+    }
+
+    /**
+     * @return {number} Number of labels used in {@linkcode integrateCellLabels}.
+     */
+    numberOfReferences() {
+        return this.#results.numberOfLabels();
+    }
+
+    /**
+     * @return {number} Number of cells that were labelled.
+     */
+    numberOfCells() {
+        return this.#results.numberOfCells();
+    }
+
+    /**
+     * @param {object} [options={}] - Optional parameters.
+     * @param {boolean|string} [options.copy=true] - Copying mode, see {@linkcode possibleCopy} for details.
+     *
+     * @return {Int32Array|Int32WasmArray} Array of length equal to the number of cells,
+     * containing the index of the best reference for each cell.
+     */
+    predictedReferences({ copy = true } = {}) {
+        return utils.possibleCopy(this.#results.predictedLabels(), copy);
+    }
+
+    /**
+     * @param {number} i - Index of the cell of interest.
+     * @param {object} [options={}] - Optional parameters.
+     * @param {boolean|string} [options.copy=true] - Copying mode, see {@linkcode possibleCopy} for details.
+     * Only used if `buffer` is not supplied.
+     * @param {?Float64WasmArray} [options.buffer=null] - Buffer in which to store the output.
+     * This should have the same length as the {@linkcode LabelCellsResults#numberOfLabels numberOfLabels}.
+     *
+     * @return {Float64Array|Float64WasmArray} Array containing the scores for this cell across all references.
+     * If `buffer` is supplied, it is used as the return value.
+     */
+    scoresForCell(i, { copy = true, buffer = null } = {}) {
+        return this.#results.scoresForCell(i, { copy, buffer });
+    }
+
+    /**
+     * @param {number} i - Index of the reference of interest.
+     * @param {object} [options={}] - Optional parameters.
+     * @param {boolean|string} [options.copy=true] - Copying mode, see {@linkcode possibleCopy} for details.
+     * Only used if `buffer` is not supplied.
+     * @param {?Float64WasmArray} [options.buffer=null] - Buffer in which to store the output.
+     * This should have the same length as the {@linkcode LabelCellsResults#numberOfCells numberOfCells}.
+     *
+     * @return {Float64Array|Float64WasmArray} Array containing the scores across all cells for this label.
+     * If `buffer` is supplied, it is used as the return value.
+     */
+    scoresForReference(i, { copy = true, buffer = null } = {}) {
+        return this.#results.scoresForLabel(i, { copy, buffer });
+    }
+
+    /**
+     * @param {object} [options={}] - Optional parameters.
+     * @param {boolean|string} [options.copy=true] - Copying mode, see {@linkcode possibleCopy} for details.
+     *
+     * @return {Float64Array|Float64WasmArray} Array of length equal to the number of cells,
+     * containing the difference in scores between the best and second-best reference during fine-tuning.
+     */
+    fineTuningDelta({ copy = true } = {}) {
+        return utils.possibleCopy(this.#results.fineTuningDelta(), copy);
+    }
+
+    /**
+     * @return Frees the memory allocated on the Wasm heap for this object.
+     * This invalidates this object and all references to it.
+     */
+    free() {
+        if (this.#results !== null) {
+            this.#results.free();
+            this.#results = null;
+        }
+    }
+}
+
+/**
+ * Integrate cell labels across multiple reference datasets.
  *
  * @param {(ScranMatrix|Float64WasmArray)} x - The count matrix, or log-normalized matrix, containing features in the rows and cells in the columns.
  * If a Float64WasmArray is supplied, it is assumed to contain a column-major dense matrix.
  * @param {IntegratedLabelledReferences} integrated - An integrated set of reference datasets, typically generated by {@linkcode integrateLabelledReferences}.
  * @param {Array} assigned - An array of length equal to the number of references in `integrated`.
  * This should contain the result of classification of `x` with each individual reference via {@linkcode labelCells}.
- * Each element should be an Array, TypedArray or Int32WasmArray of length equal to the number of cells in `x`.
+ * Each element should be a {@linkplain LabelCells} object; or an Array, TypedArray or Int32WasmArray of length equal to the number of cells in `x`.
  * @param {object} [options={}] - Optional parameters.
- * @param {?Int32WasmArray} [options.buffer=null] - An existing buffer to store the output labels, of length equal to the number of columns in `x`.
  * @param {?number} [options.numberOfFeatures=null] - Number of features, used when `x` is a Float64WasmArray.
  * @param {?number} [options.numberOfCells=null] - Number of cells, used when `x` is a Float64WasmArray.
  * @param {number} [options.quantile=0.8] - Quantile on the correlations to use to compute the score for each label.
  * @param {?number} [options.numberOfThreads=null] - Number of threads to use.
  * If `null`, defaults to {@linkcode maximumThreads}.
  *
- * @return {Int32Array} Array containing the best reference for each cell in `x`.
- *
- * If `buffer` was supplied, the returned array is a view into it.
- * Note that this may be invalidated on the next allocation on the Wasm heap.
+ * @return {LabelCellsResults} Integrated labelling results for each cell in `x`.
  */
-export function integrateCellLabels(x, assigned, integrated, { buffer = null, numberOfFeatures = null, numberOfCells = null, quantile = 0.8, numberOfThreads = null } = {}) { 
+export function integrateCellLabels(x, assigned, integrated, { numberOfFeatures = null, numberOfCells = null, quantile = 0.8, numberOfThreads = null } = {}) { 
     let nrefs = integrated.numberOfReferences();
     if (assigned.length != nrefs) {
         throw new Error("length of 'assigned' should be equal to the number of references in 'integrated'");
@@ -485,6 +715,10 @@ export function integrateCellLabels(x, assigned, integrated, { buffer = null, nu
         for (var i = 0; i < assigned.length; i++) {
             let current = assigned[i];
 
+            if (current instanceof LabelCellsResults) {
+                current = current.predictedLabels({ copy: "view" });
+            }
+
             let fail = false;
             if (x instanceof ScranMatrix) {
                 if (current.length != x.numberOfColumns()) {
@@ -494,7 +728,7 @@ export function integrateCellLabels(x, assigned, integrated, { buffer = null, nu
                 fail = true;
             }
             if (fail) {
-                throw new Error("length of each element 'assigned' should be equal to number of columns in 'x'");
+                throw new Error("length of each element in 'assigned' should be equal to number of columns in 'x'");
             }
 
             assigned_arrs[i] = utils.wasmifyArray(current, "Int32WasmArray");
@@ -502,9 +736,9 @@ export function integrateCellLabels(x, assigned, integrated, { buffer = null, nu
         }
     
         let FUN = (target, ptr) => {
-            wasm.call(module => module.integrate_singlepp(target, aptrs_arr.offset, integrated.integrated, quantile, ptr, nthreads));
+            return gc.call(module => module.integrate_singlepp(target, aptrs_arr.offset, integrated.integrated, quantile, nthreads), LabelCellsResults);
         };
-        output = label_cells(x, integrated.expectedNumberOfFeatures, buffer, numberOfFeatures, numberOfCells, FUN, "integrated");
+        output = label_cells(x, integrated.expectedNumberOfFeatures, numberOfFeatures, numberOfCells, FUN, "integrated");
 
     } finally{
         utils.free(aptrs);
@@ -513,11 +747,5 @@ export function integrateCellLabels(x, assigned, integrated, { buffer = null, nu
         }
     }
 
-    // This is done as the final step to avoid invalidation upon any touching
-    // of the Wasm heap, anywhere... even upon freeing.
-    if (output === null) {
-        output = buffer.array();
-    }
-
-    return output;
+    return new IntegrateCellLabelsResults(output);
 }

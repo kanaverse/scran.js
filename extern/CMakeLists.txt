@@ -26,9 +26,9 @@ FetchContent_MakeAvailable(igraph)
 
 # TODO: update the dependency in libscran.
 FetchContent_Declare(
-  tatami 
+  tatami
   GIT_REPOSITORY https://github.com/LTLA/tatami
-  GIT_TAG 52a4f542a93704f3f236cba9e592b9997a97cf93
+  GIT_TAG 573f1fb772db0580ff80f0318006af1555c0b24e
 )
 FetchContent_MakeAvailable(tatami)
 
@@ -42,9 +42,25 @@ FetchContent_MakeAvailable(kmeans)
 FetchContent_Declare(
   scran 
   GIT_REPOSITORY https://github.com/LTLA/libscran
-  GIT_TAG 09f12cf3e9ad29a6cdf800daff661c7c06f1190c
+  GIT_TAG cbbe4ce1334bde348b52984742f072ac49aa352a
 )
 FetchContent_MakeAvailable(scran)
+
+# After scran's implicit include of igraph. 
+# TODO: replace with igraph-wasm.
+target_compile_options(igraph PUBLIC -pthread) 
+target_compile_options(bliss PUBLIC -pthread) 
+target_compile_options(cliquer PUBLIC -pthread)
+target_compile_options(cxsparse_vendored PUBLIC -pthread)
+target_compile_options(pcg PUBLIC -pthread)
+target_compile_options(prpack PUBLIC -pthread)
+target_compile_options(f2c_vendored PUBLIC -pthread)
+target_compile_options(glpk_vendored PUBLIC -pthread)
+target_compile_options(blas_vendored PUBLIC -pthread)
+target_compile_options(lapack_vendored PUBLIC -pthread)
+target_compile_options(arpack_vendored PUBLIC -pthread)
+target_compile_options(gmp_vendored PUBLIC -pthread)
+target_compile_options(plfit_vendored PUBLIC -pthread)
 
 FetchContent_Declare(
   mnncorrect 
