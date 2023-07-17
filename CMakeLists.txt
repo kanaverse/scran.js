@@ -90,8 +90,6 @@ if (COMPILE_NODE)
     )
 
     add_custom_command(TARGET scran_wasm POST_BUILD
-        COMMAND cat ../misc/preamble.js scran.js > tmp.js
-        COMMAND mv tmp.js scran.js
         COMMAND cat ../misc/preamble.js scran.worker.js > tmp.js
         COMMAND mv tmp.js scran.worker.js
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
@@ -104,7 +102,4 @@ else ()
     )
 endif()
 
-set(COMPILE_PTHREADS ON CACHE BOOL "Compile with pthreads")
-if (COMPILE_PTHREADS)
-    set_property(TARGET scran_wasm APPEND APPEND_STRING PROPERTY LINK_FLAGS " -s USE_PTHREADS=1 -s PTHREAD_POOL_SIZE=\"Module.scran_custom_nthreads\"")
-endif()
+set_property(TARGET scran_wasm APPEND APPEND_STRING PROPERTY LINK_FLAGS " -s USE_PTHREADS=1 -s PTHREAD_POOL_SIZE=\"Module.scran_custom_nthreads\"")
