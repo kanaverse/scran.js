@@ -78,6 +78,8 @@ target_link_options(scran_wasm PRIVATE
     -sEXPORT_NAME=loadScran 
     -sFORCE_FILESYSTEM=1 # for HDF5 file access.
     -sEXPORT_ES6
+    -sUSE_PTHREADS=1 
+    -sPTHREAD_POOL_SIZE="Module.scran_custom_nthreads"
 )
 
 set_target_properties(scran_wasm PROPERTIES OUTPUT_NAME scran)
@@ -101,5 +103,3 @@ else ()
         -s 'EXPORTED_RUNTIME_METHODS=["FS"]'
     )
 endif()
-
-set_property(TARGET scran_wasm APPEND APPEND_STRING PROPERTY LINK_FLAGS " -s USE_PTHREADS=1 -s PTHREAD_POOL_SIZE=\"Module.scran_custom_nthreads\"")

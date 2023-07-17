@@ -16,15 +16,6 @@ endif()
 # Fetching all the other content.
 include(FetchContent)
 
-## Override the 'igraph' FetchContent asset before libscran is loaded.
-#FetchContent_Declare(
-#  igraph
-#  URL https://github.com/kanaverse/igraph-wasm/releases/download/v0.1.2_3.1.43/igraph-0.10.6-wasm.tar.gz
-#  URL_HASH SHA256=7876d5a9a7603ba6720e09ee424fe770dca976e3da94297bd14c6cdd17a1fcfa
-#)
-#FetchContent_MakeAvailable(igraph)
-
-# TODO: update the dependency in libscran.
 FetchContent_Declare(
   tatami
   GIT_REPOSITORY https://github.com/LTLA/tatami
