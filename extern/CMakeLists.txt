@@ -19,8 +19,8 @@ include(FetchContent)
 # Override the 'igraph' FetchContent asset before libscran is loaded.
 FetchContent_Declare(
   igraph
-  URL https://github.com/LTLA/igraph-wasm/releases/download/v0.1.1_3.1.25/igraph-0.9.4-wasm.tar.gz
-  URL_HASH SHA256=efe59e45472c04b51eee73bc950e5cbcb2d67e859fe93bab927188b3f31cb18f
+  URL https://github.com/kanaverse/igraph-wasm/releases/download/v0.1.2_3.1.43/igraph-0.10.6-wasm.tar.gz
+  URL_HASH SHA256=7876d5a9a7603ba6720e09ee424fe770dca976e3da94297bd14c6cdd17a1fcfa
 )
 FetchContent_MakeAvailable(igraph)
 
@@ -69,8 +69,8 @@ FetchContent_MakeAvailable(umappp)
 
 FetchContent_Declare(
   h5wasm
-  URL https://github.com/LTLA/libhdf5-wasm/releases/download/v0.2.0-test_3.1.25/libhdf5-1_12_1-wasm.tar.gz
-  URL_HASH SHA256=4fae54a3c88743d13f67b568657bd1ead9c992f39d36ea46cf389daf400bbf4a
+  URL https://github.com/kanaverse/libhdf5-wasm/releases/download/v0.3.0_3.1.43/libhdf5-1_12_2-wasm.tar.gz
+  URL_HASH SHA256=b2e58b102fe98326c77f1a160025c47a062c1a205818568680d5f5ed78df801c
 )
 FetchContent_MakeAvailable(h5wasm)
 
