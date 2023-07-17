@@ -34,6 +34,7 @@ jobs:
     steps:
     - name: Check emsdk version
       run: |
+        cd /emsdk && git pull
         emsdk install 3.1.43
 
     - name: Get to the right branch
