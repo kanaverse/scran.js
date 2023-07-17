@@ -79,7 +79,8 @@ target_link_options(scran_wasm PRIVATE
     -sFORCE_FILESYSTEM=1 # for HDF5 file access.
     -sEXPORT_ES6
     -sUSE_PTHREADS=1 
-    -sPTHREAD_POOL_SIZE="Module.scran_custom_nthreads"
+    -sPTHREAD_POOL_SIZE=Module.scran_custom_nthreads
+    -sEXPORTED_FUNCTIONS=_malloc,_free
 )
 
 set_target_properties(scran_wasm PROPERTIES OUTPUT_NAME scran)
@@ -99,7 +100,7 @@ if (COMPILE_NODE)
     )
 else ()
     target_link_options(scran_wasm PRIVATE 
-        -s ENVIRONMENT=web,worker 
-        -s 'EXPORTED_RUNTIME_METHODS=["FS"]'
+        -sENVIRONMENT=web,worker 
+        -sEXPORTED_RUNTIME_METHODS=FS
     )
 endif()
