@@ -13,50 +13,71 @@ if (NOT HAVE_ZLIB_H)
     execute_process(COMMAND ${CMAKE_CXX_COMPILER} dummy.cpp -s USE_ZLIB=1 -o dummy.html WORKING_DIRECTORY ${ZLIB_DIR})
 endif()
 
-# Fetching all the other content.
 include(FetchContent)
 
+## TATAMI RELATED CONTENT ### 
 FetchContent_Declare(
-  tatami
-  GIT_REPOSITORY https://github.com/LTLA/tatami
-  GIT_TAG 573f1fb772db0580ff80f0318006af1555c0b24e
+  tatami_layered
+  GIT_REPOSITORY https://github.com/tatami-inc/tatami_layered
+  GIT_TAG e550a305ab17461970b78bf97579cc8308b03fd5
 )
-FetchContent_MakeAvailable(tatami)
+FetchContent_MakeAvailable(tatami_layered)
 
 FetchContent_Declare(
-  kmeans 
-  GIT_REPOSITORY https://github.com/LTLA/CppKmeans
-  GIT_TAG 698cd1279530675e8ea10bf58d3a1d1508fa1fb8
+  tatami_mtx
+  GIT_REPOSITORY https://github.com/tatami-inc/tatami_mtx
+  GIT_TAG bc8f647dae4ada6480ee8c785fc4663d5bbf57ca
 )
-FetchContent_MakeAvailable(kmeans)
+FetchContent_MakeAvailable(tatami_mtx)
+
+FetchContent_Declare(
+  tatami_hdf5
+  GIT_REPOSITORY https://github.com/tatami-inc/tatami_hdf5
+  GIT_TAG 20ec1fb64e0419907d3094827b5d9134854a0119
+)
+FetchContent_MakeAvailable(tatami_hdf5)
+
+## Prebuilt static libraries ### 
+FetchContent_Declare(
+  igraph 
+  URL https://github.com/kanaverse/igraph-wasm/releases/download/v0.1.2_3.1.43/igraph-0.10.6-wasm.tar.gz
+  URL_HASH SHA256=7876d5a9a7603ba6720e09ee424fe770dca976e3da94297bd14c6cdd17a1fcfa
+)
+FetchContent_MakeAvailable(igraph)
+
+FetchContent_Declare(
+  h5wasm
+  URL https://github.com/kanaverse/libhdf5-wasm/releases/download/v0.3.0_3.1.43/libhdf5-1_12_2-wasm.tar.gz
+  URL_HASH SHA256=b2e58b102fe98326c77f1a160025c47a062c1a205818568680d5f5ed78df801c
+)
+FetchContent_MakeAvailable(h5wasm)
+
+## Other stuff ### 
+FetchContent_Declare(
+  umappp 
+  GIT_REPOSITORY https://github.com/LTLA/umappp
+  GIT_TAG d18095ea8b6d62aa740a566411e439eaab16b71f
+)
+FetchContent_MakeAvailable(umappp)
 
 FetchContent_Declare(
   scran 
   GIT_REPOSITORY https://github.com/LTLA/libscran
-  GIT_TAG cbbe4ce1334bde348b52984742f072ac49aa352a
+  GIT_TAG 62e2745d51463c364f7113eeae53b6e473e511ff
 )
 FetchContent_MakeAvailable(scran)
 
-# After scran's implicit include of igraph. 
-# TODO: replace with igraph-wasm.
-target_compile_options(igraph PUBLIC -pthread) 
-target_compile_options(bliss PUBLIC -pthread) 
-target_compile_options(cliquer PUBLIC -pthread)
-target_compile_options(cxsparse_vendored PUBLIC -pthread)
-target_compile_options(pcg PUBLIC -pthread)
-target_compile_options(prpack PUBLIC -pthread)
-target_compile_options(f2c_vendored PUBLIC -pthread)
-target_compile_options(glpk_vendored PUBLIC -pthread)
-target_compile_options(blas_vendored PUBLIC -pthread)
-target_compile_options(lapack_vendored PUBLIC -pthread)
-target_compile_options(arpack_vendored PUBLIC -pthread)
-target_compile_options(gmp_vendored PUBLIC -pthread)
-target_compile_options(plfit_vendored PUBLIC -pthread)
+FetchContent_Declare(
+  kmeans 
+  GIT_REPOSITORY https://github.com/LTLA/CppKmeans
+  GIT_TAG master
+)
+FetchContent_MakeAvailable(kmeans)
 
 FetchContent_Declare(
   mnncorrect 
   GIT_REPOSITORY https://github.com/LTLA/CppMnnCorrect
-  GIT_TAG c7ed2431408a56e3e3d4d9688e2f961d8abc0c9c
+  GIT_TAG 5ba5c790f01b3a676420892151791786dfb0a8d6
 )
 FetchContent_MakeAvailable(mnncorrect)
 
@@ -68,30 +89,17 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(qdtsne)
 
 FetchContent_Declare(
-  umappp 
-  GIT_REPOSITORY https://github.com/LTLA/umappp
-  GIT_TAG b65785b631c73e34008253f6dc2c04a19c8c6795
-)
-FetchContent_MakeAvailable(umappp)
-
-FetchContent_Declare(
-  h5wasm
-  URL https://github.com/kanaverse/libhdf5-wasm/releases/download/v0.3.0_3.1.43/libhdf5-1_12_2-wasm.tar.gz
-  URL_HASH SHA256=b2e58b102fe98326c77f1a160025c47a062c1a205818568680d5f5ed78df801c
-)
-FetchContent_MakeAvailable(h5wasm)
-
-FetchContent_Declare(
   singlepp
   GIT_REPOSITORY https://github.com/LTLA/singlepp
-  GIT_TAG 3b0ac094f7398770018773243da990f4e9ebfbeb
+  GIT_TAG 1d9869c3f050521a12b3151c89bc41906bf093e0
 )
 FetchContent_MakeAvailable(singlepp)
 
 FetchContent_Declare(
   rds2cpp 
   GIT_REPOSITORY https://github.com/LTLA/rds2cpp
-  GIT_TAG e18490b6cf6646db91ff0b10d590374bdfb2a2dc
+  GIT_TAG 58755b4bce01734f33fba12494f68c5aa6604a69
 )
 FetchContent_MakeAvailable(rds2cpp)
+
 

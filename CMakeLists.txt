@@ -60,15 +60,17 @@ target_compile_options(
 target_link_libraries(
     scran_wasm
     scran
+    tatami_hdf5
+    tatami_mtx
+    tatami_layered
     mnncorrect
     qdtsne
     umappp
     hdf5-wasm-cpp
+    igraph
     singlepp
     rds2cpp
 )
-
-target_compile_definitions(scran_wasm PRIVATE TATAMI_USE_ZLIB=1)
 
 target_link_options(scran_wasm PRIVATE 
     -O3
