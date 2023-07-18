@@ -133,7 +133,3 @@ EMSCRIPTEN_BINDINGS(run_pca) {
         .function("num_pcs", &MultiBatchPca_Results::num_pcs)
         ;
 }
-/**
- * @endcond
- */
-

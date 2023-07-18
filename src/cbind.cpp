@@ -84,9 +84,6 @@ NumericMatrix cbind_with_rownames(int n, uintptr_t mats, uintptr_t names, uintpt
     return NumericMatrix(std::move(out.first));
 }
 
-/**
- * @cond
- */
 EMSCRIPTEN_BINDINGS(cbind) {
     emscripten::function("cbind", &cbind);
 
@@ -94,7 +91,3 @@ EMSCRIPTEN_BINDINGS(cbind) {
 
     emscripten::function("cbind_with_rownames", &cbind_with_rownames);
 }
-/**
- * @endcond
- */
-

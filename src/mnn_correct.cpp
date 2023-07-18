@@ -45,12 +45,6 @@ void mnn_correct(
     return;
 }
 
-/**
- * @cond
- */
 EMSCRIPTEN_BINDINGS(mnn_correct) {
     emscripten::function("mnn_correct", &mnn_correct);
 }
-/**
- * @endcond
- */

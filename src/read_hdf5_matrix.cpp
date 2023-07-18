@@ -195,13 +195,7 @@ NumericMatrix read_hdf5_matrix(
     }
 }
 
-/**
- * @cond
- */
 EMSCRIPTEN_BINDINGS(read_hdf5_matrix) {
     emscripten::function("read_hdf5_matrix", &read_hdf5_matrix);
     emscripten::function("extract_hdf5_matrix_details", &extract_hdf5_matrix_details);
 }
-/**
- * @endcond
- */

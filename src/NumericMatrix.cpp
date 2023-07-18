@@ -1,6 +1,5 @@
 #include <emscripten/bind.h>
 #include "NumericMatrix.h"
-#include "JSVector.h"
 
 NumericMatrix::NumericMatrix() {}
 
@@ -21,7 +20,7 @@ NumericMatrix::NumericMatrix(int nr, int nc, uintptr_t values, bool colmajor, bo
     size_t product = static_cast<size_t>(nr) * static_cast<size_t>(nc);
     auto iptr = reinterpret_cast<const double*>(values);
     if (!copy) {
-        create_NumericMatrix(nr, nc, JSVector<double>(iptr, product), colmajor, ptr);
+        create_NumericMatrix(nr, nc, tatami::ArrayView<double>(iptr, product), colmajor, ptr);
     } else {
         create_NumericMatrix(nr, nc, std::vector<double>(iptr, iptr + product), colmajor, ptr);
     }

@@ -4,7 +4,7 @@
 #include "utils.h"
 #include "parallel.h"
 
-#include "scran/normalization/LogNormCounts.hpp"
+#include "scran/scran.hpp"
 
 #include <vector>
 #include <cstdint>

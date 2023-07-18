@@ -6,7 +6,7 @@
 #include "NumericMatrix.h"
 #include "parallel.h"
 
-#include "scran/aggregation/AggregateAcrossCells.hpp"
+#include "scran/scran.hpp"
 
 struct AggregateAcrossCells_Results {
     int ngenes, ngroups;
