@@ -52,7 +52,9 @@ add_executable(
 )
 
 target_compile_options(
-    scran_wasm PUBLIC -O3 -s USE_PTHREADS=1
+    scran_wasm PUBLIC 
+    -O3
+    -sUSE_PTHREADS=1
 )
 
 target_link_libraries(
@@ -68,30 +70,40 @@ target_link_libraries(
 
 target_compile_definitions(scran_wasm PRIVATE TATAMI_USE_ZLIB=1)
 
-set_target_properties(scran_wasm PROPERTIES 
-    OUTPUT_NAME scran
-    LINK_FLAGS "-O3 --bind -s ALLOW_MEMORY_GROWTH=1 -s MAXIMUM_MEMORY=4GB -s USE_ZLIB=1 -s MODULARIZE=1 -s EXPORT_NAME=loadScran -s EXPORT_ES6"
+target_link_options(scran_wasm PRIVATE 
+    -O3
+    --bind 
+    -sALLOW_MEMORY_GROWTH=1 
+    -sMAXIMUM_MEMORY=4GB 
+    -sSTACK_SIZE=2MB
+    -sUSE_ZLIB=1 
+    -sMODULARIZE=1 
+    -sEXPORT_NAME=loadScran 
+    -sFORCE_FILESYSTEM=1 # for HDF5 file access.
+    -sEXPORT_ES6
+    -sUSE_PTHREADS=1 
+    -sPTHREAD_POOL_SIZE=Module.scran_custom_nthreads
+    -sEXPORTED_FUNCTIONS=_malloc,_free
 )
+
+set_target_properties(scran_wasm PROPERTIES OUTPUT_NAME scran)
 
 set(COMPILE_NODE OFF CACHE BOOL "Compile for Node.js")
 if (COMPILE_NODE)
-    # Using the Node FS API for HDF5 access.
-    set_property(TARGET scran_wasm APPEND APPEND_STRING PROPERTY LINK_FLAGS " -s ENVIRONMENT=node -s NODERAWFS=1 -s FORCE_FILESYSTEM=1")
+    target_link_options(scran_wasm PRIVATE
+        -sENVIRONMENT=node 
+        -sNODERAWFS=1
+    )
 
     add_custom_command(TARGET scran_wasm POST_BUILD
-        COMMAND cat ../misc/preamble.js scran.js > tmp.js
-        COMMAND mv tmp.js scran.js
         COMMAND cat ../misc/preamble.js scran.worker.js > tmp.js
         COMMAND mv tmp.js scran.worker.js
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
         COMMENT "Adding ES6 preamble for Node"
     )
 else ()
-    # Forcing filesystem inclusion for HDF5.
-    set_property(TARGET scran_wasm APPEND APPEND_STRING PROPERTY LINK_FLAGS " -s ENVIRONMENT=web,worker -s FORCE_FILESYSTEM=1 -s 'EXPORTED_RUNTIME_METHODS=[\"FS\"]'")
-endif()
-
-set(COMPILE_PTHREADS ON CACHE BOOL "Compile with pthreads")
-if (COMPILE_PTHREADS)
-    set_property(TARGET scran_wasm APPEND APPEND_STRING PROPERTY LINK_FLAGS " -s USE_PTHREADS=1 -s PTHREAD_POOL_SIZE=\"Module.scran_custom_nthreads\"")
+    target_link_options(scran_wasm PRIVATE 
+        -sENVIRONMENT=web,worker 
+        -sEXPORTED_RUNTIME_METHODS=FS
+    )
 endif()
