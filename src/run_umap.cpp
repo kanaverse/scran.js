@@ -91,34 +91,18 @@ UmapStatus initialize_umap(const NeighborResults& neighbors, int num_epochs, dou
     return UmapStatus(factory.initialize(neighbors.neighbors, 2, embedding));
 }
 
-/**
- * @param status A `UmapStatus` object created by `initialize_status()`.
- * @param runtime Number of milliseconds to run before returning. 
- * Iterations are performed until the specified `runtime` is exceeded.
- * If `runtime` is not positive, it is ignored and the algorithm runs to the specified number of epochs from `initialize_umap()`.
- * @param[in, out] Y Offset to a two-dimensional array containing the initial coordinates.
- * Each row corresponds to a dimension, each column corresponds to a cell, and the matrix is in column-major format.
- * On output, this will be filled with the updated coordinates.
- *
- * @return `Y` and `UmapStatus` are updated with the latest results.
- */
 void run_umap(UmapStatus& status, int runtime, uintptr_t Y) {
-    umappp::Umap factory;
-    double* ptr = reinterpret_cast<double*>(Y);
-
     if (runtime <= 0) {
-        status.status.run(2, ptr);
+        status.status.run();
     } else {
         int current = status.epoch();
         const int total = status.num_epochs();
         auto end = std::chrono::steady_clock::now() + std::chrono::milliseconds(runtime);
         do {
             ++current;
-            status.status.run(2, ptr, current);
+            status.status.run(current);
         } while (current < total && std::chrono::steady_clock::now() < end);
     }
-
-    return;
 }
     
 /**

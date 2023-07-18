@@ -171,12 +171,12 @@ struct SinglePPResults {
 
     void get_scores_for_sample(int i, uintptr_t output) {
         auto optr = reinterpret_cast<double*>(output);
-        scores->row_copy(i, optr);
+        scores->dense_row()->fetch_copy(i, optr);
     }
 
     void get_scores_for_label(int i, uintptr_t output) {
         auto optr = reinterpret_cast<double*>(output);
-        scores->column_copy(i, optr);
+        scores->dense_column()->fetch_copy(i, optr);
     }
 
     emscripten::val get_delta() const {
@@ -217,28 +217,16 @@ SinglePPResults run_singlepp(const NumericMatrix& mat, const BuiltSinglePPRefere
 /*****************************************
  *****************************************/
 
-/**
- * @brief Integrated references for **singlepp** annotation.
- */
 class IntegratedSinglePPReferences {
 public:
-    /**
-     * @cond
-     */
-    IntegratedSinglePPReferences(std::vector<singlepp::IntegratedReference> x) : references(std::move(x)) {};
+    IntegratedSinglePPReferences(singlepp::IntegratedReferences x) : references(std::move(x)) {};
 
     IntegratedSinglePPReferences() {};
 
-    std::vector<singlepp::IntegratedReference> references;
-    /**
-     * @endcond
-     */
+    singlepp::IntegratedReferences references;
 
-    /**
-     * @return Number of references in this integrated set.
-     */
     size_t num_references() const {
-        return references.size();
+        return references.num_references();
     }
 };
 
@@ -322,12 +310,6 @@ SinglePPResults integrate_singlepp(const NumericMatrix& mat, uintptr_t assigned,
     return output;
 }
 
-/*****************************************
- *****************************************/
-
-/**
- * @cond
- */
 EMSCRIPTEN_BINDINGS(run_singlepp) {
     emscripten::function("run_singlepp", &run_singlepp);
 
@@ -363,6 +345,3 @@ EMSCRIPTEN_BINDINGS(run_singlepp) {
         .function("get_delta", &SinglePPResults::get_delta)
         ;
 }
-/**
- * @endcond
- */

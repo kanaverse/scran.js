@@ -54,7 +54,7 @@ add_executable(
 target_compile_options(
     scran_wasm PUBLIC 
     -O3
-    -sUSE_PTHREADS=1
+    -pthread
 )
 
 target_link_libraries(
@@ -83,7 +83,7 @@ target_link_options(scran_wasm PRIVATE
     -sEXPORT_NAME=loadScran 
     -sFORCE_FILESYSTEM=1 # for HDF5 file access.
     -sEXPORT_ES6
-    -sUSE_PTHREADS=1 
+    -pthread
     -sPTHREAD_POOL_SIZE=Module.scran_custom_nthreads
     -sEXPORTED_FUNCTIONS=_malloc,_free
 )

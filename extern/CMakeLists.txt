@@ -17,6 +17,13 @@ include(FetchContent)
 
 ## TATAMI RELATED CONTENT ### 
 FetchContent_Declare(
+  tatami 
+  GIT_REPOSITORY https://github.com/tatami-inc/tatami
+  GIT_TAG aa8a89545999826741d3225f0b2fbdf62b6bf52c
+)
+FetchContent_MakeAvailable(tatami)
+
+FetchContent_Declare(
   tatami_layered
   GIT_REPOSITORY https://github.com/tatami-inc/tatami_layered
   GIT_TAG e550a305ab17461970b78bf97579cc8308b03fd5
@@ -40,8 +47,8 @@ FetchContent_MakeAvailable(tatami_hdf5)
 ## Prebuilt static libraries ### 
 FetchContent_Declare(
   igraph 
-  URL https://github.com/kanaverse/igraph-wasm/releases/download/v0.1.2_3.1.43/igraph-0.10.6-wasm.tar.gz
-  URL_HASH SHA256=7876d5a9a7603ba6720e09ee424fe770dca976e3da94297bd14c6cdd17a1fcfa
+  URL https://github.com/kanaverse/igraph-wasm/releases/download/v0.2.1-pthreads_3.1.43/igraph-0.10.6-wasm.tar.gz # need the thread-aware version.
+  URL_HASH SHA256=a40595001e0b39ef715f4a84bb83f3bb668ee8eed3ac55bd206212d45d7c53f1
 )
 FetchContent_MakeAvailable(igraph)
 
@@ -53,6 +60,13 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(h5wasm)
 
 ## Other stuff ### 
+FetchContent_Declare(
+  irlba
+  GIT_REPOSITORY https://github.com/LTLA/CppIrlba
+  GIT_TAG 15d6399fc2c9c2ed4755fa0baef373c086fdedd1
+)
+FetchContent_MakeAvailable(irlba)
+
 FetchContent_Declare(
   umappp 
   GIT_REPOSITORY https://github.com/LTLA/umappp

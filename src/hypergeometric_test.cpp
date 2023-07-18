@@ -4,7 +4,7 @@
 #include "utils.h"
 #include "parallel.h"
 
-#include "scran/aggregation/HypergeometricTail.hpp"
+#include "scran/scran.hpp"
 
 void hypergeometric_test(
     int ntests,
@@ -68,9 +68,8 @@ void hypergeometric_test(
 
     double* outptr = reinterpret_cast<double*>(output);
     scran::HypergeometricTail hyper;
-    
-    run_parallel(ntests, [&](int first, int last) -> void {
-        auto cache = hyper.new_cache(); 
+
+    run_parallel_old(ntests, [&](int first, int last) -> void {
         for (int i = first; i < last; i++) {
             auto x = indices[i];
 
@@ -84,8 +83,7 @@ void hypergeometric_test(
                 misptr[multi_markers_in_set ? x : 0],
                 num_white,
                 num_black,
-                nmptr[multi_num_markers ? x : 0],
-                cache
+                nmptr[multi_num_markers ? x : 0]
             );
         }
     }, nthreads);

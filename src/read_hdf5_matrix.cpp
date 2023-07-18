@@ -7,9 +7,7 @@
 #include "parallel.h"
 
 #include "H5Cpp.h"
-#include "tatami/ext/hdf5/HDF5DenseMatrix.hpp"
-#include "tatami/ext/hdf5/HDF5CompressedSparseMatrix.hpp"
-#include "tatami/ext/hdf5/load_hdf5_matrix.hpp"
+#include "tatami_hdf5/tatami_hdf5.hpp"
 
 struct Hdf5MatrixDetails {
     bool is_dense;
@@ -132,19 +130,23 @@ NumericMatrix read_hdf5_matrix_internal(
     int cache_size)
 {
     if (!is_dense && csc && !layered && !row_subset && !col_subset) {
-        return NumericMatrix(new tatami::CompressedSparseColumnMatrix<double, int, std::vector<T> >(
-            tatami::load_hdf5_compressed_sparse_matrix<false, double, int, std::vector<T> >(nr, nc, path, name + "/data", name + "/indices", name + "/indptr")
+        return NumericMatrix(new tatami::CompressedSparseRowMatrix<double, int, std::vector<T> >(
+            tatami_hdf5::load_hdf5_compressed_sparse_matrix<true, double, int, std::vector<T> >(nr, nc, path, name + "/data", name + "/indices", name + "/indptr")
         ));
+
     } else {
         std::shared_ptr<tatami::Matrix<T, int> > mat;
         try {
+            tatami_hdf5::Hdf5Options opt;
+            opt.maximum_cache_size = cache_size;
             if (is_dense) {
-                mat.reset(new tatami::HDF5DenseMatrix<T, int, true>(path, name, cache_size));
+                mat.reset(new tatami_hdf5::Hdf5DenseMatrix<T, int, true>(path, name, opt));
             } else if (csc) {
-                mat.reset(new tatami::HDF5CompressedSparseMatrix<false, T, int>(nr, nc, path, name + "/data", name + "/indices", name + "/indptr", cache_size));
+                mat.reset(new tatami_hdf5::Hdf5CompressedSparseMatrix<false, T, int>(nr, nc, path, name + "/data", name + "/indices", name + "/indptr", opt));
             } else {
-                mat.reset(new tatami::HDF5CompressedSparseMatrix<true, T, int>(nr, nc, path, name + "/data", name + "/indices", name + "/indptr", cache_size));
+                mat.reset(new tatami_hdf5::Hdf5CompressedSparseMatrix<true, T, int>(nr, nc, path, name + "/data", name + "/indices", name + "/indptr", opt));
             }
+
         } catch (H5::Exception& e) {
             throw std::runtime_error(e.getCDetailMsg());
         }

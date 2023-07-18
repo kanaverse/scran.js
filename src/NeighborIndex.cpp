@@ -37,7 +37,7 @@ NeighborResults find_nearest_neighbors(const NeighborIndex& index, int k, int nt
     auto& x = output.neighbors;
 
 #ifdef __EMSCRIPTEN_PTHREADS__
-    run_parallel(nc, [&](int left, int right) -> void {
+    run_parallel_old(nc, [&](int left, int right) -> void {
     for (int i = left; i < right; ++i) {
 #else
     for (size_t i = 0; i < nc; ++i) {

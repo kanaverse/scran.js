@@ -4,7 +4,7 @@
 #include "utils.h"
 #include "parallel.h"
 
-#include "scran/aggregation/ScoreFeatureSet.hpp"
+#include "scran/scran.hpp"
 
 struct ScoreFeatureSet_Results {
     typedef scran::ScoreFeatureSet::Results Store;

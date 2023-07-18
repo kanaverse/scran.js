@@ -7,48 +7,79 @@
 #include "NumericMatrix.h"
 #include "parallel.h"
 
-#include "tatami/ext/MatrixMarket/layered.hpp"
+#include "tatami_mtx/tatami_mtx.hpp"
+#include "tatami_layered/tatami_layered.hpp"
 
 NumericMatrix read_matrix_market_from_buffer(uintptr_t buffer, int size, int compressed, bool layered) {
     unsigned char* bufptr = reinterpret_cast<unsigned char*>(buffer);
-
     if (layered) {
-        auto stuff = tatami::MatrixMarket::load_layered_sparse_matrix_from_buffer(bufptr, size, compressed);
-        return NumericMatrix(std::move(stuff.matrix), permutation_to_indices(stuff.permutation));
+        if (compressed == 0) {
+            return NumericMatrix(tatami_layered::read_layered_sparse_from_matrix_market_text_buffer(bufptr, size));
+        } else if (compressed == 1) {
+            return NumericMatrix(tatami_layered::read_layered_sparse_from_matrix_market_zlib_buffer(bufptr, size));
+        } else {
+            return NumericMatrix(tatami_layered::read_layered_sparse_from_matrix_market_some_buffer(bufptr, size));
+        }
     } else {
-        auto stuff = tatami::MatrixMarket::load_sparse_matrix_from_buffer(bufptr, size, compressed);
-        return NumericMatrix(std::move(stuff));
+        if (compressed == 0) {
+            return NumericMatrix(tatami_mtx::load_matrix_from_text_buffer<true, double, int>(bufptr, size));
+        } else if (compressed == 1) {
+            return NumericMatrix(tatami_mtx::load_matrix_from_zlib_buffer<true, double, int>(bufptr, size));
+        } else {
+            return NumericMatrix(tatami_mtx::load_matrix_from_some_buffer<true, double, int>(bufptr, size));
+        } 
     }
 }
 
 NumericMatrix read_matrix_market_from_file(std::string path, int compressed, bool layered) {
     if (layered) {
-        auto stuff = tatami::MatrixMarket::load_layered_sparse_matrix_from_file(path.c_str(), compressed);
-        return NumericMatrix(std::move(stuff.matrix), permutation_to_indices(stuff.permutation));
+        if (compressed == 0) {
+            return NumericMatrix(tatami_layered::read_layered_sparse_from_matrix_market_text_file(path.c_str()));
+        } else if (compressed == 1) {
+            return NumericMatrix(tatami_layered::read_layered_sparse_from_matrix_market_gzip_file(path.c_str()));
+        } else {
+            return NumericMatrix(tatami_layered::read_layered_sparse_from_matrix_market_some_file(path.c_str()));
+        }
     } else {
-        auto stuff = tatami::MatrixMarket::load_sparse_matrix_from_file(path.c_str(), compressed);
-        return NumericMatrix(std::move(stuff));
+        if (compressed == 0) {
+            return NumericMatrix(tatami_mtx::load_matrix_from_text_file<true, double, int>(path.c_str()));
+        } else if (compressed == 1) {
+            return NumericMatrix(tatami_mtx::load_matrix_from_gzip_file<true, double, int>(path.c_str()));
+        } else {
+            return NumericMatrix(tatami_mtx::load_matrix_from_some_file<true, double, int>(path.c_str()));
+        }
     }
 }
 
+template<class Parser_>
+void check_preamble(Parser_ parser, uintptr_t output) {
+    double* outptr = reinterpret_cast<double*>(output);
+    parser.scan_preamble();
+    outptr[0] = parser.get_nrows();
+    outptr[1] = parser.get_ncols();
+    outptr[2] = parser.get_nlines();
+}
+
+
 void read_matrix_market_header_from_buffer(uintptr_t buffer, int size, int compressed, uintptr_t output) {
     unsigned char* bufptr = reinterpret_cast<unsigned char*>(buffer);
-    auto stuff = tatami::MatrixMarket::extract_header_from_buffer(bufptr, size, compressed);
-
-    double* outptr = reinterpret_cast<double*>(output);
-    outptr[0] = stuff.nrow;
-    outptr[1] = stuff.ncol;
-    outptr[2] = stuff.nlines;
-    return;
+    if (compressed == 0) {
+        check_preamble(eminem::TextBufferParser(bufptr, size), output);
+    } else if (compressed == 1) {
+        check_preamble(eminem::ZlibBufferParser(bufptr, size), output);
+    } else {
+        check_preamble(eminem::SomeBufferParser(bufptr, size), output);
+    }
 }
 
 void read_matrix_market_header_from_file(std::string path, int compressed, uintptr_t output) {
-    auto stuff = tatami::MatrixMarket::extract_header_from_file(path.c_str(), compressed);
-    double* outptr = reinterpret_cast<double*>(output);
-    outptr[0] = stuff.nrow;
-    outptr[1] = stuff.ncol;
-    outptr[2] = stuff.nlines;
-    return;
+    if (compressed == 0) {
+        check_preamble(eminem::TextFileParser(path.c_str()), output);
+    } else if (compressed == 1) {
+        check_preamble(eminem::GzipFileParser(path.c_str()), output);
+    } else {
+        check_preamble(eminem::SomeFileParser(path.c_str()), output);
+    }
 }
 
 EMSCRIPTEN_BINDINGS(read_matrix_market) {

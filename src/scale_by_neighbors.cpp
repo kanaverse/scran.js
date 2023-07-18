@@ -67,7 +67,7 @@ void scale_by_neighbors_matrices(int ncells, int nembed, uintptr_t ndims, uintpt
     std::vector<std::unique_ptr<knncolle::Base<> > > indices(nembed);
 
 #ifdef __EMSCRIPTEN_PTHREADS__
-    run_parallel(nembed, [&](size_t first, size_t last) -> void {
+    run_parallel_old(nembed, [&](size_t first, size_t last) -> void {
     for (size_t f = first; f < last; ++f) {
 #else
     for (size_t f = 0; f < nembed; ++f) {

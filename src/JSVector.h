@@ -39,6 +39,15 @@ public:
      * @return Pointer to the end of the array, for use in templated functions expecting a `std::vector`.
      */
     const T* end() const { return ptr + num; }
+
+    T& operator[](size_t i) {
+        return ptr[i];
+    }
+
+    const T& operator[](size_t i) const {
+        return ptr[i];
+    }
+
 private:
     const T* ptr;
     size_t num;
