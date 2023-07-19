@@ -77,7 +77,7 @@ NumericMatrix initialize_sparse_matrix_internal(size_t nrows, size_t ncols, size
 
     if (by_row && !layered) {
         // Directly creating a CSR matrix.
-        auto ind = create_SomeNumericArray<size_t>(indptrs, ncols + 1, indptr_type);
+        auto ind = create_SomeNumericArray<size_t>(indptrs, nrows + 1, indptr_type);
         return copy_into_sparse<T>(nrows, ncols, val, idx, ind);
     } else {
         std::shared_ptr<tatami::Matrix<T, int> > mat;

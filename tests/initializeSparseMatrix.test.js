@@ -126,11 +126,11 @@ test("initialization from compressed values works with forced integers", () => {
     indptrs.set([0, 2, 3, 6, 9, 11, 11, 12, 12, 13, 15]);
 
     var mat1 = scran.initializeSparseMatrixFromCompressedVectors(10, 9, vals, indices, indptrs, { forceInteger: false });
-    expect(compare.equalArrays(mat1.matrix.row(0), [0, 0, 0, 1.2, 0, 5.3, 0, 0, 0])).toBe(true);
-    expect(compare.equalArrays(mat1.matrix.row(10), [0, 0, 0, 0, 0, 0, 5.7, 8.8, 0])).toBe(true);
+    expect(compare.equalArrays(mat1.row(0), [0, 0, 0, 1.2, 0, 5.3, 0, 0, 0])).toBe(true);
+    expect(compare.equalArrays(mat1.row(9), [0, 0, 0, 0, 0, 0, 5.7, 8.8, 0])).toBe(true);
 
-    var mat2 = scran.initializeSparseMatrixFromCompressedVectors(9, 10, vals, indices, indptrs, { layered: false });
-    for (var i = 0; i < 10; i++) {
+    var mat2 = scran.initializeSparseMatrixFromCompressedVectors(10, 9, vals, indices, indptrs, { layered: false });
+    for (var i = 0; i < 9; i++) {
         let col1 = mat1.column(i);
         let trunc = col1.map(Math.trunc);
         let col2 = mat2.column(i);
@@ -143,7 +143,6 @@ test("initialization from compressed values works with forced integers", () => {
     indptrs.free();
     mat1.free();
     mat2.free();
-    mat3.free();
 })
 
 test("initialization from compressed values works with layering", () => {
@@ -178,7 +177,7 @@ function convertToMatrixMarket(nr, nc, data, indices, indptrs) {
         }
     }
     triplets.sort((a, b) => a.order - b.order)
-    let header = "%%\n" + String(nr) + " " + String(nc) + " " + String(data.length) + "\n";
+    let header = "%%MatrixMarket matrix coordinate integer general\n" + String(nr) + " " + String(nc) + " " + String(data.length) + "\n";
     return header + triplets.map(x => x.value).join("\n")
 }
 
@@ -219,13 +218,8 @@ test("simple initialization from MatrixMarket works correctly", () => {
         }
         expect(compare.equalArrays(mat.column(c), ref)).toBe(true);
         expect(compare.equalArrays(mat2.column(c), ref)).toBe(true);
-
-        let lref = new Array(nr);
-        ids.forEach((x, i) => {
-            lref[i] = ref[x];
-        });
-        expect(compare.equalArrays(lmat.column(c), lref)).toBe(true);
-        expect(compare.equalArrays(lmat2.column(c), lref)).toBe(true);
+        expect(compare.equalArrays(lmat.column(c), ref)).toBe(true);
+        expect(compare.equalArrays(lmat2.column(c), ref)).toBe(true);
     }
 
     // Inspection of dimensions works correctly.
@@ -243,7 +237,7 @@ test("simple initialization from MatrixMarket works correctly", () => {
 })
 
 test("initialization from Gzipped MatrixMarket works correctly with Gzip", () => {
-    var content = "%%\n11 5 6\n1 2 5\n10 3 2\n7 4 22\n5 1 12\n6 3 2\n1 5 8\n";
+    var content = "%%MatrixMarket matrix coordinate integer general\n11 5 6\n1 2 5\n10 3 2\n7 4 22\n5 1 12\n6 3 2\n1 5 8\n";
     const raw_buffer = pako.gzip(content);
 
     var buffer = scran.createUint8WasmArray(raw_buffer.length);
@@ -267,9 +261,9 @@ test("initialization from Gzipped MatrixMarket works correctly with Gzip", () =>
     fs.writeFileSync(path, buffer.array());
     var mat3 = scran.initializeSparseMatrixFromMatrixMarket(path);
 
-    expect(mat3.matrix.numberOfRows()).toBe(11);
-    expect(mat3.matrix.numberOfColumns()).toBe(5);
-    expect(compare.equalArrays(mat3.matrix.row(5), mat.row(5))).toBe(true);
+    expect(mat3.numberOfRows()).toBe(11);
+    expect(mat3.numberOfColumns()).toBe(5);
+    expect(compare.equalArrays(mat3.row(5), mat.row(5))).toBe(true);
 
     // Cleaning up.
     mat.free();
