@@ -357,8 +357,6 @@ export function initializeDenseMatrixFromDenseArray(numberOfRows, numberOfColumn
  * @param {RdsObject} x - Handle to an object inside an RDS file.
  * This should be an integer/numeric matrix, `dgCMatrix` or `dgTMatrix` object.
  * @param {object} [options={}] - Optional parameters.
- * @param {boolean} [options.consume=false] - Whether to consume the values in `x` when creating the output sparse matrix.
- * Setting this to `true` improves memory efficiency at the cost of preventing any further use of `x`.
  * @param {boolean} [options.forceInteger=true] - Whether to coerce all elements to integers via truncation.
  * @param {boolean} [options.layered=true] - Whether to create a layered sparse matrix, see [**tatami_layered**](https://github.com/tatami-inc/tatami_layered) for more details.
  * Only used if the R matrix is of an integer type and/or `forceInteger = true`.
@@ -366,13 +364,13 @@ export function initializeDenseMatrixFromDenseArray(numberOfRows, numberOfColumn
  *
  * @return {ScranMatrix} Sparse matrix.
  */
-export function initializeSparseMatrixFromRds(x, { consume = false, forceInteger = true, layered = true } = {}) {
+export function initializeSparseMatrixFromRds(x, { forceInteger = true, layered = true } = {}) {
     var ids = null;
     var output;
 
     try {
         output = gc.call(
-            module => module.initialize_sparse_matrix_from_rds(x.object.$$.ptr, forceInteger, layered, consume),
+            module => module.initialize_sparse_matrix_from_rds(x.object.$$.ptr, forceInteger, layered),
             ScranMatrix
         );
     } catch(e) {
