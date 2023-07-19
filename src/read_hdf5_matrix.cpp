@@ -128,7 +128,7 @@ NumericMatrix read_hdf5_matrix_internal(
     uintptr_t col_offset,
     int col_length)
 {
-    if (!is_dense && csc && !layered && !row_subset && !col_subset) {
+    if (!is_dense && !csc && !layered && !row_subset && !col_subset) {
         return NumericMatrix(new tatami::CompressedSparseRowMatrix<double, int, std::vector<T> >(
             tatami_hdf5::load_hdf5_compressed_sparse_matrix<true, double, int, std::vector<T> >(nr, nc, path, name + "/data", name + "/indices", name + "/indptr")
         ));

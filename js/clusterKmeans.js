@@ -258,21 +258,3 @@ export function clusterKmeans(x, clusters, { numberOfDims = null, numberOfCells 
 
     return output;
 }
-
-/**
- * Create an empty {@linkplain ClusterKmeansResults} object, to be filled with custom results.
- * Note that filling requires use of `fillable: true` in the various getters to obtain a writeable memory view.
- *
- * @param {number} numberOfCells - Number of cells in the dataset.
- * @param {number} numberOfClusters - Number of clusters in the dataset.
- * @param {number} numberOfDimensions - Number of dimensions of the embedding used for clustering.
- *
- * @return {ClusterKmeansResults} Object with allocated memory to store variance modelling statistics, but no actual values.
- */
-export function emptyClusterKmeansResults(numberOfCells, numberOfClusters, numberOfDimensions) {
-    return gc.call(
-        module => new module.ClusterKmeans_Result(numberOfCells, numberOfClusters, numberOfDimensions),
-        ClusterKmeansResults,
-        /* filled = */ false
-    );
-}

@@ -13,16 +13,14 @@
 void column_subset(NumericMatrix& matrix, uintptr_t offset, size_t length) {
     auto offset_ptr = reinterpret_cast<const int*>(offset);
     check_subset_indices<false>(offset_ptr, length, matrix.ncol());
-    auto ptr = tatami::make_DelayedSubset<1>(matrix.ptr, std::vector<int>(offset_ptr, offset_ptr + length));
-    matrix.ptr = std::move(ptr);
+    matrix.reset_ptr(tatami::make_DelayedSubset<1>(matrix.ptr, std::vector<int>(offset_ptr, offset_ptr + length)));
     return;
 }
 
 void row_subset(NumericMatrix& matrix, uintptr_t offset, size_t length) {
     auto offset_ptr = reinterpret_cast<const int*>(offset);
     check_subset_indices<true>(offset_ptr, length, matrix.nrow());
-    auto ptr = tatami::make_DelayedSubset<0>(std::move(matrix.ptr), std::vector<int>(offset_ptr, offset_ptr + length));
-    matrix.ptr = std::move(ptr);
+    matrix.reset_ptr(tatami::make_DelayedSubset<0>(std::move(matrix.ptr), std::vector<int>(offset_ptr, offset_ptr + length)));
     return;
 }
 

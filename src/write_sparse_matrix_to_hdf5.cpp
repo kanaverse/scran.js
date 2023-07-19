@@ -11,14 +11,6 @@
 std::string write_sparse_matrix_to_hdf5(const NumericMatrix& mat, std::string path, std::string name, std::string format, bool force_integer) {
     H5::H5File fhandle(path, H5F_ACC_TRUNC);
 
-    if (format == "automatic") {
-        if (mat.ptr->prefer_rows()) {
-            format = "csc_matrix";
-        } else {
-            format = "tenx_matrix";
-        }
-    }
-
     tatami_hdf5::WriteSparseMatrixToHdf5Parameters params;
     if (format == "tenx_matrix") {
         params.columnar = tatami_hdf5::WriteSparseMatrixToHdf5Parameters::StorageLayout::COLUMN;

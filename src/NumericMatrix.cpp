@@ -8,23 +8,28 @@ NumericMatrix::NumericMatrix(const tatami::NumericMatrix* p) : NumericMatrix(std
 NumericMatrix::NumericMatrix(std::shared_ptr<const tatami::NumericMatrix> p) : ptr(std::move(p)), by_row(ptr->dense_row()), by_column(ptr->dense_column()) {}
 
 template<class Vector_>
-void create_NumericMatrix(int nr, int nc, Vector_ vec, bool colmajor, std::shared_ptr<const tatami::NumericMatrix>& ptr) {
+tatami::NumericMatrix* create_NumericMatrix(int nr, int nc, Vector_ vec, bool colmajor) {
     if (colmajor) {
-        ptr.reset(new tatami::DenseColumnMatrix<double, int, Vector_>(nr, nc, std::move(vec)));
+        return new tatami::DenseColumnMatrix<double, int, Vector_>(nr, nc, std::move(vec));
     } else {
-        ptr.reset(new tatami::DenseRowMatrix<double, int, Vector_>(nr, nc, std::move(vec)));
+        return new tatami::DenseRowMatrix<double, int, Vector_>(nr, nc, std::move(vec));
     }
+}
+
+void NumericMatrix::reset_ptr(std::shared_ptr<const tatami::NumericMatrix> p) {
+    ptr = std::move(p);
+    by_row = ptr->dense_row();
+    by_column = ptr->dense_column();
 }
 
 NumericMatrix::NumericMatrix(int nr, int nc, uintptr_t values, bool colmajor, bool copy) {
     size_t product = static_cast<size_t>(nr) * static_cast<size_t>(nc);
     auto iptr = reinterpret_cast<const double*>(values);
     if (!copy) {
-        create_NumericMatrix(nr, nc, tatami::ArrayView<double>(iptr, product), colmajor, ptr);
+        reset_ptr(std::shared_ptr<const tatami::NumericMatrix>(create_NumericMatrix(nr, nc, tatami::ArrayView<double>(iptr, product), colmajor)));
     } else {
-        create_NumericMatrix(nr, nc, std::vector<double>(iptr, iptr + product), colmajor, ptr);
+        reset_ptr(std::shared_ptr<const tatami::NumericMatrix>(create_NumericMatrix(nr, nc, std::vector<double>(iptr, iptr + product), colmajor)));
     }
-    return;
 }
 
 int NumericMatrix::nrow() const {

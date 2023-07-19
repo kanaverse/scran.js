@@ -29,8 +29,10 @@ public:
         return status.num_epochs();
     }
 
-    UmapStatus deepcopy() const {
-        return UmapStatus(status);
+    UmapStatus deepcopy(uintptr_t Y) const {
+        auto copy = status;
+        copy.set_embedding(reinterpret_cast<double*>(Y), false);
+        return UmapStatus(std::move(copy));
     }
 
     int num_obs() const {
@@ -48,7 +50,7 @@ UmapStatus initialize_umap(const NeighborResults& neighbors, int num_epochs, dou
     return UmapStatus(factory.initialize(neighbors.neighbors, 2, embedding));
 }
 
-void run_umap(UmapStatus& status, int runtime, uintptr_t Y) {
+void run_umap(UmapStatus& status, int runtime) {
     if (runtime <= 0) {
         status.status.run();
     } else {

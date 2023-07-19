@@ -32,6 +32,8 @@ public:
     std::shared_ptr<const tatami::NumericMatrix> ptr;
 
     std::unique_ptr<tatami::FullDenseExtractor<double, int> > by_row, by_column;
+
+    void reset_ptr(std::shared_ptr<const tatami::NumericMatrix>);
 };
 
 #endif

@@ -8,45 +8,35 @@ const maybe = process.env.CHECK_RDS ? test : test.skip;
 const path = "tests/rds/"
 
 function test_okayish(x, nr, nc, layered) {
-    let mat = x.matrix;
-    expect(mat.numberOfRows()).toBe(nr);
-    expect(mat.numberOfColumns()).toBe(nc);
-
-    if (layered) {
-        expect(x.row_ids.length).toBe(nr);
-    } else {
-        expect(x.row_ids).toBeNull();
-    }
+    expect(x.numberOfRows()).toBe(nr);
+    expect(x.numberOfColumns()).toBe(nc);
 
     // Checking that we get something returned.
     let margins = 0;
-    mat.row(0).forEach(y => { margins += y; });
-    mat.row(nr - 1).forEach(y => { margins += y; });
-    mat.column(0).forEach(y => { margins += y; });
-    mat.column(nc - 1).forEach(y => { margins += y; });
+    x.row(0).forEach(y => { margins += y; });
+    x.row(nr - 1).forEach(y => { margins += y; });
+    x.column(0).forEach(y => { margins += y; });
+    x.column(nc - 1).forEach(y => { margins += y; });
 
     expect(margins).toBeGreaterThan(0);
 }
 
 function expect_all(x, fun) {
-    let mat = x.matrix;
-    for (var c = 0; c < mat.numberOfColumns(); c++) {
-        expect(mat.column(c).every(fun));
+    for (var c = 0; c < x.numberOfColumns(); c++) {
+        expect(x.column(c).every(fun));
     }
 }
 
 function expect_any(x, fun) {
-    let mat = x.matrix;
     let present = false;
-    for (var c = 0; c < mat.numberOfColumns(); c++) {
-        if (mat.column(c).some(fun)) {
+    for (var c = 0; c < x.numberOfColumns(); c++) {
+        if (x.column(c).some(fun)) {
             present = true;
             break;        
         }
     }
     expect(present).toBe(true);
 }
-
 
 maybe("works for integer matrix", () => {
     let stuff = scran.readRds(path + "test2-integer-matrix.rds");
@@ -57,14 +47,13 @@ maybe("works for integer matrix", () => {
         let x = scran.initializeSparseMatrixFromRds(vals, { layered: layered });
         test_okayish(x, 50, 20, layered);
         expect_all(x, y => y%1 == 0);
-        x.matrix.free();
+        x.free();
     }
 
     // Automatically layers even if forceInteger=false.
     let x2 = scran.initializeSparseMatrixFromRds(vals, { forceInteger: false });
-    expect(x2.row_ids.length).toBe(50);
     expect_all(x2, y => y%1 == 0); // naturally integer.
-    x2.matrix.free();
+    x2.free();
 
     vals.free();
     stuff.free();
@@ -79,14 +68,13 @@ maybe("works for double matrix", () => {
         let x = scran.initializeSparseMatrixFromRds(vals, { layered: layered });
         test_okayish(x, 100, 10, layered);
         expect_all(x, y => y%1 == 0); // forced integers.
-        x.matrix.free();
+        x.free();
     }
 
     // Doesn't automatically layer when forceInteger=false.
     let x2 = scran.initializeSparseMatrixFromRds(vals, { forceInteger: false });
-    expect(x2.row_ids).toBeNull();
     expect_any(x2, y => y%1 > 0); // not forced integers.
-    x2.matrix.free();
+    x2.free();
 
     vals.free();
     stuff.free();
@@ -110,23 +98,22 @@ maybe("works for dgCMatrix", () => {
             let vals2 = stuff2.value();
             let x2 = scran.initializeSparseMatrixFromRds(vals2, { layered: layered, consume: true });
 
-            for (var c = 0; c < x.matrix.numberOfColumns(); c++) {
-                expect(compare.equalArrays(x.matrix.column(c), x2.matrix.column(c))).toBe(true);
+            for (var c = 0; c < x.numberOfColumns(); c++) {
+                expect(compare.equalArrays(x.column(c), x2.column(c))).toBe(true);
             }
 
-            x2.matrix.free();
+            x2.free();
             vals2.free();
             stuff2.free();
         }
 
-        x.matrix.free();
+        x.free();
     }
 
     // Doesn't automatically layer when forceInteger=false.
     let x2 = scran.initializeSparseMatrixFromRds(vals, { forceInteger: false });
-    expect(x2.row_ids).toBeNull();
     expect_any(x2, y => y%1 > 0); // not forced integers.
-    x2.matrix.free();
+    x2.free();
 
     vals.free();
     stuff.free();
@@ -150,23 +137,22 @@ maybe("works for dgTMatrix", () => {
             let vals2 = stuff2.value();
             let x2 = scran.initializeSparseMatrixFromRds(vals2, { layered: layered, consume: true });
 
-            for (var c = 0; c < x.matrix.numberOfColumns(); c++) {
-                expect(compare.equalArrays(x.matrix.column(c), x2.matrix.column(c))).toBe(true);
+            for (var c = 0; c < x.numberOfColumns(); c++) {
+                expect(compare.equalArrays(x.column(c), x2.column(c))).toBe(true);
             }
 
-            x2.matrix.free();
+            x2.free();
             vals2.free();
             stuff2.free();
         }
 
-        x.matrix.free();
+        x.free();
     }
 
     // Doesn't automatically layer when forceInteger=false.
     let x2 = scran.initializeSparseMatrixFromRds(vals, { forceInteger: false });
-    expect(x2.row_ids).toBeNull();
     expect_any(x2, y => y%1 > 0); // not forced integers.
-    x2.matrix.free();
+    x2.free();
 
     vals.free();
     stuff.free();

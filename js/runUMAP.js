@@ -33,10 +33,11 @@ export class InitializeUMAPResults {
      * @return {InitializeUMAPResults} A deep copy of this object.
      */
     clone() {
+        let coord_copy = this.#coordinates.clone();
         return gc.call(
-            module => this.#status.deepcopy(), 
+            module => this.#status.deepcopy(coord_copy.offset), 
             InitializeUMAPResults, 
-            this.#coordinates.clone()
+            coord_copy
         );
     }
 
@@ -153,6 +154,6 @@ export function runUMAP(x, { runTime = null } = {}) {
     if (runTime === null) {
         runTime = -1;
     }
-    wasm.call(module => module.run_umap(x.status, runTime, x.coordinates.offset));
+    wasm.call(module => module.run_umap(x.status, runTime));
     return;
 }

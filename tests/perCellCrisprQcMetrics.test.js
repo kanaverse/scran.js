@@ -35,19 +35,3 @@ test("per-cell QC metrics can be computed", () => {
     mat.free();
     qc.free();
 });
-
-test("per-cell QC metrics can be mocked up", () => {
-    let ncells = 100;
-    var qc = scran.emptyPerCellCrisprQcMetricsResults(ncells);
-
-    for (const y of [ "sums", "detected", "maxProportions", "maxIndex" ]) {
-        expect(qc[y]()).toBeNull();
-        var x = qc[y]({ fillable: true });
-        expect(x.length).toBe(ncells);
-        x[0] = 100;
-        var x2 = qc[y]();
-        expect(x2[0]).toBe(100);
-    }
-
-    qc.free();
-});

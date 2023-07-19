@@ -21,35 +21,15 @@ test("saving a sparse matrix to HDF5 works correctly for 10X", () => {
 
     let simmed = simulate.simulateMatrix(100, 200);
 
-    // Force the layout, for starters.
-    {
-        purge(path);
-        scran.writeSparseMatrixToHdf5(simmed, path, "foo", { format: "tenx_matrix" });
+    purge(path);
+    scran.writeSparseMatrixToHdf5(simmed, path, "foo", { format: "tenx_matrix" });
 
-        let output = scran.initializeSparseMatrixFromHDF5(path, "foo", { layered: false });
-        expect(output.matrix.numberOfRows()).toEqual(simmed.numberOfRows());
-        expect(output.matrix.numberOfColumns()).toEqual(simmed.numberOfColumns());
+    let output = scran.initializeSparseMatrixFromHDF5(path, "foo", { layered: false });
+    expect(output.numberOfRows()).toEqual(simmed.numberOfRows());
+    expect(output.numberOfColumns()).toEqual(simmed.numberOfColumns());
 
-        for (var i = 0; i < simmed.numberOfColumns(); i++) {
-            expect(simmed.column(i)).toEqual(output.matrix.column(i));
-        }
-    }
-
-    // Same layout is automatically chosen.
-    {
-        purge(path);
-        scran.writeSparseMatrixToHdf5(simmed, path, "foo");
-
-        let output = scran.initializeSparseMatrixFromHDF5(path, "foo", { layered: false });
-        expect(output.matrix.numberOfRows()).toEqual(simmed.numberOfRows());
-        expect(output.matrix.numberOfColumns()).toEqual(simmed.numberOfColumns());
-
-        let ghandle = new scran.H5Group(path, "foo");
-        expect(ghandle.open("shape", { load: true }).values).toEqual(new Int32Array([100, 200]));
-
-        for (var i = 0; i < simmed.numberOfColumns(); i++) {
-            expect(simmed.column(i)).toEqual(output.matrix.column(i));
-        }
+    for (var i = 0; i < simmed.numberOfColumns(); i++) {
+        expect(simmed.column(i)).toEqual(output.column(i));
     }
 })
 
@@ -64,15 +44,15 @@ test("saving a sparse matrix to HDF5 works correctly for H5AD-derivatives", () =
         scran.writeSparseMatrixToHdf5(simmed, path, "foo", { format: "csc_matrix" });
 
         let output = scran.initializeSparseMatrixFromHDF5(path, "foo", { layered: false });
-        expect(output.matrix.numberOfRows()).toEqual(simmed.numberOfRows());
-        expect(output.matrix.numberOfColumns()).toEqual(simmed.numberOfColumns());
+        expect(output.numberOfRows()).toEqual(simmed.numberOfRows());
+        expect(output.numberOfColumns()).toEqual(simmed.numberOfColumns());
 
         let ghandle = new scran.H5Group(path, "foo");
         expect(ghandle.readAttribute("encoding-type").values[0]).toEqual("csc_matrix");
         expect(ghandle.readAttribute("shape").values).toEqual(new Int32Array([50, 80]));
 
         for (var i = 0; i < simmed.numberOfColumns(); i++) {
-            expect(simmed.column(i)).toEqual(output.matrix.column(i));
+            expect(simmed.column(i)).toEqual(output.column(i));
         }
     }
 
@@ -82,15 +62,15 @@ test("saving a sparse matrix to HDF5 works correctly for H5AD-derivatives", () =
         scran.writeSparseMatrixToHdf5(simmed, path, "foo", { format: "csr_matrix" });
 
         let output = scran.initializeSparseMatrixFromHDF5(path, "foo", { layered: false });
-        expect(output.matrix.numberOfRows()).toEqual(simmed.numberOfRows());
-        expect(output.matrix.numberOfColumns()).toEqual(simmed.numberOfColumns());
+        expect(output.numberOfRows()).toEqual(simmed.numberOfRows());
+        expect(output.numberOfColumns()).toEqual(simmed.numberOfColumns());
 
         let ghandle = new scran.H5Group(path, "foo");
         expect(ghandle.readAttribute("encoding-type").values[0]).toEqual("csr_matrix");
         expect(ghandle.readAttribute("shape").values).toEqual(new Int32Array([50, 80]));
 
         for (var i = 0; i < simmed.numberOfColumns(); i++) {
-            expect(simmed.column(i)).toEqual(output.matrix.column(i));
+            expect(simmed.column(i)).toEqual(output.column(i));
         }
     }
 })
@@ -104,13 +84,13 @@ test("saving a sparse matrix to HDF5 works correctly when forcing integers", () 
     scran.writeSparseMatrixToHdf5(simmed, path, "foo", { forceInteger: true });
 
     let output = scran.initializeSparseMatrixFromHDF5(path, "foo", { layered: false });
-    expect(output.matrix.numberOfRows()).toEqual(simmed.numberOfRows());
-    expect(output.matrix.numberOfColumns()).toEqual(simmed.numberOfColumns());
+    expect(output.numberOfRows()).toEqual(simmed.numberOfRows());
+    expect(output.numberOfColumns()).toEqual(simmed.numberOfColumns());
 
     for (var i = 0; i < simmed.numberOfColumns(); i++) {
         let original = simmed.column(i);
         let expected = original.map(Math.floor);
         expect(expected).not.toEqual(original);
-        expect(output.matrix.column(i)).toEqual(expected);
+        expect(output.column(i)).toEqual(expected);
     }
 })

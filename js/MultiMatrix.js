@@ -19,15 +19,12 @@ export class MultiMatrix {
         this.#ncols = null;
 
         let keys = Object.keys(store);
-        if (keys.length) {
-            // We ignore numberOfColumns here, as everyone should have the same number of cells.
-            for (var k = 0; k < keys.length; k++) {
-                let current = store[keys[k]];
-                if (k == 0) {
-                    this.#ncols = current.numberOfColumns();
-                } else if (current.numberOfColumns() != this.#ncols) {
-                    throw new Error("all matrices should have the same number of columns");
-                }
+        for (var k = 0; k < keys.length; k++) {
+            let current = store[keys[k]];
+            if (k == 0) {
+                this.#ncols = current.numberOfColumns();
+            } else if (current.numberOfColumns() != this.#ncols) {
+                throw new Error("all matrices should have the same number of columns");
             }
         }
     }

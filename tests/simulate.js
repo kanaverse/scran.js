@@ -64,7 +64,7 @@ export function simulateMatrix(numberOfRows, numberOfColumns, density = 0.2, max
         buffer.free();
     }
 
-    return output.matrix;
+    return output;
 }
 
 export function simulateDenseMatrix(numberOfRows, numberOfColumns) {

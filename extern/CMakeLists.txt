@@ -70,7 +70,7 @@ FetchContent_MakeAvailable(irlba)
 FetchContent_Declare(
   umappp 
   GIT_REPOSITORY https://github.com/LTLA/umappp
-  GIT_TAG d18095ea8b6d62aa740a566411e439eaab16b71f
+  GIT_TAG f2928b3018e9dc374fbe4553769f899e575e2f14 
 )
 FetchContent_MakeAvailable(umappp)
 

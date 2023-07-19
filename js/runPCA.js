@@ -211,21 +211,3 @@ export function runPCA(x, { features = null, numberOfPCs = 25, scale = false, bl
 
     return output;
 }
-
-/**
- * Create an empty {@linkplain RunPCAResults} object, to be filled with custom results.
- * This is typically used to generate a convenient input into later {@linkcode clusterKmeans} calls.
- * Note that filling requires use of `fillable: true` in the various getters to obtain a writeable memory view.
- *
- * @param {number} numberOfCells - Number of cells in the dataset, usually after QC filtering.
- * @param {number} numberOfPCs - Number of PCs to be computed.
- *
- * @return {RunPCAResults} Object with allocated memory to store the PCs, but no actual values.
- */
-export function emptyRunPCAResults(numberOfCells, numberOfPCs) {
-    return gc.call(
-        module => new module.RunPCA_Results(numberOfCells, numberOfPCs),
-        RunPCAResults,
-        /* filled = */ false
-    );
-}

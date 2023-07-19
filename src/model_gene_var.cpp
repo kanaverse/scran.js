@@ -19,7 +19,7 @@ struct ModelGeneVar_Results {
 
 public:
     emscripten::val means(int b) const {
-        if (b < 0 && store.per_block.size() > 1) {
+        if (b < 0) {
             return emscripten::val(emscripten::typed_memory_view(store.average.means.size(), store.average.means.data()));
         } else {
             return emscripten::val(emscripten::typed_memory_view(store.per_block[b].means.size(), store.per_block[b].means.data()));
@@ -27,7 +27,7 @@ public:
     }
 
     emscripten::val variances(int b) const {
-        if (b < 0 && store.per_block.size() > 1) {
+        if (b < 0) {
             return emscripten::val(emscripten::typed_memory_view(store.average.variances.size(), store.average.variances.data()));
         } else {
             return emscripten::val(emscripten::typed_memory_view(store.per_block[b].variances.size(), store.per_block[b].variances.data()));
@@ -35,7 +35,7 @@ public:
     }
 
     emscripten::val fitted(int b) const {
-        if (b < 0 && store.per_block.size() > 1) {
+        if (b < 0) {
             return emscripten::val(emscripten::typed_memory_view(store.average.fitted.size(), store.average.fitted.data()));
         } else {
             return emscripten::val(emscripten::typed_memory_view(store.per_block[b].fitted.size(), store.per_block[b].fitted.data()));
@@ -43,7 +43,7 @@ public:
     }
 
     emscripten::val residuals(int b) const {
-        if (b < 0 && store.per_block.size() > 1) {
+        if (b < 0) {
             return emscripten::val(emscripten::typed_memory_view(store.average.residuals.size(), store.average.residuals.data()));
         } else {
             return emscripten::val(emscripten::typed_memory_view(store.per_block[b].residuals.size(), store.per_block[b].residuals.data()));
