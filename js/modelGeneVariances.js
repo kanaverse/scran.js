@@ -5,7 +5,7 @@ import * as utils from "./utils.js";
  * Wrapper for the variance modelling results, produced by {@linkcode modelGeneVar}.
  * @hideconstructor
  */
-export class ModelGeneVarResults {
+export class ModelGeneVariancesResults {
     #id;
     #results;
 
@@ -18,7 +18,7 @@ export class ModelGeneVarResults {
      * @param {object} [options={}] - Optional parameters.
      * @param {?number} [options.block=null] - Number of the block for which to extract statistics.
      * If `null`, the average across all blocks is returned.
-     * Otherwise, should be less than the value returned by {@linkcode ModelGeneVarResults#numberOfBlocks numberOfBlocks}.
+     * Otherwise, should be less than the value returned by {@linkcode ModelGeneVariancesResults#numberOfBlocks numberOfBlocks}.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      *
      * @return {?(Float64Array|Float64WasmArray)} Array of length equal to the number of genes,
@@ -33,7 +33,7 @@ export class ModelGeneVarResults {
      * @param {object} [options={}] - Optional parameters.
      * @param {?number} [options.block=null] - Number of the block for which to extract statistics.
      * If `null`, the average across all blocks is returned.
-     * Otherwise, should be less than the value returned by {@linkcode ModelGeneVarResults#numberOfBlocks numberOfBlocks}.
+     * Otherwise, should be less than the value returned by {@linkcode ModelGeneVariancesResults#numberOfBlocks numberOfBlocks}.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      *
      * @return {?(Float64Array|Float64WasmArray)} Array of length equal to the number of genes,
@@ -48,7 +48,7 @@ export class ModelGeneVarResults {
      * @param {object} [options={}] - Optional parameters.
      * @param {?number} [options.block=null] - Number of the block for which to extract statistics.
      * If `null`, the average across all blocks is returned.
-     * Otherwise, should be less than the value returned by {@linkcode ModelGeneVarResults#numberOfBlocks numberOfBlocks}.
+     * Otherwise, should be less than the value returned by {@linkcode ModelGeneVariancesResults#numberOfBlocks numberOfBlocks}.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      *
      * @return {Float64Array|Float64WasmArray} Array of length equal to the number of genes,
@@ -64,7 +64,7 @@ export class ModelGeneVarResults {
      * @param {object} [options={}] - Optional parameters.
      * @param {?number} [options.block=null] - Number of the block for which to extract statistics.
      * If `null`, the average across all blocks is returned.
-     * Otherwise, should be less than the value returned by {@linkcode ModelGeneVarResults#numberOfBlocks numberOfBlocks}.
+     * Otherwise, should be less than the value returned by {@linkcode ModelGeneVariancesResults#numberOfBlocks numberOfBlocks}.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      *
      * @return {Float64Array|Float64WasmArray} Array of length equal to the number of genes,
@@ -108,9 +108,9 @@ export class ModelGeneVarResults {
  * @param {?number} [options.numberOfThreads=null] - Number of threads to use.
  * If `null`, defaults to {@linkcode maximumThreads}.
  *
- * @return {ModelGeneVarResults} Object containing the variance modelling results.
+ * @return {ModelGeneVariancesResults} Object containing the variance modelling results.
  */
-export function modelGeneVar(x, { block = null, span = 0.3, numberOfThreads = null } = {}) {
+export function modelGeneVariances(x, { block = null, span = 0.3, numberOfThreads = null } = {}) {
     var block_data;
     var output;
     let nthreads = utils.chooseNumberOfThreads(numberOfThreads);
@@ -129,8 +129,8 @@ export function modelGeneVar(x, { block = null, span = 0.3, numberOfThreads = nu
         }
 
         output = gc.call(
-            module => module.model_gene_var(x.matrix, use_blocks, bptr, span, nthreads),
-            ModelGeneVarResults
+            module => module.model_gene_variances(x.matrix, use_blocks, bptr, span, nthreads),
+            ModelGeneVariancesResults
         );
 
     } catch (e) {

@@ -1,6 +1,6 @@
 import * as utils from "./utils.js";
 import * as gc from "./gc.js";
-import { RunPCAResults } from "./runPCA.js";
+import { RunPcaResults } from "./runPca.js";
 
 /** 
  * Wrapper for the neighbor search index on the Wasm heap, typically produced by {@linkcode buildNeighborSearchIndex}.
@@ -51,9 +51,9 @@ export class BuildNeighborSearchIndexResults {
 /**
  * Build the nearest neighbor search index.
  *
- * @param {(RunPCAResults|Float64WasmArray|Array|TypedArray)} x - Numeric coordinates of each cell in the dataset.
+ * @param {(RunPcaResults|Float64WasmArray|Array|TypedArray)} x - Numeric coordinates of each cell in the dataset.
  * For array inputs, this is expected to be in column-major format where the rows are the variables and the columns are the cells.
- * For a {@linkplain RunPCAResults} input, we extract the principal components.
+ * For a {@linkplain RunPcaResults} input, we extract the principal components.
  * @param {object} [options={}] - Optional parameters.
  * @param {?number} [options.numberOfDims=null] - Number of variables/dimensions per cell.
  * Only used (and required) for array-like `x`.
@@ -70,7 +70,7 @@ export function buildNeighborSearchIndex(x, { numberOfDims = null, numberOfCells
     try {
         let pptr;
 
-        if (x instanceof RunPCAResults) {
+        if (x instanceof RunPcaResults) {
             numberOfDims = x.numberOfPCs();
             numberOfCells = x.numberOfCells();
             let pcs = x.principalComponents({ copy: false });

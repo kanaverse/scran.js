@@ -9,7 +9,7 @@ test("neighbor index building works with various inputs", () => {
     var ngenes = 1000;
     var ncells = 100;
     var mat = simulate.simulateMatrix(ngenes, ncells);
-    var pca = scran.runPCA(mat);
+    var pca = scran.runPca(mat);
 
     // Trying with the PCs.
     var index = scran.buildNeighborSearchIndex(pca);

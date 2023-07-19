@@ -14,7 +14,7 @@ block.fill(1, half, ncells);
 test("mnnCorrect works as expected", () => {
     var ngenes = 1000;
     var mat = simulate.simulateMatrix(ngenes, ncells);
-    var pca = scran.runPCA(mat);
+    var pca = scran.runPca(mat);
 
     var output = scran.mnnCorrect(pca, block);
     expect(output.length).toBe(pca.numberOfPCs() * pca.numberOfCells());
@@ -35,7 +35,7 @@ test("mnnCorrect works as expected", () => {
 test("mnnCorrect works as expected with array inputs, presupplied buffer", () => {
     var ngenes = 1000;
     var mat = simulate.simulateMatrix(ngenes, ncells);
-    var pca = scran.runPCA(mat);
+    var pca = scran.runPca(mat);
     var ref = scran.mnnCorrect(pca, block);
 
     var output = scran.createFloat64WasmArray(pca.numberOfPCs() * pca.numberOfCells());

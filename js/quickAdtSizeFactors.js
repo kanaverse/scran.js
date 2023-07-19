@@ -1,7 +1,7 @@
 import { clusterKmeans } from "./clusterKmeans.js";
 import { logNormCounts } from "./logNormCounts.js";
 import { groupedSizeFactors } from "./groupedSizeFactors.js";
-import { runPCA } from "./runPCA.js";
+import { runPca } from "./runPca.js";
 import * as utils from "./utils.js";
 
 /**
@@ -17,7 +17,7 @@ import * as utils from "./utils.js";
  * More PCs captures more biological signal at the cost of increasing noise.
  * @param {?(Float64WasmArray|Array|TypedArray)} [options.totals=null] - Array containing the total count for each column in `x`, to speed up the initial normalization.
  * If `null`, this is computed from `x`.
- * @param {?(Int32WasmArray|Array|TypedArray)} [options.block=null] - Blocking level for each column in `x`, see {@linkcode logNormCounts} and {@linkcode runPCA}.
+ * @param {?(Int32WasmArray|Array|TypedArray)} [options.block=null] - Blocking level for each column in `x`, see {@linkcode logNormCounts} and {@linkcode runPca}.
  * For PCA, this is used to equalize the contribution of blocks of differing size.
  * @param {?Float64WasmArray} [options.buffer=null] - Buffer in which to store the output size factors.
  * Length should be equal to the number of columns in `x`.
@@ -33,7 +33,7 @@ export function quickAdtSizeFactors(x, { numberOfClusters = 20, numberOfPCs = 25
     let norm, pcs;
     try {
         norm = logNormCounts(x, { sizeFactors: totals, block: block });
-        pcs = runPCA(norm, { numberOfPCs: Math.min(norm.numberOfRows() - 1, numberOfPCs), numberOfThreads: numberOfThreads, block: block, blockMethod: "weight" });
+        pcs = runPca(norm, { numberOfPCs: Math.min(norm.numberOfRows() - 1, numberOfPCs), numberOfThreads: numberOfThreads, block: block, blockMethod: "weight" });
     } finally {
         utils.free(norm);
     }

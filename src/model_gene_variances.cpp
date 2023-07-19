@@ -10,10 +10,10 @@
 #include <algorithm>
 #include <cstdint>
 
-struct ModelGeneVar_Results {
-    typedef scran::ModelGeneVar::AverageBlockResults Store;
+struct ModelGeneVariances_Results {
+    typedef scran::ModelGeneVariances::BlockResults Store;
 
-    ModelGeneVar_Results(Store s) : store(std::move(s)) {}
+    ModelGeneVariances_Results(Store s) : store(std::move(s)) {}
 
     Store store;
 
@@ -55,26 +55,26 @@ public:
     }
 };
 
-ModelGeneVar_Results model_gene_var(const NumericMatrix& mat, bool use_blocks, uintptr_t blocks, double span, int nthreads) {
+ModelGeneVariances_Results model_gene_variances(const NumericMatrix& mat, bool use_blocks, uintptr_t blocks, double span, int nthreads) {
     const int32_t* bptr = NULL;
     if (use_blocks) {
         bptr = reinterpret_cast<const int32_t*>(blocks);
     }
 
-    scran::ModelGeneVar var;
+    scran::ModelGeneVariances var;
     var.set_span(span).set_num_threads(nthreads);
-    auto store = var.run_blocked_with_average(mat.ptr.get(), bptr);
-    return ModelGeneVar_Results(std::move(store));
+    auto store = var.run_blocked(mat.ptr.get(), bptr);
+    return ModelGeneVariances_Results(std::move(store));
 }
 
-EMSCRIPTEN_BINDINGS(model_gene_var) {
-    emscripten::function("model_gene_var", &model_gene_var);
+EMSCRIPTEN_BINDINGS(model_gene_variances) {
+    emscripten::function("model_gene_variances", &model_gene_variances);
 
-    emscripten::class_<ModelGeneVar_Results>("ModelGeneVar_Results")
-        .function("means", &ModelGeneVar_Results::means)
-        .function("variances", &ModelGeneVar_Results::variances)
-        .function("fitted", &ModelGeneVar_Results::fitted)
-        .function("residuals", &ModelGeneVar_Results::residuals)
-        .function("num_blocks", &ModelGeneVar_Results::num_blocks)
+    emscripten::class_<ModelGeneVariances_Results>("ModelGeneVariances_Results")
+        .function("means", &ModelGeneVariances_Results::means)
+        .function("variances", &ModelGeneVariances_Results::variances)
+        .function("fitted", &ModelGeneVariances_Results::fitted)
+        .function("residuals", &ModelGeneVariances_Results::residuals)
+        .function("num_blocks", &ModelGeneVariances_Results::num_blocks)
         ;
 }

@@ -77,7 +77,7 @@ FetchContent_MakeAvailable(umappp)
 FetchContent_Declare(
   scran 
   GIT_REPOSITORY https://github.com/LTLA/libscran
-  GIT_TAG 62e2745d51463c364f7113eeae53b6e473e511ff
+  GIT_TAG 591bd6fabd573ad5762c8efea257a114821c92c9
 )
 FetchContent_MakeAvailable(scran)
 

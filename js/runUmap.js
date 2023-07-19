@@ -50,7 +50,7 @@ export class InitializeUMAPResults {
 
     /**
      * @return {number} Number of epochs processed so far.
-     * This changes with repeated invocations of {@linkcode runUMAP}, up to the maximum in {@linkcode InitializeUMAPResults#totalEpochs totalEpochs}.
+     * This changes with repeated invocations of {@linkcode runUmap}, up to the maximum in {@linkcode InitializeUMAPResults#totalEpochs totalEpochs}.
      */
     currentEpoch() {
         return this.#status.epoch();
@@ -142,7 +142,7 @@ export function initializeUMAP(x, { neighbors = 15, epochs = 500, minDist = 0.01
  * Run the UMAP algorithm on an initialized {@linkplain InitializeUMAPResults}.
  *
  * @param {InitializeUMAPResults} x A previously initialized status object from {@linkcode initializeUMAP}.
- * This may be passed through {@linkcode runUMAP} any number of times.
+ * This may be passed through {@linkcode runUmap} any number of times.
  * @param {object} [options={}] - Optional parameters.
  * @param {?number} [options.runTime=null] - Number of milliseconds for which the algorithm is allowed to run before returning.
  * If `null`, no limit is imposed on the runtime.
@@ -150,7 +150,7 @@ export function initializeUMAP(x, { neighbors = 15, epochs = 500, minDist = 0.01
  * @return The algorithm status in `x` is advanced up to the total number of epochs used to initialize `x`,
  * or until the requested run time is exceeded, whichever comes first.
  */
-export function runUMAP(x, { runTime = null } = {}) {
+export function runUmap(x, { runTime = null } = {}) {
     if (runTime === null) {
         runTime = -1;
     }

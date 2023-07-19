@@ -5,15 +5,15 @@ import * as compare from "./compare.js";
 beforeAll(async () => { await scran.initialize({ localFile: true }) });
 afterAll(async () => { await scran.terminate() });
 
-test("chooseHVGs works correctly", () => {
+test("chooseHvgs works correctly", () => {
     var ngenes = 1000;
     var ncells = 100;
 
     var mat = simulate.simulateMatrix(ngenes, ncells);
     var norm = scran.logNormCounts(mat);
-    var res = scran.modelGeneVar(norm);
+    var res = scran.modelGeneVariances(norm);
 
-    var output = scran.chooseHVGs(res, { number: 101 });
+    var output = scran.chooseHvgs(res, { number: 101 });
     expect(output.length).toBe(ngenes);
     expect(output.constructor.className).toBe("Uint8WasmArray");
 
@@ -38,16 +38,16 @@ test("chooseHVGs works correctly", () => {
     output.free();
 });
 
-test("chooseHVGs avoids picking negative residuals", () => {
+test("chooseHvgs avoids picking negative residuals", () => {
     let res = [ 0, 2, 3, 4, -1 ];
-    var output = scran.chooseHVGs(res, { number: 101 });
+    var output = scran.chooseHvgs(res, { number: 101 });
 
     let expected = new Uint8Array(res.length);
     expected.fill(1);
     expected[4] = 0;
     expect(output.array()).toEqual(expected);
 
-    let output2 = scran.chooseHVGs(res, { number: 101, minimum: -1 });
+    let output2 = scran.chooseHvgs(res, { number: 101, minimum: -1 });
     expected[4] = 1;
     expect(output2.array()).toEqual(expected);
 

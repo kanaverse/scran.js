@@ -8,13 +8,13 @@
 
 #include "scran/scran.hpp"
 
-struct BuildSNNGraph_Result {
-    BuildSNNGraph_Result(scran::BuildSNNGraph::Results g) : graph(std::move(g)) {}
+struct BuildSnnGraph_Result {
+    BuildSnnGraph_Result(scran::BuildSnnGraph::Results g) : graph(std::move(g)) {}
 
-    scran::BuildSNNGraph::Results graph;
+    scran::BuildSnnGraph::Results graph;
 };
 
-BuildSNNGraph_Result build_snn_graph(const NeighborResults& neighbors, std::string scheme, int nthreads) {
+BuildSnnGraph_Result build_snn_graph(const NeighborResults& neighbors, std::string scheme, int nthreads) {
     size_t nc = neighbors.neighbors.size();
     std::vector<std::vector<int > > indices(nc);
     int k = 0;
@@ -22,34 +22,34 @@ BuildSNNGraph_Result build_snn_graph(const NeighborResults& neighbors, std::stri
     for (size_t i = 0; i < nc; ++i) {
         auto current = neighbors.neighbors[i];
         auto& output = indices[i];
-        k = current.size(); // just in case BuildSNNGraph needs the neighbors to be set.
+        k = current.size(); // just in case BuildSnnGraph needs the neighbors to be set.
         for (const auto& y : current) {
             output.push_back(y.first);
         }
     }
 
-    auto chosen = scran::BuildSNNGraph::RANKED;
+    auto chosen = scran::BuildSnnGraph::RANKED;
     if (scheme == "rank") {
         ;
     } else if (scheme == "number") {
-        chosen = scran::BuildSNNGraph::NUMBER;
+        chosen = scran::BuildSnnGraph::NUMBER;
     } else if (scheme == "jaccard") {
-        chosen = scran::BuildSNNGraph::JACCARD;
+        chosen = scran::BuildSnnGraph::JACCARD;
     } else {
         throw std::runtime_error("no known weighting scheme '" + scheme + "'");
     }
 
-    scran::BuildSNNGraph builder;
+    scran::BuildSnnGraph builder;
     builder.set_neighbors(k).set_weighting_scheme(chosen).set_num_threads(nthreads);
-    return BuildSNNGraph_Result(builder.run(indices));
+    return BuildSnnGraph_Result(builder.run(indices));
 }
 
 /**********************************/
 
-struct ClusterSNNGraphMultiLevel_Result {
-    typedef scran::ClusterSNNGraphMultiLevel::Results Store;
+struct ClusterSnnGraphMultiLevel_Result {
+    typedef scran::ClusterSnnGraphMultiLevel::Results Store;
 
-    ClusterSNNGraphMultiLevel_Result(Store s) : store(std::move(s)) {}
+    ClusterSnnGraphMultiLevel_Result(Store s) : store(std::move(s)) {}
 
     Store store;
 
@@ -72,19 +72,19 @@ public:
     }
 };
 
-ClusterSNNGraphMultiLevel_Result cluster_snn_graph_multilevel(const BuildSNNGraph_Result& graph, double resolution) {
-    scran::ClusterSNNGraphMultiLevel clust;
+ClusterSnnGraphMultiLevel_Result cluster_snn_graph_multilevel(const BuildSnnGraph_Result& graph, double resolution) {
+    scran::ClusterSnnGraphMultiLevel clust;
     clust.set_resolution(resolution);
     auto output = clust.run(graph.graph);
-    return ClusterSNNGraphMultiLevel_Result(std::move(output));
+    return ClusterSnnGraphMultiLevel_Result(std::move(output));
 }
 
 /**********************************/
 
-struct ClusterSNNGraphWalktrap_Result {
-    typedef scran::ClusterSNNGraphWalktrap::Results Store;
+struct ClusterSnnGraphWalktrap_Result {
+    typedef scran::ClusterSnnGraphWalktrap::Results Store;
 
-    ClusterSNNGraphWalktrap_Result(Store s) : store(std::move(s)) {}
+    ClusterSnnGraphWalktrap_Result(Store s) : store(std::move(s)) {}
 
     Store store;
 
@@ -111,19 +111,19 @@ public:
     }
 };
 
-ClusterSNNGraphWalktrap_Result cluster_snn_graph_walktrap(const BuildSNNGraph_Result& graph, int steps) {
-    scran::ClusterSNNGraphWalktrap clust;
+ClusterSnnGraphWalktrap_Result cluster_snn_graph_walktrap(const BuildSnnGraph_Result& graph, int steps) {
+    scran::ClusterSnnGraphWalktrap clust;
     clust.set_steps(steps);
     auto output = clust.run(graph.graph);
-    return ClusterSNNGraphWalktrap_Result(std::move(output));
+    return ClusterSnnGraphWalktrap_Result(std::move(output));
 }
 
 /**********************************/
 
-struct ClusterSNNGraphLeiden_Result {
-    typedef scran::ClusterSNNGraphLeiden::Results Store;
+struct ClusterSnnGraphLeiden_Result {
+    typedef scran::ClusterSnnGraphLeiden::Results Store;
 
-    ClusterSNNGraphLeiden_Result(Store s) : store(std::move(s)) {}
+    ClusterSnnGraphLeiden_Result(Store s) : store(std::move(s)) {}
 
     Store store;
 
@@ -138,12 +138,12 @@ public:
     }
 };
 
-ClusterSNNGraphLeiden_Result cluster_snn_graph_leiden(const BuildSNNGraph_Result& graph, double resolution, bool use_modularity) {
-    scran::ClusterSNNGraphLeiden clust;
+ClusterSnnGraphLeiden_Result cluster_snn_graph_leiden(const BuildSnnGraph_Result& graph, double resolution, bool use_modularity) {
+    scran::ClusterSnnGraphLeiden clust;
     clust.set_resolution(resolution);
     clust.set_modularity(use_modularity);
     auto output = clust.run(graph.graph);
-    return ClusterSNNGraphLeiden_Result(std::move(output));
+    return ClusterSnnGraphLeiden_Result(std::move(output));
 }
 
 /**********************************/
@@ -151,29 +151,29 @@ ClusterSNNGraphLeiden_Result cluster_snn_graph_leiden(const BuildSNNGraph_Result
 EMSCRIPTEN_BINDINGS(cluster_snn_graph) {
     emscripten::function("build_snn_graph", &build_snn_graph);
 
-    emscripten::class_<BuildSNNGraph_Result>("BuildSNNGraph_Result");
+    emscripten::class_<BuildSnnGraph_Result>("BuildSnnGraph_Result");
 
     emscripten::function("cluster_snn_graph_multilevel", &cluster_snn_graph_multilevel);
 
-    emscripten::class_<ClusterSNNGraphMultiLevel_Result>("ClusterSNNGraphMultiLevel_Result")
-        .function("number", &ClusterSNNGraphMultiLevel_Result::number)
-        .function("best", &ClusterSNNGraphMultiLevel_Result::best)
-        .function("modularity", &ClusterSNNGraphMultiLevel_Result::modularity)
-        .function("membership", &ClusterSNNGraphMultiLevel_Result::membership)
+    emscripten::class_<ClusterSnnGraphMultiLevel_Result>("ClusterSnnGraphMultiLevel_Result")
+        .function("number", &ClusterSnnGraphMultiLevel_Result::number)
+        .function("best", &ClusterSnnGraphMultiLevel_Result::best)
+        .function("modularity", &ClusterSnnGraphMultiLevel_Result::modularity)
+        .function("membership", &ClusterSnnGraphMultiLevel_Result::membership)
         ;
 
     emscripten::function("cluster_snn_graph_walktrap", &cluster_snn_graph_walktrap);
 
-    emscripten::class_<ClusterSNNGraphWalktrap_Result>("ClusterSNNGraphWalktrap_Result")
-        .function("modularity", &ClusterSNNGraphWalktrap_Result::modularity)
-        .function("membership", &ClusterSNNGraphWalktrap_Result::membership)
-        .function("num_merge_steps", &ClusterSNNGraphWalktrap_Result::num_merge_steps)
+    emscripten::class_<ClusterSnnGraphWalktrap_Result>("ClusterSnnGraphWalktrap_Result")
+        .function("modularity", &ClusterSnnGraphWalktrap_Result::modularity)
+        .function("membership", &ClusterSnnGraphWalktrap_Result::membership)
+        .function("num_merge_steps", &ClusterSnnGraphWalktrap_Result::num_merge_steps)
         ;
 
     emscripten::function("cluster_snn_graph_leiden", &cluster_snn_graph_leiden);
 
-    emscripten::class_<ClusterSNNGraphLeiden_Result>("ClusterSNNGraphLeiden_Result")
-        .function("modularity", &ClusterSNNGraphLeiden_Result::modularity)
-        .function("membership", &ClusterSNNGraphLeiden_Result::membership)
+    emscripten::class_<ClusterSnnGraphLeiden_Result>("ClusterSnnGraphLeiden_Result")
+        .function("modularity", &ClusterSnnGraphLeiden_Result::modularity)
+        .function("membership", &ClusterSnnGraphLeiden_Result::membership)
         ;
 }

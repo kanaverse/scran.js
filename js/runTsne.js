@@ -49,7 +49,7 @@ export class InitializeTSNEResults {
 
     /**
      * @return {number} Number of iterations processed so far.
-     * This will change with repeated invocations of {@linkcode runTSNE} on this object.
+     * This will change with repeated invocations of {@linkcode runTsne} on this object.
      */
     iterations () {
         return this.#status.iterations();
@@ -150,17 +150,17 @@ export function initializeTSNE(x, { perplexity = 30, checkMismatch = true, numbe
  * Run the t-SNE algorithm on an initialized {@linkplain InitializeTSNEResults}.
  *
  * @param {InitializeTSNEResults} x A previously initialized status object from {@linkcode initializeTSNE}.
- * This may be passed through {@linkcode runTSNE} any number of times.
+ * This may be passed through {@linkcode runTsne} any number of times.
  * @param {object} [options={}] - Optional parameters.
  * @param {number} [options.maxIterations=1000] - Maximum number of iterations to perform.
- * This number includes all existing iterations that were already performed in `x` from previous calls to {@linkcode runTSNE}.
+ * This number includes all existing iterations that were already performed in `x` from previous calls to {@linkcode runTsne}.
  * @param {?number} [options.runTime=null] - Number of milliseconds for which the algorithm is allowed to run before returning.
  * If `null`, no limit is imposed on the runtime.
  *
  * @return The algorithm status in `x` is advanced up to the requested number of iterations,
  * or until the requested run time is exceeded, whichever comes first.
  */
-export function runTSNE(x, { maxIterations = 1000, runTime = null } = {}) {
+export function runTsne(x, { maxIterations = 1000, runTime = null } = {}) {
     if (runTime === null) {
         runTime = -1;
     }

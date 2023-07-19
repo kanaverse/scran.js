@@ -50,7 +50,7 @@ test("clusterKmeans works as expected from PCs", () => {
     var ngenes = 1000;
     var ncells = 100;
     var mat = simulate.simulateMatrix(ngenes, ncells);
-    var pca = scran.runPCA(mat);
+    var pca = scran.runPca(mat);
 
     // Trying with the PCs.
     var auto = scran.clusterKmeans(pca, 10);

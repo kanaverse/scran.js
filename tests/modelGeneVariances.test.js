@@ -11,7 +11,7 @@ test("Variance modelling works as expected", () => {
 
     var mat = simulate.simulateMatrix(ngenes, ncells);
     var norm = scran.logNormCounts(mat);
-    var res = scran.modelGeneVar(norm);
+    var res = scran.modelGeneVariances(norm);
 
     // Some cursory tests.
     expect(res.numberOfBlocks()).toBe(1);
@@ -38,19 +38,19 @@ test("Variance modelling works as expected with blocking", () => {
     var half = ncells / 2;
     block.fill(0, 0, half);
     block.fill(1, half, ncells);
-    var res = scran.modelGeneVar(norm, { block: block });
+    var res = scran.modelGeneVariances(norm, { block: block });
 
     var discard1 = new Array(ncells);
     discard1.fill(0, 0, half);
     discard1.fill(1, half, ncells);
     var sub1 = scran.filterCells(norm, discard1);
-    var res1 = scran.modelGeneVar(sub1);
+    var res1 = scran.modelGeneVariances(sub1);
 
     var discard2 = new Array(ncells);
     discard2.fill(1, 0, half);
     discard2.fill(0, half, ncells);
     var sub2 = scran.filterCells(norm, discard2);
-    var res2 = scran.modelGeneVar(sub2);
+    var res2 = scran.modelGeneVariances(sub2);
 
     // Comparing results.
     expect(compare.equalFloatArrays(res.means({ block: 0 }), res1.means())).toBe(true);

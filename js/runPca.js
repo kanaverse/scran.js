@@ -2,10 +2,10 @@ import * as gc from "./gc.js";
 import * as utils from "./utils.js";
 
 /** 
- * Wrapper for the PCA results on the Wasm heap, typically created by {@linkcode runPCA}.
+ * Wrapper for the PCA results on the Wasm heap, typically created by {@linkcode runPca}.
  * @hideconstructor
  */
-export class RunPCAResults {
+export class RunPcaResults {
     #id;
     #results;
 
@@ -50,7 +50,7 @@ export class RunPCAResults {
      * equal to the sum of the variances across all PCs (including those that were not explicitly computed).
      *
      * @return Total varaiance in this object is set to `total`.
-     * This is primarily intended for use with {@linkcode emptyRunPCAResults}.
+     * This is primarily intended for use with {@linkcode emptyRunPcaResults}.
      */
     setTotalVariance(total) {
         if (!this.#filledTotalVariance) {
@@ -147,9 +147,9 @@ export class RunPCAResults {
  * @param {?number} [options.numberOfThreads=null] - Number of threads to use.
  * If `null`, defaults to {@linkcode maximumThreads}.
  *
- * @return {RunPCAResults} Object containing the computed PCs.
+ * @return {RunPcaResults} Object containing the computed PCs.
  */
-export function runPCA(x, { features = null, numberOfPCs = 25, scale = false, block = null, blockMethod = "regress", numberOfThreads = null } = {}) {
+export function runPca(x, { features = null, numberOfPCs = 25, scale = false, block = null, blockMethod = "regress", numberOfThreads = null } = {}) {
     var feat_data;
     var block_data;
     var output;
@@ -177,7 +177,7 @@ export function runPCA(x, { features = null, numberOfPCs = 25, scale = false, bl
         if (block === null || blockMethod == 'none') {
             output = gc.call(
                 module => module.run_pca(x.matrix, numberOfPCs, use_feat, fptr, scale, nthreads),
-                RunPCAResults
+                RunPcaResults
             );
 
         } else {
@@ -188,12 +188,12 @@ export function runPCA(x, { features = null, numberOfPCs = 25, scale = false, bl
             if (blockMethod == "regress") {
                 output = gc.call(
                     module => module.run_blocked_pca(x.matrix, numberOfPCs, use_feat, fptr, scale, block_data.offset, nthreads),
-                    RunPCAResults
+                    RunPcaResults
                 );
             } else if (blockMethod == "weight") {
                 output = gc.call(
                     module => module.run_multibatch_pca(x.matrix, numberOfPCs, use_feat, fptr, scale, block_data.offset, nthreads),
-                    RunPCAResults
+                    RunPcaResults
                 );
             } else {
                 throw new Error("unknown value '" + blockMethod + "' for 'blockMethod='");

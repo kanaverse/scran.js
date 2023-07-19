@@ -26,7 +26,7 @@ add_executable(
     src/log_norm_counts.cpp
     src/median_size_factors.cpp
     src/grouped_size_factors.cpp
-    src/model_gene_var.cpp
+    src/model_gene_variances.cpp
     src/run_pca.cpp
     src/run_tsne.cpp
     src/run_umap.cpp
