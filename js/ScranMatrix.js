@@ -146,33 +146,4 @@ export class ScranMatrix {
     isSparse() {
         return this.#matrix.sparse();
     }
-
-    // Internal use only, by initialize* functions.
-    isReorganized() {
-        return this.#matrix.reorganized();
-    }
-
-    // Internal use only, by initialize* functions.
-    identities({ buffer = null } = {}) {
-        if (buffer != null) {
-            this.#matrix.identities(buffer.offset);
-            return buffer.array();
-        } else {
-            var output;
-            buffer = utils.createInt32WasmArray(this.#matrix.nrow());
-            try {
-                this.#matrix.identities(buffer.offset);
-                output = buffer.slice();
-            } finally {
-                buffer.free();
-            }
-            return output;
-        }
-    }
-
-    // Internal use only, by initialize* functions.
-    wipeIdentities() {
-        this.#matrix.wipe_identities();
-        return;
-    }
 }

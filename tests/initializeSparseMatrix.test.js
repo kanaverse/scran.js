@@ -19,43 +19,39 @@ test("initialization from dense array works correctly", () => {
     vals.set([1, 5, 0, 0, 7, 0, 0, 10, 4, 2, 0, 0, 0, 5, 8]);
 
     var mat = scran.initializeSparseMatrixFromDenseArray(nr, nc, vals);
-    expect(mat.matrix.numberOfRows()).toBe(nr);
-    expect(mat.matrix.numberOfColumns()).toBe(nc);
-    expect(mat.matrix.isSparse()).toBe(true);
-    expect(mat.row_ids.length).toBe(nr);
+    expect(mat.numberOfRows()).toBe(nr);
+    expect(mat.numberOfColumns()).toBe(nc);
+    expect(mat.isSparse()).toBe(true);
 
     // Compare to a non-layered initialization.
     var mat2 = scran.initializeSparseMatrixFromDenseArray(nr, nc, vals, { layered: false });
-    expect(mat2.matrix.numberOfRows()).toBe(nr);
-    expect(mat2.matrix.numberOfColumns()).toBe(nc);
-    expect(mat2.matrix.isSparse()).toBe(true);
-    expect(mat2.row_ids).toBeNull();
+    expect(mat2.numberOfRows()).toBe(nr);
+    expect(mat2.numberOfColumns()).toBe(nc);
+    expect(mat2.isSparse()).toBe(true);
 
     // Compare to a dense initialization.
     var dense = scran.initializeDenseMatrixFromDenseArray(nr, nc, vals);
     expect(dense.numberOfRows()).toBe(nr);
     expect(dense.numberOfColumns()).toBe(nc);
-    expect(dense.isReorganized()).toBe(false);
-    expect(dense.isSparse()).toBe(false);
 
     // Properly column-major.
     for (var i = 0; i < nc; i++) {
         let ref = vals.slice(i * nr, (i + 1) * nr);
-        expect(compare.equalArrays(mat.matrix.column(i), ref)).toBe(true);
-        expect(compare.equalArrays(mat2.matrix.column(i), ref)).toBe(true);
+        expect(compare.equalArrays(mat.column(i), ref)).toBe(true);
+        expect(compare.equalArrays(mat2.column(i), ref)).toBe(true);
         expect(compare.equalArrays(dense.column(i), ref)).toBe(true);
     }
 
     // Extraction works with pre-supplied buffers.
     let row_buf = scran.createFloat64WasmArray(nc);
-    expect(compare.equalArrays(mat.matrix.row(1, { buffer: row_buf }), [5, 7, 10, 0, 5])).toBe(true);
+    expect(compare.equalArrays(mat.row(1, { buffer: row_buf }), [5, 7, 10, 0, 5])).toBe(true);
     let col_buf = scran.createFloat64WasmArray(nr);
-    expect(compare.equalArrays(mat.matrix.column(2, { buffer: col_buf }), [0, 10, 4])).toBe(true);
+    expect(compare.equalArrays(mat.column(2, { buffer: col_buf }), [0, 10, 4])).toBe(true);
 
     // freeing everything.
     vals.free();
-    mat.matrix.free();
-    mat2.matrix.free();
+    mat.free();
+    mat2.free();
     dense.free();
     col_buf.free();
     row_buf.free();
@@ -77,26 +73,17 @@ test("forced integers from dense array works correctly", () => {
         let ref = vals.slice(i * nr, (i + 1) * nr);
         let trunc = ref.map(Math.trunc);
 
-        expect(compare.equalArrays(smat1.matrix.column(i), trunc)).toBe(true);
-        expect(compare.equalArrays(smat2.matrix.column(i), ref)).toBe(true);
+        expect(compare.equalArrays(smat1.column(i), trunc)).toBe(true);
+        expect(compare.equalArrays(smat2.column(i), ref)).toBe(true);
         expect(compare.equalArrays(dmat1.column(i), trunc)).toBe(true);
         expect(compare.equalArrays(dmat2.column(i), ref)).toBe(true);
         expect(compare.equalArrays(dmat_default.column(i), ref)).toBe(true);
     }
 
-    // Layering is automatically performed if the values are already integers,
-    // even if forceInteger = false.
-    var vals2 = scran.createInt32WasmArray(15);
-    let arr2 = vals2.array();
-    vals.forEach((y, i) => { arr2[i] = Math.trunc(y) });
-    var smat3 = scran.initializeSparseMatrixFromDenseArray(nr, nc, vals2, { forceInteger: false });
-    expect(smat3.row_ids.length).toBe(nr);
-
     // Cleaning up.
     vals.free();
-    smat1.matrix.free();
-    smat2.matrix.free();
-    smat3.matrix.free();
+    smat1.free();
+    smat2.free();
     dmat1.free();
     dmat2.free();
     dmat_default.free();
@@ -110,25 +97,24 @@ test("initialization from compressed values works correctly", () => {
     var indptrs = scran.createInt32WasmArray(11);
     indptrs.set([0, 2, 3, 6, 9, 11, 11, 12, 12, 13, 15]);
 
-    var mat = scran.initializeSparseMatrixFromCompressedVectors(11, 10, vals, indices, indptrs, { layered: false });
-    expect(mat.matrix.numberOfRows()).toBe(11);
-    expect(mat.matrix.numberOfColumns()).toBe(10);
-    expect(mat.matrix.isSparse()).toBe(true);
-    expect(mat.row_ids).toBeNull();
+    var mat = scran.initializeSparseMatrixFromCompressedVectors(10, 11, vals, indices, indptrs, { layered: false });
+    expect(mat.numberOfRows()).toBe(10);
+    expect(mat.numberOfColumns()).toBe(11);
+    expect(mat.isSparse()).toBe(true);
 
-    // Extracting the first and last columns to check for correctness.
-    expect(compare.equalArrays(mat.matrix.column(0), [0, 0, 0, 1, 0, 5, 0, 0, 0, 0, 0])).toBe(true);
-    expect(compare.equalArrays(mat.matrix.column(9), [0, 0, 0, 0, 0, 0, 5, 0, 0, 8, 0])).toBe(true);
+    // Extracting the first and last rows to check for correctness.
+    expect(compare.equalArrays(mat.row(0), [0, 0, 0, 1, 0, 5, 0, 0, 0, 0, 0])).toBe(true);
+    expect(compare.equalArrays(mat.row(9), [0, 0, 0, 0, 0, 0, 5, 0, 0, 8, 0])).toBe(true);
 
     // Doing the same for the rows.
-    expect(compare.equalArrays(mat.matrix.row(0), [0, 0, 3, 0, 0, 0, 0, 0, 0, 0])).toBe(true);
-    expect(compare.equalArrays(mat.matrix.row(9), [0, 0, 8, 0, 0, 0, 0, 0, 0, 8])).toBe(true);
+    expect(compare.equalArrays(mat.column(0), [0, 0, 3, 0, 0, 0, 0, 0, 0, 0])).toBe(true);
+    expect(compare.equalArrays(mat.column(9), [0, 0, 8, 0, 0, 0, 0, 0, 0, 8])).toBe(true);
 
     // Cleaning up.
     vals.free();
     indices.free();
     indptrs.free();
-    mat.matrix.free();
+    mat.free();
 })
 
 test("initialization from compressed values works with forced integers", () => {
@@ -139,36 +125,28 @@ test("initialization from compressed values works with forced integers", () => {
     var indptrs = scran.createInt32WasmArray(11);
     indptrs.set([0, 2, 3, 6, 9, 11, 11, 12, 12, 13, 15]);
 
-    var mat1 = scran.initializeSparseMatrixFromCompressedVectors(9, 10, vals, indices, indptrs, { forceInteger: false });
-    expect(mat1.row_ids).toBeNull(); // no layering is performed when we're not forcing integers.
-    expect(compare.equalArrays(mat1.matrix.column(0), [0, 0, 0, 1.2, 0, 5.3, 0, 0, 0])).toBe(true);
+    var mat1 = scran.initializeSparseMatrixFromCompressedVectors(10, 9, vals, indices, indptrs, { forceInteger: false });
+    expect(compare.equalArrays(mat1.matrix.row(0), [0, 0, 0, 1.2, 0, 5.3, 0, 0, 0])).toBe(true);
+    expect(compare.equalArrays(mat1.matrix.row(10), [0, 0, 0, 0, 0, 0, 5.7, 8.8, 0])).toBe(true);
 
     var mat2 = scran.initializeSparseMatrixFromCompressedVectors(9, 10, vals, indices, indptrs, { layered: false });
     for (var i = 0; i < 10; i++) {
-        let col1 = mat1.matrix.column(i);
+        let col1 = mat1.column(i);
         let trunc = col1.map(Math.trunc);
-        let col2 = mat2.matrix.column(i);
+        let col2 = mat2.column(i);
         expect(compare.equalArrays(col2, trunc)).toBe(true);
     }
-
-    // Layering is automatically performed if the values are already integers,
-    // even if forceInteger = false.
-    var vals2 = scran.createInt32WasmArray(15);
-    let arr2 = vals2.array();
-    vals.forEach((y, i) => { arr2[i] = Math.trunc(y) });
-    var mat3 = scran.initializeSparseMatrixFromCompressedVectors(9, 10, vals2, indices, indptrs, { forceInteger: false });
-    expect(mat3.row_ids.length).toBe(9);
 
     // Cleaning up.
     vals.free();
     indices.free();
     indptrs.free();
-    mat1.matrix.free();
-    mat2.matrix.free();
-    mat3.matrix.free();
+    mat1.free();
+    mat2.free();
+    mat3.free();
 })
 
-test("initialization from compressed values works with reorganization", () => {
+test("initialization from compressed values works with layering", () => {
     var vals = scran.createInt32WasmArray(15);
     vals.set([1, 5, 2, 1000000, 10, 8, 1000, 10, 4, 2, 1, 1, 3, 5, 8]); // first two rows contain elements beyond the range.
     var indices = scran.createInt32WasmArray(15);
@@ -176,25 +154,20 @@ test("initialization from compressed values works with reorganization", () => {
     var indptrs = scran.createInt32WasmArray(11);
     indptrs.set([0, 2, 3, 6, 9, 11, 11, 12, 12, 13, 15]);
 
-    var mat = scran.initializeSparseMatrixFromCompressedVectors(11, 10, vals, indices, indptrs);
-    expect(mat.matrix.numberOfRows()).toBe(11);
-    expect(mat.matrix.numberOfColumns()).toBe(10);
-    expect(mat.row_ids.length).toBe(11);
-
-    // Extracting the row identities.
-    var ids = mat.row_ids;
-    expect(compare.equalArrays(ids, [2, 3, 4, 5, 6, 7, 8, 9, 10, 1, 0])).toBe(true);
+    var mat = scran.initializeSparseMatrixFromCompressedVectors(11, 10, vals, indices, indptrs, { byRow: false });
+    expect(mat.numberOfRows()).toBe(11);
+    expect(mat.numberOfColumns()).toBe(10);
 
     // Checking the contents. 
-    expect(compare.equalArrays(mat.matrix.row(0), [0, 0, 10, 10, 0, 0, 0, 0, 0, 0])).toBe(true); // basically gets row 2, which has been promoted to the first row.
-    expect(compare.equalArrays(mat.matrix.row(9), [0, 0, 0, 1000, 0, 0, 0, 0, 0, 0])).toBe(true); // gets row 1, which has been demoted to the second-last row.
-    expect(compare.equalArrays(mat.matrix.row(10), [0, 0, 1000000, 0, 0, 0, 0, 0, 0, 0])).toBe(true); // gets row 0, which has been demoted to the last row.
+    expect(compare.equalArrays(mat.row(2), [0, 0, 10, 10, 0, 0, 0, 0, 0, 0])).toBe(true); 
+    expect(compare.equalArrays(mat.row(1), [0, 0, 0, 1000, 0, 0, 0, 0, 0, 0])).toBe(true); 
+    expect(compare.equalArrays(mat.row(0), [0, 0, 1000000, 0, 0, 0, 0, 0, 0, 0])).toBe(true); 
 
     // Cleaning up.
     vals.free();
     indices.free();
     indptrs.free();
-    mat.matrix.free();
+    mat.free();
 })
 
 function convertToMatrixMarket(nr, nc, data, indices, indptrs) {
@@ -222,29 +195,20 @@ test("simple initialization from MatrixMarket works correctly", () => {
     buffer.set(raw_buffer);
 
     var mat = scran.initializeSparseMatrixFromMatrixMarket(buffer, { layered: false });
-    expect(mat.matrix.numberOfRows()).toBe(nr);
-    expect(mat.matrix.numberOfColumns()).toBe(nc);
-    expect(mat.row_ids).toBeNull();
+    expect(mat.numberOfRows()).toBe(nr);
+    expect(mat.numberOfColumns()).toBe(nc);
 
     // Also works if we dump it into a file.
     const path = dir + "/test.mtx";
     fs.writeFileSync(path, content);
     var mat2 = scran.initializeSparseMatrixFromMatrixMarket(path, { layered: false });
 
-    expect(mat2.matrix.numberOfRows()).toBe(nr);
-    expect(mat2.matrix.numberOfColumns()).toBe(nc);
-    expect(mat2.row_ids).toBeNull();
+    expect(mat2.numberOfRows()).toBe(nr);
+    expect(mat2.numberOfColumns()).toBe(nc);
 
     // Works with layered matrices.
     var lmat = scran.initializeSparseMatrixFromMatrixMarket(buffer);
-    let ids = lmat.row_ids;
-    expect(ids.length).toBe(nr);
     var lmat2 = scran.initializeSparseMatrixFromMatrixMarket(path);
-    expect(lmat2.row_ids.length).toBe(nr);
-
-    expect(compare.equalArrays(ids, lmat2.row_ids)).toBe(true);
-    expect(compare.areIndicesConsecutive(ids)).toBe(false);
-    expect(compare.areIndicesConsecutive(ids.slice().sort())).toBe(true);
 
     // Same results compared to naive iteration.
     for (var c = 0; c < nc; c++) {
@@ -253,15 +217,15 @@ test("simple initialization from MatrixMarket works correctly", () => {
         for (var j = indptrs[c]; j < indptrs[c+1]; j++) {
             ref[indices[j]] = data[j];
         }
-        expect(compare.equalArrays(mat.matrix.column(c), ref)).toBe(true);
-        expect(compare.equalArrays(mat2.matrix.column(c), ref)).toBe(true);
+        expect(compare.equalArrays(mat.column(c), ref)).toBe(true);
+        expect(compare.equalArrays(mat2.column(c), ref)).toBe(true);
 
         let lref = new Array(nr);
         ids.forEach((x, i) => {
             lref[i] = ref[x];
         });
-        expect(compare.equalArrays(lmat.matrix.column(c), lref)).toBe(true);
-        expect(compare.equalArrays(lmat2.matrix.column(c), lref)).toBe(true);
+        expect(compare.equalArrays(lmat.column(c), lref)).toBe(true);
+        expect(compare.equalArrays(lmat2.column(c), lref)).toBe(true);
     }
 
     // Inspection of dimensions works correctly.
@@ -269,10 +233,12 @@ test("simple initialization from MatrixMarket works correctly", () => {
     expect(deets).toEqual({ rows: nr, columns: nc, lines: data.length });
     let deets2 = scran.extractMatrixMarketDimensions(buffer);
     expect(deets).toEqual(deets2);
- 
+
     // Cleaning up.
-    mat.matrix.free();
-    mat2.matrix.free();
+    mat.free();
+    lmat.free();
+    mat2.free();
+    lmat2.free();
     buffer.free();
 })
 
@@ -284,18 +250,17 @@ test("initialization from Gzipped MatrixMarket works correctly with Gzip", () =>
     buffer.set(raw_buffer);
 
     var mat = scran.initializeSparseMatrixFromMatrixMarket(buffer);
-    expect(mat.matrix.numberOfRows()).toBe(11);
-    expect(mat.matrix.numberOfColumns()).toBe(5);
-    expect(mat.row_ids.length).toBe(11);
+    expect(mat.numberOfRows()).toBe(11);
+    expect(mat.numberOfColumns()).toBe(5);
 
-    expect(compare.equalArrays(mat.matrix.row(0), [0, 5, 0, 0, 8])).toBe(true);
-    expect(compare.equalArrays(mat.matrix.column(2), [0, 0, 0, 0, 0, 2, 0, 0, 0, 2, 0])).toBe(true);
+    expect(compare.equalArrays(mat.row(0), [0, 5, 0, 0, 8])).toBe(true);
+    expect(compare.equalArrays(mat.column(2), [0, 0, 0, 0, 0, 2, 0, 0, 0, 2, 0])).toBe(true);
     
     // Just checking that the it's actually compressed.
     var mat2 = scran.initializeSparseMatrixFromMatrixMarket(buffer, { compressed: true });
-    expect(mat2.matrix.numberOfRows()).toBe(11);
-    expect(mat2.matrix.numberOfColumns()).toBe(5);
-    expect(compare.equalArrays(mat2.matrix.row(4), mat.matrix.row(4))).toBe(true);
+    expect(mat2.numberOfRows()).toBe(11);
+    expect(mat2.numberOfColumns()).toBe(5);
+    expect(compare.equalArrays(mat2.row(4), mat.row(4))).toBe(true);
 
     // Also works if we dump it into a file.
     const path = dir + "/test.mtx.gz";
@@ -304,10 +269,10 @@ test("initialization from Gzipped MatrixMarket works correctly with Gzip", () =>
 
     expect(mat3.matrix.numberOfRows()).toBe(11);
     expect(mat3.matrix.numberOfColumns()).toBe(5);
-    expect(compare.equalArrays(mat3.matrix.row(5), mat.matrix.row(5))).toBe(true);
+    expect(compare.equalArrays(mat3.matrix.row(5), mat.row(5))).toBe(true);
 
     // Cleaning up.
-    mat.matrix.free();
-    mat2.matrix.free();
+    mat.free();
+    mat2.free();
     buffer.free();
 })

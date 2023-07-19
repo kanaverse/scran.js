@@ -70,23 +70,23 @@ NumericMatrix initialize_sparse_matrix_internal(size_t nrows, size_t ncols, size
     uintptr_t values, const std::string& value_type,
     uintptr_t indices, const std::string& index_type,
     uintptr_t indptrs, const std::string& indptr_type,
-    bool csc, bool layered)
+    bool by_row, bool layered)
 {
     auto val = create_SomeNumericArray<T>(values, nelements, value_type);
     auto idx = create_SomeNumericArray<int>(indices, nelements, index_type);
 
-    if (csc && !layered) {
-        // Directly creating a CSC matrix.
+    if (by_row && !layered) {
+        // Directly creating a CSR matrix.
         auto ind = create_SomeNumericArray<size_t>(indptrs, ncols + 1, indptr_type);
         return copy_into_sparse<T>(nrows, ncols, val, idx, ind);
     } else {
         std::shared_ptr<tatami::Matrix<T, int> > mat;
-        if (csc) {
-            auto ind = create_SomeNumericArray<size_t>(indptrs, ncols + 1, indptr_type);
-            mat.reset(new tatami::CompressedSparseColumnMatrix<T, int, decltype(val), decltype(idx), decltype(ind)>(nrows, ncols, val, idx, ind));
-        } else {
+        if (by_row) {
             auto ind = create_SomeNumericArray<size_t>(indptrs, nrows + 1, indptr_type);
             mat.reset(new tatami::CompressedSparseRowMatrix<T, int, decltype(val), decltype(idx), decltype(ind)>(nrows, ncols, val, idx, ind));
+        } else {
+            auto ind = create_SomeNumericArray<size_t>(indptrs, ncols + 1, indptr_type);
+            mat.reset(new tatami::CompressedSparseColumnMatrix<T, int, decltype(val), decltype(idx), decltype(ind)>(nrows, ncols, val, idx, ind));
         }
         return sparse_from_tatami(mat.get(), layered);
     }
@@ -96,12 +96,12 @@ NumericMatrix initialize_sparse_matrix(size_t nrows, size_t ncols, size_t neleme
     uintptr_t values, std::string value_type,
     uintptr_t indices, std::string index_type,
     uintptr_t indptrs, std::string indptr_type,
-    bool csc, bool force_integer, bool layered)
+    bool by_row, bool force_integer, bool layered)
 {
     if (force_integer || is_type_integer(value_type)) {
-        return initialize_sparse_matrix_internal<int>(nrows, ncols, nelements, values, value_type, indices, index_type, indptrs, indptr_type, csc, layered);
+        return initialize_sparse_matrix_internal<int>(nrows, ncols, nelements, values, value_type, indices, index_type, indptrs, indptr_type, by_row, layered);
     } else {
-        return initialize_sparse_matrix_internal<double>(nrows, ncols, nelements, values, value_type, indices, index_type, indptrs, indptr_type, csc, false);
+        return initialize_sparse_matrix_internal<double>(nrows, ncols, nelements, values, value_type, indices, index_type, indptrs, indptr_type, by_row, false);
     }
 }
 
