@@ -33,7 +33,7 @@ export function quickAdtSizeFactors(x, { numberOfClusters = 20, numberOfPCs = 25
     let norm, pcs;
     try {
         norm = logNormCounts(x, { sizeFactors: totals, block: block });
-        pcs = runPca(norm, { numberOfPCs: Math.min(norm.numberOfRows() - 1, numberOfPCs), numberOfThreads: numberOfThreads, block: block, blockMethod: "weight" });
+        pcs = runPca(norm, { numberOfPCs: Math.min(norm.numberOfRows() - 1, numberOfPCs), numberOfThreads: numberOfThreads, block: block, blockMethod: "project" });
     } finally {
         utils.free(norm);
     }

@@ -52,11 +52,14 @@ test("PCA works as expected with blocking", () => {
 
     var block = new Int32Array(ncells);
     var nblocks = 4;
-    for (var i = 0; i < ncells; i++) {
-        block[i] = Math.floor(Math.random() * nblocks);
-    }
-    for (var j = 0; j < nblocks; j++) {
-        block[j] = j;
+    var i = 0;
+    while (i < ncells) {
+        for (var b = 0; b < nblocks; b++) {
+            for (var j = 0; j <= b && i < ncells; j++) {
+                block[i] = b;
+                ++i;
+            }
+        }
     }
 
     var pca = scran.runPca(mat, { features: feat, numberOfPCs: 15 });
@@ -71,15 +74,10 @@ test("PCA works as expected with blocking", () => {
     expect(pca.numberOfCells()).toBe(weighted.numberOfCells());
     expect(compare.equalFloatArrays(pca.principalComponents(), weighted.principalComponents())).toBe(false);
 
-    var none = scran.runPca(mat, { features: feat, numberOfPCs: 15, block: block, blockMethod: "none" });
-    expect(pca.numberOfPCs()).toBe(none.numberOfPCs());
-    expect(pca.numberOfCells()).toBe(none.numberOfCells());
-    expect(compare.equalFloatArrays(pca.principalComponents(), none.principalComponents())).toBe(false);
-
     var none2 = scran.runPca(mat, { features: feat, numberOfPCs: 15, block: block, blockMethod: "none", blockWeights: false });
     expect(pca.numberOfPCs()).toBe(none2.numberOfPCs());
     expect(pca.numberOfCells()).toBe(none2.numberOfCells());
-    expect(compare.equalFloatArrays(pca.principalComponents(), none2.principalComponents())).toBe(true);
+    expect(compare.equalArrays(pca.principalComponents(), none2.principalComponents())).toBe(true); // should be exactly equal.
 
     expect(() => scran.runPca(mat, { features: feat, numberOfPCs: 15, block: block, blockMethod: "foobar" })).toThrow("should be one of");
 });

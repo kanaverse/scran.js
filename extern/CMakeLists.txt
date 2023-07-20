@@ -77,14 +77,14 @@ FetchContent_MakeAvailable(umappp)
 FetchContent_Declare(
   scran 
   GIT_REPOSITORY https://github.com/LTLA/libscran
-  GIT_TAG 591bd6fabd573ad5762c8efea257a114821c92c9
+  GIT_TAG da495dad607bed894cbcbb7ed811fa8d4983d576
 )
 FetchContent_MakeAvailable(scran)
 
 FetchContent_Declare(
   kmeans 
   GIT_REPOSITORY https://github.com/LTLA/CppKmeans
-  GIT_TAG master
+  GIT_TAG 4c5aca44bffd8ed7d7243b2451105b572028e9d4
 )
 FetchContent_MakeAvailable(kmeans)
 
