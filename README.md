@@ -106,7 +106,6 @@ Reference documentation for the Javascript API is available [here](https://kanav
 
 Specific topics are discussed in more detail below:
 
-- [Terminate upon completion](docs/related/termination.md)
 - [Manually free memory](docs/related/memory_management.md)
 - [Use k-means clustering](docs/related/kmeans_clustering.md)
 - [Annotate cell types against references](docs/related/cell_type_annotation.md)

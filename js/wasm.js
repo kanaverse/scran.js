@@ -80,8 +80,8 @@ export function wasmArraySpace() {
 
 /**
  * @return All worker threads are terminated and the module is deleted from the cache.
- * This is useful for cleaning up at the end of the analysis,
- * otherwise the workers will be shut done ungracefully on program exit.
+ * This is useful for releasing thread resources at the end of the analysis when **scran.js** functions are no longer required.
+ * Of course, workers will automatically shut down on program exit anyway, so calling this function is not essential.
  */
 export function terminate() {
     cache.module.PThread.terminateAllThreads();
