@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>SuggestAdtQcFiltersResults - Documentation</title>
+    <title>RunPcaResults - Documentation</title>
     
     
     <script src="scripts/prettify/prettify.js"></script>
@@ -34,7 +34,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">SuggestAdtQcFiltersResults</h1>
+    <h1 class="page-title">RunPcaResults</h1>
     
 
     
@@ -47,10 +47,10 @@
 <header>
     
         <h2>
-        SuggestAdtQcFiltersResults
+        RunPcaResults
         </h2>
         
-            <div class="class-description usertext"><p>Wrapper class for the ADT-based QC filtering results, produced by <a href="global.html#suggestAdtQcFilters"><code>suggestAdtQcFilters</code></a>.</p></div>
+            <div class="class-description usertext"><p>Wrapper for the PCA results on the Wasm heap, typically created by <a href="global.html#runPca"><code>runPca</code></a>.</p></div>
         
     
 </header>
@@ -66,7 +66,7 @@
         <h3 class="subsection-title">Classes</h3>
 
         <dl>
-            <dt><a href="SuggestAdtQcFiltersResults.html">SuggestAdtQcFiltersResults</a></dt>
+            <dt><a href="RunPcaResults.html">RunPcaResults</a></dt>
             <dd></dd>
         </dl>
     
@@ -87,338 +87,6 @@
 
     
 
-    <h4 class="name" id="filter"><span class="type-signature"></span>filter<span class="signature">(metrics, options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Uint8Array}</span></h4>
-
-    
-
-
-
-
-<dl class="details">
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="suggestAdtQcFilters.js.html">suggestAdtQcFilters.js</a>, <a href="suggestAdtQcFilters.js.html#line70">line 70</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Attributes</th>
-        
-
-        
-        <th>Default</th>
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>metrics</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="PerCellAdtQcMetricsResults.html">PerCellAdtQcMetricsResults</a></span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                </td>
-            
-
-            <td class="description last"><p>Per-cell QC metrics, usually computed by <a href="global.html#perCellAdtQcMetrics"><code>perCellAdtQcMetrics</code></a>.</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>options</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                    <code>{}</code>
-                
-                </td>
-            
-
-            <td class="description last"><p>Optional parameters.</p>
-                <h6>Properties</h6>
-                
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Attributes</th>
-        
-
-        
-        <th>Default</th>
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>block</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Int32WasmArray</span>
-|
-
-<span class="param-type">Array</span>
-|
-
-<span class="param-type">TypedArray</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-                    &lt;nullable><br>
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                    <code>null</code>
-                
-                </td>
-            
-
-            <td class="description last"><p>Array containing the block assignment for each cell in <code>metrics</code>.
-This should have length equal to the number of cells and contain all values in <code>[0, n)</code> where <code>n</code> is the return value of <code>numberOfBlocks</code>.</p>
-<p>Alternatively, this may be <code>null</code>, in which case all cells are assumed to be in the same block.
-This will raise an error if multiple blocks were used to compute the thresholds.</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>buffer</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Uint8WasmArray</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-                    &lt;nullable><br>
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                    <code>null</code>
-                
-                </td>
-            
-
-            <td class="description last"><p>Array of length equal to the number of cells in <code>metrics</code>, to be used to store the low-quality calls.</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-            </td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>Array of length equal to the number of cells in <code>metrics</code>.
-Each entry is truthy if the corresponding cell is deemed to be of low-quality based on its values in <code>metrics</code>.
-If <code>buffer</code> is supplied, the returned array is a view on <code>buffer</code>.</p>
-</div>
-
-
-
-<dl class="param-type">
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">Uint8Array</span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-        
-            
-
-    
-
     <h4 class="name" id="free"><span class="type-signature"></span>free<span class="signature">()</span><span class="type-signature"></span></h4>
 
     
@@ -431,7 +99,7 @@ If <code>buffer</code> is supplied, the returned array is a view on <code>buffer
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="suggestAdtQcFilters.js.html">suggestAdtQcFilters.js</a>, <a href="suggestAdtQcFilters.js.html#line81">line 81</a>
+        <a href="runPca.js.html">runPca.js</a>, <a href="runPca.js.html#line116">line 116</a>
     </li></ul></dd>
     
 
@@ -513,7 +181,7 @@ This invalidates this object and all references to it.</p>
 
     
 
-    <h4 class="name" id="numberOfBlocks"><span class="type-signature"></span>numberOfBlocks<span class="signature">()</span><span class="type-signature"> &rarr; {number}</span></h4>
+    <h4 class="name" id="numberOfCells"><span class="type-signature"></span>numberOfCells<span class="signature">()</span><span class="type-signature"> &rarr; {number}</span></h4>
 
     
 
@@ -525,7 +193,7 @@ This invalidates this object and all references to it.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="suggestAdtQcFilters.js.html">suggestAdtQcFilters.js</a>, <a href="suggestAdtQcFilters.js.html#line52">line 52</a>
+        <a href="runPca.js.html">runPca.js</a>, <a href="runPca.js.html#line106">line 106</a>
     </li></ul></dd>
     
 
@@ -592,7 +260,7 @@ This invalidates this object and all references to it.</p>
 
         
 <div class="param-desc">
-    <p>Number of blocks in this object.</p>
+    <p>Number of cells used to compute these results.</p>
 </div>
 
 
@@ -618,7 +286,7 @@ This invalidates this object and all references to it.</p>
 
     
 
-    <h4 class="name" id="numberOfSubsets"><span class="type-signature"></span>numberOfSubsets<span class="signature">()</span><span class="type-signature"> &rarr; {number}</span></h4>
+    <h4 class="name" id="numberOfPCs"><span class="type-signature"></span>numberOfPCs<span class="signature">()</span><span class="type-signature"> &rarr; {number}</span></h4>
 
     
 
@@ -630,7 +298,7 @@ This invalidates this object and all references to it.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="suggestAdtQcFilters.js.html">suggestAdtQcFilters.js</a>, <a href="suggestAdtQcFilters.js.html#line45">line 45</a>
+        <a href="runPca.js.html">runPca.js</a>, <a href="runPca.js.html#line99">line 99</a>
     </li></ul></dd>
     
 
@@ -697,7 +365,7 @@ This invalidates this object and all references to it.</p>
 
         
 <div class="param-desc">
-    <p>Number of feature subsets in this object.</p>
+    <p>Number of PCs available in these results.</p>
 </div>
 
 
@@ -723,7 +391,7 @@ This invalidates this object and all references to it.</p>
 
     
 
-    <h4 class="name" id="thresholdsDetected"><span class="type-signature"></span>thresholdsDetected<span class="signature">(options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; (nullable) {Float64Array|Float64WasmArray}</span></h4>
+    <h4 class="name" id="principalComponents"><span class="type-signature"></span>principalComponents<span class="signature">(options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; (nullable) {Float64Array|Float64Wasmarray}</span></h4>
 
     
 
@@ -735,7 +403,7 @@ This invalidates this object and all references to it.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="suggestAdtQcFilters.js.html">suggestAdtQcFilters.js</a>, <a href="suggestAdtQcFilters.js.html#line26">line 26</a>
+        <a href="runPca.js.html">runPca.js</a>, <a href="runPca.js.html#line38">line 38</a>
     </li></ul></dd>
     
 
@@ -907,8 +575,48 @@ This invalidates this object and all references to it.</p>
                 </td>
             
 
-            <td class="description last"><p>Whether to copy the results from the Wasm heap, see <a href="global.html#possibleCopy"><code>possibleCopy</code></a>.
-This should be set to <code>false</code> or <code>&quot;view&quot;</code> to modify entries, e.g., after calling creating an instance with <a href="global.html#emptySuggestAdtQcFiltersResults"><code>emptySuggestAdtQcFiltersResults</code></a>.</p></td>
+            <td class="description last"><p>Whether to copy the results from the Wasm heap, see <a href="global.html#possibleCopy"><code>possibleCopy</code></a>.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>fillable</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    <code>false</code>
+                
+                </td>
+            
+
+            <td class="description last"><p>Whether to return a fillable array, to write to this object.
+If <code>true</code>, this method automatically sets <code>copy = false</code> if <code>copy</code> was previously true.
+If <code>false</code> and the array was not previously filled, <code>null</code> is returned.</p></td>
         </tr>
 
     
@@ -941,7 +649,9 @@ This should be set to <code>false</code> or <code>&quot;view&quot;</code> to mod
 
         
 <div class="param-desc">
-    <p>Array containing the filtering threshold on the number of detected ADTs for each batch.</p>
+    <p>Array containing the principal components for all cells.
+This should be treated as a column-major array where the rows are the PCs and columns are the cells.
+Alternatively <code>null</code>, if <code>fillable = false</code> and the array was not already filled.</p>
 </div>
 
 
@@ -955,7 +665,7 @@ This should be set to <code>false</code> or <code>&quot;view&quot;</code> to mod
 <span class="param-type">Float64Array</span>
 |
 
-<span class="param-type">Float64WasmArray</span>
+<span class="param-type">Float64Wasmarray</span>
 
 
     </dd>
@@ -970,7 +680,7 @@ This should be set to <code>false</code> or <code>&quot;view&quot;</code> to mod
 
     
 
-    <h4 class="name" id="thresholdsSubsetTotals"><span class="type-signature"></span>thresholdsSubsetTotals<span class="signature">(i, options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; (nullable) {Float64Array|Float64WasmArray}</span></h4>
+    <h4 class="name" id="setTotalVariance"><span class="type-signature"></span>setTotalVariance<span class="signature">(total)</span><span class="type-signature"></span></h4>
 
     
 
@@ -982,7 +692,258 @@ This should be set to <code>false</code> or <code>&quot;view&quot;</code> to mod
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="suggestAdtQcFilters.js.html">suggestAdtQcFilters.js</a>, <a href="suggestAdtQcFilters.js.html#line38">line 38</a>
+        <a href="runPca.js.html">runPca.js</a>, <a href="runPca.js.html#line55">line 55</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>total</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Total variance in the dataset,
+equal to the sum of the variances across all PCs (including those that were not explicitly computed).</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>Total varaiance in this object is set to <code>total</code>.
+This is primarily intended for use with <code>emptyRunPcaResults</code>.</p>
+</div>
+
+
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="totalVariance"><span class="type-signature"></span>totalVariance<span class="signature">()</span><span class="type-signature"> &rarr; (nullable) {number}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="runPca.js.html">runPca.js</a>, <a href="runPca.js.html#line88">line 88</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>The total variance in the dataset,
+typically used with <code>varianceExplained</code> to compute the proportion of variance explained.
+Alternatively <code>null</code>, if this value has not been filled by <code>setTotalVariance</code>.</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">number</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="varianceExplained"><span class="type-signature"></span>varianceExplained<span class="signature">(options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; (nullable) {Float64Array|Float64WasmArray}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="runPca.js.html">runPca.js</a>, <a href="runPca.js.html#line73">line 73</a>
     </li></ul></dd>
     
 
@@ -1056,41 +1017,6 @@ This should be set to <code>false</code> or <code>&quot;view&quot;</code> to mod
     </thead>
 
     <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>i</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                </td>
-            
-
-            <td class="description last"><p>Index of the feature subset of interest.</p></td>
-        </tr>
-
     
 
         <tr>
@@ -1189,8 +1115,48 @@ This should be set to <code>false</code> or <code>&quot;view&quot;</code> to mod
                 </td>
             
 
-            <td class="description last"><p>Whether to copy the results from the Wasm heap, see <a href="global.html#possibleCopy"><code>possibleCopy</code></a>.
-This should be set to <code>false</code> or <code>&quot;view&quot;</code> to modify entries, e.g., after calling creating an instance with <a href="global.html#emptySuggestAdtQcFiltersResults"><code>emptySuggestAdtQcFiltersResults</code></a>.</p></td>
+            <td class="description last"><p>Whether to copy the results from the Wasm heap, see <a href="global.html#possibleCopy"><code>possibleCopy</code></a>.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>fillable</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    <code>false</code>
+                
+                </td>
+            
+
+            <td class="description last"><p>Whether to return a fillable array, to write to this object.
+If <code>true</code>, this method automatically sets <code>copy = false</code> if <code>copy</code> was previously true.
+If <code>false</code> and the array was not previously filled, <code>null</code> is returned.</p></td>
         </tr>
 
     
@@ -1223,7 +1189,8 @@ This should be set to <code>false</code> or <code>&quot;view&quot;</code> to mod
 
         
 <div class="param-desc">
-    <p>Array containing the filtering threshold on the total counts for subset <code>i</code> in each batch.</p>
+    <p>Array containing the variance explained for each requested PC.
+Alternatively <code>null</code>, if <code>fillable = false</code> and the array was not already filled.</p>
 </div>
 
 

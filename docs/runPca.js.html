@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>SuggestAdtQcFiltersResults - Documentation</title>
+    <title>runPca.js - Documentation</title>
     
     
     <script src="scripts/prettify/prettify.js"></script>
@@ -34,1228 +34,237 @@
 
 <div id="main">
     
-    <h1 class="page-title">SuggestAdtQcFiltersResults</h1>
-    
-
-    
-
-
-
-
-<section>
-
-<header>
-    
-        <h2>
-        SuggestAdtQcFiltersResults
-        </h2>
-        
-            <div class="class-description usertext"><p>Wrapper class for the ADT-based QC filtering results, produced by <a href="global.html#suggestAdtQcFilters"><code>suggestAdtQcFilters</code></a>.</p></div>
-        
-    
-</header>
-
-<article>
-    
-
-    
-
-    
-
-    
-        <h3 class="subsection-title">Classes</h3>
-
-        <dl>
-            <dt><a href="SuggestAdtQcFiltersResults.html">SuggestAdtQcFiltersResults</a></dt>
-            <dd></dd>
-        </dl>
-    
-    
-    
-
-     
-
-    
-
-    
-
-    
-        <h3 class="subsection-title">Methods</h3>
-
-        
-            
-
-    
-
-    <h4 class="name" id="filter"><span class="type-signature"></span>filter<span class="signature">(metrics, options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Uint8Array}</span></h4>
-
-    
-
-
-
-
-<dl class="details">
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="suggestAdtQcFilters.js.html">suggestAdtQcFilters.js</a>, <a href="suggestAdtQcFilters.js.html#line70">line 70</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Attributes</th>
-        
-
-        
-        <th>Default</th>
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>metrics</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="PerCellAdtQcMetricsResults.html">PerCellAdtQcMetricsResults</a></span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                </td>
-            
-
-            <td class="description last"><p>Per-cell QC metrics, usually computed by <a href="global.html#perCellAdtQcMetrics"><code>perCellAdtQcMetrics</code></a>.</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>options</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                    <code>{}</code>
-                
-                </td>
-            
-
-            <td class="description last"><p>Optional parameters.</p>
-                <h6>Properties</h6>
-                
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Attributes</th>
-        
-
-        
-        <th>Default</th>
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>block</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Int32WasmArray</span>
-|
-
-<span class="param-type">Array</span>
-|
-
-<span class="param-type">TypedArray</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-                    &lt;nullable><br>
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                    <code>null</code>
-                
-                </td>
-            
-
-            <td class="description last"><p>Array containing the block assignment for each cell in <code>metrics</code>.
-This should have length equal to the number of cells and contain all values in <code>[0, n)</code> where <code>n</code> is the return value of <code>numberOfBlocks</code>.</p>
-<p>Alternatively, this may be <code>null</code>, in which case all cells are assumed to be in the same block.
-This will raise an error if multiple blocks were used to compute the thresholds.</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>buffer</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Uint8WasmArray</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-                    &lt;nullable><br>
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                    <code>null</code>
-                
-                </td>
-            
-
-            <td class="description last"><p>Array of length equal to the number of cells in <code>metrics</code>, to be used to store the low-quality calls.</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-            </td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>Array of length equal to the number of cells in <code>metrics</code>.
-Each entry is truthy if the corresponding cell is deemed to be of low-quality based on its values in <code>metrics</code>.
-If <code>buffer</code> is supplied, the returned array is a view on <code>buffer</code>.</p>
-</div>
-
-
-
-<dl class="param-type">
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">Uint8Array</span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="free"><span class="type-signature"></span>free<span class="signature">()</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-
-<dl class="details">
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="suggestAdtQcFilters.js.html">suggestAdtQcFilters.js</a>, <a href="suggestAdtQcFilters.js.html#line81">line 81</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>Frees the memory allocated on the Wasm heap for this object.
-This invalidates this object and all references to it.</p>
-</div>
-
-
-
-    
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="numberOfBlocks"><span class="type-signature"></span>numberOfBlocks<span class="signature">()</span><span class="type-signature"> &rarr; {number}</span></h4>
-
-    
-
-
-
-
-<dl class="details">
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="suggestAdtQcFilters.js.html">suggestAdtQcFilters.js</a>, <a href="suggestAdtQcFilters.js.html#line52">line 52</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>Number of blocks in this object.</p>
-</div>
-
-
-
-<dl class="param-type">
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">number</span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="numberOfSubsets"><span class="type-signature"></span>numberOfSubsets<span class="signature">()</span><span class="type-signature"> &rarr; {number}</span></h4>
-
-    
-
-
-
-
-<dl class="details">
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="suggestAdtQcFilters.js.html">suggestAdtQcFilters.js</a>, <a href="suggestAdtQcFilters.js.html#line45">line 45</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>Number of feature subsets in this object.</p>
-</div>
-
-
-
-<dl class="param-type">
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">number</span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="thresholdsDetected"><span class="type-signature"></span>thresholdsDetected<span class="signature">(options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; (nullable) {Float64Array|Float64WasmArray}</span></h4>
-
-    
-
-
-
-
-<dl class="details">
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="suggestAdtQcFilters.js.html">suggestAdtQcFilters.js</a>, <a href="suggestAdtQcFilters.js.html#line26">line 26</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Attributes</th>
-        
-
-        
-        <th>Default</th>
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>options</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                    <code>{}</code>
-                
-                </td>
-            
-
-            <td class="description last"><p>Optional parameters.</p>
-                <h6>Properties</h6>
-                
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Attributes</th>
-        
-
-        
-        <th>Default</th>
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>copy</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">boolean</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                    <code>true</code>
-                
-                </td>
-            
-
-            <td class="description last"><p>Whether to copy the results from the Wasm heap, see <a href="global.html#possibleCopy"><code>possibleCopy</code></a>.
-This should be set to <code>false</code> or <code>&quot;view&quot;</code> to modify entries, e.g., after calling creating an instance with <a href="global.html#emptySuggestAdtQcFiltersResults"><code>emptySuggestAdtQcFiltersResults</code></a>.</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-            </td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>Array containing the filtering threshold on the number of detected ADTs for each batch.</p>
-</div>
-
-
-
-<dl class="param-type">
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">Float64Array</span>
-|
-
-<span class="param-type">Float64WasmArray</span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="thresholdsSubsetTotals"><span class="type-signature"></span>thresholdsSubsetTotals<span class="signature">(i, options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; (nullable) {Float64Array|Float64WasmArray}</span></h4>
-
-    
-
-
-
-
-<dl class="details">
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="suggestAdtQcFilters.js.html">suggestAdtQcFilters.js</a>, <a href="suggestAdtQcFilters.js.html#line38">line 38</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Attributes</th>
-        
-
-        
-        <th>Default</th>
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>i</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                </td>
-            
-
-            <td class="description last"><p>Index of the feature subset of interest.</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>options</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                    <code>{}</code>
-                
-                </td>
-            
-
-            <td class="description last"><p>Optional parameters.</p>
-                <h6>Properties</h6>
-                
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Attributes</th>
-        
-
-        
-        <th>Default</th>
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>copy</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">boolean</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                    <code>true</code>
-                
-                </td>
-            
-
-            <td class="description last"><p>Whether to copy the results from the Wasm heap, see <a href="global.html#possibleCopy"><code>possibleCopy</code></a>.
-This should be set to <code>false</code> or <code>&quot;view&quot;</code> to modify entries, e.g., after calling creating an instance with <a href="global.html#emptySuggestAdtQcFiltersResults"><code>emptySuggestAdtQcFiltersResults</code></a>.</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-            </td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>Array containing the filtering threshold on the total counts for subset <code>i</code> in each batch.</p>
-</div>
-
-
-
-<dl class="param-type">
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">Float64Array</span>
-|
-
-<span class="param-type">Float64WasmArray</span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-        
-    
-
-    
-
-    
-</article>
-
-</section>
+    <h1 class="page-title">runPca.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import * as gc from "./gc.js";
+import * as utils from "./utils.js";
+
+/** 
+ * Wrapper for the PCA results on the Wasm heap, typically created by {@linkcode runPca}.
+ * @hideconstructor
+ */
+export class RunPcaResults {
+    #id;
+    #results;
+
+    #filledComponents;
+    #filledVariances;
+    #filledTotalVariance;
+
+    constructor(id, raw, filled = true) {
+        this.#id = id;
+        this.#results = raw;
+
+        this.#filledComponents = filled;
+        this.#filledVariances = filled;
+        this.#filledTotalVariance = filled;
+
+        return;
+    }
+
+    /**
+     * @param {object} [options={}] - Optional parameters.
+     * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
+     * @param {boolean} [options.fillable=false] - Whether to return a fillable array, to write to this object.
+     * If `true`, this method automatically sets `copy = false` if `copy` was previously true.
+     * If `false` and the array was not previously filled, `null` is returned.
+     * 
+     * @return {?(Float64Array|Float64Wasmarray)} Array containing the principal components for all cells.
+     * This should be treated as a column-major array where the rows are the PCs and columns are the cells.
+     * Alternatively `null`, if `fillable = false` and the array was not already filled.
+     */
+    principalComponents({ copy = true, fillable = false } = {}) {
+        return utils.checkFillness(
+            fillable, 
+            copy, 
+            this.#filledComponents, 
+            () => { this.#filledComponents = true }, 
+            COPY => utils.possibleCopy(this.#results.pcs(), COPY)
+        );
+    }
+
+    /**
+     * @param {number} total - Total variance in the dataset,
+     * equal to the sum of the variances across all PCs (including those that were not explicitly computed).
+     *
+     * @return Total varaiance in this object is set to `total`.
+     * This is primarily intended for use with {@linkcode emptyRunPcaResults}.
+     */
+    setTotalVariance(total) {
+        if (!this.#filledTotalVariance) {
+            this.#filledTotalVariance = true;
+        }
+        this.#results.set_total_variance(total);
+        return;
+    }
+
+    /**
+     * @param {object} [options={}] - Optional parameters.
+     * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
+     * @param {boolean} [options.fillable=false] - Whether to return a fillable array, to write to this object.
+     * If `true`, this method automatically sets `copy = false` if `copy` was previously true.
+     * If `false` and the array was not previously filled, `null` is returned.
+     * 
+     * @return {?(Float64Array|Float64WasmArray)} Array containing the variance explained for each requested PC.
+     * Alternatively `null`, if `fillable = false` and the array was not already filled.
+     */
+    varianceExplained({ copy = true, fillable = false } = {}) {
+        return utils.checkFillness(
+            fillable, 
+            copy, 
+            this.#filledVariances, 
+            () => { this.#filledVariances = true }, 
+            COPY => utils.possibleCopy(this.#results.variance_explained(), COPY)
+        );
+    }
+
+    /**
+     * @return {?number} The total variance in the dataset,
+     * typically used with {@linkcode PCAResults#varianceExplained varianceExplained} to compute the proportion of variance explained.
+     * Alternatively `null`, if this value has not been filled by {@linkcode ClusterKmeansResults#setTotalVariance setTotalVariance}.
+     */
+    totalVariance() {
+        if (!this.#filledTotalVariance) {
+            return null;
+        } else {
+            return this.#results.total_variance();
+        }
+    }
+
+    /**
+     * @return {number} Number of PCs available in these results.
+     */
+    numberOfPCs() {
+        return this.#results.num_pcs();
+    }
+
+    /**
+     * @return {number} Number of cells used to compute these results.
+     */
+    numberOfCells() {
+        // TODO: switch to this.#results.num_cells();
+        return this.principalComponents({ copy: false }).length / this.numberOfPCs();
+
+    }
+
+    /**
+     * @return Frees the memory allocated on the Wasm heap for this object.
+     * This invalidates this object and all references to it.
+     */
+    free() {
+        if (this.#results !== null) {
+            gc.release(this.#id);
+            this.#results = null;
+        }
+        return;
+    }
+}
+
+/**
+ * Run a principal components analysis on the log-expression matrix.
+ * This is usually done on a subset of features, and possibly with some kind of blocking on a per-cell batch factor.
+ *
+ * @param {ScranMatrix} x - The log-normalized expression matrix.
+ * @param {object} [options={}] - Optional parameters. 
+ * @param {?(Uint8WasmArray|Array|TypedArray)} [options.features=null] - Array specifying which features should be retained (e.g., HVGs).
+ * This should be of length equal to the number of rows in `x`; elements should be `true` to retain each row.
+ * If `null`, all features are retained.
+ * @param {number} [options.numberOfPCs=25] - Number of top principal components to compute.
+ * @param {boolean} [options.scale=false] - Whether to scale each feature to unit variance.
+ * @param {?(Int32WasmArray|Array|TypedArray)} [options.block=null] - Array containing the block assignment for each cell.
+ * This should have length equal to the number of cells and contain all values from 0 to `n - 1` at least once, where `n` is the number of blocks.
+ * This is used to segregate cells in order to compute filters within each block.
+ * Alternatively, this may be `null`, in which case all cells are assumed to be in the same block.
+ * @param {string} [options.blockMethod="regress"] - How to adjust the PCA for the blocking factor.
+ *
+ * - `"regress"` will regress out the factor, effectively performing a PCA on the residuals.
+ *   This only makes sense in limited cases, e.g., inter-block differences are linear and the composition of each block is the same.
+ * - `"project"` will compute the rotation vectors from the residuals but will project the cells onto the PC space.
+ *   This focuses the PCA on within-block variance while avoiding any assumptions about the nature of the inter-block differences.
+ * - `"none"` will ignore any blocking factor, i.e., as if `block = null`.
+ *   Any inter-block differences will both contribute to the determination of the rotation vectors and also be preserved in the PC space.
+ *
+ * This option is only used if `block` is not `null`.
+ * @param {bool} [options.blockWeights=true] Whether to weight each block so that it contributes the same number of effective observations to the covariance matrix.
+ * This ensures that, past a certain size (default 1000 cells), larger blocks do not dominate the definition of the PC space.
+ * Only used if `block` is not `null`.
+ * @param {?number} [options.numberOfThreads=null] - Number of threads to use.
+ * If `null`, defaults to {@linkcode maximumThreads}.
+ *
+ * @return {RunPcaResults} Object containing the computed PCs.
+ */
+export function runPca(x, { features = null, numberOfPCs = 25, scale = false, block = null, blockMethod = "regress", blockWeights = true, numberOfThreads = null } = {}) {
+    var feat_data;
+    var block_data;
+    var output;
+
+    utils.matchOptions("blockMethod", blockMethod, ["none", "regress", "project" ]);
+    let nthreads = utils.chooseNumberOfThreads(numberOfThreads);
+
+    try {
+        var use_feat = false;
+        var fptr = 0;
+
+        if (features !== null) {
+            feat_data = utils.wasmifyArray(features, "Uint8WasmArray");
+            if (feat_data.length != x.numberOfRows()) {
+                throw new Error("length of 'features' should be equal to number of rows in 'x'");
+            }
+            use_feat = true;
+            fptr = feat_data.offset;
+        }
+
+        // Avoid asking for more PCs than is possible.
+        // Remember that centering removes one df, so we subtract 1 from the dimensions.
+        numberOfPCs = Math.min(numberOfPCs, x.numberOfRows() - 1, x.numberOfColumns() - 1);
+
+        if (block === null || (blockMethod == 'none' &amp;&amp; !blockWeights)) {
+            output = gc.call(
+                module => module.run_pca(x.matrix, numberOfPCs, use_feat, fptr, scale, nthreads),
+                RunPcaResults
+            );
+
+        } else {
+            block_data = utils.wasmifyArray(block, "Int32WasmArray");
+            if (block_data.length != x.numberOfColumns()) {
+                throw new Error("length of 'block' should be equal to the number of columns in 'x'");
+            }
+
+            if (blockMethod == "regress") {
+                output = gc.call(
+                    module => module.run_residual_pca(x.matrix, numberOfPCs, use_feat, fptr, scale, block_data.offset, blockWeights, nthreads),
+                    RunPcaResults
+                );
+            } else {
+                output = gc.call(
+                    module => module.run_multibatch_pca(x.matrix, numberOfPCs, use_feat, fptr, scale, block_data.offset, (blockMethod == "project"), blockWeights, nthreads),
+                    RunPcaResults
+                );
+            }
+        }
+
+    } catch (e) {
+        utils.free(output);
+        throw e;
+
+    } finally {
+        utils.free(feat_data);
+        utils.free(block_data);
+    }
+
+    return output;
+}
+</code></pre>
+        </article>
+    </section>
 
 
 
@@ -1267,7 +276,7 @@ This should be set to <code>false</code> or <code>&quot;view&quot;</code> to mod
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.11</a> on Thu Jul 20 2023 21:11:16 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.11</a> on Thu Jul 20 2023 21:11:15 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>
