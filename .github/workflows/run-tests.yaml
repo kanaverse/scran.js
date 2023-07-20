@@ -47,7 +47,7 @@ jobs:
       uses: actions/download-artifact@v3
       with:
         name: rds-files
-        path: /scran.js/tests/rds
+        path: tests/rds
 
     - name: Run tests
       run: |
