@@ -70,7 +70,7 @@ SimplePca_Results run_pca(const NumericMatrix& mat, int number, bool use_subset,
 
 using ResidualPca_Results = AnyPca_Results<scran::ResidualPca::Results>;
 
-ResidualPca_Results run_blocked_pca(const NumericMatrix& mat, int number, bool use_subset, uintptr_t subset, bool scale, uintptr_t blocks, int nthreads) {
+ResidualPca_Results run_residual_pca(const NumericMatrix& mat, int number, bool use_subset, uintptr_t subset, bool scale, uintptr_t blocks, bool equal_weights, int nthreads) {
     auto ptr = mat.ptr;
     auto NR = ptr->nrow();
     auto NC = ptr->ncol();
@@ -80,6 +80,8 @@ ResidualPca_Results run_blocked_pca(const NumericMatrix& mat, int number, bool u
 
     scran::ResidualPca pca;
     pca.set_rank(number).set_scale(scale).set_num_threads(nthreads);
+    pca.set_block_weight_policy(equal_weights ? scran::WeightPolicy::VARIABLE : scran::WeightPolicy::NONE);
+
     auto result = pca.run(ptr.get(), bptr, subptr);
 
     return ResidualPca_Results(std::move(result)); 
@@ -87,7 +89,7 @@ ResidualPca_Results run_blocked_pca(const NumericMatrix& mat, int number, bool u
 
 using MultiBatchPca_Results = AnyPca_Results<scran::MultiBatchPca::Results>;
 
-MultiBatchPca_Results run_multibatch_pca(const NumericMatrix& mat, int number, bool use_subset, uintptr_t subset, bool scale, uintptr_t blocks, int nthreads) {
+MultiBatchPca_Results run_multibatch_pca(const NumericMatrix& mat, int number, bool use_subset, uintptr_t subset, bool scale, uintptr_t blocks, bool use_residuals, bool equal_weights, int nthreads) {
     auto ptr = mat.ptr;
     auto NR = ptr->nrow();
     auto NC = ptr->ncol();
@@ -97,6 +99,9 @@ MultiBatchPca_Results run_multibatch_pca(const NumericMatrix& mat, int number, b
 
     scran::MultiBatchPca pca;
     pca.set_rank(number).set_scale(scale).set_num_threads(nthreads);
+    pca.set_use_residuals(use_residuals);
+    pca.set_block_weight_policy(equal_weights ? scran::WeightPolicy::VARIABLE : scran::WeightPolicy::NONE);
+
     auto result = pca.run(ptr.get(), bptr, subptr);
 
     return MultiBatchPca_Results(std::move(result)); 
@@ -105,7 +110,7 @@ MultiBatchPca_Results run_multibatch_pca(const NumericMatrix& mat, int number, b
 EMSCRIPTEN_BINDINGS(run_pca) {
     emscripten::function("run_pca", &run_pca);
 
-    emscripten::function("run_blocked_pca", &run_blocked_pca);
+    emscripten::function("run_residual_pca", &run_residual_pca);
 
     emscripten::function("run_multibatch_pca", &run_multibatch_pca);
 

@@ -137,24 +137,30 @@ export class RunPcaResults {
  * This should have length equal to the number of cells and contain all values from 0 to `n - 1` at least once, where `n` is the number of blocks.
  * This is used to segregate cells in order to compute filters within each block.
  * Alternatively, this may be `null`, in which case all cells are assumed to be in the same block.
- * @param {string} [options.blockMethod="regress"] - How to modify the PCA for the blocking factor.
+ * @param {string} [options.blockMethod="regress"] - How to adjust the PCA for the blocking factor.
  *
  * - `"regress"` will regress out the factor, effectively performing a PCA on the residuals.
- * - `"weight"` will weight the contribution of each blocking level equally so that larger blocks do not dominate the PCA.
+ *   This only makes sense in limited cases, e.g., inter-block differences are linear and the composition of each block is the same.
+ * - `"project"` will compute the rotation vectors from the residuals but will project the cells onto the PC space.
+ *   This focuses the PCA on within-block variance while avoiding any assumptions about the nature of the inter-block differences.
  * - `"none"` will ignore any blocking factor, i.e., as if `block = null`.
+ *   Any inter-block differences will both contribute to the determination of the rotation vectors and also be preserved in the PC space.
  *
  * This option is only used if `block` is not `null`.
+ * @param {bool} [options.blockWeights=true] Whether to weight each block so that it contributes the same number of effective observations to the covariance matrix.
+ * This ensures that, past a certain size (default 1000 cells), larger blocks do not dominate the definition of the PC space.
+ * Only used if `block` is not `null`.
  * @param {?number} [options.numberOfThreads=null] - Number of threads to use.
  * If `null`, defaults to {@linkcode maximumThreads}.
  *
  * @return {RunPcaResults} Object containing the computed PCs.
  */
-export function runPca(x, { features = null, numberOfPCs = 25, scale = false, block = null, blockMethod = "regress", numberOfThreads = null } = {}) {
+export function runPca(x, { features = null, numberOfPCs = 25, scale = false, block = null, blockMethod = "regress", blockWeights = true, numberOfThreads = null } = {}) {
     var feat_data;
     var block_data;
     var output;
 
-    utils.matchOptions("blockMethod", blockMethod, ["none", "regress", "weight" ]);
+    utils.matchOptions("blockMethod", blockMethod, ["none", "regress", "project" ]);
     let nthreads = utils.chooseNumberOfThreads(numberOfThreads);
 
     try {
@@ -174,7 +180,7 @@ export function runPca(x, { features = null, numberOfPCs = 25, scale = false, bl
         // Remember that centering removes one df, so we subtract 1 from the dimensions.
         numberOfPCs = Math.min(numberOfPCs, x.numberOfRows() - 1, x.numberOfColumns() - 1);
 
-        if (block === null || blockMethod == 'none') {
+        if (block === null || (blockMethod == 'none' && !blockWeights)) {
             output = gc.call(
                 module => module.run_pca(x.matrix, numberOfPCs, use_feat, fptr, scale, nthreads),
                 RunPcaResults
@@ -185,18 +191,17 @@ export function runPca(x, { features = null, numberOfPCs = 25, scale = false, bl
             if (block_data.length != x.numberOfColumns()) {
                 throw new Error("length of 'block' should be equal to the number of columns in 'x'");
             }
+
             if (blockMethod == "regress") {
                 output = gc.call(
-                    module => module.run_blocked_pca(x.matrix, numberOfPCs, use_feat, fptr, scale, block_data.offset, nthreads),
-                    RunPcaResults
-                );
-            } else if (blockMethod == "weight") {
-                output = gc.call(
-                    module => module.run_multibatch_pca(x.matrix, numberOfPCs, use_feat, fptr, scale, block_data.offset, nthreads),
+                    module => module.run_residual_pca(x.matrix, numberOfPCs, use_feat, fptr, scale, block_data.offset, blockWeights, nthreads),
                     RunPcaResults
                 );
             } else {
-                throw new Error("unknown value '" + blockMethod + "' for 'blockMethod='");
+                output = gc.call(
+                    module => module.run_multibatch_pca(x.matrix, numberOfPCs, use_feat, fptr, scale, block_data.offset, (blockMethod == "project"), blockWeights, nthreads),
+                    RunPcaResults
+                );
             }
         }
 

@@ -66,7 +66,7 @@ test("PCA works as expected with blocking", () => {
     expect(pca.numberOfCells()).toBe(blocked.numberOfCells());
     expect(compare.equalFloatArrays(pca.principalComponents(), blocked.principalComponents())).toBe(false);
 
-    var weighted = scran.runPca(mat, { features: feat, numberOfPCs: 15, block: block, blockMethod: "weight" });
+    var weighted = scran.runPca(mat, { features: feat, numberOfPCs: 15, block: block, blockMethod: "project" });
     expect(pca.numberOfPCs()).toBe(weighted.numberOfPCs());
     expect(pca.numberOfCells()).toBe(weighted.numberOfCells());
     expect(compare.equalFloatArrays(pca.principalComponents(), weighted.principalComponents())).toBe(false);
@@ -74,7 +74,12 @@ test("PCA works as expected with blocking", () => {
     var none = scran.runPca(mat, { features: feat, numberOfPCs: 15, block: block, blockMethod: "none" });
     expect(pca.numberOfPCs()).toBe(none.numberOfPCs());
     expect(pca.numberOfCells()).toBe(none.numberOfCells());
-    expect(compare.equalFloatArrays(pca.principalComponents(), none.principalComponents())).toBe(true);
+    expect(compare.equalFloatArrays(pca.principalComponents(), none.principalComponents())).toBe(false);
+
+    var none2 = scran.runPca(mat, { features: feat, numberOfPCs: 15, block: block, blockMethod: "none", blockWeights: false });
+    expect(pca.numberOfPCs()).toBe(none2.numberOfPCs());
+    expect(pca.numberOfCells()).toBe(none2.numberOfCells());
+    expect(compare.equalFloatArrays(pca.principalComponents(), none2.principalComponents())).toBe(true);
 
     expect(() => scran.runPca(mat, { features: feat, numberOfPCs: 15, block: block, blockMethod: "foobar" })).toThrow("should be one of");
 });
