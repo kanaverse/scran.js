@@ -26,11 +26,21 @@ jobs:
   check:
     runs-on: ubuntu-latest
     needs: build_rds
-    container: ghcr.io/ltla/emcmake-docker/builder:2023-07-17
+    container: ghcr.io/kanaverse/scran.js/builder:latest
+    defaults:
+      run:
+        working-directory: /scran.js
 
     steps:
-    - name: Checkout repo
-      uses: actions/checkout@v3
+    - name: Check emsdk version
+      run: |
+        cd /emsdk && git pull
+        emsdk install 3.1.43
+
+    - name: Get to the right branch
+      run: |
+        git fetch --all
+        git checkout $GITHUB_SHA
 
     - name: Set up Node
       uses: actions/setup-node@v3
