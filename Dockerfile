@@ -1,13 +1,13 @@
 FROM ubuntu:latest
 
 RUN apt-get update && \
-    apt-get install -y git wget make python3 xz-utils lbzip2
+    apt-get install -y git wget make python3 xz-utils lbzip2 npm
 
 # Grabbing Emscripten. 
 RUN git clone https://github.com/emscripten-core/emsdk.git && \
     cd emsdk && \
-    ./emsdk install 3.1.8 && \
-    ./emsdk activate 3.1.8 
+    ./emsdk install 3.1.43 && \
+    ./emsdk activate 3.1.43
 
 # Grabbing CMake.
 RUN wget https://github.com/Kitware/CMake/releases/download/v3.22.2/cmake-3.22.2-linux-x86_64.sh -O cmake_install.sh && \
