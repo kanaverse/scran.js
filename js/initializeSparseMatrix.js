@@ -236,7 +236,7 @@ export function extractMatrixMarketDimensions(x, { compressed = null } = {}) {
  *
  * @return {ScranMatrix} Matrix containing sparse data.
  */
-export function initializeSparseMatrixFromHDF5(file, name, { forceInteger = true, layered = true, subsetRow = null, subsetColumn = null } = {}) {
+export function initializeSparseMatrixFromHdf5(file, name, { forceInteger = true, layered = true, subsetRow = null, subsetColumn = null } = {}) {
     var ids = null;
     var output;
     let wasm_row, wasm_col;
@@ -289,7 +289,7 @@ export function initializeSparseMatrixFromHDF5(file, name, { forceInteger = true
  * - `format`, whether the matrix is dense, CSR or CSC.
  * - `integer`, whether the matrix data is stored as integers or doubles.
  */
-export function extractHDF5MatrixDetails(file, name) { 
+export function extractHdf5MatrixDetails(file, name) { 
     let output = {};
     let arr = utils.createInt32WasmArray(5);
     try {
