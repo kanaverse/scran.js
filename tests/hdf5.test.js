@@ -29,7 +29,7 @@ test("HDF5 name queries work as expected (simple)", () => {
     f.close();
 
     // Checking we can extract the name correctly.
-    let n = scran.extractHDF5ObjectNames(path);
+    let n = scran.extractHdf5ObjectNames(path);
     expect(n["stuff"]).toBe("float dataset");
     expect(Object.keys(n).length).toBe(1);
 })
@@ -47,7 +47,7 @@ test("HDF5 name queries work as expected (groups)", () => {
     f.close();
  
     // Checking we can extract the name correctly.
-    let n = scran.extractHDF5ObjectNames(path);
+    let n = scran.extractHdf5ObjectNames(path);
     expect(Object.keys(n).length).toBe(1);
     expect(Object.keys(n["foobar"]).length).toBe(4);
 
@@ -69,23 +69,23 @@ test("HDF5 name queries work as expected (nested groups)", () => {
     f.close();
 
     // Checking we can extract the name correctly.
-    let n = scran.extractHDF5ObjectNames(path);
+    let n = scran.extractHdf5ObjectNames(path);
     expect(n["foo"] instanceof Object).toBe(true);
     expect(n["foo"]["bar"] instanceof Object).toBe(true);
     expect(n["foo"]["whee"]).toBe("float dataset");
     expect(n["foo"]["bar"]["stuff"]).toBe("string dataset");
 
     // Extracting in a subgroup.
-    let n2 = scran.extractHDF5ObjectNames(path, { group: "foo" });
+    let n2 = scran.extractHdf5ObjectNames(path, { group: "foo" });
     expect(n2["whee"]).toBe("float dataset");
     expect(n2["bar"]["stuff"]).toBe("string dataset");
 
     // Extracting non-recursively.
-    let n3 = scran.extractHDF5ObjectNames(path, { recursive: false });
+    let n3 = scran.extractHdf5ObjectNames(path, { recursive: false });
     expect(Object.keys(n3).length).toBe(1);
     expect(Object.keys(n3["foo"]).length).toBe(0);
 
-    let n4 = scran.extractHDF5ObjectNames(path, { recursive: false, group: "foo" });
+    let n4 = scran.extractHdf5ObjectNames(path, { recursive: false, group: "foo" });
     expect(Object.keys(n4).length).toBe(2);
     expect(Object.keys(n4["bar"]).length).toBe(0);
     expect(n4["whee"]).toBe("float dataset");
@@ -113,15 +113,15 @@ test("HDF5 dataset loading works as expected", () => {
     f.create_dataset("mamaba", z, [2, 2, 1]);
     f.close();
 
-    var x2 = scran.loadHDF5Dataset(path, "stuff");
+    var x2 = scran.loadHdf5Dataset(path, "stuff");
     expect(compare.equalArrays(x2.dimensions, [20, 50])).toBe(true);
     expect(compare.equalArrays(x2.contents, x)).toBe(true);
 
-    var y2 = scran.loadHDF5Dataset(path, "whee");
+    var y2 = scran.loadHdf5Dataset(path, "whee");
     expect(compare.equalArrays(y2.dimensions, [90])).toBe(true);
     expect(compare.equalArrays(y2.contents, y)).toBe(true);
 
-    var z2 = scran.loadHDF5Dataset(path, "mamaba");
+    var z2 = scran.loadHdf5Dataset(path, "mamaba");
     expect(compare.equalArrays(z2.dimensions, [2, 2, 1])).toBe(true);
     expect(compare.equalArrays(z2.contents, z)).toBe(true);
 });

@@ -26,7 +26,7 @@ add_executable(
     src/log_norm_counts.cpp
     src/median_size_factors.cpp
     src/grouped_size_factors.cpp
-    src/model_gene_var.cpp
+    src/model_gene_variances.cpp
     src/run_pca.cpp
     src/run_tsne.cpp
     src/run_umap.cpp
@@ -54,21 +54,23 @@ add_executable(
 target_compile_options(
     scran_wasm PUBLIC 
     -O3
-    -sUSE_PTHREADS=1
+    -pthread
 )
 
 target_link_libraries(
     scran_wasm
     scran
+    tatami_hdf5
+    tatami_mtx
+    tatami_layered
     mnncorrect
     qdtsne
     umappp
     hdf5-wasm-cpp
+    igraph
     singlepp
     rds2cpp
 )
-
-target_compile_definitions(scran_wasm PRIVATE TATAMI_USE_ZLIB=1)
 
 target_link_options(scran_wasm PRIVATE 
     -O3
@@ -81,7 +83,7 @@ target_link_options(scran_wasm PRIVATE
     -sEXPORT_NAME=loadScran 
     -sFORCE_FILESYSTEM=1 # for HDF5 file access.
     -sEXPORT_ES6
-    -sUSE_PTHREADS=1 
+    -pthread
     -sPTHREAD_POOL_SIZE=Module.scran_custom_nthreads
     -sEXPORTED_FUNCTIONS=_malloc,_free
 )

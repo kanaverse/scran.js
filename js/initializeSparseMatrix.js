@@ -12,23 +12,15 @@ import { ScranMatrix } from "./ScranMatrix.js";
  * This is generally expected to contain non-negative integers; otherwise, users should set `forceInteger = false`.
  * @param {object} [options={}] - Optional parameters.
  * @param {boolean} [options.forceInteger=true] - Whether to coerce `values` to integers via truncation.
- * @param {boolean} [options.layered=true] - Whether to create a layered sparse matrix, which reorders the rows of the loaded matrix for better memory efficiency.
+ * @param {boolean} [options.layered=true] - Whether to create a layered sparse matrix, see [**tatami_layered**](https://github.com/tatami-inc/tatami_layered) for more details.
  * Only used if `values` contains an integer type and/or `forceInteger = true`.
  * Setting to `true` assumes that `values` contains only non-negative integers.
  *
- * @return {object} An object containing:
- * - `matrix`, a {@linkplain ScranMatrix} containing the sparse matrix data.
- *   If layering is enabled, rows are shuffled to enable use of smaller integer types for low-abundance features.
- * - `row_ids`, an Int32Array specifying the identity of each row in `matrix`.
- *   This can be interpreted as the row slicing that was applied to the original matrix to obtain `matrix`.
- *   If layering is not enabled, this is `null`.
- *
- * Layering is enabled if the matrix contains integer data (either directly or via `forceInteger = true`) and `layered = true`.
+ * @return {ScranMatrix} Matrix containing sparse data.
  */
 export function initializeSparseMatrixFromDenseArray(numberOfRows, numberOfColumns, values, { forceInteger = true, layered = true } = {}) {
     var val_data; 
     var output;
-    var ids = null; 
 
     try {
         val_data = utils.wasmifyArray(values, null);
@@ -48,11 +40,6 @@ export function initializeSparseMatrixFromDenseArray(numberOfRows, numberOfColum
             ScranMatrix
         );
 
-        if (output.isReorganized()) {
-            ids = output.identities();
-            output.wipeIdentities();
-        }
-
     } catch (e) {
         utils.free(output);
         throw e;
@@ -61,7 +48,7 @@ export function initializeSparseMatrixFromDenseArray(numberOfRows, numberOfColum
         utils.free(val_data);
     }
 
-    return { "matrix": output, "row_ids": ids };
+    return output;
 }
 
 /**
@@ -76,28 +63,20 @@ export function initializeSparseMatrixFromDenseArray(numberOfRows, numberOfColum
  * @param {WasmArray} pointers Pointers specifying the start of each column in `indices`.
  * This should have length equal to `numberOfColumns + 1`.
  * @param {object} [options={}] - Optional parameters.
- * @param {boolean} [options.byColumn=true] - Whether the input arrays are supplied in the compressed sparse column format.
+ * @param {boolean} [options.byRow=true] - Whether the input arrays are supplied in the compressed sparse column format.
  * If `true`, `indices` should contain column indices and `pointers` should specify the start of each row in `indices`.
  * @param {boolean} [options.forceInteger=true] - Whether to coerce `values` to integers via truncation.
- * @param {boolean} [options.layered=true] - Whether to create a layered sparse matrix, which reorders the rows of the loaded matrix for better memory efficiency.
+ * @param {boolean} [options.layered=true] - Whether to create a layered sparse matrix, see [**tatami_layered**](https://github.com/tatami-inc/tatami_layered) for more details.
  * Only used if `values` contains an integer type and/or `forceInteger = true`.
  * Setting to `true` assumes that `values` contains only non-negative integers.
  *
- * @return {object} An object containing:
- * - `matrix`, a {@linkplain ScranMatrix} containing the sparse matrix data.
- *   If layering is enabled, rows are shuffled to enable use of smaller integer types for low-abundance features.
- * - `row_ids`, an Int32Array specifying the identity of each row in `matrix`. 
- *   This can be interpreted as the row slicing that was applied to the original matrix to obtain `matrix`.
- *   If layering is not enabled, this is `null`.
- * 
- * Layering is enabled if the matrix contains integer data (either directly or via `forceInteger = true`) and `layered = true`.
+ * @return {ScranMatrix} Matrix containing sparse data.
  */ 
-export function initializeSparseMatrixFromCompressedVectors(numberOfRows, numberOfColumns, values, indices, pointers, { byColumn = true, forceInteger = true, layered = true } = {}) {
+export function initializeSparseMatrixFromCompressedVectors(numberOfRows, numberOfColumns, values, indices, pointers, { byRow = true, forceInteger = true, layered = true } = {}) {
     var val_data;
     var ind_data;
     var indp_data;
     var output;
-    var ids = null;
 
     try {
         val_data = utils.wasmifyArray(values, null);
@@ -106,7 +85,7 @@ export function initializeSparseMatrixFromCompressedVectors(numberOfRows, number
         if (val_data.length != ind_data.length) {
             throw new Error("'values' and 'indices' should have the same length");
         }
-        if (indp_data.length != (byColumn ? numberOfColumns : numberOfRows) + 1) {
+        if (indp_data.length != (byRow ? numberOfRows : numberOfColumns) + 1) {
             throw new Error("'pointers' does not have an appropriate length");
         }
 
@@ -121,17 +100,12 @@ export function initializeSparseMatrixFromCompressedVectors(numberOfRows, number
                 ind_data.constructor.className.replace("Wasm", ""), 
                 indp_data.offset, 
                 indp_data.constructor.className.replace("Wasm", ""), 
-                byColumn,
+                byRow,
                 forceInteger,
                 layered
             ),
             ScranMatrix
         );
-
-        if (output.isReorganized()) {
-            ids = output.identities();
-            output.wipeIdentities();
-        }
 
     } catch (e) {
         utils.free(output);
@@ -143,7 +117,7 @@ export function initializeSparseMatrixFromCompressedVectors(numberOfRows, number
         utils.free(indp_data);
     }
 
-    return { "matrix": output, "row_ids": ids };
+    return output;
 }
 
 /** 
@@ -157,19 +131,13 @@ export function initializeSparseMatrixFromCompressedVectors(numberOfRows, number
  * @param {object} [options={}] - Optional parameters.
  * @param {?boolean} [options.compressed=null] - Whether the buffer is Gzip-compressed.
  * If `null`, we detect this automatically from the magic number in the header.
- * @param {boolean} [options.layered=true] - Whether to create a layered sparse matrix, which reorders the rows of the loaded matrix for better memory efficiency.
+ * @param {boolean} [options.layered=true] - Whether to create a layered sparse matrix, see [**tatami_layered**](https://github.com/tatami-inc/tatami_layered) for more details.
  *
- * @return {object} An object containing:
- * - `matrix`, a {@linkplain ScranMatrix} containing the sparse matrix data.
- *   If `layered = true`, rows are shuffled to enable use of smaller integer types for low-abundance features.
- * - `row_ids`, an Int32Array specifying the identity of each row in `matrix`. 
- *   This can be interpreted as the row slicing that was applied to the original matrix to obtain `matrix`.
- *   If `layered = false`, this is `null`.
+ * @return {ScranMatrix} Matrix containing sparse data.
  */
 export function initializeSparseMatrixFromMatrixMarket(x, { compressed = null, layered = true } = {}) {
     var buf_data;
     var output;
-    var ids = null;
 
     try {
         compressed = convert_compressed(compressed);
@@ -186,11 +154,6 @@ export function initializeSparseMatrixFromMatrixMarket(x, { compressed = null, l
             );
         }
 
-        if (output.isReorganized()) {
-            ids = output.identities();
-            output.wipeIdentities();
-        }
-
     } catch(e) {
         utils.free(output);
         throw e;
@@ -199,7 +162,7 @@ export function initializeSparseMatrixFromMatrixMarket(x, { compressed = null, l
         utils.free(buf_data);
     }
 
-    return { "matrix": output, "row_ids": ids };
+    return output;
 }
 
 function convert_compressed(compressed) {
@@ -263,27 +226,17 @@ export function extractMatrixMarketDimensions(x, { compressed = null } = {}) {
  * For the latter, both H5AD and 10X-style sparse formats are supported.
  * @param {object} [options={}] - Optional parameters.
  * @param {boolean} [options.forceInteger=true] - Whether to coerce all elements to integers via truncation.
- * @param {boolean} [options.layered=true] - Whether to create a layered sparse matrix, which reorders the rows of the loaded matrix for better memory efficiency.
+ * @param {boolean} [options.layered=true] - Whether to create a layered sparse matrix, see [**tatami_layered**](https://github.com/tatami-inc/tatami_layered) for more details.
  * Only used if the relevant HDF5 dataset contains an integer type and/or `forceInteger = true`.
  * Setting to `true` assumes that the matrix contains only non-negative integers.
  * @param {?(Array|TypedArray|Int32WasmArray)} [options.subsetRow=null] - Row indices to extract.
  * All indices must be non-negative integers less than the number of rows in the sparse matrix.
  * @param {?(Array|TypedArray|Int32WasmArray)} [options.subsetColumn=null] - Column indices to extract.
  * All indices must be non-negative integers less than the number of columns in the sparse matrix.
- * @param {number} [options.cacheSize=100000000] - Size of the cache for loading chunks from HDF5 files. 
- * Only really relevant when reading dense matrices, where a larger cache size may be necessary for handling large chunk dimensions efficiently.
  *
- * @return {object} An object containing:
- * - `matrix`, a {@linkplain ScranMatrix} containing the sparse matrix data.
- *   If layering is enabled, rows are shuffled to enable use of smaller integer types for low-abundance features.
- * - `row_ids`, an Int32Array specifying the identity of each row in `matrix`. 
- *   This can be interpreted as the row slicing that was applied to the original matrix to obtain `matrix`.
- *   If layering is not enabled, this is `null`.
- *   If `subsetRow` was provided, `row_ids` contains indices into `subsetRow`, i.e., the i-th row in `matrix` is the `subsetRow[row_ids[i]]` row in the original matrix.
- *
- * Layering is enabled if the matrix contains integer data (either directly or via `forceInteger = true`) and `layered = true`.
+ * @return {ScranMatrix} Matrix containing sparse data.
  */
-export function initializeSparseMatrixFromHDF5(file, name, { forceInteger = true, layered = true, subsetRow = null, subsetColumn = null, cacheSize = 100000000 } = {}) {
+export function initializeSparseMatrixFromHdf5(file, name, { forceInteger = true, layered = true, subsetRow = null, subsetColumn = null } = {}) {
     var ids = null;
     var output;
     let wasm_row, wasm_col;
@@ -306,14 +259,9 @@ export function initializeSparseMatrixFromHDF5(file, name, { forceInteger = true
         }
 
         output = gc.call(
-            module => module.read_hdf5_matrix(file, name, forceInteger, layered, use_row_subset, row_offset, row_length, use_col_subset, col_offset, col_length, cacheSize),
+            module => module.read_hdf5_matrix(file, name, forceInteger, layered, use_row_subset, row_offset, row_length, use_col_subset, col_offset, col_length),
             ScranMatrix
         );
-
-        if (output.isReorganized()) {
-            ids = output.identities();
-            output.wipeIdentities();
-        }
 
     } catch(e) {
         utils.free(output);
@@ -323,7 +271,7 @@ export function initializeSparseMatrixFromHDF5(file, name, { forceInteger = true
         utils.free(wasm_col);
     }
 
-    return { "matrix": output, "row_ids": ids };
+    return output;
 }
 
 /**
@@ -341,7 +289,7 @@ export function initializeSparseMatrixFromHDF5(file, name, { forceInteger = true
  * - `format`, whether the matrix is dense, CSR or CSC.
  * - `integer`, whether the matrix data is stored as integers or doubles.
  */
-export function extractHDF5MatrixDetails(file, name) { 
+export function extractHdf5MatrixDetails(file, name) { 
     let output = {};
     let arr = utils.createInt32WasmArray(5);
     try {
@@ -404,46 +352,31 @@ export function initializeDenseMatrixFromDenseArray(numberOfRows, numberOfColumn
 }
 
 /**
- * Initialize a layered sparse matrix from an RDS file.
+ * Initialize a sparse matrix from an RDS file.
  *
  * @param {RdsObject} x - Handle to an object inside an RDS file.
  * This should be an integer/numeric matrix, `dgCMatrix` or `dgTMatrix` object.
  * @param {object} [options={}] - Optional parameters.
- * @param {boolean} [options.consume=false] - Whether to consume the values in `x` when creating the output sparse matrix.
- * Setting this to `true` improves memory efficiency at the cost of preventing any further use of `x`.
  * @param {boolean} [options.forceInteger=true] - Whether to coerce all elements to integers via truncation.
- * @param {boolean} [options.layered=true] - Whether to create a layered sparse matrix, which reorders the rows of the loaded matrix for better memory efficiency.
+ * @param {boolean} [options.layered=true] - Whether to create a layered sparse matrix, see [**tatami_layered**](https://github.com/tatami-inc/tatami_layered) for more details.
  * Only used if the R matrix is of an integer type and/or `forceInteger = true`.
  * Setting to `true` assumes that the matrix contains only non-negative integers.
  *
- * @return {object} An object containing:
- * - `matrix`, a {@linkplain ScranMatrix} containing the sparse matrix data.
- *   If layering is enabled, rows are shuffled to enable use of smaller integer types for low-abundance features.
- * - `row_ids`, an Int32Array specifying the identity of each row in `matrix`. 
- *   This can be interpreted as the row slicing that was applied to the original matrix to obtain `matrix`.
- *   If layering is not enabled, this is `null`.
- *
- * Layering is enabled if the matrix contains integer data (either directly or via `forceInteger = true`) and `layered = true`.
+ * @return {ScranMatrix} Sparse matrix.
  */
-export function initializeSparseMatrixFromRds(x, { consume = false, forceInteger = true, layered = true } = {}) {
+export function initializeSparseMatrixFromRds(x, { forceInteger = true, layered = true } = {}) {
     var ids = null;
     var output;
 
     try {
         output = gc.call(
-            module => module.initialize_sparse_matrix_from_rds(x.object.$$.ptr, forceInteger, layered, consume),
+            module => module.initialize_sparse_matrix_from_rds(x.object.$$.ptr, forceInteger, layered),
             ScranMatrix
         );
-
-        if (output.isReorganized()) {
-            ids = output.identities();
-            output.wipeIdentities();
-        }
-
     } catch(e) {
         utils.free(output);
         throw e;
     }
 
-    return { "matrix": output, "row_ids": ids };
+    return output;
 }

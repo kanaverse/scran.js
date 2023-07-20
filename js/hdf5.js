@@ -747,7 +747,7 @@ function extract_names(host, output, recursive = true) {
  * these nested objects are empty if `recursive = false`.
  * HDF5 datasets are represented by strings specifying the data type - i.e., `"integer"`, `"float"`, `"string"` or `"other"`.
  */
-export function extractHDF5ObjectNames (path, { group = "", recursive = true } = {}) {
+export function extractHdf5ObjectNames (path, { group = "", recursive = true } = {}) {
     var src;
     if (group == "") {
         src = new H5File(path);
@@ -770,7 +770,7 @@ export function extractHDF5ObjectNames (path, { group = "", recursive = true } =
  * - `dimensions`, an array containing the dimensions of the dataset.
  * - `contents`, a Int32Array, Float64Array or array of strings, depending on the type of the dataset. 
  */
-export function loadHDF5Dataset(path, name) {
+export function loadHdf5Dataset(path, name) {
     var x = new H5DataSet(path, name, { load: true });
     return {
         "dimensions": x.shape,

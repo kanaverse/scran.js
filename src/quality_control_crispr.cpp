@@ -4,8 +4,7 @@
 #include "utils.h"
 #include "NumericMatrix.h"
 
-#include "scran/quality_control/PerCellCrisprQcMetrics.hpp"
-#include "scran/quality_control/SuggestCrisprQcFilters.hpp"
+#include "scran/scran.hpp"
 
 #include <vector>
 #include <cstdint>
@@ -18,13 +17,7 @@ struct PerCellCrisprQcMetrics_Results {
 
     PerCellCrisprQcMetrics_Results(Store s) : store(std::move(s)) {}
 
-    PerCellCrisprQcMetrics_Results(int num_cells) {
-        store.sums.resize(num_cells);
-        store.detected.resize(num_cells);
-        store.max_proportion.resize(num_cells);
-        store.max_index.resize(num_cells);
-    }
-
+public:
     emscripten::val sums() const {
         return emscripten::val(emscripten::typed_memory_view(store.sums.size(), store.sums.data()));
     }
@@ -64,6 +57,7 @@ struct SuggestCrisprQcFilters_Results {
         store.max_count.resize(num_blocks);
     }
 
+public:
     emscripten::val thresholds_max_count() const {
         return emscripten::val(emscripten::typed_memory_view(store.max_count.size(), store.max_count.data()));
     }
@@ -100,7 +94,6 @@ EMSCRIPTEN_BINDINGS(quality_control_crispr) {
     emscripten::function("per_cell_crispr_qc_metrics", &per_cell_crispr_qc_metrics);
 
     emscripten::class_<PerCellCrisprQcMetrics_Results>("PerCellCrisprQcMetrics_Results")
-        .constructor<int>()
         .function("sums", &PerCellCrisprQcMetrics_Results::sums)
         .function("detected", &PerCellCrisprQcMetrics_Results::detected)
         .function("max_proportion", &PerCellCrisprQcMetrics_Results::max_proportion)

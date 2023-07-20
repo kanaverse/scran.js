@@ -4,10 +4,10 @@ import * as gc from "./gc.js";
 import { BuildNeighborSearchIndexResults, findNearestNeighbors } from "./findNearestNeighbors.js";
 
 /**
- * Wrapper around the UMAP status object on the Wasm heap, typically created by {@linkcode initializeUMAP}.
+ * Wrapper around the UMAP status object on the Wasm heap, typically created by {@linkcode initializeUmap}.
  * @hideconstructor
  */
-export class InitializeUMAPResults {
+export class UmapStatus {
     #id;
     #status;
     #coordinates;
@@ -19,24 +19,15 @@ export class InitializeUMAPResults {
         return;
     }
 
-    // Internal use only, not documented.
-    get status() {
-        return this.#status;
-    }
-
-    // Internal use only, not documented.
-    get coordinates() {
-        return this.#coordinates;
-    }
-
     /**
-     * @return {InitializeUMAPResults} A deep copy of this object.
+     * @return {UmapStatus} A deep copy of this object.
      */
     clone() {
+        let coord_copy = this.#coordinates.clone();
         return gc.call(
-            module => this.#status.deepcopy(), 
-            InitializeUMAPResults, 
-            this.#coordinates.clone()
+            module => this.#status.deepcopy(coord_copy.offset), 
+            UmapStatus, 
+            coord_copy
         );
     }
 
@@ -49,7 +40,7 @@ export class InitializeUMAPResults {
 
     /**
      * @return {number} Number of epochs processed so far.
-     * This changes with repeated invocations of {@linkcode runUMAP}, up to the maximum in {@linkcode InitializeUMAPResults#totalEpochs totalEpochs}.
+     * This changes with repeated invocations of {@linkcode runUmap}, up to the maximum in {@linkcode UmapStatus#totalEpochs totalEpochs}.
      */
     currentEpoch() {
         return this.#status.epoch();
@@ -60,6 +51,24 @@ export class InitializeUMAPResults {
      */
     totalEpochs() {
         return this.#status.num_epochs();
+    }
+
+    /**
+     * Run the UMAP algorithm for a certain time.
+     * This method may be called any number of times.
+     *
+     * @param {object} [options={}] - Optional parameters.
+     * @param {?number} [options.runTime=null] - Number of milliseconds for which the algorithm is allowed to run before returning.
+     * If `null`, no limit is imposed on the runtime.
+     *
+     * @return The algorithm status in `x` is advanced up to the total number of epochs used to initialize `x`,
+     * or until the requested run time is exceeded, whichever comes first.
+     */
+    run({ runTime = null } = {}) {
+        if (runTime === null) {
+            runTime = -1;
+        }
+        wasm.call(module => module.run_umap(this.#status, runTime));
     }
 
     /**
@@ -100,9 +109,9 @@ export class InitializeUMAPResults {
  * @param {?number} [options.numberOfThreads=null] - Number of threads to use.
  * If `null`, defaults to {@linkcode maximumThreads}.
  *
- * @return {InitializeUMAPResults} Object containing the initial status of the UMAP algorithm.
+ * @return {UmapStatus} Object containing the initial status of the UMAP algorithm.
  */
-export function initializeUMAP(x, { neighbors = 15, epochs = 500, minDist = 0.01, numberOfThreads = null } = {}) {
+export function initializeUmap(x, { neighbors = 15, epochs = 500, minDist = 0.01, numberOfThreads = null } = {}) {
     var my_neighbors;
     var raw_coords;
     var output;
@@ -121,7 +130,7 @@ export function initializeUMAP(x, { neighbors = 15, epochs = 500, minDist = 0.01
         raw_coords = utils.createFloat64WasmArray(2 * nnres.numberOfCells());
         output = gc.call(
             module => module.initialize_umap(nnres.results, epochs, minDist, raw_coords.offset, nthreads),
-            InitializeUMAPResults,
+            UmapStatus,
             raw_coords
         );
 
@@ -138,21 +147,24 @@ export function initializeUMAP(x, { neighbors = 15, epochs = 500, minDist = 0.01
 }
 
 /**
- * Run the UMAP algorithm on an initialized {@linkplain InitializeUMAPResults}.
+ * Run the UMAP algorithm.
+ * This is a wrapper around {@linkcode initializeUmap} and {@linkcode UmapStatus#run run}.
  *
- * @param {InitializeUMAPResults} x A previously initialized status object from {@linkcode initializeUMAP}.
- * This may be passed through {@linkcode runUMAP} any number of times.
+ * @param {(BuildNeighborSearchIndexResults|FindNearestNeighborsResults)} x 
+ * Either a pre-built neighbor search index for the dataset (see {@linkcode buildNeighborSearchIndex}),
+ * or a pre-computed set of neighbor search results for all cells (see {@linkcode findNearestNeighbors}).
  * @param {object} [options={}] - Optional parameters.
- * @param {?number} [options.runTime=null] - Number of milliseconds for which the algorithm is allowed to run before returning.
- * If `null`, no limit is imposed on the runtime.
+ * @param {number} [options.neighbors=15] - Number of neighbors to use in the UMAP algorithm.
+ * Ignored if `x` is a {@linkplain FindNearestNeighborsResults} object.
+ * @param {number} [options.epochs=500] - Number of epochs to run the UMAP algorithm.
+ * @param {number} [options.minDist=0.01] - Minimum distance between points in the UMAP algorithm.
+ * @param {?number} [options.numberOfThreads=null] - Number of threads to use.
+ * If `null`, defaults to {@linkcode maximumThreads}.
  *
- * @return The algorithm status in `x` is advanced up to the total number of epochs used to initialize `x`,
- * or until the requested run time is exceeded, whichever comes first.
+ * @return {object} Object containing coordinates of the UMAP embedding, see {@linkcode UmapStatus#extractCoordinates UmapStatus.extractCoordinates} for more details.
  */
-export function runUMAP(x, { runTime = null } = {}) {
-    if (runTime === null) {
-        runTime = -1;
-    }
-    wasm.call(module => module.run_umap(x.status, runTime, x.coordinates.offset));
-    return;
+export function runUmap(x, { neighbors = 15, epochs = 500, minDist = 0.01, numberOfThreads = null } = {}) {
+    let ustat = initializeUmap(x, { neighbors, epochs, minDist, numberOfThreads });
+    ustat.run();
+    return ustat.extractCoordinates();
 }

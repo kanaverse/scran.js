@@ -10,26 +10,20 @@
 
 void delayed_arithmetic_scalar(NumericMatrix& x, std::string op, bool right, double val) {
     if (op == "+") {
-        auto alt = tatami::make_DelayedIsometricOp(std::move(x.ptr), tatami::DelayedAddScalarHelper(val));
-        x.ptr = std::move(alt);
+        x.reset_ptr(tatami::make_DelayedUnaryIsometricOp(std::move(x.ptr), tatami::make_DelayedAddScalarHelper(val)));
     } else if (op == "*") {
-        auto alt = tatami::make_DelayedIsometricOp(std::move(x.ptr), tatami::DelayedMultiplyScalarHelper(val));
-        x.ptr = std::move(alt);
+        x.reset_ptr(tatami::make_DelayedUnaryIsometricOp(std::move(x.ptr), tatami::make_DelayedMultiplyScalarHelper(val)));
     } else if (op == "-") {
         if (right) {
-            auto alt = tatami::make_DelayedIsometricOp(std::move(x.ptr), tatami::DelayedSubtractScalarHelper<true>(val));
-            x.ptr = std::move(alt);
+            x.reset_ptr(tatami::make_DelayedUnaryIsometricOp(std::move(x.ptr), tatami::make_DelayedSubtractScalarHelper<true>(val)));
         } else {
-            auto alt = tatami::make_DelayedIsometricOp(std::move(x.ptr), tatami::DelayedSubtractScalarHelper<false>(val));
-            x.ptr = std::move(alt);
+            x.reset_ptr(tatami::make_DelayedUnaryIsometricOp(std::move(x.ptr), tatami::make_DelayedSubtractScalarHelper<false>(val)));
         }
     } else if (op == "/") {
         if (right) {
-            auto alt = tatami::make_DelayedIsometricOp(std::move(x.ptr), tatami::DelayedDivideScalarHelper<true>(val));
-            x.ptr = std::move(alt);
+            x.reset_ptr(tatami::make_DelayedUnaryIsometricOp(std::move(x.ptr), tatami::make_DelayedDivideScalarHelper<true>(val)));
         } else {
-            auto alt = tatami::make_DelayedIsometricOp(std::move(x.ptr), tatami::DelayedDivideScalarHelper<false>(val));
-            x.ptr = std::move(alt);
+            x.reset_ptr(tatami::make_DelayedUnaryIsometricOp(std::move(x.ptr), tatami::make_DelayedDivideScalarHelper<false>(val)));
         }
     } else {
         throw std::runtime_error("unknown arithmetic operation '" + op + "'");
@@ -45,54 +39,42 @@ void delayed_arithmetic_vector(NumericMatrix& x, std::string op, bool right, int
 
     if (op == "+") {
         if (margin == 1) {
-            auto alt = tatami::make_DelayedIsometricOp(std::move(x.ptr), tatami::make_DelayedAddVectorHelper<1>(std::move(store)));
-            x.ptr = std::move(alt);
+            x.reset_ptr(tatami::make_DelayedUnaryIsometricOp(std::move(x.ptr), tatami::make_DelayedAddVectorHelper<1>(std::move(store))));
         } else {
-            auto alt = tatami::make_DelayedIsometricOp(std::move(x.ptr), tatami::make_DelayedAddVectorHelper<0>(std::move(store)));
-            x.ptr = std::move(alt);
+            x.reset_ptr(tatami::make_DelayedUnaryIsometricOp(std::move(x.ptr), tatami::make_DelayedAddVectorHelper<0>(std::move(store))));
         }
     } else if (op == "*") {
         if (margin == 1) {
-            auto alt = tatami::make_DelayedIsometricOp(std::move(x.ptr), tatami::make_DelayedMultiplyVectorHelper<1>(std::move(store)));
-            x.ptr = std::move(alt);
+            x.reset_ptr(tatami::make_DelayedUnaryIsometricOp(std::move(x.ptr), tatami::make_DelayedMultiplyVectorHelper<1>(std::move(store))));
         } else {
-            auto alt = tatami::make_DelayedIsometricOp(std::move(x.ptr), tatami::make_DelayedMultiplyVectorHelper<0>(std::move(store)));
-            x.ptr = std::move(alt);
+            x.reset_ptr(tatami::make_DelayedUnaryIsometricOp(std::move(x.ptr), tatami::make_DelayedMultiplyVectorHelper<0>(std::move(store))));
         }
     } else if (op == "-") {
         if (right) {
             if (margin == 1) {
-                auto alt = tatami::make_DelayedIsometricOp(std::move(x.ptr), tatami::make_DelayedSubtractVectorHelper<true, 1>(std::move(store)));
-                x.ptr = std::move(alt);
+                x.reset_ptr(tatami::make_DelayedUnaryIsometricOp(std::move(x.ptr), tatami::make_DelayedSubtractVectorHelper<true, 1>(std::move(store))));
             } else {
-                auto alt = tatami::make_DelayedIsometricOp(std::move(x.ptr), tatami::make_DelayedSubtractVectorHelper<true, 0>(std::move(store)));
-                x.ptr = std::move(alt);
+                x.reset_ptr(tatami::make_DelayedUnaryIsometricOp(std::move(x.ptr), tatami::make_DelayedSubtractVectorHelper<true, 0>(std::move(store))));
             }
         } else {
             if (margin == 1) {
-                auto alt = tatami::make_DelayedIsometricOp(std::move(x.ptr), tatami::make_DelayedSubtractVectorHelper<false, 1>(std::move(store)));
-                x.ptr = std::move(alt);
+                x.reset_ptr(tatami::make_DelayedUnaryIsometricOp(std::move(x.ptr), tatami::make_DelayedSubtractVectorHelper<false, 1>(std::move(store))));
             } else {
-                auto alt = tatami::make_DelayedIsometricOp(std::move(x.ptr), tatami::make_DelayedSubtractVectorHelper<false, 0>(std::move(store)));
-                x.ptr = std::move(alt);
+                x.reset_ptr(tatami::make_DelayedUnaryIsometricOp(std::move(x.ptr), tatami::make_DelayedSubtractVectorHelper<false, 0>(std::move(store))));
             }
         }
     } else if (op == "/") {
         if (right) {
             if (margin == 1) {
-                auto alt = tatami::make_DelayedIsometricOp(std::move(x.ptr), tatami::make_DelayedDivideVectorHelper<true, 1>(std::move(store)));
-                x.ptr = std::move(alt);
+                x.reset_ptr(tatami::make_DelayedUnaryIsometricOp(std::move(x.ptr), tatami::make_DelayedDivideVectorHelper<true, 1>(std::move(store))));
             } else {
-                auto alt = tatami::make_DelayedIsometricOp(std::move(x.ptr), tatami::make_DelayedDivideVectorHelper<true, 0>(std::move(store)));
-                x.ptr = std::move(alt);
+                x.reset_ptr(tatami::make_DelayedUnaryIsometricOp(std::move(x.ptr), tatami::make_DelayedDivideVectorHelper<true, 0>(std::move(store))));
             }
         } else {
             if (margin == 1) {
-                auto alt = tatami::make_DelayedIsometricOp(std::move(x.ptr), tatami::make_DelayedDivideVectorHelper<false, 1>(std::move(store)));
-                x.ptr = std::move(alt);
+                x.reset_ptr(tatami::make_DelayedUnaryIsometricOp(std::move(x.ptr), tatami::make_DelayedDivideVectorHelper<false, 1>(std::move(store))));
             } else {
-                auto alt = tatami::make_DelayedIsometricOp(std::move(x.ptr), tatami::make_DelayedDivideVectorHelper<false, 0>(std::move(store)));
-                x.ptr = std::move(alt);
+                x.reset_ptr(tatami::make_DelayedUnaryIsometricOp(std::move(x.ptr), tatami::make_DelayedDivideVectorHelper<false, 0>(std::move(store))));
             }
         }
     } else {
@@ -102,27 +84,20 @@ void delayed_arithmetic_vector(NumericMatrix& x, std::string op, bool right, int
 
 void delayed_math(NumericMatrix& x, std::string op, double base) {
     if (op == "abs") {
-        auto alt = tatami::make_DelayedIsometricOp(std::move(x.ptr), tatami::DelayedAbsHelper());
-        x.ptr = std::move(alt);
+        x.reset_ptr(tatami::make_DelayedUnaryIsometricOp(std::move(x.ptr), tatami::DelayedAbsHelper()));
     } else if (op == "sqrt") {
-        auto alt = tatami::make_DelayedIsometricOp(std::move(x.ptr), tatami::DelayedSqrtHelper());
-        x.ptr = std::move(alt);
+        x.reset_ptr(tatami::make_DelayedUnaryIsometricOp(std::move(x.ptr), tatami::DelayedSqrtHelper()));
     } else if (op == "log1p") {
-        auto alt = tatami::make_DelayedIsometricOp(std::move(x.ptr), tatami::DelayedLog1pHelper());
-        x.ptr = std::move(alt);
+        x.reset_ptr(tatami::make_DelayedUnaryIsometricOp(std::move(x.ptr), tatami::DelayedLog1pHelper()));
     } else if (op == "exp") {
-        auto alt = tatami::make_DelayedIsometricOp(std::move(x.ptr), tatami::DelayedExpHelper());
-        x.ptr = std::move(alt);
+        x.reset_ptr(tatami::make_DelayedUnaryIsometricOp(std::move(x.ptr), tatami::DelayedExpHelper()));
     } else if (op == "round") {
-        auto alt = tatami::make_DelayedIsometricOp(std::move(x.ptr), tatami::DelayedRoundHelper());
-        x.ptr = std::move(alt);
+        x.reset_ptr(tatami::make_DelayedUnaryIsometricOp(std::move(x.ptr), tatami::DelayedRoundHelper()));
     } else if (op == "log") {
         if (base > 0) {
-            auto alt = tatami::make_DelayedIsometricOp(std::move(x.ptr), tatami::DelayedLogHelper(base));
-            x.ptr = std::move(alt);
+            x.reset_ptr(tatami::make_DelayedUnaryIsometricOp(std::move(x.ptr), tatami::DelayedLogHelper(base)));
         } else {
-            auto alt = tatami::make_DelayedIsometricOp(std::move(x.ptr), tatami::DelayedLogHelper());
-            x.ptr = std::move(alt);
+            x.reset_ptr(tatami::make_DelayedUnaryIsometricOp(std::move(x.ptr), tatami::DelayedLogHelper()));
         }
     } else {
         throw std::runtime_error("unknown math operation '" + op + "'");
@@ -130,8 +105,7 @@ void delayed_math(NumericMatrix& x, std::string op, double base) {
 }
 
 void transpose(NumericMatrix& x) {
-    auto alt = tatami::make_DelayedTranspose(std::move(x.ptr));
-    x.ptr = std::move(alt);
+    x.reset_ptr(tatami::make_DelayedTranspose(std::move(x.ptr)));
     return;
 }
 

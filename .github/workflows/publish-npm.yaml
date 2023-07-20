@@ -10,7 +10,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    container: ghcr.io/kanaverse/scran.js/builder:latest
+    container: ghcr.io/kanaverse/scran.js-docker/builder:master
     defaults:
       run:
         working-directory: /scran.js

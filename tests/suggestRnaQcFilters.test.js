@@ -113,16 +113,14 @@ test("per-cell QC filters can be mocked up", () => {
     expect(qc.numberOfSubsets()).toBe(2);
 
     for (const y of [ "thresholdsSums", "thresholdsDetected" ]) {
-        expect(qc[y]()).toBeNull();
-        let x = qc[y]({ fillable: true });
+        let x = qc[y]({ copy: false });
         expect(x.length).toEqual(nblocks);
         x[1] = 20;
         expect(qc[y]()[1]).toEqual(20);
     }
     
     for (var s = 0; s < nsubs; s++) {
-        expect(qc.thresholdsSubsetProportions(s)).toBeNull();
-        var x = qc.thresholdsSubsetProportions(s, { fillable: true });
+        var x = qc.thresholdsSubsetProportions(s, { copy: false });
         expect(x.length).toBe(nblocks);
         x[0] = 0.9;
         expect(qc.thresholdsSubsetProportions(s)[0]).toEqual(0.9);

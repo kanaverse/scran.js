@@ -1,6 +1,6 @@
 import * as utils from "./utils.js";
 import * as gc from "./gc.js";
-import { RunPCAResults } from "./runPCA.js";
+import { RunPcaResults } from "./runPca.js";
 
 /**
  * Wrapper around the k-means clustering results on the Wasm heap, produced by {@linkcode clusterKmeans}.
@@ -194,9 +194,9 @@ export class ClusterKmeansResults {
 /**
  * Cluster cells using k-means.
  *
-* @param {(RunPCAResults|Float64WasmArray|Array|TypedArray)} x - Numeric coordinates of each cell in the dataset.
+* @param {(RunPcaResults|Float64WasmArray|Array|TypedArray)} x - Numeric coordinates of each cell in the dataset.
  * For array inputs, this is expected to be in column-major format where the rows are the variables and the columns are the cells.
- * For a {@linkplain RunPCAResults} input, we extract the principal components.
+ * For a {@linkplain RunPcaResults} input, we extract the principal components.
  * @param {number} clusters Number of clusters to create.
  * This should not be greater than the number of cells.
  * @param {object} [options={}] - Optional parameters.
@@ -224,7 +224,7 @@ export function clusterKmeans(x, clusters, { numberOfDims = null, numberOfCells 
     try {
         let pptr;
 
-        if (x instanceof RunPCAResults) {
+        if (x instanceof RunPcaResults) {
             numberOfDims = x.numberOfPCs();
             numberOfCells = x.numberOfCells();
             let pcs = x.principalComponents({ copy: false });
@@ -257,22 +257,4 @@ export function clusterKmeans(x, clusters, { numberOfDims = null, numberOfCells 
     }
 
     return output;
-}
-
-/**
- * Create an empty {@linkplain ClusterKmeansResults} object, to be filled with custom results.
- * Note that filling requires use of `fillable: true` in the various getters to obtain a writeable memory view.
- *
- * @param {number} numberOfCells - Number of cells in the dataset.
- * @param {number} numberOfClusters - Number of clusters in the dataset.
- * @param {number} numberOfDimensions - Number of dimensions of the embedding used for clustering.
- *
- * @return {ClusterKmeansResults} Object with allocated memory to store variance modelling statistics, but no actual values.
- */
-export function emptyClusterKmeansResults(numberOfCells, numberOfClusters, numberOfDimensions) {
-    return gc.call(
-        module => new module.ClusterKmeans_Result(numberOfCells, numberOfClusters, numberOfDimensions),
-        ClusterKmeansResults,
-        /* filled = */ false
-    );
 }

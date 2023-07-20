@@ -2,10 +2,10 @@ import * as gc from "./gc.js";
 import * as utils from "./utils.js";
 
 /** 
- * Wrapper for the PCA results on the Wasm heap, typically created by {@linkcode runPCA}.
+ * Wrapper for the PCA results on the Wasm heap, typically created by {@linkcode runPca}.
  * @hideconstructor
  */
-export class RunPCAResults {
+export class RunPcaResults {
     #id;
     #results;
 
@@ -50,7 +50,7 @@ export class RunPCAResults {
      * equal to the sum of the variances across all PCs (including those that were not explicitly computed).
      *
      * @return Total varaiance in this object is set to `total`.
-     * This is primarily intended for use with {@linkcode emptyRunPCAResults}.
+     * This is primarily intended for use with {@linkcode emptyRunPcaResults}.
      */
     setTotalVariance(total) {
         if (!this.#filledTotalVariance) {
@@ -137,24 +137,30 @@ export class RunPCAResults {
  * This should have length equal to the number of cells and contain all values from 0 to `n - 1` at least once, where `n` is the number of blocks.
  * This is used to segregate cells in order to compute filters within each block.
  * Alternatively, this may be `null`, in which case all cells are assumed to be in the same block.
- * @param {string} [options.blockMethod="regress"] - How to modify the PCA for the blocking factor.
+ * @param {string} [options.blockMethod="regress"] - How to adjust the PCA for the blocking factor.
  *
  * - `"regress"` will regress out the factor, effectively performing a PCA on the residuals.
- * - `"weight"` will weight the contribution of each blocking level equally so that larger blocks do not dominate the PCA.
+ *   This only makes sense in limited cases, e.g., inter-block differences are linear and the composition of each block is the same.
+ * - `"project"` will compute the rotation vectors from the residuals but will project the cells onto the PC space.
+ *   This focuses the PCA on within-block variance while avoiding any assumptions about the nature of the inter-block differences.
  * - `"none"` will ignore any blocking factor, i.e., as if `block = null`.
+ *   Any inter-block differences will both contribute to the determination of the rotation vectors and also be preserved in the PC space.
  *
  * This option is only used if `block` is not `null`.
+ * @param {bool} [options.blockWeights=true] Whether to weight each block so that it contributes the same number of effective observations to the covariance matrix.
+ * This ensures that, past a certain size (default 1000 cells), larger blocks do not dominate the definition of the PC space.
+ * Only used if `block` is not `null`.
  * @param {?number} [options.numberOfThreads=null] - Number of threads to use.
  * If `null`, defaults to {@linkcode maximumThreads}.
  *
- * @return {RunPCAResults} Object containing the computed PCs.
+ * @return {RunPcaResults} Object containing the computed PCs.
  */
-export function runPCA(x, { features = null, numberOfPCs = 25, scale = false, block = null, blockMethod = "regress", numberOfThreads = null } = {}) {
+export function runPca(x, { features = null, numberOfPCs = 25, scale = false, block = null, blockMethod = "regress", blockWeights = true, numberOfThreads = null } = {}) {
     var feat_data;
     var block_data;
     var output;
 
-    utils.matchOptions("blockMethod", blockMethod, ["none", "regress", "weight" ]);
+    utils.matchOptions("blockMethod", blockMethod, ["none", "regress", "project" ]);
     let nthreads = utils.chooseNumberOfThreads(numberOfThreads);
 
     try {
@@ -174,10 +180,10 @@ export function runPCA(x, { features = null, numberOfPCs = 25, scale = false, bl
         // Remember that centering removes one df, so we subtract 1 from the dimensions.
         numberOfPCs = Math.min(numberOfPCs, x.numberOfRows() - 1, x.numberOfColumns() - 1);
 
-        if (block === null || blockMethod == 'none') {
+        if (block === null || (blockMethod == 'none' && !blockWeights)) {
             output = gc.call(
                 module => module.run_pca(x.matrix, numberOfPCs, use_feat, fptr, scale, nthreads),
-                RunPCAResults
+                RunPcaResults
             );
 
         } else {
@@ -185,18 +191,17 @@ export function runPCA(x, { features = null, numberOfPCs = 25, scale = false, bl
             if (block_data.length != x.numberOfColumns()) {
                 throw new Error("length of 'block' should be equal to the number of columns in 'x'");
             }
+
             if (blockMethod == "regress") {
                 output = gc.call(
-                    module => module.run_blocked_pca(x.matrix, numberOfPCs, use_feat, fptr, scale, block_data.offset, nthreads),
-                    RunPCAResults
-                );
-            } else if (blockMethod == "weight") {
-                output = gc.call(
-                    module => module.run_multibatch_pca(x.matrix, numberOfPCs, use_feat, fptr, scale, block_data.offset, nthreads),
-                    RunPCAResults
+                    module => module.run_residual_pca(x.matrix, numberOfPCs, use_feat, fptr, scale, block_data.offset, blockWeights, nthreads),
+                    RunPcaResults
                 );
             } else {
-                throw new Error("unknown value '" + blockMethod + "' for 'blockMethod='");
+                output = gc.call(
+                    module => module.run_multibatch_pca(x.matrix, numberOfPCs, use_feat, fptr, scale, block_data.offset, (blockMethod == "project"), blockWeights, nthreads),
+                    RunPcaResults
+                );
             }
         }
 
@@ -210,22 +215,4 @@ export function runPCA(x, { features = null, numberOfPCs = 25, scale = false, bl
     }
 
     return output;
-}
-
-/**
- * Create an empty {@linkplain RunPCAResults} object, to be filled with custom results.
- * This is typically used to generate a convenient input into later {@linkcode clusterKmeans} calls.
- * Note that filling requires use of `fillable: true` in the various getters to obtain a writeable memory view.
- *
- * @param {number} numberOfCells - Number of cells in the dataset, usually after QC filtering.
- * @param {number} numberOfPCs - Number of PCs to be computed.
- *
- * @return {RunPCAResults} Object with allocated memory to store the PCs, but no actual values.
- */
-export function emptyRunPCAResults(numberOfCells, numberOfPCs) {
-    return gc.call(
-        module => new module.RunPCA_Results(numberOfCells, numberOfPCs),
-        RunPCAResults,
-        /* filled = */ false
-    );
 }

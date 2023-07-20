@@ -4,8 +4,7 @@
 #include "utils.h"
 #include "NumericMatrix.h"
 
-#include "scran/quality_control/PerCellRnaQcMetrics.hpp"
-#include "scran/quality_control/SuggestRnaQcFilters.hpp"
+#include "scran/scran.hpp"
 
 #include <vector>
 #include <cstdint>
@@ -18,15 +17,7 @@ struct PerCellRnaQcMetrics_Results {
 
     PerCellRnaQcMetrics_Results(Store s) : store(std::move(s)) {}
 
-    PerCellRnaQcMetrics_Results(int num_cells, int num_subsets) {
-        store.sums.resize(num_cells);
-        store.detected.resize(num_cells);
-        store.subset_proportions.resize(num_subsets);
-        for (auto& p : store.subset_proportions) {
-            p.resize(num_cells);
-        }
-    }
-
+public:
     emscripten::val sums() const {
         return emscripten::val(emscripten::typed_memory_view(store.sums.size(), store.sums.data()));
     }
@@ -72,6 +63,7 @@ struct SuggestRnaQcFilters_Results {
         }
     }
 
+public:
     emscripten::val thresholds_sums() const {
         return emscripten::val(emscripten::typed_memory_view(store.sums.size(), store.sums.data()));
     }
@@ -121,7 +113,6 @@ EMSCRIPTEN_BINDINGS(quality_control_rna) {
     emscripten::function("per_cell_rna_qc_metrics", &per_cell_rna_qc_metrics);
 
     emscripten::class_<PerCellRnaQcMetrics_Results>("PerCellRnaQcMetrics_Results")
-        .constructor<int, int>()
         .function("sums", &PerCellRnaQcMetrics_Results::sums)
         .function("detected", &PerCellRnaQcMetrics_Results::detected)
         .function("subset_proportions", &PerCellRnaQcMetrics_Results::subset_proportions)

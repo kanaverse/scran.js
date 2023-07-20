@@ -1,5 +1,5 @@
 import * as utils from "./utils.js";
-import { ModelGeneVarResults } from "./modelGeneVar.js";
+import { ModelGeneVariancesResults } from "./modelGeneVariances.js";
 
 /**
  * Compute the filter threshold required to retain the top `number` values.
@@ -43,9 +43,9 @@ export function computeTopThreshold(x, number, { copy = true, largest = true } =
 /**
  * Choose the highly variable genes from variance modelling statistics.
  *
- * @param {(TypedArray|ModelGeneVarResults)} x -
+ * @param {(TypedArray|ModelGeneVariancesResults)} x -
  * A TypedArray of statistics, where larger values correspond to higher variability;
- * or a {@linkplain ModelGeneVarResults} object, in which case the residuals are used as the statistics.
+ * or a {@linkplain ModelGeneVariancesResults} object, in which case the residuals are used as the statistics.
  * @param {object} [options={}] - Optional parameters.
  * @param {number} [options.number=4000] - Number of highly variable genes to select.
  * @param {number} [options.minimum=0] - Minimum value of the residual to consider for a highly variable gene.
@@ -54,9 +54,9 @@ export function computeTopThreshold(x, number, { copy = true, largest = true } =
  * @return {Uint8WasmArray} Array of length equal to the total number of genes,
  * where the chosen highly variable genes are marked with a value of 1 and all other genes have values of zero.
  */
-export function chooseHVGs(x, { number = 4000, minimum = 0 } = {}) {
+export function chooseHvgs(x, { number = 4000, minimum = 0 } = {}) {
     let stat; 
-    if (x instanceof ModelGeneVarResults) {
+    if (x instanceof ModelGeneVariancesResults) {
         stat = x.residuals();
     } else {
         stat = x.slice();
@@ -71,7 +71,7 @@ export function chooseHVGs(x, { number = 4000, minimum = 0 } = {}) {
     try {
         // Do this AFTER the features allocation, so that
         // we can set copy = false for the input array.
-        if (x instanceof ModelGeneVarResults) {
+        if (x instanceof ModelGeneVariancesResults) {
             stat = x.residuals({ copy: false });
         } else {
             stat = x;

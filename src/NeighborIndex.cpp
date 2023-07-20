@@ -5,14 +5,6 @@
 
 #include "knncolle/knncolle.hpp"
 
-/**
- * @param[in] mat An offset to a 2D array with dimensions (e.g., principal components) in rows and cells in columns.
- * @param nr Number of rows in `mat`.
- * @param nc Number of columns in `mat`.
- * @param approximate Whether to use an approximate neighbor search.
- *
- * @return A `NeighborIndex` object that can be passed to functions needing to perform a nearest-neighbor search.
- */
 NeighborIndex build_neighbor_index(uintptr_t mat, int nr, int nc, bool approximate) {
     NeighborIndex output;
     const double* ptr = reinterpret_cast<const double*>(mat);
@@ -24,40 +16,21 @@ NeighborIndex build_neighbor_index(uintptr_t mat, int nr, int nc, bool approxima
     return output;
 }
 
-/**
- * @param index Prebuilt nearest neighbor search index.
- * @param k Number of nearest neighbors to identify.
- *
- * @return A `NeighborResults` containing the search results for each cell.
- */
 NeighborResults find_nearest_neighbors(const NeighborIndex& index, int k, int nthreads) {
     size_t nc = index.search->nobs();
     NeighborResults output(nc);
     const auto& search = index.search;
     auto& x = output.neighbors;
 
-#ifdef __EMSCRIPTEN_PTHREADS__
-    run_parallel(nc, [&](int left, int right) -> void {
-    for (int i = left; i < right; ++i) {
-#else
-    for (size_t i = 0; i < nc; ++i) {
-#endif
-
-        x[i] = search->find_nearest_neighbors(i, k);
-
-#ifdef __EMSCRIPTEN_PTHREADS__
+    run_parallel_old(nc, [&](int left, int right) -> void {
+        for (int i = left; i < right; ++i) {
+            x[i] = search->find_nearest_neighbors(i, k);
         }
     }, nthreads);
-#else
-    }
-#endif
 
     return output;
 }
 
-/**
- * @cond
- */
 EMSCRIPTEN_BINDINGS(build_neighbor_index) {
     emscripten::function("find_nearest_neighbors", &find_nearest_neighbors);
 
@@ -73,6 +46,3 @@ EMSCRIPTEN_BINDINGS(build_neighbor_index) {
         .function("size", &NeighborResults::size)
         .function("serialize", &NeighborResults::serialize);
 }
-/**
- * @endcond
- */

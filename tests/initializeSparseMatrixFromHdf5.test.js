@@ -37,31 +37,32 @@ test("initialization from HDF5 works correctly with dense inputs", () => {
     f.close();
 
     // Extracting details.
-    let deets = scran.extractHDF5MatrixDetails(path, "stuff");
+    let deets = scran.extractHdf5MatrixDetails(path, "stuff");
     expect(deets.format).toBe("dense");
     expect(deets.rows).toBe(50); // transposed, rows in HDF5 are typically samples.
     expect(deets.columns).toBe(20);
     expect(deets.integer).toBe(true);
 
     // Ingesting it.
-    var mat = scran.initializeSparseMatrixFromHDF5(path, "stuff", { layered: false });
-    expect(mat.matrix.numberOfRows()).toBe(50); // Transposed; rows in HDF5 are typically samples.
-    expect(mat.matrix.numberOfColumns()).toBe(20);
-    expect(mat.row_ids).toBeNull();
+    var mat = scran.initializeSparseMatrixFromHdf5(path, "stuff", { layered: false });
+    expect(mat.numberOfRows()).toBe(50); // Transposed; rows in HDF5 are typically samples.
+    expect(mat.numberOfColumns()).toBe(20);
 
     // Checking that we're working in column-major (or row-major, in HDF5).
-    var first_col = mat.matrix.column(0);
+    var first_col = mat.column(0);
     expect(compare.equalArrays(first_col, x.slice(0, 50))).toBe(true);
 
-    var last_col = mat.matrix.column(19);
+    var last_col = mat.column(19);
     expect(compare.equalArrays(last_col, x.slice(19 * 50, 20 * 50))).toBe(true);
 
     // Integer status is automatically detected, allowing the layering to be attempted.
-    var mat2 = scran.initializeSparseMatrixFromHDF5(path, "stuff", { forceInteger: false });
-    expect(mat2.row_ids.length).toBe(50);
+    var mat2 = scran.initializeSparseMatrixFromHdf5(path, "stuff", { forceInteger: false });
+    expect(compare.equalArrays(mat2.column(0), first_col)).toBe(true);
+    expect(compare.equalArrays(mat2.column(19), last_col)).toBe(true);
 
     // Freeing.
-    mat.matrix.free();
+    mat.free();
+    mat2.free();
 })
 
 test("dense initialization from HDF5 works correctly with forced integers", () => {
@@ -78,35 +79,34 @@ test("dense initialization from HDF5 works correctly with forced integers", () =
     f.create_dataset("stuff", x, [25, 40]);
     f.close();
 
-    let deets = scran.extractHDF5MatrixDetails(path, "stuff");
+    let deets = scran.extractHdf5MatrixDetails(path, "stuff");
     expect(deets.integer).toBe(false);
 
     // Checking that non-integers are preserved.
-    var mat = scran.initializeSparseMatrixFromHDF5(path, "stuff", { forceInteger: false });
-    expect(mat.matrix.numberOfRows()).toBe(40); 
-    expect(mat.matrix.numberOfColumns()).toBe(25);
-    expect(mat.row_ids).toBeNull();
+    var mat = scran.initializeSparseMatrixFromHdf5(path, "stuff", { forceInteger: false });
+    expect(mat.numberOfRows()).toBe(40); 
+    expect(mat.numberOfColumns()).toBe(25);
 
-    var first_col = mat.matrix.column(0);
+    var first_col = mat.column(0);
     let first_ref = x.slice(0, 40);
     expect(compare.equalArrays(first_col, first_ref)).toBe(true);
 
-    var last_col = mat.matrix.column(24);
+    var last_col = mat.column(24);
     let last_ref = x.slice(24 * 40, 25 * 40);
     expect(compare.equalArrays(last_col, last_ref)).toBe(true);
 
     // Coercing to integer.
-    var mat2 = scran.initializeSparseMatrixFromHDF5(path, "stuff", { forceInteger: true, layered: false });
+    var mat2 = scran.initializeSparseMatrixFromHdf5(path, "stuff", { forceInteger: true, layered: false });
 
-    var first_col = mat2.matrix.column(0);
+    var first_col = mat2.column(0);
     expect(compare.equalArrays(first_col, first_ref.map(Math.trunc))).toBe(true);
 
-    var last_col = mat2.matrix.column(24);
+    var last_col = mat2.column(24);
     expect(compare.equalArrays(last_col, last_ref.map(Math.trunc))).toBe(true);
 
     // Freeing.
-    mat.matrix.free();
-    mat2.matrix.free();
+    mat.free();
+    mat2.free();
 })
 
 test("initialization from HDF5 works correctly with 10X inputs", () => {
@@ -127,26 +127,20 @@ test("initialization from HDF5 works correctly with 10X inputs", () => {
     f.close();
 
     // Extracting details.
-    let deets = scran.extractHDF5MatrixDetails(path, "foobar");
+    let deets = scran.extractHdf5MatrixDetails(path, "foobar");
     expect(deets.format).toBe("csc");
     expect(deets.rows).toBe(50); 
     expect(deets.columns).toBe(20);
     expect(deets.integer).toBe(true);
 
     // Ingesting it.
-    var mat = scran.initializeSparseMatrixFromHDF5(path, "foobar");
-    expect(mat.matrix.numberOfRows()).toBe(nr); 
-    expect(mat.matrix.numberOfColumns()).toBe(nc);
-    expect(mat.row_ids.length).toBe(nr);
+    var mat = scran.initializeSparseMatrixFromHdf5(path, "foobar");
+    expect(mat.numberOfRows()).toBe(nr); 
+    expect(mat.numberOfColumns()).toBe(nc);
 
-    let ids = mat.row_ids;
-    expect(compare.areIndicesConsecutive(ids)).toBe(false);
-    expect(compare.areIndicesConsecutive(ids.slice().sort())).toBe(true);
-
-    var raw_mat = scran.initializeSparseMatrixFromHDF5(path, "foobar", { layered: false });
-    expect(raw_mat.matrix.numberOfRows()).toBe(nr); 
-    expect(raw_mat.matrix.numberOfColumns()).toBe(nc);
-    expect(raw_mat.row_ids).toBeNull();
+    var raw_mat = scran.initializeSparseMatrixFromHdf5(path, "foobar", { layered: false });
+    expect(raw_mat.numberOfRows()).toBe(nr); 
+    expect(raw_mat.numberOfColumns()).toBe(nc);
 
     // Checking that we can extract successfully.
     for (var c = 0; c < nc; c++) {
@@ -155,23 +149,17 @@ test("initialization from HDF5 works correctly with 10X inputs", () => {
         for (var j = indptrs[c]; j < indptrs[c+1]; j++) {
             ref[indices[j]] = data[j];
         }
-        expect(compare.equalArrays(raw_mat.matrix.column(c), ref)).toBe(true);
-
-        let lref = new Array(nr);
-        ids.forEach((x, i) => {
-            lref[i] = ref[x];
-        });
-        expect(compare.equalArrays(mat.matrix.column(c), lref)).toBe(true);
+        expect(compare.equalArrays(raw_mat.column(c), ref)).toBe(true);
+        expect(compare.equalArrays(mat.column(c), ref)).toBe(true);
     }
 
     // Integer status is automatically detected, allowing the layering to be attempted.
-    var mat2 = scran.initializeSparseMatrixFromHDF5(path, "foobar", { forceInteger: false });
-    expect(mat2.row_ids.length).toBe(nr);
+    var mat2 = scran.initializeSparseMatrixFromHdf5(path, "foobar", { forceInteger: false });
 
     // Freeing.
-    mat.matrix.free();
-    raw_mat.matrix.free();
-    mat2.matrix.free();
+    mat.free();
+    raw_mat.free();
+    mat2.free();
 })
 
 test("initialization from HDF5 works correctly with H5AD inputs", () => {
@@ -195,23 +183,33 @@ test("initialization from HDF5 works correctly with H5AD inputs", () => {
     f.close();
 
     // Extracting details.
-    let deets = scran.extractHDF5MatrixDetails(path, "layers/counts");
+    let deets = scran.extractHdf5MatrixDetails(path, "layers/counts");
     expect(deets.format).toBe("csr");
     expect(deets.rows).toBe(nr);
     expect(deets.columns).toBe(nc);
 
     // Ingesting it.
-    var mat = scran.initializeSparseMatrixFromHDF5(path, "layers/counts");
-    expect(mat.matrix.numberOfRows()).toBe(nr); 
-    expect(mat.matrix.numberOfColumns()).toBe(nc);
+    var mat = scran.initializeSparseMatrixFromHdf5(path, "layers/counts");
+    expect(mat.numberOfRows()).toBe(nr); 
+    expect(mat.numberOfColumns()).toBe(nc);
 
     // Checking that we can extract successfully.
-    var first_row = mat.matrix.row(0);
+    var first_row = mat.row(0);
     var ref = new Uint16Array(nc);
     for (var j = 0; j < indptrs[1]; j++) {
         ref[indices[j]] = data[j];
     }
     expect(compare.equalArrays(first_row, ref)).toBe(true);
+
+    // Without layering.
+    var mat2 = scran.initializeSparseMatrixFromHdf5(path, "layers/counts", { layered: false });
+    expect(mat2.numberOfRows()).toBe(nr); 
+    expect(mat2.numberOfColumns()).toBe(nc);
+    expect(compare.equalArrays(mat2.row(0), ref)).toBe(true);
+
+    // Freeing.
+    mat.free();
+    mat2.free();
 })
 
 test("initialization from HDF5 works correctly with forced integers", () => {
@@ -233,17 +231,15 @@ test("initialization from HDF5 works correctly with forced integers", () => {
     f.get("foobar").create_dataset("shape", [nr, nc], null, "<i");
     f.close();
 
-    let deets = scran.extractHDF5MatrixDetails(path, "foobar");
+    let deets = scran.extractHdf5MatrixDetails(path, "foobar");
     expect(deets.integer).toBe(false);
 
-    var mat1 = scran.initializeSparseMatrixFromHDF5(path, "foobar", { forceInteger: true, layered: false });
-    expect(mat1.row_ids).toBeNull();
-    var mat2 = scran.initializeSparseMatrixFromHDF5(path, "foobar", { forceInteger: false });
-    expect(mat2.row_ids).toBeNull();
+    var mat1 = scran.initializeSparseMatrixFromHdf5(path, "foobar", { forceInteger: true, layered: false });
+    var mat2 = scran.initializeSparseMatrixFromHdf5(path, "foobar", { forceInteger: false });
 
     for (var c = 0; c < nc; c++) {
-        let col1 = mat1.matrix.column(c);
-        let col2 = mat2.matrix.column(c);
+        let col1 = mat1.column(c);
+        let col2 = mat2.column(c);
 
         for (var r = 0; r < nr; ++r) {
             let x1 = col1[r];
@@ -258,8 +254,8 @@ test("initialization from HDF5 works correctly with forced integers", () => {
     }
 
     // Freeing.
-    mat1.matrix.free();
-    mat2.matrix.free();
+    mat1.free();
+    mat2.free();
 })
 
 test("initialization from HDF5 works correctly with subsetting", () => {
@@ -280,46 +276,46 @@ test("initialization from HDF5 works correctly with subsetting", () => {
     f.close();
 
     // Loading various flavors into memory.
-    var full = scran.initializeSparseMatrixFromHDF5(path, "foobar", { layered: false });
+    var full = scran.initializeSparseMatrixFromHdf5(path, "foobar", { layered: false });
 
     let rs = [];
     for (var i = 1; i < nr; i += 2) {
         rs.push(i);
     }
-    var row_sub = scran.initializeSparseMatrixFromHDF5(path, "foobar", { layered: false, subsetRow: rs });
-    expect(row_sub.matrix.numberOfRows()).toEqual(rs.length);
-    expect(row_sub.matrix.numberOfColumns()).toEqual(nc);
+    var row_sub = scran.initializeSparseMatrixFromHdf5(path, "foobar", { layered: false, subsetRow: rs });
+    expect(row_sub.numberOfRows()).toEqual(rs.length);
+    expect(row_sub.numberOfColumns()).toEqual(nc);
 
     let cs = [];
     for (var i = 0; i < nc; i += 2) {
         cs.push(i);
     }
-    var col_sub = scran.initializeSparseMatrixFromHDF5(path, "foobar", { layered: false, subsetColumn: cs });
-    expect(col_sub.matrix.numberOfRows()).toEqual(nr);
-    expect(col_sub.matrix.numberOfColumns()).toEqual(cs.length);
+    var col_sub = scran.initializeSparseMatrixFromHdf5(path, "foobar", { layered: false, subsetColumn: cs });
+    expect(col_sub.numberOfRows()).toEqual(nr);
+    expect(col_sub.numberOfColumns()).toEqual(cs.length);
 
-    var both_sub = scran.initializeSparseMatrixFromHDF5(path, "foobar", { layered: false, subsetRow: rs, subsetColumn: cs });
-    expect(both_sub.matrix.numberOfRows()).toEqual(rs.length);
-    expect(both_sub.matrix.numberOfColumns()).toEqual(cs.length);
+    var both_sub = scran.initializeSparseMatrixFromHdf5(path, "foobar", { layered: false, subsetRow: rs, subsetColumn: cs });
+    expect(both_sub.numberOfRows()).toEqual(rs.length);
+    expect(both_sub.numberOfColumns()).toEqual(cs.length);
 
     // Checking the contents.
     for (var c = 0; c < nc; ++c) {
-        let raw_ref = full.matrix.column(c);
+        let raw_ref = full.column(c);
         let ref = rs.map(i => raw_ref[i]);
-        let sub = row_sub.matrix.column(c);
+        let sub = row_sub.column(c);
         expect(compare.equalFloatArrays(ref, sub)).toBe(true);
     }
 
     for (var r = 0; r < nr; ++r) {
-        let raw_ref = full.matrix.row(r);
+        let raw_ref = full.row(r);
         let ref = cs.map(i => raw_ref[i]);
-        let sub = col_sub.matrix.row(r);
+        let sub = col_sub.row(r);
         expect(compare.equalFloatArrays(ref, sub)).toBe(true);
     }
 
     for (var i = 0; i < rs.length; ++i) {
-        let ref = col_sub.matrix.row(rs[i]);
-        let sub = both_sub.matrix.row(i);
+        let ref = col_sub.row(rs[i]);
+        let sub = both_sub.row(i);
         expect(compare.equalFloatArrays(ref, sub)).toBe(true);
     }
 })

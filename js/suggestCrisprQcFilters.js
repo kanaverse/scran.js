@@ -11,34 +11,20 @@ export class SuggestCrisprQcFiltersResults {
     #id;
     #results;
 
-    #filledMaxCount;
-
     constructor(id, raw, filled = true) {
         this.#id = id;
         this.#results = raw;
-
-        this.#filledMaxCount = filled;
-        return;
     }
 
     /**
      * @param {object} [options={}] - Optional parameters.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
-     * @param {boolean} [options.fillable=false] - Whether to return a fillable array, to write to this object.
-     * If `true`, this method automatically sets `copy = false` if `copy` was previously true.
-     * If `false` and the array was not previously filled, `null` is returned.
+     * This should be set to `false` or `"view"` to modify entries, e.g., after calling creating an instance with {@linkcode emptySuggestCrisprQcFiltersResults}.
      *
      * @return {?(Float64Array|Float64WasmArray)} Array containing the filtering threshold on the maximum count in each batch.
-     * Alternatively `null`, if `fillable = false` and the array was not already filled.
      */
-    thresholdsMaxCount({ copy = true, fillable = false } = {}) {
-        return utils.checkFillness(
-            fillable, 
-            copy, 
-            this.#filledMaxCount, 
-            () => { this.#filledMaxCount = true }, 
-            COPY => utils.possibleCopy(this.#results.thresholds_max_count(), COPY)
-        );
+    thresholdsMaxCount({ copy = true } = {}) {
+        return utils.possibleCopy(this.#results.thresholds_max_count(), copy);
     }
 
     /**
@@ -111,7 +97,7 @@ export function suggestCrisprQcFilters(metrics, { numberOfMADs = 3, block = null
 
 /**
  * Create an empty {@linkplain SuggestCrisprQcFiltersResults} object, to be filled with custom results.
- * Note that filling requires use of `fillable: true` in the various getters to obtain a writeable memory view.
+ * This is typically used to generate a convenient input into later {@linkcode filterCells} calls.
  *
  * @param {number} numberOfBlocks Number of blocks in the dataset.
  *

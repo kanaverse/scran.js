@@ -4,10 +4,10 @@ import * as gc from "./gc.js";
 import { BuildNeighborSearchIndexResults, findNearestNeighbors } from "./findNearestNeighbors.js";
 
 /**
- * Wrapper around the t-SNE status object on the Wasm heap, typically created by {@linkcode initializeTSNE}.
+ * Wrapper around the t-SNE status object on the Wasm heap, typically created by {@linkcode initializeTsne}.
  * @hideconstructor
  */
-export class InitializeTSNEResults {
+export class TsneStatus {
     #id;
     #status;
     #coordinates;
@@ -19,23 +19,13 @@ export class InitializeTSNEResults {
         return;
     }
 
-    // Internal use only, not documented.
-    get status() {
-        return this.#status;
-    }
-
-    // Internal use only, not documented.
-    get coordinates() {
-        return this.#coordinates;
-    }
-
     /**
-     * @return {InitializeTSNEResults} A deep copy of this object.
+     * @return {TsneStatus} A deep copy of this object.
      */
     clone() {
         return gc.call(
             module => this.#status.deepcopy(), 
-            InitializeTSNEResults, 
+            TsneStatus, 
             this.#coordinates.clone()
         );
     }
@@ -49,7 +39,7 @@ export class InitializeTSNEResults {
 
     /**
      * @return {number} Number of iterations processed so far.
-     * This will change with repeated invocations of {@linkcode runTSNE} on this object.
+     * This will change with repeated invocations of {@linkcode runTsne} on this object.
      */
     iterations () {
         return this.#status.iterations();
@@ -62,6 +52,24 @@ export class InitializeTSNEResults {
      */
     extractCoordinates() {
         return utils.extractXY(this.numberOfCells(), this.#coordinates.array()); 
+    }
+
+    /**
+     * Run the t-SNE algorithm to the specified number of iterations or for a certain time.
+     * This method may be called any number of times.
+     *
+     * @param {object} [options={}] - Optional parameters.
+     * @param {number} [options.maxIterations=1000] - Maximum number of iterations to perform.
+     * This number includes all existing iterations that were already performed in `x` from previous calls to this method,
+     * so it should be greater than {@linkcode TsneStatus#iterations iterations}.
+     * @param {?number} [options.runTime=null] - Number of milliseconds for which the algorithm is allowed to run before returning.
+     * If `null`, no limit is imposed on the runtime.
+     *
+     * @return The algorithm status in `x` is advanced up to the requested number of iterations,
+     * or until the requested run time is exceeded, whichever comes first.
+     */
+    run({ maxIterations = 1000, runTime = null } = {}) {
+        wasm.call(module => module.run_tsne(this.#status, runTime, maxIterations, this.#coordinates.offset));
     }
 
     /**
@@ -100,9 +108,9 @@ export function perplexityToNeighbors(perplexity) {
  * @param {?number} [options.numberOfThreads=null] - Number of threads to use.
  * If `null`, defaults to {@linkcode maximumThreads}.
  *
- * @return {InitializeTSNEResults} Object containing the initial status of the t-SNE algorithm.
+ * @return {TsneStatus} Object containing the initial status of the t-SNE algorithm.
  */
-export function initializeTSNE(x, { perplexity = 30, checkMismatch = true, numberOfThreads = null } = {}) {
+export function initializeTsne(x, { perplexity = 30, checkMismatch = true, numberOfThreads = null } = {}) {
     var my_neighbors;
     var raw_coords;
     var output;
@@ -130,7 +138,7 @@ export function initializeTSNE(x, { perplexity = 30, checkMismatch = true, numbe
         wasm.call(module => module.randomize_tsne_start(neighbors.numberOfCells(), raw_coords.offset, 42));
         output = gc.call(
             module => module.initialize_tsne(neighbors.results, perplexity, nthreads),
-            InitializeTSNEResults,
+            TsneStatus,
             raw_coords
         );
 
@@ -147,23 +155,24 @@ export function initializeTSNE(x, { perplexity = 30, checkMismatch = true, numbe
 }
 
 /**
- * Run the t-SNE algorithm on an initialized {@linkplain InitializeTSNEResults}.
+ * Run the t-SNE algorithm to the specified number of iterations.
+ * This is a wrapper around {@linkcode initializeTsne} and {@linkcode TsneStatus#run run}.
  *
- * @param {InitializeTSNEResults} x A previously initialized status object from {@linkcode initializeTSNE}.
- * This may be passed through {@linkcode runTSNE} any number of times.
+ * @param {(BuildNeighborSearchIndexResults|FindNearestNeighborsResults)} x 
+ * Either a pre-built neighbor search index for the dataset (see {@linkcode buildNeighborSearchIndex}),
+ * or a pre-computed set of neighbor search results for all cells (see {@linkcode findNearestNeighbors}).
  * @param {object} [options={}] - Optional parameters.
+ * @param {number} [options.perplexity=30] - Perplexity to use when computing neighbor probabilities in the t-SNE.
+ * @param {boolean} [options.checkMismatch=true] - Whether to check for a mismatch between the perplexity and the number of searched neighbors.
+ * Only relevant if `x` is a {@linkplain FindNearestNeighborsResults} object.
+ * @param {?number} [options.numberOfThreads=null] - Number of threads to use.
+ * If `null`, defaults to {@linkcode maximumThreads}.
  * @param {number} [options.maxIterations=1000] - Maximum number of iterations to perform.
- * This number includes all existing iterations that were already performed in `x` from previous calls to {@linkcode runTSNE}.
- * @param {?number} [options.runTime=null] - Number of milliseconds for which the algorithm is allowed to run before returning.
- * If `null`, no limit is imposed on the runtime.
  *
- * @return The algorithm status in `x` is advanced up to the requested number of iterations,
- * or until the requested run time is exceeded, whichever comes first.
+ * @return {object} Object containing coordinates of the t-SNE embedding, see {@linkcode TsneStatus#extractCoordinates TsneStatus.extractCoordinates} for more details.
  */
-export function runTSNE(x, { maxIterations = 1000, runTime = null } = {}) {
-    if (runTime === null) {
-        runTime = -1;
-    }
-    wasm.call(module => module.run_tsne(x.status, runTime, maxIterations, x.coordinates.offset));
-    return;
+export function runTsne(x, { perplexity = 30, checkMismatch = true, numberOfThreads = null, maxIterations = 1000 } = {}) {
+    let tstat = initializeTsne(x, { perplexity, checkMismatch, numberOfThreads });
+    tstat.run({ maxIterations });
+    return tstat.extractCoordinates();
 }

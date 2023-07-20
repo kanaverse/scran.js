@@ -117,7 +117,6 @@ Specific topics are discussed in more detail below:
 - [Manually free memory](docs/related/memory_management.md)
 - [Use k-means clustering](docs/related/kmeans_clustering.md)
 - [Annotate cell types against references](docs/related/cell_type_annotation.md)
-- [Handling the permuted row order](docs/related/row_permutations.md)
 
 Developer notes are also available [here](docs/related/developer_notes.md).
 

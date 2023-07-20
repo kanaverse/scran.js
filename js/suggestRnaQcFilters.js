@@ -11,80 +11,45 @@ export class SuggestRnaQcFiltersResults {
     #id;
     #results;
 
-    #filledSums;
-    #filledDetected;
-    #filledSubsetProportions;
-
-    constructor(id, raw, filled = true) {
+    constructor(id, raw) {
         this.#id = id;
         this.#results = raw;
-
-        this.#filledSums = filled;
-        this.#filledDetected = filled;
-        this.#filledSubsetProportions = utils.spawnArray(this.numberOfSubsets(), filled);
-
-        return;
     }
 
     /**
      * @param {object} [options={}] - Optional parameters.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
-     * @param {boolean} [options.fillable=false] - Whether to return a fillable array, to write to this object.
-     * If `true`, this method automatically sets `copy = false` if `copy` was previously true.
-     * If `false` and the array was not previously filled, `null` is returned.
+     * This should be set to `false` or `"view"` to modify entries, e.g., after calling creating an instance with {@linkcode emptySuggestRnaQcFiltersResults}.
      *
      * @return {?(Float64Array|Float64WasmArray)} Array containing the filtering threshold on the sums for each batch.
      * Alternatively `null`, if `fillable = false` and the array was not already filled.
      */
-    thresholdsSums({ copy = true, fillable = false } = {}) {
-        return utils.checkFillness(
-            fillable, 
-            copy, 
-            this.#filledSums, 
-            () => { this.#filledSums = true }, 
-            COPY => utils.possibleCopy(this.#results.thresholds_sums(), COPY)
-        );
+    thresholdsSums({ copy = true } = {}) {
+        return utils.possibleCopy(this.#results.thresholds_sums(), copy);
     }
 
     /**
      * @param {object} [options={}] - Optional parameters.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
-     * @param {boolean} [options.fillable=false] - Whether to return a fillable array, to write to this object.
-     * If `true`, this method automatically sets `copy = false` if `copy` was previously true.
-     * If `false` and the array was not previously filled, `null` is returned.
+     * This should be set to `false` or `"view"` to modify entries, e.g., after calling creating an instance with {@linkcode emptySuggestRnaQcFiltersResults}.
      *
      * @return {?(Float64Array|Float64WasmArray)} Array containing the filtering threshold on the number of detected genes for each batch.
-     * Alternatively `null`, if `fillable = false` and the array was not already filled.
      */
-    thresholdsDetected({ copy = true, fillable = false } = {}) {
-        return utils.checkFillness(
-            fillable, 
-            copy, 
-            this.#filledDetected, 
-            () => { this.#filledDetected = true }, 
-            COPY => utils.possibleCopy(this.#results.thresholds_detected(), COPY)
-        );
+    thresholdsDetected({ copy = true } = {}) {
+        return utils.possibleCopy(this.#results.thresholds_detected(), copy);
     }
 
     /**
      * @param {number} i - Index of the feature subset of interest.
      * @param {object} [options={}] - Optional parameters.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
-     * @param {boolean} [options.fillable=false] - Whether to return a fillable array, to write to this object.
-     * If `true`, this method automatically sets `copy = false` if `copy` was previously true.
-     * If `false` and the array was not previously filled, `null` is returned.
+     * This should be set to `false` or `"view"` to modify entries, e.g., after calling creating an instance with {@linkcode emptySuggestRnaQcFiltersResults}.
      *
      * @return {?(Float64Array|Float64WasmArray)} Array containing the filtering threshold on the proportions for subset `i` in each batch.
      * Alternatively `null`, if `fillable = false` and the array was not already filled.
      */
-    thresholdsSubsetProportions(i, { copy = true, fillable = false } = {}) {
-        return utils.checkFillness(
-            fillable, 
-            copy, 
-            this.#filledSubsetProportions[i], 
-            () => { this.#filledSubsetProportions[i] = true }, 
-            COPY => utils.possibleCopy(this.#results.thresholds_proportions(i), COPY)
-        );
+    thresholdsSubsetProportions(i, { copy = true } = {}) {
+        return utils.possibleCopy(this.#results.thresholds_proportions(i), copy);
     }
 
     /**

@@ -18,7 +18,6 @@ test("scoreMarkers works as expected", () => {
     
     var output = scran.scoreMarkers(mat, groups);
     expect(output.numberOfGroups()).toBe(3);
-    expect(output.numberOfBlocks()).toBe(1);
 
     expect(output.means(0).length).toBe(ngenes);
     expect(output.detected(1).length).toBe(ngenes);
@@ -123,7 +122,7 @@ test("scoreMarkers works as expected with blocking", () => {
 
     var groups = [];
     for (var i = 0; i < ncells; i++) {
-        groups.push(i % 3);
+        groups.push(i % 2);
     }
 
     var block = new Array(ncells);
@@ -146,13 +145,7 @@ test("scoreMarkers works as expected with blocking", () => {
     var res2 = scran.scoreMarkers(sub2, groups.slice(half, ncells));
 
     // Comparing the results.
-    for (var group = 0; group < 3; group++) {
-        expect(compare.equalArrays(res.means(group, { block: 0 }), res1.means(group))).toBe(true);
-        expect(compare.equalArrays(res.means(group, { block: 1 }), res2.means(group))).toBe(true);
-        expect(compare.equalArrays(res.detected(group, { block: 0 }), res1.detected(group))).toBe(true);
-        expect(compare.equalArrays(res.detected(group, { block: 1 }), res2.detected(group))).toBe(true);
-
-        // Checking that the average works as expected.
+    for (var group = 0; group < 2; group++) {
         let averager = (x, y) => x.map((x, i) => (x + y[i])/2);
         expect(compare.equalFloatArrays(res.means(group), averager(res1.means(group), res2.means(group)))).toBe(true);
         expect(compare.equalFloatArrays(res.detected(group), averager(res1.detected(group), res2.detected(group)))).toBe(true);
@@ -167,78 +160,3 @@ test("scoreMarkers works as expected with blocking", () => {
     sub2.free();
     res2.free();
 });
-
-test("ScoreMarkersResults can be mocked up", () => {
-    let ngenes = 101;
-    let ngroups = 3;
-
-    // Unblocked.
-    {
-        let mock = scran.emptyScoreMarkersResults(ngenes, ngroups, 1);
-        expect(mock.numberOfBlocks()).toBe(1);
-
-        for (var g = 0; g < ngroups; g++) {
-            expect(mock.means(g)).toBeNull();
-            let means = mock.means(g, { fillable: true });
-            means[0] = 100;
-            means[100] = 1;
-
-            let means2 = mock.means(g);
-            expect(means2[0]).toBe(100);
-            expect(means2[100]).toBe(1);
-
-            expect(mock.auc(g)).toBeNull();
-            let auc = mock.auc(g, { fillable: true });
-            auc[0] = 0.6;
-            expect(mock.auc(g)[0]).toBe(0.6);
-        }
-    }
-
-    // Blocked.
-    {
-        let mock = scran.emptyScoreMarkersResults(ngenes, ngroups, 2);
-        expect(mock.numberOfBlocks()).toBe(2);
-
-        for (var g = 0; g < ngroups; g++) {
-            expect(mock.detected(g)).toBeNull();
-            let detected = mock.detected(g, { fillable: true });
-            detected[0] = 100;
-            detected[100] = 1;
-
-            expect(mock.detected(g, { block: 0 })).toBeNull();
-            let detected_b = mock.detected(g, { block: 0, fillable: true });
-            detected_b[0] = -100;
-            detected_b[100] = -1;
-
-            let detected2 = mock.detected(g);
-            expect(detected2[0]).toBe(100);
-            expect(detected2[100]).toBe(1);
-
-            let detected_b2 = mock.detected(g, { block: 0 });
-            expect(detected_b2[0]).toBe(-100);
-            expect(detected_b2[100]).toBe(-1);
-
-            expect(mock.auc(g)).toBeNull();
-            let cd = mock.cohen(g, { fillable: true });
-            cd[0] = 0.5;
-            cd[1] = -0.5;
-
-            let cd2 = mock.cohen(g);
-            expect(cd2[0]).toBe(0.5);
-            expect(cd2[1]).toBe(-0.5);
-        }
-    }
-
-    // Skip the AUC calculation.
-    {
-        let mock = scran.emptyScoreMarkersResults(ngenes, ngroups, 1, { computeAuc: false });
-        expect(() => mock.auc(1, { fillable: true })).toThrow("AUC");
-    }
-
-    // Check that space can be allocated for medians and maxima.
-    {
-        let mock = scran.emptyScoreMarkersResults(ngenes, ngroups, 1, { computeMedian: true, computeMaximum: true });
-        expect(mock.lfc(0, { summary: "median", fillable: true }).length).toEqual(ngenes);
-        expect(mock.deltaDetected(0, { summary: "maximum", fillable: true }).length).toEqual(ngenes);
-    }
-})

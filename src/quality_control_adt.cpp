@@ -4,8 +4,7 @@
 #include "utils.h"
 #include "NumericMatrix.h"
 
-#include "scran/quality_control/PerCellAdtQcMetrics.hpp"
-#include "scran/quality_control/SuggestAdtQcFilters.hpp"
+#include "scran/scran.hpp"
 
 #include <vector>
 #include <cstdint>
@@ -18,15 +17,7 @@ struct PerCellAdtQcMetrics_Results {
 
     PerCellAdtQcMetrics_Results(Store s) : store(std::move(s)) {}
 
-    PerCellAdtQcMetrics_Results(int num_genes, int num_subsets) {
-        store.sums.resize(num_genes);
-        store.detected.resize(num_genes);
-        store.subset_totals.resize(num_subsets);
-        for (auto& p : store.subset_totals) {
-            p.resize(num_genes);
-        }
-    }
-
+public:
     emscripten::val sums() const {
         return emscripten::val(emscripten::typed_memory_view(store.sums.size(), store.sums.data()));
     }
@@ -71,6 +62,7 @@ struct SuggestAdtQcFilters_Results {
         }
     }
 
+public:
     emscripten::val thresholds_detected() const {
         return emscripten::val(emscripten::typed_memory_view(store.detected.size(), store.detected.data()));
     }
@@ -115,7 +107,6 @@ EMSCRIPTEN_BINDINGS(quality_control_adt) {
     emscripten::function("per_cell_adt_qc_metrics", &per_cell_adt_qc_metrics);
 
     emscripten::class_<PerCellAdtQcMetrics_Results>("PerCellAdtQcMetrics_Results")
-        .constructor<int, int>()
         .function("sums", &PerCellAdtQcMetrics_Results::sums)
         .function("detected", &PerCellAdtQcMetrics_Results::detected)
         .function("subset_totals", &PerCellAdtQcMetrics_Results::subset_totals)

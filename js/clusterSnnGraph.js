@@ -3,10 +3,10 @@ import * as gc from "./gc.js";
 import { FindNearestNeighborsResults, findNearestNeighbors } from "./findNearestNeighbors.js";
 
 /**
- * Wrapper around the SNN graph object on the Wasm heap, produced by {@linkcode buildSNNGraph}.
+ * Wrapper around the SNN graph object on the Wasm heap, produced by {@linkcode buildSnnGraph}.
  * @hideconstructor
  */
-export class BuildSNNGraphResults {
+export class BuildSnnGraphResults {
     #id;
     #graph;
 
@@ -50,9 +50,9 @@ export class BuildSNNGraphResults {
  * @param {?number} [options.numberOfThreads=null] - Number of threads to use.
  * If `null`, defaults to {@linkcode maximumThreads}.
  *
- * @return {BuildSNNGraphResults} Object containing the graph.
+ * @return {BuildSnnGraphResults} Object containing the graph.
  */
-export function buildSNNGraph(x, { scheme = "rank", neighbors = 10, numberOfThreads = null } = {}) {
+export function buildSnnGraph(x, { scheme = "rank", neighbors = 10, numberOfThreads = null } = {}) {
     var output;
     var my_neighbors;
     let nthreads = utils.chooseNumberOfThreads(numberOfThreads);
@@ -70,7 +70,7 @@ export function buildSNNGraph(x, { scheme = "rank", neighbors = 10, numberOfThre
 
         output = gc.call(
             module => module.build_snn_graph(ref.results, scheme, nthreads),
-            BuildSNNGraphResults
+            BuildSnnGraphResults
         );
 
     } catch(e) {
@@ -85,10 +85,10 @@ export function buildSNNGraph(x, { scheme = "rank", neighbors = 10, numberOfThre
 }
 
 /**
- * Wrapper around the SNN multi-level clustering results on the Wasm heap, produced by {@linkcode clusterSNNGraph}.
+ * Wrapper around the SNN multi-level clustering results on the Wasm heap, produced by {@linkcode clusterSnnGraph}.
  * @hideconstructor
  */
-export class ClusterSNNGraphMultiLevelResults {
+export class ClusterSnnGraphMultiLevelResults {
     #id;
     #results;
 
@@ -109,7 +109,7 @@ export class ClusterSNNGraphMultiLevelResults {
 
     /**
      * @return {?number} The clustering level with the highest modularity.
-     * Alternatively `null`, if this has not been previously set via {@linkcode ClusterSNNGraphMultiLevelResults#setBest setBest}.
+     * Alternatively `null`, if this has not been previously set via {@linkcode ClusterSnnGraphMultiLevelResults#setBest setBest}.
      */
     best() {
         if (!this.#filledBest) {
@@ -132,7 +132,7 @@ export class ClusterSNNGraphMultiLevelResults {
     /**
      * @param {number} best - Clustering level with the highest modularity.
      * @return `best` is set as the best clustering level.
-     * This is typically only used after {@linkcode emptyClusterSNNGraphResults}.
+     * This is typically only used after {@linkcode emptyClusterSnnGraphResults}.
      */
     setBest(best) {
         if (!this.#filledBest) {
@@ -152,10 +152,10 @@ export class ClusterSNNGraphMultiLevelResults {
     /**
      * @param {object} [options={}] - Optional parameters.
      * @param {?number} [options.level=null] - The clustering level for which to obtain the modularity.
-     * Defaults to the best clustering level from {@linkcode ClusterSNNGraphMultiLevelResults#best best}.
+     * Defaults to the best clustering level from {@linkcode ClusterSnnGraphMultiLevelResults#best best}.
      *
      * @return {?number} The modularity at the specified level.
-     * Alternatively `null`, if this has not been set by {@linkcode ClusterSNNGraphMultiLevelResults#setModularity setModularity}.
+     * Alternatively `null`, if this has not been set by {@linkcode ClusterSnnGraphMultiLevelResults#setModularity setModularity}.
      */
     modularity({ level = null } = {}) {
         level = this.#chooseLevel(level);
@@ -171,7 +171,7 @@ export class ClusterSNNGraphMultiLevelResults {
      * @param {number} modularity - Modularity value.
      *
      * @return `modularity` is set as the modularity at the specified level.
-     * This is typically only used after {@linkcode emptyClusterSNNGraphResults}.
+     * This is typically only used after {@linkcode emptyClusterSnnGraphResults}.
      */
     setModularity(level, modularity) {
         if (!this.#filledModularity[level]) {
@@ -184,7 +184,7 @@ export class ClusterSNNGraphMultiLevelResults {
     /**
      * @param {object} [options={}] - Optional parameters.
      * @param {?number} [options.level=null] - The clustering level for which to obtain the cluster membership.
-     * Defaults to the best clustering level from {@linkcode ClusterSNNGraphMultiLevelResults#best best}.
+     * Defaults to the best clustering level from {@linkcode ClusterSnnGraphMultiLevelResults#best best}.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      * @param {boolean} [options.fillable=false] - Whether to return a fillable array, to write to this object.
      * If `true`, this method automatically sets `copy = false` if `copy` was previously true.
@@ -218,10 +218,10 @@ export class ClusterSNNGraphMultiLevelResults {
 }
 
 /**
- * Wrapper around the SNN walktrap clustering results on the Wasm heap, produced by {@linkcode clusterSNNGraph}.
+ * Wrapper around the SNN walktrap clustering results on the Wasm heap, produced by {@linkcode clusterSnnGraph}.
  * @hideconstructor
  */
-export class ClusterSNNGraphWalktrapResults {
+export class ClusterSnnGraphWalktrapResults {
     #id;
     #results;
 
@@ -253,11 +253,11 @@ export class ClusterSNNGraphWalktrapResults {
     /**
      * @param {object} [options={}] - Optional parameters.
      * @param {?number} [options.at=null] - Index at which to extract the modularity.
-     * This can be any value from 0 to {@linkcode ClusterSNNGraphWalktrapResults#numberOfMergeSteps numberOfMergeSteps} plus 1.
+     * This can be any value from 0 to {@linkcode ClusterSnnGraphWalktrapResults#numberOfMergeSteps numberOfMergeSteps} plus 1.
      * Set to `null` to obtain the largest modularity across all merge steps.
      *
      * @return {?number} The modularity at the specified merge step, or the maximum modularity across all merge steps.
-     * Alternatively `null`, if this has not been set by {@linkcode ClusterSNNGraphWalktrapResults#setModularity setModularity}.
+     * Alternatively `null`, if this has not been set by {@linkcode ClusterSnnGraphWalktrapResults#setModularity setModularity}.
      */
     modularity({ at = null } = {}) {
         let fail = false;
@@ -275,11 +275,11 @@ export class ClusterSNNGraphWalktrapResults {
 
     /**
      * @param {number} at - Index at which to set the modularity.
-     * This can be any value from 0 to {@linkcode ClusterSNNGraphWalktrapResults#numberOfMergeSteps numberOfMergeSteps} plus 1.
+     * This can be any value from 0 to {@linkcode ClusterSnnGraphWalktrapResults#numberOfMergeSteps numberOfMergeSteps} plus 1.
      * @param {number} modularity - Modularity value.
      *
      * @return Modularity value is set in this object.
-     * This is typically used after calling {@linkcode emptyClusterSNNGraphResults}.
+     * This is typically used after calling {@linkcode emptyClusterSnnGraphResults}.
      */
     setModularity(at, modularity) {
         if (!this.#filledModularity) {
@@ -327,10 +327,10 @@ export class ClusterSNNGraphWalktrapResults {
 }
 
 /**
- * Wrapper around the SNN Leiden clustering results on the Wasm heap, produced by {@linkcode clusterSNNGraph}.
+ * Wrapper around the SNN Leiden clustering results on the Wasm heap, produced by {@linkcode clusterSnnGraph}.
  * @hideconstructor
  */
-export class ClusterSNNGraphLeidenResults {
+export class ClusterSnnGraphLeidenResults {
     #id;
     #results;
 
@@ -348,7 +348,7 @@ export class ClusterSNNGraphLeidenResults {
 
     /**
      * @return {?number} The quality of the Leiden clustering.
-     * Alternatively `null`, if this has not been set by {@linkcode ClusterSNNGraphLeidenResults#setModularity setModularity}.
+     * Alternatively `null`, if this has not been set by {@linkcode ClusterSnnGraphLeidenResults#setModularity setModularity}.
      *
      * Note that Leiden's quality score is technically a different measure from modularity.
      * Nonetheless, we use `modularity` for consistency with the other SNN clustering result classes.
@@ -364,7 +364,7 @@ export class ClusterSNNGraphLeidenResults {
     /**
      * @param {number} modularity - Modularity value.
      * @return Modularity value is set in this object.
-     * This is typically used after calling {@linkcode emptyClusterSNNGraphResults}.
+     * This is typically used after calling {@linkcode emptyClusterSnnGraphResults}.
      */
     setModularity(modularity) {
         if (!this.#filledModularity) {
@@ -410,7 +410,7 @@ export class ClusterSNNGraphLeidenResults {
 /**
  * Cluster cells using community detection on the SNN graph.
  *
- * @param {BuildSNNGraphResults} x - The shared nearest neighbor graph constructed by {@linkcode buildSNNGraph}.
+ * @param {BuildSnnGraphResults} x - The shared nearest neighbor graph constructed by {@linkcode buildSnnGraph}.
  * @param {object} [options={}] - Optional parameters.
  * @param {string} [options.method="multilevel"] - Community detection method to use.
  * This should be one of `"multilevel"`, `"walktrap"` or `"leiden"`.
@@ -423,10 +423,10 @@ export class ClusterSNNGraphLeidenResults {
  * Set to `true` to get an interpretation of the resolution on par with that of `method = "multilevel"`.
  * @param {number} [options.walktrapSteps=4] - Number of steps for the Walktrap algorithm, when `method = "walktrap"`.
  *
- * @return {ClusterSNNGraphMultiLevelResults|ClusterSNNGraphWalktrapResults|ClusterSNNGraphLeidenResults} Object containing the clustering results.
+ * @return {ClusterSnnGraphMultiLevelResults|ClusterSnnGraphWalktrapResults|ClusterSnnGraphLeidenResults} Object containing the clustering results.
  * The class of this object depends on the choice of `method`.
  */
-export function clusterSNNGraph(x, { 
+export function clusterSnnGraph(x, { 
     method = "multilevel", 
     multiLevelResolution = 1, 
     leidenResolution = 1, 
@@ -439,17 +439,17 @@ export function clusterSNNGraph(x, {
         if (method == "multilevel") {
             output = gc.call(
                 module => module.cluster_snn_graph_multilevel(x.graph, multiLevelResolution),
-                ClusterSNNGraphMultiLevelResults
+                ClusterSnnGraphMultiLevelResults
             );
         } else if (method == "walktrap") {
             output = gc.call(
                 module => module.cluster_snn_graph_walktrap(x.graph, walktrapSteps),
-                ClusterSNNGraphWalktrapResults
+                ClusterSnnGraphWalktrapResults
             );
         } else if (method == "leiden") {
             output = gc.call(
                 module => module.cluster_snn_graph_leiden(x.graph, leidenResolution, leidenModularityObjective),
-                ClusterSNNGraphLeidenResults
+                ClusterSnnGraphLeidenResults
             );
         } else {
             throw new Error("unknown method '" + method + "'")
@@ -463,7 +463,7 @@ export function clusterSNNGraph(x, {
 }
 
 /**
- * Create an empty {@linkplain ClusterSNNGraphMultiLevelResults} object (or one of its counterparts), to be filled with custom results.
+ * Create an empty {@linkplain ClusterSnnGraphMultiLevelResults} object (or one of its counterparts), to be filled with custom results.
  * Note that filling requires use of `fillable: true` in the various getters to obtain a writeable memory view.
  *
  * @param {number} numberOfCells - Number of cells in the dataset.
@@ -473,26 +473,26 @@ export function clusterSNNGraph(x, {
  * @param {number} [options.numberOfLevels=1] - Number of levels for which to allocate space when `method="multilevel"`.
  * @param {number} [options.numberOfMergeSteps=1] - Number of merge steps for which to allocate space when `method="walktrap"`.
  *
- * @return {ClusterSNNGraphMultiLevelResults|ClusterSNNGraphWalktrapResults|ClusterSNNGraphLeidenResults} 
+ * @return {ClusterSnnGraphMultiLevelResults|ClusterSnnGraphWalktrapResults|ClusterSnnGraphLeidenResults} 
  * Object with space allocated to store the clustering results.
  */
-export function emptyClusterSNNGraphResults(numberOfCells, { method = "multilevel", numberOfLevels = 1, numberOfMergeSteps = 1 } = {}) {
+export function emptyClusterSnnGraphResults(numberOfCells, { method = "multilevel", numberOfLevels = 1, numberOfMergeSteps = 1 } = {}) {
     if (method == "multilevel") {
         return gc.call(
-            module => new module.ClusterSNNGraphMultiLevel_Result(numberOfCells, numberOfLevels),
-            ClusterSNNGraphMultiLevelResults,
+            module => new module.ClusterSnnGraphMultiLevel_Result(numberOfCells, numberOfLevels),
+            ClusterSnnGraphMultiLevelResults,
             /* filled = */ false
         );
     } else if (method == "walktrap") {
         return gc.call(
-            module => new module.ClusterSNNGraphWalktrap_Result(numberOfCells, numberOfMergeSteps),
-            ClusterSNNGraphWalktrapResults,
+            module => new module.ClusterSnnGraphWalktrap_Result(numberOfCells, numberOfMergeSteps),
+            ClusterSnnGraphWalktrapResults,
             /* filled = */ false
         );
     } else if (method == "leiden") {
         return gc.call(
-            module => new module.ClusterSNNGraphLeiden_Result(numberOfCells),
-            ClusterSNNGraphLeidenResults,
+            module => new module.ClusterSnnGraphLeiden_Result(numberOfCells),
+            ClusterSnnGraphLeidenResults,
             /* filled = */ false
         );
     } else {

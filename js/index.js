@@ -29,14 +29,14 @@ export * from "./groupedSizeFactors.js";
 export * from "./quickAdtSizeFactors.js";
 export * from "./logNormCounts.js";
 
-export * from "./modelGeneVar.js";
-export * from "./chooseHVGs.js";
-export * from "./runPCA.js";
+export * from "./modelGeneVariances.js";
+export * from "./chooseHvgs.js";
+export * from "./runPca.js";
 
 export * from "./findNearestNeighbors.js";
-export * from "./clusterSNNGraph.js";
-export * from "./runTSNE.js";
-export * from "./runUMAP.js";
+export * from "./clusterSnnGraph.js";
+export * from "./runTsne.js";
+export * from "./runUmap.js";
 
 export * from "./clusterKmeans.js";
 
