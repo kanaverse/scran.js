@@ -68,9 +68,7 @@ import * as scran from "scran.js";
 await scran.initialize({ numberOfThreads: 4 });
 
 // Reading in the count matrix.
-let input = scran.initializeSparseMatrixFromMatrixMarket("matrix.mtx.gz");
-let mat = input.matrix;
-let feature_ids = input.row_ids; // for cross-referencing with gene annotations.
+let mat = scran.initializeSparseMatrixFromMatrixMarket("matrix.mtx.gz");
 
 // Performing QC.
 let qc_metrics = scran.perCellRnaQcMetrics(mat, [ /* specify mito subset here */ ]);
@@ -81,30 +79,25 @@ let filtered = scran.filterCells(mat, qc_thresholds.filter(qc_metrics));
 let normalized = scran.logNormCounts(filtered);
 
 // Modelling per-gene variance and selecting top HVGs. 
-let varmodel = scran.modelGeneVar(normalized);
-let hvgs = scran.chooseHVGs(varmodel, { number: 4000 });
+let varmodel = scran.modelGeneVariances(normalized);
+let hvgs = scran.chooseHvgs(varmodel, { number: 4000 });
 
 // Performing the PCA.
-let pcs = scran.runPCA(normalized, { features: hvgs });
+let pcs = scran.runPca(normalized, { features: hvgs });
 
 // Building the neighbor search index on the PCs.
 let index = scran.buildNeighborSearchIndex(pcs);
 
 // Performing the clustering. 
-let cluster_graph = scran.buildSNNGraph(index, { neighbors: 10 });
-let clustering = scran.clusterSNNGraph(cluster_graph);
+let cluster_graph = scran.buildSnnGraph(index, { neighbors: 10 });
+let clustering = scran.clusterSnnGraph(cluster_graph);
 
 // Performing the t-SNE and UMAP.
-let tsne_status = scran.initializeTSNE(index);
-let tsne_res = scran.runTSNE(tsne_status);
-
-let umap_status = scran.initializeUMAP(index);
-let umap_res = scran.runUMAP(umap_status);
+let tsne_res = scran.runTsne(index);
+let umap_res = scran.runUmap(index);
 
 // Detecting some markers.
 let markers = scran.scoreMarkers(normalized, clustering.membership());
-
-scran.terminate();
 ```
 
 ## More documentation
