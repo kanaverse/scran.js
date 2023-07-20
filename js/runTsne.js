@@ -7,7 +7,7 @@ import { BuildNeighborSearchIndexResults, findNearestNeighbors } from "./findNea
  * Wrapper around the t-SNE status object on the Wasm heap, typically created by {@linkcode initializeTsne}.
  * @hideconstructor
  */
-export class InitializeTsneResults {
+export class TsneStatus {
     #id;
     #status;
     #coordinates;
@@ -20,12 +20,12 @@ export class InitializeTsneResults {
     }
 
     /**
-     * @return {InitializeTsneResults} A deep copy of this object.
+     * @return {TsneStatus} A deep copy of this object.
      */
     clone() {
         return gc.call(
             module => this.#status.deepcopy(), 
-            InitializeTsneResults, 
+            TsneStatus, 
             this.#coordinates.clone()
         );
     }
@@ -108,7 +108,7 @@ export function perplexityToNeighbors(perplexity) {
  * @param {?number} [options.numberOfThreads=null] - Number of threads to use.
  * If `null`, defaults to {@linkcode maximumThreads}.
  *
- * @return {InitializeTsneResults} Object containing the initial status of the t-SNE algorithm.
+ * @return {TsneStatus} Object containing the initial status of the t-SNE algorithm.
  */
 export function initializeTsne(x, { perplexity = 30, checkMismatch = true, numberOfThreads = null } = {}) {
     var my_neighbors;
@@ -138,7 +138,7 @@ export function initializeTsne(x, { perplexity = 30, checkMismatch = true, numbe
         wasm.call(module => module.randomize_tsne_start(neighbors.numberOfCells(), raw_coords.offset, 42));
         output = gc.call(
             module => module.initialize_tsne(neighbors.results, perplexity, nthreads),
-            InitializeTsneResults,
+            TsneStatus,
             raw_coords
         );
 

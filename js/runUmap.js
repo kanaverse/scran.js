@@ -7,7 +7,7 @@ import { BuildNeighborSearchIndexResults, findNearestNeighbors } from "./findNea
  * Wrapper around the UMAP status object on the Wasm heap, typically created by {@linkcode initializeUmap}.
  * @hideconstructor
  */
-export class InitializeUmapResults {
+export class UmapStatus {
     #id;
     #status;
     #coordinates;
@@ -20,13 +20,13 @@ export class InitializeUmapResults {
     }
 
     /**
-     * @return {InitializeUmapResults} A deep copy of this object.
+     * @return {UmapStatus} A deep copy of this object.
      */
     clone() {
         let coord_copy = this.#coordinates.clone();
         return gc.call(
             module => this.#status.deepcopy(coord_copy.offset), 
-            InitializeUmapResults, 
+            UmapStatus, 
             coord_copy
         );
     }
@@ -40,7 +40,7 @@ export class InitializeUmapResults {
 
     /**
      * @return {number} Number of epochs processed so far.
-     * This changes with repeated invocations of {@linkcode runUmap}, up to the maximum in {@linkcode InitializeUmapResults#totalEpochs totalEpochs}.
+     * This changes with repeated invocations of {@linkcode runUmap}, up to the maximum in {@linkcode UmapStatus#totalEpochs totalEpochs}.
      */
     currentEpoch() {
         return this.#status.epoch();
@@ -109,7 +109,7 @@ export class InitializeUmapResults {
  * @param {?number} [options.numberOfThreads=null] - Number of threads to use.
  * If `null`, defaults to {@linkcode maximumThreads}.
  *
- * @return {InitializeUmapResults} Object containing the initial status of the UMAP algorithm.
+ * @return {UmapStatus} Object containing the initial status of the UMAP algorithm.
  */
 export function initializeUmap(x, { neighbors = 15, epochs = 500, minDist = 0.01, numberOfThreads = null } = {}) {
     var my_neighbors;
@@ -130,7 +130,7 @@ export function initializeUmap(x, { neighbors = 15, epochs = 500, minDist = 0.01
         raw_coords = utils.createFloat64WasmArray(2 * nnres.numberOfCells());
         output = gc.call(
             module => module.initialize_umap(nnres.results, epochs, minDist, raw_coords.offset, nthreads),
-            InitializeUmapResults,
+            UmapStatus,
             raw_coords
         );
 
