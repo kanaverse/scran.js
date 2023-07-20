@@ -131,7 +131,7 @@ test("HDF5 group creation works as expected", () => {
     purge(path)
 
     // Nested group creation works.
-    let fhandle = scran.createNewHDF5File(path);
+    let fhandle = scran.createNewHdf5File(path);
     expect(fhandle.children).toEqual({});
 
     let ghandle = fhandle.createGroup("foo");
@@ -158,7 +158,7 @@ test("HDF5 numeric dataset creation works as expected", () => {
     const path = dir + "/test.write.h5";
     purge(path)
 
-    let fhandle = scran.createNewHDF5File(path);
+    let fhandle = scran.createNewHdf5File(path);
     let ghandle = fhandle.createGroup("foo");
     let ghandle2 = ghandle.createGroup("bar");
 
@@ -249,7 +249,7 @@ test("HDF5 string dataset creation works as expected", () => {
     const path = dir + "/test.write.h5";
     purge(path)
 
-    let fhandle = scran.createNewHDF5File(path);
+    let fhandle = scran.createNewHdf5File(path);
     let ghandle = fhandle.createGroup("foo");
 
     // Checking the writing of strings.
@@ -291,7 +291,7 @@ test("HDF5 enum dataset creation and loading works as expected", () => {
     const path = dir + "/test.write.h5";
     purge(path)
 
-    let fhandle = scran.createNewHDF5File(path);
+    let fhandle = scran.createNewHdf5File(path);
 
     // Using the auto-leveller.
     {
@@ -322,7 +322,7 @@ test("HDF5 64-bit integer dataset creation works as expected", () => {
     purge(path)
 
     {
-        let fhandle = scran.createNewHDF5File(path);
+        let fhandle = scran.createNewHdf5File(path);
         fhandle.writeDataSet("stuffi", "Int64", null, [1,2,3,4,5]);
         fhandle.writeDataSet("stuffu", "Uint64", null, [6,7,8,9,10]);
     }
@@ -345,7 +345,7 @@ test("HDF5 numeric attribute creation and loading works as expected", () => {
     const path = dir + "/test.write.h5";
     purge(path)
 
-    let fhandle = scran.createNewHDF5File(path);
+    let fhandle = scran.createNewHdf5File(path);
     let ghandle = fhandle.createGroup("foo");
 
     // Creation of numeric attributes works correctly.
@@ -403,7 +403,7 @@ test("HDF5 string attribute creation and loading works as expected", () => {
     const path = dir + "/test.write.h5";
     purge(path)
 
-    let fhandle = scran.createNewHDF5File(path);
+    let fhandle = scran.createNewHdf5File(path);
     let dhandle = fhandle.writeDataSet("stuffX", "Int32", null, [1,2,3,4,5]);
 
     let colleagues = ["Allison", "Aaron", "Jayaram", "Michael", "Sebastien"]; // ranked by age.
@@ -425,7 +425,7 @@ test("HDF5 enum attribute creation and loading works as expected", () => {
     const path = dir + "/test.write.h5";
     purge(path)
 
-    let fhandle = scran.createNewHDF5File(path);
+    let fhandle = scran.createNewHdf5File(path);
     let dhandle = fhandle.writeDataSet("stuffX", "Int32", null, [1,2,3,4,5]);
 
     // Using the auto-leveller.

@@ -491,7 +491,7 @@ export class H5File extends H5Group {
  * @return {H5File} A new file is created at `path`.
  * A {@linkplain H5File} object is returned.
  */
-export function createNewHDF5File(path) {
+export function createNewHdf5File(path) {
     wasm.call(module => module.create_hdf5_file(path));
     return new H5File(path, { newlyCreated: true });
 }
