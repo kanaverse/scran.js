@@ -13,10 +13,10 @@
 #include <random>
 #include <iostream>
 
-struct UmapStatus {
+struct InitializedUmapStatus {
     typedef umappp::Umap<>::Status Status;
 
-    UmapStatus(Status s) : status(std::move(s)) {}
+    InitializedUmapStatus(Status s) : status(std::move(s)) {}
 
     Status status;
 
@@ -29,10 +29,10 @@ public:
         return status.num_epochs();
     }
 
-    UmapStatus deepcopy(uintptr_t Y) const {
+    InitializedUmapStatus deepcopy(uintptr_t Y) const {
         auto copy = status;
         copy.set_embedding(reinterpret_cast<double*>(Y), false);
-        return UmapStatus(std::move(copy));
+        return InitializedUmapStatus(std::move(copy));
     }
 
     int num_obs() const {
@@ -40,17 +40,17 @@ public:
     }
 };
 
-UmapStatus initialize_umap(const NeighborResults& neighbors, int num_epochs, double min_dist, uintptr_t Y, int nthreads) {
+InitializedUmapStatus initialize_umap(const NeighborResults& neighbors, int num_epochs, double min_dist, uintptr_t Y, int nthreads) {
     umappp::Umap factory;
     factory.set_min_dist(min_dist).set_num_epochs(num_epochs).set_num_threads(nthreads);
     double* embedding = reinterpret_cast<double*>(Y);
 
     // Don't move from neighbors; this means that we can easily re-use the
     // existing neighbors if someone wants to change the number of epochs.
-    return UmapStatus(factory.initialize(neighbors.neighbors, 2, embedding));
+    return InitializedUmapStatus(factory.initialize(neighbors.neighbors, 2, embedding));
 }
 
-void run_umap(UmapStatus& status, int runtime) {
+void run_umap(InitializedUmapStatus& status, int runtime) {
     if (runtime <= 0) {
         status.status.run();
     } else {
@@ -69,9 +69,9 @@ EMSCRIPTEN_BINDINGS(run_umap) {
 
     emscripten::function("run_umap", &run_umap);
 
-    emscripten::class_<UmapStatus>("UmapStatus")
-        .function("epoch", &UmapStatus::epoch)
-        .function("num_epochs", &UmapStatus::num_epochs)
-        .function("num_obs", &UmapStatus::num_obs)
-        .function("deepcopy", &UmapStatus::deepcopy);
+    emscripten::class_<InitializedUmapStatus>("InitializedUmapStatus")
+        .function("epoch", &InitializedUmapStatus::epoch)
+        .function("num_epochs", &InitializedUmapStatus::num_epochs)
+        .function("num_obs", &InitializedUmapStatus::num_obs)
+        .function("deepcopy", &InitializedUmapStatus::deepcopy);
 }
