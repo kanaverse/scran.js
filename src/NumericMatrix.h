@@ -20,13 +20,16 @@ public:
     int ncol() const;
 
 public:
-    void row(int r, uintptr_t values) const;
-
-    void column(int c, uintptr_t values) const;
-
     bool sparse() const;
 
     NumericMatrix clone() const;
+
+    // Not thread-safe! by_row and by_column are initialized
+    // on demand when particular rows and columns are requested
+    // in Javascript. Don't use these functions from C++.
+    void row(int r, uintptr_t values);
+
+    void column(int c, uintptr_t values);
 
 public:
     std::shared_ptr<const tatami::NumericMatrix> ptr;

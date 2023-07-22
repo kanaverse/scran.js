@@ -3,9 +3,9 @@
 
 NumericMatrix::NumericMatrix() {}
 
-NumericMatrix::NumericMatrix(const tatami::NumericMatrix* p) : NumericMatrix(std::shared_ptr<const tatami::NumericMatrix>(p)) {}
+NumericMatrix::NumericMatrix(const tatami::NumericMatrix* p) : ptr(p) {}
 
-NumericMatrix::NumericMatrix(std::shared_ptr<const tatami::NumericMatrix> p) : ptr(std::move(p)), by_row(ptr->dense_row()), by_column(ptr->dense_column()) {}
+NumericMatrix::NumericMatrix(std::shared_ptr<const tatami::NumericMatrix> p) : ptr(std::move(p)) {}
 
 template<class Vector_>
 tatami::NumericMatrix* create_NumericMatrix(int nr, int nc, Vector_ vec, bool colmajor) {
@@ -18,8 +18,8 @@ tatami::NumericMatrix* create_NumericMatrix(int nr, int nc, Vector_ vec, bool co
 
 void NumericMatrix::reset_ptr(std::shared_ptr<const tatami::NumericMatrix> p) {
     ptr = std::move(p);
-    by_row = ptr->dense_row();
-    by_column = ptr->dense_column();
+    by_row.reset();
+    by_column.reset();
 }
 
 NumericMatrix::NumericMatrix(int nr, int nc, uintptr_t values, bool colmajor, bool copy) {
@@ -40,14 +40,20 @@ int NumericMatrix::ncol() const {
     return ptr->ncol();
 }
 
-void NumericMatrix::row(int r, uintptr_t values) const {
+void NumericMatrix::row(int r, uintptr_t values) {
     double* buffer = reinterpret_cast<double*>(values);
+    if (!by_row) {
+        by_row = ptr->dense_row();
+    }
     by_row->fetch_copy(r, buffer);
     return;
 }
 
-void NumericMatrix::column(int c, uintptr_t values) const {
+void NumericMatrix::column(int c, uintptr_t values) {
     double* buffer = reinterpret_cast<double*>(values);
+    if (!by_column) {
+        by_column = ptr->dense_column();
+    }
     by_column->fetch_copy(c, buffer);
     return;
 }
