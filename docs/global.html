@@ -2007,7 +2007,7 @@ This is constructed by indexing the first entry of <code>names</code> with <code
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="logNormCounts.js.html">logNormCounts.js</a>, <a href="logNormCounts.js.html#line90">line 90</a>
+        <a href="logNormCounts.js.html">logNormCounts.js</a>, <a href="logNormCounts.js.html#line93">line 93</a>
     </li></ul></dd>
     
 
@@ -9849,7 +9849,7 @@ May also be <code>null</code> or undefined.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="groupedSizeFactors.js.html">groupedSizeFactors.js</a>, <a href="groupedSizeFactors.js.html#line30">line 30</a>
+        <a href="groupedSizeFactors.js.html">groupedSizeFactors.js</a>, <a href="groupedSizeFactors.js.html#line36">line 36</a>
     </li></ul></dd>
     
 
@@ -10105,6 +10105,88 @@ This should have length equal to the number of cells and contain all values from
 
             <td class="description last"><p>Whether to return centered size factors.
 If <code>false</code>, the size factors can be interpreted as the scaling to match <code>reference</code>.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>allowZeros</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    <code>false</code>
+                
+                </td>
+            
+
+            <td class="description last"><p>Whether size factors of zero should be allowed for the groups.
+If <code>true</code>, any size factors of zero are converted to the smallest non-zero size factor across all groups.
+If <code>false</code>, an error is raised instead.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>allowZeros</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    <code>false</code>
+                
+                </td>
+            
+
+            <td class="description last"><p>Whether non-finite size factors should be allowed for the groups.
+If <code>true</code>, size factors of infinity or NaN are converted to the largest non-zero size factor across all groups or 1, respectively.
+If <code>false</code>, an error is raised instead.</p></td>
         </tr>
 
     
@@ -16372,7 +16454,7 @@ The actual names of the labels are usually held elsewhere.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="logNormCounts.js.html">logNormCounts.js</a>, <a href="logNormCounts.js.html#line29">line 29</a>
+        <a href="logNormCounts.js.html">logNormCounts.js</a>, <a href="logNormCounts.js.html#line32">line 32</a>
     </li></ul></dd>
     
 
@@ -16724,7 +16806,48 @@ This is used to adjust the scaling of cells in different blocks, to avoid excess
             
 
             <td class="description last"><p>Whether size factors of zero should be allowed.
-If <code>true</code>, no scaling normalization is performed for the corresponding cells, under the assumption they are all-zero libraries.
+If <code>true</code>, size factors of zero are converted to the smallest non-zero size factor across all cells.
+If <code>false</code>, an error is raised instead.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>allowZeros</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    <code>false</code>
+                
+                </td>
+            
+
+            <td class="description last"><p>Whether non-finite size factors should be allowed.
+If <code>true</code>, size factors of infinity or NaN are converted to the largest non-zero size factor in the dataset or 1, respectively.
 If <code>false</code>, an error is raised instead.</p></td>
         </tr>
 
@@ -28501,7 +28624,7 @@ Discrepancy is for the same reason as described for <code>csr_matrix</code>.</li
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.11</a> on Sat Jul 22 2023 18:18:08 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.11</a> on Tue Jul 25 2023 05:29:37 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>
