@@ -21,12 +21,15 @@ import * as wasm from "./wasm.js";
  *
  * This option is ignored if `center = false`, in which case it is assumed that scaling has already been provided in the input `sizeFactors`.
  * @param {boolean} [options.allowZeros=false] - Whether size factors of zero should be allowed.
- * If `true`, no scaling normalization is performed for the corresponding cells, under the assumption they are all-zero libraries.
+ * If `true`, size factors of zero are converted to the smallest non-zero size factor across all cells.
+ * If `false`, an error is raised instead.
+ * @param {boolean} [options.allowZeros=false] - Whether non-finite size factors should be allowed.
+ * If `true`, size factors of infinity or NaN are converted to the largest non-zero size factor in the dataset or 1, respectively.
  * If `false`, an error is raised instead.
  *
  * @return {ScranMatrix} A matrix of the same type as `x` containing log-transformed normalized expression values.
  */
-export function logNormCounts(x, { sizeFactors = null, center = true, block = null, allowZeros = false } = {}) {
+export function logNormCounts(x, { sizeFactors = null, center = true, block = null, allowZeros = false, allowNonFinite = false } = {}) {
     var sf_data;
     var block_data;
     var output;
@@ -57,7 +60,7 @@ export function logNormCounts(x, { sizeFactors = null, center = true, block = nu
         }
 
         output = gc.call(
-            module => module.log_norm_counts(x.matrix, use_sf, sfptr, use_blocks, bptr, center, allowZeros),
+            module => module.log_norm_counts(x.matrix, use_sf, sfptr, use_blocks, bptr, center, allowZeros, allowNonFinite),
             x.constructor
         );
 

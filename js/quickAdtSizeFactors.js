@@ -53,7 +53,7 @@ export function quickAdtSizeFactors(x, { numberOfClusters = 20, numberOfPCs = 25
         } else if (buffer.length !== x.numberOfColumns()) {
             throw new Error("length of 'buffer' should be equal to the number of columns in 'x'");
         }
-        groupedSizeFactors(x, clust.clusters({ copy: "view" }), { buffer: buffer, numberOfThreads: numberOfThreads });
+        groupedSizeFactors(x, clust.clusters({ copy: "view" }), { buffer: buffer, allowZeros: true, allowNonFinite: true, numberOfThreads: numberOfThreads });
 
     } catch (e) {
         utils.free(local_buffer);

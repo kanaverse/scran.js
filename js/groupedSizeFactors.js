@@ -13,6 +13,12 @@ import * as wa from "wasmarrays.js";
  * @param {object} [options={}] - Optional parameters.
  * @param {boolean} [options.center=true] - Whether to return centered size factors.
  * If `false`, the size factors can be interpreted as the scaling to match `reference`.
+ * @param {boolean} [options.allowZeros=false] - Whether size factors of zero should be allowed for the groups.
+ * If `true`, any size factors of zero are converted to the smallest non-zero size factor across all groups. 
+ * If `false`, an error is raised instead.
+ * @param {boolean} [options.allowZeros=false] - Whether non-finite size factors should be allowed for the groups.
+ * If `true`, size factors of infinity or NaN are converted to the largest non-zero size factor across all groups or 1, respectively.
+ * If `false`, an error is raised instead.
  * @param {?Float64WasmArray} [options.buffer=null] - Output buffer for the size factors.
  * This should have length equal to the number of columns in `x`.
  * @param {number} [options.priorCount=10] - Prior count to use for shrinking size factors towards the relative library size.
@@ -27,7 +33,7 @@ import * as wa from "wasmarrays.js";
  *
  * If `buffer` was supplied, it is used as the return value.
  */
-export function groupedSizeFactors(x, groups, { center = true, buffer = null, priorCount = 10, reference = null, numberOfThreads = null } = {}) {
+export function groupedSizeFactors(x, groups, { center = true, allowZeros = false, allowNonFinite = false, buffer = null, priorCount = 10, reference = null, numberOfThreads = null } = {}) {
     var local_buffer;
     var group_arr;
     let nthreads = utils.chooseNumberOfThreads(numberOfThreads);
@@ -45,7 +51,7 @@ export function groupedSizeFactors(x, groups, { center = true, buffer = null, pr
             reference = -1;
         }
 
-        wasm.call(module => module.grouped_size_factors(x.matrix, group_arr.offset, center, priorCount, reference, buffer.offset, nthreads));
+        wasm.call(module => module.grouped_size_factors(x.matrix, group_arr.offset, center, allowZeros, allowNonFinite, priorCount, reference, buffer.offset, nthreads));
 
     } catch (e) {
         utils.free(local_buffer);

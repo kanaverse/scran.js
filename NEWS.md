@@ -1,6 +1,6 @@
 # scran.js news
 
-## 3.0.0-alpha.1
+## 3.0.0-alpha.3
 
 **Changes**
 
@@ -27,6 +27,9 @@
     This avoids exposing the status objects for basic use cases.
 - Removed many of the `empty*Results()` functions, as these are not necessary for regular uses of this package.
 - Removed the `consume=` option from `initializeSparseMatrixFromRds()`, as the potential damage from pass-by-reference mutations is too high for the minor improvement in performance.
+- Added `allowNonFinite=` option to the `logNormCounts()` function to handle infinite and missing size factors.
+- Added `allowZeros=` and `allowNonFinite=` options to the `groupedSizeFactors()` function to handle infinite and missing size factors.
+  Both options are automatically set to `true` when calling `groupedSizeFactors()` from the `quickAdtSizeFactors()` function.
 
 ## 2.1.8
 

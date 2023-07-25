@@ -15,10 +15,12 @@ NumericMatrix log_norm_counts(const NumericMatrix& mat,
     bool use_blocks, 
     uintptr_t blocks,
     bool center,
-    bool allow_zero)
+    bool allow_zero,
+    bool allow_non_finite)
 {
     scran::LogNormCounts norm;
     norm.set_handle_zeros(allow_zero);
+    norm.set_handle_non_finite(allow_non_finite);
     norm.set_center(center);
     
     std::vector<double> sf;
