@@ -1,19 +1,21 @@
 # scran.js news
 
-## 3.0.0-alpha.3
+## 3.0.0
 
 **Changes**
 
 - Setting `layered=true` in the various `initializeSparseMatrix*()` functions no longer reorders the rows, due to the use of the new [**tatami_layered**](https://github.com/tatami-inc/tatami_layered) library.
-  As a result, all `initializeSparseMatrix*()` functions no longer need to return an array of `row_ids` and instead return the `ScranMatrix` directly.
+  As a result, all `initializeSparseMatrix*()` functions no longer need to return an array of `row_ids` and instead return the `ScranMatrix` directly where the rows are in the same order as defined in the file.
+  This greatly simplifies downstream management of the row order.
 - Renamed all functions to use PascalCase for acronyms, e.g., `HDF5` is now `Hdf5`, `PCA` is now `Pca`, `SNN` is now `Snn`.
   This gives us a consistent naming scheme across the package that aligns with the underlying C++ code.
 - Renamed `modelGeneVar` to `modelGeneVariances` (similarly for its `*Results` class) for easier reading.
   - Also changed the weighting scheme so that we do not allow equal contributions from very small blocks (< 1000 cells) with less stable statistics.
+    Large blocks will still be equally weighted, regardless of their actual size.
 - Modified `scoreMarkers()` in response to **libscran** changes.
   - Added a weighting scheme identical to the one used by `modelGeneVariances()`.
     This now equalizes contributions from large blocks to each per-cluster statistics (> 1000 cells in the relevant cluster). 
-  - Removed the block option from the methods of the corresponding `Results` object, as averages are now automatically returned for the means and detected proportions. 
+  - Removed the `block=` option from the methods of the corresponding `Results` object, as averages are now automatically returned for the means and detected proportions. 
 - Changed how blocking is handled in `runPca()`:
   - Added `blockMethod="project"` to enable projection of cells onto rotation vectors defined from residuals.
   - Added `blockWeights=` to determine whether to equalize the contribution of large blocks of different size, using the same scheme in `scoreMarkers()` and `modelGeneVariances()`.
@@ -21,11 +23,12 @@
   - Removed `blockMethod = "weight"`, which is replaced by `blockMethod = "none"` with `blockWeights = true`.
 - Overhauled the interface for t-SNE and UMAP calculations:
   - Renamed the output of `initializeTsne()` and `initializeUmap()` to `TsneStatus` and `UmapStatus`, respectively.
-    Added a `run()` method to the status objects, which runs them for the specified time/number of iterations.
+  - Added a `run()` method to the status objects, which runs them for the specified time/number of iterations.
     This is more ergonomic than initializing the status objects and passing them to `runTsne()` or `runUmap()`.
   - Changed `runTsne()` and `runUmap()` to directly return the final t-SNE and UMAP coordinates, respectively, from the nearest neighbor input.
     This avoids exposing the status objects for basic use cases.
 - Removed many of the `empty*Results()` functions, as these are not necessary for regular uses of this package.
+  The exception is that of the `emptySuggest*QcFiltersResults()` as this can be used to perform filtering with custom thresholds.
 - Removed the `consume=` option from `initializeSparseMatrixFromRds()`, as the potential damage from pass-by-reference mutations is too high for the minor improvement in performance.
 - Added `allowNonFinite=` option to the `logNormCounts()` function to handle infinite and missing size factors.
 - Added `allowZeros=` and `allowNonFinite=` options to the `groupedSizeFactors()` function to handle infinite and missing size factors.
