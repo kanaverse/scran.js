@@ -1,5 +1,11 @@
 # scran.js news
 
+## 3.0.1
+
+**Changes**
+
+- Updated to a more recent version of the underlying **tatami** library for some bugfixes and improvements.
+
 ## 3.0.0
 
 **Changes**
