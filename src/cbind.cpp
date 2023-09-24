@@ -60,34 +60,8 @@ NumericMatrix rbind(int n, uintptr_t mats) {
     return NumericMatrix(tatami::make_DelayedBind<0>(std::move(collected)));
 }
 
-NumericMatrix cbind_with_rownames(int n, uintptr_t mats, uintptr_t names, uintptr_t indices) {
-    if (n == 0) {
-        throw std::runtime_error("need at least one matrix to cbind");
-    }
-
-    auto mat_ptrs = convert_array_of_offsets<const NumericMatrix*>(n, mats);
-    const auto& first = *(mat_ptrs[0]);
-    std::vector<std::remove_reference<decltype(first.ptr)>::type> inputs;
-    inputs.reserve(n);
-    for (int i = 0; i < n; ++i) {
-        inputs.push_back(mat_ptrs[i]->ptr);
-    }
-
-    auto name_ptrs = convert_array_of_offsets<const int32_t*>(n, names);
-    auto out = tatami::bind_intersection<1>(inputs, name_ptrs);
-
-    // Save the direct row indices for the first matrix.
-    const auto& idx = out.second;
-    auto idptr = reinterpret_cast<int*>(indices);
-    std::copy(idx.begin(), idx.end(), idptr);
-
-    return NumericMatrix(std::move(out.first));
-}
-
 EMSCRIPTEN_BINDINGS(cbind) {
     emscripten::function("cbind", &cbind);
 
     emscripten::function("rbind", &rbind);
-
-    emscripten::function("cbind_with_rownames", &cbind_with_rownames);
 }
