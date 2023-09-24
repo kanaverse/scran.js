@@ -47,6 +47,7 @@
             <pre class="prettyprint source linenums"><code>import * as utils from "./utils.js";
 import { ScranMatrix } from "./ScranMatrix.js";
 import * as gc from "./gc.js";
+import * as subset from "./subset.js";
 
 function harvest_matrices(x) {
     let output = utils.createBigUint64WasmArray(x.length);
@@ -113,6 +114,7 @@ export function rbind(inputs) {
     return output;
 }
 
+
 /**
  * Combine matrices by column, after subsetting each matrix to the intersection of common features.
  *
@@ -120,80 +122,85 @@ export function rbind(inputs) {
  * @param {Array} names - Array of length equal to `inputs`.
  * Each entry should be an Array containing the row names of the corresponding entry of `inputs`.
  * Names should correspond to the rows of that entry of `inputs`.
+ * Any `null` names are ignored.
+ * If names are duplicated within each array, only the first occurrence is considered in the intersection.
  *
  * @return {object} An object containing:
  * - `matrix`, a {@linkplain ScranMatrix} containing the combined matrices.
- * - `indices`, an Int32WasmArray of length equal to the number of rows in `matrix`.
+ * - `indices`, an Int32Array of length equal to the number of rows in `matrix`.
  *    This contains the index of the row in the first entry of `inputs` corresponding to each row of `matrix`,
  *    i.e., the gene at the `i`-th row of `matrix` is the same as the gene at the `indices[i]`-th row of `inputs[0]`.
+ *    This is guaranteed to be sorted.
  * - `names`, an array of names identifying the rows of `matrix`.
  *    This is constructed by indexing the first entry of `names` with `indices`.
  */
 export function cbindWithNames(x, names) {
-    let mat_ptrs;
-    let renamed = [];
-    let name_ptrs;
-    let indices;
-    let output = {};
+    // Find the intersection of names, following the order of the first entry.
+    // We do so to try to improve the chance of getting an ordered subset for efficient extraction.
+    let ordered_intersection = [];
+    let remapping = new Map;
 
-    try {
-        // Building a common set of rownames.
-        if (names.length !== x.length) {
-            throw new Error("length of 'names' should be equal to length of 'x'");
+    if (names.length > 0) {
+        let intersection = new Set;
+        for (var n = 0; n &lt; names.length; ++n) {
+            let current = new Set();
+            for (const name of names[n]) {
+                if (name !== null) {
+                    if (n == 0 || intersection.has(name)) {
+                        current.add(name);
+                    }
+                }
+            }
+            intersection = current;
         }
 
-        let common = {};
-        let universe = [];
-        for (var i = 0; i &lt; names.length; i++) {
-            if (x[i].numberOfRows() !== names[i].length) {
-                throw new Error("length of each 'names' must equal number of rows of its corresponding 'x'");
+        for (const name of names[0]) {
+            if (name !== null &amp;&amp; intersection.has(name)) {
+                let candidate = remapping.get(name);
+                if (candidate == undefined) { // only consider the first occurence.
+                    remapping.set(name, ordered_intersection.length);
+                    ordered_intersection.push(name);
+                }
             }
-            names[i].forEach(x => {
-                if (!(x in common)) {
-                    common[x] = universe.length;
-                    universe.push(x);
+        }
+    }
+
+    // Actually generating the combined matrix.
+    let output = {};
+    let tmp_subset = []
+    let tmp_sliced = []
+    
+    try {
+        for (var n = 0; n &lt; names.length; ++n) {
+            let survivors = utils.createInt32WasmArray(ordered_intersection.length);
+            survivors.fill(-1);
+            let sarray = survivors.array();
+            names[n].forEach((x, i) => {
+                let candidate = remapping.get(x);
+                if (candidate !== undefined) {
+                    if (sarray[candidate] &lt; 0) { // only consider the first occurrence.
+                        sarray[candidate] = i;
+                    }
                 }
             });
+
+            tmp_subset.push(survivors);
+            tmp_sliced.push(subset.subsetRows(x[n], survivors));
         }
 
-        name_ptrs = utils.createBigUint64WasmArray(x.length);
-        {
-            let names_arr = name_ptrs.array();
-            for (var i = 0; i &lt; names.length; i++) {
-                let current = names[i];
-                let replacement = utils.createInt32WasmArray(current.length);
-                let replacement_arr = replacement.array();
-                current.forEach((x, i) => {
-                    replacement_arr[i] = common[x];
-                });
-                renamed.push(replacement);
-                names_arr[i] = BigInt(replacement.offset);
-            }
-        }
-
-        mat_ptrs = harvest_matrices(x);
-        indices = utils.createInt32WasmArray(x[0].numberOfRows());
-        output.matrix = gc.call(
-            module => module.cbind_with_rownames(x.length, mat_ptrs.offset, name_ptrs.offset, indices.offset),
-            ScranMatrix
-        );
-
-        output.indices = indices.slice(0, output.matrix.numberOfRows());
-        let internames = [];
-        for (const i of output.indices) {
-            internames.push(names[0][i]);
-        }
-        output.names = internames;
+        output.matrix = cbind(tmp_sliced);
+        output.indices = tmp_subset[0].slice();
+        output.names = ordered_intersection;
 
     } catch (e) {
         utils.free(output.matrix);
         throw e;
 
     } finally {
-        utils.free(mat_ptrs);
-        utils.free(name_ptrs);
-        utils.free(indices);
-        for (const x of renamed) {
+        for (const x of tmp_subset) {
+            utils.free(x);
+        }
+        for (const x of tmp_sliced) {
             utils.free(x);
         }
     }
@@ -214,7 +221,7 @@ export function cbindWithNames(x, names) {
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.11</a> on Thu Jul 27 2023 06:27:20 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.11</a> on Sun Sep 24 2023 07:30:18 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>
