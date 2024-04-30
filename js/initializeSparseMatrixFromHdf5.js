@@ -4,11 +4,13 @@ import * as utils from "./utils.js";
 import { ScranMatrix } from "./ScranMatrix.js";
 
 /**
- * Initialize a layered sparse matrix from a HDF5 file.
+ * Initialize a (potentially layered) sparse matrix from a HDF5 file,
+ * either from a dense array (via {@linkcode initializeSparseMatrixFromHdf5DenseArray})
+ * or a group containing a compressed sparse matrix (via {@linkcode initializeSparseMatrixFromHdf5SparseMatrix}).
  *
  * @param {string} file Path to the HDF5 file.
  * For browsers, the file should have been saved to the virtual filesystem.
- * @param {string} name Name of the dataset inside the file.
+ * @param {string} name Name of the matrix inside the file.
  * This can be a HDF5 Dataset for dense matrices or a HDF5 Group for sparse matrices.
  * For the latter, both H5AD and 10X-style sparse formats are supported.
  * @param {object} [options={}] - Optional parameters.
@@ -64,6 +66,25 @@ function prepare_hdf5_matrix_subset(subsetRow, subsetColumn, fun) {
     return output;
 }
 
+/**
+ * Initialize a (potentially layered) sparse matrix from a two-dimensional HDF5 dataset.
+ *
+ * @param {string} file Path to the HDF5 file.
+ * For browsers, the file should have been saved to the virtual filesystem.
+ * @param {string} name Name of the dataset inside the file.
+ * @param {object} [options={}] - Optional parameters.
+ * @param {boolean} [options.transposed=false] - Whether the matrix is transposed inside the file, i.e., the last dimension represents the rows.
+ * @param {boolean} [options.forceInteger=false] - Whether to coerce all elements to integers via truncation.
+ * @param {boolean} [options.layered=true] - Whether to create a layered sparse matrix, see [**tatami_layered**](https://github.com/tatami-inc/tatami_layered) for more details.
+ * Only used if the relevant HDF5 dataset contains an integer type and/or `forceInteger = true`.
+ * Setting to `true` assumes that the matrix contains only non-negative integers.
+ * @param {?(Array|TypedArray|Int32WasmArray)} [options.subsetRow=null] - Row indices to extract.
+ * All indices must be non-negative integers less than the number of rows in the sparse matrix.
+ * @param {?(Array|TypedArray|Int32WasmArray)} [options.subsetColumn=null] - Column indices to extract.
+ * All indices must be non-negative integers less than the number of columns in the sparse matrix.
+ *
+ * @return {ScranMatrix} Matrix containing sparse data.
+ */
 export function initializeSparseMatrixFromHdf5DenseArray(file, name, { transposed = false, forceInteger = false, layered = true, subsetRow = null, subsetColumn = null } = {}) {
     return prepare_hdf5_matrix_subset(subsetRow, subsetColumn, (use_row_subset, row_offset, row_length, use_col_subset, col_offset, col_length) => {
         return gc.call(
@@ -76,6 +97,28 @@ export function initializeSparseMatrixFromHdf5DenseArray(file, name, { transpose
     });
 }
 
+/**
+ * Initialize a (potentially layered) sparse matrix from a HDF5 group containing the usual `data`, `indices`, and `indptr` components of a compressed sparse matrix.
+ *
+ * @param {string} file - Path to the HDF5 file.
+ * For browsers, the file should have been saved to the virtual filesystem.
+ * @param {string} name - Name of the dataset inside the file.
+ * @param {number} numberOfRows - Number of rows in the matrix.
+ * @param {number} numberOfColumns - Number of columns in the matrix.
+ * @param {boolean} byColumn - Whether the matrix is in the compressed sparse column (CSC) format.
+ * If false, the format is assumed to be compressed sparse row (CSR) instead.
+ * @param {object} [options={}] - Optional parameters.
+ * @param {boolean} [options.forceInteger=false] - Whether to coerce all elements to integers via truncation.
+ * @param {boolean} [options.layered=true] - Whether to create a layered sparse matrix, see [**tatami_layered**](https://github.com/tatami-inc/tatami_layered) for more details.
+ * Only used if the relevant HDF5 dataset contains an integer type and/or `forceInteger = true`.
+ * Setting to `true` assumes that the matrix contains only non-negative integers.
+ * @param {?(Array|TypedArray|Int32WasmArray)} [options.subsetRow=null] - Row indices to extract.
+ * All indices must be non-negative integers less than the number of rows in the sparse matrix.
+ * @param {?(Array|TypedArray|Int32WasmArray)} [options.subsetColumn=null] - Column indices to extract.
+ * All indices must be non-negative integers less than the number of columns in the sparse matrix.
+ *
+ * @return {ScranMatrix} Matrix containing sparse data.
+ */
 export function initializeSparseMatrixFromHdf5SparseMatrix(file, name, numberOfRows, numberOfColumns, byColumn, { forceInteger = false, layered = true, subsetRow = null, subsetColumn = null } = {}) {
     return prepare_hdf5_matrix_subset(subsetRow, subsetColumn, (use_row_subset, row_offset, row_length, use_col_subset, col_offset, col_length) => {
         return gc.call(
