@@ -237,7 +237,16 @@ export function extractMatrixMarketDimensions(x, { compressed = null } = {}) {
  * @return {ScranMatrix} Matrix containing sparse data.
  */
 export function initializeSparseMatrixFromHdf5(file, name, { forceInteger = true, layered = true, subsetRow = null, subsetColumn = null } = {}) {
-    var ids = null;
+    const details = extractHdf5MatrixDetails(file, name);
+    if (details.format == "dense") {
+        // Setting transposed = true as all known dense matrices store the cells in the first dimension and the genes in the last dimension.
+        return initializeSparseMatrixFromHdf5DenseArray(file, name, { transposed: true, forceInteger, layered, subsetRow, subsetColumn });
+    } else {
+        return initializeSparseMatrixFromHdf5SparseMatrix(file, name, details.rows, details.columns, details.format == "csc", { forceInteger, layered, subsetRow, subsetColumn });
+    }
+}
+
+function prepare_hdf5_matrix_subset(subsetRow, subsetColumn, fun) {
     var output;
     let wasm_row, wasm_col;
 
@@ -258,20 +267,32 @@ export function initializeSparseMatrixFromHdf5(file, name, { forceInteger = true
             col_length = wasm_col.length;
         }
 
-        output = gc.call(
-            module => module.read_hdf5_matrix(file, name, forceInteger, layered, use_row_subset, row_offset, row_length, use_col_subset, col_offset, col_length),
-            ScranMatrix
-        );
+        output = fun(use_row_subset, row_offset, row_length, use_col_subset, col_offset, col_length);
 
-    } catch(e) {
-        utils.free(output);
-        throw e;
     } finally {
         utils.free(wasm_row);
         utils.free(wasm_col);
     }
 
     return output;
+}
+
+export function initializeSparseMatrixFromHdf5DenseArray(file, name, { transposed = false, forceInteger = true, layered = true, subsetRow = null, subsetColumn = null } = {}) {
+    return prepare_hdf5_matrix_subset(subsetRow, subsetColumn, (use_row_subset, row_offset, row_length, use_col_subset, col_offset, col_length) => {
+        return gc.call(module => module.read_sparse_matrix_from_hdf5_dense_array(
+            file, name, transposed, forceInteger, layered,
+            use_row_subset, row_offset, row_length, use_col_subset, col_offset, col_length
+        ));
+    });
+}
+
+export function initializeSparseMatrixFromHdf5SparseMatrix(file, name, numberOfRows, numberOfColumns, byColumn, { forceInteger = true, layered = true, subsetRow = null, subsetColumn = null } = {}) {
+    return prepare_hdf5_matrix_subset(subsetRow, subsetColumn, (use_row_subset, row_offset, row_length, use_col_subset, col_offset, col_length) => {
+        return gc.call(module => module.read_sparse_matrix_from_hdf5_sparse_matrix(
+            file, name, numberOfRows, numberOfColumns, byColumn, forceInteger, layered, 
+            use_row_subset, row_offset, row_length, use_col_subset, col_offset, col_length
+        ));
+    });
 }
 
 /**
