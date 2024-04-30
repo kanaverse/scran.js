@@ -60,6 +60,13 @@ test("initialization from HDF5 works correctly with dense inputs", () => {
     expect(compare.equalArrays(mat2.column(0), first_col)).toBe(true);
     expect(compare.equalArrays(mat2.column(19), last_col)).toBe(true);
 
+    // Checking that it works when untransposed.
+    var mat3 = scran.initializeSparseMatrixFromHdf5DenseArray(path, "stuff", { transposed: false });
+    expect(mat3.numberOfRows()).toBe(mat2.numberOfColumns());
+    expect(mat3.numberOfColumns()).toBe(mat2.numberOfRows());
+    expect(compare.equalArrays(mat3.column(0), mat2.row(0))).toBe(true);
+    expect(compare.equalArrays(mat3.row(0), mat2.column(0))).toBe(true);
+
     // Freeing.
     mat.free();
     mat2.free();
@@ -155,6 +162,10 @@ test("initialization from HDF5 works correctly with 10X inputs", () => {
 
     // Integer status is automatically detected, allowing the layering to be attempted.
     var mat2 = scran.initializeSparseMatrixFromHdf5(path, "foobar", { forceInteger: false });
+    expect(mat2.numberOfRows()).toBe(mat.numberOfRows());
+    expect(mat2.numberOfColumns()).toBe(mat.numberOfColumns());
+    expect(compare.equalArrays(mat2.row(0), mat.row(0))).toBe(true);
+    expect(compare.equalArrays(mat2.column(0), mat.column(0))).toBe(true);
 
     // Freeing.
     mat.free();
@@ -205,7 +216,15 @@ test("initialization from HDF5 works correctly with H5AD inputs", () => {
     var mat2 = scran.initializeSparseMatrixFromHdf5(path, "layers/counts", { layered: false });
     expect(mat2.numberOfRows()).toBe(nr); 
     expect(mat2.numberOfColumns()).toBe(nc);
-    expect(compare.equalArrays(mat2.row(0), ref)).toBe(true);
+    expect(compare.equalArrays(mat2.row(0), mat.row(0))).toBe(true);
+    expect(compare.equalArrays(mat2.column(0), mat.column(0))).toBe(true);
+
+    // Using raw access.
+    var mat3 = scran.initializeSparseMatrixFromHdf5SparseMatrix(path, "layers/counts", nr, nc, false);
+    expect(mat3.numberOfRows()).toBe(nr); 
+    expect(mat3.numberOfColumns()).toBe(nc);
+    expect(compare.equalArrays(mat3.row(0), mat.row(0))).toBe(true);
+    expect(compare.equalArrays(mat3.column(0), mat.column(0))).toBe(true);
 
     // Freeing.
     mat.free();
