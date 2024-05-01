@@ -70,6 +70,7 @@ test("initialization from HDF5 works correctly with dense inputs", () => {
     // Freeing.
     mat.free();
     mat2.free();
+    mat3.free();
 })
 
 test("dense initialization from HDF5 works correctly with forced integers", () => {
@@ -229,6 +230,7 @@ test("initialization from HDF5 works correctly with H5AD inputs", () => {
     // Freeing.
     mat.free();
     mat2.free();
+    mat3.free();
 })
 
 test("initialization from HDF5 works correctly with forced integers", () => {
@@ -272,9 +274,17 @@ test("initialization from HDF5 works correctly with forced integers", () => {
         }
     }
 
+    // Using raw access.
+    var mat3 = scran.initializeSparseMatrixFromHdf5SparseMatrix(path, "foobar", nr, nc, true, { forceInteger: true, layered: true });
+    expect(mat3.numberOfRows()).toBe(nr); 
+    expect(mat3.numberOfColumns()).toBe(nc);
+    expect(compare.equalArrays(mat3.row(0), mat1.row(0))).toBe(true);
+    expect(compare.equalArrays(mat3.column(0), mat1.column(0))).toBe(true);
+
     // Freeing.
     mat1.free();
     mat2.free();
+    mat3.free();
 })
 
 test("initialization from HDF5 works correctly with subsetting", () => {
