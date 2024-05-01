@@ -1,5 +1,21 @@
 # scran.js news
 
+## 3.0.2
+
+**New**
+
+- Added the `initializeSparseMatrixFromHdf5DenseArray()` and `initializeSparseMatrixFromHdf5SparseMatrix()` functions,
+  which exposes the internals used by the `initializeSparseMatrixFromHdf5()` function.
+  These new functions give the user more control over the construction of sparse matrices from HDF5 files.
+
+**Changes**
+
+- Protected `cbindWithNames()` from weird names.
+  Null names are ignored, allowing us to safely handle missing gene symbols.
+  When names are duplicated, we explicitly keep only the first occurrence;
+  this is more intuitive than the old (and undocumented) behavior of keeping only the last occurrence.
+  The order of names from the first matrix is preserved in the final intersection, which should reduce the amount of reordering. 
+
 ## 3.0.1
 
 **Changes**
