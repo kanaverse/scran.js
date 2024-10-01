@@ -65,13 +65,13 @@ void run_umap(InitializedUmapStatus& status, int runtime) {
 }
 
 EMSCRIPTEN_BINDINGS(run_umap) {
-    emscripten::function("initialize_umap", &initialize_umap);
+    emscripten::function("initialize_umap", &initialize_umap, emscripten::return_value_policy::take_ownership());
 
-    emscripten::function("run_umap", &run_umap);
+    emscripten::function("run_umap", &run_umap, emscripten::return_value_policy::take_ownership());
 
     emscripten::class_<InitializedUmapStatus>("InitializedUmapStatus")
-        .function("epoch", &InitializedUmapStatus::epoch)
-        .function("num_epochs", &InitializedUmapStatus::num_epochs)
-        .function("num_obs", &InitializedUmapStatus::num_obs)
-        .function("deepcopy", &InitializedUmapStatus::deepcopy);
+        .function("epoch", &InitializedUmapStatus::epoch, emscripten::return_value_policy::take_ownership())
+        .function("num_epochs", &InitializedUmapStatus::num_epochs, emscripten::return_value_policy::take_ownership())
+        .function("num_obs", &InitializedUmapStatus::num_obs, emscripten::return_value_policy::take_ownership())
+        .function("deepcopy", &InitializedUmapStatus::deepcopy, emscripten::return_value_policy::take_ownership());
 }

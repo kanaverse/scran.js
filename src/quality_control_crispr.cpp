@@ -91,22 +91,22 @@ SuggestCrisprQcFilters_Results suggest_crispr_qc_filters(uintptr_t metrics, bool
 }
 
 EMSCRIPTEN_BINDINGS(quality_control_crispr) {
-    emscripten::function("per_cell_crispr_qc_metrics", &per_cell_crispr_qc_metrics);
+    emscripten::function("per_cell_crispr_qc_metrics", &per_cell_crispr_qc_metrics, emscripten::return_value_policy::take_ownership());
 
     emscripten::class_<PerCellCrisprQcMetrics_Results>("PerCellCrisprQcMetrics_Results")
-        .function("sums", &PerCellCrisprQcMetrics_Results::sums)
-        .function("detected", &PerCellCrisprQcMetrics_Results::detected)
-        .function("max_proportion", &PerCellCrisprQcMetrics_Results::max_proportion)
-        .function("max_index", &PerCellCrisprQcMetrics_Results::max_index)
-        .function("num_cells", &PerCellCrisprQcMetrics_Results::num_cells)
+        .function("sums", &PerCellCrisprQcMetrics_Results::sums, emscripten::return_value_policy::take_ownership())
+        .function("detected", &PerCellCrisprQcMetrics_Results::detected, emscripten::return_value_policy::take_ownership())
+        .function("max_proportion", &PerCellCrisprQcMetrics_Results::max_proportion, emscripten::return_value_policy::take_ownership())
+        .function("max_index", &PerCellCrisprQcMetrics_Results::max_index, emscripten::return_value_policy::take_ownership())
+        .function("num_cells", &PerCellCrisprQcMetrics_Results::num_cells, emscripten::return_value_policy::take_ownership())
         ;
 
-    emscripten::function("suggest_crispr_qc_filters", &suggest_crispr_qc_filters);
+    emscripten::function("suggest_crispr_qc_filters", &suggest_crispr_qc_filters, emscripten::return_value_policy::take_ownership());
 
     emscripten::class_<SuggestCrisprQcFilters_Results>("SuggestCrisprQcFilters_Results")
         .constructor<int>()
-        .function("thresholds_max_count", &SuggestCrisprQcFilters_Results::thresholds_max_count)
-        .function("num_blocks", &SuggestCrisprQcFilters_Results::num_blocks)
-        .function("filter", &SuggestCrisprQcFilters_Results::filter)
+        .function("thresholds_max_count", &SuggestCrisprQcFilters_Results::thresholds_max_count, emscripten::return_value_policy::take_ownership())
+        .function("num_blocks", &SuggestCrisprQcFilters_Results::num_blocks, emscripten::return_value_policy::take_ownership())
+        .function("filter", &SuggestCrisprQcFilters_Results::filter, emscripten::return_value_policy::take_ownership())
         ;
 }

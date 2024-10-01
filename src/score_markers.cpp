@@ -109,15 +109,15 @@ ScoreMarkers_Results score_markers(
 }
 
 EMSCRIPTEN_BINDINGS(score_markers) {
-    emscripten::function("score_markers", &score_markers);
+    emscripten::function("score_markers", &score_markers, emscripten::return_value_policy::take_ownership());
 
     emscripten::class_<ScoreMarkers_Results>("ScoreMarkers_Results")
-        .function("means", &ScoreMarkers_Results::means)
-        .function("detected", &ScoreMarkers_Results::detected)
-        .function("cohen", &ScoreMarkers_Results::cohen)
-        .function("auc", &ScoreMarkers_Results::auc)
-        .function("lfc", &ScoreMarkers_Results::lfc)
-        .function("delta_detected", &ScoreMarkers_Results::delta_detected)
-        .function("num_groups", &ScoreMarkers_Results::num_groups)
+        .function("means", &ScoreMarkers_Results::means, emscripten::return_value_policy::take_ownership())
+        .function("detected", &ScoreMarkers_Results::detected, emscripten::return_value_policy::take_ownership())
+        .function("cohen", &ScoreMarkers_Results::cohen, emscripten::return_value_policy::take_ownership())
+        .function("auc", &ScoreMarkers_Results::auc, emscripten::return_value_policy::take_ownership())
+        .function("lfc", &ScoreMarkers_Results::lfc, emscripten::return_value_policy::take_ownership())
+        .function("delta_detected", &ScoreMarkers_Results::delta_detected, emscripten::return_value_policy::take_ownership())
+        .function("num_groups", &ScoreMarkers_Results::num_groups, emscripten::return_value_policy::take_ownership())
         ;
 }

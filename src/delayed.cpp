@@ -110,8 +110,8 @@ void transpose(NumericMatrix& x) {
 }
 
 EMSCRIPTEN_BINDINGS(delayed_operations) {
-    emscripten::function("delayed_arithmetic_scalar", &delayed_arithmetic_scalar);
-    emscripten::function("delayed_arithmetic_vector", &delayed_arithmetic_vector);
-    emscripten::function("delayed_math", &delayed_math);
-    emscripten::function("transpose", &transpose);
+    emscripten::function("delayed_arithmetic_scalar", &delayed_arithmetic_scalar, emscripten::return_value_policy::take_ownership());
+    emscripten::function("delayed_arithmetic_vector", &delayed_arithmetic_vector, emscripten::return_value_policy::take_ownership());
+    emscripten::function("delayed_math", &delayed_math, emscripten::return_value_policy::take_ownership());
+    emscripten::function("transpose", &transpose, emscripten::return_value_policy::take_ownership());
 }

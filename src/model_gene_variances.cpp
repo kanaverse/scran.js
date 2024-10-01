@@ -68,13 +68,13 @@ ModelGeneVariances_Results model_gene_variances(const NumericMatrix& mat, bool u
 }
 
 EMSCRIPTEN_BINDINGS(model_gene_variances) {
-    emscripten::function("model_gene_variances", &model_gene_variances);
+    emscripten::function("model_gene_variances", &model_gene_variances, emscripten::return_value_policy::take_ownership());
 
     emscripten::class_<ModelGeneVariances_Results>("ModelGeneVariances_Results")
-        .function("means", &ModelGeneVariances_Results::means)
-        .function("variances", &ModelGeneVariances_Results::variances)
-        .function("fitted", &ModelGeneVariances_Results::fitted)
-        .function("residuals", &ModelGeneVariances_Results::residuals)
-        .function("num_blocks", &ModelGeneVariances_Results::num_blocks)
+        .function("means", &ModelGeneVariances_Results::means, emscripten::return_value_policy::take_ownership())
+        .function("variances", &ModelGeneVariances_Results::variances, emscripten::return_value_policy::take_ownership())
+        .function("fitted", &ModelGeneVariances_Results::fitted, emscripten::return_value_policy::take_ownership())
+        .function("residuals", &ModelGeneVariances_Results::residuals, emscripten::return_value_policy::take_ownership())
+        .function("num_blocks", &ModelGeneVariances_Results::num_blocks, emscripten::return_value_policy::take_ownership())
         ;
 }

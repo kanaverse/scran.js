@@ -32,17 +32,17 @@ NeighborResults find_nearest_neighbors(const NeighborIndex& index, int k, int nt
 }
 
 EMSCRIPTEN_BINDINGS(build_neighbor_index) {
-    emscripten::function("find_nearest_neighbors", &find_nearest_neighbors);
+    emscripten::function("find_nearest_neighbors", &find_nearest_neighbors, emscripten::return_value_policy::take_ownership());
 
-    emscripten::function("build_neighbor_index", &build_neighbor_index);
+    emscripten::function("build_neighbor_index", &build_neighbor_index, emscripten::return_value_policy::take_ownership());
 
     emscripten::class_<NeighborIndex>("NeighborIndex")
-        .function("num_obs", &NeighborIndex::num_obs)
-        .function("num_dim", &NeighborIndex::num_dim);
+        .function("num_obs", &NeighborIndex::num_obs, emscripten::return_value_policy::take_ownership())
+        .function("num_dim", &NeighborIndex::num_dim, emscripten::return_value_policy::take_ownership());
     
     emscripten::class_<NeighborResults>("NeighborResults")
         .constructor<size_t, uintptr_t, uintptr_t, uintptr_t>()
-        .function("num_obs", &NeighborResults::num_obs)
-        .function("size", &NeighborResults::size)
-        .function("serialize", &NeighborResults::serialize);
+        .function("num_obs", &NeighborResults::num_obs, emscripten::return_value_policy::take_ownership())
+        .function("size", &NeighborResults::size, emscripten::return_value_policy::take_ownership())
+        .function("serialize", &NeighborResults::serialize, emscripten::return_value_policy::take_ownership());
 }

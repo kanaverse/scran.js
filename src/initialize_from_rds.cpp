@@ -209,5 +209,5 @@ NumericMatrix initialize_sparse_matrix_from_rds(uintptr_t ptr, bool force_intege
 }
 
 EMSCRIPTEN_BINDINGS(initialize_from_rds) {
-    emscripten::function("initialize_sparse_matrix_from_rds", &initialize_sparse_matrix_from_rds);
+    emscripten::function("initialize_sparse_matrix_from_rds", &initialize_sparse_matrix_from_rds, emscripten::return_value_policy::take_ownership());
 }

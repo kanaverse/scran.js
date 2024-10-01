@@ -110,25 +110,25 @@ SuggestRnaQcFilters_Results suggest_rna_qc_filters(uintptr_t metrics, bool use_b
 }
 
 EMSCRIPTEN_BINDINGS(quality_control_rna) {
-    emscripten::function("per_cell_rna_qc_metrics", &per_cell_rna_qc_metrics);
+    emscripten::function("per_cell_rna_qc_metrics", &per_cell_rna_qc_metrics, emscripten::return_value_policy::take_ownership());
 
     emscripten::class_<PerCellRnaQcMetrics_Results>("PerCellRnaQcMetrics_Results")
-        .function("sums", &PerCellRnaQcMetrics_Results::sums)
-        .function("detected", &PerCellRnaQcMetrics_Results::detected)
-        .function("subset_proportions", &PerCellRnaQcMetrics_Results::subset_proportions)
-        .function("num_subsets", &PerCellRnaQcMetrics_Results::num_subsets)
-        .function("num_cells", &PerCellRnaQcMetrics_Results::num_cells)
+        .function("sums", &PerCellRnaQcMetrics_Results::sums, emscripten::return_value_policy::take_ownership())
+        .function("detected", &PerCellRnaQcMetrics_Results::detected, emscripten::return_value_policy::take_ownership())
+        .function("subset_proportions", &PerCellRnaQcMetrics_Results::subset_proportions, emscripten::return_value_policy::take_ownership())
+        .function("num_subsets", &PerCellRnaQcMetrics_Results::num_subsets, emscripten::return_value_policy::take_ownership())
+        .function("num_cells", &PerCellRnaQcMetrics_Results::num_cells, emscripten::return_value_policy::take_ownership())
         ;
 
-    emscripten::function("suggest_rna_qc_filters", &suggest_rna_qc_filters);
+    emscripten::function("suggest_rna_qc_filters", &suggest_rna_qc_filters, emscripten::return_value_policy::take_ownership());
 
     emscripten::class_<SuggestRnaQcFilters_Results>("SuggestRnaQcFilters_Results")
         .constructor<int, int>()
-        .function("thresholds_sums", &SuggestRnaQcFilters_Results::thresholds_sums)
-        .function("thresholds_detected", &SuggestRnaQcFilters_Results::thresholds_detected)
-        .function("thresholds_proportions", &SuggestRnaQcFilters_Results::thresholds_proportions)
-        .function("num_subsets", &SuggestRnaQcFilters_Results::num_subsets)
-        .function("num_blocks", &SuggestRnaQcFilters_Results::num_blocks)
-        .function("filter", &SuggestRnaQcFilters_Results::filter)
+        .function("thresholds_sums", &SuggestRnaQcFilters_Results::thresholds_sums, emscripten::return_value_policy::take_ownership())
+        .function("thresholds_detected", &SuggestRnaQcFilters_Results::thresholds_detected, emscripten::return_value_policy::take_ownership())
+        .function("thresholds_proportions", &SuggestRnaQcFilters_Results::thresholds_proportions, emscripten::return_value_policy::take_ownership())
+        .function("num_subsets", &SuggestRnaQcFilters_Results::num_subsets, emscripten::return_value_policy::take_ownership())
+        .function("num_blocks", &SuggestRnaQcFilters_Results::num_blocks, emscripten::return_value_policy::take_ownership())
+        .function("filter", &SuggestRnaQcFilters_Results::filter, emscripten::return_value_policy::take_ownership())
         ;
 }

@@ -68,12 +68,12 @@ NumericMatrix NumericMatrix::clone() const {
 
 EMSCRIPTEN_BINDINGS(NumericMatrix) {
     emscripten::class_<NumericMatrix>("NumericMatrix")
-        .constructor<int, int, uintptr_t, bool, bool>()
-        .function("nrow", &NumericMatrix::nrow)
-        .function("ncol", &NumericMatrix::ncol)
-        .function("row", &NumericMatrix::row)
-        .function("column", &NumericMatrix::column)
-        .function("sparse", &NumericMatrix::sparse)
-        .function("clone", &NumericMatrix::clone)
+        .constructor<int, int, uintptr_t, bool, bool>(emscripten::return_value_policy::take_ownership())
+        .function("nrow", &NumericMatrix::nrow, emscripten::return_value_policy::take_ownership())
+        .function("ncol", &NumericMatrix::ncol, emscripten::return_value_policy::take_ownership())
+        .function("row", &NumericMatrix::row, emscripten::return_value_policy::take_ownership())
+        .function("column", &NumericMatrix::column, emscripten::return_value_policy::take_ownership())
+        .function("sparse", &NumericMatrix::sparse, emscripten::return_value_policy::take_ownership())
+        .function("clone", &NumericMatrix::clone, emscripten::return_value_policy::take_ownership())
         ;
 }

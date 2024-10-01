@@ -92,5 +92,5 @@ void hypergeometric_test(
 }
 
 EMSCRIPTEN_BINDINGS(hypergeometric_test) {
-    emscripten::function("hypergeometric_test", &hypergeometric_test);
+    emscripten::function("hypergeometric_test", &hypergeometric_test, emscripten::return_value_policy::take_ownership());
 }

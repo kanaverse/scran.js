@@ -835,55 +835,55 @@ void write_enum_hdf5_attribute(std::string path, std::string name, std::string a
 EMSCRIPTEN_BINDINGS(hdf5_utils) {
     emscripten::class_<H5GroupDetails>("H5GroupDetails")
         .constructor<std::string, std::string>()
-        .function("child_buffer", &H5GroupDetails::child_buffer)
-        .function("child_lengths", &H5GroupDetails::child_lengths)
-        .function("child_types", &H5GroupDetails::child_types)
-        .function("attr_buffer", &H5GroupDetails::attr_buffer)
-        .function("attr_lengths", &H5GroupDetails::attr_lengths)
+        .function("child_buffer", &H5GroupDetails::child_buffer, emscripten::return_value_policy::take_ownership())
+        .function("child_lengths", &H5GroupDetails::child_lengths, emscripten::return_value_policy::take_ownership())
+        .function("child_types", &H5GroupDetails::child_types, emscripten::return_value_policy::take_ownership())
+        .function("attr_buffer", &H5GroupDetails::attr_buffer, emscripten::return_value_policy::take_ownership())
+        .function("attr_lengths", &H5GroupDetails::attr_lengths, emscripten::return_value_policy::take_ownership())
         ;
 
     emscripten::class_<H5DataSetDetails>("H5DataSetDetails")
         .constructor<std::string, std::string>()
-        .function("type", &H5DataSetDetails::type)
-        .function("shape", &H5DataSetDetails::shape)
-        .function("attr_buffer", &H5DataSetDetails::attr_buffer)
-        .function("attr_lengths", &H5DataSetDetails::attr_lengths)
+        .function("type", &H5DataSetDetails::type, emscripten::return_value_policy::take_ownership())
+        .function("shape", &H5DataSetDetails::shape, emscripten::return_value_policy::take_ownership())
+        .function("attr_buffer", &H5DataSetDetails::attr_buffer, emscripten::return_value_policy::take_ownership())
+        .function("attr_lengths", &H5DataSetDetails::attr_lengths, emscripten::return_value_policy::take_ownership())
         ;
 
     emscripten::class_<LoadedH5DataSet>("LoadedH5DataSet")
         .constructor<std::string, std::string>()
-        .function("type", &LoadedH5DataSet::type)
-        .function("shape", &LoadedH5DataSet::shape)
-        .function("numeric_values", &LoadedH5DataSet::numeric_values)
-        .function("string_buffer", &LoadedH5DataSet::string_buffer)
-        .function("string_lengths", &LoadedH5DataSet::string_lengths)
-        .function("attr_buffer", &LoadedH5DataSet::attr_buffer)
-        .function("attr_lengths", &LoadedH5DataSet::attr_lengths)
+        .function("type", &LoadedH5DataSet::type, emscripten::return_value_policy::take_ownership())
+        .function("shape", &LoadedH5DataSet::shape, emscripten::return_value_policy::take_ownership())
+        .function("numeric_values", &LoadedH5DataSet::numeric_values, emscripten::return_value_policy::take_ownership())
+        .function("string_buffer", &LoadedH5DataSet::string_buffer, emscripten::return_value_policy::take_ownership())
+        .function("string_lengths", &LoadedH5DataSet::string_lengths, emscripten::return_value_policy::take_ownership())
+        .function("attr_buffer", &LoadedH5DataSet::attr_buffer, emscripten::return_value_policy::take_ownership())
+        .function("attr_lengths", &LoadedH5DataSet::attr_lengths, emscripten::return_value_policy::take_ownership())
         ;
 
     emscripten::class_<LoadedH5Attr>("LoadedH5Attr")
         .constructor<std::string, std::string, std::string>()
-        .function("type", &LoadedH5Attr::type)
-        .function("shape", &LoadedH5Attr::shape)
-        .function("numeric_values", &LoadedH5Attr::numeric_values)
-        .function("string_buffer", &LoadedH5Attr::string_buffer)
-        .function("string_lengths", &LoadedH5Attr::string_lengths)
+        .function("type", &LoadedH5Attr::type, emscripten::return_value_policy::take_ownership())
+        .function("shape", &LoadedH5Attr::shape, emscripten::return_value_policy::take_ownership())
+        .function("numeric_values", &LoadedH5Attr::numeric_values, emscripten::return_value_policy::take_ownership())
+        .function("string_buffer", &LoadedH5Attr::string_buffer, emscripten::return_value_policy::take_ownership())
+        .function("string_lengths", &LoadedH5Attr::string_lengths, emscripten::return_value_policy::take_ownership())
         ;
 
-   emscripten::function("create_hdf5_file", &create_hdf5_file);
-   emscripten::function("create_hdf5_group", &create_hdf5_group);
+   emscripten::function("create_hdf5_file", &create_hdf5_file, emscripten::return_value_policy::take_ownership());
+   emscripten::function("create_hdf5_group", &create_hdf5_group, emscripten::return_value_policy::take_ownership());
 
-   emscripten::function("create_numeric_hdf5_dataset", &create_numeric_hdf5_dataset);
-   emscripten::function("write_numeric_hdf5_dataset", &write_numeric_hdf5_dataset);
-   emscripten::function("create_string_hdf5_dataset", &create_string_hdf5_dataset);
-   emscripten::function("write_string_hdf5_dataset", &write_string_hdf5_dataset);
-   emscripten::function("create_enum_hdf5_dataset", &create_enum_hdf5_dataset);
-   emscripten::function("write_enum_hdf5_dataset", &write_enum_hdf5_dataset);
+   emscripten::function("create_numeric_hdf5_dataset", &create_numeric_hdf5_dataset, emscripten::return_value_policy::take_ownership());
+   emscripten::function("write_numeric_hdf5_dataset", &write_numeric_hdf5_dataset, emscripten::return_value_policy::take_ownership());
+   emscripten::function("create_string_hdf5_dataset", &create_string_hdf5_dataset, emscripten::return_value_policy::take_ownership());
+   emscripten::function("write_string_hdf5_dataset", &write_string_hdf5_dataset, emscripten::return_value_policy::take_ownership());
+   emscripten::function("create_enum_hdf5_dataset", &create_enum_hdf5_dataset, emscripten::return_value_policy::take_ownership());
+   emscripten::function("write_enum_hdf5_dataset", &write_enum_hdf5_dataset, emscripten::return_value_policy::take_ownership());
 
-   emscripten::function("create_numeric_hdf5_attribute", &create_numeric_hdf5_attribute);
-   emscripten::function("write_numeric_hdf5_attribute", &write_numeric_hdf5_attribute);
-   emscripten::function("create_string_hdf5_attribute", &create_string_hdf5_attribute);
-   emscripten::function("write_string_hdf5_attribute", &write_string_hdf5_attribute);
-   emscripten::function("create_enum_hdf5_attribute", &create_enum_hdf5_attribute);
-   emscripten::function("write_enum_hdf5_attribute", &write_enum_hdf5_attribute);
+   emscripten::function("create_numeric_hdf5_attribute", &create_numeric_hdf5_attribute, emscripten::return_value_policy::take_ownership());
+   emscripten::function("write_numeric_hdf5_attribute", &write_numeric_hdf5_attribute, emscripten::return_value_policy::take_ownership());
+   emscripten::function("create_string_hdf5_attribute", &create_string_hdf5_attribute, emscripten::return_value_policy::take_ownership());
+   emscripten::function("write_string_hdf5_attribute", &write_string_hdf5_attribute, emscripten::return_value_policy::take_ownership());
+   emscripten::function("create_enum_hdf5_attribute", &create_enum_hdf5_attribute, emscripten::return_value_policy::take_ownership());
+   emscripten::function("write_enum_hdf5_attribute", &write_enum_hdf5_attribute, emscripten::return_value_policy::take_ownership());
 }

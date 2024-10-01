@@ -40,11 +40,11 @@ ScoreFeatureSet_Results score_feature_set(const NumericMatrix& mat, uintptr_t fe
 }
 
 EMSCRIPTEN_BINDINGS(score_feature_set) {
-    emscripten::function("score_feature_set", &score_feature_set);
+    emscripten::function("score_feature_set", &score_feature_set, emscripten::return_value_policy::take_ownership());
 
     emscripten::class_<ScoreFeatureSet_Results>("ScoreFeatureSet_Results")
-        .function("weights", &ScoreFeatureSet_Results::weights)
-        .function("scores", &ScoreFeatureSet_Results::scores)
+        .function("weights", &ScoreFeatureSet_Results::weights, emscripten::return_value_policy::take_ownership())
+        .function("scores", &ScoreFeatureSet_Results::scores, emscripten::return_value_policy::take_ownership())
         ;
 }
 

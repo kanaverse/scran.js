@@ -84,15 +84,15 @@ AggregateAcrossCells_Results aggregate_across_cells(const NumericMatrix& mat, ui
 }
 
 EMSCRIPTEN_BINDINGS(aggregate_across_cells) {
-    emscripten::function("aggregate_across_cells", &aggregate_across_cells);
+    emscripten::function("aggregate_across_cells", &aggregate_across_cells, emscripten::return_value_policy::take_ownership());
 
     emscripten::class_<AggregateAcrossCells_Results>("AggregateAcrossCells_Results")
-        .function("group_sums", &AggregateAcrossCells_Results::group_sums)
-        .function("all_sums", &AggregateAcrossCells_Results::all_sums)
-        .function("group_detected", &AggregateAcrossCells_Results::group_detected)
-        .function("all_detected", &AggregateAcrossCells_Results::all_detected)
-        .function("num_genes", &AggregateAcrossCells_Results::num_genes)
-        .function("num_groups", &AggregateAcrossCells_Results::num_groups)
+        .function("group_sums", &AggregateAcrossCells_Results::group_sums, emscripten::return_value_policy::take_ownership())
+        .function("all_sums", &AggregateAcrossCells_Results::all_sums, emscripten::return_value_policy::take_ownership())
+        .function("group_detected", &AggregateAcrossCells_Results::group_detected, emscripten::return_value_policy::take_ownership())
+        .function("all_detected", &AggregateAcrossCells_Results::all_detected, emscripten::return_value_policy::take_ownership())
+        .function("num_genes", &AggregateAcrossCells_Results::num_genes, emscripten::return_value_policy::take_ownership())
+        .function("num_groups", &AggregateAcrossCells_Results::num_groups, emscripten::return_value_policy::take_ownership())
         ;
 }
 

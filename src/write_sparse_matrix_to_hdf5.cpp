@@ -30,5 +30,5 @@ std::string write_sparse_matrix_to_hdf5(const NumericMatrix& mat, std::string pa
 }
 
 EMSCRIPTEN_BINDINGS(write_sparse_matrix_to_hdf5) {
-    emscripten::function("write_sparse_matrix_to_hdf5", &write_sparse_matrix_to_hdf5);
+    emscripten::function("write_sparse_matrix_to_hdf5", &write_sparse_matrix_to_hdf5, emscripten::return_value_policy::take_ownership());
 }

@@ -83,8 +83,8 @@ void read_matrix_market_header_from_file(std::string path, int compressed, uintp
 }
 
 EMSCRIPTEN_BINDINGS(read_matrix_market) {
-    emscripten::function("read_matrix_market_from_buffer", &read_matrix_market_from_buffer);
-    emscripten::function("read_matrix_market_from_file", &read_matrix_market_from_file);
-    emscripten::function("read_matrix_market_header_from_buffer", &read_matrix_market_header_from_buffer);
-    emscripten::function("read_matrix_market_header_from_file", &read_matrix_market_header_from_file);
+    emscripten::function("read_matrix_market_from_buffer", &read_matrix_market_from_buffer, emscripten::return_value_policy::take_ownership());
+    emscripten::function("read_matrix_market_from_file", &read_matrix_market_from_file, emscripten::return_value_policy::take_ownership());
+    emscripten::function("read_matrix_market_header_from_buffer", &read_matrix_market_header_from_buffer, emscripten::return_value_policy::take_ownership());
+    emscripten::function("read_matrix_market_header_from_file", &read_matrix_market_header_from_file, emscripten::return_value_policy::take_ownership());
 }

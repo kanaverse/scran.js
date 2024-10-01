@@ -149,31 +149,31 @@ ClusterSnnGraphLeiden_Result cluster_snn_graph_leiden(const BuildSnnGraph_Result
 /**********************************/
 
 EMSCRIPTEN_BINDINGS(cluster_snn_graph) {
-    emscripten::function("build_snn_graph", &build_snn_graph);
+    emscripten::function("build_snn_graph", &build_snn_graph, emscripten::return_value_policy::take_ownership());
 
     emscripten::class_<BuildSnnGraph_Result>("BuildSnnGraph_Result");
 
-    emscripten::function("cluster_snn_graph_multilevel", &cluster_snn_graph_multilevel);
+    emscripten::function("cluster_snn_graph_multilevel", &cluster_snn_graph_multilevel, emscripten::return_value_policy::take_ownership());
 
     emscripten::class_<ClusterSnnGraphMultiLevel_Result>("ClusterSnnGraphMultiLevel_Result")
-        .function("number", &ClusterSnnGraphMultiLevel_Result::number)
-        .function("best", &ClusterSnnGraphMultiLevel_Result::best)
-        .function("modularity", &ClusterSnnGraphMultiLevel_Result::modularity)
-        .function("membership", &ClusterSnnGraphMultiLevel_Result::membership)
+        .function("number", &ClusterSnnGraphMultiLevel_Result::number, emscripten::return_value_policy::take_ownership())
+        .function("best", &ClusterSnnGraphMultiLevel_Result::best, emscripten::return_value_policy::take_ownership())
+        .function("modularity", &ClusterSnnGraphMultiLevel_Result::modularity, emscripten::return_value_policy::take_ownership())
+        .function("membership", &ClusterSnnGraphMultiLevel_Result::membership, emscripten::return_value_policy::take_ownership())
         ;
 
-    emscripten::function("cluster_snn_graph_walktrap", &cluster_snn_graph_walktrap);
+    emscripten::function("cluster_snn_graph_walktrap", &cluster_snn_graph_walktrap, emscripten::return_value_policy::take_ownership());
 
     emscripten::class_<ClusterSnnGraphWalktrap_Result>("ClusterSnnGraphWalktrap_Result")
-        .function("modularity", &ClusterSnnGraphWalktrap_Result::modularity)
-        .function("membership", &ClusterSnnGraphWalktrap_Result::membership)
-        .function("num_merge_steps", &ClusterSnnGraphWalktrap_Result::num_merge_steps)
+        .function("modularity", &ClusterSnnGraphWalktrap_Result::modularity, emscripten::return_value_policy::take_ownership())
+        .function("membership", &ClusterSnnGraphWalktrap_Result::membership, emscripten::return_value_policy::take_ownership())
+        .function("num_merge_steps", &ClusterSnnGraphWalktrap_Result::num_merge_steps, emscripten::return_value_policy::take_ownership())
         ;
 
-    emscripten::function("cluster_snn_graph_leiden", &cluster_snn_graph_leiden);
+    emscripten::function("cluster_snn_graph_leiden", &cluster_snn_graph_leiden, emscripten::return_value_policy::take_ownership());
 
     emscripten::class_<ClusterSnnGraphLeiden_Result>("ClusterSnnGraphLeiden_Result")
-        .function("modularity", &ClusterSnnGraphLeiden_Result::modularity)
-        .function("membership", &ClusterSnnGraphLeiden_Result::membership)
+        .function("modularity", &ClusterSnnGraphLeiden_Result::modularity, emscripten::return_value_policy::take_ownership())
+        .function("membership", &ClusterSnnGraphLeiden_Result::membership, emscripten::return_value_policy::take_ownership())
         ;
 }

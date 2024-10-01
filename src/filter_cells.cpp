@@ -16,5 +16,5 @@ NumericMatrix filter_cells(const NumericMatrix& mat, uintptr_t filter, bool keep
 }
 
 EMSCRIPTEN_BINDINGS(filter_cells) {
-    emscripten::function("filter_cells", &filter_cells);
+    emscripten::function("filter_cells", &filter_cells, emscripten::return_value_policy::take_ownership());
 }

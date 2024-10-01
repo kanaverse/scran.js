@@ -108,33 +108,33 @@ MultiBatchPca_Results run_multibatch_pca(const NumericMatrix& mat, int number, b
 }
 
 EMSCRIPTEN_BINDINGS(run_pca) {
-    emscripten::function("run_pca", &run_pca);
+    emscripten::function("run_pca", &run_pca, emscripten::return_value_policy::take_ownership());
 
-    emscripten::function("run_residual_pca", &run_residual_pca);
+    emscripten::function("run_residual_pca", &run_residual_pca, emscripten::return_value_policy::take_ownership());
 
-    emscripten::function("run_multibatch_pca", &run_multibatch_pca);
+    emscripten::function("run_multibatch_pca", &run_multibatch_pca, emscripten::return_value_policy::take_ownership());
 
     emscripten::class_<SimplePca_Results>("SimplePca_Results")
-        .function("pcs", &SimplePca_Results::pcs)
-        .function("variance_explained", &SimplePca_Results::variance_explained)
-        .function("total_variance", &SimplePca_Results::total_variance)
-        .function("num_cells", &SimplePca_Results::num_cells)
-        .function("num_pcs", &SimplePca_Results::num_pcs)
+        .function("pcs", &SimplePca_Results::pcs, emscripten::return_value_policy::take_ownership())
+        .function("variance_explained", &SimplePca_Results::variance_explained, emscripten::return_value_policy::take_ownership())
+        .function("total_variance", &SimplePca_Results::total_variance, emscripten::return_value_policy::take_ownership())
+        .function("num_cells", &SimplePca_Results::num_cells, emscripten::return_value_policy::take_ownership())
+        .function("num_pcs", &SimplePca_Results::num_pcs, emscripten::return_value_policy::take_ownership())
         ;
 
     emscripten::class_<ResidualPca_Results>("ResidualPca_Results")
-        .function("pcs", &ResidualPca_Results::pcs)
-        .function("variance_explained", &ResidualPca_Results::variance_explained)
-        .function("total_variance", &ResidualPca_Results::total_variance)
-        .function("num_cells", &ResidualPca_Results::num_cells)
-        .function("num_pcs", &ResidualPca_Results::num_pcs)
+        .function("pcs", &ResidualPca_Results::pcs, emscripten::return_value_policy::take_ownership())
+        .function("variance_explained", &ResidualPca_Results::variance_explained, emscripten::return_value_policy::take_ownership())
+        .function("total_variance", &ResidualPca_Results::total_variance, emscripten::return_value_policy::take_ownership())
+        .function("num_cells", &ResidualPca_Results::num_cells, emscripten::return_value_policy::take_ownership())
+        .function("num_pcs", &ResidualPca_Results::num_pcs, emscripten::return_value_policy::take_ownership())
         ;
 
     emscripten::class_<MultiBatchPca_Results>("MultiBatchPca_Results")
-        .function("pcs", &MultiBatchPca_Results::pcs)
-        .function("variance_explained", &MultiBatchPca_Results::variance_explained)
-        .function("total_variance", &MultiBatchPca_Results::total_variance)
-        .function("num_cells", &MultiBatchPca_Results::num_cells)
-        .function("num_pcs", &MultiBatchPca_Results::num_pcs)
+        .function("pcs", &MultiBatchPca_Results::pcs, emscripten::return_value_policy::take_ownership())
+        .function("variance_explained", &MultiBatchPca_Results::variance_explained, emscripten::return_value_policy::take_ownership())
+        .function("total_variance", &MultiBatchPca_Results::total_variance, emscripten::return_value_policy::take_ownership())
+        .function("num_cells", &MultiBatchPca_Results::num_cells, emscripten::return_value_policy::take_ownership())
+        .function("num_pcs", &MultiBatchPca_Results::num_pcs, emscripten::return_value_policy::take_ownership())
         ;
 }
