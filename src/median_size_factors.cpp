@@ -25,5 +25,5 @@ void median_size_factors(const NumericMatrix& mat, bool use_ref, uintptr_t ref, 
 }
 
 EMSCRIPTEN_BINDINGS(median_size_factors) {
-    emscripten::function("median_size_factors", &median_size_factors);
+    emscripten::function("median_size_factors", &median_size_factors, emscripten::return_value_policy::take_ownership());
 }

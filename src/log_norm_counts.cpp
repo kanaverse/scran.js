@@ -51,6 +51,6 @@ void center_size_factors(size_t n, uintptr_t ptr, bool use_blocks, uintptr_t blo
 }
  
 EMSCRIPTEN_BINDINGS(log_norm_counts) {
-    emscripten::function("log_norm_counts", &log_norm_counts);
-    emscripten::function("center_size_factors", &center_size_factors);
+    emscripten::function("log_norm_counts", &log_norm_counts, emscripten::return_value_policy::take_ownership());
+    emscripten::function("center_size_factors", &center_size_factors, emscripten::return_value_policy::take_ownership());
 }

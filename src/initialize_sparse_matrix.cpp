@@ -127,10 +127,10 @@ NumericMatrix initialize_dense_matrix(size_t nrows, size_t ncols, uintptr_t valu
 /**********************************/
 
 EMSCRIPTEN_BINDINGS(initialize_sparse_matrix) {
-    emscripten::function("initialize_sparse_matrix", &initialize_sparse_matrix);
+    emscripten::function("initialize_sparse_matrix", &initialize_sparse_matrix, emscripten::return_value_policy::take_ownership());
 
-    emscripten::function("initialize_sparse_matrix_from_dense_vector", &initialize_sparse_matrix_from_dense_vector);
+    emscripten::function("initialize_sparse_matrix_from_dense_vector", &initialize_sparse_matrix_from_dense_vector, emscripten::return_value_policy::take_ownership());
 
-    emscripten::function("initialize_dense_matrix", &initialize_dense_matrix);
+    emscripten::function("initialize_dense_matrix", &initialize_dense_matrix, emscripten::return_value_policy::take_ownership());
 }
 

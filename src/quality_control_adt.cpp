@@ -104,24 +104,24 @@ SuggestAdtQcFilters_Results suggest_adt_qc_filters(uintptr_t metrics, bool use_b
 }
 
 EMSCRIPTEN_BINDINGS(quality_control_adt) {
-    emscripten::function("per_cell_adt_qc_metrics", &per_cell_adt_qc_metrics);
+    emscripten::function("per_cell_adt_qc_metrics", &per_cell_adt_qc_metrics, emscripten::return_value_policy::take_ownership());
 
     emscripten::class_<PerCellAdtQcMetrics_Results>("PerCellAdtQcMetrics_Results")
-        .function("sums", &PerCellAdtQcMetrics_Results::sums)
-        .function("detected", &PerCellAdtQcMetrics_Results::detected)
-        .function("subset_totals", &PerCellAdtQcMetrics_Results::subset_totals)
-        .function("num_subsets", &PerCellAdtQcMetrics_Results::num_subsets)
-        .function("num_cells", &PerCellAdtQcMetrics_Results::num_cells)
+        .function("sums", &PerCellAdtQcMetrics_Results::sums, emscripten::return_value_policy::take_ownership())
+        .function("detected", &PerCellAdtQcMetrics_Results::detected, emscripten::return_value_policy::take_ownership())
+        .function("subset_totals", &PerCellAdtQcMetrics_Results::subset_totals, emscripten::return_value_policy::take_ownership())
+        .function("num_subsets", &PerCellAdtQcMetrics_Results::num_subsets, emscripten::return_value_policy::take_ownership())
+        .function("num_cells", &PerCellAdtQcMetrics_Results::num_cells, emscripten::return_value_policy::take_ownership())
         ;
 
-    emscripten::function("suggest_adt_qc_filters", &suggest_adt_qc_filters);
+    emscripten::function("suggest_adt_qc_filters", &suggest_adt_qc_filters, emscripten::return_value_policy::take_ownership());
 
     emscripten::class_<SuggestAdtQcFilters_Results>("SuggestAdtQcFilters_Results")
         .constructor<int, int>()
-        .function("thresholds_detected", &SuggestAdtQcFilters_Results::thresholds_detected)
-        .function("thresholds_subset_totals", &SuggestAdtQcFilters_Results::thresholds_subset_totals)
-        .function("num_subsets", &SuggestAdtQcFilters_Results::num_subsets)
-        .function("num_blocks", &SuggestAdtQcFilters_Results::num_blocks)
-        .function("filter", &SuggestAdtQcFilters_Results::filter)
+        .function("thresholds_detected", &SuggestAdtQcFilters_Results::thresholds_detected, emscripten::return_value_policy::take_ownership())
+        .function("thresholds_subset_totals", &SuggestAdtQcFilters_Results::thresholds_subset_totals, emscripten::return_value_policy::take_ownership())
+        .function("num_subsets", &SuggestAdtQcFilters_Results::num_subsets, emscripten::return_value_policy::take_ownership())
+        .function("num_blocks", &SuggestAdtQcFilters_Results::num_blocks, emscripten::return_value_policy::take_ownership())
+        .function("filter", &SuggestAdtQcFilters_Results::filter, emscripten::return_value_policy::take_ownership())
         ;
 }

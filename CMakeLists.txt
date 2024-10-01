@@ -86,6 +86,7 @@ target_link_options(scran_wasm PRIVATE
     -pthread
     -sPTHREAD_POOL_SIZE=Module.scran_custom_nthreads
     -sEXPORTED_FUNCTIONS=_malloc,_free
+    -sEXPORTED_RUNTIME_METHODS=wasmMemory,PThread
 )
 
 set_target_properties(scran_wasm PROPERTIES OUTPUT_NAME scran)
@@ -95,13 +96,6 @@ if (COMPILE_NODE)
     target_link_options(scran_wasm PRIVATE
         -sENVIRONMENT=node 
         -sNODERAWFS=1
-    )
-
-    add_custom_command(TARGET scran_wasm POST_BUILD
-        COMMAND cat ../misc/preamble.js scran.worker.js > tmp.js
-        COMMAND mv tmp.js scran.worker.js
-        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-        COMMENT "Adding ES6 preamble for Node"
     )
 else ()
     target_link_options(scran_wasm PRIVATE 

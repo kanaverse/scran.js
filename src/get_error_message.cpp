@@ -7,5 +7,5 @@ std::string get_error_message(intptr_t ptr) {
 }
 
 EMSCRIPTEN_BINDINGS(Bindings) {
-  emscripten::function("get_error_message", &get_error_message);
+  emscripten::function("get_error_message", &get_error_message, emscripten::return_value_policy::take_ownership());
 };

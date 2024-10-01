@@ -84,16 +84,16 @@ ClusterKmeans_Result cluster_kmeans(uintptr_t mat, int nr, int nc, int k, std::s
 }
 
 EMSCRIPTEN_BINDINGS(cluster_kmeans) {
-    emscripten::function("cluster_kmeans", &cluster_kmeans);
+    emscripten::function("cluster_kmeans", &cluster_kmeans, emscripten::return_value_policy::take_ownership());
 
     emscripten::class_<ClusterKmeans_Result>("ClusterKmeans_Result")
-        .function("num_obs", &ClusterKmeans_Result::num_obs)
-        .function("num_clusters", &ClusterKmeans_Result::num_clusters)
-        .function("cluster_sizes", &ClusterKmeans_Result::cluster_sizes)
-        .function("wcss", &ClusterKmeans_Result::wcss)
-        .function("clusters", &ClusterKmeans_Result::clusters)
-        .function("centers", &ClusterKmeans_Result::centers)
-        .function("iterations", &ClusterKmeans_Result::iterations)
-        .function("status", &ClusterKmeans_Result::status)
+        .function("num_obs", &ClusterKmeans_Result::num_obs, emscripten::return_value_policy::take_ownership())
+        .function("num_clusters", &ClusterKmeans_Result::num_clusters, emscripten::return_value_policy::take_ownership())
+        .function("cluster_sizes", &ClusterKmeans_Result::cluster_sizes, emscripten::return_value_policy::take_ownership())
+        .function("wcss", &ClusterKmeans_Result::wcss, emscripten::return_value_policy::take_ownership())
+        .function("clusters", &ClusterKmeans_Result::clusters, emscripten::return_value_policy::take_ownership())
+        .function("centers", &ClusterKmeans_Result::centers, emscripten::return_value_policy::take_ownership())
+        .function("iterations", &ClusterKmeans_Result::iterations, emscripten::return_value_policy::take_ownership())
+        .function("status", &ClusterKmeans_Result::status, emscripten::return_value_policy::take_ownership())
         ;
 }

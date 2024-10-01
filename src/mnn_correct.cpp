@@ -46,5 +46,5 @@ void mnn_correct(
 }
 
 EMSCRIPTEN_BINDINGS(mnn_correct) {
-    emscripten::function("mnn_correct", &mnn_correct);
+    emscripten::function("mnn_correct", &mnn_correct, emscripten::return_value_policy::take_ownership());
 }

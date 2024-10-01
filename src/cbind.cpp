@@ -61,7 +61,7 @@ NumericMatrix rbind(int n, uintptr_t mats) {
 }
 
 EMSCRIPTEN_BINDINGS(cbind) {
-    emscripten::function("cbind", &cbind);
+    emscripten::function("cbind", &cbind, emscripten::return_value_policy::take_ownership());
 
-    emscripten::function("rbind", &rbind);
+    emscripten::function("rbind", &rbind, emscripten::return_value_policy::take_ownership());
 }

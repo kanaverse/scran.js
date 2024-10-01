@@ -88,7 +88,7 @@ void scale_by_neighbors_matrices(int ncells, int nembed, uintptr_t ndims, uintpt
 }
 
 EMSCRIPTEN_BINDINGS(scale_by_neighbors) {
-    emscripten::function("scale_by_neighbors_matrices", &scale_by_neighbors_matrices);
+    emscripten::function("scale_by_neighbors_matrices", &scale_by_neighbors_matrices, emscripten::return_value_policy::take_ownership());
 
-    emscripten::function("scale_by_neighbors_indices", &scale_by_neighbors_indices);
+    emscripten::function("scale_by_neighbors_indices", &scale_by_neighbors_indices, emscripten::return_value_policy::take_ownership());
 }

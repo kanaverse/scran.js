@@ -99,7 +99,7 @@ BuiltSinglePPReference build_singlepp_reference(size_t nfeatures, uintptr_t mat_
 
 struct SinglePPResults {
     std::vector<int> best;
-    std::unique_ptr<tatami::DenseColumnMatrix<double, int> > scores;
+    std::shared_ptr<tatami::DenseColumnMatrix<double, int> > scores;
     std::vector<double> delta;
 
     int num_samples() const {
@@ -241,37 +241,37 @@ SinglePPResults integrate_singlepp(const NumericMatrix& mat, uintptr_t assigned,
 /*****************************************/
 
 EMSCRIPTEN_BINDINGS(run_singlepp) {
-    emscripten::function("run_singlepp", &run_singlepp);
+    emscripten::function("run_singlepp", &run_singlepp, emscripten::return_value_policy::take_ownership());
 
-    emscripten::function("load_singlepp_reference", &load_singlepp_reference);
+    emscripten::function("load_singlepp_reference", &load_singlepp_reference, emscripten::return_value_policy::take_ownership());
 
-    emscripten::function("build_singlepp_reference", &build_singlepp_reference);
+    emscripten::function("build_singlepp_reference", &build_singlepp_reference, emscripten::return_value_policy::take_ownership());
 
-    emscripten::function("integrate_singlepp_references", &integrate_singlepp_references);
+    emscripten::function("integrate_singlepp_references", &integrate_singlepp_references, emscripten::return_value_policy::take_ownership());
 
-    emscripten::function("integrate_singlepp", &integrate_singlepp);
-    
+    emscripten::function("integrate_singlepp", &integrate_singlepp, emscripten::return_value_policy::take_ownership());
+
     emscripten::class_<SinglePPReference>("SinglePPReference")
-        .function("num_samples", &SinglePPReference::num_samples)
-        .function("num_features", &SinglePPReference::num_features)
-        .function("num_labels", &SinglePPReference::num_labels)
+        .function("num_samples", &SinglePPReference::num_samples, emscripten::return_value_policy::take_ownership())
+        .function("num_features", &SinglePPReference::num_features, emscripten::return_value_policy::take_ownership())
+        .function("num_labels", &SinglePPReference::num_labels, emscripten::return_value_policy::take_ownership())
         ;
 
     emscripten::class_<BuiltSinglePPReference>("BuiltSinglePPReference")
-        .function("shared_features", &BuiltSinglePPReference::shared_features)
-        .function("num_labels", &BuiltSinglePPReference::num_labels)
+        .function("shared_features", &BuiltSinglePPReference::shared_features, emscripten::return_value_policy::take_ownership())
+        .function("num_labels", &BuiltSinglePPReference::num_labels, emscripten::return_value_policy::take_ownership())
         ;
 
     emscripten::class_<IntegratedSinglePPReferences>("IntegratedSinglePPReferences")
-        .function("num_references", &IntegratedSinglePPReferences::num_references)
+        .function("num_references", &IntegratedSinglePPReferences::num_references, emscripten::return_value_policy::take_ownership())
         ;
 
     emscripten::class_<SinglePPResults>("SinglePPResults")
-        .function("num_samples", &SinglePPResults::num_samples) 
-        .function("num_labels", &SinglePPResults::num_labels)
-        .function("get_best", &SinglePPResults::get_best)
-        .function("get_scores_for_sample", &SinglePPResults::get_scores_for_sample)
-        .function("get_scores_for_label", &SinglePPResults::get_scores_for_label)
-        .function("get_delta", &SinglePPResults::get_delta)
+        .function("num_samples", &SinglePPResults::num_samples, emscripten::return_value_policy::take_ownership()) 
+        .function("num_labels", &SinglePPResults::num_labels, emscripten::return_value_policy::take_ownership())
+        .function("get_best", &SinglePPResults::get_best, emscripten::return_value_policy::take_ownership())
+        .function("get_scores_for_sample", &SinglePPResults::get_scores_for_sample, emscripten::return_value_policy::take_ownership())
+        .function("get_scores_for_label", &SinglePPResults::get_scores_for_label, emscripten::return_value_policy::take_ownership())
+        .function("get_delta", &SinglePPResults::get_delta, emscripten::return_value_policy::take_ownership())
         ;
 }

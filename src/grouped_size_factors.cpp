@@ -37,5 +37,5 @@ void grouped_size_factors(const NumericMatrix& mat,
 }
 
 EMSCRIPTEN_BINDINGS(grouped_size_factors) {
-    emscripten::function("grouped_size_factors", &grouped_size_factors);
+    emscripten::function("grouped_size_factors", &grouped_size_factors, emscripten::return_value_policy::take_ownership());
 }

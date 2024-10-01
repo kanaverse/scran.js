@@ -65,16 +65,16 @@ void run_tsne(InitializedTsneStatus& status, int runtime, int maxiter, uintptr_t
 }
 
 EMSCRIPTEN_BINDINGS(run_tsne) {
-    emscripten::function("perplexity_to_k", &perplexity_to_k);
+    emscripten::function("perplexity_to_k", &perplexity_to_k, emscripten::return_value_policy::take_ownership());
 
-    emscripten::function("initialize_tsne", &initialize_tsne);
+    emscripten::function("initialize_tsne", &initialize_tsne, emscripten::return_value_policy::take_ownership());
 
-    emscripten::function("randomize_tsne_start", &randomize_tsne_start);
+    emscripten::function("randomize_tsne_start", &randomize_tsne_start, emscripten::return_value_policy::take_ownership());
 
-    emscripten::function("run_tsne", &run_tsne);
+    emscripten::function("run_tsne", &run_tsne, emscripten::return_value_policy::take_ownership());
 
     emscripten::class_<InitializedTsneStatus>("InitializedTsneStatus")
-        .function("iterations", &InitializedTsneStatus::iterations)
-        .function("deepcopy", &InitializedTsneStatus::deepcopy)
-        .function("num_obs", &InitializedTsneStatus::num_obs);
+        .function("iterations", &InitializedTsneStatus::iterations, emscripten::return_value_policy::take_ownership())
+        .function("deepcopy", &InitializedTsneStatus::deepcopy, emscripten::return_value_policy::take_ownership())
+        .function("num_obs", &InitializedTsneStatus::num_obs, emscripten::return_value_policy::take_ownership());
 }

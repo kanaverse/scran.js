@@ -299,7 +299,7 @@ NumericMatrix read_sparse_matrix_from_hdf5_sparse_matrix(
 }
 
 EMSCRIPTEN_BINDINGS(read_hdf5_matrix) {
-    emscripten::function("extract_hdf5_matrix_details", &extract_hdf5_matrix_details);
-    emscripten::function("read_sparse_matrix_from_hdf5_dense_array", &read_sparse_matrix_from_hdf5_dense_array);
-    emscripten::function("read_sparse_matrix_from_hdf5_sparse_matrix", &read_sparse_matrix_from_hdf5_sparse_matrix);
+    emscripten::function("extract_hdf5_matrix_details", &extract_hdf5_matrix_details, emscripten::return_value_policy::take_ownership());
+    emscripten::function("read_sparse_matrix_from_hdf5_dense_array", &read_sparse_matrix_from_hdf5_dense_array, emscripten::return_value_policy::take_ownership());
+    emscripten::function("read_sparse_matrix_from_hdf5_sparse_matrix", &read_sparse_matrix_from_hdf5_sparse_matrix, emscripten::return_value_policy::take_ownership());
 }

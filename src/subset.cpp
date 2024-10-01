@@ -25,7 +25,7 @@ void row_subset(NumericMatrix& matrix, uintptr_t offset, size_t length) {
 }
 
 EMSCRIPTEN_BINDINGS(column_subset) {
-    emscripten::function("column_subset", &column_subset);
+    emscripten::function("column_subset", &column_subset, emscripten::return_value_policy::take_ownership());
 
-    emscripten::function("row_subset", &row_subset);
+    emscripten::function("row_subset", &row_subset, emscripten::return_value_policy::take_ownership());
 }
