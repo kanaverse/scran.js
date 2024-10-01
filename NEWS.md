@@ -1,6 +1,6 @@
 # scran.js news
 
-## 3.1.0-rc1
+## 3.0.2
 
 **New**
 
