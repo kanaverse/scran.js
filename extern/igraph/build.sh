@@ -21,7 +21,12 @@ if [ ! -e ${BUILD_DIR} ]
 then
     mkdir -p ../installed
     export CPPFLAGS="-pthreads"
-    emcmake cmake -S ${SOURCE_DIR} -B ${BUILD_DIR} -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$(pwd)/../installed
+    emcmake cmake \
+        -S ${SOURCE_DIR} \
+        -B ${BUILD_DIR} \
+        -DIGRAPH_WARNINGS_AS_ERRORS=OFF \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_INSTALL_PREFIX=$(pwd)/../installed
 fi
 
 cd ${BUILD_DIR}
