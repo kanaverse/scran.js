@@ -74,22 +74,28 @@ jobs:
     - name: Checkout repo
       uses: actions/checkout@v4
 
+    - name: Set up Node
+      uses: actions/setup-node@v4
+      with:
+        node-version: 18
+
+    - name: Cache Modules
+      uses: actions/cache@v4
+      with:
+        path: '**/node_modules'
+        key: npm-${{ hashFiles('**/package.json') }}
+
+    - name: Update NPM packages
+      run: npm i --include=dev
+
     - name: Cache installed
       uses: actions/cache@v4
       with:
         path: extern/installed
         key: deps-${{ hashFiles('**/extern/**/build.sh') }}-${{ env.IMAGE_VERSION }}
 
-    - name: Set up Node
-      uses: actions/setup-node@v4
-      with:
-        node-version: 18
-
     - name: Update node build 
       run: bash build.sh main
-
-    - name: Update NPM packages
-      run: npm i --include=dev
 
     - name: Download RDS files
       uses: actions/download-artifact@v4
