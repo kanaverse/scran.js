@@ -7,7 +7,7 @@ SOURCE_DIR=igraph-${IGRAPH_VERSION}
 if [[ ! -e ${SOURCE_DIR} ]]
 then
     wget https://github.com/igraph/igraph/releases/download/${IGRAPH_VERSION}/igraph-${IGRAPH_VERSION}.tar.gz -O igraph.tar.gz
-    OBSERVED_HASH=$(shasum -a 256 igraph.tar.gz)
+    OBSERVED_HASH=($(shasum -a 256 igraph.tar.gz))
     if [[ ${OBSERVED_HASH} != ${IGRAPH_HASH} ]]
     then
         echo "hash mismatch for ${IGRAGH_VERESION} (got ${OBSERVED_HASH})"
@@ -20,7 +20,8 @@ BUILD_DIR=build-${IGRAPH_VERSION}
 if [ ! -e ${BUILD_DIR} ]
 then
     mkdir -p ../installed
-    export CPPFLAGS="-pthreads"
+    export CPPFLAGS="-pthread"
+    echo "{}" > package.json
     emcmake cmake \
         -S ${SOURCE_DIR} \
         -B ${BUILD_DIR} \
