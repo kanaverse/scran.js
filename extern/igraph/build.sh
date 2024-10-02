@@ -10,7 +10,7 @@ then
     OBSERVED_HASH=($(shasum -a 256 igraph.tar.gz))
     if [[ ${OBSERVED_HASH} != ${IGRAPH_HASH} ]]
     then
-        echo "hash mismatch for ${IGRAGH_VERESION} (got ${OBSERVED_HASH})"
+        echo "hash mismatch for ${IGRAPH_VERSION} (got ${OBSERVED_HASH})"
         exit 1
     fi
     tar -xvf igraph.tar.gz
@@ -20,11 +20,13 @@ BUILD_DIR=build-${IGRAPH_VERSION}
 if [ ! -e ${BUILD_DIR} ]
 then
     mkdir -p ../installed
-    export CPPFLAGS="-pthread"
+    coreflags="-pthread"
     echo "{}" > package.json
     emcmake cmake \
         -S ${SOURCE_DIR} \
         -B ${BUILD_DIR} \
+        -DCMAKE_C_FLAGS="${coreflags}" \
+        -DCMAKE_CXX_FLAGS="${coreflags}" \
         -DIGRAPH_WARNINGS_AS_ERRORS=OFF \
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_INSTALL_PREFIX=$(pwd)/../installed

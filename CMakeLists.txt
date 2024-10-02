@@ -7,6 +7,9 @@ project(scran_wasm
 
 set(CMAKE_CXX_STANDARD 17)
 
+# Need the CMAKE_FIND_ROOT_PATH_BOTH to override Emscripten's overrides (see emscripten/issues#6595)
+find_package(igraph REQUIRED CONFIG CMAKE_FIND_ROOT_PATH_BOTH)
+find_package(HDF5 REQUIRED COMPONENTS C CXX CONFIG CMAKE_FIND_ROOT_PATH_BOTH)
 add_subdirectory(extern)
 
 add_executable(
@@ -57,7 +60,6 @@ target_compile_options(
     -pthread
 )
 
-find_package(igraph CONFIG REQUIRED)
 target_link_libraries(
     scran_wasm
     scran

@@ -50,7 +50,7 @@ then
         -B $builddir \
         -DCOMPILE_NODE=${node_flag} \
         -DCMAKE_BUILD_TYPE=Release \
-        -DCMAKE_PREFIX_PATH=$(pwd)/extern/installed
+        -DCMAKE_PREFIX_PATH=/home/luna/Code/js/scran.js/extern/installed
 fi
 
 cd $builddir
