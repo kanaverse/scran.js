@@ -57,6 +57,7 @@ target_compile_options(
     -pthread
 )
 
+find_package(igraph CONFIG REQUIRED)
 target_link_libraries(
     scran_wasm
     scran

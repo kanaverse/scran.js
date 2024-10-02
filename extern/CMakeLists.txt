@@ -15,7 +15,6 @@ endif()
 
 include(FetchContent)
 
-## TATAMI RELATED CONTENT ### 
 FetchContent_Declare(
   tatami 
   GIT_REPOSITORY https://github.com/tatami-inc/tatami
@@ -40,20 +39,6 @@ FetchContent_Declare(
   GIT_TAG 20ec1fb64e0419907d3094827b5d9134854a0119
 )
 
-## Prebuilt static libraries ### 
-FetchContent_Declare(
-  igraph 
-  URL https://github.com/kanaverse/igraph-wasm/releases/download/v0.2.1-pthreads_3.1.43/igraph-0.10.6-wasm.tar.gz # need the thread-aware version.
-  URL_HASH SHA256=a40595001e0b39ef715f4a84bb83f3bb668ee8eed3ac55bd206212d45d7c53f1
-)
-
-FetchContent_Declare(
-  h5wasm
-  URL https://github.com/kanaverse/libhdf5-wasm/releases/download/v0.3.0_3.1.43/libhdf5-1_12_2-wasm.tar.gz
-  URL_HASH SHA256=b2e58b102fe98326c77f1a160025c47a062c1a205818568680d5f5ed78df801c
-)
-
-## Other stuff ### 
 FetchContent_Declare(
   irlba
   GIT_REPOSITORY https://github.com/LTLA/CppIrlba
@@ -106,8 +91,6 @@ FetchContent_MakeAvailable(tatami)
 FetchContent_MakeAvailable(tatami_layered)
 FetchContent_MakeAvailable(tatami_mtx)
 FetchContent_MakeAvailable(tatami_hdf5)
-FetchContent_MakeAvailable(igraph)
-FetchContent_MakeAvailable(h5wasm)
 FetchContent_MakeAvailable(irlba)
 FetchContent_MakeAvailable(umappp)
 FetchContent_MakeAvailable(scran)

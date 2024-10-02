@@ -45,7 +45,12 @@ if [ ! -e $builddir ]
 then
     mkdir $builddir
     echo "{}" > $builddir/package.json # avoid assuming ES6 syntax for igraph config scripts.
-    emcmake cmake -S . -B $builddir -DCOMPILE_NODE=${node_flag} -DCMAKE_BUILD_TYPE=Release
+    emcmake cmake \
+        -S . \
+        -B $builddir \
+        -DCOMPILE_NODE=${node_flag} \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_PREFIX_PATH=$(pwd)/extern/installed
 fi
 
 cd $builddir
