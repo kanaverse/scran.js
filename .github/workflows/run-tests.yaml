@@ -6,7 +6,17 @@ on:
 
 name: Test JS bindings
 
+env:
+  IMAGE_VERSION: master
+
 jobs:
+  prepare-version:
+    runs-on: ubuntu-latest
+    steps:
+    - run: echo "null"
+    outputs:
+      version: ${{ env.IMAGE_VERSION }}
+
   # Building the RDS files for the various RDS-reading utilities.
   create_rds:
     runs-on: ubuntu-latest
@@ -22,14 +32,15 @@ jobs:
         R -f generate.R
 
     - name: Upload RDS files
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: rds-files
         path: tests/rds/*.rds
 
   build_deps:
     runs-on: ubuntu-latest
-    container: ghcr.io/kanaverse/emcmake-docker/builder:2024-10-01
+    needs: [prepare-version]
+    container: ghcr.io/kanaverse/emcmake-docker/builder:${{ needs.prepare-version.outputs.version }}
 
     steps:
     - name: Checkout repo
@@ -40,7 +51,7 @@ jobs:
       uses: actions/cache@v4
       with:
         path: extern/installed
-        key: deps-${{ hashFiles('**/extern/**/build.sh') }}
+        key: deps-${{ hashFiles('**/extern/**/build.sh') }}-${{ env.IMAGE_VERSION }}
 
     - name: Build HDF5
       if: steps.installed.outputs.cache-hit != 'true'
@@ -56,8 +67,8 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
-    needs: [ create_rds, build_deps ]
-    container: ghcr.io/kanaverse/emcmake-docker/builder:2024-10-01
+    needs: [ create_rds, build_deps, prepare-version]
+    container: ghcr.io/kanaverse/emcmake-docker/builder:${{ needs.prepare-version.outputs.version }}
 
     steps:
     - name: Checkout repo
@@ -67,7 +78,7 @@ jobs:
       uses: actions/cache@v4
       with:
         path: extern/installed
-        key: deps-${{ hashFiles('**/extern/**/build.sh') }}
+        key: deps-${{ hashFiles('**/extern/**/build.sh') }}-${{ env.IMAGE_VERSION }}
 
     - name: Set up Node
       uses: actions/setup-node@v4
@@ -81,7 +92,7 @@ jobs:
       run: npm i --include=dev
 
     - name: Download RDS files
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: rds-files
         path: tests/rds

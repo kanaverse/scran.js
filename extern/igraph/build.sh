@@ -1,19 +1,22 @@
 #!/bin/bash
 
+set -e
+set -u
+
 IGRAPH_VERSION=0.10.13
 IGRAPH_HASH=c6dc44324f61f52c098bedb81f6a602365d39d692d5068ca4fc3734b2a15e64c
 SOURCE_DIR=igraph-${IGRAPH_VERSION}
 
 if [[ ! -e ${SOURCE_DIR} ]]
 then
-    wget https://github.com/igraph/igraph/releases/download/${IGRAPH_VERSION}/igraph-${IGRAPH_VERSION}.tar.gz -O igraph.tar.gz
+    wget -q https://github.com/igraph/igraph/releases/download/${IGRAPH_VERSION}/igraph-${IGRAPH_VERSION}.tar.gz -O igraph.tar.gz
     OBSERVED_HASH=($(shasum -a 256 igraph.tar.gz))
     if [[ ${OBSERVED_HASH} != ${IGRAPH_HASH} ]]
     then
         echo "hash mismatch for ${IGRAPH_VERSION} (got ${OBSERVED_HASH})"
         exit 1
     fi
-    tar -xvf igraph.tar.gz
+    tar -xf igraph.tar.gz
 fi
 
 BUILD_DIR=build-${IGRAPH_VERSION}
