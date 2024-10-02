@@ -94,7 +94,15 @@ jobs:
         path: extern/installed
         key: deps-${{ hashFiles('**/extern/**/build.sh') }}-${{ env.IMAGE_VERSION }}
 
+    - name: Cache node build
+      id: wasm-build
+      uses: actions/cache@v4
+      with:
+        path: js/wasm
+        key: wasm-${{ hashFiles('**/build.sh', '**/CMakeLists.txt', '**/src/*') }}-${{ env.IMAGE_VERSION }}
+
     - name: Update node build 
+      if: steps.wasm-build.outputs.cache-hit != 'true'
       run: bash build.sh main
 
     - name: Download RDS files
