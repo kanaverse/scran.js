@@ -22,37 +22,37 @@ add_executable(
     src/write_sparse_matrix_to_hdf5.cpp
     src/initialize_sparse_matrix.cpp
 
-    src/quality_control_rna.cpp
-    src/quality_control_adt.cpp
-    src/quality_control_crispr.cpp
-    src/filter_cells.cpp
-
-    src/log_norm_counts.cpp
-    src/median_size_factors.cpp
-    src/grouped_size_factors.cpp
-    src/model_gene_variances.cpp
-    src/run_pca.cpp
-    src/run_tsne.cpp
-    src/run_umap.cpp
-    src/mnn_correct.cpp
-    src/scale_by_neighbors.cpp
-    src/cluster_snn_graph.cpp
-    src/cluster_kmeans.cpp
-    src/score_markers.cpp
-    src/run_singlepp.cpp
-    src/NumericMatrix.cpp
-    src/NeighborIndex.cpp
-    src/cbind.cpp
-    src/subset.cpp
-    src/delayed.cpp
-    src/get_error_message.cpp
-    src/rds_utils.cpp
-    src/initialize_from_rds.cpp
-
-    src/score_feature_set.cpp
-    src/hypergeometric_test.cpp
-
-    src/aggregate_across_cells.cpp
+#    src/quality_control_rna.cpp
+#    src/quality_control_adt.cpp
+#    src/quality_control_crispr.cpp
+#    src/filter_cells.cpp
+#
+#    src/log_norm_counts.cpp
+#    src/median_size_factors.cpp
+#    src/grouped_size_factors.cpp
+#    src/model_gene_variances.cpp
+#    src/run_pca.cpp
+#    src/run_tsne.cpp
+#    src/run_umap.cpp
+#    src/mnn_correct.cpp
+#    src/scale_by_neighbors.cpp
+#    src/cluster_snn_graph.cpp
+#    src/cluster_kmeans.cpp
+#    src/score_markers.cpp
+#    src/run_singlepp.cpp
+#    src/NumericMatrix.cpp
+#    src/NeighborIndex.cpp
+#    src/cbind.cpp
+#    src/subset.cpp
+#    src/delayed.cpp
+#    src/get_error_message.cpp
+#    src/rds_utils.cpp
+#    src/initialize_from_rds.cpp
+#
+#    src/score_feature_set.cpp
+#    src/hypergeometric_test.cpp
+#
+#    src/aggregate_across_cells.cpp
 )
 
 target_compile_options(
