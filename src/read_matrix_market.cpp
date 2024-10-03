@@ -5,7 +5,6 @@
 
 #include "read_utils.h"
 #include "NumericMatrix.h"
-#include "parallel.h"
 
 #include "tatami_mtx/tatami_mtx.hpp"
 #include "tatami_layered/tatami_layered.hpp"

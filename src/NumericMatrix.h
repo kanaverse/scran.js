@@ -1,8 +1,7 @@
 #ifndef NUMERIC_MATRIX_H
 #define NUMERIC_MATRIX_H
 
-#include "parallel.h"
-
+#include <memory>
 #include "tatami/tatami.hpp"
 
 struct NumericMatrix {
@@ -34,7 +33,7 @@ public:
 public:
     std::shared_ptr<const tatami::NumericMatrix> ptr;
 
-    std::unique_ptr<tatami::FullDenseExtractor<double, int> > by_row, by_column;
+    std::unique_ptr<tatami::MyopicDenseExtractor<double, int> > by_row, by_column;
 
     void reset_ptr(std::shared_ptr<const tatami::NumericMatrix>);
 };
