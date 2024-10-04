@@ -20,12 +20,14 @@ NumericMatrix read_matrix_market_from_buffer(uintptr_t buffer, int size, int com
             return NumericMatrix(tatami_layered::read_layered_sparse_from_matrix_market_some_buffer(bufptr, size));
         }
     } else {
+        tatami_mtx::Options opt;
+        opt.row = true;
         if (compressed == 0) {
-            return NumericMatrix(tatami_mtx::load_matrix_from_text_buffer<true, double, int>(bufptr, size));
+            return NumericMatrix(tatami_mtx::load_matrix_from_text_buffer<double, int>(bufptr, size, opt));
         } else if (compressed == 1) {
-            return NumericMatrix(tatami_mtx::load_matrix_from_zlib_buffer<true, double, int>(bufptr, size));
+            return NumericMatrix(tatami_mtx::load_matrix_from_zlib_buffer<double, int>(bufptr, size, opt));
         } else {
-            return NumericMatrix(tatami_mtx::load_matrix_from_some_buffer<true, double, int>(bufptr, size));
+            return NumericMatrix(tatami_mtx::load_matrix_from_some_buffer<double, int>(bufptr, size, opt));
         } 
     }
 }
@@ -40,12 +42,14 @@ NumericMatrix read_matrix_market_from_file(std::string path, int compressed, boo
             return NumericMatrix(tatami_layered::read_layered_sparse_from_matrix_market_some_file(path.c_str()));
         }
     } else {
+        tatami_mtx::Options opt;
+        opt.row = true;
         if (compressed == 0) {
-            return NumericMatrix(tatami_mtx::load_matrix_from_text_file<true, double, int>(path.c_str()));
+            return NumericMatrix(tatami_mtx::load_matrix_from_text_file<double, int>(path.c_str(), opt));
         } else if (compressed == 1) {
-            return NumericMatrix(tatami_mtx::load_matrix_from_gzip_file<true, double, int>(path.c_str()));
+            return NumericMatrix(tatami_mtx::load_matrix_from_gzip_file<double, int>(path.c_str(), opt));
         } else {
-            return NumericMatrix(tatami_mtx::load_matrix_from_some_file<true, double, int>(path.c_str()));
+            return NumericMatrix(tatami_mtx::load_matrix_from_some_file<double, int>(path.c_str(), opt));
         }
     }
 }

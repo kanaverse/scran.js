@@ -4,7 +4,6 @@
 #include "utils.h"
 #include "read_utils.h"
 #include "NumericMatrix.h"
-#include "parallel.h"
 
 #include "H5Cpp.h"
 #include "tatami_hdf5/tatami_hdf5.hpp"
@@ -137,7 +136,7 @@ NumericMatrix apply_post_processing(
         mat = std::move(smat);
     }
 
-    return sparse_from_tatami(mat.get(), layered);
+    return sparse_from_tatami(*mat, layered);
 }
 
 template<typename T>
@@ -157,9 +156,9 @@ NumericMatrix read_sparse_matrix_from_hdf5_dense_array_internal(
 
     try {
         if (trans) {
-            mat.reset(new tatami_hdf5::Hdf5DenseMatrix<T, int, true>(path, name));
+            mat.reset(new tatami_hdf5::DenseMatrix<T, int>(path, name, true));
         } else {
-            mat.reset(new tatami_hdf5::Hdf5DenseMatrix<T, int, false>(path, name));
+            mat.reset(new tatami_hdf5::DenseMatrix<T, int>(path, name, false));
         }
     } catch (H5::Exception& e) {
         throw std::runtime_error(e.getCDetailMsg());
@@ -230,9 +229,7 @@ NumericMatrix read_sparse_matrix_from_hdf5_sparse_matrix_internal(
         // expectation that all instances of this function prefer row matrices,
         // and if we did it with CSC, we'd get a column-major matrix instead.
         try {
-            mat.reset(new tatami::CompressedSparseRowMatrix<double, int, std::vector<T> >(
-                tatami_hdf5::load_hdf5_compressed_sparse_matrix<true, double, int, std::vector<T> >(nr, nc, path, name + "/data", name + "/indices", name + "/indptr")
-            ));
+            mat = tatami_hdf5::load_compressed_sparse_matrix<double, int, std::vector<T> >(nr, nc, path, name + "/data", name + "/indices", name + "/indptr", true);
         } catch (H5::Exception& e) {
             throw std::runtime_error(e.getCDetailMsg());
         }
@@ -244,9 +241,9 @@ NumericMatrix read_sparse_matrix_from_hdf5_sparse_matrix_internal(
 
         try {
             if (!csc) {
-                mat.reset(new tatami_hdf5::Hdf5CompressedSparseMatrix<true, T, int>(nr, nc, path, name + "/data", name + "/indices", name + "/indptr"));
+                mat.reset(new tatami_hdf5::CompressedSparseMatrix<T, int>(nr, nc, path, name + "/data", name + "/indices", name + "/indptr", true));
             } else {
-                mat.reset(new tatami_hdf5::Hdf5CompressedSparseMatrix<false, T, int>(nr, nc, path, name + "/data", name + "/indices", name + "/indptr"));
+                mat.reset(new tatami_hdf5::CompressedSparseMatrix<T, int>(nr, nc, path, name + "/data", name + "/indices", name + "/indptr", false));
             }
         } catch (H5::Exception& e) {
             throw std::runtime_error(e.getCDetailMsg());

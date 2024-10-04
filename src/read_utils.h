@@ -16,12 +16,12 @@ NumericMatrix copy_into_sparse(size_t nrows, size_t ncols, const ValueVector_& x
     ));
 }
 
-template<typename StorageValue_, typename StorageIndex_, typename Value_, typename Index_>
+template<typename Value_, typename Index_>
 NumericMatrix sparse_from_tatami(const tatami::Matrix<Value_, Index_>& mat, bool layered) {
     if (layered) {
         return NumericMatrix(tatami_layered::convert_to_layered_sparse(mat));
     } else {
-        return NumericMatrix(tatami::convert_to_compressed_sparse<double, int, StorageValue_, StorageIndex_>(&mat, true));
+        return NumericMatrix(tatami::convert_to_compressed_sparse<double, int, Value_, Index_>(&mat, true));
     }
 }
 

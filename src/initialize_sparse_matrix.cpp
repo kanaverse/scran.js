@@ -2,34 +2,33 @@
 
 #include "NumericMatrix.h"
 #include "read_utils.h"
-#include "parallel.h"
 
 #include "tatami/utils/SomeNumericArray.hpp"
 
 template<typename T>
 tatami::SomeNumericArray<T> create_SomeNumericArray(uintptr_t ptr, size_t len, const std::string& type) {
-    typename tatami::SomeNumericArray<T>::Type t;
+    tatami::SomeNumericType t;
 
     if (type == "Int8Array") {
-        t = tatami::SomeNumericArray<T>::I8;
+        t = tatami::SomeNumericType::I8;
     } else if (type == "Uint8Array") {
-        t = tatami::SomeNumericArray<T>::U8;
+        t = tatami::SomeNumericType::U8;
     } else if (type == "Int16Array") {
-        t = tatami::SomeNumericArray<T>::I16;
+        t = tatami::SomeNumericType::I16;
     } else if (type == "Uint16Array") {
-        t = tatami::SomeNumericArray<T>::U16;
+        t = tatami::SomeNumericType::U16;
     } else if (type == "Int32Array") {
-        t = tatami::SomeNumericArray<T>::I32;
+        t = tatami::SomeNumericType::I32;
     } else if (type == "Uint32Array") {
-        t = tatami::SomeNumericArray<T>::U32;
+        t = tatami::SomeNumericType::U32;
     } else if (type == "BigInt64Array") {
-        t = tatami::SomeNumericArray<T>::F64; // Aliasing these for the time being, as there is no BigInt support in the Wasm heap.
+        t = tatami::SomeNumericType::F64; // Aliasing these for the time being, as there is no BigInt support in the Wasm heap.
     } else if (type == "BigUint64Array") {
-        t = tatami::SomeNumericArray<T>::F64; // See above.
+        t = tatami::SomeNumericType::F64; // See above.
     } else if (type == "Float32Array") {
-        t = tatami::SomeNumericArray<T>::F32;
+        t = tatami::SomeNumericType::F32;
     } else if (type == "Float64Array") {
-        t = tatami::SomeNumericArray<T>::F64;
+        t = tatami::SomeNumericType::F64;
     } else {
         throw std::runtime_error("unknown array type '" + type + "'");
     }
@@ -52,7 +51,7 @@ template<typename T>
 NumericMatrix initialize_sparse_matrix_from_dense_vector_internal(size_t nrows, size_t ncols, uintptr_t values, const std::string& type, bool layered) {
     auto vals = create_SomeNumericArray<T>(values, nrows*ncols, type);
     tatami::DenseColumnMatrix<T, int, decltype(vals)> mat(nrows, ncols, vals);
-    return sparse_from_tatami(&mat, layered);
+    return sparse_from_tatami(mat, layered);
 }
 
 NumericMatrix initialize_sparse_matrix_from_dense_vector(size_t nrows, size_t ncols, uintptr_t values, std::string type, bool force_integer, bool layered) {
@@ -88,7 +87,7 @@ NumericMatrix initialize_sparse_matrix_internal(size_t nrows, size_t ncols, size
             auto ind = create_SomeNumericArray<size_t>(indptrs, ncols + 1, indptr_type);
             mat.reset(new tatami::CompressedSparseColumnMatrix<T, int, decltype(val), decltype(idx), decltype(ind)>(nrows, ncols, val, idx, ind));
         }
-        return sparse_from_tatami(mat.get(), layered);
+        return sparse_from_tatami(*mat, layered);
     }
 }
 

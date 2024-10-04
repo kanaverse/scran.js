@@ -45,7 +45,8 @@ void NumericMatrix::row(int r, uintptr_t values) {
     if (!by_row) {
         by_row = ptr->dense_row();
     }
-    by_row->fetch_copy(r, buffer);
+    auto out = by_row->fetch(r, buffer);
+    tatami::copy_n(out, ptr->ncol(), buffer);
     return;
 }
 
@@ -54,7 +55,8 @@ void NumericMatrix::column(int c, uintptr_t values) {
     if (!by_column) {
         by_column = ptr->dense_column();
     }
-    by_column->fetch_copy(c, buffer);
+    auto out = by_column->fetch(c, buffer);
+    tatami::copy_n(out, ptr->nrow(), buffer);
     return;
 }
 

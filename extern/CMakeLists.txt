@@ -23,7 +23,7 @@ FetchContent_Declare(
 FetchContent_Declare(
   tatami_mtx
   GIT_REPOSITORY https://github.com/tatami-inc/tatami_mtx
-  GIT_TAG v1.0.0
+  GIT_TAG v2.0.0
 )
 
 FetchContent_Declare(

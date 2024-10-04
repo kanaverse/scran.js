@@ -21,6 +21,7 @@ add_executable(
     src/hdf5_utils.cpp
     src/write_sparse_matrix_to_hdf5.cpp
     src/initialize_sparse_matrix.cpp
+    src/NumericMatrix.cpp
 
 #    src/quality_control_rna.cpp
 #    src/quality_control_adt.cpp
@@ -40,7 +41,6 @@ add_executable(
 #    src/cluster_kmeans.cpp
 #    src/score_markers.cpp
 #    src/run_singlepp.cpp
-#    src/NumericMatrix.cpp
 #    src/NeighborIndex.cpp
 #    src/cbind.cpp
 #    src/subset.cpp
@@ -63,7 +63,6 @@ target_compile_options(
 
 target_link_libraries(
     scran_wasm
-    scran
     tatami_hdf5
     tatami_mtx
     tatami_layered
