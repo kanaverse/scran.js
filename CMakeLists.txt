@@ -23,7 +23,7 @@ add_executable(
     src/initialize_sparse_matrix.cpp
     src/NumericMatrix.cpp
 
-#    src/quality_control_rna.cpp
+    src/quality_control_rna.cpp
 #    src/quality_control_adt.cpp
 #    src/quality_control_crispr.cpp
 #    src/filter_cells.cpp
@@ -66,6 +66,7 @@ target_link_libraries(
     tatami_hdf5
     tatami_mtx
     tatami_layered
+    scran_qc
     mnncorrect
     qdtsne
     umappp

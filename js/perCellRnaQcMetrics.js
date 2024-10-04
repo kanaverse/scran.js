@@ -46,7 +46,7 @@ export class PerCellRnaQcMetricsResults {
             copy, 
             this.#filledSums, 
             () => { this.#filledSums = true }, 
-            COPY => utils.possibleCopy(this.#results.sums(), COPY)
+            COPY => utils.possibleCopy(this.#results.sum(), COPY)
         );
     }
 
@@ -87,7 +87,7 @@ export class PerCellRnaQcMetricsResults {
             copy, 
             this.#filledSubsetProportions[i], 
             () => { this.#filledSubsetProportions[i] = true }, 
-            COPY => utils.possibleCopy(this.#results.subset_proportions(i), COPY)
+            COPY => utils.possibleCopy(this.#results.subset_proportion(i), COPY)
         );
     }
 
@@ -143,7 +143,7 @@ export function perCellRnaQcMetrics(x, subsets, { numberOfThreads = null } = {})
         x, 
         subsets, 
         (matrix, nsubsets, subset_offset) => gc.call(
-            module => module.per_cell_rna_qc_metrics(matrix, nsubsets, subset_offset, nthreads),
+            module => module.compute_rna_qc_metrics(matrix, nsubsets, subset_offset, nthreads),
             PerCellRnaQcMetricsResults
         )
     );
@@ -161,7 +161,7 @@ export function perCellRnaQcMetrics(x, subsets, { numberOfThreads = null } = {})
  */
 export function emptyPerCellRnaQcMetricsResults(numberOfCells, numberOfSubsets) {
     return gc.call(
-        module => new module.PerCellRnaQcMetrics_Results(numberOfCells, numberOfSubsets),
+        module => new module.ComputeRnaQcMetricsResults(numberOfCells, numberOfSubsets),
         PerCellRnaQcMetricsResults,
         /* filled = */ false 
     );

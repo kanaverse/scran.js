@@ -25,7 +25,7 @@ export class SuggestRnaQcFiltersResults {
      * Alternatively `null`, if `fillable = false` and the array was not already filled.
      */
     thresholdsSums({ copy = true } = {}) {
-        return utils.possibleCopy(this.#results.thresholds_sums(), copy);
+        return utils.possibleCopy(this.#results.thresholds_sum(), copy);
     }
 
     /**
@@ -49,7 +49,7 @@ export class SuggestRnaQcFiltersResults {
      * Alternatively `null`, if `fillable = false` and the array was not already filled.
      */
     thresholdsSubsetProportions(i, { copy = true } = {}) {
-        return utils.possibleCopy(this.#results.thresholds_proportions(i), copy);
+        return utils.possibleCopy(this.#results.thresholds_subset_proportion(i), copy);
     }
 
     /**
@@ -138,7 +138,7 @@ export function suggestRnaQcFilters(metrics, { numberOfMADs = 3, block = null } 
  */
 export function emptySuggestRnaQcFiltersResults(numberOfSubsets, numberOfBlocks) {
     return gc.call(
-        module => new module.SuggestRnaQcFilters_Results(numberOfSubsets, numberOfBlocks),
+        module => new module.SuggestRnaQcFiltersResults(numberOfSubsets, numberOfBlocks),
         SuggestRnaQcFiltersResults,
         /* filled = */ false 
     );

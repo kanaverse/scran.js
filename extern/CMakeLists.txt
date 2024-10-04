@@ -77,7 +77,7 @@ FetchContent_Declare(
 FetchContent_Declare(
   scran_qc
   GIT_REPOSITORY https://github.com/libscran/scran_qc
-  GIT_TAG v0.1.0
+  GIT_TAG master
 )
 
 FetchContent_Declare(
