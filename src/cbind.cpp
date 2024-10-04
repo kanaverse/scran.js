@@ -3,10 +3,7 @@
 #include <cstdint>
 #include <vector>
 #include <stdexcept>
-#include <unordered_set>
-#include <unordered_map>
 
-#include "parallel.h"
 #include "NumericMatrix.h"
 #include "utils.h"
 

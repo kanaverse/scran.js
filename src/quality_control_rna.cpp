@@ -48,63 +48,108 @@ ComputeRnaQcMetricsResults compute_rna_qc_metrics(const NumericMatrix& mat, int 
 }
 
 struct SuggestRnaQcFiltersResults {
-    scran_qc::RnaQcBlockedFilters<double> store;
+    bool use_blocked = true;
+    scran_qc::RnaQcFilters<double> store_unblocked;
+    scran_qc::RnaQcBlockedFilters<double> store_blocked;
 
 public:
-    SuggestRnaQcFiltersResults(scran_qc::RnaQcBlockedFilters<double> store) : store(std::move(store)) {}
+    SuggestRnaQcFiltersResults(scran_qc::RnaQcFilters<double> store) : store_unblocked(std::move(store)), use_blocked(false) {}
+
+    SuggestRnaQcFiltersResults(scran_qc::RnaQcBlockedFilters<double> store) : store_blocked(std::move(store)) {}
 
     SuggestRnaQcFiltersResults(int num_subsets, int num_blocks) {
-        store.get_sum().resize(num_blocks);
-        store.get_detected().resize(num_blocks);
-        store.get_subset_proportion().resize(num_subsets);
-        for (int s = 0; s < num_subsets; ++s) {
-            store.get_subset_proportion()[s].resize(num_blocks);
+        if (num_blocks <= 1) {
+            use_blocked = false;
+            store_unblocked.get_subset_proportion().resize(num_subsets);
+        } else {
+            store_blocked.get_sum().resize(num_blocks);
+            store_blocked.get_detected().resize(num_blocks);
+            auto& sub = store_blocked.get_subset_proportion();
+            sub.resize(num_subsets);
+            for (int s = 0; s < num_subsets; ++s) {
+                sub[s].resize(num_blocks);
+            }
         }
     }
 
 public:
-    emscripten::val thresholds_sum() const {
-        const auto& sum = store.get_sum();
-        return emscripten::val(emscripten::typed_memory_view(sum.size(), sum.data()));
+    emscripten::val thresholds_sum() {
+        if (use_blocked) {
+            auto& sum = store_blocked.get_sum();
+            return emscripten::val(emscripten::typed_memory_view(sum.size(), sum.data()));
+        } else {
+            // Very important to be non-const, otherwise we'd take a reference to a temporary.
+            auto& sum = store_unblocked.get_sum();
+            return emscripten::val(emscripten::typed_memory_view(1, &sum));
+        }
     }
 
-    emscripten::val thresholds_detected() const {
-        const auto& det = store.get_detected();
-        return emscripten::val(emscripten::typed_memory_view(det.size(), det.data()));
+    emscripten::val thresholds_detected() {
+        if (use_blocked) {
+            auto& det = store_blocked.get_detected();
+            return emscripten::val(emscripten::typed_memory_view(det.size(), det.data()));
+        } else {
+            // Very important to be non-const, otherwise we'd take a reference to a temporary.
+            auto& det = store_unblocked.get_detected();
+            return emscripten::val(emscripten::typed_memory_view(1, &det));
+        }
     }
 
-    emscripten::val thresholds_subset_proportion(int i) const {
-        const auto& current = store.get_subset_proportion()[i];
-        return emscripten::val(emscripten::typed_memory_view(current.size(), current.data()));
+    emscripten::val thresholds_subset_proportion(int i) {
+        if (use_blocked) {
+            auto& current = store_blocked.get_subset_proportion()[i];
+            return emscripten::val(emscripten::typed_memory_view(current.size(), current.data()));
+        } else {
+            // Very important to be non-const, otherwise we'd take a reference to a temporary.
+            auto& current = store_unblocked.get_subset_proportion()[i];
+            return emscripten::val(emscripten::typed_memory_view(1, &current));
+        }
     }
 
+public:
     int num_subsets() const {
-        return store.get_subset_proportion().size();
+        if (use_blocked) {
+            return store_blocked.get_subset_proportion().size();
+        } else {
+            return store_unblocked.get_subset_proportion().size();
+        }
     }
 
     int num_blocks() const {
-        return store.get_sum().size();
+        if (use_blocked) {
+            return store_blocked.get_sum().size();
+        } else {
+            return 1;
+        }
     }
 
-    void filter(const ComputeRnaQcMetricsResults& metrics, const int32_t* blocks, uint8_t* output) const {
-        store.filter(metrics.store, blocks, output);
-        return;
+    bool is_blocked() const {
+        return use_blocked;
+    }
+
+    void filter(const ComputeRnaQcMetricsResults& metrics, uintptr_t blocks, uintptr_t output) const {
+        auto optr = reinterpret_cast<uint8_t*>(output);
+        if (use_blocked) {
+            store_blocked.filter(metrics.store, reinterpret_cast<const int32_t*>(blocks), optr);
+        } else {
+            store_unblocked.filter(metrics.store, optr);
+        }
     }
 };
 
-SuggestRnaQcFiltersResults suggest_rna_qc_filters(const ComputeRnaQcMetricsResults& metrics, bool use_blocks, const int32_t* blocks, double nmads) {
+SuggestRnaQcFiltersResults suggest_rna_qc_filters(const ComputeRnaQcMetricsResults& metrics, bool use_blocks, uintptr_t blocks, double nmads) {
     scran_qc::ComputeRnaQcFiltersOptions opt;
     opt.sum_num_mads = nmads;
     opt.detected_num_mads = nmads;
     opt.subset_proportion_num_mads = nmads;
 
-    const int32_t* bptr = NULL;
     if (use_blocks) {
-        bptr = reinterpret_cast<const int32_t*>(blocks);
+        auto thresholds = scran_qc::compute_rna_qc_filters_blocked(metrics.store, reinterpret_cast<const int32_t*>(blocks), opt);
+        return SuggestRnaQcFiltersResults(std::move(thresholds));
+    } else {
+        auto thresholds = scran_qc::compute_rna_qc_filters(metrics.store, opt);
+        return SuggestRnaQcFiltersResults(std::move(thresholds));
     }
-
-    auto thresholds = scran_qc::compute_rna_qc_filters_blocked(metrics.store, bptr, opt);
-    return SuggestRnaQcFiltersResults(std::move(thresholds));
 }
 
 EMSCRIPTEN_BINDINGS(quality_control_rna) {
@@ -127,7 +172,7 @@ EMSCRIPTEN_BINDINGS(quality_control_rna) {
         .function("thresholds_subset_proportion", &SuggestRnaQcFiltersResults::thresholds_subset_proportion, emscripten::return_value_policy::take_ownership())
         .function("num_subsets", &SuggestRnaQcFiltersResults::num_subsets, emscripten::return_value_policy::take_ownership())
         .function("num_blocks", &SuggestRnaQcFiltersResults::num_blocks, emscripten::return_value_policy::take_ownership())
+        .function("is_blocked", &SuggestRnaQcFiltersResults::is_blocked, emscripten::return_value_policy::take_ownership())
         .function("filter", &SuggestRnaQcFiltersResults::filter, emscripten::return_value_policy::take_ownership())
-        .function("filter_blocked", &SuggestRnaQcFiltersResults::filter, emscripten::return_value_policy::take_ownership())
         ;
 }

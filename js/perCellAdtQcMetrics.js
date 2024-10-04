@@ -46,7 +46,7 @@ export class PerCellAdtQcMetricsResults {
             copy, 
             this.#filledSums, 
             () => { this.#filledSums = true }, 
-            COPY => utils.possibleCopy(this.#results.sums(), COPY)
+            COPY => utils.possibleCopy(this.#results.sum(), COPY)
         );
     }
 
@@ -87,7 +87,7 @@ export class PerCellAdtQcMetricsResults {
             copy, 
             this.#filledSubsetTotals[i], 
             () => { this.#filledSubsetTotals[i] = true }, 
-            COPY => utils.possibleCopy(this.#results.subset_totals(i), COPY)
+            COPY => utils.possibleCopy(this.#results.subset_sum(i), COPY)
         );
     }
 

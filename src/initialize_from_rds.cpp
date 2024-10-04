@@ -1,7 +1,6 @@
 #include <emscripten/bind.h>
 
 #include "NumericMatrix.h"
-#include "parallel.h"
 
 #include "rds_utils.h"
 #include "read_utils.h"
@@ -53,7 +52,7 @@ NumericMatrix convert_ordinary_array_to_sparse_matrix(const Vector* obj, bool la
     auto dims = fetch_array_dimensions(obj);
     tatami::ArrayView view(obj->data.data(), obj->data.size());
     tatami::DenseColumnMatrix<T, int, decltype(view)> raw(dims.first, dims.second, std::move(view));
-    return sparse_from_tatami(&raw, layered);
+    return sparse_from_tatami(raw, layered);
 }
 
 template<typename T>
@@ -104,7 +103,7 @@ NumericMatrix convert_dgCMatrix_to_sparse_matrix(rds2cpp::S4Object* obj, bool la
     tatami::ArrayView iview(i.data(), i.size());
     tatami::ArrayView pview(p.data(), p.size());
     tatami::CompressedSparseColumnMatrix<T, int, decltype(xview), decltype(iview), decltype(pview)> mat(dims.first, dims.second, std::move(xview), std::move(iview), std::move(pview));
-    return sparse_from_tatami(&mat, layered);
+    return sparse_from_tatami(mat, layered);
 }
 
 template<typename T>
@@ -164,7 +163,7 @@ NumericMatrix convert_dgTMatrix_to_sparse_matrix(rds2cpp::S4Object* obj, bool la
     auto p = tatami::compress_sparse_triplets<false>(dims.first, dims.second, xcopy, icopy, jcopy);
     mptr.reset(new Matrix(dims.first, dims.second, std::move(xcopy), std::move(icopy), std::move(p)));
 
-    return sparse_from_tatami(mptr.get(), layered);
+    return sparse_from_tatami(*mptr, layered);
 }
 
 NumericMatrix initialize_sparse_matrix_from_rds(uintptr_t ptr, bool force_integer, bool layered) {

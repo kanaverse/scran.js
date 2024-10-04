@@ -1,7 +1,6 @@
 #include <emscripten.h>
 #include <emscripten/bind.h>
 
-#include "parallel.h"
 #include "rds_utils.h"
 #include "rds2cpp/rds2cpp.hpp"
 #include "byteme/SomeBufferReader.hpp"

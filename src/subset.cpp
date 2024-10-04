@@ -6,7 +6,6 @@
 
 #include "NumericMatrix.h"
 #include "utils.h"
-#include "parallel.h"
 
 #include "tatami/tatami.hpp"
 

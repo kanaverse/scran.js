@@ -16,15 +16,21 @@ add_subdirectory(extern)
 add_executable(
     scran_wasm 
 
+    src/NumericMatrix.cpp
+    src/cbind.cpp
+    src/subset.cpp
+    src/delayed.cpp
+
+    src/initialize_sparse_matrix.cpp
     src/read_matrix_market.cpp
+    src/initialize_from_rds.cpp
+    src/rds_utils.cpp
     src/read_hdf5_matrix.cpp
     src/hdf5_utils.cpp
     src/write_sparse_matrix_to_hdf5.cpp
-    src/initialize_sparse_matrix.cpp
-    src/NumericMatrix.cpp
 
     src/quality_control_rna.cpp
-#    src/quality_control_adt.cpp
+    src/quality_control_adt.cpp
 #    src/quality_control_crispr.cpp
 #    src/filter_cells.cpp
 #
@@ -42,13 +48,9 @@ add_executable(
 #    src/score_markers.cpp
 #    src/run_singlepp.cpp
 #    src/NeighborIndex.cpp
-#    src/cbind.cpp
-#    src/subset.cpp
-#    src/delayed.cpp
-#    src/get_error_message.cpp
-#    src/rds_utils.cpp
-#    src/initialize_from_rds.cpp
-#
+
+    src/get_error_message.cpp
+
 #    src/score_feature_set.cpp
 #    src/hypergeometric_test.cpp
 #

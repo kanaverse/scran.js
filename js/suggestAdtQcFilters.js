@@ -36,7 +36,7 @@ export class SuggestAdtQcFiltersResults {
      * @return {?(Float64Array|Float64WasmArray)} Array containing the filtering threshold on the total counts for subset `i` in each batch.
      */
     thresholdsSubsetTotals(i, { copy = true } = {}) {
-        return utils.possibleCopy(this.#results.thresholds_subset_totals(i), copy);
+        return utils.possibleCopy(this.#results.thresholds_subset_sum(i), copy);
     }
 
     /**
@@ -51,6 +51,13 @@ export class SuggestAdtQcFiltersResults {
      */
     numberOfBlocks() {
         return this.#results.num_blocks();
+    }
+
+    /**
+     * @return {boolean} Whether blocking was used to compute the thresholds
+     */
+    isBlocked() {
+        return this.#results.isBlocked();
     }
 
     /**
@@ -110,7 +117,7 @@ export function suggestAdtQcFilters(metrics, { numberOfMADs = 3, minDetectedDrop
         metrics, 
         block,
         (x, use_blocks, bptr) => gc.call(
-            module => module.suggest_adt_qc_filters(x.results.$$.ptr, use_blocks, bptr, numberOfMADs, minDetectedDrop),
+            module => module.suggest_adt_qc_filters(x.results, use_blocks, bptr, numberOfMADs, minDetectedDrop),
             SuggestAdtQcFiltersResults
         )
     );
@@ -127,7 +134,7 @@ export function suggestAdtQcFilters(metrics, { numberOfMADs = 3, minDetectedDrop
  */
 export function emptySuggestAdtQcFiltersResults(numberOfSubsets, numberOfBlocks) {
     return gc.call(
-        module => new module.SuggestAdtQcFilters_Results(numberOfSubsets, numberOfBlocks),
+        module => new module.SuggestAdtQcFiltersResults(numberOfSubsets, numberOfBlocks),
         SuggestAdtQcFiltersResults
     );
 }
