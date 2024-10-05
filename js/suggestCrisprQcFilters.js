@@ -23,8 +23,15 @@ export class SuggestCrisprQcFiltersResults {
      *
      * @return {?(Float64Array|Float64WasmArray)} Array containing the filtering threshold on the maximum count in each batch.
      */
+    thresholdsMaxValue({ copy = true } = {}) {
+        return utils.possibleCopy(this.#results.thresholds_max_value(), copy);
+    }
+
+    /**
+     * @ignore
+     */
     thresholdsMaxCount({ copy = true } = {}) {
-        return utils.possibleCopy(this.#results.thresholds_max_count(), copy);
+        return this.thresholdsMaxValue({ copy });
     }
 
     /**
@@ -89,7 +96,7 @@ export function suggestCrisprQcFilters(metrics, { numberOfMADs = 3, block = null
         metrics,
         block,
         (x, use_blocks, bptr) => gc.call(
-            module => module.suggest_crispr_qc_filters(x.results.$$.ptr, use_blocks, bptr, numberOfMADs),
+            module => module.suggest_crispr_qc_filters(x.results, use_blocks, bptr, numberOfMADs),
             SuggestCrisprQcFiltersResults
         )
     );
@@ -105,7 +112,7 @@ export function suggestCrisprQcFilters(metrics, { numberOfMADs = 3, block = null
  */
 export function emptySuggestCrisprQcFiltersResults(numberOfBlocks) {
     return gc.call(
-        module => new module.SuggestCrisprQcFilters_Results(numberOfBlocks),
+        module => new module.SuggestCrisprQcFiltersResults(numberOfBlocks),
         SuggestCrisprQcFiltersResults,
         /* filled = */ false 
     );

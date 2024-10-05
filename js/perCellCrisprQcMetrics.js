@@ -47,7 +47,7 @@ export class PerCellCrisprQcMetricsResults {
             copy, 
             this.#filledSums, 
             () => { this.#filledSums = true }, 
-            COPY => utils.possibleCopy(this.#results.sums(), COPY)
+            COPY => utils.possibleCopy(this.#results.sum(), COPY)
         );
     }
 
@@ -79,17 +79,27 @@ export class PerCellCrisprQcMetricsResults {
      * If `true`, this method automatically sets `copy = false` if `copy` was previously true.
      * If `false` and the array was not previously filled, `null` is returned.
      *
-     * @return {?(Float64Array|Float64WasmArray)} Array containing the proportion of counts in the most abundant guide for each cell.
+     * @return {?(Float64Array|Float64WasmArray)} Array containing the count of the most abundant guide for each cell.
      * Alternatively `null`, if `fillable = false` and the array was not already filled.
      */
-    maxProportions({ copy = true, fillable = false } = {}) {
+    maxValue({ copy = true, fillable = false } = {}) {
         return utils.checkFillness(
             fillable, 
             copy, 
             this.#filledMaxProportions, 
             () => { this.#filledMaxProportions = true }, 
-            COPY => utils.possibleCopy(this.#results.max_proportion(), COPY)
+            COPY => utils.possibleCopy(this.#results.max_value(), COPY)
         );
+    }
+
+    /**
+     * @return {Float64Array} Array containing the proportion of counts in the most abundant guide for each cell.
+     */
+    maxProportions() {
+        let out = this.maxValue();
+        let denom = this.sums({ copy: false });
+        out.forEach((x, i) => { out[i] /= denom[i] });
+        return out;
     }
 
     /**

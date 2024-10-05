@@ -62,9 +62,10 @@ test("per-cell CRISPR-based QC filters can be computed with blocking", () => {
     expect(filt.numberOfBlocks()).toBe(2);
 
     // Filters throw if block is not supplied.
-    expect(() => filt.filter(qc)).toThrow("multiple batches");
+    expect(() => filt.filter(qc)).toThrow("'block' must be supplied");
     let discards = filt.filter(qc, { block: block });
     expect(discards.length).toEqual(ncells);
+    console.log(discards);
 
     // Computing manually.
     for (var b = 0; b < 2; b++) {
