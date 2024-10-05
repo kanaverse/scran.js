@@ -1,38 +1,20 @@
-import * as gc from "./gc.js";
-import * as utils from "./utils.js";
+import { subsetColumns } from "./subset.js";
 
 /**
  * Filter out low-quality cells.
  *
  * @param {ScranMatrix} x The count matrix.
  * @param {(Uint8WasmArray|Array|TypedArray)} filters 
- * An array of length equal to the number of columns in `x`, where truthy elements specify the cells to be discarded.
+ * An array of length equal to the number of columns in `x`, where truthy elements specify the cells to keep.
  *
- * @return {ScranMatrix} A matrix of the same type as `x`, filtered by column to remove all cells specified in `filters`. 
+ * @return {ScranMatrix} A matrix of the same type as `x`, filtered by column to only retain cells in `filters`. 
  */
 export function filterCells(x, filters) {
-    var filter_data;
-    var output;
-
-    try {
-        filter_data = utils.wasmifyArray(filters, "Uint8WasmArray");
-        if (filter_data.length != x.numberOfColumns()) {
-            throw new Error("length of 'filters' must be equal to number of columns in 'x'");
+    var indices = [];
+    filters.forEach((x, i) => {
+        if (x != 0) {
+            indices.push(i);
         }
-        var ptr = filter_data.offset;
-
-        output = gc.call(
-            module => module.filter_cells(x.matrix, ptr, false),
-            x.constructor
-        );
-
-    } catch(e) {
-        utils.free(output);
-        throw e;
-
-    } finally {
-        utils.free(filter_data);
-    }
-
-    return output;
+    });
+    return subsetColumns(x, indices);
 }

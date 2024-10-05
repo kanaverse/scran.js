@@ -79,10 +79,10 @@ export class SuggestRnaQcFiltersResults {
      * @param {?(Int32WasmArray|Array|TypedArray)} [options.block=null] - Array containing the block assignment for each cell in `metrics`.
      * This should have length equal to the number of cells and contain all values in `[0, n)` where `n` is the return value of {@linkcode SuggestRnaQcFilters#numberOfBlocks numberOfBlocks}.
      * `block` must be supplied if {@linkcode SuggestRnaQcFilters#isBlocked isBlocked} returns true, otherwise it is ignored.
-     * @param {?Uint8WasmArray} [options.buffer=null] - Array of length equal to the number of cells in `metrics`, to be used to store the low-quality calls.
+     * @param {?Uint8WasmArray} [options.buffer=null] - Array of length equal to the number of cells in `metrics`, to be used to store the high-quality calls.
      *
      * @return {Uint8Array} Array of length equal to the number of cells in `metrics`.
-     * Each entry is truthy if the corresponding cell is deemed to be of low-quality based on its values in `metrics`.
+     * Each entry is truthy if the corresponding cell is deemed to be of high-quality based on its values in `metrics`.
      * If `buffer` is supplied, the returned array is a view on `buffer`.
      */
     filter(metrics, { block = null, buffer = null } = {}) {

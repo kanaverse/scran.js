@@ -68,10 +68,10 @@ export class SuggestAdtQcFiltersResults {
      *
      * Alternatively, this may be `null`, in which case all cells are assumed to be in the same block.
      * This will raise an error if multiple blocks were used to compute the thresholds.
-     * @param {?Uint8WasmArray} [options.buffer=null] - Array of length equal to the number of cells in `metrics`, to be used to store the low-quality calls.
+     * @param {?Uint8WasmArray} [options.buffer=null] - Array of length equal to the number of cells in `metrics`, to be used to store the high-quality calls.
      *
      * @return {Uint8Array} Array of length equal to the number of cells in `metrics`.
-     * Each entry is truthy if the corresponding cell is deemed to be of low-quality based on its values in `metrics`.
+     * Each entry is truthy if the corresponding cell is deemed to be of high-quality based on its values in `metrics`.
      * If `buffer` is supplied, the returned array is a view on `buffer`.
      */
     filter(metrics, { block = null, buffer = null } = {}) {
