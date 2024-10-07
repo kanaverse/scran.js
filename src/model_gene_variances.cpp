@@ -65,9 +65,10 @@ public:
     }
 };
 
-ModelGeneVariancesResults model_gene_variances(const NumericMatrix& mat, bool use_blocks, uintptr_t blocks, double span, int nthreads) {
+ModelGeneVariancesResults model_gene_variances(const NumericMatrix& mat, bool use_blocks, uintptr_t blocks, double span, std::string weight_policy, int nthreads) {
     scran_variances::ModelGeneVariancesOptions vopt;
     vopt.fit_variance_trend_options.span = span;
+    vopt.block_weight_policy = translate_block_weight_policy(weight_policy);
     vopt.num_threads = nthreads;
 
     if (use_blocks) {

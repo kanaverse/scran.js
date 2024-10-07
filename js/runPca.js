@@ -108,9 +108,13 @@ export class RunPcaResults {
  *
  * This option is only used if `block` is not `null`.
  * @param {string} [options.blockWeightPolicy="variable"] The policy for weighting each block so that it contributes the same number of effective observations to the covariance matrix.
- * The default choice of `"variable"` ensures that, past a certain size (default 1000 cells), larger blocks do not dominate the definition of the PC space.
- * Other options are `"equal"`, where all blocks are equally weighted regardless of size; and `"none"`, where no extra weighting is applied, i.e., the contribution of each block is proportional to its size.
- * Only used if `block` is not `null`.
+ *
+ * - `"variable"` ensures that, past a certain size (default 1000 cells), larger blocks do not dominate the definition of the PC space.
+ *   Below the threshold size, blocks are weighted in proportion to their size to reduce the influence of very small blocks. 
+ * - `"equal"` uses the same weight for each block, regardless of size.
+ * - `"none"` does not apply any extra weighting, i.e., the contribution of each block is proportional to its size.
+ *
+ * This option is only used if `block` is not `null`.
  * @param {?boolean} [options.realizeMatrix=null] - Whether to realize the submatrix into its own memory.
  * This is more efficient but consumes more memory.
  * Defaults to true if `subset` is supplied, otherwise it is false.
@@ -161,7 +165,7 @@ export function runPca(x, {
         var use_block = false;
         var bptr = 0;
         var comp_as_resid = false;
-        if (block != null && blockMethod != 'none') {
+        if (block !== null && blockMethod !== 'none') {
             block_data = utils.wasmifyArray(block, "Int32WasmArray");
             if (block_data.length != x.numberOfColumns()) {
                 throw new Error("length of 'block' should be equal to the number of columns in 'x'");
