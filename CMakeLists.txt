@@ -53,8 +53,8 @@ add_executable(
 
 #    src/score_feature_set.cpp
     src/hypergeometric_test.cpp
-#
-#    src/aggregate_across_cells.cpp
+
+    src/aggregate_across_cells.cpp
 )
 
 target_compile_options(
@@ -74,6 +74,7 @@ target_link_libraries(
     scran_norm
     scran_variances
     scran_pca
+    scran_aggregate
 
     phyper
 
