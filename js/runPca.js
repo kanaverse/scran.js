@@ -18,8 +18,7 @@ export class RunPcaResults {
     /**
      * @param {object} [options={}] - Optional parameters.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
-     * 
-     * @return {?(Float64Array|Float64Wasmarray)} Array containing the principal components for all cells.
+     * @return {Float64Array|Float64Wasmarray} Array containing the principal components for all cells.
      * This should be treated as a column-major array where the rows are the PCs and columns are the cells.
      */
     principalComponents({ copy = true } = {}) {
@@ -29,8 +28,7 @@ export class RunPcaResults {
     /**
      * @param {object} [options={}] - Optional parameters.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
-     * 
-     * @return {?(Float64Array|Float64Wasmarray)} Array containing the rotation matrix for all cells.
+     * @return {Float64Array|Float64Wasmarray} Array containing the rotation matrix for all cells.
      * This should be treated as a column-major array where the rows are the genes and the columns are the PCs.
      */
     rotation({ copy = true } = {}) {
@@ -40,15 +38,14 @@ export class RunPcaResults {
     /**
      * @param {object} [options={}] - Optional parameters.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
-     * 
-     * @return {?(Float64Array|Float64WasmArray)} Array containing the variance explained for each requested PC.
+     * @return {Float64Array|Float64WasmArray} Array containing the variance explained for each requested PC.
      */
     varianceExplained({ copy = true } = {}) {
         return utils.possibleCopy(this.#results.variance_explained(), copy);
     }
 
     /**
-     * @return {?number} The total variance in the dataset,
+     * @return {number} The total variance in the dataset,
      * typically used with {@linkcode PCAResults#varianceExplained varianceExplained} to compute the proportion of variance explained.
      */
     totalVariance() {
