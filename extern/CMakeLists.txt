@@ -87,6 +87,12 @@ FetchContent_Declare(
 )
 
 FetchContent_Declare(
+  scran_blocks
+  GIT_REPOSITORY https://github.com/libscran/scran_blocks
+  GIT_TAG v0.1.0
+)
+
+FetchContent_Declare(
   scran_variances
   GIT_REPOSITORY https://github.com/libscran/scran_variances
   GIT_TAG v0.1.3
@@ -126,12 +132,6 @@ FetchContent_Declare(
   scran_aggregate
   GIT_REPOSITORY https://github.com/libscran/scran_aggregate
   GIT_TAG v0.2.0
-)
-
-FetchContent_Declare(
-  scran_blocks
-  GIT_REPOSITORY https://github.com/libscran/scran_blocks
-  GIT_TAG v0.1.0
 )
 
 FetchContent_Declare(

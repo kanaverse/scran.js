@@ -38,7 +38,7 @@ add_executable(
 
     src/model_gene_variances.cpp
 
-#    src/run_pca.cpp
+    src/run_pca.cpp
 #    src/run_tsne.cpp
 #    src/run_umap.cpp
 #    src/mnn_correct.cpp
@@ -73,6 +73,7 @@ target_link_libraries(
     scran_qc
     scran_norm
     scran_variances
+    scran_pca
 
     mnncorrect
     qdtsne
