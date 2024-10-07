@@ -36,7 +36,8 @@ add_executable(
     src/normalize_counts.cpp
     src/compute_clrm1_factors.cpp
 
-#    src/model_gene_variances.cpp
+    src/model_gene_variances.cpp
+
 #    src/run_pca.cpp
 #    src/run_tsne.cpp
 #    src/run_umap.cpp
@@ -64,11 +65,15 @@ target_compile_options(
 
 target_link_libraries(
     scran_wasm
+
     tatami_hdf5
     tatami_mtx
     tatami_layered
+
     scran_qc
     scran_norm
+    scran_variances
+
     mnncorrect
     qdtsne
     umappp

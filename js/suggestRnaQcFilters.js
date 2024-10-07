@@ -67,7 +67,7 @@ export class SuggestRnaQcFiltersResults {
     }
 
     /**
-     * @return {boolean} Whether blocking was used to compute the thresholds
+     * @return {boolean} Whether blocking was used to compute the thresholds.
      */
     isBlocked() {
         return this.#results.isBlocked();

@@ -19,6 +19,7 @@ export class ModelGeneVariancesResults {
      * @param {?number} [options.block=null] - Number of the block for which to extract statistics.
      * If `null`, the average across all blocks is returned.
      * Otherwise, should be less than the value returned by {@linkcode ModelGeneVariancesResults#numberOfBlocks numberOfBlocks}.
+     * Ignored if {@linkcode ModelGeneVariacneResults#isBlocked} returns false.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      *
      * @return {?(Float64Array|Float64WasmArray)} Array of length equal to the number of genes,
@@ -34,6 +35,7 @@ export class ModelGeneVariancesResults {
      * @param {?number} [options.block=null] - Number of the block for which to extract statistics.
      * If `null`, the average across all blocks is returned.
      * Otherwise, should be less than the value returned by {@linkcode ModelGeneVariancesResults#numberOfBlocks numberOfBlocks}.
+     * Ignored if {@linkcode ModelGeneVariacneResults#isBlocked} returns false.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      *
      * @return {?(Float64Array|Float64WasmArray)} Array of length equal to the number of genes,
@@ -49,6 +51,7 @@ export class ModelGeneVariancesResults {
      * @param {?number} [options.block=null] - Number of the block for which to extract statistics.
      * If `null`, the average across all blocks is returned.
      * Otherwise, should be less than the value returned by {@linkcode ModelGeneVariancesResults#numberOfBlocks numberOfBlocks}.
+     * Ignored if {@linkcode ModelGeneVariacneResults#isBlocked} returns false.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      *
      * @return {Float64Array|Float64WasmArray} Array of length equal to the number of genes,
@@ -65,6 +68,7 @@ export class ModelGeneVariancesResults {
      * @param {?number} [options.block=null] - Number of the block for which to extract statistics.
      * If `null`, the average across all blocks is returned.
      * Otherwise, should be less than the value returned by {@linkcode ModelGeneVariancesResults#numberOfBlocks numberOfBlocks}.
+     * Ignored if {@linkcode ModelGeneVariacneResults#isBlocked} returns false.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      *
      * @return {Float64Array|Float64WasmArray} Array of length equal to the number of genes,
@@ -80,6 +84,13 @@ export class ModelGeneVariancesResults {
      */
     numberOfBlocks() {
         return this.#results.num_blocks();
+    }
+
+    /**
+     * @return {boolean} Whether blocking was used during trend fitting.
+     */
+    isBlocked() {
+        return this.#results.isBlocked();
     }
 
     /**
