@@ -89,7 +89,7 @@ FetchContent_Declare(
 FetchContent_Declare(
   scran_variances
   GIT_REPOSITORY https://github.com/libscran/scran_variances
-  GIT_TAG v0.1.2
+  GIT_TAG v0.1.3
 )
 
 FetchContent_Declare(

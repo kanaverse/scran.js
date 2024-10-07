@@ -1,44 +1,6 @@
 import * as utils from "./utils.js";
+import * as wasm from "./wasm.js";
 import { ModelGeneVariancesResults } from "./modelGeneVariances.js";
-
-/**
- * Compute the filter threshold required to retain the top `number` values.
- *
- * @param {Array|TypedArray} x - Array of numeric values, typically per-gene statistics.
- * @param {number} number - Number of top values to retain after filtering on the returned threshold.
- * This may be approximate in the presence of ties.
- * @param {object} [options={}] - Optional parameters.
- * @param {boolean} [options.largest=true] - Whether the top values in `x` are defined as the largest numeric values.
- * If `false`, the top values are considered to be the smallest.
- * @param {boolean} [options.copy=true] - Whether to copy `x` before sorting.
- * If `false`, `x` may be modified in-place.
- *
- * @return {number} Threshold to be applied to `x` to obtain the top (approximately) `number` values.
- * If `largest = true`, filtering is performed by taking all values in `x` that are greater than or equal to the returned threshold;
- * if `false`, filtering is performed by taking all values in `x` that are less than or equal to the returned threshold.
- * If `x` is zero-length, NaN is returned.
- */
-export function computeTopThreshold(x, number, { copy = true, largest = true } = {}) {
-    if (copy) {
-        x = x.slice();
-    }
-
-    if (x instanceof Array) {
-        x.sort((a, b) => a - b); // just in case...
-    } else {
-        x.sort();
-    }
-
-    if (x.length == 0) {
-        return Number.NaN;
-    }
-
-    if (largest) {
-        return x[Math.max(0, x.length - number)]; 
-    } else {
-        return x[Math.min(number, x.length) - 1]; 
-    }
-}
 
 /**
  * Choose the highly variable genes from variance modelling statistics.
@@ -48,44 +10,28 @@ export function computeTopThreshold(x, number, { copy = true, largest = true } =
  * or a {@linkplain ModelGeneVariancesResults} object, in which case the residuals are used as the statistics.
  * @param {object} [options={}] - Optional parameters.
  * @param {number} [options.number=4000] - Number of highly variable genes to select.
- * @param {number} [options.minimum=0] - Minimum value of the residual to consider for a highly variable gene.
- * By default, a highly variable gene must have a non-negative residual.
+ * @param {number} [options.minimum=0] - Lower bound on the residual to consider for a highly variable gene.
+ * By default, a highly variable gene must have a positive residual.
  *
- * @return {Uint8WasmArray} Array of length equal to the total number of genes,
- * where the chosen highly variable genes are marked with a value of 1 and all other genes have values of zero.
+ * @return {Uint8WasmArray} Array of length equal to the number of genes.
+ * Highly variable genes are marked with a value of 1 and all other genes have values of zero.
  */
 export function chooseHvgs(x, { number = 4000, minimum = 0 } = {}) {
-    let stat; 
-    if (x instanceof ModelGeneVariancesResults) {
-        stat = x.residuals();
-    } else {
-        stat = x.slice();
-    }
-
-    let threshold = computeTopThreshold(stat, number, { largest: true, copy: false });
-    if (threshold < minimum) {
-        threshold = minimum;
-    }
-
-    let features = utils.createUint8WasmArray(stat.length);
+    let stat;
+    let chosen;
     try {
-        // Do this AFTER the features allocation, so that
-        // we can set copy = false for the input array.
         if (x instanceof ModelGeneVariancesResults) {
-            stat = x.residuals({ copy: false });
+            stat = x.residuals({ copy: "view" });
         } else {
-            stat = x;
+            stat = utils.wasmifyArray(x, "Float64WasmArray");
         }
-
-        let farr = features.array();
-        stat.forEach((x, i) => {
-            farr[i] = x >= threshold;
-        });
-
+        chosen = utils.createUint8WasmArray(stat.length);
+        wasm.call(module => module.choose_highly_variable_genes(stat.length, stat.offset, chosen.offset, number, minimum));
     } catch (e) {
-        features.free();
+        chosen.free();
         throw e;
+    } finally {
+        stat.free();
     }
-
-    return features;
+    return chosen;
 }

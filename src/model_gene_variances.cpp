@@ -79,6 +79,14 @@ ModelGeneVariancesResults model_gene_variances(const NumericMatrix& mat, bool us
     }
 }
 
+void choose_highly_variable_genes(int n, uintptr_t statistics, uintptr_t output, int top, double bound) {
+    scran_variances::ChooseHighlyVariableGenesOptions copt;
+    copt.top = top;
+    copt.bound.first = true;
+    copt.bound.second = bound;
+    scran_variances::choose_highly_variable_genes(n, reinterpret_cast<double*>(statistics), reinterpret_cast<uint8_t*>(output), copt);
+}
+
 EMSCRIPTEN_BINDINGS(model_gene_variances) {
     emscripten::function("model_gene_variances", &model_gene_variances, emscripten::return_value_policy::take_ownership());
 
@@ -90,4 +98,6 @@ EMSCRIPTEN_BINDINGS(model_gene_variances) {
         .function("num_blocks", &ModelGeneVariancesResults::num_blocks, emscripten::return_value_policy::take_ownership())
         .function("is_blocked", &ModelGeneVariancesResults::is_blocked, emscripten::return_value_policy::take_ownership())
         ;
+
+    emscripten::function("choose_highly_variable_genes", &choose_highly_variable_genes, emscripten::return_value_policy::take_ownership());
 }

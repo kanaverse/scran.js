@@ -38,49 +38,21 @@ test("chooseHvgs works correctly", () => {
     output.free();
 });
 
-test("chooseHvgs avoids picking negative residuals", () => {
+test("chooseHvgs avoids picking zero or negative residuals", () => {
     let res = [ 0, 2, 3, 4, -1 ];
     var output = scran.chooseHvgs(res, { number: 101 });
 
     let expected = new Uint8Array(res.length);
     expected.fill(1);
+    expected[0] = 0;
     expected[4] = 0;
     expect(output.array()).toEqual(expected);
 
     let output2 = scran.chooseHvgs(res, { number: 101, minimum: -1 });
-    expected[4] = 1;
+    expected[0] = 1;
     expect(output2.array()).toEqual(expected);
 
     // Cleaning up.
     output.free();
     output2.free();
 })
-
-test("computeTopThreshold works correctly", () => {
-    expect(scran.computeTopThreshold([1,2,3,4,5], 1)).toEqual(5);
-    expect(scran.computeTopThreshold([5,2,3,4,1], 2)).toEqual(4);
-    expect(scran.computeTopThreshold([5,2,3,4,1], 100)).toEqual(1);
-    expect(scran.computeTopThreshold([5,1,4,3,2], 1, { largest: false })).toEqual(1);
-    expect(scran.computeTopThreshold([3,4,5,1,2], 2, { largest: false })).toEqual(2);
-    expect(scran.computeTopThreshold([3,4,5,1,2], 200, { largest: false })).toEqual(5);
-
-    // Behaves correctly for numeric arrays.
-    expect(scran.computeTopThreshold([10,11,12,1,2], 2, { largest: false })).toEqual(2);
-    expect(scran.computeTopThreshold([10,11,12,1,2], 1)).toEqual(12);
-
-    // Same for typed arrays.
-    expect(scran.computeTopThreshold(new Float64Array([5,2,1,4,3]), 1)).toEqual(5);
-    expect(scran.computeTopThreshold(new Float64Array([3,2,5,4,1]), 2)).toEqual(4);
-    expect(scran.computeTopThreshold(new Float64Array([2,1,3,4,5]), 1, { largest: false })).toEqual(1);
-    expect(scran.computeTopThreshold(new Float64Array([4,3,2,5,1]), 2, { largest: false })).toEqual(2);
-
-    // Makes a copy when sorting by default.
-    let original = [ 99, 98, 97 ];
-    scran.computeTopThreshold(original, 1);
-    expect(original).toEqual([99, 98, 97]);
-    scran.computeTopThreshold(original, 1, { copy: false });
-    expect(original).toEqual([97, 98, 99]);
-
-    expect(scran.computeTopThreshold([], 20)).toEqual(Number.NaN);
-})
-
