@@ -25,9 +25,7 @@ export * from "./suggestAdtQcFilters.js";
 export * from "./suggestCrisprQcFilters.js";
 export * from "./filterCells.js";
 
-export * from "./medianSizeFactors.js";
-export * from "./groupedSizeFactors.js";
-export * from "./quickAdtSizeFactors.js";
+export * from "./computeClrm1Factors.js";
 export * from "./logNormCounts.js";
 
 export * from "./modelGeneVariances.js";

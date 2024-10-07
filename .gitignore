@@ -1,4 +1,5 @@
 extern/installed
+extern/include
 build_*
 docs/html/
 docs/latex/

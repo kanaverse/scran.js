@@ -207,3 +207,10 @@ FetchContent_MakeAvailable(mnncorrect)
 FetchContent_MakeAvailable(singlepp)
 
 FetchContent_MakeAvailable(rds2cpp)
+
+if (NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/include)
+    file(MAKE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include)
+endif()
+if (NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/include/clrm1.hpp)
+    file(DOWNLOAD https://raw.githubusercontent.com/libscran/clrm1/refs/tags/v0.1.0/package/src/clrm1.hpp ${CMAKE_CURRENT_SOURCE_DIR}/include/clrm1.hpp)
+endif()

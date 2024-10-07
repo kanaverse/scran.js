@@ -34,7 +34,7 @@ add_executable(
     src/quality_control_crispr.cpp
 
     src/normalize_counts.cpp
-#    src/compute_clrm1_factors.cpp
+    src/compute_clrm1_factors.cpp
 
 #    src/model_gene_variances.cpp
 #    src/run_pca.cpp
@@ -77,6 +77,12 @@ target_link_libraries(
     igraph::igraph
     singlepp
     rds2cpp
+)
+
+target_include_directories(
+    scran_wasm
+    PRIVATE
+    extern/include
 )
 
 target_link_options(scran_wasm PRIVATE 
