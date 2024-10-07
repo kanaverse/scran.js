@@ -33,9 +33,9 @@ add_executable(
     src/quality_control_adt.cpp
     src/quality_control_crispr.cpp
 
-#    src/log_norm_counts.cpp
-#    src/median_size_factors.cpp
-#    src/grouped_size_factors.cpp
+    src/normalize_counts.cpp
+#    src/compute_clrm1_factors.cpp
+
 #    src/model_gene_variances.cpp
 #    src/run_pca.cpp
 #    src/run_tsne.cpp
@@ -68,6 +68,7 @@ target_link_libraries(
     tatami_mtx
     tatami_layered
     scran_qc
+    scran_norm
     mnncorrect
     qdtsne
     umappp
