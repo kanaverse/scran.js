@@ -52,7 +52,7 @@ add_executable(
     src/get_error_message.cpp
 
 #    src/score_feature_set.cpp
-#    src/hypergeometric_test.cpp
+    src/hypergeometric_test.cpp
 #
 #    src/aggregate_across_cells.cpp
 )
@@ -74,6 +74,8 @@ target_link_libraries(
     scran_norm
     scran_variances
     scran_pca
+
+    phyper
 
     mnncorrect
     qdtsne

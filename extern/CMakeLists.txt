@@ -3,6 +3,12 @@ cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 include(FetchContent)
 
 FetchContent_Declare(
+  subpar
+  GIT_REPOSITORY https://github.com/LTLA/subpar
+  GIT_TAG v0.3.1
+)
+
+FetchContent_Declare(
   tatami 
   GIT_REPOSITORY https://github.com/tatami-inc/tatami
   GIT_TAG v3.1.1
@@ -135,6 +141,12 @@ FetchContent_Declare(
 )
 
 FetchContent_Declare(
+  phyper 
+  GIT_REPOSITORY https://github.com/libscran/phyper
+  GIT_TAG v0.1.0
+)
+
+FetchContent_Declare(
   gsdecon
   GIT_REPOSITORY https://github.com/libscran/gsdecon
   GIT_TAG v0.1.0
@@ -170,6 +182,8 @@ FetchContent_Declare(
   GIT_TAG v1.1.0
 )
 
+FetchContent_MakeAvailable(subpar)
+
 FetchContent_MakeAvailable(tatami)
 FetchContent_MakeAvailable(tatami_stats)
 FetchContent_MakeAvailable(tatami_chunked)
@@ -191,19 +205,24 @@ FetchContent_MakeAvailable(scran_qc)
 FetchContent_MakeAvailable(scran_norm)
 FetchContent_MakeAvailable(scran_variances)
 FetchContent_MakeAvailable(scran_pca)
+FetchContent_MakeAvailable(scran_graph_cluster)
 FetchContent_MakeAvailable(scran_markers)
 FetchContent_MakeAvailable(scran_aggregate)
 
 FetchContent_MakeAvailable(raiigraph)
-FetchContent_MakeAvailable(scran_graph_cluster)
 
-FetchContent_MakeAvailable(nenesub)
 FetchContent_MakeAvailable(gsdecon)
 
+FetchContent_MakeAvailable(nenesub)
+
+FetchContent_MakeAvailable(phyper)
+
 FetchContent_MakeAvailable(umappp)
+
 FetchContent_MakeAvailable(qdtsne)
 
 FetchContent_MakeAvailable(mnncorrect)
+
 FetchContent_MakeAvailable(singlepp)
 
 FetchContent_MakeAvailable(rds2cpp)
