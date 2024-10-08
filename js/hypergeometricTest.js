@@ -2,14 +2,14 @@ import * as utils from "./utils.js";
 import * as wasm from "./wasm.js";
 
 /** 
- * Perform a hypergeometric test, typically for over-enrichment of markers across feature sets.
- * This can be computed for multiple feature sets by providing arrays as some or all of the arguments.
+ * Perform a hypergeometric test, typically for over-enrichment of markers across gene sets.
+ * This can be computed for multiple gene sets by providing arrays as some or all of the arguments.
  * If multiple arrays are supplied, they must be of the same length.
  *
- * @param {number|Array|TypedArray|WasmArray} markersInSet - Number of detected markers that are also in the feature set.
+ * @param {number|Array|TypedArray|WasmArray} markersInSet - Number of detected markers that are also in the gene set.
  * @param {number|Array|TypedArray|WasmArray} numberOfMarkers - Total number of detected markers.
- * @param {number|Array|TypedArray|WasmArray} featureSetSize - Size of the feature set.
- * @param {number|Array|TypedArray|WasmArray} numberOfFeatures - Total number of features.
+ * @param {number|Array|TypedArray|WasmArray} geneSetSize - Size of the gene set.
+ * @param {number|Array|TypedArray|WasmArray} numberOfGenes - Total number of genes.
  * @param {object} [options={}] - Optional parameters.
  * @param {boolean} [options.log=false] - Whether to compute log-probabilities.
  * @param {?number} [options.numberOfThreads=null] - Number of threads to use.
@@ -18,11 +18,11 @@ import * as wasm from "./wasm.js";
  * @return {Float64WasmArray} An array of length equal to that of the supplied arrays (or 1, if no arrays are supplied).
  * The i-th entry contains the p-value for enrichment computed using the i-th entry of each supplied array. 
  */
-export function hypergeometricTest(markersInSet, numberOfMarkers, featureSetSize, numberOfFeatures, { log = false, numberOfThreads = null } = {}) {
+export function hypergeometricTest(markersInSet, numberOfMarkers, geneSetSize, numberOfGenes, { log = false, numberOfThreads = null } = {}) {
     let markersInSet_data;
     let numberOfMarkers_data;
-    let featureSetSize_data;
-    let numberOfFeatures_data;
+    let geneSetSize_data;
+    let numberOfGenes_data;
     let nthreads = utils.chooseNumberOfThreads(numberOfThreads);
 
     let ntests = null;
@@ -45,16 +45,16 @@ export function hypergeometricTest(markersInSet, numberOfMarkers, featureSetSize
         ntests = check_length(numberOfMarkers, "numberOfMarkers", ntests);
     }
 
-    if (typeof featureSetSize == "number") {
-        featureSetSize = [featureSetSize];
+    if (typeof geneSetSize == "number") {
+        geneSetSize = [geneSetSize];
     } else {
-        ntests = check_length(featureSetSize, "featureSetSize", ntests);
+        ntests = check_length(geneSetSize, "geneSetSize", ntests);
     }
 
-    if (typeof numberOfFeatures == "number") {
-        numberOfFeatures = [numberOfFeatures];
+    if (typeof numberOfGenes == "number") {
+        numberOfGenes = [numberOfGenes];
     } else {
-        ntests = check_length(numberOfFeatures, "numberOfFeatures", ntests);
+        ntests = check_length(numberOfGenes, "numberOfGenes", ntests);
     }
 
     if (ntests == null) {
@@ -65,20 +65,20 @@ export function hypergeometricTest(markersInSet, numberOfMarkers, featureSetSize
     try {
         markersInSet_data = utils.wasmifyArray(markersInSet, "Int32WasmArray");
         numberOfMarkers_data = utils.wasmifyArray(numberOfMarkers, "Int32WasmArray");
-        featureSetSize_data = utils.wasmifyArray(featureSetSize, "Int32WasmArray");
-        numberOfFeatures_data = utils.wasmifyArray(numberOfFeatures, "Int32WasmArray");
+        geneSetSize_data = utils.wasmifyArray(geneSetSize, "Int32WasmArray");
+        numberOfGenes_data = utils.wasmifyArray(numberOfGenes, "Int32WasmArray");
         output = utils.createFloat64WasmArray(ntests);
 
         wasm.call(module => module.hypergeometric_test(
             ntests, 
             markersInSet_data.length != 1,
             markersInSet_data.offset,
-            featureSetSize_data.length != 1,
-            featureSetSize_data.offset,
+            geneSetSize_data.length != 1,
+            geneSetSize_data.offset,
             numberOfMarkers_data.length != 1,
             numberOfMarkers_data.offset,
-            numberOfFeatures_data.length != 1,
-            numberOfFeatures_data.offset,
+            numberOfGenes_data.length != 1,
+            numberOfGenes_data.offset,
             output.offset,
             log,
             nthreads
@@ -87,8 +87,8 @@ export function hypergeometricTest(markersInSet, numberOfMarkers, featureSetSize
     } finally {
         utils.free(markersInSet_data);
         utils.free(numberOfMarkers_data);
-        utils.free(featureSetSize_data);
-        utils.free(numberOfFeatures_data);
+        utils.free(geneSetSize_data);
+        utils.free(numberOfGenes_data);
     }
 
     return output;

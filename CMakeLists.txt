@@ -52,7 +52,7 @@ add_executable(
 #    src/score_markers.cpp
 #    src/run_singlepp.cpp
 
-#    src/score_feature_set.cpp
+    src/score_gsdecon.cpp
     src/hypergeometric_test.cpp
 
     src/aggregate_across_cells.cpp
@@ -79,19 +79,21 @@ target_link_libraries(
     scran_pca
     scran_aggregate
 
-    phyper
-
     knncolle
     knncolle_annoy
 
-    mnncorrect
     qdtsne
     umappp
+
+    mnncorrect
     hdf5-static
     hdf5_cpp-static
     igraph::igraph
     singlepp
     rds2cpp
+
+    phyper
+    gsdecon
 )
 
 target_include_directories(

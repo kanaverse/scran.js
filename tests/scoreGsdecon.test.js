@@ -5,7 +5,7 @@ import * as compare from "./compare.js";
 beforeAll(async () => { await scran.initialize({ localFile: true }) });
 afterAll(async () => { await scran.terminate() });
 
-test("scoreFeatureSet works as expected with Uint8Array inputs", () => {
+test("scoreGsdecon works as expected with Uint8Array inputs", () => {
     var ngenes = 1000;
     var ncells = 20;
     var mat = simulate.simulateMatrix(ngenes, ncells);
@@ -14,14 +14,14 @@ test("scoreFeatureSet works as expected with Uint8Array inputs", () => {
     let features = new Uint8Array(ngenes);
     features.fill(1, 10, 20);
 
-    let scores = scran.scoreFeatureSet(norm, features);
+    let scores = scran.scoreGsdecon(norm, features);
     expect(scores.scores.length).toEqual(ncells);
     expect(scores.weights.length).toEqual(10); 
 
-    expect(() => scran.scoreFeatureSet(norm, features.slice(0, 10))).toThrow("number of rows");
+    expect(() => scran.scoreGsdecon(norm, features.slice(0, 10))).toThrow("number of rows");
 })
 
-test("scoreFeatureSet gives different results after scaling", () => {
+test("scoreGsdecon gives different results after scaling", () => {
     var ngenes = 1000;
     var ncells = 20;
     var mat = simulate.simulateMatrix(ngenes, ncells);
@@ -30,13 +30,13 @@ test("scoreFeatureSet gives different results after scaling", () => {
     let features = new Uint8Array(ngenes);
     features.fill(1, 10, 20);
 
-    let scores = scran.scoreFeatureSet(norm, features);
-    let scaled = scran.scoreFeatureSet(norm, features, { scale: true });
+    let scores = scran.scoreGsdecon(norm, features);
+    let scaled = scran.scoreGsdecon(norm, features, { scale: true });
     expect(scores.weights).not.toEqual(scaled.weights);
     expect(scores.scores).not.toEqual(scaled.scores);
 })
 
-test("scoreFeatureSet works with blocking", () => {
+test("scoreGsdecon works with blocking", () => {
     var ngenes = 1000;
     var ncells = 50;
     var mat = simulate.simulateMatrix(ngenes, ncells);
@@ -50,10 +50,10 @@ test("scoreFeatureSet works with blocking", () => {
     block.fill(0, 0, half);
     block.fill(1, half, ncells);
 
-    let scores = scran.scoreFeatureSet(norm, features, { block });
+    let scores = scran.scoreGsdecon(norm, features, { block });
     expect(scores.scores.length).toEqual(ncells);
     expect(scores.weights.length).toEqual(5); 
 
-    expect(() => scran.scoreFeatureSet(norm, features, { block: block.slice(0, 10) })).toThrow("number of columns");
+    expect(() => scran.scoreGsdecon(norm, features, { block: block.slice(0, 10) })).toThrow("number of columns");
 })
 

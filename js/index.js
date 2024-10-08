@@ -46,9 +46,9 @@ export * from "./scaleByNeighbors.js";
 export * from "./scoreMarkers.js";
 export * from "./labelCells.js";
 
-export * from "./scoreFeatureSet.js";
+export * from "./scoreGsdecon.js";
 export * from "./hypergeometricTest.js";
-export * from "./testFeatureSetEnrichment.js";
+export * from "./testGeneSetEnrichment.js";
 
 export * from "./aggregateAcrossCells.js";
 
