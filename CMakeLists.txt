@@ -39,6 +39,9 @@ add_executable(
     src/model_gene_variances.cpp
 
     src/run_pca.cpp
+
+    src/NeighborIndex.cpp
+
 #    src/run_tsne.cpp
 #    src/run_umap.cpp
 #    src/mnn_correct.cpp
@@ -47,14 +50,13 @@ add_executable(
 #    src/cluster_kmeans.cpp
 #    src/score_markers.cpp
 #    src/run_singlepp.cpp
-#    src/NeighborIndex.cpp
-
-    src/get_error_message.cpp
 
 #    src/score_feature_set.cpp
     src/hypergeometric_test.cpp
 
     src/aggregate_across_cells.cpp
+
+    src/get_error_message.cpp
 )
 
 target_compile_options(
@@ -77,6 +79,9 @@ target_link_libraries(
     scran_aggregate
 
     phyper
+
+    knncolle
+    knncolle_annoy
 
     mnncorrect
     qdtsne

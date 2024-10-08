@@ -4,19 +4,17 @@
 #include <memory>
 #include <vector>
 
-#include "parallel.h"
-
 #include "knncolle/knncolle.hpp"
 
 struct NeighborIndex {
-    std::shared_ptr<knncolle::Base<> > search;
+    std::unique_ptr<knncolle::Prebuilt<int, int, double> > index;
 
     size_t num_obs() const {
-        return search->nobs();
+        return index->num_observations();
     }
 
     size_t num_dim() const {
-        return search->ndim();
+        return index->num_dimensions();
     }
 };
 
@@ -24,8 +22,6 @@ NeighborIndex build_neighbor_index(uintptr_t, int, int, bool);
 
 struct NeighborResults { 
     typedef std::vector<std::vector<std::pair<int, double> > > Neighbors;
-
-    NeighborResults(size_t n) : neighbors(n) {}
 
     Neighbors neighbors;
 
