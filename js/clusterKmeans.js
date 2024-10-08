@@ -108,7 +108,7 @@ export class ClusterKmeansResults {
  * @param {boolean} [options.initVarPartOptimize=true] - Whether to optimize the partition at each step to minimize the sum of squares, when `initMethod = "var-part"`.
  * @param {string} [options.refineMethod="hartigan-wong"] - Refinement method.
  * This can be either `"hartigan-wong"` or `"lloyd"`.
- * @param {number} [options.refineLloydIterations=100] - Number of iterations for the Lloyd refinement algorithm.
+ * @param {number} [options.refineLloydIterations=10] - Number of iterations for the Lloyd refinement algorithm.
  * @param {number} [options.refineHartiganWong=10] - Number of iterations for the Hartigan-Wong refinement algorithm.
  * @param {?number} [options.numberOfThreads=null] - Number of threads to use.
  * If `null`, defaults to {@linkcode maximumThreads}.
