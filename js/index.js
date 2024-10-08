@@ -33,10 +33,11 @@ export * from "./chooseHvgs.js";
 export * from "./runPca.js";
 
 export * from "./findNearestNeighbors.js";
-export * from "./clusterSnnGraph.js";
 export * from "./runTsne.js";
 export * from "./runUmap.js";
 
+export * from "./buildSnnGraph.js";
+export * from "./clusterGraph.js";
 export * from "./clusterKmeans.js";
 
 export * from "./mnnCorrect.js";

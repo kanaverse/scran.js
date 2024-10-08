@@ -47,7 +47,8 @@ add_executable(
     src/run_tsne.cpp
     src/run_umap.cpp
 
-#    src/cluster_snn_graph.cpp
+    src/build_snn_graph.cpp
+    src/cluster_graph.cpp
 #    src/cluster_kmeans.cpp
 #    src/score_markers.cpp
 #    src/run_singlepp.cpp
@@ -89,9 +90,11 @@ target_link_libraries(
 
     mnncorrect
 
+    igraph::igraph
+    scran_graph_cluster
+
     hdf5-static
     hdf5_cpp-static
-    igraph::igraph
     singlepp
     rds2cpp
 

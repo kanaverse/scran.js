@@ -5,7 +5,7 @@ import * as compare from "./compare.js";
 beforeAll(async () => { await scran.initialize({ localFile: true }) });
 afterAll(async () => { await scran.terminate() });
 
-test("clusterSnnGraph works as expected", () => {
+test("clusterGraph works as expected", () => {
     var ndim = 5;
     var ncells = 100;
     var index = simulate.simulateIndex(ndim, ncells);
@@ -15,20 +15,20 @@ test("clusterSnnGraph works as expected", () => {
     var graph = scran.buildSnnGraph(res);
     expect(graph instanceof scran.BuildSnnGraphResults).toBe(true);
 
-    var clusters = scran.clusterSnnGraph(graph);
+    var clusters = scran.clusterGraph(graph);
     var clust = clusters.membership();
     expect(clust.length).toBe(ncells);
-    expect(clusters.best() < clusters.numberOfLevels()).toBe(true);
-    expect(clusters.modularity() > 0).toBe(true);
-    
+    expect(clusters.bestLevel()).toBeLessThan(clusters.numberOfLevels());
+    expect(clusters.modularity()).toBeGreaterThan(0);
+
     // Same results with index input.
     var graph2 = scran.buildSnnGraph(index, { neighbors: k });
-    var clusters2 = scran.clusterSnnGraph(graph2);
+    var clusters2 = scran.clusterGraph(graph2);
     var clust2 = clusters2.membership();
     expect(compare.equalArrays(clust2, clust)).toBe(true);
 
     // Responds to the resolution specification.
-    var clusters3 = scran.clusterSnnGraph(graph2, { multiLevelResolution: 0.5 });
+    var clusters3 = scran.clusterGraph(graph2, { multiLevelResolution: 0.5 });
     var clust3 = clusters3.membership();
     expect(compare.equalArrays(clust2, clust3)).toBe(false);
 
@@ -42,7 +42,7 @@ test("clusterSnnGraph works as expected", () => {
     clusters3.free();
 });
 
-test("clusterSnnGraph works with other clustering methods", () => {
+test("clusterGraph works with other clustering methods", () => {
     var ndim = 5;
     var ncells = 100;
     var index = simulate.simulateIndex(ndim, ncells);
@@ -51,14 +51,14 @@ test("clusterSnnGraph works with other clustering methods", () => {
     var res = scran.findNearestNeighbors(index, k);
     var graph = scran.buildSnnGraph(res);
 
-    var clusters = scran.clusterSnnGraph(graph, { method: "walktrap" });
-    expect(clusters instanceof scran.ClusterSnnGraphWalktrapResults);
+    var clusters = scran.clusterGraph(graph, { method: "walktrap" });
+    expect(clusters instanceof scran.ClusterWalktrapResults);
     expect(clusters.numberOfMergeSteps()).toBeGreaterThan(0);
     var clust = clusters.membership();
     expect(clust.length).toBe(ncells);
 
-    var clusters2 = scran.clusterSnnGraph(graph, { method: "leiden" });
-    expect(clusters2 instanceof scran.ClusterSnnGraphLeidenResults);
+    var clusters2 = scran.clusterGraph(graph, { method: "leiden" });
+    expect(clusters2 instanceof scran.ClusterLeidenResults);
     var clust = clusters2.membership();
     expect(clust.length).toBe(ncells);
 
