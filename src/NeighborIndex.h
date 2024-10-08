@@ -23,6 +23,8 @@ NeighborIndex build_neighbor_index(uintptr_t, int, int, bool);
 struct NeighborResults { 
     typedef std::vector<std::vector<std::pair<int, double> > > Neighbors;
 
+    NeighborResults(size_t n = 0) : neighbors(n) {}
+
     Neighbors neighbors;
 
     size_t size() const {
