@@ -18,6 +18,8 @@ struct NeighborIndex {
     }
 };
 
+std::unique_ptr<knncolle::Builder<knncolle::SimpleMatrix<int, int, double>, double> > create_builder(bool);
+
 NeighborIndex build_neighbor_index(uintptr_t, int, int, bool);
 
 struct NeighborResults { 

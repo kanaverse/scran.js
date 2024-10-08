@@ -39,8 +39,8 @@ add_executable(
     src/model_gene_variances.cpp
 
     src/run_pca.cpp
-#    src/mnn_correct.cpp
-#    src/scale_by_neighbors.cpp
+    src/mnn_correct.cpp
+    src/scale_by_neighbors.cpp
 
     src/NeighborIndex.cpp
 
@@ -85,7 +85,10 @@ target_link_libraries(
     qdtsne
     umappp
 
+    mumosa
+
     mnncorrect
+
     hdf5-static
     hdf5_cpp-static
     igraph::igraph

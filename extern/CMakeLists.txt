@@ -111,8 +111,8 @@ FetchContent_Declare(
 )
 
 FetchContent_Declare(
-  nenesub
-  GIT_REPOSITORY https://github.com/libscran/nenesub
+  mumosa
+  GIT_REPOSITORY https://github.com/libscran/mumosa
   GIT_TAG v0.1.0
 )
 
@@ -213,7 +213,7 @@ FetchContent_MakeAvailable(raiigraph)
 
 FetchContent_MakeAvailable(gsdecon)
 
-FetchContent_MakeAvailable(nenesub)
+FetchContent_MakeAvailable(mumosa)
 
 FetchContent_MakeAvailable(phyper)
 

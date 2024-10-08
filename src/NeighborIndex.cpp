@@ -5,7 +5,7 @@
 #include "knncolle/knncolle.hpp"
 #include "knncolle_annoy/knncolle_annoy.hpp"
 
-NeighborIndex build_neighbor_index(uintptr_t mat, int nr, int nc, bool approximate) {
+std::unique_ptr<knncolle::Builder<knncolle::SimpleMatrix<int, int, double>, double> > create_builder(bool approximate) {
     std::unique_ptr<knncolle::Builder<knncolle::SimpleMatrix<int, int, double>, double> > builder;
     if (approximate) {
         knncolle_annoy::AnnoyOptions opt;
@@ -13,7 +13,11 @@ NeighborIndex build_neighbor_index(uintptr_t mat, int nr, int nc, bool approxima
     } else {
         builder.reset(new knncolle::VptreeBuilder<knncolle::EuclideanDistance>);
     }
+    return builder;
+}
 
+NeighborIndex build_neighbor_index(uintptr_t mat, int nr, int nc, bool approximate) {
+    auto builder = create_builder(approximate);
     NeighborIndex output;
     const double* ptr = reinterpret_cast<const double*>(mat);
     output.index = builder->build_unique(knncolle::SimpleMatrix<int, int, double>(nr, nc, ptr));
