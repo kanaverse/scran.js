@@ -49,7 +49,7 @@ add_executable(
 
     src/build_snn_graph.cpp
     src/cluster_graph.cpp
-#    src/cluster_kmeans.cpp
+    src/cluster_kmeans.cpp
 #    src/score_markers.cpp
 #    src/run_singlepp.cpp
 

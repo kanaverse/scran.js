@@ -3,15 +3,12 @@
 #include <algorithm>
 #include <memory>
 
-#include "parallel.h"
+#include "kmeans/kmeans.hpp"
 
-#include "kmeans/Kmeans.hpp"
-#include "kmeans/InitializePCAPartition.hpp"
+struct ClusterKmeansResult {
+    kmeans::Results<int, double, int> store;
 
-struct ClusterKmeans_Result {
-    kmeans::Kmeans<>::Results store;
-
-    ClusterKmeans_Result(kmeans::Kmeans<>::Results s) : store(std::move(s)) {}
+    ClusterKmeansResult(kmeans::Results<int, double, int> s) : store(std::move(s)) {}
 
 public:
     size_t num_obs() const {
@@ -32,11 +29,6 @@ public:
         return emscripten::val(emscripten::typed_memory_view(s.size(), s.data()));
     }
 
-    emscripten::val wcss() const {
-        const auto& s = store.details.withinss;
-        return emscripten::val(emscripten::typed_memory_view(s.size(), s.data()));
-    }
-
     int iterations() const {
         return store.details.iterations;
     }
@@ -51,49 +43,74 @@ public:
     }
 };
 
-ClusterKmeans_Result cluster_kmeans(uintptr_t mat, int nr, int nc, int k, std::string init_method, int init_seed, double init_pca_adjust, int nthreads) {
-    const double* ptr = reinterpret_cast<const double*>(mat);
+ClusterKmeansResult cluster_kmeans(
+    uintptr_t mat,
+    int nr,
+    int nc,
+    int k,
+    std::string init_method,
+    int init_seed,
+    double init_varpart_size_adjust,
+    double init_varpart_optimized,
+    std::string refine_method,
+    int refine_lloyd_iterations,
+    int refine_hw_iterations,
+    int nthreads)
+{
+    kmeans::SimpleMatrix<double, int, int> smat(nr, nc, reinterpret_cast<const double*>(mat));
 
-    std::shared_ptr<kmeans::Initialize<> > iptr;
+    std::unique_ptr<kmeans::Initialize<decltype(smat), int, double> > iptr;
     if (init_method == "random") {
-        auto iptr2 = new kmeans::InitializeRandom<>;
+        auto iptr2 = new kmeans::InitializeRandom<decltype(smat), int, double>;
         iptr.reset(iptr2);
-        iptr2->set_seed(init_seed);
+        iptr2->get_options().seed = init_seed;
 
     } else if (init_method == "kmeans++") {
-        auto iptr2 = new kmeans::InitializeKmeansPP<>;
+        auto iptr2 = new kmeans::InitializeKmeanspp<decltype(smat), int, double>;
         iptr.reset(iptr2);
-        iptr2->set_seed(init_seed);
-        iptr2->set_num_threads(nthreads);
+        iptr2->get_options().seed = init_seed;
+        iptr2->get_options().num_threads = nthreads;
 
-    } else if (init_method == "pca-part") {
-        auto iptr2 = new kmeans::InitializePCAPartition<>;
+    } else if (init_method == "var-part") {
+        auto iptr2 = new kmeans::InitializeVariancePartition<decltype(smat), int, double>;
         iptr.reset(iptr2);
-        iptr2->set_seed(init_seed);
-        iptr2->set_size_adjustment(init_pca_adjust);
+        iptr2->get_options().size_adjustment = init_varpart_size_adjust;
+        iptr2->get_options().optimize_partition = init_varpart_optimized;
 
     } else {
         throw std::runtime_error("unknown initialization method '" + init_method + "'");
     }
 
-    kmeans::Kmeans clust;
-    clust.set_num_threads(nthreads);
-    auto output = clust.run(nr, nc, ptr, k, iptr.get());
+    std::unique_ptr<kmeans::Refine<decltype(smat), int, double> > rptr;
+    if (refine_method == "lloyd") {
+        auto rptr2 = new kmeans::RefineLloyd<decltype(smat), int, double>;
+        rptr.reset(rptr2);
+        rptr2->get_options().max_iterations = refine_lloyd_iterations;
+        rptr2->get_options().num_threads = nthreads;
 
-    return ClusterKmeans_Result(std::move(output));
+    } else if (refine_method == "hartigan-wong") {
+        auto rptr2 = new kmeans::RefineHartiganWong<decltype(smat), int, double>;
+        rptr.reset(rptr2);
+        rptr2->get_options().max_iterations = refine_hw_iterations;
+
+    } else {
+        throw std::runtime_error("unknown refinement method '" + refine_method + "'");
+    }
+
+    auto output = kmeans::compute(smat, *iptr, *rptr, k);
+    return ClusterKmeansResult(std::move(output));
 }
 
 EMSCRIPTEN_BINDINGS(cluster_kmeans) {
     emscripten::function("cluster_kmeans", &cluster_kmeans, emscripten::return_value_policy::take_ownership());
 
-    emscripten::class_<ClusterKmeans_Result>("ClusterKmeans_Result")
-        .function("num_obs", &ClusterKmeans_Result::num_obs, emscripten::return_value_policy::take_ownership())
-        .function("num_clusters", &ClusterKmeans_Result::num_clusters, emscripten::return_value_policy::take_ownership())
-        .function("cluster_sizes", &ClusterKmeans_Result::cluster_sizes, emscripten::return_value_policy::take_ownership())
-        .function("wcss", &ClusterKmeans_Result::wcss, emscripten::return_value_policy::take_ownership())
-        .function("clusters", &ClusterKmeans_Result::clusters, emscripten::return_value_policy::take_ownership())
-        .function("centers", &ClusterKmeans_Result::centers, emscripten::return_value_policy::take_ownership())
-        .function("iterations", &ClusterKmeans_Result::iterations, emscripten::return_value_policy::take_ownership())
-        .function("status", &ClusterKmeans_Result::status, emscripten::return_value_policy::take_ownership())
+    emscripten::class_<ClusterKmeansResult>("ClusterKmeansResult")
+        .function("num_obs", &ClusterKmeansResult::num_obs, emscripten::return_value_policy::take_ownership())
+        .function("num_clusters", &ClusterKmeansResult::num_clusters, emscripten::return_value_policy::take_ownership())
+        .function("cluster_sizes", &ClusterKmeansResult::cluster_sizes, emscripten::return_value_policy::take_ownership())
+        .function("clusters", &ClusterKmeansResult::clusters, emscripten::return_value_policy::take_ownership())
+        .function("centers", &ClusterKmeansResult::centers, emscripten::return_value_policy::take_ownership())
+        .function("iterations", &ClusterKmeansResult::iterations, emscripten::return_value_policy::take_ownership())
+        .function("status", &ClusterKmeansResult::status, emscripten::return_value_policy::take_ownership())
         ;
 }
