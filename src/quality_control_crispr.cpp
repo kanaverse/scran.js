@@ -5,9 +5,7 @@
 
 #include "scran_qc/scran_qc.hpp"
 
-#include <vector>
 #include <cstdint>
-#include <cmath>
 
 struct ComputeCrisprQcMetricsResults {
     typedef scran_qc::ComputeCrisprQcMetricsResults<double> Store;

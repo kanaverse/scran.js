@@ -1,6 +1,5 @@
 #include <emscripten/bind.h>
 
-#include <vector>
 #include <cstdint>
 
 #include "NeighborIndex.h"

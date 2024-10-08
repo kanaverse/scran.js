@@ -5,9 +5,7 @@
 
 #include "scran_qc/scran_qc.hpp"
 
-#include <vector>
 #include <cstdint>
-#include <cmath>
 
 struct ComputeAdtQcMetricsResults {
     typedef scran_qc::ComputeAdtQcMetricsResults<double, int> Store;

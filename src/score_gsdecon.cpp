@@ -5,6 +5,9 @@
 
 #include "gsdecon/gsdecon.hpp"
 
+#include <vector>
+#include <string>
+
 struct GsdeconResults {
     typedef gsdecon::Results<double> Store;
 

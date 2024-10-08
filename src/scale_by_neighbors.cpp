@@ -1,7 +1,6 @@
 #include <emscripten/bind.h>
 
 #include <vector>
-#include <memory>
 
 #include "NeighborIndex.h"
 #include "utils.h"

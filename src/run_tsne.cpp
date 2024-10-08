@@ -4,11 +4,7 @@
 #include "NeighborIndex.h"
 #include "qdtsne/qdtsne.hpp"
 
-#include <vector>
-#include <cmath>
 #include <chrono>
-#include <random>
-#include <iostream>
 
 struct TsneStatus {
     typedef qdtsne::Status<2, int, double> Status;

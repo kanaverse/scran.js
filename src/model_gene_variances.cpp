@@ -5,7 +5,6 @@
 
 #include "scran_variances/scran_variances.hpp"
 
-#include <vector>
 #include <cstdint>
 
 struct ModelGeneVariancesResults {

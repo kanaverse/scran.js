@@ -1,13 +1,14 @@
 #include <emscripten/bind.h>
 
+#include <string>
 #include <vector>
-#include <cmath>
-#include <algorithm>
+#include <stdexcept>
 
 #include "NumericMatrix.h"
 #include "utils.h"
 
 #include "Eigen/Dense"
+#include "tatami/tatami.hpp"
 #include "scran_pca/scran_pca.hpp"
 
 struct PcaResults {

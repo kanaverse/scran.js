@@ -6,11 +6,7 @@
 #include "umappp/umappp.hpp"
 #include "knncolle/knncolle.hpp"
 
-#include <vector>
-#include <cmath>
 #include <chrono>
-#include <random>
-#include <iostream>
 
 struct UmapStatus {
     typedef umappp::Status<int, double> Status;
