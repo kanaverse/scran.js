@@ -1,7 +1,6 @@
 #include <emscripten/bind.h>
 
 #include "utils.h"
-#include "parallel.h"
 #include "NeighborIndex.h"
 #include "qdtsne/qdtsne.hpp"
 
@@ -11,44 +10,47 @@
 #include <random>
 #include <iostream>
 
-struct InitializedTsneStatus {
-    typedef qdtsne::Tsne<>::Status<int> Status;
-
-    InitializedTsneStatus(Status s) : status(std::move(s)) {}
+struct TsneStatus {
+    typedef qdtsne::Status<2, int, double> Status;
 
     Status status;
+
+public:
+    TsneStatus(Status s) : status(std::move(s)) {}
 
 public:
     int iterations () const {
         return status.iteration();
     }
 
-    InitializedTsneStatus deepcopy() const {
-        return InitializedTsneStatus(status);
+    TsneStatus deepcopy() const {
+        return TsneStatus(status);
     }
 
-    int num_obs() const {
-        return status.nobs();
+    int num_observations() const {
+        return status.num_observations();
     }
 };
 
-InitializedTsneStatus initialize_tsne(const NeighborResults& neighbors, double perplexity, int nthreads) {
-    qdtsne::Tsne factory;
-    factory.set_perplexity(perplexity).set_num_threads(nthreads);
-    factory.set_max_depth(7); // speed up iterations, avoid problems with duplicates.
-    return InitializedTsneStatus(factory.template initialize<>(neighbors.neighbors));
+TsneStatus initialize_tsne(const NeighborResults& neighbors, double perplexity, int nthreads) {
+    qdtsne::Options opt;
+    opt.perplexity = perplexity;
+    opt.num_threads = nthreads;
+    opt.max_depth = 7; // speed up iterations, avoid problems with duplicates.
+    auto stat = qdtsne::initialize<2>(neighbors.neighbors, opt);
+    return TsneStatus(std::move(stat));
 }
 
 void randomize_tsne_start(size_t n, uintptr_t Y, int seed) {
-    qdtsne::initialize_random(reinterpret_cast<double*>(Y), n, seed);
+    qdtsne::initialize_random<2>(reinterpret_cast<double*>(Y), n, seed);
     return;
 }
 
 int perplexity_to_k(double perplexity) {
-    return std::ceil(perplexity * 3);
+    return qdtsne::perplexity_to_k(perplexity);
 }
 
-void run_tsne(InitializedTsneStatus& status, int runtime, int maxiter, uintptr_t Y) {
+void run_tsne(TsneStatus& status, int runtime, int maxiter, uintptr_t Y) {
     double* ptr = reinterpret_cast<double*>(Y);
     int iter = status.iterations();
 
@@ -61,7 +63,6 @@ void run_tsne(InitializedTsneStatus& status, int runtime, int maxiter, uintptr_t
             status.status.run(ptr, iter);
         } while (iter < maxiter && std::chrono::steady_clock::now() < end);
     }
-    return;
 }
 
 EMSCRIPTEN_BINDINGS(run_tsne) {
@@ -73,8 +74,8 @@ EMSCRIPTEN_BINDINGS(run_tsne) {
 
     emscripten::function("run_tsne", &run_tsne, emscripten::return_value_policy::take_ownership());
 
-    emscripten::class_<InitializedTsneStatus>("InitializedTsneStatus")
-        .function("iterations", &InitializedTsneStatus::iterations, emscripten::return_value_policy::take_ownership())
-        .function("deepcopy", &InitializedTsneStatus::deepcopy, emscripten::return_value_policy::take_ownership())
-        .function("num_obs", &InitializedTsneStatus::num_obs, emscripten::return_value_policy::take_ownership());
+    emscripten::class_<TsneStatus>("TsneStatus")
+        .function("iterations", &TsneStatus::iterations, emscripten::return_value_policy::take_ownership())
+        .function("deepcopy", &TsneStatus::deepcopy, emscripten::return_value_policy::take_ownership())
+        .function("num_observations", &TsneStatus::num_observations, emscripten::return_value_policy::take_ownership());
 }

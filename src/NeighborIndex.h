@@ -23,10 +23,25 @@ NeighborIndex build_neighbor_index(uintptr_t, int, int, bool);
 struct NeighborResults { 
     typedef std::vector<std::vector<std::pair<int, double> > > Neighbors;
 
-    NeighborResults(size_t n = 0) : neighbors(n) {}
-
     Neighbors neighbors;
 
+public:
+    NeighborResults(size_t n = 0) : neighbors(n) {}
+
+    NeighborResults(size_t n, uintptr_t runs, uintptr_t indices, uintptr_t distances) : neighbors(n) {
+        auto rptr = reinterpret_cast<const int32_t*>(runs);
+        auto iptr = reinterpret_cast<const int32_t*>(indices);
+        auto dptr = reinterpret_cast<const double*>(distances);
+
+        for (size_t i = 0; i < n; ++i) {
+            neighbors[i].reserve(rptr[i]);
+            for (int j = 0; j < rptr[i]; ++j, ++iptr, ++dptr) {
+                neighbors[i].emplace_back(*iptr, *dptr);
+            }
+        }
+    }
+
+public:
     size_t size() const {
         size_t out = 0;
         for (const auto& current : neighbors) {
@@ -40,8 +55,8 @@ struct NeighborResults {
     }
 
     void serialize(uintptr_t runs, uintptr_t indices, uintptr_t distances) const {
-        auto rptr = reinterpret_cast<int*>(runs);
-        auto iptr = reinterpret_cast<int*>(indices);
+        auto rptr = reinterpret_cast<int32_t*>(runs);
+        auto iptr = reinterpret_cast<int32_t*>(indices);
         auto dptr = reinterpret_cast<double*>(distances);
 
         for (const auto& current : neighbors) {
@@ -53,21 +68,6 @@ struct NeighborResults {
                 *dptr = x.second;
                 ++iptr;
                 ++dptr;
-            }
-        }
-
-        return;
-    }
-
-    NeighborResults(size_t n, uintptr_t runs, uintptr_t indices, uintptr_t distances) : neighbors(n) {
-        auto rptr = reinterpret_cast<const int*>(runs);
-        auto iptr = reinterpret_cast<const int*>(indices);
-        auto dptr = reinterpret_cast<const double*>(distances);
-
-        for (size_t i = 0; i < n; ++i) {
-            neighbors[i].reserve(rptr[i]);
-            for (int j = 0; j < rptr[i]; ++j, ++iptr, ++dptr) {
-                neighbors[i].emplace_back(*iptr, *dptr);
             }
         }
     }

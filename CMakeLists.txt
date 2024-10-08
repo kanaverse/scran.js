@@ -39,13 +39,14 @@ add_executable(
     src/model_gene_variances.cpp
 
     src/run_pca.cpp
+#    src/mnn_correct.cpp
+#    src/scale_by_neighbors.cpp
 
     src/NeighborIndex.cpp
 
-#    src/run_tsne.cpp
-#    src/run_umap.cpp
-#    src/mnn_correct.cpp
-#    src/scale_by_neighbors.cpp
+    src/run_tsne.cpp
+    src/run_umap.cpp
+
 #    src/cluster_snn_graph.cpp
 #    src/cluster_kmeans.cpp
 #    src/score_markers.cpp
