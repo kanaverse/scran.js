@@ -86,7 +86,7 @@ public:
     }
 };
 
-SingleppTrainedReference train_singlepp_reference(int32_t num_intersected, uintptr_t test_feature_ids, const SingleppRawReference& ref, uintptr_t ref_feature_ids, int top, bool approximate, int nthreads) {
+SingleppTrainedReference train_singlepp_reference(int32_t num_intersected, uintptr_t test_feature_ids, uintptr_t ref_feature_ids, const SingleppRawReference& ref, int top, bool approximate, int nthreads) {
     singlepp::TrainSingleOptions opt;
     opt.top = top;
     opt.trainer = create_builder(approximate);
