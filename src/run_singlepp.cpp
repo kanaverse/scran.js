@@ -11,6 +11,7 @@
 #include <vector>
 #include <memory>
 #include <cstdint>
+#include <iostream>
 
 /*****************************************/
 
@@ -193,6 +194,7 @@ SingleppIntegratedReferences integrate_singlepp_references(
     auto ref_ptrs = convert_array_of_offsets<const SingleppRawReference*>(nref, refs);
     auto blt_ptrs = convert_array_of_offsets<const SingleppTrainedReference*>(nref, built);
 
+    singlepp::Intersection<int32_t> inter;
     std::vector<singlepp::TrainIntegratedInput<double, int32_t, int32_t> > prepared(nref);
     for (size_t r = 0; r < nref; ++r) {
         if (static_cast<size_t>(ref_ptrs[r]->matrix.ncol()) != blt_ptrs[r]->store.num_profiles()) {
@@ -202,16 +204,21 @@ SingleppIntegratedReferences integrate_singlepp_references(
             throw std::runtime_error("mismatch in the number of labels for reference " + std::to_string(r));
         }
 
-        singlepp::Intersection<int32_t> inter;
         {
             auto num_intersected = inter_ptr[r];
+            inter.clear();
             inter.reserve(num_intersected);
             auto tptr = tid_ptrs[r];
             auto rptr = rid_ptrs[r];
+            std::cout << "starting " << num_intersected << std::endl;
             for (int32_t i = 0; i < num_intersected; ++i) {
+                std::cout << tptr[i] << "\t" << rptr[i] << std::endl;
                 inter.emplace_back(tptr[i], rptr[i]);
+                std::cout << "---" << std::endl;
             }
+            std::cout << "READY!" << std::endl;
         }
+        std::cout << inter_ptr[r] << std::endl;
 
         prepared[r] = singlepp::prepare_integrated_input_intersect(
             inter,

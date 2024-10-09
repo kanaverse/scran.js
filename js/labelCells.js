@@ -512,7 +512,7 @@ export function integrateLabelCellsReferences(testFeatures, loadedReferences, re
         {
             let la = loaded_arr.array();
             let ta = trained_arr.array(); 
-            let tia = ref_id_ptr_arr.array();
+            let tia = test_id_ptr_arr.array();
             let ria = ref_id_ptr_arr.array();
             let ia = interlen_arr.array();
             for (var i = 0; i < nrefs; i++) {
@@ -521,13 +521,15 @@ export function integrateLabelCellsReferences(testFeatures, loadedReferences, re
                 tia[i] = BigInt(test_id_arr[i].offset);
                 ria[i] = BigInt(ref_id_arr[i].offset);
                 ia[i] = test_id_arr[i].length;
+                console.log(test_id_arr[i].length, ref_id_arr[i].length);
             }
+            console.log(tia, ria);
         }
 
         output = gc.call(
             module => module.integrate_singlepp_references(
                 nrefs,
-                interlen_arr.length,
+                interlen_arr.offset,
                 test_id_ptr_arr.offset,
                 ref_id_ptr_arr.offset,
                 loaded_arr.offset,
@@ -707,7 +709,7 @@ export function integrateLabelCells(x, assigned, integrated, { numberOfFeatures 
         }
 
         assigned_ptrs = utils.createBigUint64WasmArray(nrefs);
-        let assigned_ptr_arr = aptrs.array();
+        let assigned_ptr_arr = assigned_ptrs.array();
         for (var i = 0; i < assigned.length; i++) {
             let current = assigned[i];
             if (current instanceof LabelCellsResults) {
@@ -723,7 +725,7 @@ export function integrateLabelCells(x, assigned, integrated, { numberOfFeatures 
         output = gc.call(
             module => module.integrate_singlepp(
                 target,
-                aptrs_arr.offset,
+                assigned_ptrs.offset,
                 integrated.integrated,
                 quantile,
                 nthreads
