@@ -86,17 +86,25 @@ public:
     }
 };
 
-SingleppTrainedReference train_singlepp_reference(int32_t test_nfeatures, uintptr_t test_feature_ids, const SingleppRawReference& ref, uintptr_t ref_feature_ids, int top, bool approximate, int nthreads) {
+SingleppTrainedReference train_singlepp_reference(int32_t num_intersected, uintptr_t test_feature_ids, const SingleppRawReference& ref, uintptr_t ref_feature_ids, int top, bool approximate, int nthreads) {
     singlepp::TrainSingleOptions opt;
     opt.top = top;
     opt.trainer = create_builder(approximate);
     opt.num_threads = nthreads;
 
+    singlepp::Intersection<int32_t> inter;
+    {
+        inter.reserve(num_intersected);
+        auto tptr = reinterpret_cast<const int32_t*>(test_feature_ids);
+        auto rptr = reinterpret_cast<const int32_t*>(ref_feature_ids);
+        for (int32_t i = 0; i < num_intersected; ++i) {
+            inter.emplace_back(tptr[i], rptr[i]);
+        }
+    }
+
     auto built = singlepp::train_single_intersect(
-        test_nfeatures,
-        reinterpret_cast<const int32_t*>(test_feature_ids), 
+        inter,
         ref.matrix,
-        reinterpret_cast<const int32_t*>(ref_feature_ids), 
         ref.labels.data(),
         ref.markers,
         opt
@@ -171,17 +179,18 @@ public:
 };
 
 SingleppIntegratedReferences integrate_singlepp_references(
-    int32_t test_nfeatures, 
+    int32_t nref, 
+    uintptr_t intersection_sizes,
     uintptr_t test_feature_ids,
-    size_t nref, 
+    uintptr_t ref_feature_ids,
     uintptr_t refs, 
-    uintptr_t ref_ids, 
     uintptr_t built,
     int nthreads) 
 {
-    auto tfi_ptr = reinterpret_cast<const int*>(test_feature_ids);
+    auto inter_ptr = reinterpret_cast<const int32_t*>(intersection_sizes);
+    auto tid_ptrs = convert_array_of_offsets<const int32_t*>(nref, test_feature_ids);
+    auto rid_ptrs = convert_array_of_offsets<const int32_t*>(nref, ref_feature_ids);
     auto ref_ptrs = convert_array_of_offsets<const SingleppRawReference*>(nref, refs);
-    auto rid_ptrs = convert_array_of_offsets<const int*>(nref, ref_ids);
     auto blt_ptrs = convert_array_of_offsets<const SingleppTrainedReference*>(nref, built);
 
     std::vector<singlepp::TrainIntegratedInput<double, int32_t, int32_t> > prepared(nref);
@@ -193,11 +202,20 @@ SingleppIntegratedReferences integrate_singlepp_references(
             throw std::runtime_error("mismatch in the number of labels for reference " + std::to_string(r));
         }
 
+        singlepp::Intersection<int32_t> inter;
+        {
+            auto num_intersected = inter_ptr[r];
+            inter.reserve(num_intersected);
+            auto tptr = tid_ptrs[r];
+            auto rptr = rid_ptrs[r];
+            for (int32_t i = 0; i < num_intersected; ++i) {
+                inter.emplace_back(tptr[i], rptr[i]);
+            }
+        }
+
         prepared[r] = singlepp::prepare_integrated_input_intersect(
-            test_nfeatures,
-            tfi_ptr,
+            inter,
             ref_ptrs[r]->matrix,
-            rid_ptrs[r],
             ref_ptrs[r]->labels.data(),
             blt_ptrs[r]->store
         );
