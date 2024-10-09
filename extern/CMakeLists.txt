@@ -177,6 +177,18 @@ FetchContent_Declare(
 )
 
 FetchContent_Declare(
+  byteme
+  GIT_REPOSITORY https://github.com/LTLA/byteme
+  GIT_TAG v1.2.2
+)
+
+FetchContent_Declare(
+  singlepp_loaders
+  GIT_REPOSITORY https://github.com/SingleR-inc/singlepp_loaders
+  GIT_TAG v0.1.1
+)
+
+FetchContent_Declare(
   rds2cpp 
   GIT_REPOSITORY https://github.com/LTLA/rds2cpp
   GIT_TAG v1.1.0
@@ -223,7 +235,9 @@ FetchContent_MakeAvailable(qdtsne)
 
 FetchContent_MakeAvailable(mnncorrect)
 
+FetchContent_MakeAvailable(byteme)
 FetchContent_MakeAvailable(singlepp)
+FetchContent_MakeAvailable(singlepp_loaders)
 
 FetchContent_MakeAvailable(rds2cpp)
 

@@ -53,7 +53,7 @@ add_executable(
 
     src/score_markers.cpp
 
-#    src/run_singlepp.cpp
+    src/run_singlepp.cpp
 
     src/score_gsdecon.cpp
     src/hypergeometric_test.cpp
@@ -96,9 +96,11 @@ target_link_libraries(
     igraph::igraph
     scran_graph_cluster
 
+    singlepp
+    singlepp_loaders
+
     hdf5-static
     hdf5_cpp-static
-    singlepp
     rds2cpp
 
     phyper
