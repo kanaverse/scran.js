@@ -4,7 +4,7 @@ import * as utils from "./utils.js";
 import { ScranMatrix } from "./ScranMatrix.js";
 
 /** 
- * Initialize a matrix from a buffer containing a MatrixMarket file.
+ * Initialize a sparse matrix from a buffer containing a MatrixMarket file.
  *
  * @param {Uint8WasmArray|Array|TypedArray|string} buffer Byte array containing the contents of a Matrix Market file with non-negative counts.
  * This can be raw text or Gzip-compressed.
@@ -16,9 +16,9 @@ import { ScranMatrix } from "./ScranMatrix.js";
  * If `"unknown"`, we detect this automatically from the magic number in the header.
  * @param {boolean} [options.layered=true] - Whether to create a layered sparse matrix, see [**tatami_layered**](https://github.com/tatami-inc/tatami_layered) for more details.
  *
- * @return {ScranMatrix} Matrix containing (usually) sparse data.
+ * @return {ScranMatrix} Matrix containing sparse data.
  */
-export function initializeScranMatrixFromMatrixMarket(x, { compression = "unknown", layered = true } = {}) {
+export function initializeSparseMatrixFromMatrixMarket(x, { compression = "unknown", layered = true } = {}) {
     var buf_data;
     var output;
 

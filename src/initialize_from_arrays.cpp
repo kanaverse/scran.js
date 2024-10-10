@@ -103,6 +103,14 @@ NumericMatrix initialize_sparse_matrix_from_dense_vector_internal(size_t nrows, 
     return sparse_from_tatami(mat, layered);
 }
 
+NumericMatrix initialize_sparse_matrix_from_dense_array(size_t nrows, size_t ncols, uintptr_t values, std::string type, bool force_integer, bool sparse, bool layered) {
+    if (force_integer || is_type_integer(type)) {
+        return initialize_sparse_matrix_from_dense_vector_internal<int32_t>(nrows, ncols, values, type, layered);
+    } else {
+        return initialize_sparse_matrix_from_dense_vector_internal<double>(nrows, ncols, values, type, false);
+    }
+}
+
 template<typename T>
 NumericMatrix initialize_dense_matrix_internal(size_t nrows, size_t ncols, uintptr_t values, const std::string& type) {
     std::vector<T> tmp(nrows* ncols);
@@ -112,25 +120,18 @@ NumericMatrix initialize_dense_matrix_internal(size_t nrows, size_t ncols, uintp
     return NumericMatrix(std::move(ptr));
 }
 
-NumericMatrix initialize_from_dense_array(size_t nrows, size_t ncols, uintptr_t values, std::string type, bool force_integer, bool sparse, bool layered) {
+NumericMatrix initialize_dense_matrix_from_dense_array(size_t nrows, size_t ncols, uintptr_t values, std::string type, bool force_integer) {
     if (force_integer || is_type_integer(type)) {
-        if (sparse) {
-            return initialize_sparse_matrix_from_dense_vector_internal<int32_t>(nrows, ncols, values, type, layered);
-        } else {
-            return initialize_dense_matrix_internal<int32_t>(nrows, ncols, values, type); 
-        }
+        return initialize_dense_matrix_internal<int32_t>(nrows, ncols, values, type); 
     } else {
-        if (sparse) {
-            return initialize_sparse_matrix_from_dense_vector_internal<double>(nrows, ncols, values, type, false);
-        } else {
-            return initialize_dense_matrix_internal<double>(nrows, ncols, values, type); 
-        }
+        return initialize_dense_matrix_internal<double>(nrows, ncols, values, type); 
     }
 }
 
 /**********************************/
 
 EMSCRIPTEN_BINDINGS(initialize_from_arrays) {
-    emscripten::function("initialize_from_dense_array", &initialize_from_dense_array, emscripten::return_value_policy::take_ownership());
+    emscripten::function("initialize_dense_matrix_from_dense_array", &initialize_dense_matrix_from_dense_array, emscripten::return_value_policy::take_ownership());
+    emscripten::function("initialize_sparse_matrix_from_dense_array", &initialize_sparse_matrix_from_dense_array, emscripten::return_value_policy::take_ownership());
     emscripten::function("initialize_from_sparse_arrays", &initialize_from_sparse_arrays, emscripten::return_value_policy::take_ownership());
 }

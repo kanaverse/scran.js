@@ -4,7 +4,7 @@ import * as utils from "./utils.js";
 import { ScranMatrix } from "./ScranMatrix.js";
 
 /**
- * Initialize a matrix from an RDS file.
+ * Initialize a sparse matrix from an R object loaded from an RDS file.
  *
  * @param {RdsObject} x - Handle to an object inside an RDS file.
  * This should be an integer/numeric matrix, `dgCMatrix` or `dgTMatrix` object.
@@ -16,7 +16,7 @@ import { ScranMatrix } from "./ScranMatrix.js";
  *
  * @return {ScranMatrix} Matrix containing sparse data.
  */
-export function initializeScranMatrixFromRds(x, { forceInteger = true, layered = true } = {}) {
+export function initializeSparseMatrixFromRds(x, { forceInteger = true, layered = true } = {}) {
     var ids = null;
     var output;
 

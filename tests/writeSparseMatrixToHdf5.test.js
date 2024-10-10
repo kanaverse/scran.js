@@ -24,7 +24,7 @@ test("saving a sparse matrix to HDF5 works correctly for 10X", () => {
     purge(path);
     scran.writeSparseMatrixToHdf5(simmed, path, "foo", { format: "tenx_matrix" });
 
-    let output = scran.initializeScranMatrixFromHdf5(path, "foo", { layered: false });
+    let output = scran.initializeSparseMatrixFromHdf5(path, "foo", { layered: false });
     expect(output.numberOfRows()).toEqual(simmed.numberOfRows());
     expect(output.numberOfColumns()).toEqual(simmed.numberOfColumns());
 
@@ -43,7 +43,7 @@ test("saving a sparse matrix to HDF5 works correctly for H5AD-derivatives", () =
         purge(path);
         scran.writeSparseMatrixToHdf5(simmed, path, "foo", { format: "csc_matrix" });
 
-        let output = scran.initializeScranMatrixFromHdf5(path, "foo", { layered: false });
+        let output = scran.initializeSparseMatrixFromHdf5(path, "foo", { layered: false });
         expect(output.numberOfRows()).toEqual(simmed.numberOfRows());
         expect(output.numberOfColumns()).toEqual(simmed.numberOfColumns());
 
@@ -61,7 +61,7 @@ test("saving a sparse matrix to HDF5 works correctly for H5AD-derivatives", () =
         purge(path);
         scran.writeSparseMatrixToHdf5(simmed, path, "foo", { format: "csr_matrix" });
 
-        let output = scran.initializeScranMatrixFromHdf5(path, "foo", { layered: false });
+        let output = scran.initializeSparseMatrixFromHdf5(path, "foo", { layered: false });
         expect(output.numberOfRows()).toEqual(simmed.numberOfRows());
         expect(output.numberOfColumns()).toEqual(simmed.numberOfColumns());
 
@@ -83,7 +83,7 @@ test("saving a sparse matrix to HDF5 works correctly when forcing integers", () 
     purge(path);
     scran.writeSparseMatrixToHdf5(simmed, path, "foo", { forceInteger: true });
 
-    let output = scran.initializeScranMatrixFromHdf5(path, "foo", { layered: false });
+    let output = scran.initializeSparseMatrixFromHdf5(path, "foo", { layered: false });
     expect(output.numberOfRows()).toEqual(simmed.numberOfRows());
     expect(output.numberOfColumns()).toEqual(simmed.numberOfColumns());
 

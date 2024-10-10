@@ -4,22 +4,17 @@ import * as utils from "./utils.js";
 import { ScranMatrix } from "./ScranMatrix.js";
 
 /**
- * Initialize a matrix from a dense array in column-major format.
+ * Initialize a dense matrix from a dense array in column-major format.
  *
  * @param {number} numberOfRows Number of rows in the matrix.
  * @param {number} numberOfColumns Number of columns in the matrix.
  * @param {WasmArray|Array|TypedArray} values Values of all elements in the matrix, stored in column-major order.
- * This is generally expected to contain non-negative integers; otherwise, users should set `forceInteger = false`.
  * @param {object} [options={}] - Optional parameters.
  * @param {boolean} [options.forceInteger=false] - Whether to coerce `values` to integers via truncation.
- * @param {boolean} [options.sparse=false] - Whether to return a sparse matrix, assuming that `values` contains mostly zeros.
- * @param {boolean} [options.layered=true] - Whether to create a layered sparse matrix, see [**tatami_layered**](https://github.com/tatami-inc/tatami_layered) for more details.
- * Only used if `sparse = true` and at least one of the following is true: `values` contains an integer type and/or `forceInteger = true`.
- * Setting `layered = true` assumes that `values` contains only non-negative integers.
  *
- * @return {ScranMatrix} A matrix object.
+ * @return {ScranMatrix} Matrix containing dense data.
  */
-export function initializeScranMatrixFromDenseArray(numberOfRows, numberOfColumns, values, { forceInteger = false, sparse = false, layered = true } = {}) {
+export function initializeDenseMatrixFromDenseArray(numberOfRows, numberOfColumns, values, { forceInteger = false } = {}) {
     var val_data; 
     var output;
 
@@ -30,13 +25,59 @@ export function initializeScranMatrixFromDenseArray(numberOfRows, numberOfColumn
         }
 
         output = gc.call(
-            module => module.initialize_from_dense_array(
+            module => module.initialize_dense_matrix_from_dense_array(
+                numberOfRows, 
+                numberOfColumns, 
+                val_data.offset, 
+                val_data.constructor.className.replace("Wasm", ""),
+                forceInteger
+            ),
+            ScranMatrix
+        );
+
+    } catch (e) {
+        utils.free(output);
+        throw e;
+
+    } finally {
+        utils.free(val_data);
+    }
+
+    return output;
+}
+
+/**
+ * Initialize a sparse matrix from a dense array in column-major format.
+ *
+ * @param {number} numberOfRows Number of rows in the matrix.
+ * @param {number} numberOfColumns Number of columns in the matrix.
+ * @param {WasmArray|Array|TypedArray} values Values of all elements in the matrix, stored in column-major order.
+ * This is generally expected to contain non-negative integers; otherwise, users should set `forceInteger = false`.
+ * @param {object} [options={}] - Optional parameters.
+ * @param {boolean} [options.forceInteger=true] - Whether to coerce `values` to integers via truncation.
+ * @param {boolean} [options.layered=true] - Whether to create a layered sparse matrix, see [**tatami_layered**](https://github.com/tatami-inc/tatami_layered) for more details.
+ * Only used if `values` contains an integer type and/or `forceInteger = true`.
+ * Setting `layered = true` assumes that `values` contains only non-negative integers.
+ *
+ * @return {ScranMatrix} Matrix containing sparse data.
+ */
+export function initializeSparseMatrixFromDenseArray(numberOfRows, numberOfColumns, values, { forceInteger = true, layered = true } = {}) {
+    var val_data; 
+    var output;
+
+    try {
+        val_data = utils.wasmifyArray(values, null);
+        if (val_data.length !== numberOfRows * numberOfColumns) {
+            throw new Error("length of 'values' is not consistent with supplied dimensions");
+        }
+
+        output = gc.call(
+            module => module.initialize_sparse_matrix_from_dense_array(
                 numberOfRows, 
                 numberOfColumns, 
                 val_data.offset, 
                 val_data.constructor.className.replace("Wasm", ""),
                 forceInteger,
-                sparse,
                 layered
             ),
             ScranMatrix
@@ -54,7 +95,7 @@ export function initializeScranMatrixFromDenseArray(numberOfRows, numberOfColumn
 }
 
 /**
- * Initialize a matrix from compressed sparse arrays.
+ * Initialize a sparse matrix from the usual compressed sparse arrays.
  *
  * @param {number} numberOfRows Number of rows in the matrix.
  * @param {number} numberOfColumns Number of columns in the matrix.
@@ -74,7 +115,7 @@ export function initializeScranMatrixFromDenseArray(numberOfRows, numberOfColumn
  *
  * @return {ScranMatrix} Matrix containing sparse data.
  */ 
-export function initializeScranMatrixFromSparseArrays(numberOfRows, numberOfColumns, values, indices, pointers, { byRow = true, forceInteger = true, layered = true } = {}) {
+export function initializeSparseMatrixFromSparseArrays(numberOfRows, numberOfColumns, values, indices, pointers, { byRow = true, forceInteger = true, layered = true } = {}) {
     var val_data;
     var ind_data;
     var indp_data;

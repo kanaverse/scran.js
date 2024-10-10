@@ -36,21 +36,21 @@ test("simple initialization from MatrixMarket works correctly", () => {
     var buffer = scran.createUint8WasmArray(raw_buffer.length);
     buffer.set(raw_buffer);
 
-    var mat = scran.initializeScranMatrixFromMatrixMarket(buffer, { layered: false });
+    var mat = scran.initializeSparseMatrixFromMatrixMarket(buffer, { layered: false });
     expect(mat.numberOfRows()).toBe(nr);
     expect(mat.numberOfColumns()).toBe(nc);
 
     // Also works if we dump it into a file.
     const path = dir + "/test.mtx";
     fs.writeFileSync(path, content);
-    var mat2 = scran.initializeScranMatrixFromMatrixMarket(path, { layered: false });
+    var mat2 = scran.initializeSparseMatrixFromMatrixMarket(path, { layered: false });
 
     expect(mat2.numberOfRows()).toBe(nr);
     expect(mat2.numberOfColumns()).toBe(nc);
 
     // Works with layered matrices.
-    var lmat = scran.initializeScranMatrixFromMatrixMarket(buffer);
-    var lmat2 = scran.initializeScranMatrixFromMatrixMarket(path);
+    var lmat = scran.initializeSparseMatrixFromMatrixMarket(buffer);
+    var lmat2 = scran.initializeSparseMatrixFromMatrixMarket(path);
 
     // Same results compared to naive iteration.
     for (var c = 0; c < nc; c++) {
@@ -86,7 +86,7 @@ test("initialization from Gzipped MatrixMarket works correctly with Gzip", () =>
     var buffer = scran.createUint8WasmArray(raw_buffer.length);
     buffer.set(raw_buffer);
 
-    var mat = scran.initializeScranMatrixFromMatrixMarket(buffer);
+    var mat = scran.initializeSparseMatrixFromMatrixMarket(buffer);
     expect(mat.numberOfRows()).toBe(11);
     expect(mat.numberOfColumns()).toBe(5);
 
@@ -94,7 +94,7 @@ test("initialization from Gzipped MatrixMarket works correctly with Gzip", () =>
     expect(compare.equalArrays(mat.column(2), [0, 0, 0, 0, 0, 2, 0, 0, 0, 2, 0])).toBe(true);
     
     // Just checking that the it's actually compressed.
-    var mat2 = scran.initializeScranMatrixFromMatrixMarket(buffer, { compressed: true });
+    var mat2 = scran.initializeSparseMatrixFromMatrixMarket(buffer, { compressed: true });
     expect(mat2.numberOfRows()).toBe(11);
     expect(mat2.numberOfColumns()).toBe(5);
     expect(compare.equalArrays(mat2.row(4), mat.row(4))).toBe(true);
@@ -102,7 +102,7 @@ test("initialization from Gzipped MatrixMarket works correctly with Gzip", () =>
     // Also works if we dump it into a file.
     const path = dir + "/test.mtx.gz";
     fs.writeFileSync(path, buffer.array());
-    var mat3 = scran.initializeScranMatrixFromMatrixMarket(path);
+    var mat3 = scran.initializeSparseMatrixFromMatrixMarket(path);
 
     expect(mat3.numberOfRows()).toBe(11);
     expect(mat3.numberOfColumns()).toBe(5);

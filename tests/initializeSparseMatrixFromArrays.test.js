@@ -18,19 +18,19 @@ test("initialization from dense array works correctly", () => {
     var vals = scran.createInt32WasmArray(15);
     vals.set([1, 5, 0, 0, 7, 0, 0, 10, 4, 2, 0, 0, 0, 5, 8]);
 
-    var mat = scran.initializeScranMatrixFromDenseArray(nr, nc, vals, { sparse: true });
+    var mat = scran.initializeSparseMatrixFromDenseArray(nr, nc, vals);
     expect(mat.numberOfRows()).toBe(nr);
     expect(mat.numberOfColumns()).toBe(nc);
     expect(mat.isSparse()).toBe(true);
 
     // Compare to a non-layered initialization.
-    var mat2 = scran.initializeScranMatrixFromDenseArray(nr, nc, vals, { sparse: true, layered: false });
+    var mat2 = scran.initializeSparseMatrixFromDenseArray(nr, nc, vals, { layered: false });
     expect(mat2.numberOfRows()).toBe(nr);
     expect(mat2.numberOfColumns()).toBe(nc);
     expect(mat2.isSparse()).toBe(true);
 
     // Compare to a dense initialization.
-    var dense = scran.initializeScranMatrixFromDenseArray(nr, nc, vals);
+    var dense = scran.initializeDenseMatrixFromDenseArray(nr, nc, vals);
     expect(dense.numberOfRows()).toBe(nr);
     expect(dense.numberOfColumns()).toBe(nc);
     expect(dense.isSparse()).toBe(false);
@@ -64,11 +64,11 @@ test("forced integers from dense array works correctly", () => {
     var vals = scran.createFloat64WasmArray(15);
     vals.set([1.2, 2.5, 0, 0, 7.1, 0, 0, 10.1, 4.2, 2.3, 0, 0, 0, 5.3, 8.1]);
 
-    var smat1 = scran.initializeScranMatrixFromDenseArray(nr, nc, vals, { sparse: true, forceInteger: true, layered: false });
-    var smat2 = scran.initializeScranMatrixFromDenseArray(nr, nc, vals, { sparse: true, forceInteger: false });
-    var dmat1 = scran.initializeScranMatrixFromDenseArray(nr, nc, vals, { sparse: false, forceInteger: true });
-    var dmat2 = scran.initializeScranMatrixFromDenseArray(nr, nc, vals, { sparse: false, forceInteger: false });
-    var default_dmat = scran.initializeScranMatrixFromDenseArray(nr, nc, vals);
+    var smat1 = scran.initializeSparseMatrixFromDenseArray(nr, nc, vals, { forceInteger: true, layered: false });
+    var smat2 = scran.initializeSparseMatrixFromDenseArray(nr, nc, vals, { forceInteger: false });
+    var dmat1 = scran.initializeDenseMatrixFromDenseArray(nr, nc, vals, { forceInteger: true });
+    var dmat2 = scran.initializeDenseMatrixFromDenseArray(nr, nc, vals, { forceInteger: false });
+    var default_dmat = scran.initializeDenseMatrixFromDenseArray(nr, nc, vals);
     expect(default_dmat.isSparse()).toBe(false);
 
     for (var i = 0; i < nc; i++) {
@@ -99,7 +99,7 @@ test("initialization from compressed values works correctly", () => {
     var indptrs = scran.createInt32WasmArray(11);
     indptrs.set([0, 2, 3, 6, 9, 11, 11, 12, 12, 13, 15]);
 
-    var mat = scran.initializeScranMatrixFromSparseArrays(10, 11, vals, indices, indptrs, { layered: false });
+    var mat = scran.initializeSparseMatrixFromSparseArrays(10, 11, vals, indices, indptrs, { layered: false });
     expect(mat.numberOfRows()).toBe(10);
     expect(mat.numberOfColumns()).toBe(11);
     expect(mat.isSparse()).toBe(true);
@@ -127,11 +127,11 @@ test("initialization from compressed values works with forced integers", () => {
     var indptrs = scran.createInt32WasmArray(11);
     indptrs.set([0, 2, 3, 6, 9, 11, 11, 12, 12, 13, 15]);
 
-    var mat1 = scran.initializeScranMatrixFromSparseArrays(10, 9, vals, indices, indptrs, { forceInteger: false });
+    var mat1 = scran.initializeSparseMatrixFromSparseArrays(10, 9, vals, indices, indptrs, { forceInteger: false });
     expect(compare.equalArrays(mat1.row(0), [0, 0, 0, 1.2, 0, 5.3, 0, 0, 0])).toBe(true);
     expect(compare.equalArrays(mat1.row(9), [0, 0, 0, 0, 0, 0, 5.7, 8.8, 0])).toBe(true);
 
-    var mat2 = scran.initializeScranMatrixFromSparseArrays(10, 9, vals, indices, indptrs, { layered: false });
+    var mat2 = scran.initializeSparseMatrixFromSparseArrays(10, 9, vals, indices, indptrs, { layered: false });
     for (var i = 0; i < 9; i++) {
         let col1 = mat1.column(i);
         let trunc = col1.map(Math.trunc);
@@ -155,7 +155,7 @@ test("initialization from compressed values works with layering", () => {
     var indptrs = scran.createInt32WasmArray(11);
     indptrs.set([0, 2, 3, 6, 9, 11, 11, 12, 12, 13, 15]);
 
-    var mat = scran.initializeScranMatrixFromSparseArrays(11, 10, vals, indices, indptrs, { byRow: false });
+    var mat = scran.initializeSparseMatrixFromSparseArrays(11, 10, vals, indices, indptrs, { byRow: false });
     expect(mat.numberOfRows()).toBe(11);
     expect(mat.numberOfColumns()).toBe(10);
 
