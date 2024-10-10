@@ -11,15 +11,15 @@ import { ScranMatrix } from "./ScranMatrix.js";
  * @param {WasmArray|Array|TypedArray} values Values of all elements in the matrix, stored in column-major order.
  * This is generally expected to contain non-negative integers; otherwise, users should set `forceInteger = false`.
  * @param {object} [options={}] - Optional parameters.
- * @param {boolean} [options.forceInteger=true] - Whether to coerce `values` to integers via truncation.
- * @param {boolean} [options.sparse=true] - Whether to return a sparse matrix, assuming that `values` contains mostly zeros.
+ * @param {boolean} [options.forceInteger=false] - Whether to coerce `values` to integers via truncation.
+ * @param {boolean} [options.sparse=false] - Whether to return a sparse matrix, assuming that `values` contains mostly zeros.
  * @param {boolean} [options.layered=true] - Whether to create a layered sparse matrix, see [**tatami_layered**](https://github.com/tatami-inc/tatami_layered) for more details.
- * Only used if `sparse = true` and one of the following is true: `values` contains an integer type and/or `forceInteger = true`.
+ * Only used if `sparse = true` and at least one of the following is true: `values` contains an integer type and/or `forceInteger = true`.
  * Setting `layered = true` assumes that `values` contains only non-negative integers.
  *
  * @return {ScranMatrix} A matrix object.
  */
-export function initializeScranMatrixFromDenseArray(numberOfRows, numberOfColumns, values, { forceInteger = true, sparse = true, layered = true } = {}) {
+export function initializeScranMatrixFromDenseArray(numberOfRows, numberOfColumns, values, { forceInteger = false, sparse = false, layered = true } = {}) {
     var val_data; 
     var output;
 

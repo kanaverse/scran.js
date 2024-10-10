@@ -18,24 +18,24 @@ test("initialization from dense array works correctly", () => {
     var vals = scran.createInt32WasmArray(15);
     vals.set([1, 5, 0, 0, 7, 0, 0, 10, 4, 2, 0, 0, 0, 5, 8]);
 
-    var mat = scran.initializeScranMatrixFromDenseArray(nr, nc, vals);
+    var mat = scran.initializeScranMatrixFromDenseArray(nr, nc, vals, { sparse: true });
     expect(mat.numberOfRows()).toBe(nr);
     expect(mat.numberOfColumns()).toBe(nc);
     expect(mat.isSparse()).toBe(true);
 
     // Compare to a non-layered initialization.
-    var mat2 = scran.initializeScranMatrixFromDenseArray(nr, nc, vals, { layered: false });
+    var mat2 = scran.initializeScranMatrixFromDenseArray(nr, nc, vals, { sparse: true, layered: false });
     expect(mat2.numberOfRows()).toBe(nr);
     expect(mat2.numberOfColumns()).toBe(nc);
     expect(mat2.isSparse()).toBe(true);
 
     // Compare to a dense initialization.
-    var dense = scran.initializeScranMatrixFromDenseArray(nr, nc, vals, { sparse: false });
+    var dense = scran.initializeScranMatrixFromDenseArray(nr, nc, vals);
     expect(dense.numberOfRows()).toBe(nr);
     expect(dense.numberOfColumns()).toBe(nc);
     expect(dense.isSparse()).toBe(false);
 
-    // Properly column-major.
+    // Extracts values correctly.
     for (var i = 0; i < nc; i++) {
         let ref = vals.slice(i * nr, (i + 1) * nr);
         expect(compare.equalArrays(mat.column(i), ref)).toBe(true);
@@ -64,10 +64,12 @@ test("forced integers from dense array works correctly", () => {
     var vals = scran.createFloat64WasmArray(15);
     vals.set([1.2, 2.5, 0, 0, 7.1, 0, 0, 10.1, 4.2, 2.3, 0, 0, 0, 5.3, 8.1]);
 
-    var smat1 = scran.initializeScranMatrixFromDenseArray(nr, nc, vals, { forceInteger: true, layered: false });
-    var smat2 = scran.initializeScranMatrixFromDenseArray(nr, nc, vals, { forceInteger: false });
+    var smat1 = scran.initializeScranMatrixFromDenseArray(nr, nc, vals, { sparse: true, forceInteger: true, layered: false });
+    var smat2 = scran.initializeScranMatrixFromDenseArray(nr, nc, vals, { sparse: true, forceInteger: false });
     var dmat1 = scran.initializeScranMatrixFromDenseArray(nr, nc, vals, { sparse: false, forceInteger: true });
     var dmat2 = scran.initializeScranMatrixFromDenseArray(nr, nc, vals, { sparse: false, forceInteger: false });
+    var default_dmat = scran.initializeScranMatrixFromDenseArray(nr, nc, vals);
+    expect(default_dmat.isSparse()).toBe(false);
 
     for (var i = 0; i < nc; i++) {
         let ref = vals.slice(i * nr, (i + 1) * nr);
@@ -77,6 +79,7 @@ test("forced integers from dense array works correctly", () => {
         expect(compare.equalArrays(smat2.column(i), ref)).toBe(true);
         expect(compare.equalArrays(dmat1.column(i), trunc)).toBe(true);
         expect(compare.equalArrays(dmat2.column(i), ref)).toBe(true);
+        expect(compare.equalArrays(default_dmat.column(i), ref)).toBe(true);
     }
 
     // Cleaning up.
@@ -85,6 +88,7 @@ test("forced integers from dense array works correctly", () => {
     smat2.free();
     dmat1.free();
     dmat2.free();
+    default_dmat.free();
 })
 
 test("initialization from compressed values works correctly", () => {

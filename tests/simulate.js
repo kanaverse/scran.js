@@ -59,7 +59,7 @@ export function simulateMatrix(numberOfRows, numberOfColumns, density = 0.2, max
             }
         }
 
-        output = scran.initializeScranMatrixFromDenseArray(numberOfRows, numberOfColumns, buffer, { forceInteger });
+        output = scran.initializeScranMatrixFromDenseArray(numberOfRows, numberOfColumns, buffer, { forceInteger: forceInteger, sparse: true });
     } finally {
         buffer.free();
     }
@@ -96,7 +96,7 @@ export function simulatePermutedMatrix(numberOfRows, numberOfColumns, density = 
             }
         }
 
-        output = scran.initializeScranMatrixFromDenseArray(numberOfRows, numberOfColumns, buffer);
+        output = scran.initializeScranMatrixFromDenseArray(numberOfRows, numberOfColumns, buffer, { sparse: true });
     } finally {
         buffer.free();
     }
