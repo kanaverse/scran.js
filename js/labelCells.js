@@ -521,9 +521,7 @@ export function integrateLabelCellsReferences(testFeatures, loadedReferences, re
                 tia[i] = BigInt(test_id_arr[i].offset);
                 ria[i] = BigInt(ref_id_arr[i].offset);
                 ia[i] = test_id_arr[i].length;
-                console.log(test_id_arr[i].length, ref_id_arr[i].length);
             }
-            console.log(tia, ria);
         }
 
         output = gc.call(
@@ -605,13 +603,13 @@ class IntegrateLabelCellsResults {
     /**
      * @param {number} i - Index of the cell of interest.
      * @param {object} [options={}] - Optional parameters.
-     * @param {boolean|string} [options.copy=true] - Copying mode, see {@linkcode possibleCopy} for details.
-     * Only used if `buffer` is not supplied.
+     * @param {?Float64WasmArray} [options.buffer=null] - Buffer in which to store the output.
+     * This should have the same length as the {@linkcode LabelCellsResults#numberOfCells numberOfCells}.
      *
-     * @return {Float64Array|Float64WasmArray} Array containing the scores for this cell across all references.
+     * @return {Float64WasmArray} Array containing the scores for this cell across all references.
      * If `buffer` is supplied, it is used as the return value.
      */
-    scoresForCell(i, { copy = true, buffer = null } = {}) {
+    scoresForCell(i, { buffer = null } = {}) {
         let tmp;
         try {
             if (buffer == null) {
@@ -623,18 +621,15 @@ class IntegrateLabelCellsResults {
             utils.free(tmp);
             throw e;
         }
+        return buffer;
     }
 
     /**
      * @param {number} i - Index of the reference of interest.
      * @param {object} [options={}] - Optional parameters.
      * @param {boolean|string} [options.copy=true] - Copying mode, see {@linkcode possibleCopy} for details.
-     * Only used if `buffer` is not supplied.
-     * @param {?Float64WasmArray} [options.buffer=null] - Buffer in which to store the output.
-     * This should have the same length as the {@linkcode LabelCellsResults#numberOfCells numberOfCells}.
      *
      * @return {Float64Array|Float64WasmArray} Array containing the scores across all cells for this label.
-     * If `buffer` is supplied, it is used as the return value.
      */
     scoresForReference(i, { copy = true } = {}) {
         return utils.possibleCopy(this.#results.scores_for_reference(i), copy);

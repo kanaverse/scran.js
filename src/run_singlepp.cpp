@@ -191,40 +191,35 @@ SingleppIntegratedReferences integrate_singlepp_references(
     auto inter_ptr = reinterpret_cast<const int32_t*>(intersection_sizes);
     auto tid_ptrs = convert_array_of_offsets<const int32_t*>(nref, test_feature_ids);
     auto rid_ptrs = convert_array_of_offsets<const int32_t*>(nref, ref_feature_ids);
+    std::vector<singlepp::Intersection<int32_t> > all_inter(nref);
+    for (int32_t r = 0; r < nref; ++r) {
+        auto& inter = all_inter[r];
+        auto num_intersected = inter_ptr[r];
+        inter.reserve(num_intersected);
+        auto tptr = tid_ptrs[r];
+        auto rptr = rid_ptrs[r];
+        for (int32_t i = 0; i < num_intersected; ++i) {
+            inter.emplace_back(tptr[i], rptr[i]);
+        }
+    }
+
     auto ref_ptrs = convert_array_of_offsets<const SingleppRawReference*>(nref, refs);
     auto blt_ptrs = convert_array_of_offsets<const SingleppTrainedReference*>(nref, built);
-
-    singlepp::Intersection<int32_t> inter;
     std::vector<singlepp::TrainIntegratedInput<double, int32_t, int32_t> > prepared(nref);
-    for (size_t r = 0; r < nref; ++r) {
-        if (static_cast<size_t>(ref_ptrs[r]->matrix.ncol()) != blt_ptrs[r]->store.num_profiles()) {
+    for (int32_t r = 0; r < nref; ++r) {
+        const auto& mat = ref_ptrs[r]->matrix;
+        const auto& trained = blt_ptrs[r]->store;
+        if (static_cast<size_t>(mat.ncol()) != trained.num_profiles()) {
             throw std::runtime_error("mismatch in the number of profiles for reference " + std::to_string(r));
         }
-        if (ref_ptrs[r]->markers.size() != blt_ptrs[r]->store.num_labels()) {
+        if (ref_ptrs[r]->markers.size() != trained.num_labels()) {
             throw std::runtime_error("mismatch in the number of labels for reference " + std::to_string(r));
         }
-
-        {
-            auto num_intersected = inter_ptr[r];
-            inter.clear();
-            inter.reserve(num_intersected);
-            auto tptr = tid_ptrs[r];
-            auto rptr = rid_ptrs[r];
-            std::cout << "starting " << num_intersected << std::endl;
-            for (int32_t i = 0; i < num_intersected; ++i) {
-                std::cout << tptr[i] << "\t" << rptr[i] << std::endl;
-                inter.emplace_back(tptr[i], rptr[i]);
-                std::cout << "---" << std::endl;
-            }
-            std::cout << "READY!" << std::endl;
-        }
-        std::cout << inter_ptr[r] << std::endl;
-
         prepared[r] = singlepp::prepare_integrated_input_intersect(
-            inter,
-            ref_ptrs[r]->matrix,
+            all_inter[r],
+            mat,
             ref_ptrs[r]->labels.data(),
-            blt_ptrs[r]->store
+            trained
         );
     }
 
@@ -279,7 +274,7 @@ SingleppIntegratedResults integrate_singlepp(const NumericMatrix& mat, uintptr_t
     singlepp::ClassifyIntegratedOptions<double> opt;
     opt.quantile = quantile;
     opt.num_threads = nthreads;
-    auto ass_ptrs = convert_array_of_offsets<const int32_t*>(assigned, integrated.num_references());
+    auto ass_ptrs = convert_array_of_offsets<const int32_t*>(integrated.num_references(), assigned);
     auto store = singlepp::classify_integrated(*(mat.ptr), ass_ptrs, integrated.store, opt);
     return SingleppIntegratedResults(std::move(store));
 }
