@@ -7,7 +7,7 @@
 #include <chrono>
 
 struct TsneStatus {
-    typedef qdtsne::Status<2, int, double> Status;
+    typedef qdtsne::Status<2, int32_t, double> Status;
 
     Status status;
 
@@ -15,7 +15,7 @@ public:
     TsneStatus(Status s) : status(std::move(s)) {}
 
 public:
-    int iterations () const {
+    int32_t iterations () const {
         return status.iteration();
     }
 
@@ -23,12 +23,12 @@ public:
         return TsneStatus(status);
     }
 
-    int num_observations() const {
+    int32_t num_observations() const {
         return status.num_observations();
     }
 };
 
-TsneStatus initialize_tsne(const NeighborResults& neighbors, double perplexity, int nthreads) {
+TsneStatus initialize_tsne(const NeighborResults& neighbors, double perplexity, int32_t nthreads) {
     qdtsne::Options opt;
     opt.perplexity = perplexity;
     opt.num_threads = nthreads;
@@ -37,18 +37,18 @@ TsneStatus initialize_tsne(const NeighborResults& neighbors, double perplexity, 
     return TsneStatus(std::move(stat));
 }
 
-void randomize_tsne_start(size_t n, uintptr_t Y, int seed) {
+void randomize_tsne_start(size_t n, uintptr_t Y, int32_t seed) {
     qdtsne::initialize_random<2>(reinterpret_cast<double*>(Y), n, seed);
     return;
 }
 
-int perplexity_to_k(double perplexity) {
+int32_t perplexity_to_k(double perplexity) {
     return qdtsne::perplexity_to_k(perplexity);
 }
 
-void run_tsne(TsneStatus& status, int runtime, int maxiter, uintptr_t Y) {
+void run_tsne(TsneStatus& status, int32_t runtime, int32_t maxiter, uintptr_t Y) {
     double* ptr = reinterpret_cast<double*>(Y);
-    int iter = status.iterations();
+    int32_t iter = status.iterations();
 
     if (runtime <= 0) {
         status.status.run(ptr, maxiter);

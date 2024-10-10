@@ -10,7 +10,7 @@
 
 struct ClusterMultilevelResult {
     std::vector<double> modularity_by_level;
-    int best = 0;
+    int32_t best = 0;
 
     std::vector<int32_t> membership_best;
     std::vector<int32_t> membership_by_level;
@@ -34,22 +34,22 @@ public:
     }
 
 public:
-    int num_levels() const {
+    int32_t num_levels() const {
         return modularity_by_level.size();
     }
 
-    int best_level() const {
+    int32_t best_level() const {
         return best;
     }
 
-    double modularity(int i) const {
+    double modularity(int32_t i) const {
         if (i < 0) {
             i = best;
         }
         return modularity_by_level[i];
     }
 
-    emscripten::val membership(int i) const {
+    emscripten::val membership(int32_t i) const {
         size_t NC = membership_best.size();
         const int32_t* ptr;
         if (i < 0) {
@@ -74,7 +74,7 @@ struct ClusterWalktrapResult {
     typedef scran_graph_cluster::ClusterWalktrapResults Store;
 
     Store store;
-    int best = 0; 
+    int32_t best = 0; 
 
 public:
     ClusterWalktrapResult(Store s) : store(std::move(s)) {
@@ -84,11 +84,11 @@ public:
     }
 
 public:
-    int num_merge_steps() const {
+    int32_t num_merge_steps() const {
         return store.merges.size();
     }
 
-    double modularity(int i) const {
+    double modularity(int32_t i) const {
         if (i < 0) {
             i = best;
         }
@@ -100,7 +100,7 @@ public:
     }
 };
 
-ClusterWalktrapResult cluster_walktrap(const BuildSnnGraphResult& graph, int steps) {
+ClusterWalktrapResult cluster_walktrap(const BuildSnnGraphResult& graph, int32_t steps) {
     scran_graph_cluster::ClusterWalktrapOptions opt;
     opt.steps = steps;
     auto output = scran_graph_cluster::cluster_walktrap(graph.graph, graph.weights, opt);

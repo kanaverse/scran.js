@@ -21,11 +21,12 @@ add_executable(
     src/subset.cpp
     src/delayed.cpp
 
-    src/initialize_sparse_matrix.cpp
-    src/read_matrix_market.cpp
+    src/initialize_from_arrays.cpp
     src/initialize_from_rds.cpp
+    src/initialize_from_mtx.cpp
+    src/initialize_from_hdf5.cpp
+
     src/rds_utils.cpp
-    src/read_hdf5_matrix.cpp
     src/hdf5_utils.cpp
     src/write_sparse_matrix_to_hdf5.cpp
 

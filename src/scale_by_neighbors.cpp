@@ -7,10 +7,10 @@
 
 #include "mumosa/mumosa.hpp"
 
-void scale_by_neighbors(int ncells, int nembed, uintptr_t embeddings, uintptr_t indices, uintptr_t combined, int num_neighbors, bool use_weights, uintptr_t weights, int nthreads) {
+void scale_by_neighbors(int32_t ncells, int32_t nembed, uintptr_t embeddings, uintptr_t indices, uintptr_t combined, int32_t num_neighbors, bool use_weights, uintptr_t weights, int32_t nthreads) {
     auto index_ptrs = convert_array_of_offsets<const NeighborIndex*>(nembed, indices);
-    std::vector<const knncolle::Prebuilt<int, int, double>*> actual_ptrs;
-    std::vector<int> ndims;
+    std::vector<const knncolle::Prebuilt<int32_t, int32_t, double>*> actual_ptrs;
+    std::vector<int32_t> ndims;
     for (const auto& idx : index_ptrs) {
         actual_ptrs.emplace_back((idx->index).get());
         ndims.push_back((idx->index)->num_dimensions());
@@ -21,14 +21,14 @@ void scale_by_neighbors(int ncells, int nembed, uintptr_t embeddings, uintptr_t 
     opt.num_threads = nthreads;
 
     std::vector<std::pair<double, double> > distances(nembed);
-    for (int e = 0; e < nembed; ++e) {
+    for (int32_t e = 0; e < nembed; ++e) {
         distances[e] = mumosa::compute_distance(*(index_ptrs[e]->index), opt);
     }
 
     auto scaling = mumosa::compute_scale(distances);
     if (use_weights) {
         auto weight_ptr = reinterpret_cast<const double*>(weights);
-        for (int e = 0; e < nembed; ++e) {
+        for (int32_t e = 0; e < nembed; ++e) {
             scaling[e] *= weight_ptr[e];
         }
     }

@@ -11,13 +11,13 @@ void mnn_correct(
     uintptr_t input, 
     uintptr_t batch, 
     uintptr_t output,
-    int k, 
+    int32_t k, 
     double nmads, 
-    int riters, 
+    int32_t riters, 
     double rtrim,
     std::string ref_policy, 
     bool approximate,
-    int nthreads)
+    int32_t nthreads)
 {
     auto bptr = reinterpret_cast<const int32_t*>(batch);
     auto iptr = reinterpret_cast<const double*>(input);

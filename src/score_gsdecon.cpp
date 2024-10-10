@@ -28,11 +28,11 @@ public:
     }
 };
 
-GsdeconResults score_gsdecon(const NumericMatrix& mat, uintptr_t subset, bool use_blocks, uintptr_t blocks, bool scale, std::string weight_policy, int nthreads) {
-    int NR = mat.ptr->nrow();
+GsdeconResults score_gsdecon(const NumericMatrix& mat, uintptr_t subset, bool use_blocks, uintptr_t blocks, bool scale, std::string weight_policy, int32_t nthreads) {
+    int32_t NR = mat.ptr->nrow();
     auto subptr = reinterpret_cast<const uint8_t*>(subset);
-    std::vector<int> keep;
-    for (int r = 0; r < NR; ++r) {
+    std::vector<int32_t> keep;
+    for (int32_t r = 0; r < NR; ++r) {
         if (subptr[r]) {
             keep.push_back(r);
         }

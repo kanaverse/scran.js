@@ -9,7 +9,7 @@
 #include <chrono>
 
 struct UmapStatus {
-    typedef umappp::Status<int, double> Status;
+    typedef umappp::Status<int32_t, double> Status;
 
     Status status;
 
@@ -17,11 +17,11 @@ public:
     UmapStatus(Status s) : status(std::move(s)) {}
 
 public:
-    int epoch() const {
+    int32_t epoch() const {
         return status.epoch();
     }
 
-    int num_epochs() const {
+    int32_t num_epochs() const {
         return status.num_epochs();
     }
 
@@ -31,12 +31,12 @@ public:
         return UmapStatus(std::move(copy));
     }
 
-    int num_observations() const {
+    int32_t num_observations() const {
         return status.num_observations();
     }
 };
 
-UmapStatus initialize_umap(const NeighborResults& neighbors, int num_epochs, double min_dist, uintptr_t Y, int nthreads) {
+UmapStatus initialize_umap(const NeighborResults& neighbors, int32_t num_epochs, double min_dist, uintptr_t Y, int32_t nthreads) {
     umappp::Options opt;
     opt.min_dist = min_dist;
     opt.num_epochs = num_epochs;
@@ -46,12 +46,12 @@ UmapStatus initialize_umap(const NeighborResults& neighbors, int num_epochs, dou
     return UmapStatus(std::move(stat));
 }
 
-void run_umap(UmapStatus& status, int runtime) {
+void run_umap(UmapStatus& status, int32_t runtime) {
     if (runtime <= 0) {
         status.status.run();
     } else {
-        int current = status.epoch();
-        const int total = status.num_epochs();
+        int32_t current = status.epoch();
+        const int32_t total = status.num_epochs();
         auto end = std::chrono::steady_clock::now() + std::chrono::milliseconds(runtime);
         do {
             ++current;

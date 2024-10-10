@@ -8,7 +8,7 @@
 #include <cstdint>
 
 struct ComputeAdtQcMetricsResults {
-    typedef scran_qc::ComputeAdtQcMetricsResults<double, int> Store;
+    typedef scran_qc::ComputeAdtQcMetricsResults<double, int32_t> Store;
 
     Store store;
 
@@ -24,21 +24,21 @@ public:
         return emscripten::val(emscripten::typed_memory_view(store.detected.size(), store.detected.data()));
     }
 
-    emscripten::val subset_sum(int i) const {
+    emscripten::val subset_sum(int32_t i) const {
         const auto& current = store.subset_sum[i];
         return emscripten::val(emscripten::typed_memory_view(current.size(), current.data()));
     }
 
-    int num_subsets() const {
+    int32_t num_subsets() const {
         return store.subset_sum.size();
     }
 
-    int num_cells() const {
+    int32_t num_cells() const {
         return store.sum.size();
     }
 };
 
-ComputeAdtQcMetricsResults per_cell_adt_qc_metrics(const NumericMatrix& mat, int nsubsets, uintptr_t subsets, int nthreads) {
+ComputeAdtQcMetricsResults per_cell_adt_qc_metrics(const NumericMatrix& mat, int32_t nsubsets, uintptr_t subsets, int32_t nthreads) {
     scran_qc::ComputeAdtQcMetricsOptions opt;
     opt.num_threads = nthreads;
     auto store = scran_qc::compute_adt_qc_metrics(*(mat.ptr), convert_array_of_offsets<const uint8_t*>(nsubsets, subsets), opt);
@@ -55,7 +55,7 @@ public:
 
     SuggestAdtQcFiltersResults(scran_qc::AdtQcBlockedFilters<double> store) : store_blocked(std::move(store)) {}
 
-    SuggestAdtQcFiltersResults(int num_subsets, int num_blocks) {
+    SuggestAdtQcFiltersResults(int32_t num_subsets, int32_t num_blocks) {
         if (num_blocks <= 1) {
             use_blocked = false;
             store_unblocked.get_subset_sum().resize(num_subsets);
@@ -63,7 +63,7 @@ public:
             store_blocked.get_detected().resize(num_blocks);
             auto& ssum = store_blocked.get_subset_sum();
             ssum.resize(num_subsets);
-            for (int s = 0; s < num_subsets; ++s) {
+            for (int32_t s = 0; s < num_subsets; ++s) {
                 ssum[s].resize(num_blocks);
             }
         }
@@ -81,7 +81,7 @@ public:
         }
     }
 
-    emscripten::val thresholds_subset_sum(int i) {
+    emscripten::val thresholds_subset_sum(int32_t i) {
         if (use_blocked) {
             auto& ssum = store_blocked.get_subset_sum()[i];
             return emscripten::val(emscripten::typed_memory_view(ssum.size(), ssum.data()));
@@ -93,7 +93,7 @@ public:
     }
 
 public:
-    int num_subsets() const {
+    int32_t num_subsets() const {
         if (use_blocked) {
             return store_blocked.get_subset_sum().size();
         } else {
@@ -101,7 +101,7 @@ public:
         }
     }
 
-    int num_blocks() const {
+    int32_t num_blocks() const {
         if (use_blocked) {
             return store_blocked.get_detected().size();
         } else {
@@ -153,7 +153,7 @@ EMSCRIPTEN_BINDINGS(quality_control_adt) {
     emscripten::function("suggest_adt_qc_filters", &suggest_adt_qc_filters, emscripten::return_value_policy::take_ownership());
 
     emscripten::class_<SuggestAdtQcFiltersResults>("SuggestAdtQcFiltersResults")
-        .constructor<int, int>()
+        .constructor<int32_t, int32_t>()
         .function("thresholds_detected", &SuggestAdtQcFiltersResults::thresholds_detected, emscripten::return_value_policy::take_ownership())
         .function("thresholds_subset_sum", &SuggestAdtQcFiltersResults::thresholds_subset_sum, emscripten::return_value_policy::take_ownership())
         .function("num_subsets", &SuggestAdtQcFiltersResults::num_subsets, emscripten::return_value_policy::take_ownership())

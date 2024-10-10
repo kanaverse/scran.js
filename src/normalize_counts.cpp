@@ -9,7 +9,7 @@
 #include <vector>
 #include <cstdint>
 
-void library_size_factors(const NumericMatrix& mat, uintptr_t size_factors, int nthreads) {
+void library_size_factors(const NumericMatrix& mat, uintptr_t size_factors, int32_t nthreads) {
     tatami_stats::sums::Options opt;
     opt.num_threads = nthreads;
     tatami_stats::sums::apply(false, mat.ptr.get(), reinterpret_cast<double*>(size_factors), opt);

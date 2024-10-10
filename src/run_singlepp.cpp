@@ -87,7 +87,7 @@ public:
     }
 };
 
-SingleppTrainedReference train_singlepp_reference(int32_t num_intersected, uintptr_t test_feature_ids, uintptr_t ref_feature_ids, const SingleppRawReference& ref, int top, bool approximate, int nthreads) {
+SingleppTrainedReference train_singlepp_reference(int32_t num_intersected, uintptr_t test_feature_ids, uintptr_t ref_feature_ids, const SingleppRawReference& ref, int32_t top, bool approximate, int32_t nthreads) {
     singlepp::TrainSingleOptions opt;
     opt.top = top;
     opt.trainer = create_builder(approximate);
@@ -155,7 +155,7 @@ public:
     }
 };
 
-SingleppResults run_singlepp(const NumericMatrix& mat, const SingleppTrainedReference& built, double quantile, int nthreads) {
+SingleppResults run_singlepp(const NumericMatrix& mat, const SingleppTrainedReference& built, double quantile, int32_t nthreads) {
     singlepp::ClassifySingleOptions<double> opt;
     opt.quantile = quantile;
     opt.num_threads = nthreads;
@@ -186,7 +186,7 @@ SingleppIntegratedReferences integrate_singlepp_references(
     uintptr_t ref_feature_ids,
     uintptr_t refs, 
     uintptr_t built,
-    int nthreads) 
+    int32_t nthreads) 
 {
     auto inter_ptr = reinterpret_cast<const int32_t*>(intersection_sizes);
     auto tid_ptrs = convert_array_of_offsets<const int32_t*>(nref, test_feature_ids);
@@ -270,7 +270,7 @@ public:
     }
 };
 
-SingleppIntegratedResults integrate_singlepp(const NumericMatrix& mat, uintptr_t assigned, const SingleppIntegratedReferences& integrated, double quantile, int nthreads) {
+SingleppIntegratedResults integrate_singlepp(const NumericMatrix& mat, uintptr_t assigned, const SingleppIntegratedReferences& integrated, double quantile, int32_t nthreads) {
     singlepp::ClassifyIntegratedOptions<double> opt;
     opt.quantile = quantile;
     opt.num_threads = nthreads;

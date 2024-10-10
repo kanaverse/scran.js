@@ -6,7 +6,7 @@
 #include "NeighborIndex.h"
 #include "build_snn_graph.h"
 
-BuildSnnGraphResult build_snn_graph(const NeighborResults& neighbors, std::string scheme, int nthreads) {
+BuildSnnGraphResult build_snn_graph(const NeighborResults& neighbors, std::string scheme, int32_t nthreads) {
     scran_graph_cluster::BuildSnnGraphOptions opt;
     opt.num_threads = nthreads;
 

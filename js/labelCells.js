@@ -3,7 +3,7 @@ import * as wasm from "./wasm.js";
 import * as utils from "./utils.js";
 import { ScranMatrix } from "./ScranMatrix.js";
 import * as wa from "wasmarrays.js";
-import * as init from "./initializeSparseMatrix.js";
+import * as init from "./initializeScranMatrixFromArrays.js";
 
 /**************************************************
  **************************************************/
@@ -384,7 +384,7 @@ export function labelCells(x, reference, { numberOfFeatures = null, numberOfCell
         if (x instanceof ScranMatrix) {
             target = x.matrix;
         } else if (x instanceof wa.Float64WasmArray) {
-            tempmat = init.initializeDenseMatrixFromDenseArray(numberOfFeatures, numberOfCells, x, { forceInteger: false });
+            tempmat = init.initializeScranMatrixFromDenseArray(numberOfFeatures, numberOfCells, x, { sparse: false, forceInteger: false });
             target = tempmat.matrix;
         } else {
             throw new Error("unknown type for 'x'");
@@ -694,7 +694,7 @@ export function integrateLabelCells(x, assigned, integrated, { numberOfFeatures 
         if (x instanceof ScranMatrix) {
             target = x.matrix;
         } else if (x instanceof wa.Float64WasmArray) {
-            tempmat = init.initializeDenseMatrixFromDenseArray(numberOfFeatures, numberOfCells, x, { forceInteger: false });
+            tempmat = init.initializeScranMatrixFromDenseArray(numberOfFeatures, numberOfCells, x, { sparse: false, forceInteger: false });
             target = tempmat.matrix;
         } else {
             throw new Error("unknown type for 'x'");

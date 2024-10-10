@@ -8,22 +8,22 @@
 #include "scran_aggregate/scran_aggregate.hpp"
 
 struct AggregateAcrossCellsResults {
-    int ngenes;
+    int32_t ngenes;
     scran_aggregate::AggregateAcrossCellsResults<double, double> store;
 
 public:
-    AggregateAcrossCellsResults(int ngenes, scran_aggregate::AggregateAcrossCellsResults<double, double> store) : ngenes(ngenes), store(std::move(store)) {}
+    AggregateAcrossCellsResults(int32_t ngenes, scran_aggregate::AggregateAcrossCellsResults<double, double> store) : ngenes(ngenes), store(std::move(store)) {}
 
 public:
-    int num_genes() const {
+    int32_t num_genes() const {
         return ngenes;
     }
 
-    int num_groups() const {
+    int32_t num_groups() const {
         return store.sums.size();
     }
 
-    emscripten::val group_sums(int i) const {
+    emscripten::val group_sums(int32_t i) const {
         return emscripten::val(emscripten::typed_memory_view(ngenes, store.sums[i].data()));
     }
 
@@ -35,7 +35,7 @@ public:
         }
     }
 
-    emscripten::val group_detected(int i) const {
+    emscripten::val group_detected(int32_t i) const {
         return emscripten::val(emscripten::typed_memory_view(ngenes, store.detected[i].data()));
     }
 
@@ -48,7 +48,7 @@ public:
     }
 };
 
-AggregateAcrossCellsResults aggregate_across_cells(const NumericMatrix& mat, uintptr_t factor, bool average, int nthreads) {
+AggregateAcrossCellsResults aggregate_across_cells(const NumericMatrix& mat, uintptr_t factor, bool average, int32_t nthreads) {
     scran_aggregate::AggregateAcrossCellsOptions aopt;
     auto fptr = reinterpret_cast<const int32_t*>(factor);
     auto store = scran_aggregate::aggregate_across_cells<double, double>(*(mat.ptr), fptr, aopt);

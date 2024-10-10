@@ -19,7 +19,7 @@ std::vector<T> convert_array_of_offsets(size_t n, uintptr_t x) {
 }
 
 template<bool row>
-void check_subset_indices(const int* ptr, size_t len, size_t limit) {
+void check_subset_indices(const int32_t* ptr, size_t len, int32_t limit) {
     for (size_t i = 0; i < len; ++i) {
         if (ptr[i] < 0) {
             throw std::runtime_error("subset indices should be non-negative");

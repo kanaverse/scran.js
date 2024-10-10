@@ -7,7 +7,7 @@
 #include "knncolle/knncolle.hpp"
 
 struct NeighborIndex {
-    std::unique_ptr<knncolle::Prebuilt<int, int, double> > index;
+    std::unique_ptr<knncolle::Prebuilt<int32_t, int32_t, double> > index;
 
     size_t num_obs() const {
         return index->num_observations();
@@ -18,12 +18,12 @@ struct NeighborIndex {
     }
 };
 
-std::unique_ptr<knncolle::Builder<knncolle::SimpleMatrix<int, int, double>, double> > create_builder(bool);
+std::unique_ptr<knncolle::Builder<knncolle::SimpleMatrix<int32_t, int32_t, double>, double> > create_builder(bool);
 
-NeighborIndex build_neighbor_index(uintptr_t, int, int, bool);
+NeighborIndex build_neighbor_index(uintptr_t, int32_t, int32_t, bool);
 
 struct NeighborResults { 
-    typedef std::vector<std::vector<std::pair<int, double> > > Neighbors;
+    typedef std::vector<std::vector<std::pair<int32_t, double> > > Neighbors;
 
     Neighbors neighbors;
 
@@ -37,7 +37,7 @@ public:
 
         for (size_t i = 0; i < n; ++i) {
             neighbors[i].reserve(rptr[i]);
-            for (int j = 0; j < rptr[i]; ++j, ++iptr, ++dptr) {
+            for (int32_t j = 0; j < rptr[i]; ++j, ++iptr, ++dptr) {
                 neighbors[i].emplace_back(*iptr, *dptr);
             }
         }
@@ -75,6 +75,6 @@ public:
     }
 };
 
-NeighborResults find_nearest_neighbors(const NeighborIndex&, int, int);
+NeighborResults find_nearest_neighbors(const NeighborIndex&, int32_t, int32_t);
 
 #endif

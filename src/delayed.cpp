@@ -29,7 +29,7 @@ void delayed_arithmetic_scalar(NumericMatrix& x, std::string op, bool right, dou
     }
 }
 
-void delayed_arithmetic_vector(NumericMatrix& x, std::string op, bool right, int margin, uintptr_t ptr, size_t n) {
+void delayed_arithmetic_vector(NumericMatrix& x, std::string op, bool right, int32_t margin, uintptr_t ptr, size_t n) {
     if (n != static_cast<size_t>(margin == 0 ? x.nrow() : x.ncol())) {
         throw std::runtime_error("inappropriate length of vector for delayed arithmetic");
     }

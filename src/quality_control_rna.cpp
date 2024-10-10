@@ -8,7 +8,7 @@
 #include <cstdint>
 
 struct ComputeRnaQcMetricsResults {
-    typedef scran_qc::ComputeRnaQcMetricsResults<double, int, double> Store;
+    typedef scran_qc::ComputeRnaQcMetricsResults<double, int32_t, double> Store;
 
     Store store;
 
@@ -24,21 +24,21 @@ public:
         return emscripten::val(emscripten::typed_memory_view(store.detected.size(), store.detected.data()));
     }
 
-    emscripten::val subset_proportion(int i) const {
+    emscripten::val subset_proportion(int32_t i) const {
         const auto& current = store.subset_proportion[i];
         return emscripten::val(emscripten::typed_memory_view(current.size(), current.data()));
     }
 
-    int num_subsets() const {
+    int32_t num_subsets() const {
         return store.subset_proportion.size();
     }
 
-    int num_cells() const {
+    int32_t num_cells() const {
         return store.sum.size();
     }
 };
 
-ComputeRnaQcMetricsResults compute_rna_qc_metrics(const NumericMatrix& mat, int nsubsets, uintptr_t subsets, int nthreads) {
+ComputeRnaQcMetricsResults compute_rna_qc_metrics(const NumericMatrix& mat, int32_t nsubsets, uintptr_t subsets, int32_t nthreads) {
     scran_qc::ComputeRnaQcMetricsOptions opt;
     opt.num_threads = nthreads;
     auto store = scran_qc::compute_rna_qc_metrics(*(mat.ptr), convert_array_of_offsets<const uint8_t*>(nsubsets, subsets), opt);
@@ -55,7 +55,7 @@ public:
 
     SuggestRnaQcFiltersResults(scran_qc::RnaQcBlockedFilters<double> store) : store_blocked(std::move(store)) {}
 
-    SuggestRnaQcFiltersResults(int num_subsets, int num_blocks) {
+    SuggestRnaQcFiltersResults(int32_t num_subsets, int32_t num_blocks) {
         if (num_blocks <= 1) {
             use_blocked = false;
             store_unblocked.get_subset_proportion().resize(num_subsets);
@@ -64,7 +64,7 @@ public:
             store_blocked.get_detected().resize(num_blocks);
             auto& sub = store_blocked.get_subset_proportion();
             sub.resize(num_subsets);
-            for (int s = 0; s < num_subsets; ++s) {
+            for (int32_t s = 0; s < num_subsets; ++s) {
                 sub[s].resize(num_blocks);
             }
         }
@@ -93,7 +93,7 @@ public:
         }
     }
 
-    emscripten::val thresholds_subset_proportion(int i) {
+    emscripten::val thresholds_subset_proportion(int32_t i) {
         if (use_blocked) {
             auto& current = store_blocked.get_subset_proportion()[i];
             return emscripten::val(emscripten::typed_memory_view(current.size(), current.data()));
@@ -105,7 +105,7 @@ public:
     }
 
 public:
-    int num_subsets() const {
+    int32_t num_subsets() const {
         if (use_blocked) {
             return store_blocked.get_subset_proportion().size();
         } else {
@@ -113,7 +113,7 @@ public:
         }
     }
 
-    int num_blocks() const {
+    int32_t num_blocks() const {
         if (use_blocked) {
             return store_blocked.get_sum().size();
         } else {
@@ -164,7 +164,7 @@ EMSCRIPTEN_BINDINGS(quality_control_rna) {
     emscripten::function("suggest_rna_qc_filters", &suggest_rna_qc_filters, emscripten::return_value_policy::take_ownership());
 
     emscripten::class_<SuggestRnaQcFiltersResults>("SuggestRnaQcFiltersResults")
-        .constructor<int, int>()
+        .constructor<int32_t, int32_t>()
         .function("thresholds_sum", &SuggestRnaQcFiltersResults::thresholds_sum, emscripten::return_value_policy::take_ownership())
         .function("thresholds_detected", &SuggestRnaQcFiltersResults::thresholds_detected, emscripten::return_value_policy::take_ownership())
         .function("thresholds_subset_proportion", &SuggestRnaQcFiltersResults::thresholds_subset_proportion, emscripten::return_value_policy::take_ownership())

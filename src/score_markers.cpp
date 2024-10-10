@@ -40,12 +40,12 @@ public:
     ScoreMarkersResults(Store s) : store(std::move(s)) {}
 
 public:
-    emscripten::val mean(int g) const {
+    emscripten::val mean(int32_t g) const {
         const auto& current = store.mean[g];
         return emscripten::val(emscripten::typed_memory_view(current.size(), current.data()));
     }
 
-    emscripten::val detected(int g) const {
+    emscripten::val detected(int32_t g) const {
         const auto& current = store.detected[g];
         return emscripten::val(emscripten::typed_memory_view(current.size(), current.data()));
     }
@@ -55,22 +55,22 @@ public:
     }
 
 public:
-    emscripten::val cohens_d(int g, std::string summary) const {
+    emscripten::val cohens_d(int32_t g, std::string summary) const {
         return get_effect_summary(store.cohens_d[g], summary);
     }
 
-    emscripten::val auc(int g, std::string summary) const {
+    emscripten::val auc(int32_t g, std::string summary) const {
         if (store.auc.empty()) {
             throw std::runtime_error("no AUCs available in the scoreMarkers results");
         }
         return get_effect_summary(store.auc[g], summary);
     }
 
-    emscripten::val delta_mean(int g, std::string summary) const {
+    emscripten::val delta_mean(int32_t g, std::string summary) const {
         return get_effect_summary(store.delta_mean[g], summary);
     }
 
-    emscripten::val delta_detected(int g, std::string summary) const {
+    emscripten::val delta_detected(int32_t g, std::string summary) const {
         return get_effect_summary(store.delta_detected[g], summary);
     }
 };
@@ -84,7 +84,7 @@ ScoreMarkersResults score_markers(
     bool compute_auc, 
     bool compute_med,
     bool compute_max,
-    int nthreads) 
+    int32_t nthreads) 
 {
     scran_markers::ScoreMarkersSummaryOptions mopt;
     mopt.threshold = threshold;

@@ -6,16 +6,16 @@
 #include "kmeans/kmeans.hpp"
 
 struct ClusterKmeansResult {
-    kmeans::Results<int, double, int> store;
+    kmeans::Results<int32_t, double, int32_t> store;
 
-    ClusterKmeansResult(kmeans::Results<int, double, int> s) : store(std::move(s)) {}
+    ClusterKmeansResult(kmeans::Results<int32_t, double, int32_t> s) : store(std::move(s)) {}
 
 public:
-    size_t num_obs() const {
+    int32_t num_obs() const {
         return store.clusters.size();
     }
 
-    size_t num_clusters() const {
+    int32_t num_clusters() const {
         return store.details.sizes.size();
     }
 
@@ -29,11 +29,11 @@ public:
         return emscripten::val(emscripten::typed_memory_view(s.size(), s.data()));
     }
 
-    int iterations() const {
+    int32_t iterations() const {
         return store.details.iterations;
     }
 
-    int status() const {
+    int32_t status() const {
         return store.details.status;
     }
 
@@ -45,34 +45,34 @@ public:
 
 ClusterKmeansResult cluster_kmeans(
     uintptr_t mat,
-    int nr,
-    int nc,
-    int k,
+    int32_t nr,
+    int32_t nc,
+    int32_t k,
     std::string init_method,
-    int init_seed,
+    int32_t init_seed,
     double init_varpart_size_adjust,
     double init_varpart_optimized,
     std::string refine_method,
-    int refine_lloyd_iterations,
-    int refine_hw_iterations,
-    int nthreads)
+    int32_t refine_lloyd_iterations,
+    int32_t refine_hw_iterations,
+    int32_t nthreads)
 {
-    kmeans::SimpleMatrix<double, int, int> smat(nr, nc, reinterpret_cast<const double*>(mat));
+    kmeans::SimpleMatrix<double, int32_t, int32_t> smat(nr, nc, reinterpret_cast<const double*>(mat));
 
-    std::unique_ptr<kmeans::Initialize<decltype(smat), int, double> > iptr;
+    std::unique_ptr<kmeans::Initialize<decltype(smat), int32_t, double> > iptr;
     if (init_method == "random") {
-        auto iptr2 = new kmeans::InitializeRandom<decltype(smat), int, double>;
+        auto iptr2 = new kmeans::InitializeRandom<decltype(smat), int32_t, double>;
         iptr.reset(iptr2);
         iptr2->get_options().seed = init_seed;
 
     } else if (init_method == "kmeans++") {
-        auto iptr2 = new kmeans::InitializeKmeanspp<decltype(smat), int, double>;
+        auto iptr2 = new kmeans::InitializeKmeanspp<decltype(smat), int32_t, double>;
         iptr.reset(iptr2);
         iptr2->get_options().seed = init_seed;
         iptr2->get_options().num_threads = nthreads;
 
     } else if (init_method == "var-part") {
-        auto iptr2 = new kmeans::InitializeVariancePartition<decltype(smat), int, double>;
+        auto iptr2 = new kmeans::InitializeVariancePartition<decltype(smat), int32_t, double>;
         iptr.reset(iptr2);
         iptr2->get_options().size_adjustment = init_varpart_size_adjust;
         iptr2->get_options().optimize_partition = init_varpart_optimized;
@@ -81,15 +81,15 @@ ClusterKmeansResult cluster_kmeans(
         throw std::runtime_error("unknown initialization method '" + init_method + "'");
     }
 
-    std::unique_ptr<kmeans::Refine<decltype(smat), int, double> > rptr;
+    std::unique_ptr<kmeans::Refine<decltype(smat), int32_t, double> > rptr;
     if (refine_method == "lloyd") {
-        auto rptr2 = new kmeans::RefineLloyd<decltype(smat), int, double>;
+        auto rptr2 = new kmeans::RefineLloyd<decltype(smat), int32_t, double>;
         rptr.reset(rptr2);
         rptr2->get_options().max_iterations = refine_lloyd_iterations;
         rptr2->get_options().num_threads = nthreads;
 
     } else if (refine_method == "hartigan-wong") {
-        auto rptr2 = new kmeans::RefineHartiganWong<decltype(smat), int, double>;
+        auto rptr2 = new kmeans::RefineHartiganWong<decltype(smat), int32_t, double>;
         rptr.reset(rptr2);
         rptr2->get_options().max_iterations = refine_hw_iterations;
 

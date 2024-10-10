@@ -6,7 +6,7 @@
 #include "phyper/phyper.hpp"
 
 void hypergeometric_test(
-    int ntests,
+    int32_t ntests,
     bool multi_markers_in_set, 
     uintptr_t markers_in_set, 
     bool multi_set_size, 
@@ -17,7 +17,7 @@ void hypergeometric_test(
     uintptr_t num_features, 
     uintptr_t output,
     bool log, 
-    int nthreads) 
+    int32_t nthreads) 
 {
     const int32_t* misptr = reinterpret_cast<const int32_t*>(markers_in_set);
     const int32_t* ssptr = reinterpret_cast<const int32_t*>(set_size);
@@ -25,11 +25,11 @@ void hypergeometric_test(
     const int32_t* nfptr = reinterpret_cast<const int32_t*>(num_features);
     double* outptr = reinterpret_cast<double*>(output);
 
-    subpar::parallelize_range(nthreads, ntests, [&](int, int first, int length) {
+    subpar::parallelize_range(nthreads, ntests, [&](int32_t, int32_t first, int32_t length) {
         phyper::Options hopt;
         hopt.log = log;
 
-        for (int i = first, last = first + length; i < last; ++i) {
+        for (int32_t i = first, last = first + length; i < last; ++i) {
             // We'll interpret the genes in the set as white balls,
             // the features _not_ in the set as black balls,
             // and the number of markers as the number of draws.

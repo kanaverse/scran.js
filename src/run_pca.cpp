@@ -66,7 +66,7 @@ public:
     }
 
 public:
-    int num_cells() const {
+    int32_t num_cells() const {
         if (use_blocked) {
             return store_blocked.components.cols();
         } else {
@@ -74,7 +74,7 @@ public:
         }
     }
 
-    int num_pcs() const {
+    int32_t num_pcs() const {
         if (use_blocked) {
             return store_blocked.variance_explained.size();
         } else {
@@ -85,7 +85,7 @@ public:
 
 PcaResults run_pca(
     const NumericMatrix& mat,
-    int number,
+    int32_t number,
     bool use_subset,
     uintptr_t subset,
     bool scale,
@@ -94,7 +94,7 @@ PcaResults run_pca(
     std::string weight_policy,
     bool components_from_residuals,
     bool realize_matrix,
-    int nthreads) 
+    int32_t nthreads) 
 {
     if (number < 1) {
         throw std::runtime_error("requested number of PCs should be positive");
@@ -106,11 +106,11 @@ PcaResults run_pca(
         throw std::runtime_error("fewer cells than the requested number of PCs");
     }
 
-    int NR = ptr->nrow();
+    int32_t NR = ptr->nrow();
     if (use_subset) {
         auto subptr = reinterpret_cast<const uint8_t*>(subset);
         std::vector<int> keep;
-        for (int r = 0; r < NR; ++r) {
+        for (int32_t r = 0; r < NR; ++r) {
             if (subptr[r]) {
                 keep.push_back(r);
             }
