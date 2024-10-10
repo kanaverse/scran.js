@@ -1,33 +1,32 @@
 #include <emscripten/bind.h>
 
 #include "NeighborIndex.h"
-#include "parallel.h"
 
 #include "knncolle/knncolle.hpp"
+#include "knncolle_annoy/knncolle_annoy.hpp"
 
-NeighborIndex build_neighbor_index(uintptr_t mat, int nr, int nc, bool approximate) {
+std::unique_ptr<knncolle::Builder<knncolle::SimpleMatrix<int32_t, int32_t, double>, double> > create_builder(bool approximate) {
+    std::unique_ptr<knncolle::Builder<knncolle::SimpleMatrix<int32_t, int32_t, double>, double> > builder;
+    if (approximate) {
+        knncolle_annoy::AnnoyOptions opt;
+        builder.reset(new knncolle_annoy::AnnoyBuilder<Annoy::Euclidean>(opt));
+    } else {
+        builder.reset(new knncolle::VptreeBuilder<knncolle::EuclideanDistance>);
+    }
+    return builder;
+}
+
+NeighborIndex build_neighbor_index(uintptr_t mat, int32_t nr, int32_t nc, bool approximate) {
+    auto builder = create_builder(approximate);
     NeighborIndex output;
     const double* ptr = reinterpret_cast<const double*>(mat);
-    if (approximate) {
-        output.search.reset(new knncolle::AnnoyEuclidean<>(nr, nc, ptr));
-    } else {
-        output.search.reset(new knncolle::VpTreeEuclidean<>(nr, nc, ptr));
-    }
+    output.index = builder->build_unique(knncolle::SimpleMatrix<int32_t, int32_t, double>(nr, nc, ptr));
     return output;
 }
 
-NeighborResults find_nearest_neighbors(const NeighborIndex& index, int k, int nthreads) {
-    size_t nc = index.search->nobs();
-    NeighborResults output(nc);
-    const auto& search = index.search;
-    auto& x = output.neighbors;
-
-    run_parallel_old(nc, [&](int left, int right) -> void {
-        for (int i = left; i < right; ++i) {
-            x[i] = search->find_nearest_neighbors(i, k);
-        }
-    }, nthreads);
-
+NeighborResults find_nearest_neighbors(const NeighborIndex& index, int32_t k, int32_t nthreads) {
+    NeighborResults output;
+    output.neighbors = knncolle::find_nearest_neighbors(*(index.index), k, nthreads);
     return output;
 }
 

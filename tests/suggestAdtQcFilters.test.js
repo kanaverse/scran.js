@@ -16,13 +16,13 @@ test("per-cell QC ADT-based filters can be computed", () => {
     expect(filt.numberOfBlocks()).toEqual(1);
     expect(filt.numberOfSubsets()).toEqual(1);
 
-    expect(filt.thresholdsDetected().length).toBe(1);
-    expect(filt.thresholdsSubsetTotals(0).length).toBe(1);
+    expect(filt.detected().length).toBe(1);
+    expect(filt.subsetSum(0).length).toBe(1);
 
     // Computing filters.
-    let discards = filt.filter(qc);
-    expect(discards.length).toEqual(ncells);
-    expect(discards instanceof Uint8Array).toBe(true);
+    let keep = filt.filter(qc);
+    expect(keep.length).toEqual(ncells);
+    expect(keep instanceof Uint8Array).toBe(true);
 
     // Respects a pre-supplied buffer.
     {
@@ -30,7 +30,7 @@ test("per-cell QC ADT-based filters can be computed", () => {
         buffer.array()[0] = 100; // check it gets properly overwritten.
 
         filt.filter(qc, { buffer: buffer });
-        expect(buffer.slice()).toEqual(discards);
+        expect(buffer.slice()).toEqual(keep);
         expect(buffer.array()[0]).toBeLessThan(2); 
 
         buffer.free();
@@ -39,10 +39,10 @@ test("per-cell QC ADT-based filters can be computed", () => {
     // Force it to filter out something, just to check it's not a no-op.
     {
         var filt2 = scran.suggestAdtQcFilters(qc, { numberOfMADs: 0 });
-        let discards2 = filt2.filter(qc);
+        let keep2 = filt2.filter(qc);
         let sum2 = 0;
-        discards2.forEach(x => { sum2 += x; });
-        expect(sum2).toBeGreaterThan(0);
+        keep2.forEach(x => { sum2 += x; });
+        expect(sum2).toBeLessThan(keep2.length);
     }
 
     mat.free();
@@ -67,9 +67,9 @@ test("per-cell ADT-based QC filters can be computed with blocking", () => {
     expect(filt.numberOfBlocks()).toBe(2);
 
     // Filters throw if block is not supplied.
-    expect(() => filt.filter(qc)).toThrow("multiple batches");
-    let discards = filt.filter(qc, { block: block });
-    expect(discards.length).toEqual(ncells);
+    expect(() => filt.filter(qc)).toThrow("'block' must be supplied");
+    let keep = filt.filter(qc, { block: block });
+    expect(keep.length).toEqual(ncells);
 
     // Computing manually.
     for (var b = 0; b < 2; b++) {
@@ -85,11 +85,11 @@ test("per-cell ADT-based QC filters can be computed with blocking", () => {
         var subqc = scran.perCellAdtQcMetrics(submat, subs);
         var subfilt = scran.suggestAdtQcFilters(subqc);
 
-        expect(filt.thresholdsDetected()[b]).toEqual(subfilt.thresholdsDetected()[0]);
-        expect(filt.thresholdsSubsetTotals(0)[b]).toEqual(subfilt.thresholdsSubsetTotals(0)[0]);
+        expect(filt.detected()[b]).toEqual(subfilt.detected()[0]);
+        expect(filt.subsetSum(0)[b]).toEqual(subfilt.subsetSum(0)[0]);
 
-        let subdiscard = subfilt.filter(subqc);
-        expect(Array.from(subdiscard)).toEqual(indices.map(i => discards[i]));
+        let subkeep = subfilt.filter(subqc);
+        expect(Array.from(subkeep)).toEqual(indices.map(i => keep[i]));
 
         // Cleaning up the mess.
         submat.free();
@@ -112,17 +112,17 @@ test("per-cell ADT-based QC filters can be mocked up", () => {
     expect(qc.numberOfSubsets()).toBe(2);
 
     {
-        let x = qc.thresholdsDetected({ copy: false });
+        let x = qc.detected({ copy: false });
         expect(x.length).toEqual(nblocks);
         x[1] = 20;
-        expect(qc.thresholdsDetected()[1]).toEqual(20);
+        expect(qc.detected()[1]).toEqual(20);
     }
     
     for (var s = 0; s < nsubs; s++) {
-        var x = qc.thresholdsSubsetTotals(s, { copy: false });
+        var x = qc.subsetSum(s, { copy: false });
         expect(x.length).toBe(nblocks);
         x[0] = 0.9;
-        expect(qc.thresholdsSubsetTotals(s)[0]).toEqual(0.9);
+        expect(qc.subsetSum(s)[0]).toEqual(0.9);
     }
 
     qc.free();

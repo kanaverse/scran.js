@@ -16,43 +16,52 @@ add_subdirectory(extern)
 add_executable(
     scran_wasm 
 
-    src/read_matrix_market.cpp
-    src/read_hdf5_matrix.cpp
+    src/NumericMatrix.cpp
+    src/cbind.cpp
+    src/subset.cpp
+    src/delayed.cpp
+
+    src/initialize_from_arrays.cpp
+    src/initialize_from_rds.cpp
+    src/initialize_from_mtx.cpp
+    src/initialize_from_hdf5.cpp
+
+    src/rds_utils.cpp
     src/hdf5_utils.cpp
     src/write_sparse_matrix_to_hdf5.cpp
-    src/initialize_sparse_matrix.cpp
 
     src/quality_control_rna.cpp
     src/quality_control_adt.cpp
     src/quality_control_crispr.cpp
-    src/filter_cells.cpp
 
-    src/log_norm_counts.cpp
-    src/median_size_factors.cpp
-    src/grouped_size_factors.cpp
+    src/normalize_counts.cpp
+    src/compute_clrm1_factors.cpp
+
     src/model_gene_variances.cpp
+
     src/run_pca.cpp
-    src/run_tsne.cpp
-    src/run_umap.cpp
     src/mnn_correct.cpp
     src/scale_by_neighbors.cpp
-    src/cluster_snn_graph.cpp
-    src/cluster_kmeans.cpp
-    src/score_markers.cpp
-    src/run_singlepp.cpp
-    src/NumericMatrix.cpp
-    src/NeighborIndex.cpp
-    src/cbind.cpp
-    src/subset.cpp
-    src/delayed.cpp
-    src/get_error_message.cpp
-    src/rds_utils.cpp
-    src/initialize_from_rds.cpp
 
-    src/score_feature_set.cpp
+    src/NeighborIndex.cpp
+
+    src/run_tsne.cpp
+    src/run_umap.cpp
+
+    src/build_snn_graph.cpp
+    src/cluster_graph.cpp
+    src/cluster_kmeans.cpp
+
+    src/score_markers.cpp
+
+    src/run_singlepp.cpp
+
+    src/score_gsdecon.cpp
     src/hypergeometric_test.cpp
 
     src/aggregate_across_cells.cpp
+
+    src/get_error_message.cpp
 )
 
 target_compile_options(
@@ -63,18 +72,46 @@ target_compile_options(
 
 target_link_libraries(
     scran_wasm
-    scran
+
     tatami_hdf5
     tatami_mtx
     tatami_layered
-    mnncorrect
+
+    scran_qc
+    scran_norm
+    scran_variances
+    scran_pca
+    scran_aggregate
+    scran_markers
+
+    knncolle
+    knncolle_annoy
+
     qdtsne
     umappp
+
+    mumosa
+
+    mnncorrect
+
+    igraph::igraph
+    scran_graph_cluster
+
+    singlepp
+    singlepp_loaders
+
     hdf5-static
     hdf5_cpp-static
-    igraph::igraph
-    singlepp
     rds2cpp
+
+    phyper
+    gsdecon
+)
+
+target_include_directories(
+    scran_wasm
+    PRIVATE
+    extern/include
 )
 
 target_link_options(scran_wasm PRIVATE 

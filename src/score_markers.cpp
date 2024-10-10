@@ -2,29 +2,50 @@
 
 #include "NumericMatrix.h"
 #include "utils.h"
-#include "parallel.h"
 
-#include "scran/scran.hpp"
+#include "scran_markers/scran_markers.hpp"
 #include "tatami/tatami.hpp"
 
 #include <vector>
 #include <algorithm>
 #include <cstdint>
 
-struct ScoreMarkers_Results {
-    typedef scran::ScoreMarkers::Results<double> Store;
+static emscripten::val get_effect_summary(const scran_markers::SummaryResults<double>& res, const std::string& type) {
+    if (type == "min-rank") {
+        const auto& current = res.min_rank;
+        return emscripten::val(emscripten::typed_memory_view(current.size(), current.data()));
+    } else {
+        const auto& current = [&]{
+            if (type == "minimum") {
+                return res.min;
+            } else if (type == "maximum") {
+                return res.max;
+            } else if (type == "median") {
+                return res.median;
+            } else if (type != "mean") {
+                throw std::runtime_error("unknown summary type '" + type + "'");
+            }
+            return res.mean;
+        }();
+        return emscripten::val(emscripten::typed_memory_view(current.size(), current.data()));
+    }
+}
 
-    ScoreMarkers_Results(Store s) : store(std::move(s)) {}
+struct ScoreMarkersResults {
+    typedef scran_markers::ScoreMarkersSummaryResults<double, int32_t> Store;
 
     Store store;
 
 public:
-    emscripten::val means(int g) const {
-        const auto& current = store.means[g];
+    ScoreMarkersResults(Store s) : store(std::move(s)) {}
+
+public:
+    emscripten::val mean(int32_t g) const {
+        const auto& current = store.mean[g];
         return emscripten::val(emscripten::typed_memory_view(current.size(), current.data()));
     }
 
-    emscripten::val detected(int g) const {
+    emscripten::val detected(int32_t g) const {
         const auto& current = store.detected[g];
         return emscripten::val(emscripten::typed_memory_view(current.size(), current.data()));
     }
@@ -34,90 +55,64 @@ public:
     }
 
 public:
-    emscripten::val cohen(int g, int s) const {
-        const auto& current0 = store.cohen[s];
-        if (current0.size() == 0) {
-            throw std::runtime_error("summary type " + std::to_string(s) + " not available for Cohen's d");
-        }
-
-        const auto& current = current0[g];
-        return emscripten::val(emscripten::typed_memory_view(current.size(), current.data()));
+    emscripten::val cohens_d(int32_t g, std::string summary) const {
+        return get_effect_summary(store.cohens_d[g], summary);
     }
 
-    emscripten::val auc(int g, int s) const {
+    emscripten::val auc(int32_t g, std::string summary) const {
         if (store.auc.empty()) {
             throw std::runtime_error("no AUCs available in the scoreMarkers results");
         }
-
-        const auto& current0 = store.auc[s];
-        if (current0.size() == 0) {
-            throw std::runtime_error("summary type " + std::to_string(s) + " not available for AUCs");
-        }
-
-        const auto& current = current0[g];
-        return emscripten::val(emscripten::typed_memory_view(current.size(), current.data()));
+        return get_effect_summary(store.auc[g], summary);
     }
 
-    emscripten::val lfc(int g, int s) const {
-        const auto& current0 = store.lfc[s];
-        if (current0.size() == 0) {
-            throw std::runtime_error("summary type " + std::to_string(s) + " not available for log-fold changes");
-        }
-
-        const auto& current = current0[g];
-        return emscripten::val(emscripten::typed_memory_view(current.size(), current.data()));
+    emscripten::val delta_mean(int32_t g, std::string summary) const {
+        return get_effect_summary(store.delta_mean[g], summary);
     }
 
-    emscripten::val delta_detected(int g, int s) const {
-        const auto& current0 = store.delta_detected[s];
-        if (current0.size() == 0) {
-            throw std::runtime_error("summary type " + std::to_string(s) + " not available for the delta detected");
-        }
-
-        const auto& current = current0[g];
-        return emscripten::val(emscripten::typed_memory_view(current.size(), current.data()));
+    emscripten::val delta_detected(int32_t g, std::string summary) const {
+        return get_effect_summary(store.delta_detected[g], summary);
     }
 };
 
-ScoreMarkers_Results score_markers(
+ScoreMarkersResults score_markers(
     const NumericMatrix& mat, 
     uintptr_t groups, 
     bool use_blocks, 
     uintptr_t blocks, 
-    double lfc_threshold, 
+    double threshold, 
     bool compute_auc, 
     bool compute_med,
     bool compute_max,
-    int nthreads) 
+    int32_t nthreads) 
 {
-    const int32_t* gptr = reinterpret_cast<const int32_t*>(groups);
-    const int32_t* bptr = NULL;
+    scran_markers::ScoreMarkersSummaryOptions mopt;
+    mopt.threshold = threshold;
+    mopt.compute_auc = compute_auc;
+    mopt.compute_median = compute_med;
+    mopt.compute_max = compute_max;
+    mopt.num_threads = nthreads;
+
+    auto gptr = reinterpret_cast<const int32_t*>(groups);
     if (use_blocks) {
-        bptr = reinterpret_cast<const int32_t*>(blocks);
+        auto store = scran_markers::score_markers_summary_blocked(*(mat.ptr), gptr, reinterpret_cast<const int32_t*>(blocks), mopt);
+        return ScoreMarkersResults(std::move(store));
+    } else {
+        auto store = scran_markers::score_markers_summary(*(mat.ptr), gptr, mopt);
+        return ScoreMarkersResults(std::move(store));
     }
-
-    scran::ScoreMarkers mrk;
-    mrk.set_summary_max(compute_med);
-    mrk.set_summary_median(compute_max);
-    mrk.set_num_threads(nthreads);
-    mrk.set_threshold(lfc_threshold);
-    mrk.set_compute_auc(compute_auc);
-
-    auto store = mrk.run_blocked(mat.ptr.get(), gptr, bptr);
-
-    return ScoreMarkers_Results(std::move(store));
 }
 
 EMSCRIPTEN_BINDINGS(score_markers) {
     emscripten::function("score_markers", &score_markers, emscripten::return_value_policy::take_ownership());
 
-    emscripten::class_<ScoreMarkers_Results>("ScoreMarkers_Results")
-        .function("means", &ScoreMarkers_Results::means, emscripten::return_value_policy::take_ownership())
-        .function("detected", &ScoreMarkers_Results::detected, emscripten::return_value_policy::take_ownership())
-        .function("cohen", &ScoreMarkers_Results::cohen, emscripten::return_value_policy::take_ownership())
-        .function("auc", &ScoreMarkers_Results::auc, emscripten::return_value_policy::take_ownership())
-        .function("lfc", &ScoreMarkers_Results::lfc, emscripten::return_value_policy::take_ownership())
-        .function("delta_detected", &ScoreMarkers_Results::delta_detected, emscripten::return_value_policy::take_ownership())
-        .function("num_groups", &ScoreMarkers_Results::num_groups, emscripten::return_value_policy::take_ownership())
+    emscripten::class_<ScoreMarkersResults>("ScoreMarkersResults")
+        .function("mean", &ScoreMarkersResults::mean, emscripten::return_value_policy::take_ownership())
+        .function("detected", &ScoreMarkersResults::detected, emscripten::return_value_policy::take_ownership())
+        .function("cohens_d", &ScoreMarkersResults::cohens_d, emscripten::return_value_policy::take_ownership())
+        .function("auc", &ScoreMarkersResults::auc, emscripten::return_value_policy::take_ownership())
+        .function("delta_mean", &ScoreMarkersResults::delta_mean, emscripten::return_value_policy::take_ownership())
+        .function("delta_detected", &ScoreMarkersResults::delta_detected, emscripten::return_value_policy::take_ownership())
+        .function("num_groups", &ScoreMarkersResults::num_groups, emscripten::return_value_policy::take_ownership())
         ;
 }

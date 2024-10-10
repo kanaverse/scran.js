@@ -21,11 +21,10 @@ export class SuggestRnaQcFiltersResults {
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      * This should be set to `false` or `"view"` to modify entries, e.g., after calling creating an instance with {@linkcode emptySuggestRnaQcFiltersResults}.
      *
-     * @return {?(Float64Array|Float64WasmArray)} Array containing the filtering threshold on the sums for each batch.
-     * Alternatively `null`, if `fillable = false` and the array was not already filled.
+     * @return {Float64Array|Float64WasmArray} Array containing the filtering threshold on the sums for each batch.
      */
-    thresholdsSums({ copy = true } = {}) {
-        return utils.possibleCopy(this.#results.thresholds_sums(), copy);
+    sum({ copy = true } = {}) {
+        return utils.possibleCopy(this.#results.sum(), copy);
     }
 
     /**
@@ -33,10 +32,10 @@ export class SuggestRnaQcFiltersResults {
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      * This should be set to `false` or `"view"` to modify entries, e.g., after calling creating an instance with {@linkcode emptySuggestRnaQcFiltersResults}.
      *
-     * @return {?(Float64Array|Float64WasmArray)} Array containing the filtering threshold on the number of detected genes for each batch.
+     * @return {Float64Array|Float64WasmArray} Array containing the filtering threshold on the number of detected genes for each batch.
      */
-    thresholdsDetected({ copy = true } = {}) {
-        return utils.possibleCopy(this.#results.thresholds_detected(), copy);
+    detected({ copy = true } = {}) {
+        return utils.possibleCopy(this.#results.detected(), copy);
     }
 
     /**
@@ -45,11 +44,10 @@ export class SuggestRnaQcFiltersResults {
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      * This should be set to `false` or `"view"` to modify entries, e.g., after calling creating an instance with {@linkcode emptySuggestRnaQcFiltersResults}.
      *
-     * @return {?(Float64Array|Float64WasmArray)} Array containing the filtering threshold on the proportions for subset `i` in each batch.
-     * Alternatively `null`, if `fillable = false` and the array was not already filled.
+     * @return {Float64Array|Float64WasmArray} Array containing the filtering threshold on the proportions for subset `i` in each batch.
      */
-    thresholdsSubsetProportions(i, { copy = true } = {}) {
-        return utils.possibleCopy(this.#results.thresholds_proportions(i), copy);
+    subsetProportion(i, { copy = true } = {}) {
+        return utils.possibleCopy(this.#results.subset_proportion(i), copy);
     }
 
     /**
@@ -67,17 +65,22 @@ export class SuggestRnaQcFiltersResults {
     }
 
     /**
+     * @return {boolean} Whether blocking was used to compute the thresholds.
+     */
+    isBlocked() {
+        return this.#results.isBlocked();
+    }
+
+    /**
      * @param {PerCellRnaQcMetricsResults} metrics - Per-cell QC metrics, usually computed by {@linkcode perCellRnaQcMetrics}.
      * @param {object} [options={}] - Optional parameters.
      * @param {?(Int32WasmArray|Array|TypedArray)} [options.block=null] - Array containing the block assignment for each cell in `metrics`.
      * This should have length equal to the number of cells and contain all values in `[0, n)` where `n` is the return value of {@linkcode SuggestRnaQcFilters#numberOfBlocks numberOfBlocks}.
-     *
-     * Alternatively, this may be `null`, in which case all cells are assumed to be in the same block.
-     * This will raise an error if multiple blocks were used to compute the thresholds.
-     * @param {?Uint8WasmArray} [options.buffer=null] - Array of length equal to the number of cells in `metrics`, to be used to store the low-quality calls.
+     * `block` must be supplied if {@linkcode SuggestRnaQcFilters#isBlocked isBlocked} returns true, otherwise it is ignored.
+     * @param {?Uint8WasmArray} [options.buffer=null] - Array of length equal to the number of cells in `metrics`, to be used to store the high-quality calls.
      *
      * @return {Uint8Array} Array of length equal to the number of cells in `metrics`.
-     * Each entry is truthy if the corresponding cell is deemed to be of low-quality based on its values in `metrics`.
+     * Each entry is truthy if the corresponding cell is deemed to be of high-quality based on its values in `metrics`.
      * If `buffer` is supplied, the returned array is a view on `buffer`.
      */
     filter(metrics, { block = null, buffer = null } = {}) {
@@ -121,7 +124,7 @@ export function suggestRnaQcFilters(metrics, { numberOfMADs = 3, block = null } 
         metrics,
         block,
         (x, use_blocks, bptr) => gc.call(
-            module => module.suggest_rna_qc_filters(x.results.$$.ptr, use_blocks, bptr, numberOfMADs),
+            module => module.suggest_rna_qc_filters(x.results, use_blocks, bptr, numberOfMADs),
             SuggestRnaQcFiltersResults
         )
     );
@@ -138,7 +141,7 @@ export function suggestRnaQcFilters(metrics, { numberOfMADs = 3, block = null } 
  */
 export function emptySuggestRnaQcFiltersResults(numberOfSubsets, numberOfBlocks) {
     return gc.call(
-        module => new module.SuggestRnaQcFilters_Results(numberOfSubsets, numberOfBlocks),
+        module => new module.SuggestRnaQcFiltersResults(numberOfSubsets, numberOfBlocks),
         SuggestRnaQcFiltersResults,
         /* filled = */ false 
     );

@@ -15,10 +15,15 @@ test("Log-normalization works as expected", () => {
     expect(norm.numberOfRows()).toBe(mat.numberOfRows());
     expect(norm.numberOfColumns()).toBe(mat.numberOfColumns());
 
-    // Check that values are different.
-    let rcol = mat.column(0);
-    let ocol = norm.column(0);
-    expect(ocol).not.toEqual(rcol);
+    // Checking values.
+    var sf = new Array(ncells);
+    for (var i = 0; i < ncells; i++) {
+        let current = mat.column(i);
+        sf[i] = current.reduce((x, y) => x + y);
+    }
+    let mean_sf = sf.reduce((x, y) => x + y) / ncells;
+    var expected = mat.column(0).map(x => Math.log2(x / (sf[0] / mean_sf) + 1));
+    expect(compare.equalFloatArrays(expected, norm.column(0))).toBe(true);
 
     // Cleaning up.
     mat.free();
@@ -41,11 +46,7 @@ test("Log-normalization works as expected with pre-supplied size factors", () =>
     expect(norm.numberOfColumns()).toBe(mat.numberOfColumns());
     
     // Checking values.
-    var mean_sf = 0;
-    sf.forEach(x => { mean_sf += x; });
-    mean_sf /= ncells;
-
-    var expected = mat.column(0).map(x => Math.log2(x / sf[0] * mean_sf + 1));
+    var expected = mat.column(0).map(x => Math.log2(x / sf[0] + 1));
     expect(compare.equalFloatArrays(expected, norm.column(0))).toBe(true);
 
     // Cleaning up.
@@ -53,44 +54,32 @@ test("Log-normalization works as expected with pre-supplied size factors", () =>
     norm.free();
 });
 
-test("Log-normalization works as expected with blocking", () => {
-    var ngenes = 1000;
+test("Centering works as expected with blocking", () => {
     var ncells = 100;
-    var mat = simulate.simulateMatrix(ngenes, ncells);
+    var sf = new Array(ncells);
+    for (var i = 0; i < ncells ; i++) {
+        sf[i] = Math.random();
+    }
 
-    // Using a prime number so that it's more likely that we get different mean
-    // size factors between blocks; otherwise, the blocking wouldn't have any
-    // effect if the means were the same.
-    var half = 43; 
+    var centered = scran.centerSizeFactors(sf, { block: block });
+    const mean = centered.reduce((x, y) => x + y) / ncells;
+    expect(Math.abs(mean - 1)).toBeLessThan(1e-8);
 
+    var half = 11; 
     var block = new Array(ncells);
     block.fill(0, 0, half);
     block.fill(1, half, ncells);
-    var normed_full = scran.logNormCounts(mat, { block: block });
+    centered = scran.centerSizeFactors(sf, { block: block });
 
-    var discard1 = new Array(ncells);
-    discard1.fill(0, 0, half);
-    discard1.fill(1, half, ncells);
-    var sub1 = scran.filterCells(mat, discard1);
-    var normed_sub1 = scran.logNormCounts(sub1);
-
-    var discard2 = new Array(ncells);
-    discard2.fill(1, 0, half);
-    discard2.fill(0, half, ncells);
-    var sub2 = scran.filterCells(mat, discard2);
-    var normed_sub2 = scran.logNormCounts(sub2);
+    const first_half = centered.slice(0, half).reduce((x, y) => x + y) / half;
+    const second_half = centered.slice(half, ncells).reduce((x, y) => x + y) / (ncells - half);
 
     // Only one of these is true under the default LOWEST scaling scheme.
-    expect(
-        compare.equalFloatArrays(normed_sub1.column(0), normed_full.column(0)) !=
-        compare.equalFloatArrays(normed_sub2.column(0), normed_full.column(half))).toBe(true);
-
-    mat.free();
-    normed_full.free();
-    sub1.free();
-    normed_sub1.free();
-    sub2.free();
-    normed_sub2.free();
+    if (first_half > second_half) {
+        expect(Math.abs(second_half - 1)).toBeLessThan(1e-8);
+    } else {
+        expect(Math.abs(first_half - 1)).toBeLessThan(1e-8);
+    }
 })
 
 test("Log-normalization behaves with zeros", () => {
@@ -100,7 +89,7 @@ test("Log-normalization behaves with zeros", () => {
 
     var empty = new Float64Array(ncells);
     empty.fill(0);
-    expect(() => scran.logNormCounts(mat, { sizeFactors: empty })).toThrow("positive");
+    expect(() => scran.logNormCounts(mat, { sizeFactors: empty })).toThrow("zero");
 
     // Now trying with allowed zeros.
     let out = scran.logNormCounts(mat, { sizeFactors: empty, allowZeros: true });
@@ -108,65 +97,6 @@ test("Log-normalization behaves with zeros", () => {
     let rcol = mat.column(0);
     for (var i = 0; i < ngenes; i++) {
         expect(ocol[i]).toBeCloseTo(Math.log2(rcol[i] + 1), 6);
-    }
-
-    mat.free();
-})
-
-test("centering of size factors gives the same results", () => {
-    var ngenes = 1000;
-    var ncells = 20;
-    var mat = simulate.simulateMatrix(ngenes, ncells);
-    let qc = scran.perCellRnaQcMetrics(mat);
-
-    let rounder = x => Math.round(x * 1000000); // Check for equality to 6 decimal points of precision.
-
-    // Unblocked.
-    {
-        let sf = scran.centerSizeFactors(qc.sums());
-        var norm = scran.logNormCounts(mat);
-        let norm2 = scran.logNormCounts(mat, { sizeFactors: sf, center: false });
-
-        for (var c = 0; c < ncells; c++) {
-            let rawcol = mat.column(c);
-            let cursf = sf.array()[c];
-            let expected = rawcol.map(x => Math.log2(x / cursf + 1));
-            expect(norm.column(c).map(rounder)).toEqual(expected.map(rounder));
-            expect(norm2.column(c).map(rounder)).toEqual(expected.map(rounder));
-        }
-
-        norm2.free();
-        norm.free();
-        sf.free();
-    }
-
-    // Blocked.
-    {
-        var block = new Array(ncells);
-        let half = ncells * 0.3;
-        block.fill(0, 0, half);
-        block.fill(1, half, ncells);
-
-        let sf = scran.createFloat64WasmArray(ncells); // check that the buffer argument works.
-        scran.centerSizeFactors(qc.sums(), { block: block, buffer: sf });
-        let ref = scran.centerSizeFactors(qc.sums()); // check that blocking has an effect.
-        expect(ref.array()).not.toEqual(sf.array());
-
-        var norm = scran.logNormCounts(mat, { block });
-        let norm2 = scran.logNormCounts(mat, { sizeFactors: sf, center: false });
-
-        for (var c = 0; c < ncells; c++) {
-            let rawcol = mat.column(c);
-            let cursf = sf.array()[c];
-            let expected = rawcol.map(x => Math.log2(x / cursf + 1));
-            expect(norm.column(c).map(rounder)).toEqual(expected.map(rounder));
-            expect(norm2.column(c).map(rounder)).toEqual(expected.map(rounder));
-        }
-
-        norm2.free();
-        norm.free();
-        sf.free();
-        ref.free();
     }
 
     mat.free();

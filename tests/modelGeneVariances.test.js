@@ -40,16 +40,16 @@ test("Variance modelling works as expected with blocking", () => {
     block.fill(1, half, ncells);
     var res = scran.modelGeneVariances(norm, { block: block });
 
-    var discard1 = new Array(ncells);
-    discard1.fill(0, 0, half);
-    discard1.fill(1, half, ncells);
-    var sub1 = scran.filterCells(norm, discard1);
+    var keep1 = new Array(ncells);
+    keep1.fill(1, 0, half);
+    keep1.fill(0, half, ncells);
+    var sub1 = scran.filterCells(norm, keep1);
     var res1 = scran.modelGeneVariances(sub1);
 
-    var discard2 = new Array(ncells);
-    discard2.fill(1, 0, half);
-    discard2.fill(0, half, ncells);
-    var sub2 = scran.filterCells(norm, discard2);
+    var keep2 = new Array(ncells);
+    keep2.fill(0, 0, half);
+    keep2.fill(1, half, ncells);
+    var sub2 = scran.filterCells(norm, keep2);
     var res2 = scran.modelGeneVariances(sub2);
 
     // Comparing results.

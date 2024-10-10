@@ -8,11 +8,11 @@ NumericMatrix::NumericMatrix(const tatami::NumericMatrix* p) : ptr(p) {}
 NumericMatrix::NumericMatrix(std::shared_ptr<const tatami::NumericMatrix> p) : ptr(std::move(p)) {}
 
 template<class Vector_>
-tatami::NumericMatrix* create_NumericMatrix(int nr, int nc, Vector_ vec, bool colmajor) {
+tatami::NumericMatrix* create_NumericMatrix(int32_t nr, int32_t nc, Vector_ vec, bool colmajor) {
     if (colmajor) {
-        return new tatami::DenseColumnMatrix<double, int, Vector_>(nr, nc, std::move(vec));
+        return new tatami::DenseColumnMatrix<double, int32_t, Vector_>(nr, nc, std::move(vec));
     } else {
-        return new tatami::DenseRowMatrix<double, int, Vector_>(nr, nc, std::move(vec));
+        return new tatami::DenseRowMatrix<double, int32_t, Vector_>(nr, nc, std::move(vec));
     }
 }
 
@@ -22,7 +22,7 @@ void NumericMatrix::reset_ptr(std::shared_ptr<const tatami::NumericMatrix> p) {
     by_column.reset();
 }
 
-NumericMatrix::NumericMatrix(int nr, int nc, uintptr_t values, bool colmajor, bool copy) {
+NumericMatrix::NumericMatrix(int32_t nr, int32_t nc, uintptr_t values, bool colmajor, bool copy) {
     size_t product = static_cast<size_t>(nr) * static_cast<size_t>(nc);
     auto iptr = reinterpret_cast<const double*>(values);
     if (!copy) {
@@ -32,29 +32,31 @@ NumericMatrix::NumericMatrix(int nr, int nc, uintptr_t values, bool colmajor, bo
     }
 }
 
-int NumericMatrix::nrow() const {
+int32_t NumericMatrix::nrow() const {
     return ptr->nrow();
 }
 
-int NumericMatrix::ncol() const {
+int32_t NumericMatrix::ncol() const {
     return ptr->ncol();
 }
 
-void NumericMatrix::row(int r, uintptr_t values) {
+void NumericMatrix::row(int32_t r, uintptr_t values) {
     double* buffer = reinterpret_cast<double*>(values);
     if (!by_row) {
         by_row = ptr->dense_row();
     }
-    by_row->fetch_copy(r, buffer);
+    auto out = by_row->fetch(r, buffer);
+    tatami::copy_n(out, ptr->ncol(), buffer);
     return;
 }
 
-void NumericMatrix::column(int c, uintptr_t values) {
+void NumericMatrix::column(int32_t c, uintptr_t values) {
     double* buffer = reinterpret_cast<double*>(values);
     if (!by_column) {
         by_column = ptr->dense_column();
     }
-    by_column->fetch_copy(c, buffer);
+    auto out = by_column->fetch(c, buffer);
+    tatami::copy_n(out, ptr->nrow(), buffer);
     return;
 }
 
@@ -68,7 +70,7 @@ NumericMatrix NumericMatrix::clone() const {
 
 EMSCRIPTEN_BINDINGS(NumericMatrix) {
     emscripten::class_<NumericMatrix>("NumericMatrix")
-        .constructor<int, int, uintptr_t, bool, bool>(emscripten::return_value_policy::take_ownership())
+        .constructor<int32_t, int32_t, uintptr_t, bool, bool>(emscripten::return_value_policy::take_ownership())
         .function("nrow", &NumericMatrix::nrow, emscripten::return_value_policy::take_ownership())
         .function("ncol", &NumericMatrix::ncol, emscripten::return_value_policy::take_ownership())
         .function("row", &NumericMatrix::row, emscripten::return_value_policy::take_ownership())

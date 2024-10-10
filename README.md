@@ -54,7 +54,7 @@ After that, you can run the remaining steps synchronously - for example, using t
 // Reading in the count matrix.
 import * as fs from "fs";
 let buffer = fs.readFileSync("matrix.mtx.gz");
-let mat = scran.initializeSparseMatrixFromMatrixMarketBuffer(buffer);
+let mat = scran.initializeScranMatrixFromMatrixMarket(buffer);
 ```
 
 ## Basic analyses
@@ -68,7 +68,7 @@ import * as scran from "scran.js";
 await scran.initialize({ numberOfThreads: 4 });
 
 // Reading in the count matrix.
-let mat = scran.initializeSparseMatrixFromMatrixMarket("matrix.mtx.gz");
+let mat = scran.initializeScranMatrixFromMatrixMarket("matrix.mtx.gz");
 
 // Performing QC.
 let qc_metrics = scran.perCellRnaQcMetrics(mat, [ /* specify mito subset here */ ]);

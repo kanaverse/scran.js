@@ -4,7 +4,7 @@ import * as utils from "./utils.js";
 import * as wa from "wasmarrays.js";
 
 /**
- * Compute per-cell scores for the activity of a feature set.
+ * Compute per-cell scores for the activity of a feature set using the [**gsdecon**](https://github.com/libscran/gsdecon) method.
  *
  * @param {ScranMatrix} x - Log-normalized expression matrix.
  * @param {Uint8Array|Uint8WasmArray|TypedArray|Array} features - An array of length equal to the number of rows in `x`, indicating which features belong to the set.
@@ -15,6 +15,14 @@ import * as wa from "wasmarrays.js";
  * Alternatively, this may be `null`, in which case all cells are assumed to be in the same block.
  * @param {boolean} [options.scale=false] - Whether to scale the expression matrix to unit variance for each feature before computing the per-feature weights.
  * Setting to `true` improves robustness (or reduces sensitivity) to the behavior of highly variable features in the set.
+ * @param {string} [options.blockWeightPolicy="variable"] The policy for weighting each block so that it contributes the same number of effective observations to the covariance matrix.
+ *
+ * - `"variable"` ensures that, past a certain size (default 1000 cells), larger blocks do not dominate the definition of the PC space.
+ *   Below the threshold size, blocks are weighted in proportion to their size to reduce the influence of very small blocks. 
+ * - `"equal"` uses the same weight for each block, regardless of size.
+ * - `"none"` does not apply any extra weighting, i.e., the contribution of each block is proportional to its size.
+ *
+ * This option is only used if `block` is not `null`.
  * @param {?number} [options.numberOfThreads=null] - Number of threads to use.
  * If `null`, defaults to {@linkcode maximumThreads}.
  *
@@ -23,7 +31,7 @@ import * as wa from "wasmarrays.js";
  * - `weights`, a Float64Array containing per-gene weights for each feature in the set.
  * - `scores`, a Float64Array containing the per-cell scores for each column of `x`.
  */
-export function scoreFeatureSet(x, features, { block = null, scale = false, numberOfThreads = null } = {}) {
+export function scoreGsdecon(x, features, { block = null, scale = false, blockWeightPolicy = "variable", numberOfThreads = null } = {}) {
     let temp;
     let output = {};
     let feature_data, block_data;
@@ -48,7 +56,7 @@ export function scoreFeatureSet(x, features, { block = null, scale = false, numb
             bptr = block_data.offset;
         }
 
-        temp = wasm.call(module => module.score_feature_set(x.matrix, feature_data.offset, use_blocks, bptr, scale, nthreads));
+        temp = wasm.call(module => module.score_gsdecon(x.matrix, feature_data.offset, use_blocks, bptr, scale, blockWeightPolicy, nthreads));
         output.weights = temp.weights().slice();
         output.scores = temp.scores().slice();
 

@@ -13,14 +13,14 @@ test("filtered matrix is constructed as expected", () => {
     var qc = scran.perCellRnaQcMetrics(mat, subs);
     var filt = scran.suggestRnaQcFilters(qc, { numberOfMADs: 0 });
 
-    var discard = filt.filter(qc);
+    var keep = filt.filter(qc);
     var sum = 0;
-    discard.forEach(x => { sum += x; });
-    expect(sum).toBeGreaterThan(0);
+    keep.forEach(x => { sum += x; });
+    expect(sum).toBeLessThan(keep.length);
 
-    var filtered = scran.filterCells(mat, discard);
+    var filtered = scran.filterCells(mat, keep);
     expect(filtered.constructor.name).toBe("ScranMatrix");
-    expect(filtered.numberOfColumns()).toBe(ncells - sum);
+    expect(filtered.numberOfColumns()).toBe(sum);
 
     mat.free();
     qc.free();
@@ -33,21 +33,21 @@ test("filtered matrix is constructed as expected from a supplied array", () => {
     var ncells = 20;
     var mat = simulate.simulateMatrix(ngenes, ncells);
 
-    var discard = scran.createUint8WasmArray(ncells);
-    var arr = discard.array();
-    var keep = 0;
+    var keep = scran.createUint8WasmArray(ncells);
+    var arr = keep.array();
+    var count = 0;
     for (var i = 0; i < ncells; i++) {
-        let lose = i % 3 == 0;
-        arr[i] = lose;
-        keep += !lose;
+        let choice = i % 3 == 0;
+        arr[i] = choice;
+        count += choice;
     }
 
-    var filtered = scran.filterCells(mat, discard);
+    var filtered = scran.filterCells(mat, keep);
     expect(filtered.constructor.name).toBe("ScranMatrix");
-    expect(filtered.numberOfColumns()).toBe(keep);
+    expect(filtered.numberOfColumns()).toBe(count);
 
     mat.free();
-    discard.free();
+    keep.free();
     filtered.free();
 })
 

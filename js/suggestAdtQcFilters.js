@@ -23,8 +23,8 @@ export class SuggestAdtQcFiltersResults {
      *
      * @return {?(Float64Array|Float64WasmArray)} Array containing the filtering threshold on the number of detected ADTs for each batch.
      */
-    thresholdsDetected({ copy = true } = {}) {
-        return utils.possibleCopy(this.#results.thresholds_detected(), copy);
+    detected({ copy = true } = {}) {
+        return utils.possibleCopy(this.#results.detected(), copy);
     }
 
     /**
@@ -35,8 +35,8 @@ export class SuggestAdtQcFiltersResults {
      *
      * @return {?(Float64Array|Float64WasmArray)} Array containing the filtering threshold on the total counts for subset `i` in each batch.
      */
-    thresholdsSubsetTotals(i, { copy = true } = {}) {
-        return utils.possibleCopy(this.#results.thresholds_subset_totals(i), copy);
+    subsetSum(i, { copy = true } = {}) {
+        return utils.possibleCopy(this.#results.subset_sum(i), copy);
     }
 
     /**
@@ -54,6 +54,13 @@ export class SuggestAdtQcFiltersResults {
     }
 
     /**
+     * @return {boolean} Whether blocking was used to compute the thresholds
+     */
+    isBlocked() {
+        return this.#results.isBlocked();
+    }
+
+    /**
      * @param {PerCellAdtQcMetricsResults} metrics - Per-cell QC metrics, usually computed by {@linkcode perCellAdtQcMetrics}.
      * @param {object} [options={}] - Optional parameters.
      * @param {?(Int32WasmArray|Array|TypedArray)} [options.block=null] - Array containing the block assignment for each cell in `metrics`.
@@ -61,10 +68,10 @@ export class SuggestAdtQcFiltersResults {
      *
      * Alternatively, this may be `null`, in which case all cells are assumed to be in the same block.
      * This will raise an error if multiple blocks were used to compute the thresholds.
-     * @param {?Uint8WasmArray} [options.buffer=null] - Array of length equal to the number of cells in `metrics`, to be used to store the low-quality calls.
+     * @param {?Uint8WasmArray} [options.buffer=null] - Array of length equal to the number of cells in `metrics`, to be used to store the high-quality calls.
      *
      * @return {Uint8Array} Array of length equal to the number of cells in `metrics`.
-     * Each entry is truthy if the corresponding cell is deemed to be of low-quality based on its values in `metrics`.
+     * Each entry is truthy if the corresponding cell is deemed to be of high-quality based on its values in `metrics`.
      * If `buffer` is supplied, the returned array is a view on `buffer`.
      */
     filter(metrics, { block = null, buffer = null } = {}) {
@@ -110,7 +117,7 @@ export function suggestAdtQcFilters(metrics, { numberOfMADs = 3, minDetectedDrop
         metrics, 
         block,
         (x, use_blocks, bptr) => gc.call(
-            module => module.suggest_adt_qc_filters(x.results.$$.ptr, use_blocks, bptr, numberOfMADs, minDetectedDrop),
+            module => module.suggest_adt_qc_filters(x.results, use_blocks, bptr, numberOfMADs, minDetectedDrop),
             SuggestAdtQcFiltersResults
         )
     );
@@ -127,7 +134,7 @@ export function suggestAdtQcFilters(metrics, { numberOfMADs = 3, minDetectedDrop
  */
 export function emptySuggestAdtQcFiltersResults(numberOfSubsets, numberOfBlocks) {
     return gc.call(
-        module => new module.SuggestAdtQcFilters_Results(numberOfSubsets, numberOfBlocks),
+        module => new module.SuggestAdtQcFiltersResults(numberOfSubsets, numberOfBlocks),
         SuggestAdtQcFiltersResults
     );
 }

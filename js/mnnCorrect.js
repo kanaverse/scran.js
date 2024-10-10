@@ -3,8 +3,9 @@ import { RunPcaResults } from "./runPca.js";
 import * as wasm from "./wasm.js";
 
 /**
- * Perform mutual nearest neighbor (MNN) correction on a low-dimensional representation.
- * This is primarily used to remove batch effects.
+ * Perform mutual nearest neighbor (MNN) correction on a low-dimensional representation to remo
+ * This is used to remove batch effects prior to downstream analyses like clustering,
+ * check out the [**mnncorrect**](https://github.com/libscran/mnncorrect) for details.
  *
  * @param {(RunPcaResults|TypedArray|Array|Float64WasmArray)} x - A matrix of low-dimensional results where rows are dimensions and columns are cells.
  * If this is a {@linkplain RunPcaResults} object, the PCs are automatically extracted.

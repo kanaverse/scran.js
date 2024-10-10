@@ -9,7 +9,7 @@ function checkClusterConsistency(res, ncells, k) {
     var clust = res.clusters();
     expect(clust.length).toBe(ncells);
 
-    let counts = res.clusterSizes();
+    let counts = res.sizes();
     expect(counts.length).toBe(k);
     clust.forEach(x => {
         --(counts[x]);
@@ -31,12 +31,6 @@ test("clusterKmeans works as expected from an array", () => {
     expect(res.numberOfClusters()).toBe(k);
     checkClusterConsistency(res, ncells, k);
 
-    var wcss = res.withinClusterSumSquares();
-    expect(wcss.length).toBe(k);
-    for (const w of wcss) {
-        expect(w > 0).toBe(true);
-    }
-
     // Other odds and ends.
     expect(res.iterations() > 0).toBe(true);
     expect(res.status()).toBe(0);
@@ -57,8 +51,7 @@ test("clusterKmeans works as expected from PCs", () => {
     var manual = scran.clusterKmeans(pca.principalComponents(), 10, { numberOfCells: ncells, numberOfDims: pca.numberOfPCs() });
 
     expect(compare.equalArrays(auto.clusters(), manual.clusters())).toBe(true);
-    expect(compare.equalArrays(auto.clusterCenters(), manual.clusterCenters())).toBe(true);
-    expect(compare.equalArrays(auto.withinClusterSumSquares(), manual.withinClusterSumSquares())).toBe(true);
+    expect(compare.equalArrays(auto.centers(), manual.centers())).toBe(true);
 });
 
 test("clusterKmeans works with other options", () => {
@@ -70,6 +63,6 @@ test("clusterKmeans works with other options", () => {
     var res = scran.clusterKmeans(pcs, k, { numberOfCells: ncells, numberOfDims: ndim, initMethod: "kmeans++" });
     checkClusterConsistency(res, ncells, k);
 
-    var res2 = scran.clusterKmeans(pcs, k, { numberOfCells: ncells, numberOfDims: ndim, initMethod: "random" });
+    var res2 = scran.clusterKmeans(pcs, k, { numberOfCells: ncells, numberOfDims: ndim, initMethod: "random", refineMethod: "lloyd" });
     checkClusterConsistency(res2, ncells, k);
 });

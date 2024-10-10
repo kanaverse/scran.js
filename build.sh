@@ -50,7 +50,8 @@ then
         -B $builddir \
         -DCOMPILE_NODE=${node_flag} \
         -DCMAKE_BUILD_TYPE=Release \
-        -DCMAKE_PREFIX_PATH=extern/installed
+        -DCMAKE_PREFIX_PATH=extern/installed \
+        -DTATAMI_HDF5_FIND_HDF5=OFF
 fi
 
 cd $builddir

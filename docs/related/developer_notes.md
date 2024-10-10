@@ -6,14 +6,14 @@ We use WebAssembly (Wasm) to enable efficient client-side execution of common st
 Code to perform each step is written in C++ and compiled to Wasm using the [Emscripten toolchain](https://emscripten.org/).
 Some of the relevant C++ libraries are listed below:
 
-- [libscran](https://github.com/LTLA/libscran) provides C++ implementations of key functions in **scran** and its fellow packages **scater** and **scuttle**.
+- [libscran](https://github.com/libscran) provides C++ implementations of key functions in **scran** and its fellow packages **scater** and **scuttle**.
 This includes quality control, normalization, feature selection, PCA, clustering and dimensionality reduction.
 - [tatami](https://github.com/tatami-inc/tatami) provides an abstract interface to different matrix classes, focusing on row and column extraction.
-- [knncolle](https://github.com/LTLA/knncolle) wraps a number of nearest neighbor detection methods in a consistent interface.
+- [knncolle](https://github.com/knncolle-inc/knncolle) wraps a number of nearest neighbor detection methods in a consistent interface.
 - [CppIrlba](https://github.com/LTLA/CppIrlba) contains a C++ port of the IRLBA algorithm for approximate PCA.
 - [CppKmeans](https://github.com/LTLA/CppKmeans) contains C++ ports of the Hartigan-Wong and Lloyd algorithms for k-means clustering.
-- [qdtsne](https://github.com/LTLA/qdtsne) contains a refactored C++ implementation of the Barnes-Hut t-SNE dimensionality reduction algorithm.
-- [umappp](https://github.com/LTLA/umappp) contains a refactored C++ implementation of the UMAP dimensionality reduction algorithm.
+- [qdtsne](https://github.com/libscran/qdtsne) contains a refactored C++ implementation of the Barnes-Hut t-SNE dimensionality reduction algorithm.
+- [umappp](https://github.com/libscran/umappp) contains a refactored C++ implementation of the UMAP dimensionality reduction algorithm.
 
 For each step, we use Emscripten to compile the associated C++ functions into Wasm and generate Javascript-visible bindings.
 We can then load the Wasm binary into a web application and call the desired functions on user-supplied data.

@@ -10,18 +10,9 @@ export class PerCellRnaQcMetricsResults {
     #id;
     #results;
 
-    #filledSums;
-    #filledDetected;
-    #filledSubsetProportions;
-
     constructor(id, raw, filled = true) {
         this.#id = id;
         this.#results = raw;
-
-        this.#filledSums = filled;
-        this.#filledDetected = filled;
-        this.#filledSubsetProportions = utils.spawnArray(this.numberOfSubsets(), filled);
-
         return;
     }
 
@@ -33,62 +24,29 @@ export class PerCellRnaQcMetricsResults {
     /**
      * @param {object} [options={}] - Optional parameters.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
-     * @param {boolean} [options.fillable=false] - Whether to return a fillable array, to write to this object.
-     * If `true`, this method automatically sets `copy = false` if `copy` was previously true.
-     * If `false` and the array was not previously filled, `null` is returned.
-     *
-     * @return {?(Float64Array|Float64WasmArray)} Array containing the total count across genes for each cell.
-     * Alternatively `null`, if `fillable = false` and the array was not already filled.
+     * @return {Float64Array|Float64WasmArray} Array containing the total count across genes for each cell.
      */
-    sums({ copy = true, fillable = false } = {}) {
-        return utils.checkFillness(
-            fillable, 
-            copy, 
-            this.#filledSums, 
-            () => { this.#filledSums = true }, 
-            COPY => utils.possibleCopy(this.#results.sums(), COPY)
-        );
+    sum({ copy = true } = {}) {
+        return utils.possibleCopy(this.#results.sum(), copy);
     }
 
     /**
      * @param {object} [options={}] - Optional parameters.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
-     * @param {boolean} [options.fillable=false] - Whether to return a fillable array, to write to this object.
-     * If `true`, this method automatically sets `copy = false` if `copy` was previously true.
-     * If `false` and the array was not previously filled, `null` is returned.
-     *
-     * @return {?(Int32Array|Int32WasmArray)} Array containing the total number of detected genes for each cell.
-     * Alternatively `null`, if `fillable = false` and the array was not already filled.
+     * @return {Int32Array|Int32WasmArray} Array containing the total number of detected genes for each cell.
      */
-    detected({ copy = true, fillable = false } = {}) {
-        return utils.checkFillness(
-            fillable, 
-            copy, 
-            this.#filledDetected, 
-            () => { this.#filledDetected = true }, 
-            COPY => utils.possibleCopy(this.#results.detected(), COPY)
-        );
+    detected({ copy = true } = {}) {
+        return utils.possibleCopy(this.#results.detected(), copy);
     }
 
     /**
      * @param {number} i - Index of the feature subset of interest.
      * @param {object} [options={}] - Optional parameters.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
-     * @param {boolean} [options.fillable=false] - Whether to return a fillable array, to write to this object.
-     * If `true`, this method automatically sets `copy = false` if `copy` was previously true.
-     * If `false` and the array was not previously filled, `null` is returned.
-     *
-     * @return {?(Float64Array|Float64WasmArray)} Array containing the proportion of counts in the subset `i` for each cell.
-     * Alternatively `null`, if `fillable = false` and the array was not already filled.
+     * @return {Float64Array|Float64WasmArray} Array containing the proportion of counts in the subset `i` for each cell.
      */
-    subsetProportions(i, { copy = true, fillable = false } = {}) {
-        return utils.checkFillness(
-            fillable, 
-            copy, 
-            this.#filledSubsetProportions[i], 
-            () => { this.#filledSubsetProportions[i] = true }, 
-            COPY => utils.possibleCopy(this.#results.subset_proportions(i), COPY)
-        );
+    subsetProportion(i, { copy = true, fillable = false } = {}) {
+        return utils.possibleCopy(this.#results.subset_proportion(i), copy);
     }
 
     /**
@@ -143,26 +101,8 @@ export function perCellRnaQcMetrics(x, subsets, { numberOfThreads = null } = {})
         x, 
         subsets, 
         (matrix, nsubsets, subset_offset) => gc.call(
-            module => module.per_cell_rna_qc_metrics(matrix, nsubsets, subset_offset, nthreads),
+            module => module.compute_rna_qc_metrics(matrix, nsubsets, subset_offset, nthreads),
             PerCellRnaQcMetricsResults
         )
-    );
-}
-
-/**
- * Create an empty {@linkplain PerCellRnaQcMetricsResults} object, to be filled with custom results.
- * This is typically used to generate a convenient input into later {@linkcode suggestRnaQcFilters} calls.
- * Note that filling requires use of `fillable: true` in the various getters to obtain a writeable memory view.
- *
- * @param {number} numberOfCells - Number of cells in the dataset.
- * @param {number} numberOfSubsets - Number of feature subsets.
- *
- * @return {PerCellRnaQcMetricsResults} Object with allocated memory to store QC metrics, but no actual values.
- */
-export function emptyPerCellRnaQcMetricsResults(numberOfCells, numberOfSubsets) {
-    return gc.call(
-        module => new module.PerCellRnaQcMetrics_Results(numberOfCells, numberOfSubsets),
-        PerCellRnaQcMetricsResults,
-        /* filled = */ false 
     );
 }

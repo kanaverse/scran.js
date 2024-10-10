@@ -10,25 +10,9 @@ export class ClusterKmeansResults {
     #id;
     #results;
 
-    #filledClusters;
-    #filledSizes;
-    #filledCenters;
-    #filledWcss;
-    #filledIterations;
-    #filledStatus;
-
     constructor(id, raw, filled = true) {
         this.#results = raw;
         this.#id = id;
-
-        this.#filledClusters = filled;
-        this.#filledSizes = filled;
-        this.#filledCenters = filled;
-        this.#filledWcss = filled;
-        this.#filledIterations = filled;
-        this.#filledStatus = filled;
-
-        return;
     }
 
     /**
@@ -46,136 +30,45 @@ export class ClusterKmeansResults {
     }
 
     /**
-     * @param {number} iterations - Number of iterations.
-     * @return The specified number of iterations is set in this object.
-     * Typically only used after {@linkcode emptyClusterKmeansResults}.
+     * @param {object} [options={}] - Optional parameters.
+     * @param {boolean|string} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
+     * @return {Int32Array|Int32WasmArray} Array containing the cluster assignment for each cell.
      */
-    setIterations(iterations) {
-        if (!this.#filledIterations) {
-            this.#filledIterations = true;
-        }
-        this.#results.set_iterations(iterations);
-        return;
-    }
-
-    /**
-     * @param {number} status - Status of the k-means clustering.
-     * @return The status is set in this object.
-     * Typically only used after {@linkcode emptyClusterKmeansResults}.
-     */
-    setStatus(status) {
-        if (!this.#filledStatus) {
-            this.#filledStatus = true;
-        }
-        this.#results.set_status(status);
-        return;
+    clusters({ copy = true } = {}) {
+        return utils.possibleCopy(this.#results.clusters(), copy);
     }
 
     /**
      * @param {object} [options={}] - Optional parameters.
      * @param {boolean|string} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
-     * @param {boolean} [options.fillable=false] - Whether to return a fillable array, to write to this object.
-     * If `true`, this method automatically sets `copy = false` if `copy` was previously true.
-     * If `false` and the array was not previously filled, `null` is returned.
-     *
-     * @return {?(Int32Array|Int32WasmArray)} Array containing the cluster assignment for each cell.
-     * Alternatively `null`, if `fillable = false` and the array was not already filled.
+     * @return {Int32Array|Int32WasmArray} Array containing the number of cells in each cluster.
      */
-    clusters({ copy = true, fillable = false } = {}) {
-        return utils.checkFillness(
-            fillable, 
-            copy, 
-            this.#filledClusters, 
-            () => { this.#filledClusters = true }, 
-            COPY => utils.possibleCopy(this.#results.clusters(), COPY),
-            "clusters"
-        );
+    sizes({ copy = true } = {}) {
+        return utils.possibleCopy(this.#results.cluster_sizes(), copy);
     }
 
     /**
      * @param {object} [options={}] - Optional parameters.
      * @param {boolean|string} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
-     * @param {boolean} [options.fillable=false] - Whether to return a fillable array, to write to this object.
-     * If `true`, this method automatically sets `copy = false` if `copy` was previously true.
-     * If `false` and the array was not previously filled, `null` is returned.
-     *
-     * @return {?(Int32Array|Int32WasmArray)} Array containing the number of cells in each cluster.
-     * Alternatively `null`, if `fillable = false` and the array was not already filled.
-     */
-    clusterSizes({ copy = true, fillable = false } = {}) {
-        return utils.checkFillness(
-            fillable, 
-            copy, 
-            this.#filledSizes, 
-            () => { this.#filledSizes = true }, 
-            COPY => utils.possibleCopy(this.#results.cluster_sizes(), COPY),
-            "clusterSizes"
-        );
-    }
-
-    /**
-     * @param {object} [options={}] - Optional parameters.
-     * @param {boolean|string} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
-     * @param {boolean} [options.fillable=false] - Whether to return a fillable array, to write to this object.
-     * If `true`, this method automatically sets `copy = false` if `copy` was previously true.
-     * If `false` and the array was not previously filled, `null` is returned.
-     *
-     * @return {?(Float64Array|Float64WasmArray)} Array containing the within-cluster sum of squares in each cluster.
-     * Alternatively `null`, if `fillable = false` and the array was not already filled.
-     */
-    withinClusterSumSquares({ copy = true, fillable = false } = {}) {
-        return utils.checkFillness(
-            fillable, 
-            copy, 
-            this.#filledWcss, 
-            () => { this.#filledWcss = true }, 
-            COPY => utils.possibleCopy(this.#results.wcss(), COPY)
-        );
-    }
-
-    /**
-     * @param {object} [options={}] - Optional parameters.
-     * @param {boolean|string} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
-     * @param {boolean} [options.fillable=false] - Whether to return a fillable array, to write to this object.
-     * If `true`, this method automatically sets `copy = false` if `copy` was previously true.
-     * If `false` and the array was not previously filled, `null` is returned.
-     *
-     * @return {?(Float64Array|Float64WasmArray)} Array containing the cluster centers in column-major format,
+     * @return {Float64Array|Float64WasmArray} Array containing the cluster centers in column-major format,
      * where rows are dimensions and columns are the clusters.
-     * Alternatively `null`, if `fillable = false` and the array was not already filled.
      */
-    clusterCenters({ copy = true, fillable = false } = {}) {
-        return utils.checkFillness(
-            fillable, 
-            copy, 
-            this.#filledCenters, 
-            () => { this.#filledCenters = true }, 
-            COPY => utils.possibleCopy(this.#results.centers(), COPY)
-        );
+    centers({ copy = true } = {}) {
+        return utils.possibleCopy(this.#results.centers(), copy);
     }
 
     /**
-     * @return {?number} Number of refinement iterations performed by the algorithm.
-     * Alternatively `null`, if this value has not been filled by {@linkcode ClusterKmeansResults#setIterations setIterations}.
+     * @return {number} Number of refinement iterations performed by the algorithm.
      */
     iterations() {
-        if (!this.#filledIterations) {
-            return null;
-        } else {
-            return this.#results.iterations();
-        }
+        return this.#results.iterations();
     }
 
     /**
-     * @return {?number} Status of the algorithm - anything other than zero usually indicates a problem with convergence.
-     * Alternatively `null`, if this value has not been filled by {@linkcode ClusterKmeansResults#setStatus setStatus}.
+     * @return {number} Status of the algorithm - anything other than zero usually indicates a problem with convergence.
      */
     status() {
-        if (!this.#filledStatus) {
-            return null;
-        } else {
-            return this.#results.status();
-        }
+        return this.#results.status();
     }
 
     /**
@@ -193,6 +86,7 @@ export class ClusterKmeansResults {
 
 /**
  * Cluster cells using k-means.
+ * A variety of initialization and refinement algorithms can be used here, see the [**kmeans** documentation](https://github.com/LTLA/CppKmeans) for more details.
  *
 * @param {(RunPcaResults|Float64WasmArray|Array|TypedArray)} x - Numeric coordinates of each cell in the dataset.
  * For array inputs, this is expected to be in column-major format where the rows are the variables and the columns are the cells.
@@ -207,16 +101,32 @@ export class ClusterKmeansResults {
  * @param {string} [options.initMethod="pca-part"] - Initialization method.
  * Setting `"random"` will randomly select `clusters` cells as centers.
  * Setting `"kmeans++"` will use the weighted sampling approach of Arthur and Vassilvitskii (2007).
- * Setting `"pca-part"` will use PCA partitioning.
+ * Setting `"var-part"` will use variance partitioning from Su and Dy (2007).
  * @param {number} [options.initSeed=5768] - Seed to use for random number generation during initialization.
- * @param {number} [options.initPCASizeAdjust=1] - Adjustment factor for the cluster sizes, used when `initMethod = "pca-part"`.
+ * @param {number} [options.initVarPartSizeAdjust=1] - Adjustment factor for the cluster sizes, used when `initMethod = "var-part"`.
  * Larger values (up to 1) will prioritize partitioning of clusters with more cells.
+ * @param {boolean} [options.initVarPartOptimize=true] - Whether to optimize the partition at each step to minimize the sum of squares, when `initMethod = "var-part"`.
+ * @param {string} [options.refineMethod="hartigan-wong"] - Refinement method.
+ * This can be either `"hartigan-wong"` or `"lloyd"`.
+ * @param {number} [options.refineLloydIterations=10] - Number of iterations for the Lloyd refinement algorithm.
+ * @param {number} [options.refineHartiganWong=10] - Number of iterations for the Hartigan-Wong refinement algorithm.
  * @param {?number} [options.numberOfThreads=null] - Number of threads to use.
  * If `null`, defaults to {@linkcode maximumThreads}.
  *
  * @return {ClusterKmeansResults} Object containing the clustering results.
  */
-export function clusterKmeans(x, clusters, { numberOfDims = null, numberOfCells = null, initMethod = "pca-part", initSeed = 5768, initPCASizeAdjust = 1, numberOfThreads = null } = {}) {
+export function clusterKmeans(x, clusters, { 
+    numberOfDims = null, 
+    numberOfCells = null, 
+    initMethod = "var-part", 
+    initSeed = 5768, 
+    initVarPartSizeAdjust = 1, 
+    initVarPartOptimize = true, 
+    refineMethod = "hartigan-wong",
+    refineLloydIterations = 100,
+    refineHartiganWongIterations = 10,
+    numberOfThreads = null 
+} = {}) {
     var buffer;
     var output;
     let nthreads = utils.chooseNumberOfThreads(numberOfThreads);
@@ -244,7 +154,20 @@ export function clusterKmeans(x, clusters, { numberOfDims = null, numberOfCells 
         }
 
         output = gc.call(
-            module => module.cluster_kmeans(pptr, numberOfDims, numberOfCells, clusters, initMethod, initSeed, initPCASizeAdjust, nthreads),
+            module => module.cluster_kmeans(
+                pptr,
+                numberOfDims,
+                numberOfCells,
+                clusters,
+                initMethod,
+                initSeed,
+                initVarPartSizeAdjust,
+                initVarPartOptimize,
+                refineMethod,
+                refineLloydIterations,
+                refineHartiganWongIterations,
+                nthreads
+            ),
             ClusterKmeansResults
         );
 

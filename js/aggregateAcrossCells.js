@@ -31,41 +31,53 @@ export class AggregateAcrossCellsResults {
     }
 
     /**
-     * @param {?number} group - Index of the group.
-     * If a number, it should be non-negative and less than {@linkcode AggregateAcrossCellsResults#numberOfGroups numberOfGroups}.
-     * This may also be `null` to obtain values for all groups.
+     * @param {number} group - Index of the group.
+     * This should be non-negative and less than {@linkcode AggregateAcrossCellsResults#numberOfGroups numberOfGroups}.
      * @param {object} [options={}] - Optional parameters.
-     * @param {(string|boolean)} [options.copy=true] - Copying mode to use when `asMatrix = false`, see {@linkcode possibleCopy} for details.
+     * @param {(string|boolean)} [options.copy=true] - Copying mode to use, see {@linkcode possibleCopy} for details.
      *
-     * @return {Float64Array|Float64WasmArray}
-     * If `group` is a number, an array is returned where each entry corresponds to a gene and contains the summed value across all cells in the specified `group`.
-     * If {@linkcode aggregateAcrossCells} was run with `average = true`, the array contains the mean value instead of the sum.
-     *
-     * If `group = null`, an array is returned containing the concatenation of the arrays for all groups.
-     * If `copy = "view"`, the output can be used in {@linkcode ScranMatrix#createDenseMatrix ScranMatrix.createDenseMatrix} to create a {@linkcode ScranMatrix} for input into other functions.
+     * @return {Float64Array|Float64WasmArray} Array of length equal to the number of genes, containing the per-gene sum of values across across all cells in the specified `group`.
+     * If `average = true` in {@linkcode aggregateAcrossCells}, each element is the mean value instead.
      */
-    sums(group, { copy = true } = {}) {
-        let vec = (group !== null ? this.#results.group_sums(group) : this.#results.all_sums());
-        return utils.possibleCopy(vec, copy);
+    groupSums(group, { copy = true } = {}) {
+        return utils.possibleCopy(this.#results.group_sums(group), copy);
+    }
+
+    /**
+     * @return {Float64WasmArray} Array of length equal to the product of the number of genes and groups.
+     * This can be treated as a column-major matrix where the rows are the genes and the columns are the groups,
+     * and each element is the sum of values for the corresponding gene in the corresponding group.
+     * If `average = true` in {@linkcode aggregateAcrossCells}, each element is the mean value instead.
+     */
+    allSums() {
+        let output = utils.createFloat64WasmArray(this.numberOfGenes() * this.numberOfGroups());
+        this.#results.all_sums(output.offset);
+        return output;
     }
 
     /**
      * @param {number} group - Index of the group.
      * This should be non-negative and less than {@linkcode AggregateAcrossCellsResults#numberOfGroups numberOfGroups}.
-     * This may also be `null` to obtain values for all groups.
      * @param {object} [options={}] - Optional parameters.
-     * @param {(string|boolean)} [options.copy=true] - Copying mode to use when `asMatrix = false`, see {@linkcode possibleCopy} for details.
+     * @param {(string|boolean)} [options.copy=true] - Copying mode to use, see {@linkcode possibleCopy} for details.
      *
-     * @return {Float64Array|Float64WasmArray}
-     * If `group` is a number, an array is returned where each entry corresponds to a gene and contains the number of detected cells in the specified `group`.
-     * If {@linkcode aggregateAcrossCells} was run with `average = true`, each value is the proportion of cells with detected expression.
-     * 
-     * If `group = null`, an array is returned containing the concatenation of the arrays for all groups.
-     * If `copy = "view"`, the output can be used in {@linkcode ScranMatrix#createDenseMatrix ScranMatrix.createDenseMatrix} to create a {@linkcode ScranMatrix} for input into other functions.
+     * @return {Float64Array|Float64WasmArray} Array of length equal to the number of genes, containing the number of cells with detected expression for each gene in the specified `group`.
+     * If `average = true` in {@linkcode aggregateAcrossCells}, each element is the proportion of detected cells instead.
      */
-    detected(group, { copy = true } = {}) {
-        let vec = (group !== null ? this.#results.group_detected(group) : this.#results.all_detected());
-        return utils.possibleCopy(vec, copy);
+    groupDetected(group, { copy = true } = {}) {
+        return utils.possibleCopy(this.#results.group_detected(group), copy);
+    }
+
+    /**
+     * @return {Float64WasmArray} Array of length equal to the product of the number of genes and groups.
+     * This can be treated as a column-major matrix where the rows are the genes and the columns are the groups,
+     * and each element contains the number of detected cells for the corresponding gene in the corresponding group.
+     * If `average = true` in {@linkcode aggregateAcrossCells}, each element is the proportion of detected cells instead.
+     */
+    allDetected() {
+        let output = utils.createFloat64WasmArray(this.numberOfGenes() * this.numberOfGroups());
+        this.#results.all_detected(output.offset);
+        return output;
     }
 
     /**
@@ -89,8 +101,7 @@ export class AggregateAcrossCellsResults {
  * @param {Int32Array|Int32WasmArray} groups - Array containing group IDs for each cell.
  * This should have length equal to the number of cells and contain all values from 0 to `n - 1` at least once, where `n` is the number of groups.
  * @param {object} [options={}] - Optional parameters.
- * @param {boolean} [options.average=false] - Whether to compute the average expression instead of the sum for each group.
- * Similarly, the proportion of detected expression is reported, rather than the number of detected cells in each group.
+ * @param {boolean} [options.average=null] - Whether to compute the average within each group for each statistic.
  * @param {?number} [options.numberOfThreads=null] - Number of threads to use.
  * If `null`, defaults to {@linkcode maximumThreads}.
  *

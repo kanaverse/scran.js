@@ -4,7 +4,6 @@
 #include "utils.h"
 #include "read_utils.h"
 #include "NumericMatrix.h"
-#include "parallel.h"
 
 #include "H5Cpp.h"
 #include "tatami_hdf5/tatami_hdf5.hpp"
@@ -15,6 +14,11 @@ struct Hdf5MatrixDetails {
     bool is_integer;
     size_t nr, nc;
 };
+
+bool is_hdf5_dense(const std::string& path, const std::string& name) {
+    H5::H5File handle(path, H5F_ACC_RDONLY);
+    return (handle.childObjType(name) == H5O_TYPE_DATASET);
+}
 
 Hdf5MatrixDetails extract_hdf5_matrix_details_internal(const std::string& path, const std::string& name) {
     Hdf5MatrixDetails output;
@@ -114,52 +118,52 @@ void extract_hdf5_matrix_details(std::string path, std::string name, uintptr_t p
 
 template<typename T>
 NumericMatrix apply_post_processing(
-    std::shared_ptr<tatami::Matrix<T, int> > mat,
+    std::shared_ptr<tatami::Matrix<T, int32_t> > mat,
     bool layered, 
     bool row_subset, 
     uintptr_t row_offset, 
-    int row_length,
+    int32_t row_length,
     bool col_subset, 
     uintptr_t col_offset,
-    int col_length)
+    int32_t col_length)
 {
     if (row_subset) {
-        auto offset_ptr = reinterpret_cast<const int*>(row_offset);
+        auto offset_ptr = reinterpret_cast<const int32_t*>(row_offset);
         check_subset_indices<true>(offset_ptr, row_length, mat->nrow());
-        auto smat = tatami::make_DelayedSubset<0>(std::move(mat), std::vector<int>(offset_ptr, offset_ptr + row_length));
+        auto smat = tatami::make_DelayedSubset<0>(std::move(mat), std::vector<int32_t>(offset_ptr, offset_ptr + row_length));
         mat = std::move(smat);
     }
 
     if (col_subset) {
-        auto offset_ptr = reinterpret_cast<const int*>(col_offset);
+        auto offset_ptr = reinterpret_cast<const int32_t*>(col_offset);
         check_subset_indices<false>(offset_ptr, col_length, mat->ncol());
-        auto smat = tatami::make_DelayedSubset<1>(std::move(mat), std::vector<int>(offset_ptr, offset_ptr + col_length));
+        auto smat = tatami::make_DelayedSubset<1>(std::move(mat), std::vector<int32_t>(offset_ptr, offset_ptr + col_length));
         mat = std::move(smat);
     }
 
-    return sparse_from_tatami(mat.get(), layered);
+    return sparse_from_tatami(*mat, layered);
 }
 
 template<typename T>
-NumericMatrix read_sparse_matrix_from_hdf5_dense_array_internal(
+NumericMatrix initialize_from_hdf5_dense_internal(
     const std::string& path, 
     const std::string& name, 
     bool trans,
     bool layered, 
     bool row_subset, 
     uintptr_t row_offset, 
-    int row_length,
+    int32_t row_length,
     bool col_subset, 
     uintptr_t col_offset,
-    int col_length)
+    int32_t col_length)
 {
-    std::shared_ptr<tatami::Matrix<T, int> > mat;
+    std::shared_ptr<tatami::Matrix<T, int32_t> > mat;
 
     try {
         if (trans) {
-            mat.reset(new tatami_hdf5::Hdf5DenseMatrix<T, int, true>(path, name));
+            mat.reset(new tatami_hdf5::DenseMatrix<T, int32_t>(path, name, true));
         } else {
-            mat.reset(new tatami_hdf5::Hdf5DenseMatrix<T, int, false>(path, name));
+            mat.reset(new tatami_hdf5::DenseMatrix<T, int32_t>(path, name, false));
         }
     } catch (H5::Exception& e) {
         throw std::runtime_error(e.getCDetailMsg());
@@ -177,7 +181,7 @@ NumericMatrix read_sparse_matrix_from_hdf5_dense_array_internal(
     );
 }
 
-NumericMatrix read_sparse_matrix_from_hdf5_dense_array(
+NumericMatrix initialize_from_hdf5_dense(
     std::string path, 
     std::string name, 
     bool trans,
@@ -185,10 +189,10 @@ NumericMatrix read_sparse_matrix_from_hdf5_dense_array(
     bool layered, 
     bool row_subset, 
     uintptr_t row_offset, 
-    int row_length,
+    int32_t row_length,
     bool col_subset, 
     uintptr_t col_offset,
-    int col_length)
+    int32_t col_length)
 {
     bool as_integer = force_integer;
     if (!force_integer) {
@@ -202,37 +206,35 @@ NumericMatrix read_sparse_matrix_from_hdf5_dense_array(
     }
 
     if (as_integer) {
-        return read_sparse_matrix_from_hdf5_dense_array_internal<int>(path, name, trans, layered, row_subset, row_offset, row_length, col_subset, col_offset, col_length);
+        return initialize_from_hdf5_dense_internal<int32_t>(path, name, trans, layered, row_subset, row_offset, row_length, col_subset, col_offset, col_length);
     } else {
-        return read_sparse_matrix_from_hdf5_dense_array_internal<double>(path, name, trans, false, row_subset, row_offset, row_length, col_subset, col_offset, col_length);
+        return initialize_from_hdf5_dense_internal<double>(path, name, trans, false, row_subset, row_offset, row_length, col_subset, col_offset, col_length);
     }
 }
 
 template<typename T>
-NumericMatrix read_sparse_matrix_from_hdf5_sparse_matrix_internal(
+NumericMatrix initialize_from_hdf5_sparse_internal(
     const std::string& path, 
     const std::string& name, 
-    int nr,
-    int nc,
+    int32_t nr,
+    int32_t nc,
     bool csc,
     bool layered, 
     bool row_subset, 
     uintptr_t row_offset, 
-    int row_length,
+    int32_t row_length,
     bool col_subset, 
     uintptr_t col_offset,
-    int col_length)
+    int32_t col_length)
 {
     if (!layered && !csc && !row_subset && !col_subset) {
-        std::shared_ptr<const tatami::Matrix<double, int> > mat;
+        std::shared_ptr<const tatami::Matrix<double, int32_t> > mat;
 
         // Don't do the same with CSC matrices; there is an implicit
         // expectation that all instances of this function prefer row matrices,
         // and if we did it with CSC, we'd get a column-major matrix instead.
         try {
-            mat.reset(new tatami::CompressedSparseRowMatrix<double, int, std::vector<T> >(
-                tatami_hdf5::load_hdf5_compressed_sparse_matrix<true, double, int, std::vector<T> >(nr, nc, path, name + "/data", name + "/indices", name + "/indptr")
-            ));
+            mat = tatami_hdf5::load_compressed_sparse_matrix<double, int32_t, std::vector<T> >(nr, nc, path, name + "/data", name + "/indices", name + "/indptr", true);
         } catch (H5::Exception& e) {
             throw std::runtime_error(e.getCDetailMsg());
         }
@@ -240,14 +242,9 @@ NumericMatrix read_sparse_matrix_from_hdf5_sparse_matrix_internal(
         return NumericMatrix(std::move(mat));
 
     } else {
-        std::shared_ptr<tatami::Matrix<T, int> > mat;
-
+        std::shared_ptr<tatami::Matrix<T, int32_t> > mat;
         try {
-            if (!csc) {
-                mat.reset(new tatami_hdf5::Hdf5CompressedSparseMatrix<true, T, int>(nr, nc, path, name + "/data", name + "/indices", name + "/indptr"));
-            } else {
-                mat.reset(new tatami_hdf5::Hdf5CompressedSparseMatrix<false, T, int>(nr, nc, path, name + "/data", name + "/indices", name + "/indptr"));
-            }
+            mat.reset(new tatami_hdf5::CompressedSparseMatrix<T, int32_t>(nr, nc, path, name + "/data", name + "/indices", name + "/indptr", !csc));
         } catch (H5::Exception& e) {
             throw std::runtime_error(e.getCDetailMsg());
         }
@@ -265,20 +262,20 @@ NumericMatrix read_sparse_matrix_from_hdf5_sparse_matrix_internal(
     }
 }
 
-NumericMatrix read_sparse_matrix_from_hdf5_sparse_matrix(
+NumericMatrix initialize_from_hdf5_sparse(
     std::string path, 
     std::string name, 
-    int nr,
-    int nc,
+    int32_t nr,
+    int32_t nc,
     bool csc,
     bool force_integer, 
     bool layered,
     bool row_subset, 
     uintptr_t row_offset, 
-    int row_length,
+    int32_t row_length,
     bool col_subset, 
     uintptr_t col_offset,
-    int col_length)
+    int32_t col_length)
 {
     bool as_integer = force_integer;
     if (!force_integer) {
@@ -292,14 +289,15 @@ NumericMatrix read_sparse_matrix_from_hdf5_sparse_matrix(
     }
 
     if (as_integer) {
-        return read_sparse_matrix_from_hdf5_sparse_matrix_internal<int>(path, name, nr, nc, csc, layered, row_subset, row_offset, row_length, col_subset, col_offset, col_length);
+        return initialize_from_hdf5_sparse_internal<int32_t>(path, name, nr, nc, csc, layered, row_subset, row_offset, row_length, col_subset, col_offset, col_length);
     } else {
-        return read_sparse_matrix_from_hdf5_sparse_matrix_internal<double>(path, name, nr, nc, csc, false, row_subset, row_offset, row_length, col_subset, col_offset, col_length);
+        return initialize_from_hdf5_sparse_internal<double>(path, name, nr, nc, csc, false, row_subset, row_offset, row_length, col_subset, col_offset, col_length);
     }
 }
 
 EMSCRIPTEN_BINDINGS(read_hdf5_matrix) {
+    emscripten::function("is_hdf5_dense", &is_hdf5_dense, emscripten::return_value_policy::take_ownership());
     emscripten::function("extract_hdf5_matrix_details", &extract_hdf5_matrix_details, emscripten::return_value_policy::take_ownership());
-    emscripten::function("read_sparse_matrix_from_hdf5_dense_array", &read_sparse_matrix_from_hdf5_dense_array, emscripten::return_value_policy::take_ownership());
-    emscripten::function("read_sparse_matrix_from_hdf5_sparse_matrix", &read_sparse_matrix_from_hdf5_sparse_matrix, emscripten::return_value_policy::take_ownership());
+    emscripten::function("initialize_from_hdf5_dense", &initialize_from_hdf5_dense, emscripten::return_value_policy::take_ownership());
+    emscripten::function("initialize_from_hdf5_sparse", &initialize_from_hdf5_sparse, emscripten::return_value_policy::take_ownership());
 }

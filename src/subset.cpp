@@ -6,21 +6,20 @@
 
 #include "NumericMatrix.h"
 #include "utils.h"
-#include "parallel.h"
 
 #include "tatami/tatami.hpp"
 
 void column_subset(NumericMatrix& matrix, uintptr_t offset, size_t length) {
-    auto offset_ptr = reinterpret_cast<const int*>(offset);
+    auto offset_ptr = reinterpret_cast<const int32_t*>(offset);
     check_subset_indices<false>(offset_ptr, length, matrix.ncol());
-    matrix.reset_ptr(tatami::make_DelayedSubset<1>(matrix.ptr, std::vector<int>(offset_ptr, offset_ptr + length)));
+    matrix.reset_ptr(tatami::make_DelayedSubset<1>(matrix.ptr, std::vector<int32_t>(offset_ptr, offset_ptr + length)));
     return;
 }
 
 void row_subset(NumericMatrix& matrix, uintptr_t offset, size_t length) {
-    auto offset_ptr = reinterpret_cast<const int*>(offset);
+    auto offset_ptr = reinterpret_cast<const int32_t*>(offset);
     check_subset_indices<true>(offset_ptr, length, matrix.nrow());
-    matrix.reset_ptr(tatami::make_DelayedSubset<0>(std::move(matrix.ptr), std::vector<int>(offset_ptr, offset_ptr + length)));
+    matrix.reset_ptr(tatami::make_DelayedSubset<0>(std::move(matrix.ptr), std::vector<int32_t>(offset_ptr, offset_ptr + length)));
     return;
 }
 

@@ -19,6 +19,7 @@ export class ModelGeneVariancesResults {
      * @param {?number} [options.block=null] - Number of the block for which to extract statistics.
      * If `null`, the average across all blocks is returned.
      * Otherwise, should be less than the value returned by {@linkcode ModelGeneVariancesResults#numberOfBlocks numberOfBlocks}.
+     * Ignored if {@linkcode ModelGeneVariacneResults#isBlocked} returns false.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      *
      * @return {?(Float64Array|Float64WasmArray)} Array of length equal to the number of genes,
@@ -34,6 +35,7 @@ export class ModelGeneVariancesResults {
      * @param {?number} [options.block=null] - Number of the block for which to extract statistics.
      * If `null`, the average across all blocks is returned.
      * Otherwise, should be less than the value returned by {@linkcode ModelGeneVariancesResults#numberOfBlocks numberOfBlocks}.
+     * Ignored if {@linkcode ModelGeneVariacneResults#isBlocked} returns false.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      *
      * @return {?(Float64Array|Float64WasmArray)} Array of length equal to the number of genes,
@@ -49,6 +51,7 @@ export class ModelGeneVariancesResults {
      * @param {?number} [options.block=null] - Number of the block for which to extract statistics.
      * If `null`, the average across all blocks is returned.
      * Otherwise, should be less than the value returned by {@linkcode ModelGeneVariancesResults#numberOfBlocks numberOfBlocks}.
+     * Ignored if {@linkcode ModelGeneVariacneResults#isBlocked} returns false.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      *
      * @return {Float64Array|Float64WasmArray} Array of length equal to the number of genes,
@@ -65,6 +68,7 @@ export class ModelGeneVariancesResults {
      * @param {?number} [options.block=null] - Number of the block for which to extract statistics.
      * If `null`, the average across all blocks is returned.
      * Otherwise, should be less than the value returned by {@linkcode ModelGeneVariancesResults#numberOfBlocks numberOfBlocks}.
+     * Ignored if {@linkcode ModelGeneVariacneResults#isBlocked} returns false.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      *
      * @return {Float64Array|Float64WasmArray} Array of length equal to the number of genes,
@@ -80,6 +84,13 @@ export class ModelGeneVariancesResults {
      */
     numberOfBlocks() {
         return this.#results.num_blocks();
+    }
+
+    /**
+     * @return {boolean} Whether blocking was used during trend fitting.
+     */
+    isBlocked() {
+        return this.#results.isBlocked();
     }
 
     /**
@@ -105,12 +116,20 @@ export class ModelGeneVariancesResults {
  * This is used to segregate cells in order to fit the mean-variance trend within each block.
  * Alternatively, this may be `null`, in which case all cells are assumed to be in the same block.
  * @param {number} [options.span=0.3] - Span to use for the LOWESS trend fitting.
+ * @param {string} [options.blockWeightPolicy="variable"] The policy for weighting each block so that it has the same contribution to the average statistics.
+ *
+ * - `"variable"` ensures that, past a certain size (default 1000 cells), larger blocks do not dominate the definition of the PC space.
+ *   Below the threshold size, blocks are weighted in proportion to their size to reduce the influence of very small blocks. 
+ * - `"equal"` uses the same weight for each block, regardless of size.
+ * - `"none"` does not apply any extra weighting, i.e., the contribution of each block is proportional to its size.
+ *
+ * This option is only used if `block` is not `null`.
  * @param {?number} [options.numberOfThreads=null] - Number of threads to use.
  * If `null`, defaults to {@linkcode maximumThreads}.
  *
  * @return {ModelGeneVariancesResults} Object containing the variance modelling results.
  */
-export function modelGeneVariances(x, { block = null, span = 0.3, numberOfThreads = null } = {}) {
+export function modelGeneVariances(x, { block = null, span = 0.3, blockWeightPolicy = "variable", numberOfThreads = null } = {}) {
     var block_data;
     var output;
     let nthreads = utils.chooseNumberOfThreads(numberOfThreads);
@@ -129,7 +148,7 @@ export function modelGeneVariances(x, { block = null, span = 0.3, numberOfThread
         }
 
         output = gc.call(
-            module => module.model_gene_variances(x.matrix, use_blocks, bptr, span, nthreads),
+            module => module.model_gene_variances(x.matrix, use_blocks, bptr, span, blockWeightPolicy, nthreads),
             ModelGeneVariancesResults
         );
 

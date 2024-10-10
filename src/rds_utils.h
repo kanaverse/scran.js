@@ -32,13 +32,13 @@ public:
 
 private:
     template<class Vector>
-    int size_() const {
+    int32_t size_() const {
         auto xptr = static_cast<const Vector*>(ptr);
         return xptr->data.size();
     }
 
 public:
-    int size() const {
+    int32_t size() const {
         switch (ptr->type()) {
             case rds2cpp::SEXPType::INT:
                 return size_<rds2cpp::IntegerVector>();
@@ -80,7 +80,7 @@ public:
     }
 
 private:
-    static void fill_strings(const std::vector<std::string>& values, std::vector<char>& buffer, std::vector<int>& lengths) {
+    static void fill_strings(const std::vector<std::string>& values, std::vector<char>& buffer, std::vector<int32_t>& lengths) {
         size_t n = 0;
         lengths.clear();
         lengths.reserve(values.size());
@@ -97,7 +97,7 @@ private:
     }
 
     std::vector<char> string_vector_buffer_;
-    std::vector<int> string_vector_lengths_;
+    std::vector<int32_t> string_vector_lengths_;
 
 public:
     void fill_string_vector() {
@@ -118,7 +118,7 @@ public:
 
 private:
     std::vector<char> attribute_names_buffer_;
-    std::vector<int> attribute_names_lengths_;
+    std::vector<int32_t> attribute_names_lengths_;
 
     template<class AttrClass>
     void fill_attribute_names_() {
@@ -165,7 +165,7 @@ public:
 
 private:
     template<class AttrClass>
-    int find_attribute_(const std::string& name) const {
+    int32_t find_attribute_(const std::string& name) const {
         auto aptr = static_cast<const AttrClass*>(ptr);
         const auto& attr_names = aptr->attributes.names;
 
@@ -179,7 +179,7 @@ private:
     }
 
 public:
-    int find_attribute(std::string name) const {
+    int32_t find_attribute(std::string name) const {
         switch (ptr->type()) {
             case rds2cpp::SEXPType::INT:
                 return find_attribute_<rds2cpp::IntegerVector>(name);
@@ -201,7 +201,7 @@ public:
 
 private:
     template<class AttrClass>
-    RdsObject load_attribute_(int i) const {
+    RdsObject load_attribute_(int32_t i) const {
         auto aptr = static_cast<const AttrClass*>(ptr);
         if (static_cast<size_t>(i) >= aptr->attributes.values.size()) {
             throw std::runtime_error("requested attribute index " + std::to_string(i) + " is out of range");
@@ -211,7 +211,7 @@ private:
     }
 
 public:
-    RdsObject load_attribute_by_index(int i) const {
+    RdsObject load_attribute_by_index(int32_t i) const {
         switch (ptr->type()) {
             case rds2cpp::SEXPType::INT:
                 return load_attribute_<rds2cpp::IntegerVector>(i);
@@ -234,7 +234,7 @@ public:
     }
 
     RdsObject load_attribute_by_name(std::string n) const {
-        int i = find_attribute(n);
+        int32_t i = find_attribute(n);
         if (i < 0) {
             throw std::runtime_error("no attribute named '" + n + "'");
         }
@@ -242,7 +242,7 @@ public:
     }
 
 public:
-    RdsObject load_list_element(int i) const {
+    RdsObject load_list_element(int32_t i) const {
         if (ptr->type() != rds2cpp::SEXPType::VEC) {
             throw std::runtime_error("cannot return list element for non-list R object");
         }

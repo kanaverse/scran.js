@@ -1,98 +1,83 @@
 #include <emscripten/bind.h>
 
 #include <cstdint>
-#include <algorithm>
 
 #include "NumericMatrix.h"
-#include "parallel.h"
 
-#include "scran/scran.hpp"
+#include "tatami_stats/tatami_stats.hpp"
+#include "scran_aggregate/scran_aggregate.hpp"
 
-struct AggregateAcrossCells_Results {
-    int ngenes, ngroups;
-    std::vector<double> sums;
-    std::vector<double> detected;
+struct AggregateAcrossCellsResults {
+    int32_t ngenes;
+    scran_aggregate::AggregateAcrossCellsResults<double, double> store;
 
-    int num_genes() const {
+public:
+    AggregateAcrossCellsResults(int32_t ngenes, scran_aggregate::AggregateAcrossCellsResults<double, double> store) : ngenes(ngenes), store(std::move(store)) {}
+
+public:
+    int32_t num_genes() const {
         return ngenes;
     }
 
-    int num_groups() const {
-        return ngroups;
+    int32_t num_groups() const {
+        return store.sums.size();
     }
 
-    emscripten::val all_sums() const {
-        return emscripten::val(emscripten::typed_memory_view(sums.size(), sums.data()));
+    emscripten::val group_sums(int32_t i) const {
+        return emscripten::val(emscripten::typed_memory_view(ngenes, store.sums[i].data()));
     }
 
-    emscripten::val group_sums(int i) const {
-        return emscripten::val(emscripten::typed_memory_view(ngenes, sums.data() + i * ngenes));
-    }
-
-    emscripten::val all_detected() const {
-        return emscripten::val(emscripten::typed_memory_view(detected.size(), detected.data()));
-    }
-
-    emscripten::val group_detected(int i) const {
-        return emscripten::val(emscripten::typed_memory_view(ngenes, detected.data() + i * ngenes));
-    }
-};
-
-AggregateAcrossCells_Results aggregate_across_cells(const NumericMatrix& mat, uintptr_t factor, bool average, int nthreads) {
-    auto fptr = reinterpret_cast<const int32_t*>(factor);
-    size_t NR = mat.ptr->nrow();
-    size_t NC = mat.ptr->ncol();
-    int ngroups = (NC ? *std::max_element(fptr, fptr + NC) + 1 : 0);
-
-    std::vector<int> sizes;
-    if (average) {
-        sizes.resize(ngroups);
-        for (size_t c = 0; c < NC; ++c) {
-            ++sizes[fptr[c]];
+    void all_sums(uintptr_t output) const {
+        auto optr = reinterpret_cast<double*>(output);
+        for (const auto& ss : store.sums) {
+            std::copy_n(ss.begin(), ngenes, optr);
+            optr += ngenes;
         }
     }
 
-    AggregateAcrossCells_Results output;
-    output.ngenes = NR;
-    output.ngroups = ngroups;
-    output.sums.resize(ngroups * NR);
-    output.detected.resize(ngroups * NR);
-
-    std::vector<double*> sums_ptr(ngroups), detected_ptr(ngroups);
-    for (int g = 0; g < ngroups; ++g) {
-        sums_ptr[g] = output.sums.data() + g * NR;
-        detected_ptr[g] = output.detected.data() + g * NR;
+    emscripten::val group_detected(int32_t i) const {
+        return emscripten::val(emscripten::typed_memory_view(ngenes, store.detected[i].data()));
     }
 
-    scran::AggregateAcrossCells aggr;
-    aggr.set_num_threads(nthreads);
-    aggr.run(mat.ptr.get(), fptr, std::move(sums_ptr), std::move(detected_ptr));
+    void all_detected(uintptr_t output) const {
+        auto optr = reinterpret_cast<double*>(output);
+        for (const auto& ds : store.detected) {
+            std::copy_n(ds.begin(), ngenes, optr);
+            optr += ngenes;
+        }
+    }
+};
+
+AggregateAcrossCellsResults aggregate_across_cells(const NumericMatrix& mat, uintptr_t factor, bool average, int32_t nthreads) {
+    scran_aggregate::AggregateAcrossCellsOptions aopt;
+    auto fptr = reinterpret_cast<const int32_t*>(factor);
+    auto store = scran_aggregate::aggregate_across_cells<double, double>(*(mat.ptr), fptr, aopt);
 
     if (average) {
-        for (int g = 0; g < ngroups; ++g) {
-            auto sptr = output.sums.data() + g * NR;
-            auto dptr = output.detected.data() + g * NR;
-            auto n = sizes[g];
-            for (size_t r = 0; r < NR; ++r) {
-                sptr[r] /= n;
-                dptr[r] /= n;
+        auto sizes = tatami_stats::tabulate_groups(fptr, mat.ptr->ncol());
+        for (size_t i = 0, end = sizes.size(); i < end; ++i) {
+            double denom = 1.0 / sizes[i];
+            for (auto& x : store.sums[i]) {
+                x *= denom;
+            }
+            for (auto& x : store.detected[i]) {
+                x *= denom;
             }
         }
     }
 
-    return output;
+    return AggregateAcrossCellsResults(mat.ptr->nrow(), std::move(store));
 }
 
 EMSCRIPTEN_BINDINGS(aggregate_across_cells) {
     emscripten::function("aggregate_across_cells", &aggregate_across_cells, emscripten::return_value_policy::take_ownership());
 
-    emscripten::class_<AggregateAcrossCells_Results>("AggregateAcrossCells_Results")
-        .function("group_sums", &AggregateAcrossCells_Results::group_sums, emscripten::return_value_policy::take_ownership())
-        .function("all_sums", &AggregateAcrossCells_Results::all_sums, emscripten::return_value_policy::take_ownership())
-        .function("group_detected", &AggregateAcrossCells_Results::group_detected, emscripten::return_value_policy::take_ownership())
-        .function("all_detected", &AggregateAcrossCells_Results::all_detected, emscripten::return_value_policy::take_ownership())
-        .function("num_genes", &AggregateAcrossCells_Results::num_genes, emscripten::return_value_policy::take_ownership())
-        .function("num_groups", &AggregateAcrossCells_Results::num_groups, emscripten::return_value_policy::take_ownership())
+    emscripten::class_<AggregateAcrossCellsResults>("AggregateAcrossCellsResults")
+        .function("group_sums", &AggregateAcrossCellsResults::group_sums, emscripten::return_value_policy::take_ownership())
+        .function("all_sums", &AggregateAcrossCellsResults::all_sums, emscripten::return_value_policy::take_ownership())
+        .function("group_detected", &AggregateAcrossCellsResults::group_detected, emscripten::return_value_policy::take_ownership())
+        .function("all_detected", &AggregateAcrossCellsResults::all_detected, emscripten::return_value_policy::take_ownership())
+        .function("num_genes", &AggregateAcrossCellsResults::num_genes, emscripten::return_value_policy::take_ownership())
+        .function("num_groups", &AggregateAcrossCellsResults::num_groups, emscripten::return_value_policy::take_ownership())
         ;
 }
-
