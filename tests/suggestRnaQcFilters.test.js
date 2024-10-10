@@ -16,9 +16,9 @@ test("per-cell QC filters can be computed", () => {
     expect(filt.numberOfBlocks()).toEqual(1);
     expect(filt.numberOfSubsets()).toEqual(1);
 
-    expect(filt.thresholdsSums().length).toBe(1);
-    expect(filt.thresholdsDetected().length).toBe(1);
-    expect(filt.thresholdsSubsetProportions(0).length).toBe(1);
+    expect(filt.sum().length).toBe(1);
+    expect(filt.detected().length).toBe(1);
+    expect(filt.subsetProportion(0).length).toBe(1);
 
     // Computing filters.
     let keep = filt.filter(qc);
@@ -86,9 +86,9 @@ test("per-cell QC filters can be computed with blocking", () => {
         var subqc = scran.perCellRnaQcMetrics(submat, subs);
         var subfilt = scran.suggestRnaQcFilters(subqc);
 
-        expect(filt.thresholdsSums()[b]).toEqual(subfilt.thresholdsSums()[0]);
-        expect(filt.thresholdsDetected()[b]).toEqual(subfilt.thresholdsDetected()[0]);
-        expect(filt.thresholdsSubsetProportions(0)[b]).toEqual(subfilt.thresholdsSubsetProportions(0)[0]);
+        expect(filt.sum()[b]).toEqual(subfilt.sum()[0]);
+        expect(filt.detected()[b]).toEqual(subfilt.detected()[0]);
+        expect(filt.subsetProportion(0)[b]).toEqual(subfilt.subsetProportion(0)[0]);
 
         let subdiscard = subfilt.filter(subqc);
         expect(Array.from(subdiscard)).toEqual(indices.map(i => keep[i]));
@@ -112,7 +112,7 @@ test("per-cell QC filters can be mocked up", () => {
     var qc = scran.emptySuggestRnaQcFiltersResults(nsubs, nblocks);
     expect(qc.numberOfSubsets()).toBe(2);
 
-    for (const y of [ "thresholdsSums", "thresholdsDetected" ]) {
+    for (const y of [ "sum", "detected" ]) {
         let x = qc[y]({ copy: false });
         expect(x.length).toEqual(nblocks);
         x[1] = 20;
@@ -120,10 +120,10 @@ test("per-cell QC filters can be mocked up", () => {
     }
     
     for (var s = 0; s < nsubs; s++) {
-        var x = qc.thresholdsSubsetProportions(s, { copy: false });
+        var x = qc.subsetProportion(s, { copy: false });
         expect(x.length).toBe(nblocks);
         x[0] = 0.9;
-        expect(qc.thresholdsSubsetProportions(s)[0]).toEqual(0.9);
+        expect(qc.subsetProportion(s)[0]).toEqual(0.9);
     }
 
     qc.free();

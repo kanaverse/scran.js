@@ -63,7 +63,7 @@ public:
     }
 
 public:
-    emscripten::val thresholds_max_value() {
+    emscripten::val max_value() {
         if (use_blocked) {
             auto& mc = store_blocked.get_max_value();
             return emscripten::val(emscripten::typed_memory_view(mc.size(), mc.data()));
@@ -125,7 +125,7 @@ EMSCRIPTEN_BINDINGS(quality_control_crispr) {
 
     emscripten::class_<SuggestCrisprQcFiltersResults>("SuggestCrisprQcFiltersResults")
         .constructor<int32_t>()
-        .function("thresholds_max_value", &SuggestCrisprQcFiltersResults::thresholds_max_value, emscripten::return_value_policy::take_ownership())
+        .function("max_value", &SuggestCrisprQcFiltersResults::max_value, emscripten::return_value_policy::take_ownership())
         .function("num_blocks", &SuggestCrisprQcFiltersResults::num_blocks, emscripten::return_value_policy::take_ownership())
         .function("is_blocked", &SuggestCrisprQcFiltersResults::is_blocked, emscripten::return_value_policy::take_ownership())
         .function("filter", &SuggestCrisprQcFiltersResults::filter, emscripten::return_value_policy::take_ownership())

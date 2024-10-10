@@ -26,7 +26,7 @@ export class PerCellRnaQcMetricsResults {
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      * @return {Float64Array|Float64WasmArray} Array containing the total count across genes for each cell.
      */
-    sums({ copy = true } = {}) {
+    sum({ copy = true } = {}) {
         return utils.possibleCopy(this.#results.sum(), copy);
     }
 
@@ -45,7 +45,7 @@ export class PerCellRnaQcMetricsResults {
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      * @return {Float64Array|Float64WasmArray} Array containing the proportion of counts in the subset `i` for each cell.
      */
-    subsetProportions(i, { copy = true, fillable = false } = {}) {
+    subsetProportion(i, { copy = true, fillable = false } = {}) {
         return utils.possibleCopy(this.#results.subset_proportion(i), copy);
     }
 

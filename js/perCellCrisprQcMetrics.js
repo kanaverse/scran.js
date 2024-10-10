@@ -25,7 +25,7 @@ export class PerCellCrisprQcMetricsResults {
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      * @return {Float64Array|Float64WasmArray} Array containing the total count across guides for each cell.
      */
-    sums({ copy = true } = {}) {
+    sum({ copy = true } = {}) {
         return utils.possibleCopy(this.#results.sum(), copy);
     }
 
@@ -50,9 +50,9 @@ export class PerCellCrisprQcMetricsResults {
     /**
      * @return {Float64Array} Array containing the proportion of counts in the most abundant guide for each cell.
      */
-    maxProportions() {
+    maxProportion() {
         let out = this.maxValue();
-        let denom = this.sums({ copy: false });
+        let denom = this.sum({ copy: false });
         out.forEach((x, i) => { out[i] /= denom[i] });
         return out;
     }

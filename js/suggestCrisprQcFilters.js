@@ -23,8 +23,8 @@ export class SuggestCrisprQcFiltersResults {
      *
      * @return {?(Float64Array|Float64WasmArray)} Array containing the filtering threshold on the maximum count in each batch.
      */
-    thresholdsMaxValue({ copy = true } = {}) {
-        return utils.possibleCopy(this.#results.thresholds_max_value(), copy);
+    maxValue({ copy = true } = {}) {
+        return utils.possibleCopy(this.#results.max_value(), copy);
     }
 
     /**

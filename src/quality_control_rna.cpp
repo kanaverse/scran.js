@@ -71,7 +71,7 @@ public:
     }
 
 public:
-    emscripten::val thresholds_sum() {
+    emscripten::val sum() {
         if (use_blocked) {
             auto& sum = store_blocked.get_sum();
             return emscripten::val(emscripten::typed_memory_view(sum.size(), sum.data()));
@@ -82,7 +82,7 @@ public:
         }
     }
 
-    emscripten::val thresholds_detected() {
+    emscripten::val detected() {
         if (use_blocked) {
             auto& det = store_blocked.get_detected();
             return emscripten::val(emscripten::typed_memory_view(det.size(), det.data()));
@@ -93,7 +93,7 @@ public:
         }
     }
 
-    emscripten::val thresholds_subset_proportion(int32_t i) {
+    emscripten::val subset_proportion(int32_t i) {
         if (use_blocked) {
             auto& current = store_blocked.get_subset_proportion()[i];
             return emscripten::val(emscripten::typed_memory_view(current.size(), current.data()));
@@ -165,9 +165,9 @@ EMSCRIPTEN_BINDINGS(quality_control_rna) {
 
     emscripten::class_<SuggestRnaQcFiltersResults>("SuggestRnaQcFiltersResults")
         .constructor<int32_t, int32_t>()
-        .function("thresholds_sum", &SuggestRnaQcFiltersResults::thresholds_sum, emscripten::return_value_policy::take_ownership())
-        .function("thresholds_detected", &SuggestRnaQcFiltersResults::thresholds_detected, emscripten::return_value_policy::take_ownership())
-        .function("thresholds_subset_proportion", &SuggestRnaQcFiltersResults::thresholds_subset_proportion, emscripten::return_value_policy::take_ownership())
+        .function("sum", &SuggestRnaQcFiltersResults::sum, emscripten::return_value_policy::take_ownership())
+        .function("detected", &SuggestRnaQcFiltersResults::detected, emscripten::return_value_policy::take_ownership())
+        .function("subset_proportion", &SuggestRnaQcFiltersResults::subset_proportion, emscripten::return_value_policy::take_ownership())
         .function("num_subsets", &SuggestRnaQcFiltersResults::num_subsets, emscripten::return_value_policy::take_ownership())
         .function("num_blocks", &SuggestRnaQcFiltersResults::num_blocks, emscripten::return_value_policy::take_ownership())
         .function("is_blocked", &SuggestRnaQcFiltersResults::is_blocked, emscripten::return_value_policy::take_ownership())

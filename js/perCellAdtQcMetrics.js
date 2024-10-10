@@ -26,7 +26,7 @@ export class PerCellAdtQcMetricsResults {
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      * @return {Float64Array|Float64WasmArray} Array containing the total ADT count for each cell.
      */
-    sums({ copy = true } = {}) {
+    sum({ copy = true } = {}) {
         return utils.possibleCopy(this.#results.sum(), copy);
     }
 
@@ -45,7 +45,7 @@ export class PerCellAdtQcMetricsResults {
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      * @return {Float64Array|Float64WasmArray} Array containing the total count in the ADT subset `i` for each cell.
      */
-    subsetTotals(i, { copy = true } = {}) {
+    subsetSum(i, { copy = true } = {}) {
         return utils.possibleCopy(this.#results.subset_sum(i), copy);
     }
 

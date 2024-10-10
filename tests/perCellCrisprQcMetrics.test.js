@@ -12,10 +12,10 @@ test("per-cell QC metrics can be computed", () => {
 
     var qc = scran.perCellCrisprQcMetrics(mat);
     expect(qc.numberOfCells()).toBe(ncells);
-    expect(qc.sums().length).toBe(ncells);
+    expect(qc.sum().length).toBe(ncells);
     expect(qc.detected().length).toBe(ncells);
 
-    let mp = qc.maxProportions();
+    let mp = qc.maxProportion();
     expect(mp.length).toBe(ncells);
     let mi = qc.maxIndex();
     expect(mi.length).toBe(ncells);

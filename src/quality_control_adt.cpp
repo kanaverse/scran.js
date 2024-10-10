@@ -70,7 +70,7 @@ public:
     }
 
 public:
-    emscripten::val thresholds_detected() {
+    emscripten::val detected() {
         if (use_blocked) {
             auto& det = store_blocked.get_detected();
             return emscripten::val(emscripten::typed_memory_view(det.size(), det.data()));
@@ -81,7 +81,7 @@ public:
         }
     }
 
-    emscripten::val thresholds_subset_sum(int32_t i) {
+    emscripten::val subset_sum(int32_t i) {
         if (use_blocked) {
             auto& ssum = store_blocked.get_subset_sum()[i];
             return emscripten::val(emscripten::typed_memory_view(ssum.size(), ssum.data()));
@@ -154,8 +154,8 @@ EMSCRIPTEN_BINDINGS(quality_control_adt) {
 
     emscripten::class_<SuggestAdtQcFiltersResults>("SuggestAdtQcFiltersResults")
         .constructor<int32_t, int32_t>()
-        .function("thresholds_detected", &SuggestAdtQcFiltersResults::thresholds_detected, emscripten::return_value_policy::take_ownership())
-        .function("thresholds_subset_sum", &SuggestAdtQcFiltersResults::thresholds_subset_sum, emscripten::return_value_policy::take_ownership())
+        .function("detected", &SuggestAdtQcFiltersResults::detected, emscripten::return_value_policy::take_ownership())
+        .function("subset_sum", &SuggestAdtQcFiltersResults::subset_sum, emscripten::return_value_policy::take_ownership())
         .function("num_subsets", &SuggestAdtQcFiltersResults::num_subsets, emscripten::return_value_policy::take_ownership())
         .function("num_blocks", &SuggestAdtQcFiltersResults::num_blocks, emscripten::return_value_policy::take_ownership())
         .function("is_blocked", &SuggestAdtQcFiltersResults::is_blocked, emscripten::return_value_policy::take_ownership())

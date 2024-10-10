@@ -15,9 +15,9 @@ test("per-cell ADT-based QC metrics can be computed", () => {
     expect(qc.numberOfCells()).toBe(ncells);
     expect(qc.numberOfSubsets()).toBe(1);
 
-    expect(qc.sums().length).toBe(ncells);
+    expect(qc.sum().length).toBe(ncells);
     expect(qc.detected().length).toBe(ncells);
-    let tot = qc.subsetTotals(0);
+    let tot = qc.subsetSum(0);
     expect(tot.length).toBe(ncells);
 
     mat.free();

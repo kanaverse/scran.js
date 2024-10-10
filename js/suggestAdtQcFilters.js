@@ -23,8 +23,8 @@ export class SuggestAdtQcFiltersResults {
      *
      * @return {?(Float64Array|Float64WasmArray)} Array containing the filtering threshold on the number of detected ADTs for each batch.
      */
-    thresholdsDetected({ copy = true } = {}) {
-        return utils.possibleCopy(this.#results.thresholds_detected(), copy);
+    detected({ copy = true } = {}) {
+        return utils.possibleCopy(this.#results.detected(), copy);
     }
 
     /**
@@ -35,8 +35,8 @@ export class SuggestAdtQcFiltersResults {
      *
      * @return {?(Float64Array|Float64WasmArray)} Array containing the filtering threshold on the total counts for subset `i` in each batch.
      */
-    thresholdsSubsetTotals(i, { copy = true } = {}) {
-        return utils.possibleCopy(this.#results.thresholds_subset_sum(i), copy);
+    subsetSum(i, { copy = true } = {}) {
+        return utils.possibleCopy(this.#results.subset_sum(i), copy);
     }
 
     /**

@@ -21,11 +21,10 @@ export class SuggestRnaQcFiltersResults {
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      * This should be set to `false` or `"view"` to modify entries, e.g., after calling creating an instance with {@linkcode emptySuggestRnaQcFiltersResults}.
      *
-     * @return {?(Float64Array|Float64WasmArray)} Array containing the filtering threshold on the sums for each batch.
-     * Alternatively `null`, if `fillable = false` and the array was not already filled.
+     * @return {Float64Array|Float64WasmArray} Array containing the filtering threshold on the sums for each batch.
      */
-    thresholdsSums({ copy = true } = {}) {
-        return utils.possibleCopy(this.#results.thresholds_sum(), copy);
+    sum({ copy = true } = {}) {
+        return utils.possibleCopy(this.#results.sum(), copy);
     }
 
     /**
@@ -33,10 +32,10 @@ export class SuggestRnaQcFiltersResults {
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      * This should be set to `false` or `"view"` to modify entries, e.g., after calling creating an instance with {@linkcode emptySuggestRnaQcFiltersResults}.
      *
-     * @return {?(Float64Array|Float64WasmArray)} Array containing the filtering threshold on the number of detected genes for each batch.
+     * @return {Float64Array|Float64WasmArray} Array containing the filtering threshold on the number of detected genes for each batch.
      */
-    thresholdsDetected({ copy = true } = {}) {
-        return utils.possibleCopy(this.#results.thresholds_detected(), copy);
+    detected({ copy = true } = {}) {
+        return utils.possibleCopy(this.#results.detected(), copy);
     }
 
     /**
@@ -45,11 +44,10 @@ export class SuggestRnaQcFiltersResults {
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      * This should be set to `false` or `"view"` to modify entries, e.g., after calling creating an instance with {@linkcode emptySuggestRnaQcFiltersResults}.
      *
-     * @return {?(Float64Array|Float64WasmArray)} Array containing the filtering threshold on the proportions for subset `i` in each batch.
-     * Alternatively `null`, if `fillable = false` and the array was not already filled.
+     * @return {Float64Array|Float64WasmArray} Array containing the filtering threshold on the proportions for subset `i` in each batch.
      */
-    thresholdsSubsetProportions(i, { copy = true } = {}) {
-        return utils.possibleCopy(this.#results.thresholds_subset_proportion(i), copy);
+    subsetProportion(i, { copy = true } = {}) {
+        return utils.possibleCopy(this.#results.subset_proportion(i), copy);
     }
 
     /**
