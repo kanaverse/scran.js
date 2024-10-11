@@ -158,7 +158,10 @@ class TrainedLabelCellsReference {
     }
 }
 
-function intersectFeatures(testFeatures, referenceFeatures) {
+/**
+ * @ignore
+ */
+export function intersectFeatures(testFeatures, referenceFeatures) { // exported only for testing purposes.
     let registry = new Map;
 
     for (var i = 0; i < testFeatures.length; i++) {

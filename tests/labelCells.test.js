@@ -1,4 +1,5 @@
 import * as scran from "../js/index.js";
+import { intersectFeatures } from "../js/labelCells.js";
 import * as simulate from "./simulate.js";
 import * as compare from "./compare.js";
 import * as pako from "pako";
@@ -444,3 +445,21 @@ test("multi-reference integration works correctly", () => {
     inter.free();
     resA.free();
 });
+
+test("intersection works as expected for edge cases", () => {
+    let out = intersectFeatures(["A", "B", "C", "a"], ["A", "B", "C", "D", "E"]);
+    expect(out.test).toEqual([0,1,2]);
+    expect(out.reference).toEqual([0,1,2]);
+
+    out = intersectFeatures(["a", "E", "b", "G", "c", "B", "d"], ["A", "B", "C", "D", "E", "F", "G"]);
+    expect(out.test).toEqual([5,1,3]);
+    expect(out.reference).toEqual([1,4,6]);
+
+    out = intersectFeatures(["y", "y", "x", "z", null, "z", "x"], ["a", "b", "c", null, "x", "x", "y", "y", "z", "z"])
+    expect(out.test).toEqual([2, 0, 3])
+    expect(out.reference).toEqual([4, 6, 8]);
+
+    out = intersectFeatures(["A", "a", "b", "B", "C", "c"], [["A", "a"], ["B", "b"], ["C", "c"]]);
+    expect(out.test).toEqual([0, 3, 4])
+    expect(out.reference).toEqual([0, 1, 2]);
+})
