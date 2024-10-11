@@ -127,6 +127,7 @@ test("labelCells works correctly with shuffling", () => {
     let results2 = scran.labelCells(mat, built2);
     let labels2 = results2.predictedLabels();
     expect(compare.equalArrays(results.predictedLabels({ copy: false }), labels2)).toBe(false); // There should be some difference!
+    let firstscore2 = results2.scoresForCell(0, { copy: false });
 
     // Shuffling the input matrix so that the features now match.
     {
@@ -134,6 +135,7 @@ test("labelCells works correctly with shuffling", () => {
         let sub = scran.subsetRows(mat, indices);
         let results3 = scran.labelCells(sub, built3);
         expect(compare.equalArrays(results3.predictedLabels({ copy: false }), labels2)).toBe(true);
+        expect(compare.equalArrays(results3.scoresForCell(0, { copy: false }), firstscore2)).toBe(true);
 
         sub.free();
         built3.free();
@@ -169,6 +171,7 @@ test("labelCells works correctly with intersections", () => {
     let results2 = scran.labelCells(mat, built2);
     let labels2 = results2.predictedLabels();
     expect(compare.equalArrays(results.predictedLabels({ copy: false }), labels2)).toBe(false); // There should be some difference!
+    let firstscore2 = results2.scoresForCell(0, { copy: false });
 
     // Subsetting the input matrix to remove non-matching features.
     {
@@ -178,6 +181,7 @@ test("labelCells works correctly with intersections", () => {
         let sub = scran.subsetRows(mat, feat);
         let results3 = scran.labelCells(sub, built3);
         expect(compare.equalArrays(results3.predictedLabels({ copy: false }), labels2)).toBe(true);
+        expect(compare.equalArrays(results3.scoresForCell(0, { copy: false }), firstscore2)).toBe(true);
 
         sub.free();
         built3.free();
@@ -213,6 +217,7 @@ test("labelCells ignores nulls correctly", () => {
     let results = scran.labelCells(mat, built); 
     let labels = results.predictedLabels();
     expect(compare.equalArrays(labels, refresults.predictedLabels({ copy: false }))).toBe(false);
+    let firstscore = results.scoresForCell(0, { copy: false });
 
     // Manually removing the first gene from the test matrix.
     {
@@ -222,6 +227,7 @@ test("labelCells ignores nulls correctly", () => {
         let sub = scran.subsetRows(mat, feat);
         let results2 = scran.labelCells(sub, built2); 
         expect(compare.equalArrays(labels, results2.predictedLabels({ copy: false }))).toBe(true);
+        expect(compare.equalArrays(firstscore, results2.scoresForCell(0, { copy: false }))).toBe(true);
 
         built2.free();
         sub.free();
@@ -233,6 +239,7 @@ test("labelCells ignores nulls correctly", () => {
         let built2 = scran.trainLabelCellsReference(copy, refinfo, mockids);
         let results2 = scran.labelCells(mat, built2); 
         expect(compare.equalArrays(labels, results2.predictedLabels({ copy: false }))).toBe(true);
+        expect(compare.equalArrays(firstscore, results2.scoresForCell(0, { copy: false }))).toBe(true);
 
         built2.free();
         results2.free();
@@ -255,6 +262,7 @@ test("labelCells handles synonyms correctly", () => {
     let built = scran.trainLabelCellsReference(mockids, info, mockids);
     let results = scran.labelCells(mat, built); 
     let labels = results.predictedLabels();
+    let firstscore = results.scoresForCell(0, { copy: false });
 
     // Synonyms in the reference.
     {
@@ -266,6 +274,7 @@ test("labelCells handles synonyms correctly", () => {
         let built2 = scran.trainLabelCellsReference(dataids, info, refids);
         let results2 = scran.labelCells(mat, built2); 
         expect(compare.equalArrays(labels, results2.predictedLabels({ copy: false }))).toBe(true);
+        expect(compare.equalArrays(firstscore, results2.scoresForCell(0, { copy: false }))).toBe(true);
 
         built2.free();
         results2.free();
@@ -283,6 +292,7 @@ test("labelCells handles synonyms correctly", () => {
         let built2 = scran.trainLabelCellsReference(dataids, info, refids);
         let results2 = scran.labelCells(mat, built2); 
         expect(compare.equalArrays(labels, results2.predictedLabels({ copy: false }))).toBe(true);
+        expect(compare.equalArrays(firstscore, results2.scoresForCell(0, { copy: false }))).toBe(true);
 
         built2.free();
         results2.free();
@@ -314,7 +324,8 @@ test("labelCells ignores duplicated feature IDs", () => {
         refids[1] = "FOOBAR";
         let built2 = scran.trainLabelCellsReference(dataids, refinfo, refids);
         let results2 = scran.labelCells(mat, built2); 
-        expect(compare.equalArrays(results.predictedLabels({copy: false}), results2.predictedLabels({ copy: false }))).toBe(true);
+        expect(compare.equalArrays(results.predictedLabels({ copy: false }), results2.predictedLabels({ copy: false }))).toBe(true);
+        expect(compare.equalArrays(results.scoresForCell(0, { copy: false }), results2.scoresForCell(0, { copy: false }))).toBe(true);
 
         built.free();
         results.free();
@@ -336,6 +347,7 @@ test("labelCells ignores duplicated feature IDs", () => {
         let built2 = scran.trainLabelCellsReference(dataids, refinfo, refids);
         let results2 = scran.labelCells(mat, built2); 
         expect(compare.equalArrays(results.predictedLabels({copy: false}), results2.predictedLabels({ copy: false }))).toBe(true);
+        expect(compare.equalArrays(results.scoresForCell(0, { copy: false }), results2.scoresForCell(0, { copy: false }))).toBe(true);
 
         built.free();
         results.free();
@@ -366,7 +378,8 @@ test("labelCells works correctly with a dense matrix", () => {
     }
 
     let results2 = scran.labelCells(buffer, built, { numberOfFeatures: nfeatures, numberOfCells: 30 }); 
-    expect(compare.equalArrays(results.predictedLabels({ copy: false }), results.predictedLabels({ copy: false }))).toBe(true);
+    expect(compare.equalArrays(results.predictedLabels({ copy: false }), results2.predictedLabels({ copy: false }))).toBe(true);
+    expect(compare.equalArrays(results.scoresForCell(0, { copy: false }), results2.scoresForCell(0, { copy: false }))).toBe(true);
 
     // Freeing the objects.
     refinfo.free();
@@ -431,4 +444,3 @@ test("multi-reference integration works correctly", () => {
     inter.free();
     resA.free();
 });
-
