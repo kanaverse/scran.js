@@ -3,6 +3,12 @@ cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 include(FetchContent)
 
 FetchContent_Declare(
+  aarand
+  GIT_REPOSITORY https://github.com/LTLA/aarand
+  GIT_TAG v1.0.2
+)
+
+FetchContent_Declare(
   subpar
   GIT_REPOSITORY https://github.com/LTLA/subpar
   GIT_TAG v0.3.1
@@ -24,6 +30,12 @@ FetchContent_Declare(
   tatami_chunked
   GIT_REPOSITORY https://github.com/tatami-inc/tatami_chunked
   GIT_TAG v2.0.0
+)
+
+FetchContent_Declare(
+  eminem
+  GIT_REPOSITORY https://github.com/tatami-inc/eminem
+  GIT_TAG v1.0.0
 )
 
 FetchContent_Declare(
@@ -99,6 +111,12 @@ FetchContent_Declare(
 )
 
 FetchContent_Declare(
+  WeightedLowess 
+  GIT_REPOSITORY https://github.com/LTLA/CppWeightedLowess
+  GIT_TAG v2.1.2
+)
+
+FetchContent_Declare(
   scran_variances
   GIT_REPOSITORY https://github.com/libscran/scran_variances
   GIT_TAG v0.1.3
@@ -171,12 +189,6 @@ FetchContent_Declare(
 )
 
 FetchContent_Declare(
-  singlepp
-  GIT_REPOSITORY https://github.com/SingleR-inc/singlepp
-  GIT_TAG v2.0.0
-)
-
-FetchContent_Declare(
   byteme
   GIT_REPOSITORY https://github.com/LTLA/byteme
   GIT_TAG v1.2.2
@@ -189,6 +201,12 @@ FetchContent_Declare(
 )
 
 FetchContent_Declare(
+  singlepp
+  GIT_REPOSITORY https://github.com/SingleR-inc/singlepp
+  GIT_TAG v2.0.0
+)
+
+FetchContent_Declare(
   rds2cpp 
   GIT_REPOSITORY https://github.com/LTLA/rds2cpp
   GIT_TAG v1.1.0
@@ -198,13 +216,13 @@ FetchContent_MakeAvailable(subpar)
 
 FetchContent_MakeAvailable(tatami)
 FetchContent_MakeAvailable(tatami_stats)
-FetchContent_MakeAvailable(tatami_chunked)
-FetchContent_MakeAvailable(tatami_mtx)
-FetchContent_MakeAvailable(tatami_hdf5)
-FetchContent_MakeAvailable(tatami_layered)
 
-FetchContent_MakeAvailable(Eigen)
-FetchContent_MakeAvailable(irlba)
+FetchContent_MakeAvailable(tatami_chunked)
+FetchContent_MakeAvailable(tatami_hdf5)
+
+FetchContent_MakeAvailable(eminem)
+FetchContent_MakeAvailable(tatami_mtx)
+FetchContent_MakeAvailable(tatami_layered)
 
 FetchContent_MakeAvailable(kmeans)
 
@@ -215,13 +233,20 @@ FetchContent_MakeAvailable(knncolle_annoy)
 FetchContent_MakeAvailable(scran_blocks)
 FetchContent_MakeAvailable(scran_qc)
 FetchContent_MakeAvailable(scran_norm)
+
+FetchContent_MakeAvailable(WeightedLowess)
 FetchContent_MakeAvailable(scran_variances)
+
+FetchContent_MakeAvailable(Eigen)
+FetchContent_MakeAvailable(irlba)
 FetchContent_MakeAvailable(scran_pca)
-FetchContent_MakeAvailable(scran_graph_cluster)
-FetchContent_MakeAvailable(scran_markers)
-FetchContent_MakeAvailable(scran_aggregate)
 
 FetchContent_MakeAvailable(raiigraph)
+FetchContent_MakeAvailable(scran_graph_cluster)
+
+FetchContent_MakeAvailable(scran_markers)
+
+FetchContent_MakeAvailable(scran_aggregate)
 
 FetchContent_MakeAvailable(gsdecon)
 
