@@ -7,24 +7,25 @@ import * as pako from "pako";
 beforeAll(async () => { await scran.initialize({ localFile: true }) });
 afterAll(async () => { await scran.terminate() });
 
-function mockReferenceData(nlabels, nperlabel, nfeatures, nmarkers) {
-    const converter = new TextEncoder();
+function simulateReferenceData(nlabels, nperlabel, nfeatures, nmarkers) {
+    let output = {};
 
-    let markers_lines = "";
+    let all_markers = [];
     for (var i = 0; i < nlabels; i++) {
+        let inner_markers = [];
         for (var j = 0; j < nlabels; j++) {
             if (i == j) {
-                continue;
+                inner_markers.push(null);
+            } else {
+                let cur_markers = new Set();
+                for (var m = 0; m < nmarkers; m++) {
+                    cur_markers.add(Math.floor(Math.random() * nfeatures));
+                }
+                inner_markers.push(Array.from(cur_markers));
             }
-
-            let markers = new Set();
-            for (var m = 0; m < nmarkers; m++) {
-                markers.add(Math.floor(Math.random() * nfeatures));
-            }
-            markers_lines += i + "\t" + j + "\t" + Array.from(markers).join("\t") + "\n";
         }
+        all_markers.push(inner_markers);
     }
-    let markers_buffer = pako.gzip(converter.encode(markers_lines));
 
     let labels = [];
     for (var i = 0; i < nlabels; i++) {
@@ -32,10 +33,8 @@ function mockReferenceData(nlabels, nperlabel, nfeatures, nmarkers) {
             labels.push(i);
         }
     }
-    let labels_lines = labels.join("\n");
-    let labels_buffer = pako.gzip(converter.encode(labels_lines));
 
-    let ranks_lines = "";
+    let rankings = [];
     for (var i = 0; i < nlabels * nperlabel; i++) {
         let stat = [];
         let index = [];
@@ -44,7 +43,37 @@ function mockReferenceData(nlabels, nperlabel, nfeatures, nmarkers) {
             index.push(f);
         }
         index.sort((a, b) => stat[a] - stat[b]);
-        ranks_lines += Array.from(index).join(",") + "\n";
+        rankings.push(Array.from(index));
+    }
+
+    return { 
+        markers: all_markers,
+        labels: labels,
+        rankings: rankings
+    };
+}
+
+function writeReferenceData(simulated) {
+    const converter = new TextEncoder();
+
+    let markers_lines = "";
+    for (var i = 0; i < simulated.markers.length; i++) {
+        const outer = simulated.markers[i];
+        for (var j = 0; j < outer.length; j++) {
+            const inner = outer[j];
+            if (inner !== null) {
+                markers_lines += i + "\t" + j + "\t" + inner.join("\t") + "\n";
+            }
+        }
+    }
+    let markers_buffer = pako.gzip(converter.encode(markers_lines));
+
+    let labels_lines = simulated.labels.join("\n");
+    let labels_buffer = pako.gzip(converter.encode(labels_lines));
+
+    let ranks_lines = "";
+    for (const rank of simulated.rankings) {
+        ranks_lines += rank.join(",") + "\n";
     }
     let ranks_buffer = pako.gzip(converter.encode(ranks_lines));
 
@@ -55,12 +84,79 @@ function mockReferenceData(nlabels, nperlabel, nfeatures, nmarkers) {
     };
 };
 
+function subsetReferenceData(simulated, subset) {
+    let mapping = new Map;
+    for (var i = 0; i < subset.length; i++) {
+        mapping.set(subset[i], i);
+    }
+
+    let new_markers = [];
+    for (var i = 0; i < simulated.markers.length; i++) {
+        const outer = simulated.markers[i];
+        let new_outer = [];
+        for (var j = 0; j < outer.length; j++) {
+            const inner = outer[j];
+            if (inner !== null) {
+                let cur_markers = [];
+                for (const x of inner) {
+                    if (mapping.has(x)) {
+                        cur_markers.push(mapping.get(x));
+                    }
+                }
+                new_outer.push(cur_markers);
+            } else {
+                new_outer.push(null);
+            }
+        }
+        new_markers.push(new_outer);
+    }
+
+    let new_rankings = [];
+    for (const rank of simulated.rankings) {
+        let new_rank = subset.map(x => rank[x]);
+        new_rankings.push(new_rank);
+    }
+
+    let output = { ...simulated };
+    output.markers = new_markers;
+    output.rankings = new_rankings;
+    return output;
+}
+
+function mockReferenceData(nlabels, nperlabel, nfeatures, nmarkers) {
+    const simulated = simulateReferenceData(nlabels, nperlabel, nfeatures, nmarkers);
+    return writeReferenceData(simulated);
+}
+
 function mockIDs(nfeatures) {
     var mockids = new Array(nfeatures);
     for (var i = 0; i < nfeatures; i++) {
         mockids[i] = i;
     }
     return mockids;
+}
+
+function pickRandom(nfeatures, prob) {
+    let test_keep = [];
+    for (var i = 0; i < nfeatures; i++) {
+        const r = Math.random();
+        if (r <= prob) {
+            test_keep.push([ r, i ]);
+        }
+    }
+    test_keep.sort((a, b) => a[0] - b[0]);
+    return test_keep.map(x => x[1]);
+}
+
+function maskUnpickedIds(ids, chosen, mask) {
+    let is_chosen = new Set(chosen);
+    let copy = ids.slice();
+    for (var i = 0; i < copy.length; i++) {
+        if (!is_chosen.has(copy[i])) {
+            copy[i] += mask;
+        }
+    }
+    return copy;
 }
 
 const nlabels = 5;
@@ -104,56 +200,9 @@ test("labelCells works correctly", () => {
     mat.free();
 })
 
-test("labelCells works correctly with shuffling", () => {
-    let ref = mockReferenceData(nlabels, profiles_per_label, nfeatures, 20); 
-    let refinfo = scran.loadLabelCellsReferenceFromBuffers(ref.ranks, ref.markers, ref.labels);
-
-    let mat = simulate.simulateMatrix(nfeatures, 20);
-    let mockids = mockIDs(nfeatures);
-    let built = scran.trainLabelCellsReference(mockids, refinfo, mockids);
-    let results = scran.labelCells(mat, built); 
-
-    // Shuffling the input order.
-    var inter = [];
-    for (var i = 0; i < nfeatures; i++) {
-        inter.push("Gene" + i);
-    }
-
-    var stat = inter.map(x => Math.random()); // shuffling
-    var indices = inter.map((x, i) => i);
-    indices.sort((a, b) => stat[a] - stat[b]);
-    var inter2 = indices.map(i => inter[i]);
-
-    let built2 = scran.trainLabelCellsReference(inter, refinfo, inter2);
-    let results2 = scran.labelCells(mat, built2);
-    let labels2 = results2.predictedLabels();
-    expect(compare.equalArrays(results.predictedLabels({ copy: false }), labels2)).toBe(false); // There should be some difference!
-    let firstscore2 = results2.scoresForCell(0, { copy: false });
-
-    // Shuffling the input matrix so that the features now match.
-    {
-        let built3 = scran.trainLabelCellsReference(inter2, refinfo, inter2);
-        let sub = scran.subsetRows(mat, indices);
-        let results3 = scran.labelCells(sub, built3);
-        expect(compare.equalArrays(results3.predictedLabels({ copy: false }), labels2)).toBe(true);
-        expect(compare.equalArrays(results3.scoresForCell(0, { copy: false }), firstscore2)).toBe(true);
-
-        sub.free();
-        built3.free();
-        results3.free();
-    }
-
-    // Freeing the objects.
-    refinfo.free();
-    mat.free();
-    built.free();
-    built2.free();
-    results.free();
-    results2.free();
-});
-
 test("labelCells works correctly with intersections", () => {
-    let ref = mockReferenceData(nlabels, profiles_per_label, nfeatures, 20); 
+    let simulated = simulateReferenceData(nlabels, profiles_per_label, nfeatures, 20); 
+    let ref = writeReferenceData(simulated);
     let refinfo = scran.loadLabelCellsReferenceFromBuffers(ref.ranks, ref.markers, ref.labels);
 
     let mat = simulate.simulateMatrix(nfeatures, 20);
@@ -161,30 +210,43 @@ test("labelCells works correctly with intersections", () => {
     let built = scran.trainLabelCellsReference(mockids, refinfo, mockids);
     let results = scran.labelCells(mat, built); 
 
-    // Renaming the back half.
-    let start = nfeatures / 2;
-    let copy = mockids.slice();
-    for (var i = start; i < nfeatures; i++) {
-        copy[i] += "_____";
-    }
+    // Randomly selecting some for the test and some for the training set.
+    let ref_keep = pickRandom(nfeatures, 0.7);
+    let subref = writeReferenceData(subsetReferenceData(simulated, ref_keep));
+    let subrefinfo = scran.loadLabelCellsReferenceFromBuffers(subref.ranks, subref.markers, subref.labels);
+    let subrefids = ref_keep.map(x => mockids[x]);
 
-    let built2 = scran.trainLabelCellsReference(copy, refinfo, mockids);
+    let test_keep = pickRandom(nfeatures, 0.7);
+    let testids = maskUnpickedIds(mockids, test_keep, "----");
+
+    let built2 = scran.trainLabelCellsReference(testids, subrefinfo, subrefids);
     let results2 = scran.labelCells(mat, built2);
     let labels2 = results2.predictedLabels();
     expect(compare.equalArrays(results.predictedLabels({ copy: false }), labels2)).toBe(false); // There should be some difference!
-    let firstscore2 = results2.scoresForCell(0, { copy: false });
+    let firstscore2 = results2.scoresForCell(0, { copy: false }).array();
+    expect(compare.equalArrays(results.scoresForCell(0, { copy: false }).array(), firstscore2)).toBe(false); // There should be some difference!
 
-    // Subsetting the input matrix to remove non-matching features.
+    // Manually subsetting the input matrix to the intersection.
     {
-        let built3 = scran.trainLabelCellsReference(copy.slice(0, start), refinfo, mockids);
-        let feat = new Int32Array(start);
-        feat.forEach((x, i) => feat[i] = i);
-        let sub = scran.subsetRows(mat, feat);
+        const intersection = intersectFeatures(test_keep, ref_keep);
+        let inter_test = intersection.test.map(x => test_keep[x]);
+        let inter_ref = intersection.reference.map(x => ref_keep[x]);
+
+        let testids = inter_test.map(x => mockids[x]);
+        let subrefids = inter_ref.map(x => mockids[x]);
+        expect(testids).toEqual(subrefids);
+
+        let subref = writeReferenceData(subsetReferenceData(simulated, inter_ref));
+        let subrefinfo = scran.loadLabelCellsReferenceFromBuffers(subref.ranks, subref.markers, subref.labels);
+        let built3 = scran.trainLabelCellsReference(testids, subrefinfo, subrefids);
+
+        let sub = scran.subsetRows(mat, inter_test);
         let results3 = scran.labelCells(sub, built3);
         expect(compare.equalArrays(results3.predictedLabels({ copy: false }), labels2)).toBe(true);
-        expect(compare.equalArrays(results3.scoresForCell(0, { copy: false }), firstscore2)).toBe(true);
+        expect(compare.equalArrays(results3.scoresForCell(0, { copy: false }).array(), firstscore2)).toBe(true);
 
         sub.free();
+        subrefinfo.free();
         built3.free();
         results3.free();
     }
@@ -193,6 +255,7 @@ test("labelCells works correctly with intersections", () => {
     refinfo.free();
     mat.free();
     built.free();
+    subrefinfo.free();
     built2.free();
     results.free();
     results2.free();
@@ -391,7 +454,7 @@ test("labelCells works correctly with a dense matrix", () => {
     results2.free();
 });
 
-test("multi-reference integration works correctly", () => {
+test("multi-reference integration works correctly with variable intersections", () => {
     let mockids = mockIDs(nfeatures);
     let test = simulate.simulateMatrix(nfeatures, 30);
 
@@ -445,6 +508,90 @@ test("multi-reference integration works correctly", () => {
     inter.free();
     resA.free();
 });
+
+test("multi-reference integration works correctly with consistent intersections", () => {
+    let mockids = mockIDs(nfeatures);
+    let test = simulate.simulateMatrix(nfeatures, 30);
+    let test_keep = pickRandom(nfeatures, 0.6);
+    let ref_keep = pickRandom(nfeatures, 0.6);
+    let testids = maskUnpickedIds(mockids, test_keep, "----");
+    let refids = maskUnpickedIds(mockids, ref_keep, "....");
+
+    let rawA = simulateReferenceData(nlabels, profiles_per_label, nfeatures, 20); 
+    let refA = writeReferenceData(rawA);
+    let refinfoA = scran.loadLabelCellsReferenceFromBuffers(refA.ranks, refA.markers, refA.labels);
+    let builtA = scran.trainLabelCellsReference(testids, refinfoA, refids);
+
+    let rawB = simulateReferenceData(nlabels, profiles_per_label, nfeatures, 20); 
+    let refB = writeReferenceData(rawB);
+    let refinfoB = scran.loadLabelCellsReferenceFromBuffers(refB.ranks, refB.markers, refB.labels);
+    let builtB = scran.trainLabelCellsReference(testids, refinfoB, refids);
+
+    // Building the integrated reference.
+    let inter = scran.integrateLabelCellsReferences(testids, [refinfoA, refinfoB], [refids, refids], [builtA, builtB]);
+    expect(inter.numberOfReferences()).toBe(2);
+
+    let resA =  scran.labelCells(test, builtA);
+    let resB = scran.labelCells(test, builtB);
+    let labA = resA.predictedLabels();
+    let labB = resB.predictedLabels();
+
+    let combined = scran.integrateLabelCells(test, [labA, labB], inter);
+
+    // Comparing to a reference with everything pre-subsetted.
+    {
+        const intersection = intersectFeatures(test_keep, ref_keep);
+        let inter_test = intersection.test.map(x => test_keep[x]);
+        let inter_ref = intersection.reference.map(x => ref_keep[x]);
+
+        let testids = inter_test.map(x => mockids[x]);
+        let subrefids = inter_ref.map(x => mockids[x]);
+        expect(testids).toEqual(subrefids);
+
+        let subrefA = writeReferenceData(subsetReferenceData(rawA, inter_ref));
+        let subrefinfoA = scran.loadLabelCellsReferenceFromBuffers(subrefA.ranks, subrefA.markers, subrefA.labels);
+        let subbuiltA = scran.trainLabelCellsReference(testids, subrefinfoA, subrefids);
+
+        let subrefB = writeReferenceData(subsetReferenceData(rawB, inter_ref));
+        let subrefinfoB = scran.loadLabelCellsReferenceFromBuffers(subrefB.ranks, subrefB.markers, subrefB.labels);
+        let subbuiltB = scran.trainLabelCellsReference(testids, subrefinfoB, subrefids);
+
+        // Building the integrated reference.
+        let subinter = scran.integrateLabelCellsReferences(testids, [subrefinfoA, subrefinfoB], [subrefids, subrefids], [subbuiltA, subbuiltB]);
+        expect(inter.numberOfReferences()).toBe(2);
+
+        let sub = scran.subsetRows(test, inter_test);
+        let subresA =  scran.labelCells(sub, subbuiltA);
+        let subresB = scran.labelCells(sub, subbuiltB);
+        let sublabA = resA.predictedLabels();
+        let sublabB = resB.predictedLabels();
+
+        let subcombined = scran.integrateLabelCells(sub, [sublabA, sublabB], subinter);
+        expect(subcombined.predictedReferences()).toEqual(combined.predictedReferences());
+        expect(compare.equalFloatArrays(subcombined.fineTuningDelta(), combined.fineTuningDelta())).toBe(true);
+        expect(compare.equalFloatArrays(subcombined.scoresForCell(0, { copy: false }).array(), combined.scoresForCell(0, { copy: false }).array())).toBe(true);
+
+        sub.free();
+        subrefinfoA.free();
+        subrefinfoB.free();
+        subbuiltA.free();
+        subbuiltB.free();
+        subinter.free();
+        subresA.free();
+        subresB.free();
+        subcombined.free();
+    }
+
+    // Freeing all the bits and pieces.
+    refinfoA.free();
+    builtA.free();
+    refinfoB.free();
+    builtB.free();
+    inter.free();
+    resA.free();
+    resB.free();
+});
+
 
 test("intersection works as expected for edge cases", () => {
     let out = intersectFeatures(["A", "B", "C", "a"], ["A", "B", "C", "D", "E"]);

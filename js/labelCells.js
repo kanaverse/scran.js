@@ -655,7 +655,7 @@ class IntegrateLabelCellsResults {
      */
     free() {
         if (this.#results !== null) {
-            this.#results.free();
+            gc.release(this.#id);
             this.#results = null;
         }
     }
