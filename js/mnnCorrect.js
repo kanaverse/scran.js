@@ -14,6 +14,8 @@ import * as wasm from "./wasm.js";
  * This should have length equal to the number of cells and contain all values from 0 to `n - 1` at least once, where `n` is the number of blocks.
  * This is used to segregate cells in order to perform normalization within each block.
  * @param {object} [options={}] - Further optional parameters.
+ * @param {boolean} [options.asTypedArray=true] - Whether to return a Float64Array.
+ * If `false`, a Float64WasmArray is returned instead.
  * @param {?Float64WasmArray} [options.buffer=null] - Buffer of length equal to the product of the number of cells and dimensions,
  * to be used to store the corrected coordinates for each cell.
  * If `null`, this is allocated and returned by the function.
@@ -34,11 +36,12 @@ import * as wasm from "./wasm.js";
  * @param {?number} [options.numberOfThreads=null] - Number of threads to use.
  * If `null`, defaults to {@linkcode maximumThreads}.
  *
- * @return {Float64WasmArray} Array of length equal to `x`, containing the batch-corrected low-dimensional coordinates for all cells.
- * Values are organized using the column-major layout.
- * This is equal to `buffer` if provided.
+ * @return {Float64Array|Float64WasmArray} Array of length equal to `x`, containing the batch-corrected low-dimensional coordinates for all cells.
+ * Corrected values are organized using the column-major layout, where rows are dimensions and columns are cells.
+ * If `buffer` is supplied, the function returns `buffer` if `asTypedArray = false`, or a view on `buffer` if `asTypedArray = true`.
  */
 export function mnnCorrect(x, block, { 
+    asTypedArray = true,
     buffer = null, 
     numberOfDims = null,
     numberOfCells = null,
@@ -51,7 +54,7 @@ export function mnnCorrect(x, block, {
     numberOfThreads = null
 } = {}) {
 
-    let local_buffer;
+    let local_buffer = null;
     let x_data;
     let block_data;
     let nthreads = utils.chooseNumberOfThreads(numberOfThreads);
@@ -104,5 +107,5 @@ export function mnnCorrect(x, block, {
         utils.free(x_data);
     }
 
-    return buffer; 
+    return utils.toTypedArray(buffer, local_buffer == null, asTypedArray);
 }

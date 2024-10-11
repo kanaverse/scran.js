@@ -180,13 +180,13 @@ test("labelCells works correctly", () => {
     let results = scran.labelCells(mat, built);
     expect(results.numberOfCells()).toBe(20);
     expect(results.numberOfLabels()).toBe(nlabels);
-    expect(results.fineTuningDelta().length).toBe(20);
-    expect(results.predictedLabels().length).toBe(20);
-    expect(results.scoresForCell(1).length).toBe(nlabels);
-    expect(results.scoresForLabel(3).length).toBe(20);
+    expect(results.delta().length).toBe(20);
+    expect(results.predicted().length).toBe(20);
+    expect(results.scoreForCell(1).length).toBe(nlabels);
+    expect(results.scoreForLabel(3).length).toBe(20);
 
     let min = Infinity, max = -1;
-    results.predictedLabels({ copy: false }).forEach(x => {
+    results.predicted({ copy: false }).forEach(x => {
         if (x < min) { min = x; }
         if (x > max) { max = x; }
     });
@@ -221,10 +221,10 @@ test("labelCells works correctly with intersections", () => {
 
     let built2 = scran.trainLabelCellsReference(testids, subrefinfo, subrefids);
     let results2 = scran.labelCells(mat, built2);
-    let labels2 = results2.predictedLabels();
-    expect(compare.equalArrays(results.predictedLabels({ copy: false }), labels2)).toBe(false); // There should be some difference!
-    let firstscore2 = results2.scoresForCell(0, { copy: false }).array();
-    expect(compare.equalArrays(results.scoresForCell(0, { copy: false }).array(), firstscore2)).toBe(false); // There should be some difference!
+    let labels2 = results2.predicted();
+    expect(compare.equalArrays(results.predicted({ copy: false }), labels2)).toBe(false); // There should be some difference!
+    let firstscore2 = results2.scoreForCell(0);
+    expect(compare.equalFloatArrays(results.scoreForCell(0), firstscore2)).toBe(false); // There should be some difference!
 
     // Manually subsetting the input matrix to the intersection.
     {
@@ -242,8 +242,8 @@ test("labelCells works correctly with intersections", () => {
 
         let sub = scran.subsetRows(mat, inter_test);
         let results3 = scran.labelCells(sub, built3);
-        expect(compare.equalArrays(results3.predictedLabels({ copy: false }), labels2)).toBe(true);
-        expect(compare.equalArrays(results3.scoresForCell(0, { copy: false }).array(), firstscore2)).toBe(true);
+        expect(compare.equalArrays(results3.predicted({ copy: false }), labels2)).toBe(true);
+        expect(compare.equalFloatArrays(results3.scoreForCell(0), firstscore2)).toBe(true);
 
         sub.free();
         subrefinfo.free();
@@ -279,9 +279,9 @@ test("labelCells ignores nulls correctly", () => {
     let built = scran.trainLabelCellsReference(copy, refinfo, mockids);
     expect(built.numberOfFeatures() > 0).toBe(true);
     let results = scran.labelCells(mat, built); 
-    let labels = results.predictedLabels();
-    expect(compare.equalArrays(labels, refresults.predictedLabels({ copy: false }))).toBe(false);
-    let firstscore = results.scoresForCell(0, { copy: false });
+    let labels = results.predicted();
+    expect(compare.equalArrays(labels, refresults.predicted({ copy: false }))).toBe(false);
+    let firstscore = results.scoreForCell(0, { copy: false });
 
     // Manually removing the first gene from the test matrix.
     {
@@ -290,8 +290,8 @@ test("labelCells ignores nulls correctly", () => {
         feat.forEach((x, i) => feat[i] = until + i);
         let sub = scran.subsetRows(mat, feat);
         let results2 = scran.labelCells(sub, built2); 
-        expect(compare.equalArrays(labels, results2.predictedLabels({ copy: false }))).toBe(true);
-        expect(compare.equalArrays(firstscore, results2.scoresForCell(0, { copy: false }))).toBe(true);
+        expect(compare.equalArrays(labels, results2.predicted({ copy: false }))).toBe(true);
+        expect(compare.equalFloatArrays(firstscore, results2.scoreForCell(0))).toBe(true);
 
         built2.free();
         sub.free();
@@ -302,8 +302,8 @@ test("labelCells ignores nulls correctly", () => {
     {
         let built2 = scran.trainLabelCellsReference(copy, refinfo, mockids);
         let results2 = scran.labelCells(mat, built2); 
-        expect(compare.equalArrays(labels, results2.predictedLabels({ copy: false }))).toBe(true);
-        expect(compare.equalArrays(firstscore, results2.scoresForCell(0, { copy: false }))).toBe(true);
+        expect(compare.equalArrays(labels, results2.predicted({ copy: false }))).toBe(true);
+        expect(compare.equalFloatArrays(firstscore, results2.scoreForCell(0))).toBe(true);
 
         built2.free();
         results2.free();
@@ -325,8 +325,8 @@ test("labelCells handles synonyms correctly", () => {
     let mockids = mockIDs(nfeatures);
     let built = scran.trainLabelCellsReference(mockids, info, mockids);
     let results = scran.labelCells(mat, built); 
-    let labels = results.predictedLabels();
-    let firstscore = results.scoresForCell(0, { copy: false });
+    let labels = results.predicted();
+    let firstscore = results.scoreForCell(0);
 
     // Synonyms in the reference.
     {
@@ -337,8 +337,8 @@ test("labelCells handles synonyms correctly", () => {
 
         let built2 = scran.trainLabelCellsReference(dataids, info, refids);
         let results2 = scran.labelCells(mat, built2); 
-        expect(compare.equalArrays(labels, results2.predictedLabels({ copy: false }))).toBe(true);
-        expect(compare.equalArrays(firstscore, results2.scoresForCell(0, { copy: false }))).toBe(true);
+        expect(compare.equalArrays(labels, results2.predicted({ copy: false }))).toBe(true);
+        expect(compare.equalFloatArrays(firstscore, results2.scoreForCell(0))).toBe(true);
 
         built2.free();
         results2.free();
@@ -355,8 +355,8 @@ test("labelCells handles synonyms correctly", () => {
 
         let built2 = scran.trainLabelCellsReference(dataids, info, refids);
         let results2 = scran.labelCells(mat, built2); 
-        expect(compare.equalArrays(labels, results2.predictedLabels({ copy: false }))).toBe(true);
-        expect(compare.equalArrays(firstscore, results2.scoresForCell(0, { copy: false }))).toBe(true);
+        expect(compare.equalArrays(labels, results2.predicted({ copy: false }))).toBe(true);
+        expect(compare.equalFloatArrays(firstscore, results2.scoreForCell(0))).toBe(true);
 
         built2.free();
         results2.free();
@@ -388,8 +388,8 @@ test("labelCells ignores duplicated feature IDs", () => {
         refids[1] = "FOOBAR";
         let built2 = scran.trainLabelCellsReference(dataids, refinfo, refids);
         let results2 = scran.labelCells(mat, built2); 
-        expect(compare.equalArrays(results.predictedLabels({ copy: false }), results2.predictedLabels({ copy: false }))).toBe(true);
-        expect(compare.equalArrays(results.scoresForCell(0, { copy: false }), results2.scoresForCell(0, { copy: false }))).toBe(true);
+        expect(compare.equalArrays(results.predicted({ copy: false }), results2.predicted({ copy: false }))).toBe(true);
+        expect(compare.equalFloatArrays(results.scoreForCell(0), results2.scoreForCell(0))).toBe(true);
 
         built.free();
         results.free();
@@ -410,8 +410,8 @@ test("labelCells ignores duplicated feature IDs", () => {
         dataids[1] = "FOOBAR";
         let built2 = scran.trainLabelCellsReference(dataids, refinfo, refids);
         let results2 = scran.labelCells(mat, built2); 
-        expect(compare.equalArrays(results.predictedLabels({copy: false}), results2.predictedLabels({ copy: false }))).toBe(true);
-        expect(compare.equalArrays(results.scoresForCell(0, { copy: false }), results2.scoresForCell(0, { copy: false }))).toBe(true);
+        expect(compare.equalArrays(results.predicted({copy: false}), results2.predicted({ copy: false }))).toBe(true);
+        expect(compare.equalFloatArrays(results.scoreForCell(0), results2.scoreForCell(0))).toBe(true);
 
         built.free();
         results.free();
@@ -442,8 +442,8 @@ test("labelCells works correctly with a dense matrix", () => {
     }
 
     let results2 = scran.labelCells(buffer, built, { numberOfFeatures: nfeatures, numberOfCells: 30 }); 
-    expect(compare.equalArrays(results.predictedLabels({ copy: false }), results2.predictedLabels({ copy: false }))).toBe(true);
-    expect(compare.equalArrays(results.scoresForCell(0, { copy: false }), results2.scoresForCell(0, { copy: false }))).toBe(true);
+    expect(compare.equalArrays(results.predicted({ copy: false }), results2.predicted({ copy: false }))).toBe(true);
+    expect(compare.equalFloatArrays(results.scoreForCell(0), results2.scoreForCell(0))).toBe(true);
 
     // Freeing the objects.
     refinfo.free();
@@ -476,20 +476,20 @@ test("multi-reference integration works correctly with variable intersections", 
     // Not much checks we can do here other than to verify that the ints are wihtin range.
     let resA =  scran.labelCells(test, builtA);
     let resB = scran.labelCells(test, builtB);
-    let labB = resB.predictedLabels();
+    let labB = resB.predicted();
     resB.free();
 
     let combined = scran.integrateLabelCells(test, [resA, labB], inter);
     expect(combined.numberOfCells()).toBe(test.numberOfColumns());
     expect(combined.numberOfReferences()).toBe(2);
-    expect(combined.fineTuningDelta().length).toBe(test.numberOfColumns());
-    expect(combined.predictedReferences().length).toBe(test.numberOfColumns());
-    expect(combined.scoresForCell(0).length).toBe(2);
-    expect(combined.scoresForReference(1).length).toBe(test.numberOfColumns());
+    expect(combined.delta().length).toBe(test.numberOfColumns());
+    expect(combined.predicted().length).toBe(test.numberOfColumns());
+    expect(combined.scoreForCell(0).length).toBe(2);
+    expect(combined.scoreForReference(1).length).toBe(test.numberOfColumns());
 
     let min = 1000;
     let max = -1;
-    combined.predictedReferences({ copy: false }).forEach(x => {
+    combined.predicted({ copy: false }).forEach(x => {
         if (x < min) {
             min = x;
         }
@@ -533,8 +533,8 @@ test("multi-reference integration works correctly with consistent intersections"
 
     let resA =  scran.labelCells(test, builtA);
     let resB = scran.labelCells(test, builtB);
-    let labA = resA.predictedLabels();
-    let labB = resB.predictedLabels();
+    let labA = resA.predicted();
+    let labB = resB.predicted();
 
     let combined = scran.integrateLabelCells(test, [labA, labB], inter);
 
@@ -563,13 +563,13 @@ test("multi-reference integration works correctly with consistent intersections"
         let sub = scran.subsetRows(test, inter_test);
         let subresA =  scran.labelCells(sub, subbuiltA);
         let subresB = scran.labelCells(sub, subbuiltB);
-        let sublabA = resA.predictedLabels();
-        let sublabB = resB.predictedLabels();
+        let sublabA = resA.predicted();
+        let sublabB = resB.predicted();
 
         let subcombined = scran.integrateLabelCells(sub, [sublabA, sublabB], subinter);
-        expect(subcombined.predictedReferences()).toEqual(combined.predictedReferences());
-        expect(compare.equalFloatArrays(subcombined.fineTuningDelta(), combined.fineTuningDelta())).toBe(true);
-        expect(compare.equalFloatArrays(subcombined.scoresForCell(0, { copy: false }).array(), combined.scoresForCell(0, { copy: false }).array())).toBe(true);
+        expect(subcombined.predicted()).toEqual(combined.predicted());
+        expect(compare.equalFloatArrays(subcombined.delta(), combined.delta())).toBe(true);
+        expect(compare.equalFloatArrays(subcombined.scoreForCell(0), combined.scoreForCell(0))).toBe(true);
 
         sub.free();
         subrefinfoA.free();

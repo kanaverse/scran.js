@@ -60,15 +60,17 @@ export function logNormCounts(x, { sizeFactors = null, allowZeros = false, allow
  * @param {TypedArray|WasmArray} sizeFactors - Array of non-negative size factors, one per cell.
  * @param {object} [options={}] - Optional parameters.
  * @param {?(Int32WasmArray|Array|TypedArray)} [options.block=null] - Array containing the block assignment for each cell, see {@linkcode logNormCounts}.
+ * @param {boolean} [options.asTypedArray=true] - Whether to return a Float64Array.
+ * If `false`, a Float64WasmArray is returned instead.
  * @param {?Float64WasmArray} [options.buffer=null] - Buffer in which to store the output size factors.
  * Length should be equal to that of `sizeFactors`.
  * If `null`, an array is allocated by the function.
  *
- * @return {Float64WasmArray} Array containing the centered size factors.
- * If `buffer` is provided, it is returned directly.
+ * @return {Float64Array|Float64WasmArray} Array containing the centered size factors.
+ * If `buffer` is supplied, the function returns `buffer` if `asTypedArray = false`, or a view on `buffer` if `asTypedArray = true`.
  */
-export function centerSizeFactors(sizeFactors, { block = null, buffer = null, toLowestBlock = true } = {}) {
-    let local_buffer;
+export function centerSizeFactors(sizeFactors, { block = null, asTypedArray = true, buffer = null, toLowestBlock = true } = {}) {
+    let local_buffer = null;
     let block_data;
 
     try {
@@ -103,5 +105,5 @@ export function centerSizeFactors(sizeFactors, { block = null, buffer = null, to
         utils.free(block_data);
     }
 
-    return buffer;
+    return utils.toTypedArray(buffer, local_buffer == null, asTypedArray);
 }

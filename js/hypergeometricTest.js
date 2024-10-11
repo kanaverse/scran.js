@@ -11,14 +11,19 @@ import * as wasm from "./wasm.js";
  * @param {number|Array|TypedArray|WasmArray} geneSetSize - Size of the gene set.
  * @param {number|Array|TypedArray|WasmArray} numberOfGenes - Total number of genes.
  * @param {object} [options={}] - Optional parameters.
+ * @param {boolean} [options.asTypedArray=true] - Whether to return a Float64Array.
+ * If `false`, a Float64WasmArray is returned instead.
+ * @param {?Float64WasmArray} [options.buffer=null] - Buffer in which to store the output.
+ * If not `null`, this should have the same length as any of the array-like arguments.
  * @param {boolean} [options.log=false] - Whether to compute log-probabilities.
  * @param {?number} [options.numberOfThreads=null] - Number of threads to use.
  * If `null`, defaults to {@linkcode maximumThreads}.
  *
- * @return {Float64WasmArray} An array of length equal to that of the supplied arrays (or 1, if no arrays are supplied).
+ * @return {Float64Array|Float64WasmArray} An array of length equal to that of the supplied arrays (or 1, if no arrays are supplied).
  * The i-th entry contains the p-value for enrichment computed using the i-th entry of each supplied array. 
+ * If `buffer` is supplied, the function returns `buffer` if `asTypedArray = false`, or a view on `buffer` if `asTypedArray = true`.
  */
-export function hypergeometricTest(markersInSet, numberOfMarkers, geneSetSize, numberOfGenes, { log = false, numberOfThreads = null } = {}) {
+export function hypergeometricTest(markersInSet, numberOfMarkers, geneSetSize, numberOfGenes, { asTypedArray = true, buffer = null, log = false, numberOfThreads = null } = {}) {
     let markersInSet_data;
     let numberOfMarkers_data;
     let geneSetSize_data;
@@ -61,13 +66,17 @@ export function hypergeometricTest(markersInSet, numberOfMarkers, geneSetSize, n
         ntests = 1;
     }
 
-    let output;
+    let tmp = null;
     try {
         markersInSet_data = utils.wasmifyArray(markersInSet, "Int32WasmArray");
         numberOfMarkers_data = utils.wasmifyArray(numberOfMarkers, "Int32WasmArray");
         geneSetSize_data = utils.wasmifyArray(geneSetSize, "Int32WasmArray");
         numberOfGenes_data = utils.wasmifyArray(numberOfGenes, "Int32WasmArray");
-        output = utils.createFloat64WasmArray(ntests);
+
+        if (buffer == null) {
+            buffer = utils.createFloat64WasmArray(ntests);
+            tmp = buffer;
+        }
 
         wasm.call(module => module.hypergeometric_test(
             ntests, 
@@ -79,7 +88,7 @@ export function hypergeometricTest(markersInSet, numberOfMarkers, geneSetSize, n
             numberOfMarkers_data.offset,
             numberOfGenes_data.length != 1,
             numberOfGenes_data.offset,
-            output.offset,
+            buffer.offset,
             log,
             nthreads
         ));
@@ -91,5 +100,5 @@ export function hypergeometricTest(markersInSet, numberOfMarkers, geneSetSize, n
         utils.free(numberOfGenes_data);
     }
 
-    return output;
+    return utils.toTypedArray(buffer, tmp == null, asTypedArray);
 }

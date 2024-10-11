@@ -301,30 +301,36 @@ class LabelCellsResults {
      * @return {Int32Array|Int32WasmArray} Array of length equal to the number of cells,
      * containing the index of the best label for each cell.
      */
-    predictedLabels({ copy = true } = {}) {
+    predicted({ copy = true } = {}) {
         return utils.possibleCopy(this.#results.best(), copy);
     }
 
     /**
      * @param {number} i - Index of the cell of interest.
      * @param {object} [options={}] - Optional parameters.
+     * @param {boolean} [options.asTypedArray=true] - Whether to return a Float64Array.
+     * If `false`, a Float64WasmArray is returned instead.
      * @param {?Float64WasmArray} [options.buffer=null] - Buffer in which to store the output.
      * This should have the same length as the {@linkcode LabelCellsResults#numberOfLabels numberOfLabels}.
-     * @return {Float64WasmArray} Array containing the scores for this cell across all labels.
+     *
+     * @return {Float64Array|Float64WasmArray} Array containing the scores for this cell across all labels.
+     * If `buffer` is supplied, the function returns `buffer` if `asTypedArray = false`, or a view on `buffer` if `asTypedArray = true`.
      */
-    scoresForCell(i, { buffer = null } = {}) {
-        let tmp;
+    scoreForCell(i, { asTypedArray = true, buffer = null } = {}) {
+        let tmp = null;
+
         try {
             if (buffer == null) {
                 tmp = utils.createFloat64WasmArray(this.#results.num_labels());
                 buffer = tmp;
             }
-            this.#results.scores_for_sample(i, buffer.offset);
+            this.#results.score_for_sample(i, buffer.offset);
         } catch (e) {
             utils.free(tmp);
             throw e;
         }
-        return buffer;
+
+        return utils.toTypedArray(buffer, tmp == null, asTypedArray);
     }
 
     /**
@@ -334,17 +340,17 @@ class LabelCellsResults {
      * Only used if `buffer` is not supplied.
      * @return {Float64Array|Float64WasmArray} Array containing the scores across all cells for this label.
      */
-    scoresForLabel(i, { copy = true, buffer = null } = {}) {
-        return utils.possibleCopy(this.#results.scores_for_label(i), copy);
+    scoreForLabel(i, { copy = true, buffer = null } = {}) {
+        return utils.possibleCopy(this.#results.score_for_label(i), copy);
     }
 
     /**
      * @param {object} [options={}] - Optional parameters.
      * @param {boolean|string} [options.copy=true] - Copying mode, see {@linkcode possibleCopy} for details.
      * @return {Float64Array|Float64WasmArray} Array of length equal to the number of cells,
-     * containing the difference in scores between the best and second-best label during fine-tuning.
+     * containing the difference in scores between the best and second-best labels.
      */
-    fineTuningDelta({ copy = true } = {}) {
+    delta({ copy = true } = {}) {
         return utils.possibleCopy(this.#results.delta(), copy);
     }
 
@@ -599,32 +605,34 @@ class IntegrateLabelCellsResults {
      * @return {Int32Array|Int32WasmArray} Array of length equal to the number of cells,
      * containing the index of the best reference for each cell.
      */
-    predictedReferences({ copy = true } = {}) {
+    predicted({ copy = true } = {}) {
         return utils.possibleCopy(this.#results.best(), copy);
     }
 
     /**
      * @param {number} i - Index of the cell of interest.
      * @param {object} [options={}] - Optional parameters.
+     * @param {boolean} [options.asTypedArray=true] - Whether to return a Float64Array.
+     * If `false`, a Float64WasmArray is returned instead.
      * @param {?Float64WasmArray} [options.buffer=null] - Buffer in which to store the output.
-     * This should have the same length as the {@linkcode LabelCellsResults#numberOfCells numberOfCells}.
+     * This should have the same length as the {@linkcode IntegrateLabelCellsResults#numberOfReferences numberOfReferences}.
      *
-     * @return {Float64WasmArray} Array containing the scores for this cell across all references.
-     * If `buffer` is supplied, it is used as the return value.
+     * @return {Float64Array|Float64WasmArray} Array containing the scores for this cell across all labels.
+     * If `buffer` is supplied, the function returns `buffer` if `asTypedArray = false`, or a view on `buffer` if `asTypedArray = true`.
      */
-    scoresForCell(i, { buffer = null } = {}) {
+    scoreForCell(i, { asTypedArray = true, buffer = null } = {}) {
         let tmp;
         try {
             if (buffer == null) {
                 tmp = utils.createFloat64WasmArray(this.#results.num_references());
                 buffer = tmp;
             }
-            this.#results.scores_for_sample(i, buffer.offset);
+            this.#results.score_for_sample(i, buffer.offset);
         } catch (e) {
             utils.free(tmp);
             throw e;
         }
-        return buffer;
+        return utils.toTypedArray(buffer, tmp == null, asTypedArray);
     }
 
     /**
@@ -634,8 +642,8 @@ class IntegrateLabelCellsResults {
      *
      * @return {Float64Array|Float64WasmArray} Array containing the scores across all cells for this label.
      */
-    scoresForReference(i, { copy = true } = {}) {
-        return utils.possibleCopy(this.#results.scores_for_reference(i), copy);
+    scoreForReference(i, { copy = true } = {}) {
+        return utils.possibleCopy(this.#results.score_for_reference(i), copy);
     }
 
     /**
@@ -643,9 +651,9 @@ class IntegrateLabelCellsResults {
      * @param {boolean|string} [options.copy=true] - Copying mode, see {@linkcode possibleCopy} for details.
      *
      * @return {Float64Array|Float64WasmArray} Array of length equal to the number of cells,
-     * containing the difference in scores between the best and second-best reference during fine-tuning.
+     * containing the difference in scores between the best and second-best references.
      */
-    fineTuningDelta({ copy = true } = {}) {
+    delta({ copy = true } = {}) {
         return utils.possibleCopy(this.#results.delta(), copy);
     }
 
@@ -711,7 +719,7 @@ export function integrateLabelCells(x, assigned, integrated, { numberOfFeatures 
         for (var i = 0; i < assigned.length; i++) {
             let current = assigned[i];
             if (current instanceof LabelCellsResults) {
-                current = current.predictedLabels({ copy: "view" });
+                current = current.predicted({ copy: "view" });
             }
             if (current.length != x.numberOfColumns()) {
                 throw new Error("length of each element in 'assigned' should be equal to number of columns in 'x'");

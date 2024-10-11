@@ -17,6 +17,8 @@ import { buildNeighborSearchIndex, BuildNeighborSearchIndexResults } from "./fin
  * @param {?Array} [options.indices=null] - Array of {@linkplain BuildNeighborSearchIndexResults} objects, 
  * where each entry is constructed from the corresponding entry of `embeddings` (see {@linkcode buildNeighborSearchIndex}).
  * This can be used to avoid redundant calculation of indices if they are already available.
+ * @param {boolean} [options.asTypedArray=true] - Whether to return a Float64Array.
+ * If `false`, a Float64WasmArray is returned instead.
  * @param {?Float64WasmArray} [options.buffer=null] - Array in which to store the combined embedding.
  * This should have length equal to the product of `numberOfCells` and the sum of dimensions of all embeddings.
  * @param {boolean} [options.approximate=true] - Should we construct an approximate search index if `indices` is not supplied?
@@ -26,15 +28,14 @@ import { buildNeighborSearchIndex, BuildNeighborSearchIndexResults } from "./fin
  * @param {?number} [options.numberOfThreads=null] - Number of threads to use.
  * If `null`, defaults to {@linkcode maximumThreads}.
  *
- * @return {Float64WasmArray} Array containing the combined embeddings in column-major format, i.e., dimensions in rows and cells in columns.
- *
- * If `buffer` was supplied, it is used as the return value.
+ * @return {Float64Array|Float64WasmArray} Array containing the combined embeddings in column-major format, i.e., dimensions in rows and cells in columns.
+ * If `buffer` is supplied, the function returns `buffer` if `asTypedArray = false`, or a view on `buffer` if `asTypedArray = true`.
  */
-export function scaleByNeighbors(embeddings, numberOfCells, { neighbors = 20, indices = null, buffer = null, approximate = true, weights = null, numberOfThreads = null } = {}) {
+export function scaleByNeighbors(embeddings, numberOfCells, { neighbors = 20, indices = null, asTypedArray = true, buffer = null, approximate = true, weights = null, numberOfThreads = null } = {}) {
     let embed_ptrs;
     let index_ptrs;
     let holding_weights;
-    let local_buffer;
+    let local_buffer = null;
     let nthreads = utils.chooseNumberOfThreads(numberOfThreads);
 
     try {
@@ -125,5 +126,5 @@ export function scaleByNeighbors(embeddings, numberOfCells, { neighbors = 20, in
         utils.free(holding_weights);
     }
 
-    return buffer;
+    return utils.toTypedArray(buffer, local_buffer == null, asTypedArray);
 }

@@ -14,12 +14,12 @@ import * as wa from "wasmarrays.js";
  * @param {?number} [options.numberOfThreads=null] - Number of threads to use.
  * If `null`, defaults to {@linkcode maximumThreads}.
  *
- * @return {Float64WasmArray} Array of length equal to the number of columns in `x`, containing the CLRm1 size factors for all cells.
- * If `buffer` was supplied, it is used as the return value.
+ * @return {Float64Array|Float64WasmArray} Array of length equal to the number of columns in `x`, containing the CLRm1 size factors for all cells.
  * Note that the factors are not centered and should be passed to {@linkcode centerSizeFactors} before calling {@linkcode normalizeCounts}.
+ * If `buffer` is supplied, the function returns `buffer` if `asTypedArray = false`, or a view on `buffer` if `asTypedArray = true`.
  */
-export function computeClrm1Factors(x, { center = true, reference = null, buffer = null, priorCount = 10, numberOfThreads = null } = {}) {
-    var local_buffer;
+export function computeClrm1Factors(x, { asTypedArray = true, buffer = null, priorCount = 10, numberOfThreads = null } = {}) {
+    var local_buffer = null;
     let nthreads = utils.chooseNumberOfThreads(numberOfThreads);
 
     try {
@@ -36,5 +36,5 @@ export function computeClrm1Factors(x, { center = true, reference = null, buffer
         throw e;
     }
     
-    return buffer;
+    return utils.toTypedArray(buffer, local_buffer == null, asTypedArray);
 }

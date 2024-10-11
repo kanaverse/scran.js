@@ -137,7 +137,7 @@ public:
         return emscripten::val(emscripten::typed_memory_view(store.best.size(), store.best.data()));
     }
 
-    void scores_for_sample(int32_t i, uintptr_t output) const {
+    void score_for_sample(int32_t i, uintptr_t output) const {
         auto optr = reinterpret_cast<double*>(output);
         for (auto& s : store.scores) {
             *optr = s[i];
@@ -145,7 +145,7 @@ public:
         }
     }
 
-    emscripten::val scores_for_label(int32_t i) const {
+    emscripten::val score_for_label(int32_t i) const {
         const auto& current = store.scores[i];
         return emscripten::val(emscripten::typed_memory_view(current.size(), current.data()));
     }
@@ -252,7 +252,7 @@ public:
         return emscripten::val(emscripten::typed_memory_view(store.best.size(), store.best.data()));
     }
 
-    void scores_for_sample(int32_t i, uintptr_t output) const {
+    void score_for_sample(int32_t i, uintptr_t output) const {
         auto optr = reinterpret_cast<double*>(output);
         for (auto& s : store.scores) {
             *optr = s[i];
@@ -260,7 +260,7 @@ public:
         }
     }
 
-    emscripten::val scores_for_reference(int32_t i) const {
+    emscripten::val score_for_reference(int32_t i) const {
         const auto& current = store.scores[i];
         return emscripten::val(emscripten::typed_memory_view(current.size(), current.data()));
     }
@@ -301,8 +301,8 @@ EMSCRIPTEN_BINDINGS(run_singlepp) {
         .function("num_samples", &SingleppResults::num_samples, emscripten::return_value_policy::take_ownership()) 
         .function("num_labels", &SingleppResults::num_labels, emscripten::return_value_policy::take_ownership())
         .function("best", &SingleppResults::best, emscripten::return_value_policy::take_ownership())
-        .function("scores_for_sample", &SingleppResults::scores_for_sample, emscripten::return_value_policy::take_ownership())
-        .function("scores_for_label", &SingleppResults::scores_for_label, emscripten::return_value_policy::take_ownership())
+        .function("score_for_sample", &SingleppResults::score_for_sample, emscripten::return_value_policy::take_ownership())
+        .function("score_for_label", &SingleppResults::score_for_label, emscripten::return_value_policy::take_ownership())
         .function("delta", &SingleppResults::delta, emscripten::return_value_policy::take_ownership())
         ;
 
@@ -318,8 +318,8 @@ EMSCRIPTEN_BINDINGS(run_singlepp) {
         .function("num_samples", &SingleppIntegratedResults::num_samples, emscripten::return_value_policy::take_ownership()) 
         .function("num_references", &SingleppIntegratedResults::num_references, emscripten::return_value_policy::take_ownership())
         .function("best", &SingleppIntegratedResults::best, emscripten::return_value_policy::take_ownership())
-        .function("scores_for_sample", &SingleppIntegratedResults::scores_for_sample, emscripten::return_value_policy::take_ownership())
-        .function("scores_for_reference", &SingleppIntegratedResults::scores_for_reference, emscripten::return_value_policy::take_ownership())
+        .function("score_for_sample", &SingleppIntegratedResults::score_for_sample, emscripten::return_value_policy::take_ownership())
+        .function("score_for_reference", &SingleppIntegratedResults::score_for_reference, emscripten::return_value_policy::take_ownership())
         .function("delta", &SingleppIntegratedResults::delta, emscripten::return_value_policy::take_ownership())
         ;
 

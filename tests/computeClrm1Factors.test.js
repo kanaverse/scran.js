@@ -20,7 +20,6 @@ test("Size factor calculation works as expected", () => {
 
     // Cleaning up.
     mat.free();
-    norm.free();
 });
 
 test("Size factor calculation works with buffering", () => {

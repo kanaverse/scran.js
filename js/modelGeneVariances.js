@@ -19,12 +19,12 @@ export class ModelGeneVariancesResults {
      * @param {?number} [options.block=null] - Number of the block for which to extract statistics.
      * If `null`, the average across all blocks is returned.
      * Otherwise, should be less than the value returned by {@linkcode ModelGeneVariancesResults#numberOfBlocks numberOfBlocks}.
-     * Ignored if {@linkcode ModelGeneVariacneResults#isBlocked} returns false.
+     * Ignored if {@linkcode ModelGeneVariancesResults#isBlocked isBlocked} returns false.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      *
      * @return {?(Float64Array|Float64WasmArray)} Array of length equal to the number of genes,
      * containing the mean log-expression across all cells in the specified `block`
-     * (or the average across all blocks, if `block == null`).
+     * (or the average across all blocks, if `block = null`).
      */
     means({ block = null, copy = true } = {}) {
         return utils.possibleCopy(this.#results.means(block == null ? -1 : block), copy);
@@ -35,12 +35,12 @@ export class ModelGeneVariancesResults {
      * @param {?number} [options.block=null] - Number of the block for which to extract statistics.
      * If `null`, the average across all blocks is returned.
      * Otherwise, should be less than the value returned by {@linkcode ModelGeneVariancesResults#numberOfBlocks numberOfBlocks}.
-     * Ignored if {@linkcode ModelGeneVariacneResults#isBlocked} returns false.
+     * Ignored if {@linkcode ModelGeneVariancesResults#isBlocked isBlocked} returns false.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      *
      * @return {?(Float64Array|Float64WasmArray)} Array of length equal to the number of genes,
      * containing the variance of log-expression across all cells in the specified `block`
-     * (or the average across all blocks, if `block == null`).
+     * (or the average across all blocks, if `block = null`).
      */
     variances({ block = null, copy = true } = {}) {
         return utils.possibleCopy(this.#results.variances(block == null ? -1 : block), copy);
@@ -51,12 +51,12 @@ export class ModelGeneVariancesResults {
      * @param {?number} [options.block=null] - Number of the block for which to extract statistics.
      * If `null`, the average across all blocks is returned.
      * Otherwise, should be less than the value returned by {@linkcode ModelGeneVariancesResults#numberOfBlocks numberOfBlocks}.
-     * Ignored if {@linkcode ModelGeneVariacneResults#isBlocked} returns false.
+     * Ignored if {@linkcode ModelGeneVariancesResults#isBlocked isBlocked} returns false.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      *
      * @return {Float64Array|Float64WasmArray} Array of length equal to the number of genes,
      * containing the fitted value of the mean-variance trend for the specified `block`
-     * (or the average across all blocks, if `block == null`).
+     * (or the average across all blocks, if `block = null`).
      * Alternatively `null`, if `fillable = false` and the array was not already filled.
      */
     fitted({ block = null, copy = true } = {}) {
@@ -68,12 +68,12 @@ export class ModelGeneVariancesResults {
      * @param {?number} [options.block=null] - Number of the block for which to extract statistics.
      * If `null`, the average across all blocks is returned.
      * Otherwise, should be less than the value returned by {@linkcode ModelGeneVariancesResults#numberOfBlocks numberOfBlocks}.
-     * Ignored if {@linkcode ModelGeneVariacneResults#isBlocked} returns false.
+     * Ignored if {@linkcode ModelGeneVariancesResults#isBlocked isBlocked} returns false.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      *
      * @return {Float64Array|Float64WasmArray} Array of length equal to the number of genes,
      * containing the residuals from the mean-variance trend for the specified `block`
-     * (or the average across all blocks, if `block == null`).
+     * (or the average across all blocks, if `block = null`).
      */
     residuals({ block = null, copy = true } = {}) {
         return utils.possibleCopy(this.#results.residuals(block == null ? -1 : block), copy);

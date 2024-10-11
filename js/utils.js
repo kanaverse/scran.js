@@ -159,16 +159,16 @@ export function spawnArray(n, fill) {
     return output;
 }
 
-export function checkFillness(fill, copy, check, setFilledFun, getFun) {
-    if (!check) {
-        if (fill) {
-            setFilledFun();
-            if (copy) {
-                copy = false;
-            }
+export function toTypedArray(buffer, wasSupplied, asTypedArray) {
+    if (asTypedArray) {
+        if (!wasSupplied) {
+            const output = buffer.slice();
+            buffer.free();
+            return output;
         } else {
-            return null;
+            return buffer.array();
         }
+    } else {
+        return buffer;
     }
-    return getFun(copy);
 }

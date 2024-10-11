@@ -44,15 +44,34 @@ export class AggregateAcrossCellsResults {
     }
 
     /**
-     * @return {Float64WasmArray} Array of length equal to the product of the number of genes and groups.
+     * @param {object} [options={}] - Optional parameters.
+     * @param {boolean} [options.asTypedArray=true] - Whether to return a Float64Array.
+     * If `false`, a Float64WasmArray is returned instead.
+     * @param {?Float64WasmArray} [options.buffer=null] - Buffer in which to store the output.
+     * If not `null`, this should have the same length as the product of {@linkcode AggregateAcrossCellsResults#numberOfGenes numberOfGenes} 
+     * and {@linkcode AggregateAcrossCellsResults#numberOfGroups numberOfGroups}.
+     *
+     * @return {Float64Array|Float64WasmArray} Array of length equal to the product of the number of genes and groups.
      * This can be treated as a column-major matrix where the rows are the genes and the columns are the groups,
      * and each element is the sum of values for the corresponding gene in the corresponding group.
      * If `average = true` in {@linkcode aggregateAcrossCells}, each element is the mean value instead.
+     * If `buffer` is supplied, the function returns `buffer` if `asTypedArray = false`, or a view on `buffer` if `asTypedArray = true`.
      */
-    allSums() {
-        let output = utils.createFloat64WasmArray(this.numberOfGenes() * this.numberOfGroups());
-        this.#results.all_sums(output.offset);
-        return output;
+    allSums({ asTypedArray = true, buffer = null } = {}) {
+        let tmp = null;
+
+        try {
+            if (buffer == null) {
+                tmp = utils.createFloat64WasmArray(this.numberOfGenes() * this.numberOfGroups());
+                buffer = tmp;
+            }
+            this.#results.all_sums(buffer.offset);
+        } catch (e) {
+            utils.free(tmp);
+            throw e;
+        }
+
+        return utils.toTypedArray(buffer, tmp == null, asTypedArray);
     }
 
     /**
@@ -69,15 +88,33 @@ export class AggregateAcrossCellsResults {
     }
 
     /**
-     * @return {Float64WasmArray} Array of length equal to the product of the number of genes and groups.
+     * @param {object} [options={}] - Optional parameters.
+     * @param {boolean} [options.asTypedArray=true] - Whether to return a Float64Array.
+     * If `false`, a Float64WasmArray is returned instead.
+     * If not `null`, this should have the same length as the product of {@linkcode AggregateAcrossCellsResults#numberOfGenes numberOfGenes} 
+     * and {@linkcode AggregateAcrossCellsResults#numberOfGroups numberOfGroups}.
+     *
+     * @return {Float64Array|Float64WasmArray} Array of length equal to the product of the number of genes and groups.
      * This can be treated as a column-major matrix where the rows are the genes and the columns are the groups,
      * and each element contains the number of detected cells for the corresponding gene in the corresponding group.
      * If `average = true` in {@linkcode aggregateAcrossCells}, each element is the proportion of detected cells instead.
+     * If `buffer` is supplied, the function returns `buffer` if `asTypedArray = false`, or a view on `buffer` if `asTypedArray = true`.
      */
-    allDetected() {
-        let output = utils.createFloat64WasmArray(this.numberOfGenes() * this.numberOfGroups());
-        this.#results.all_detected(output.offset);
-        return output;
+    allDetected({ asTypedArray = true, buffer = null } = {}) {
+        let tmp = null;
+
+        try {
+            if (buffer == null) {
+                tmp = utils.createFloat64WasmArray(this.numberOfGenes() * this.numberOfGroups());
+                buffer = tmp;
+            }
+            this.#results.all_detected(buffer.offset);
+        } catch (e) {
+            utils.free(tmp);
+            throw e;
+        }
+
+        return utils.toTypedArray(buffer, tmp == null, asTypedArray);
     }
 
     /**
