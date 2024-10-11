@@ -1,277 +1,327 @@
 #include <emscripten/bind.h>
 
 #include "NumericMatrix.h"
+#include "NeighborIndex.h"
 #include "utils.h"
-#include "parallel.h"
 
-#define SINGLEPP_USE_ZLIB
 #include "singlepp/singlepp.hpp"
-#include "singlepp/load_references.hpp"
-
+#include "singlepp_loaders/singlepp_loaders.hpp"
 #include "tatami/tatami.hpp"
+
 #include <vector>
 #include <memory>
 #include <cstdint>
+#include <iostream>
 
 /*****************************************/
 
-class SinglePPReference {
+class SingleppRawReference {
 public:
-    SinglePPReference(
-        std::shared_ptr<tatami::NumericMatrix> ranks,
-        singlepp::Markers marks,
-        std::vector<int> labs) :
+    SingleppRawReference(
+        singlepp_loaders::RankMatrix<double, int32_t, int32_t> ranks,
+        std::vector<int32_t> labs,
+        singlepp::Markers<int32_t> marks) :
         matrix(std::move(ranks)),
-        markers(std::move(marks)),
-        labels(std::move(labs))
+        labels(std::move(labs)),
+        markers(std::move(marks))
     {}
 
-    SinglePPReference() {};
-
-    std::shared_ptr<tatami::NumericMatrix> matrix;
-    singlepp::Markers markers;
-    std::vector<int> labels;
+public:
+    singlepp_loaders::RankMatrix<double, int32_t, int32_t> matrix;
+    std::vector<int32_t> labels;
+    singlepp::Markers<int32_t> markers;
 
 public:
-    size_t num_samples() const {
-        return matrix->ncol();
+    int32_t num_samples() const {
+        return matrix.ncol();
     }
 
-    size_t num_features() const {
-        return matrix->nrow();
+    int32_t num_features() const {
+        return matrix.nrow();
     }
 
-    size_t num_labels() const {
+    int32_t num_labels() const {
         return markers.size();
     }
 };
 
-SinglePPReference load_singlepp_reference(
-    uintptr_t labels_buffer, size_t labels_len,
-    uintptr_t markers_buffer, size_t markers_len,
-    uintptr_t rankings_buffer, size_t rankings_len)
-{ 
-    auto lab = singlepp::load_labels_from_zlib_buffer(reinterpret_cast<unsigned char*>(labels_buffer), labels_len);
-    size_t nlabels = (lab.size() ? *std::max_element(lab.begin(), lab.end()) + 1 : 0);
-
-    auto mat = singlepp::load_rankings_from_zlib_buffer(reinterpret_cast<unsigned char*>(rankings_buffer), rankings_len);
-    std::shared_ptr<tatami::NumericMatrix> rank(new decltype(mat)(std::move(mat)));
-
-    auto mark = singlepp::load_markers_from_zlib_buffer(reinterpret_cast<unsigned char*>(markers_buffer), markers_len, rank->nrow(), nlabels);
-
-    return SinglePPReference(std::move(rank), std::move(mark), std::move(lab));
-}
-
-/*****************************************/
-
-class BuiltSinglePPReference {
-public:
-    BuiltSinglePPReference(singlepp::BasicBuilder::PrebuiltIntersection b) : built(std::move(b)) {}
-
-    singlepp::BasicBuilder::PrebuiltIntersection built;
-
-public:
-    size_t shared_features() const {
-        return built.mat_subset.size();
-    }
-
-    size_t num_labels() const {
-        return built.markers.size();
-    }
-};
-
-BuiltSinglePPReference build_singlepp_reference(size_t nfeatures, uintptr_t mat_id, const SinglePPReference& ref, uintptr_t ref_id, int top, int nthreads) {
-    singlepp::BasicBuilder builder;
-    builder.set_top(top).set_num_threads(nthreads);
-
-    auto built = builder.run(
-        nfeatures, 
-        reinterpret_cast<const int*>(mat_id), 
-        ref.matrix.get(), 
-        reinterpret_cast<const int*>(ref_id),
-        ref.labels.data(),
-        ref.markers
-    );
-    return BuiltSinglePPReference(std::move(built));
-}
-
-/*****************************************/
-
-struct SinglePPResults {
-    std::vector<int> best;
-    std::shared_ptr<tatami::DenseColumnMatrix<double, int> > scores;
-    std::vector<double> delta;
-
-    int num_samples() const {
-        return scores->nrow();
-    }
-
-    int num_labels() {
-        return scores->ncol();
-    }
-
-    emscripten::val get_best() const {
-        return emscripten::val(emscripten::typed_memory_view(best.size(), best.data()));
-    }
-
-    void get_scores_for_sample(int i, uintptr_t output) {
-        auto optr = reinterpret_cast<double*>(output);
-        scores->dense_row()->fetch_copy(i, optr);
-    }
-
-    void get_scores_for_label(int i, uintptr_t output) {
-        auto optr = reinterpret_cast<double*>(output);
-        scores->dense_column()->fetch_copy(i, optr);
-    }
-
-    emscripten::val get_delta() const {
-        return emscripten::val(emscripten::typed_memory_view(best.size(), best.data()));
-    }
-};
-
-SinglePPResults run_singlepp(const NumericMatrix& mat, const BuiltSinglePPReference& built, double quantile, int nthreads) {
-    size_t nlabs = built.num_labels();
-    size_t NC =  mat.ptr->ncol();
-
-    std::vector<double> scores(nlabs * NC);
-    std::vector<double*> ptrs;
-    ptrs.reserve(nlabs);
-    for (size_t l = 0; l < nlabs; ++l) {
-        ptrs.push_back(scores.data() + NC * l);
-    }
-
-    SinglePPResults output;
-    output.best.resize(NC);
-    output.delta.resize(NC);
-
-    singlepp::BasicScorer runner;
-    runner.set_quantile(quantile).set_num_threads(nthreads);
-
-    runner.run(
-        mat.ptr.get(), 
-        built.built,
-        output.best.data(),
-        ptrs,
-        output.delta.data()
-    );
-
-    output.scores.reset(new tatami::DenseColumnMatrix<double, int>(NC, nlabs, std::move(scores)));
-    return output;
-}
-
-/*****************************************/
-
-class IntegratedSinglePPReferences {
-public:
-    IntegratedSinglePPReferences(singlepp::IntegratedReferences x) : references(std::move(x)) {};
-
-    IntegratedSinglePPReferences() {};
-
-    singlepp::IntegratedReferences references;
-
-    size_t num_references() const {
-        return references.num_references();
-    }
-};
-
-IntegratedSinglePPReferences integrate_singlepp_references(
-    size_t nfeatures, 
-    uintptr_t mat_id, 
-    size_t nref, 
-    uintptr_t refs, 
-    uintptr_t ref_ids, 
-    uintptr_t built,
-    int nthreads) 
+SingleppRawReference load_singlepp_reference(
+    uintptr_t labels_buffer,
+    size_t labels_len,
+    uintptr_t markers_buffer,
+    size_t markers_len,
+    uintptr_t rankings_buffer,
+    size_t rankings_len)
 {
-    auto mid_ptr = reinterpret_cast<const int*>(mat_id);
-    auto ref_ptrs = convert_array_of_offsets<const SinglePPReference*>(nref, refs);
-    auto rid_ptrs = convert_array_of_offsets<const int*>(nref, ref_ids);
-    auto blt_ptrs = convert_array_of_offsets<const BuiltSinglePPReference*>(nref, built);
+    singlepp_loaders::LoadLabelsOptions lopt;
+    auto lab = singlepp_loaders::load_labels_from_zlib_buffer<int32_t>(reinterpret_cast<unsigned char*>(labels_buffer), labels_len, lopt);
 
-    singlepp::IntegratedBuilder inter;
-    inter.set_num_threads(nthreads);
+    singlepp_loaders::LoadRankingsOptions ropt;
+    auto rank = singlepp_loaders::load_rankings_from_zlib_buffer<double, int32_t>(reinterpret_cast<unsigned char*>(rankings_buffer), rankings_len, ropt);
 
-    for (size_t r = 0; r < nref; ++r) {
-        inter.add(
-            nfeatures, 
-            mid_ptr,
-            ref_ptrs[r]->matrix.get(),
-            rid_ptrs[r],
+    singlepp_loaders::LoadMarkersOptions mopt;
+    auto mark = singlepp_loaders::load_markers_from_zlib_buffer<int32_t>(reinterpret_cast<unsigned char*>(markers_buffer), markers_len, mopt);
+
+    singlepp_loaders::verify(rank, lab, mark);
+    return SingleppRawReference(std::move(rank), std::move(lab), std::move(mark));
+}
+
+/*****************************************/
+
+class SingleppTrainedReference {
+public:
+    typedef singlepp::TrainedSingleIntersect<int32_t, double> Store;
+
+    Store store;
+
+public:
+    SingleppTrainedReference(Store s) : store(std::move(s)) {}
+
+public:
+    int32_t num_features() const {
+        return store.get_test_subset().size();
+    }
+
+    int32_t num_labels() const {
+        return store.num_labels();
+    }
+};
+
+SingleppTrainedReference train_singlepp_reference(int32_t num_intersected, uintptr_t test_feature_ids, uintptr_t ref_feature_ids, const SingleppRawReference& ref, int32_t top, bool approximate, int32_t nthreads) {
+    singlepp::TrainSingleOptions opt;
+    opt.top = top;
+    opt.trainer = create_builder(approximate);
+    opt.num_threads = nthreads;
+
+    singlepp::Intersection<int32_t> inter;
+    {
+        inter.reserve(num_intersected);
+        auto tptr = reinterpret_cast<const int32_t*>(test_feature_ids);
+        auto rptr = reinterpret_cast<const int32_t*>(ref_feature_ids);
+        for (int32_t i = 0; i < num_intersected; ++i) {
+            inter.emplace_back(tptr[i], rptr[i]);
+        }
+    }
+
+    auto built = singlepp::train_single_intersect(
+        inter,
+        ref.matrix,
+        ref.labels.data(),
+        ref.markers,
+        opt
+    );
+
+    return SingleppTrainedReference(std::move(built));
+}
+
+/*****************************************/
+
+struct SingleppResults {
+    typedef singlepp::ClassifySingleResults<int32_t, double> Store;
+
+    Store store;
+
+public:
+    SingleppResults(Store s) : store(std::move(s)) {}
+
+public:
+    int32_t num_samples() const {
+        return store.best.size();
+    }
+
+    int32_t num_labels() const {
+        return store.scores.size();
+    }
+
+    emscripten::val best() const {
+        return emscripten::val(emscripten::typed_memory_view(store.best.size(), store.best.data()));
+    }
+
+    void score_for_sample(int32_t i, uintptr_t output) const {
+        auto optr = reinterpret_cast<double*>(output);
+        for (auto& s : store.scores) {
+            *optr = s[i];
+            ++optr;
+        }
+    }
+
+    emscripten::val score_for_label(int32_t i) const {
+        const auto& current = store.scores[i];
+        return emscripten::val(emscripten::typed_memory_view(current.size(), current.data()));
+    }
+
+    emscripten::val delta() const {
+        return emscripten::val(emscripten::typed_memory_view(store.delta.size(), store.delta.data()));
+    }
+};
+
+SingleppResults run_singlepp(const NumericMatrix& mat, const SingleppTrainedReference& built, double quantile, int32_t nthreads) {
+    singlepp::ClassifySingleOptions<double> opt;
+    opt.quantile = quantile;
+    opt.num_threads = nthreads;
+    auto store = singlepp::classify_single_intersect(*(mat.ptr), built.store, opt);
+    return SingleppResults(std::move(store));
+}
+
+/*****************************************/
+
+struct SingleppIntegratedReferences {
+    typedef singlepp::TrainedIntegrated<int32_t> Store;
+
+    Store store;
+
+public:
+    SingleppIntegratedReferences(Store s) : store(std::move(s)) {};
+
+public:
+    size_t num_references() const {
+        return store.num_references();
+    }
+};
+
+SingleppIntegratedReferences integrate_singlepp_references(
+    int32_t nref, 
+    uintptr_t intersection_sizes,
+    uintptr_t test_feature_ids,
+    uintptr_t ref_feature_ids,
+    uintptr_t refs, 
+    uintptr_t built,
+    int32_t nthreads) 
+{
+    auto inter_ptr = reinterpret_cast<const int32_t*>(intersection_sizes);
+    auto tid_ptrs = convert_array_of_offsets<const int32_t*>(nref, test_feature_ids);
+    auto rid_ptrs = convert_array_of_offsets<const int32_t*>(nref, ref_feature_ids);
+    std::vector<singlepp::Intersection<int32_t> > all_inter(nref);
+    for (int32_t r = 0; r < nref; ++r) {
+        auto& inter = all_inter[r];
+        auto num_intersected = inter_ptr[r];
+        inter.reserve(num_intersected);
+        auto tptr = tid_ptrs[r];
+        auto rptr = rid_ptrs[r];
+        for (int32_t i = 0; i < num_intersected; ++i) {
+            inter.emplace_back(tptr[i], rptr[i]);
+        }
+    }
+
+    auto ref_ptrs = convert_array_of_offsets<const SingleppRawReference*>(nref, refs);
+    auto blt_ptrs = convert_array_of_offsets<const SingleppTrainedReference*>(nref, built);
+    std::vector<singlepp::TrainIntegratedInput<double, int32_t, int32_t> > prepared(nref);
+    for (int32_t r = 0; r < nref; ++r) {
+        const auto& mat = ref_ptrs[r]->matrix;
+        const auto& trained = blt_ptrs[r]->store;
+        if (static_cast<size_t>(mat.ncol()) != trained.num_profiles()) {
+            throw std::runtime_error("mismatch in the number of profiles for reference " + std::to_string(r));
+        }
+        if (ref_ptrs[r]->markers.size() != trained.num_labels()) {
+            throw std::runtime_error("mismatch in the number of labels for reference " + std::to_string(r));
+        }
+        prepared[r] = singlepp::prepare_integrated_input_intersect(
+            all_inter[r],
+            mat,
             ref_ptrs[r]->labels.data(),
-            blt_ptrs[r]->built
+            trained
         );
     }
 
-    return IntegratedSinglePPReferences(inter.finish());
+    singlepp::TrainIntegratedOptions topt;
+    topt.num_threads = nthreads;
+    auto store = singlepp::train_integrated(std::move(prepared), topt);
+    return SingleppIntegratedReferences(std::move(store));
 }
 
-SinglePPResults integrate_singlepp(const NumericMatrix& mat, uintptr_t assigned, const IntegratedSinglePPReferences& integrated, double quantile, int nthreads) {
-    size_t nrefs = integrated.num_references();
-    size_t NC =  mat.ptr->ncol();
+/*****************************************/
 
-    std::vector<double> scores(nrefs * NC);
-    std::vector<double*> ptrs;
-    ptrs.reserve(nrefs);
-    for (size_t l = 0; l < nrefs; ++l) {
-        ptrs.push_back(scores.data() + NC * l);
+struct SingleppIntegratedResults {
+    typedef singlepp::ClassifyIntegratedResults<int32_t, double> Store;
+
+    Store store;
+
+public:
+    SingleppIntegratedResults(Store s) : store(std::move(s)) {}
+
+public:
+    int32_t num_samples() const {
+        return store.best.size();
     }
 
-    SinglePPResults output;
-    output.best.resize(NC);
-    output.delta.resize(NC);
+    int32_t num_references() const {
+        return store.scores.size();
+    }
 
-    auto aptrs = convert_array_of_offsets<const int*>(integrated.num_references(), assigned);
+    emscripten::val best() const {
+        return emscripten::val(emscripten::typed_memory_view(store.best.size(), store.best.data()));
+    }
 
-    singlepp::IntegratedScorer runner;
-    runner.set_quantile(quantile).set_num_threads(nthreads);
+    void score_for_sample(int32_t i, uintptr_t output) const {
+        auto optr = reinterpret_cast<double*>(output);
+        for (auto& s : store.scores) {
+            *optr = s[i];
+            ++optr;
+        }
+    }
 
-    runner.run(
-        mat.ptr.get(), 
-        aptrs,
-        integrated.references,
-        output.best.data(),
-        ptrs,
-        output.delta.data()
-    );
+    emscripten::val score_for_reference(int32_t i) const {
+        const auto& current = store.scores[i];
+        return emscripten::val(emscripten::typed_memory_view(current.size(), current.data()));
+    }
 
-    output.scores.reset(new tatami::DenseColumnMatrix<double, int>(NC, nrefs, std::move(scores)));
-    return output;
+    emscripten::val delta() const {
+        return emscripten::val(emscripten::typed_memory_view(store.delta.size(), store.delta.data()));
+    }
+};
+
+SingleppIntegratedResults integrate_singlepp(const NumericMatrix& mat, uintptr_t assigned, const SingleppIntegratedReferences& integrated, double quantile, int32_t nthreads) {
+    singlepp::ClassifyIntegratedOptions<double> opt;
+    opt.quantile = quantile;
+    opt.num_threads = nthreads;
+    auto ass_ptrs = convert_array_of_offsets<const int32_t*>(integrated.num_references(), assigned);
+    auto store = singlepp::classify_integrated(*(mat.ptr), ass_ptrs, integrated.store, opt);
+    return SingleppIntegratedResults(std::move(store));
 }
 
 /*****************************************/
 
 EMSCRIPTEN_BINDINGS(run_singlepp) {
-    emscripten::function("run_singlepp", &run_singlepp, emscripten::return_value_policy::take_ownership());
+    emscripten::class_<SingleppRawReference>("SingleppRawReference")
+        .function("num_samples", &SingleppRawReference::num_samples, emscripten::return_value_policy::take_ownership())
+        .function("num_features", &SingleppRawReference::num_features, emscripten::return_value_policy::take_ownership())
+        .function("num_labels", &SingleppRawReference::num_labels, emscripten::return_value_policy::take_ownership())
+        ;
 
     emscripten::function("load_singlepp_reference", &load_singlepp_reference, emscripten::return_value_policy::take_ownership());
 
-    emscripten::function("build_singlepp_reference", &build_singlepp_reference, emscripten::return_value_policy::take_ownership());
+    emscripten::class_<SingleppTrainedReference>("SingleppTrainedReference")
+        .function("num_features", &SingleppTrainedReference::num_features, emscripten::return_value_policy::take_ownership())
+        .function("num_labels", &SingleppTrainedReference::num_labels, emscripten::return_value_policy::take_ownership())
+        ;
+
+    emscripten::function("train_singlepp_reference", &train_singlepp_reference, emscripten::return_value_policy::take_ownership());
+
+    emscripten::class_<SingleppResults>("SingleppResults")
+        .function("num_samples", &SingleppResults::num_samples, emscripten::return_value_policy::take_ownership()) 
+        .function("num_labels", &SingleppResults::num_labels, emscripten::return_value_policy::take_ownership())
+        .function("best", &SingleppResults::best, emscripten::return_value_policy::take_ownership())
+        .function("score_for_sample", &SingleppResults::score_for_sample, emscripten::return_value_policy::take_ownership())
+        .function("score_for_label", &SingleppResults::score_for_label, emscripten::return_value_policy::take_ownership())
+        .function("delta", &SingleppResults::delta, emscripten::return_value_policy::take_ownership())
+        ;
+
+    emscripten::function("run_singlepp", &run_singlepp, emscripten::return_value_policy::take_ownership());
+
+    emscripten::class_<SingleppIntegratedReferences>("SingleppIntegratedReferences")
+        .function("num_references", &SingleppIntegratedReferences::num_references, emscripten::return_value_policy::take_ownership())
+        ;
 
     emscripten::function("integrate_singlepp_references", &integrate_singlepp_references, emscripten::return_value_policy::take_ownership());
 
+    emscripten::class_<SingleppIntegratedResults>("SingleppIntegratedResults")
+        .function("num_samples", &SingleppIntegratedResults::num_samples, emscripten::return_value_policy::take_ownership()) 
+        .function("num_references", &SingleppIntegratedResults::num_references, emscripten::return_value_policy::take_ownership())
+        .function("best", &SingleppIntegratedResults::best, emscripten::return_value_policy::take_ownership())
+        .function("score_for_sample", &SingleppIntegratedResults::score_for_sample, emscripten::return_value_policy::take_ownership())
+        .function("score_for_reference", &SingleppIntegratedResults::score_for_reference, emscripten::return_value_policy::take_ownership())
+        .function("delta", &SingleppIntegratedResults::delta, emscripten::return_value_policy::take_ownership())
+        ;
+
     emscripten::function("integrate_singlepp", &integrate_singlepp, emscripten::return_value_policy::take_ownership());
-
-    emscripten::class_<SinglePPReference>("SinglePPReference")
-        .function("num_samples", &SinglePPReference::num_samples, emscripten::return_value_policy::take_ownership())
-        .function("num_features", &SinglePPReference::num_features, emscripten::return_value_policy::take_ownership())
-        .function("num_labels", &SinglePPReference::num_labels, emscripten::return_value_policy::take_ownership())
-        ;
-
-    emscripten::class_<BuiltSinglePPReference>("BuiltSinglePPReference")
-        .function("shared_features", &BuiltSinglePPReference::shared_features, emscripten::return_value_policy::take_ownership())
-        .function("num_labels", &BuiltSinglePPReference::num_labels, emscripten::return_value_policy::take_ownership())
-        ;
-
-    emscripten::class_<IntegratedSinglePPReferences>("IntegratedSinglePPReferences")
-        .function("num_references", &IntegratedSinglePPReferences::num_references, emscripten::return_value_policy::take_ownership())
-        ;
-
-    emscripten::class_<SinglePPResults>("SinglePPResults")
-        .function("num_samples", &SinglePPResults::num_samples, emscripten::return_value_policy::take_ownership()) 
-        .function("num_labels", &SinglePPResults::num_labels, emscripten::return_value_policy::take_ownership())
-        .function("get_best", &SinglePPResults::get_best, emscripten::return_value_policy::take_ownership())
-        .function("get_scores_for_sample", &SinglePPResults::get_scores_for_sample, emscripten::return_value_policy::take_ownership())
-        .function("get_scores_for_label", &SinglePPResults::get_scores_for_label, emscripten::return_value_policy::take_ownership())
-        .function("get_delta", &SinglePPResults::get_delta, emscripten::return_value_policy::take_ownership())
-        ;
 }

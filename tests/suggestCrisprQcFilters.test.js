@@ -13,12 +13,12 @@ test("per-cell QC CRISPR-based filters can be computed", () => {
     var qc = scran.perCellCrisprQcMetrics(mat);
     var filt = scran.suggestCrisprQcFilters(qc);
     expect(filt.numberOfBlocks()).toEqual(1);
-    expect(filt.thresholdsMaxCount().length).toBe(1);
+    expect(filt.maxValue().length).toBe(1);
 
     // Computing filters.
-    let discards = filt.filter(qc);
-    expect(discards.length).toEqual(ncells);
-    expect(discards instanceof Uint8Array).toBe(true);
+    let keep = filt.filter(qc);
+    expect(keep.length).toEqual(ncells);
+    expect(keep instanceof Uint8Array).toBe(true);
 
     // Respects a pre-supplied buffer.
     {
@@ -26,7 +26,7 @@ test("per-cell QC CRISPR-based filters can be computed", () => {
         buffer.array()[0] = 100; // check it gets properly overwritten.
 
         filt.filter(qc, { buffer: buffer });
-        expect(buffer.slice()).toEqual(discards);
+        expect(buffer.slice()).toEqual(keep);
         expect(buffer.array()[0]).toBeLessThan(2); 
 
         buffer.free();
@@ -35,10 +35,10 @@ test("per-cell QC CRISPR-based filters can be computed", () => {
     // Force it to filter out something, just to check it's not a no-op.
     {
         var filt2 = scran.suggestCrisprQcFilters(qc, { numberOfMADs: 0 });
-        let discards2 = filt2.filter(qc);
+        let keep2 = filt2.filter(qc);
         let sum2 = 0;
-        discards2.forEach(x => { sum2 += x; });
-        expect(sum2).toBeGreaterThan(0);
+        keep2.forEach(x => { sum2 += x; });
+        expect(sum2).toBeLessThan(keep2.length);
     }
 
     mat.free();
@@ -62,9 +62,9 @@ test("per-cell CRISPR-based QC filters can be computed with blocking", () => {
     expect(filt.numberOfBlocks()).toBe(2);
 
     // Filters throw if block is not supplied.
-    expect(() => filt.filter(qc)).toThrow("multiple batches");
-    let discards = filt.filter(qc, { block: block });
-    expect(discards.length).toEqual(ncells);
+    expect(() => filt.filter(qc)).toThrow("'block' must be supplied");
+    let keep = filt.filter(qc, { block: block });
+    expect(keep.length).toEqual(ncells);
 
     // Computing manually.
     for (var b = 0; b < 2; b++) {
@@ -79,10 +79,10 @@ test("per-cell CRISPR-based QC filters can be computed with blocking", () => {
         let submat = scran.subsetColumns(mat, indices);
         var subqc = scran.perCellCrisprQcMetrics(submat);
         var subfilt = scran.suggestCrisprQcFilters(subqc);
-        expect(filt.thresholdsMaxCount()[b]).toEqual(subfilt.thresholdsMaxCount()[0]);
+        expect(filt.maxValue()[b]).toEqual(subfilt.maxValue()[0]);
 
         let subdiscard = subfilt.filter(subqc);
-        expect(Array.from(subdiscard)).toEqual(indices.map(i => discards[i]));
+        expect(Array.from(subdiscard)).toEqual(indices.map(i => keep[i]));
 
         // Cleaning up the mess.
         submat.free();
@@ -103,10 +103,10 @@ test("per-cell CRISPR-based QC filters can be mocked up", () => {
     expect(qc.numberOfBlocks()).toBe(2);
 
     {
-        let x = qc.thresholdsMaxCount({ copy: false });
+        let x = qc.maxValue({ copy: false });
         expect(x.length).toEqual(nblocks);
         x[1] = 20;
-        expect(qc.thresholdsMaxCount()[1]).toEqual(20);
+        expect(qc.maxValue()[1]).toEqual(20);
     }
 
     qc.free();

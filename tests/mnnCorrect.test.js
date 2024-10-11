@@ -20,16 +20,15 @@ test("mnnCorrect works as expected", () => {
     expect(output.length).toBe(pca.numberOfPCs() * pca.numberOfCells());
 
     // Checking that it's all filled with something.
-    expect(output.array()[0] != 0).toBe(true);
-    expect(output.array()[output.length - 1] != 0).toBe(true);
+    expect(output[0] != 0).toBe(true);
+    expect(output[output.length - 1] != 0).toBe(true);
 
     // Checking that it actually did change the PCs.
-    expect(compare.equalFloatArrays(output.array(), pca.principalComponents())).toBe(false);
+    expect(compare.equalFloatArrays(output, pca.principalComponents())).toBe(false);
 
     // Mopping up.
     mat.free();
     pca.free();
-    output.free();
 })
 
 test("mnnCorrect works as expected with array inputs, presupplied buffer", () => {
@@ -39,12 +38,11 @@ test("mnnCorrect works as expected with array inputs, presupplied buffer", () =>
     var ref = scran.mnnCorrect(pca, block);
 
     var output = scran.createFloat64WasmArray(pca.numberOfPCs() * pca.numberOfCells());
-    scran.mnnCorrect(pca.principalComponents(), block, { buffer: output, numberOfDims: pca.numberOfPCs(), numberOfCells: pca.numberOfCells() });
-    expect(compare.equalArrays(ref.array(), output.array())).toBe(true);
+    scran.mnnCorrect(pca.principalComponents(), block, { asTypedArray: false, buffer: output, numberOfDims: pca.numberOfPCs(), numberOfCells: pca.numberOfCells() });
+    expect(compare.equalArrays(ref, output.array())).toBe(true);
 
     // Mopping up.
     mat.free();
     pca.free();
     output.free();
-    ref.free();
 })

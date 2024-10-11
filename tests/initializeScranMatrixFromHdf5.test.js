@@ -61,7 +61,7 @@ test("initialization from HDF5 works correctly with dense inputs", () => {
     expect(compare.equalArrays(mat2.column(19), last_col)).toBe(true);
 
     // Checking that it works when untransposed.
-    var mat3 = scran.initializeSparseMatrixFromHdf5DenseArray(path, "stuff", { transposed: false });
+    var mat3 = scran.initializeSparseMatrixFromHdf5Dataset(path, "stuff", { transposed: false });
     expect(mat3.numberOfRows()).toBe(mat2.numberOfColumns());
     expect(mat3.numberOfColumns()).toBe(mat2.numberOfRows());
     expect(compare.equalArrays(mat3.column(0), mat2.row(0))).toBe(true);
@@ -221,7 +221,7 @@ test("initialization from HDF5 works correctly with H5AD inputs", () => {
     expect(compare.equalArrays(mat2.column(0), mat.column(0))).toBe(true);
 
     // Using raw access.
-    var mat3 = scran.initializeSparseMatrixFromHdf5SparseMatrix(path, "layers/counts", nr, nc, false);
+    var mat3 = scran.initializeSparseMatrixFromHdf5Group(path, "layers/counts", nr, nc, /* byRow = */ true);
     expect(mat3.numberOfRows()).toBe(nr); 
     expect(mat3.numberOfColumns()).toBe(nc);
     expect(compare.equalArrays(mat3.row(0), mat.row(0))).toBe(true);
@@ -275,7 +275,7 @@ test("initialization from HDF5 works correctly with forced integers", () => {
     }
 
     // Using raw access.
-    var mat3 = scran.initializeSparseMatrixFromHdf5SparseMatrix(path, "foobar", nr, nc, true, { forceInteger: true, layered: true });
+    var mat3 = scran.initializeSparseMatrixFromHdf5(path, "foobar", { numberOfRows: nr, numberOfColumns: nc, sparseByRow: false, forceInteger: true, layered: true });
     expect(mat3.numberOfRows()).toBe(nr); 
     expect(mat3.numberOfColumns()).toBe(nc);
     expect(compare.equalArrays(mat3.row(0), mat1.row(0))).toBe(true);

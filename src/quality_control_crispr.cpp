@@ -1,112 +1,133 @@
 #include <emscripten/bind.h>
 
-#include "parallel.h"
 #include "utils.h"
 #include "NumericMatrix.h"
 
-#include "scran/scran.hpp"
+#include "scran_qc/scran_qc.hpp"
 
-#include <vector>
 #include <cstdint>
-#include <cmath>
 
-struct PerCellCrisprQcMetrics_Results {
-    typedef scran::PerCellCrisprQcMetrics::Results Store;
+struct ComputeCrisprQcMetricsResults {
+    typedef scran_qc::ComputeCrisprQcMetricsResults<double> Store;
 
     Store store;
 
-    PerCellCrisprQcMetrics_Results(Store s) : store(std::move(s)) {}
+public:
+    ComputeCrisprQcMetricsResults(Store s) : store(std::move(s)) {}
 
 public:
-    emscripten::val sums() const {
-        return emscripten::val(emscripten::typed_memory_view(store.sums.size(), store.sums.data()));
+    emscripten::val sum() const {
+        return emscripten::val(emscripten::typed_memory_view(store.sum.size(), store.sum.data()));
     }
 
     emscripten::val detected() const {
         return emscripten::val(emscripten::typed_memory_view(store.detected.size(), store.detected.data()));
     }
 
-    emscripten::val max_proportion() const {
-        return emscripten::val(emscripten::typed_memory_view(store.max_proportion.size(), store.max_proportion.data()));
+    emscripten::val max_value() const {
+        return emscripten::val(emscripten::typed_memory_view(store.max_value.size(), store.max_value.data()));
     }
 
     emscripten::val max_index() const {
         return emscripten::val(emscripten::typed_memory_view(store.max_index.size(), store.max_index.data()));
     }
 
-    int num_cells() const {
-        return store.sums.size();
+    int32_t num_cells() const {
+        return store.sum.size();
     }
 };
 
-PerCellCrisprQcMetrics_Results per_cell_crispr_qc_metrics(const NumericMatrix& mat, int nthreads) {
-    scran::PerCellCrisprQcMetrics qc;
-    qc.set_num_threads(nthreads);
-    auto store = qc.run(mat.ptr.get());
-    return PerCellCrisprQcMetrics_Results(std::move(store));
+ComputeCrisprQcMetricsResults per_cell_crispr_qc_metrics(const NumericMatrix& mat, int32_t nthreads) {
+    scran_qc::ComputeCrisprQcMetricsOptions opt;
+    opt.num_threads = nthreads;
+    auto store = scran_qc::compute_crispr_qc_metrics(*(mat.ptr), opt);
+    return ComputeCrisprQcMetricsResults(std::move(store));
 }
 
-struct SuggestCrisprQcFilters_Results {
-    typedef scran::SuggestCrisprQcFilters::Thresholds Store;
+struct SuggestCrisprQcFiltersResults {
+    bool use_blocked = true;
+    scran_qc::CrisprQcFilters<double> store_unblocked;
+    scran_qc::CrisprQcBlockedFilters<double> store_blocked;
 
-    SuggestCrisprQcFilters_Results(Store s) : store(std::move(s)) {}
+public:
+    SuggestCrisprQcFiltersResults(scran_qc::CrisprQcFilters<double> store) : store_unblocked(std::move(store)), use_blocked(false) {}
 
-    Store store;
+    SuggestCrisprQcFiltersResults(scran_qc::CrisprQcBlockedFilters<double> store) : store_blocked(std::move(store)) {}
 
-    SuggestCrisprQcFilters_Results(int num_blocks) {
-        store.max_count.resize(num_blocks);
+    SuggestCrisprQcFiltersResults(int32_t num_blocks) {
+        if (num_blocks <= 1) {
+            use_blocked = false;
+        } else {
+            store_blocked.get_max_value().resize(num_blocks);
+        }
     }
 
 public:
-    emscripten::val thresholds_max_count() const {
-        return emscripten::val(emscripten::typed_memory_view(store.max_count.size(), store.max_count.data()));
+    emscripten::val max_value() {
+        if (use_blocked) {
+            auto& mc = store_blocked.get_max_value();
+            return emscripten::val(emscripten::typed_memory_view(mc.size(), mc.data()));
+        } else {
+            // Very important to be non-const, otherwise we'd take a reference to a temporary.
+            auto& mc = store_unblocked.get_max_value();
+            return emscripten::val(emscripten::typed_memory_view(1, &mc));
+        } 
     }
 
-    int num_blocks() const {
-        return store.max_count.size();
-    }
-
-    void filter(uintptr_t metrics, bool use_blocks, uintptr_t blocks, uintptr_t output) const {
-        const int32_t* bptr = NULL;
-        if (use_blocks) {
-            bptr = reinterpret_cast<const int32_t*>(blocks);
+    int32_t num_blocks() const {
+        if (use_blocked) {
+            return store_blocked.get_max_value().size();
+        } else {
+            return 1;
         }
-        const auto& mstore = reinterpret_cast<const PerCellCrisprQcMetrics_Results*>(metrics)->store;
-        store.filter_blocked(mstore.sums.size(), bptr, mstore.buffers(), reinterpret_cast<uint8_t*>(output));
+    }
+
+    bool is_blocked() const {
+        return use_blocked;
+    }
+
+    void filter(const ComputeCrisprQcMetricsResults& metrics, uintptr_t blocks, uintptr_t output) const {
+        auto optr = reinterpret_cast<uint8_t*>(output);
+        if (use_blocked) {
+            store_blocked.filter(metrics.store, reinterpret_cast<const int32_t*>(blocks), optr);
+        } else {
+            store_unblocked.filter(metrics.store, optr);
+        }
         return;
     }
 };
 
-SuggestCrisprQcFilters_Results suggest_crispr_qc_filters(uintptr_t metrics, bool use_blocks, uintptr_t blocks, double nmads) {
-    scran::SuggestCrisprQcFilters qc;
-    qc.set_num_mads(nmads);
+SuggestCrisprQcFiltersResults suggest_crispr_qc_filters(const ComputeCrisprQcMetricsResults& metrics, bool use_blocks, uintptr_t blocks, double nmads) {
+    scran_qc::ComputeCrisprQcFiltersOptions opt;
+    opt.max_value_num_mads = nmads;
 
-    const int32_t* bptr = NULL;
     if (use_blocks) {
-        bptr = reinterpret_cast<const int32_t*>(blocks);
+        auto thresholds = scran_qc::compute_crispr_qc_filters_blocked(metrics.store, reinterpret_cast<const int32_t*>(blocks), opt);
+        return SuggestCrisprQcFiltersResults(std::move(thresholds));
+    } else {
+        auto thresholds = scran_qc::compute_crispr_qc_filters(metrics.store, opt);
+        return SuggestCrisprQcFiltersResults(std::move(thresholds));
     }
-
-    auto thresholds = qc.run_blocked(reinterpret_cast<const PerCellCrisprQcMetrics_Results*>(metrics)->store, bptr);
-    return SuggestCrisprQcFilters_Results(std::move(thresholds));
 }
 
 EMSCRIPTEN_BINDINGS(quality_control_crispr) {
     emscripten::function("per_cell_crispr_qc_metrics", &per_cell_crispr_qc_metrics, emscripten::return_value_policy::take_ownership());
 
-    emscripten::class_<PerCellCrisprQcMetrics_Results>("PerCellCrisprQcMetrics_Results")
-        .function("sums", &PerCellCrisprQcMetrics_Results::sums, emscripten::return_value_policy::take_ownership())
-        .function("detected", &PerCellCrisprQcMetrics_Results::detected, emscripten::return_value_policy::take_ownership())
-        .function("max_proportion", &PerCellCrisprQcMetrics_Results::max_proportion, emscripten::return_value_policy::take_ownership())
-        .function("max_index", &PerCellCrisprQcMetrics_Results::max_index, emscripten::return_value_policy::take_ownership())
-        .function("num_cells", &PerCellCrisprQcMetrics_Results::num_cells, emscripten::return_value_policy::take_ownership())
+    emscripten::class_<ComputeCrisprQcMetricsResults>("ComputeCrisprQcMetricsResults")
+        .function("sum", &ComputeCrisprQcMetricsResults::sum, emscripten::return_value_policy::take_ownership())
+        .function("detected", &ComputeCrisprQcMetricsResults::detected, emscripten::return_value_policy::take_ownership())
+        .function("max_value", &ComputeCrisprQcMetricsResults::max_value, emscripten::return_value_policy::take_ownership())
+        .function("max_index", &ComputeCrisprQcMetricsResults::max_index, emscripten::return_value_policy::take_ownership())
+        .function("num_cells", &ComputeCrisprQcMetricsResults::num_cells, emscripten::return_value_policy::take_ownership())
         ;
 
     emscripten::function("suggest_crispr_qc_filters", &suggest_crispr_qc_filters, emscripten::return_value_policy::take_ownership());
 
-    emscripten::class_<SuggestCrisprQcFilters_Results>("SuggestCrisprQcFilters_Results")
-        .constructor<int>()
-        .function("thresholds_max_count", &SuggestCrisprQcFilters_Results::thresholds_max_count, emscripten::return_value_policy::take_ownership())
-        .function("num_blocks", &SuggestCrisprQcFilters_Results::num_blocks, emscripten::return_value_policy::take_ownership())
-        .function("filter", &SuggestCrisprQcFilters_Results::filter, emscripten::return_value_policy::take_ownership())
+    emscripten::class_<SuggestCrisprQcFiltersResults>("SuggestCrisprQcFiltersResults")
+        .constructor<int32_t>()
+        .function("max_value", &SuggestCrisprQcFiltersResults::max_value, emscripten::return_value_policy::take_ownership())
+        .function("num_blocks", &SuggestCrisprQcFiltersResults::num_blocks, emscripten::return_value_policy::take_ownership())
+        .function("is_blocked", &SuggestCrisprQcFiltersResults::is_blocked, emscripten::return_value_policy::take_ownership())
+        .function("filter", &SuggestCrisprQcFiltersResults::filter, emscripten::return_value_policy::take_ownership())
         ;
 }

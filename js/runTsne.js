@@ -34,7 +34,7 @@ export class TsneStatus {
      * @return {number} Number of cells in the dataset.
      */
     numberOfCells () {
-        return this.#status.num_obs();
+        return this.#status.num_observations();
     }
 
     /**
@@ -69,6 +69,9 @@ export class TsneStatus {
      * or until the requested run time is exceeded, whichever comes first.
      */
     run({ maxIterations = 1000, runTime = null } = {}) {
+        if (runTime === null) {
+            runTime = -1;
+        }
         wasm.call(module => module.run_tsne(this.#status, runTime, maxIterations, this.#coordinates.offset));
     }
 
@@ -98,7 +101,7 @@ export function perplexityToNeighbors(perplexity) {
 }
 
 /**
- * @param {(BuildNeighborSearchIndexResults|FindNearestNeighborsResults)} x 
+ * @param {BuildNeighborSearchIndexResults|FindNearestNeighborsResults} x 
  * Either a pre-built neighbor search index for the dataset (see {@linkcode buildNeighborSearchIndex}),
  * or a pre-computed set of neighbor search results for all cells (see {@linkcode findNearestNeighbors}).
  * @param {object} [options={}] - Optional parameters.
@@ -158,7 +161,7 @@ export function initializeTsne(x, { perplexity = 30, checkMismatch = true, numbe
  * Run the t-SNE algorithm to the specified number of iterations.
  * This is a wrapper around {@linkcode initializeTsne} and {@linkcode TsneStatus#run run}.
  *
- * @param {(BuildNeighborSearchIndexResults|FindNearestNeighborsResults)} x 
+ * @param {BuildNeighborSearchIndexResults|FindNearestNeighborsResults} x 
  * Either a pre-built neighbor search index for the dataset (see {@linkcode buildNeighborSearchIndex}),
  * or a pre-computed set of neighbor search results for all cells (see {@linkcode findNearestNeighbors}).
  * @param {object} [options={}] - Optional parameters.

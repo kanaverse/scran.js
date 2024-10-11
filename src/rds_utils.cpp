@@ -1,7 +1,6 @@
 #include <emscripten.h>
 #include <emscripten/bind.h>
 
-#include "parallel.h"
 #include "rds_utils.h"
 #include "rds2cpp/rds2cpp.hpp"
 #include "byteme/SomeBufferReader.hpp"
@@ -14,7 +13,7 @@ public:
         return RdsObject(full.object.get());
     }
 
-    int format_version() const {
+    int32_t format_version() const {
         return full.format_version;
     }
 
@@ -29,7 +28,7 @@ public:
     rds2cpp::Parsed full;
 };
 
-LoadedRds parse_rds_from_buffer(uintptr_t buffer, int size) {
+LoadedRds parse_rds_from_buffer(uintptr_t buffer, int32_t size) {
     byteme::SomeBufferReader reader(reinterpret_cast<const uint8_t*>(buffer), size);
     return LoadedRds(rds2cpp::parse_rds(reader));
 }

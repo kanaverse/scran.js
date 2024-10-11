@@ -38,15 +38,15 @@ export function applyFilter(thresholds, metrics, block, buffer) {
 
     try {
         var bptr = 0;
-        var use_blocks = false;
 
         if (block !== null) {
             block_data = utils.wasmifyArray(block, "Int32WasmArray");
             if (block_data.length != metrics.numberOfCells()) {
                 throw new Error("'block' must be of length equal to the number of cells in 'metrics'");
             }
-            use_blocks = true;
             bptr = block_data.offset;
+        } else if (thresholds.is_blocked()) {
+            throw new Error("'block' must be supplied if blocking was used to compute the thresholds")
         }
 
         let optr;
@@ -60,7 +60,7 @@ export function applyFilter(thresholds, metrics, block, buffer) {
             optr = buffer.offset;
         }
 
-        wasm.call(module => thresholds.filter(metrics.results.$$.ptr, use_blocks, bptr, optr));
+        wasm.call(module => thresholds.filter(metrics.results, bptr, optr));
         if (buffer == null) {
             output = rebuffer.slice();
         } else {

@@ -1,11 +1,9 @@
 #include <emscripten/bind.h>
 
-#include <vector>
 #include <cstdint>
 
-#include "parallel.h"
-
-#include "mnncorrect/MnnCorrect.hpp"
+#include "NeighborIndex.h"
+#include "mnncorrect/mnncorrect.hpp"
 
 void mnn_correct(
     size_t nrows, 
@@ -13,36 +11,46 @@ void mnn_correct(
     uintptr_t input, 
     uintptr_t batch, 
     uintptr_t output,
-    int k, 
+    int32_t k, 
     double nmads, 
-    int riters, 
+    int32_t riters, 
     double rtrim,
     std::string ref_policy, 
     bool approximate,
-    int nthreads)
+    int32_t nthreads)
 {
     auto bptr = reinterpret_cast<const int32_t*>(batch);
     auto iptr = reinterpret_cast<const double*>(input);
     auto optr = reinterpret_cast<double*>(output);
 
-    mnncorrect::MnnCorrect<int, double> runner;
-    runner.set_num_neighbors(k).set_num_mads(nmads).set_robust_iterations(riters).set_robust_trim(rtrim).set_approximate(approximate).set_num_threads(nthreads);
+    mnncorrect::Options options;
+    options.num_neighbors = k;
+    options.num_mads = nmads;
+    options.robust_iterations = riters;
+    options.robust_trim = rtrim;
+    options.num_threads = nthreads;
+    options.builder = create_builder(approximate);
 
     if (ref_policy == "max-variance") {
-        runner.set_reference_policy(mnncorrect::MaxVariance);
+        options.reference_policy = mnncorrect::ReferencePolicy::MAX_VARIANCE;
     } else if (ref_policy == "max-rss") {
-        runner.set_reference_policy(mnncorrect::MaxRss);
+        options.reference_policy = mnncorrect::ReferencePolicy::MAX_RSS;
     } else if (ref_policy == "max-size") {
-        runner.set_reference_policy(mnncorrect::MaxSize);
+        options.reference_policy = mnncorrect::ReferencePolicy::MAX_SIZE;
     } else if (ref_policy == "input") {
-        runner.set_reference_policy(mnncorrect::Input);
+        options.reference_policy = mnncorrect::ReferencePolicy::INPUT;
     } else {
         throw std::runtime_error("unknown reference policy '" + ref_policy + "'");
     }
 
-    runner.run(nrows, ncols, iptr, bptr, optr);
-
-    return;
+    mnncorrect::compute(
+        nrows,
+        ncols,
+        iptr,
+        bptr,
+        optr,
+        options
+    );
 }
 
 EMSCRIPTEN_BINDINGS(mnn_correct) {

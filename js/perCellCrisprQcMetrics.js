@@ -9,20 +9,9 @@ export class PerCellCrisprQcMetricsResults {
     #id;
     #results;
 
-    #filledSums;
-    #filledDetected;
-    #filledMaxProportions;
-    #filledMaxIndex;
-
     constructor(id, raw, filled = true) {
         this.#id = id;
         this.#results = raw;
-
-        this.#filledSums = filled;
-        this.#filledDetected = filled;
-        this.#filledMaxProportions = filled;
-        this.#filledMaxIndex = filled;
-
         return;
     }
 
@@ -34,83 +23,47 @@ export class PerCellCrisprQcMetricsResults {
     /**
      * @param {object} [options={}] - Optional parameters.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
-     * @param {boolean} [options.fillable=false] - Whether to return a fillable array, to write to this object.
-     * If `true`, this method automatically sets `copy = false` if `copy` was previously true.
-     * If `false` and the array was not previously filled, `null` is returned.
-     *
-     * @return {?(Float64Array|Float64WasmArray)} Array containing the total count across guides for each cell.
-     * Alternatively `null`, if `fillable = false` and the array was not already filled.
+     * @return {Float64Array|Float64WasmArray} Array containing the total count across guides for each cell.
      */
-    sums({ copy = true, fillable = false } = {}) {
-        return utils.checkFillness(
-            fillable, 
-            copy, 
-            this.#filledSums, 
-            () => { this.#filledSums = true }, 
-            COPY => utils.possibleCopy(this.#results.sums(), COPY)
-        );
+    sum({ copy = true } = {}) {
+        return utils.possibleCopy(this.#results.sum(), copy);
     }
 
     /**
      * @param {object} [options={}] - Optional parameters.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
-     * @param {boolean} [options.fillable=false] - Whether to return a fillable array, to write to this object.
-     * If `true`, this method automatically sets `copy = false` if `copy` was previously true.
-     * If `false` and the array was not previously filled, `null` is returned.
-     *
-     * @return {?(Int32Array|Int32WasmArray)} Array containing the total number of detected guides for each cell.
-     * Alternatively `null`, if `fillable = false` and the array was not already filled.
+     * @return {Int32Array|Int32WasmArray} Array containing the total number of detected guides for each cell.
      */
-    detected({ copy = true, fillable = false } = {}) {
-        return utils.checkFillness(
-            fillable, 
-            copy, 
-            this.#filledDetected, 
-            () => { this.#filledDetected = true }, 
-            COPY => utils.possibleCopy(this.#results.detected(), COPY),
-            "detected"
-        );
+    detected({ copy = true } = {}) {
+        return utils.possibleCopy(this.#results.detected(), copy);
     }
 
     /**
      * @param {object} [options={}] - Optional parameters.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
-     * @param {boolean} [options.fillable=false] - Whether to return a fillable array, to write to this object.
-     * If `true`, this method automatically sets `copy = false` if `copy` was previously true.
-     * If `false` and the array was not previously filled, `null` is returned.
-     *
-     * @return {?(Float64Array|Float64WasmArray)} Array containing the proportion of counts in the most abundant guide for each cell.
-     * Alternatively `null`, if `fillable = false` and the array was not already filled.
+     * @return {Float64Array|Float64WasmArray} Array containing the count of the most abundant guide for each cell.
      */
-    maxProportions({ copy = true, fillable = false } = {}) {
-        return utils.checkFillness(
-            fillable, 
-            copy, 
-            this.#filledMaxProportions, 
-            () => { this.#filledMaxProportions = true }, 
-            COPY => utils.possibleCopy(this.#results.max_proportion(), COPY)
-        );
+    maxValue({ copy = true } = {}) {
+        return utils.possibleCopy(this.#results.max_value(), copy);
+    }
+
+    /**
+     * @return {Float64Array} Array containing the proportion of counts in the most abundant guide for each cell.
+     */
+    maxProportion() {
+        let out = this.maxValue();
+        let denom = this.sum({ copy: false });
+        out.forEach((x, i) => { out[i] /= denom[i] });
+        return out;
     }
 
     /**
      * @param {object} [options={}] - Optional parameters.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
-     * @param {boolean} [options.fillable=false] - Whether to return a fillable array, to write to this object.
-     * If `true`, this method automatically sets `copy = false` if `copy` was previously true.
-     * If `false` and the array was not previously filled, `null` is returned.
-     *
-     * @return {?(Int32Array|Int32WasmArray)} Array containing the index of the most abundant guide for each cell.
-     * Alternatively `null`, if `fillable = false` and the array was not already filled.
+     * @return {Int32Array|Int32WasmArray} Array containing the index of the most abundant guide for each cell.
      */
-    maxIndex({ copy = true, fillable = false } = {}) {
-        return utils.checkFillness(
-            fillable, 
-            copy, 
-            this.#filledMaxIndex, 
-            () => { this.#filledMaxIndex = true }, 
-            COPY => utils.possibleCopy(this.#results.max_index(), COPY),
-            "maxIndex"
-        );
+    maxIndex({ copy = true } = {}) {
+        return utils.possibleCopy(this.#results.max_index(), copy);
     }
 
     /**
@@ -148,22 +101,5 @@ export function perCellCrisprQcMetrics(x, { numberOfThreads = null } = {}) {
     return gc.call(
         module => module.per_cell_crispr_qc_metrics(x.matrix, nthreads),
         PerCellCrisprQcMetricsResults
-    );
-}
-
-/**
- * Create an empty {@linkplain PerCellCrisprQcMetricsResults} object, to be filled with custom results.
- * This is typically used to generate a convenient input into later {@linkcode suggestCrisprQcFilters} calls.
- * Note that filling requires use of `fillable: true` in the various getters to obtain a writeable memory view.
- *
- * @param {number} numberOfCells - Number of cells in the dataset.
- *
- * @return {PerCellCrisprQcMetricsResults} Object with allocated memory to store QC metrics, but no actual values.
- */
-export function emptyPerCellCrisprQcMetricsResults(numberOfCells) {
-    return gc.call(
-        module => new module.PerCellCrisprQcMetrics_Results(numberOfCells),
-        PerCellCrisprQcMetricsResults,
-        /* filled = */ false 
     );
 }

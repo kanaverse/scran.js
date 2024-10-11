@@ -16,14 +16,14 @@ test("per-cell QC filters can be computed", () => {
     expect(filt.numberOfBlocks()).toEqual(1);
     expect(filt.numberOfSubsets()).toEqual(1);
 
-    expect(filt.thresholdsSums().length).toBe(1);
-    expect(filt.thresholdsDetected().length).toBe(1);
-    expect(filt.thresholdsSubsetProportions(0).length).toBe(1);
+    expect(filt.sum().length).toBe(1);
+    expect(filt.detected().length).toBe(1);
+    expect(filt.subsetProportion(0).length).toBe(1);
 
     // Computing filters.
-    let discards = filt.filter(qc);
-    expect(discards.length).toEqual(ncells);
-    expect(discards instanceof Uint8Array).toBe(true);
+    let keep = filt.filter(qc);
+    expect(keep.length).toEqual(ncells);
+    expect(keep instanceof Uint8Array).toBe(true);
 
     // Respects a pre-supplied buffer.
     {
@@ -31,7 +31,7 @@ test("per-cell QC filters can be computed", () => {
         buffer.array()[0] = 100; // check it gets properly overwritten.
 
         filt.filter(qc, { buffer: buffer });
-        expect(buffer.slice()).toEqual(discards);
+        expect(buffer.slice()).toEqual(keep);
         expect(buffer.array()[0]).toBeLessThan(2); 
 
         buffer.free();
@@ -40,10 +40,10 @@ test("per-cell QC filters can be computed", () => {
     // Force it to filter out something, just to check it's not a no-op.
     {
         var filt2 = scran.suggestRnaQcFilters(qc, { numberOfMADs: 0 });
-        let discards2 = filt2.filter(qc);
+        let keep2 = filt2.filter(qc);
         let sum2 = 0;
-        discards2.forEach(x => { sum2 += x; });
-        expect(sum2).toBeGreaterThan(0);
+        keep2.forEach(x => { sum2 += x; });
+        expect(sum2).toBeLessThan(keep2.length);
     }
 
     mat.free();
@@ -68,9 +68,9 @@ test("per-cell QC filters can be computed with blocking", () => {
     expect(filt.numberOfBlocks()).toBe(2);
 
     // Filters throw if block is not supplied.
-    expect(() => filt.filter(qc)).toThrow("multiple batches");
-    let discards = filt.filter(qc, { block: block });
-    expect(discards.length).toEqual(ncells);
+    expect(() => filt.filter(qc)).toThrow("'block' must be supplied");
+    let keep = filt.filter(qc, { block: block });
+    expect(keep.length).toEqual(ncells);
 
     // Computing manually.
     for (var b = 0; b < 2; b++) {
@@ -86,12 +86,12 @@ test("per-cell QC filters can be computed with blocking", () => {
         var subqc = scran.perCellRnaQcMetrics(submat, subs);
         var subfilt = scran.suggestRnaQcFilters(subqc);
 
-        expect(filt.thresholdsSums()[b]).toEqual(subfilt.thresholdsSums()[0]);
-        expect(filt.thresholdsDetected()[b]).toEqual(subfilt.thresholdsDetected()[0]);
-        expect(filt.thresholdsSubsetProportions(0)[b]).toEqual(subfilt.thresholdsSubsetProportions(0)[0]);
+        expect(filt.sum()[b]).toEqual(subfilt.sum()[0]);
+        expect(filt.detected()[b]).toEqual(subfilt.detected()[0]);
+        expect(filt.subsetProportion(0)[b]).toEqual(subfilt.subsetProportion(0)[0]);
 
         let subdiscard = subfilt.filter(subqc);
-        expect(Array.from(subdiscard)).toEqual(indices.map(i => discards[i]));
+        expect(Array.from(subdiscard)).toEqual(indices.map(i => keep[i]));
 
         // Cleaning up the mess.
         submat.free();
@@ -112,7 +112,7 @@ test("per-cell QC filters can be mocked up", () => {
     var qc = scran.emptySuggestRnaQcFiltersResults(nsubs, nblocks);
     expect(qc.numberOfSubsets()).toBe(2);
 
-    for (const y of [ "thresholdsSums", "thresholdsDetected" ]) {
+    for (const y of [ "sum", "detected" ]) {
         let x = qc[y]({ copy: false });
         expect(x.length).toEqual(nblocks);
         x[1] = 20;
@@ -120,10 +120,10 @@ test("per-cell QC filters can be mocked up", () => {
     }
     
     for (var s = 0; s < nsubs; s++) {
-        var x = qc.thresholdsSubsetProportions(s, { copy: false });
+        var x = qc.subsetProportion(s, { copy: false });
         expect(x.length).toBe(nblocks);
         x[0] = 0.9;
-        expect(qc.thresholdsSubsetProportions(s)[0]).toEqual(0.9);
+        expect(qc.subsetProportion(s)[0]).toEqual(0.9);
     }
 
     qc.free();

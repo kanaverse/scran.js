@@ -75,7 +75,7 @@ export function simulateDenseMatrix(numberOfRows, numberOfColumns) {
         arr[i] = Math.random();
     });
 
-    return scran.initializeDenseMatrixFromDenseArray(numberOfRows, numberOfColumns, buffer);
+    return scran.initializeDenseMatrixFromDenseArray(numberOfRows, numberOfColumns, buffer, { forceInteger: false });
 }
 
 export function simulatePermutedMatrix(numberOfRows, numberOfColumns, density = 0.2) {

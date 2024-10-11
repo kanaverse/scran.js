@@ -35,7 +35,7 @@ struct H5AttrDetails {
     }
 
     std::vector<char> attr_buffer_;
-    std::vector<int> attr_runs_;
+    std::vector<int32_t> attr_runs_;
 };
 
 std::string guess_hdf5_type(const H5::IntType& itype) {
@@ -157,8 +157,8 @@ public:
     }
 
     std::vector<char> child_buffer_;
-    std::vector<int> child_runs_;
-    std::vector<int> child_types_;
+    std::vector<int32_t> child_runs_;
+    std::vector<int32_t> child_types_;
 
 public:
     emscripten::val attr_buffer() const {
@@ -179,7 +179,7 @@ struct H5DataSetDetails : public H5AttrDetails {
         type_ = guess_hdf5_type(dhandle, dtype);
 
         auto dspace = dhandle.getSpace();
-        int ndims = dspace.getSimpleExtentNdims();
+        int32_t ndims = dspace.getSimpleExtentNdims();
         std::vector<hsize_t> dims(ndims);
         dspace.getSimpleExtentDims(dims.data());
         shape_.insert(shape_.end(), dims.begin(), dims.end());
@@ -198,7 +198,7 @@ public:
     }
 
     std::string type_;
-    std::vector<int> shape_;
+    std::vector<int32_t> shape_;
 
 public:
     emscripten::val attr_buffer() const {
@@ -214,7 +214,7 @@ public:
 
 struct LoadedH5Base {
     std::string type_;
-    std::vector<int> shape_;
+    std::vector<int32_t> shape_;
 
     // Store all the possible numeric types here.
     std::vector<uint8_t> u8_data;
@@ -281,10 +281,10 @@ protected:
 private:
     template<typename T, typename Tout>
     void fill_enum_levels(const H5::EnumType& etype, std::vector<Tout>& index) {
-        int nlevels = etype.getNmembers();
+        int32_t nlevels = etype.getNmembers();
         std::unordered_map<Tout, Tout> mapping;
 
-        for (int l = 0; l < nlevels; ++l) {
+        for (int32_t l = 0; l < nlevels; ++l) {
             T v;
             etype.getMemberValue(l, &v);
             std::string name = etype.nameOf(&v, 1000); // name better be shorter than 1000 bytes!
@@ -354,7 +354,7 @@ protected:
         type_ = guess_hdf5_type(handle, dtype);
 
         auto dspace = handle.getSpace();
-        int ndims = dspace.getSimpleExtentNdims();
+        int32_t ndims = dspace.getSimpleExtentNdims();
         std::vector<hsize_t> dims(ndims);
         dspace.getSimpleExtentDims(dims.data());
         shape_.insert(shape_.end(), dims.begin(), dims.end());
@@ -555,7 +555,7 @@ void create_hdf5_group(std::string path, std::string name) {
 
 /************* Writing utilities **************/
 
-std::vector<hsize_t> process_shape(int nshape, uintptr_t shape) {
+std::vector<hsize_t> process_shape(int32_t nshape, uintptr_t shape) {
     std::vector<hsize_t> dims(nshape);
     auto sptr = reinterpret_cast<const int32_t*>(shape);
     std::copy(sptr, sptr + nshape, dims.begin());
@@ -586,7 +586,7 @@ H5::DataType choose_numeric_data_type(const std::string& type) {
    }
 }
 
-H5::DataType choose_string_data_type(int max_str_len) {
+H5::DataType choose_string_data_type(int32_t max_str_len) {
     return H5::StrType(0, std::max(1, max_str_len)); // Make sure that is at least of length 1.
 }
 
@@ -658,7 +658,7 @@ void write_string_hdf5_base(Handle& handle, size_t n, uintptr_t lengths, uintptr
     return;
 }
 
-void configure_dataset_parameters(H5::DataSpace& dspace, int nshape, uintptr_t shape, H5::DSetCreatPropList& plist, int deflate_level, uintptr_t chunks) {
+void configure_dataset_parameters(H5::DataSpace& dspace, int32_t nshape, uintptr_t shape, H5::DSetCreatPropList& plist, int32_t deflate_level, uintptr_t chunks) {
     if (nshape == 0) { // if zero, it's a scalar, and the default DataSpace is correct.
         return;
     }
@@ -685,7 +685,7 @@ void configure_dataset_parameters(H5::DataSpace& dspace, int nshape, uintptr_t s
 
 /************* Dataset writers **************/
 
-void create_hdf5_dataset(const std::string& path, const std::string& name, const H5::DataType& dtype, int nshape, uintptr_t shape, int deflate_level, uintptr_t chunks) {
+void create_hdf5_dataset(const std::string& path, const std::string& name, const H5::DataType& dtype, int32_t nshape, uintptr_t shape, int32_t deflate_level, uintptr_t chunks) {
     H5::H5File handle(path, H5F_ACC_RDWR);
 
     H5::DataSpace dspace;
@@ -694,19 +694,19 @@ void create_hdf5_dataset(const std::string& path, const std::string& name, const
     handle.createDataSet(name, dtype, dspace, plist);
 }
 
-void create_numeric_hdf5_dataset(std::string path, std::string name, int nshape, uintptr_t shape, int deflate_level, uintptr_t chunks, std::string type) {
+void create_numeric_hdf5_dataset(std::string path, std::string name, int32_t nshape, uintptr_t shape, int32_t deflate_level, uintptr_t chunks, std::string type) {
     H5::DataType dtype = choose_numeric_data_type(type);
     create_hdf5_dataset(path, name, dtype, nshape, shape, deflate_level, chunks);
     return;
 }
 
-void create_string_hdf5_dataset(std::string path, std::string name, int nshape, uintptr_t shape, int deflate_level, uintptr_t chunks, int max_str_len) {
+void create_string_hdf5_dataset(std::string path, std::string name, int32_t nshape, uintptr_t shape, int32_t deflate_level, uintptr_t chunks, int32_t max_str_len) {
     H5::DataType dtype = choose_string_data_type(max_str_len);
     create_hdf5_dataset(path, name, dtype, nshape, shape, deflate_level, chunks);
     return;
 }
 
-void create_enum_hdf5_dataset(std::string path, std::string name, int nshape, uintptr_t shape, int deflate_level, uintptr_t chunks, size_t nlevels, uintptr_t levlen, uintptr_t levbuffer) {
+void create_enum_hdf5_dataset(std::string path, std::string name, int32_t nshape, uintptr_t shape, int32_t deflate_level, uintptr_t chunks, size_t nlevels, uintptr_t levlen, uintptr_t levbuffer) {
     H5::DataType dtype = choose_enum_data_type(nlevels, levlen, levbuffer);
     create_hdf5_dataset(path, name, dtype, nshape, shape, deflate_level, chunks);
     return;
@@ -741,7 +741,7 @@ void write_enum_hdf5_dataset(std::string path, std::string name, uintptr_t data)
 
 /************* Attribute writers **************/
 
-void create_hdf5_attribute(const std::string& path, const std::string& name, const std::string& attr, const H5::DataType& dtype, int nshape, uintptr_t shape) {
+void create_hdf5_attribute(const std::string& path, const std::string& name, const std::string& attr, const H5::DataType& dtype, int32_t nshape, uintptr_t shape) {
     try {
         H5::H5File handle(path, H5F_ACC_RDWR);
 
@@ -769,19 +769,19 @@ void create_hdf5_attribute(const std::string& path, const std::string& name, con
     }
 } 
 
-void create_numeric_hdf5_attribute(std::string path, std::string name, std::string attr, int nshape, uintptr_t shape, std::string type) {
+void create_numeric_hdf5_attribute(std::string path, std::string name, std::string attr, int32_t nshape, uintptr_t shape, std::string type) {
     H5::DataType dtype = choose_numeric_data_type(type);
     create_hdf5_attribute(path, name, attr, dtype, nshape, shape);
     return;
 }
 
-void create_string_hdf5_attribute(std::string path, std::string name, std::string attr, int nshape, uintptr_t shape, int max_str_len) {
+void create_string_hdf5_attribute(std::string path, std::string name, std::string attr, int32_t nshape, uintptr_t shape, int32_t max_str_len) {
     H5::DataType dtype = choose_string_data_type(max_str_len);
     create_hdf5_attribute(path, name, attr, dtype, nshape, shape);
     return;
 }
 
-void create_enum_hdf5_attribute(std::string path, std::string name, std::string attr, int nshape, uintptr_t shape, size_t nlevels, uintptr_t levlen, uintptr_t levbuffer) {
+void create_enum_hdf5_attribute(std::string path, std::string name, std::string attr, int32_t nshape, uintptr_t shape, size_t nlevels, uintptr_t levlen, uintptr_t levbuffer) {
     H5::DataType dtype = choose_enum_data_type(nlevels, levlen, levbuffer);
     create_hdf5_attribute(path, name, attr, dtype, nshape, shape);
     return;

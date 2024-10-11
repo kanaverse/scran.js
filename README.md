@@ -54,7 +54,7 @@ After that, you can run the remaining steps synchronously - for example, using t
 // Reading in the count matrix.
 import * as fs from "fs";
 let buffer = fs.readFileSync("matrix.mtx.gz");
-let mat = scran.initializeSparseMatrixFromMatrixMarketBuffer(buffer);
+let mat = scran.initializeSparseMatrixFromMatrixMarket(buffer);
 ```
 
 ## Basic analyses

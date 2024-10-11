@@ -35,7 +35,7 @@ export class UmapStatus {
      * @return {number} Number of cells in the dataset.
      */
     numberOfCells () {
-        return this.#status.num_obs();
+        return this.#status.num_observations();
     }
 
     /**

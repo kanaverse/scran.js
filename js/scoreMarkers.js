@@ -2,33 +2,6 @@ import * as gc from "./gc.js";
 import * as wasm from "./wasm.js";
 import * as utils from "./utils.js";
 
-function intifySummary(summary) {
-    if (typeof summary == "number") {
-        return summary; // for back-compatibility with numeric summaries.
-    }
-    let output;
-    switch (summary) {
-        case "minimum": 
-            output = 0;
-            break;
-        case "mean": 
-            output = 1;
-            break;
-        case "median":
-            output = 2;
-            break;
-        case "maximum": 
-            output = 3;
-            break;
-        case "min-rank":
-            output = 4;
-            break;
-        default:
-            throw new Error("unknown summary type '" + summary + "'");
-    }
-    return output;
-}
-
 /**
  * Wrapper around the marker scoring results on the Wasm heap, typically produced by {@linkcode scoreMarkers}.
  * @hideconstructor
@@ -36,10 +9,14 @@ function intifySummary(summary) {
 export class ScoreMarkersResults {
     #id;
     #results;
+    #has_median;
+    #has_max;
 
-    constructor(id, raw, filled = true) {
+    constructor(id, raw, has_median, has_max) {
         this.#id = id;
         this.#results = raw;
+        this.#has_median = has_median;
+        this.#has_max = has_max;
     }
 
     /**
@@ -58,8 +35,8 @@ export class ScoreMarkersResults {
      * @return {?(Float64Array|Float64WasmArray)} Array of length equal to the number of genes,
      * containing the mean expression for the requested group in the requested block.
      */
-    means(group, { copy = true } = {}) {
-        return utils.possibleCopy(this.#results.means(group), copy);
+    mean(group, { copy = true } = {}) {
+        return utils.possibleCopy(this.#results.mean(group), copy);
     }
 
     /**
@@ -75,20 +52,27 @@ export class ScoreMarkersResults {
         return utils.possibleCopy(this.#results.detected(group), copy);
     }
 
+    #check_forbidden(summary) {
+        if ((summary == "maximum" && !(this.#has_max)) || (summary == "median" && !(this.#has_median))) {
+            throw new Error("summary type '" + summary + "' not available");
+        }
+    }
+
     /**
      * @param {number} group - Group of interest.
      * Should be non-negative and less than {@linkcode ScoreMarkersResults#numberOfGroups numberOfGroups}.
      * @param {object} [options={}] - Optional parameters.
      * @param {string} [options.summary="mean"] - Summary statistic to be computed from the Cohen's d values of all pairwise comparisons involving `group`.
      * This can be the `"minimum"` across comparisons, `"mean"` or `"min-rank"`.
+     * If the relevant options are set in {@linkcode scoreMarkers}, `"maximum"` and `"median"` are also supported.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      *
      * @return {Float64Array|Float64WasmArray} Array of length equal to the number of genes,
      * containing the summarized Cohen's d for the comparisons between `group` and all other groups.
      */
-    cohen(group, { summary = "mean", copy = true } = {}) {
-        summary = intifySummary(summary);
-        return utils.possibleCopy(wasm.call(_ => this.#results.cohen(group, summary)), copy);
+    cohensD(group, { summary = "mean", copy = true } = {}) {
+        this.#check_forbidden(summary);
+        return utils.possibleCopy(wasm.call(_ => this.#results.cohens_d(group, summary)), copy);
     }
 
     /**
@@ -100,13 +84,14 @@ export class ScoreMarkersResults {
      * @param {object} [options={}] - Optional parameters.
      * @param {string} [options.summary="mean"] - Summary statistic to be computed from the AUCs of all pairwise comparisons involving `group`.
      * This can be the `"minimum"` across comparisons, `"mean"` or `"min-rank"`.
+     * If the relevant options are set in {@linkcode scoreMarkers}, `"maximum"` and `"median"` are also supported.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      *
      * @return {Float64Array|Float64WasmArray} Array of length equal to the number of genes,
      * containing the summarized AUC for the comparisons between `group` and all other groups.
      */
     auc(group, { summary = "mean", copy = true } = {}) {
-        summary = intifySummary(summary)
+        this.#check_forbidden(summary);
         return utils.possibleCopy(wasm.call(_ => this.#results.auc(group, summary)), copy);
     }
 
@@ -116,14 +101,16 @@ export class ScoreMarkersResults {
      * @param {object} [options={}] - Optional parameters.
      * @param {string} [options.summary="mean"] - Summary statistic to be computed from the log-fold changes of all pairwise comparisons involving `group`.
      * This can be the `"minimum"` across comparisons, `"mean"` or `"min-rank"`.
+     * If the relevant options are set in {@linkcode scoreMarkers}, `"maximum"` and `"median"` are also supported.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      *
      * @return {Float64Array|Float64WasmArray} Array of length equal to the number of genes,
-     * containing the summarized log-fold change for the comparisons between `group` and all other groups.
+     * containing the summarized delta-mean for the comparisons between `group` and all other groups.
+     * This can be interpreted as the log-fold change if log-expression values are used in {@linkcode scoreMarkers}.
      */
-    lfc(group, { summary = "mean", copy = true } = {}) {
-        summary = intifySummary(summary);
-        return utils.possibleCopy(wasm.call(_ => this.#results.lfc(group, summary)), copy);
+    deltaMean(group, { summary = "mean", copy = true } = {}) {
+        this.#check_forbidden(summary);
+        return utils.possibleCopy(wasm.call(_ => this.#results.delta_mean(group, summary)), copy);
     }
 
     /**
@@ -132,13 +119,14 @@ export class ScoreMarkersResults {
      * @param {object} [options={}] - Optional parameters.
      * @param {string} [options.summary="mean"] - Summary statistic to be computed from the delta-detected values of all pairwise comparisons involving `group`.
      * This can be the `"minimum"` across comparisons, `"mean"` or `"min-rank"`.
+     * If the relevant options are set in {@linkcode scoreMarkers}, `"maximum"` and `"median"` are also supported.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      *
      * @return {Float64Array|Float64WasmArray} Array of length equal to the number of genes,
      * containing the summarized delta-detected for the comparisons between `group` and all other groups.
      */
     deltaDetected(group, { summary = "mean", copy = true } = {}) {
-        summary = intifySummary(summary);
+        this.#check_forbidden(summary);
         return utils.possibleCopy(wasm.call(_ => this.#results.delta_detected(group, summary)), copy);
     }
 
@@ -168,8 +156,9 @@ export class ScoreMarkersResults {
  * Alternatively, this may be `null`, in which case all cells are assumed to be in the same block.
  * @param {?number} [options.numberOfThreads=null] - Number of threads to use.
  * If `null`, defaults to {@linkcode maximumThreads}.
- * @param {number} [options.lfcThreshold=0] - Log-fold change threshold to use for computing Cohen's d and AUC.
- * Large positive values favor markers with large log-fold changes over those with low variance.
+ * @param {number} [options.threshold=0] - Threshold on the magnitude of differences between groups, used when computing Cohen's d and AUC.
+ * Large positive values favor markers with large differences over those with low variance.
+ * For log-expression values in `x`, this can be interpreted as a minimum log-fold change.
  * @param {boolean} [options.computeAuc=true] - Whether to compute the AUCs as an effect size.
  * This can be set to `false` for greater speed and memory efficiency.
  * @param {boolean} [options.computeMedian=false] - Whether to compute the median effect sizes across all pairwise comparisons for each group.
@@ -179,7 +168,7 @@ export class ScoreMarkersResults {
  *
  * @return {ScoreMarkersResults} Object containing the marker scoring results.
  */
-export function scoreMarkers(x, groups, { block = null, numberOfThreads = null, lfcThreshold = 0, computeAuc = true, computeMedian = false, computeMaximum = false } = {}) {
+export function scoreMarkers(x, groups, { block = null, threshold = 0, computeAuc = true, computeMedian = false, computeMaximum = false , numberOfThreads = null} = {}) {
     var output;
     var block_data;
     var group_data;
@@ -203,8 +192,10 @@ export function scoreMarkers(x, groups, { block = null, numberOfThreads = null, 
         }
 
         output = gc.call(
-            module => module.score_markers(x.matrix, group_data.offset, use_blocks, bptr, lfcThreshold, computeAuc, computeMedian, computeMaximum, nthreads),
-            ScoreMarkersResults
+            module => module.score_markers(x.matrix, group_data.offset, use_blocks, bptr, threshold, computeAuc, computeMedian, computeMaximum, nthreads),
+            ScoreMarkersResults,
+            computeMedian,
+            computeMaximum
         );
 
     } catch (e) {

@@ -1,5 +1,6 @@
 extern/installed
-build_*
+extern/include
+build_*/
 docs/html/
 docs/latex/
 docs/built/

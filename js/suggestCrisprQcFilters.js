@@ -23,8 +23,15 @@ export class SuggestCrisprQcFiltersResults {
      *
      * @return {?(Float64Array|Float64WasmArray)} Array containing the filtering threshold on the maximum count in each batch.
      */
+    maxValue({ copy = true } = {}) {
+        return utils.possibleCopy(this.#results.max_value(), copy);
+    }
+
+    /**
+     * @ignore
+     */
     thresholdsMaxCount({ copy = true } = {}) {
-        return utils.possibleCopy(this.#results.thresholds_max_count(), copy);
+        return this.thresholdsMaxValue({ copy });
     }
 
     /**
@@ -42,10 +49,10 @@ export class SuggestCrisprQcFiltersResults {
      *
      * Alternatively, this may be `null`, in which case all cells are assumed to be in the same block.
      * This will raise an error if multiple blocks were used to compute the thresholds.
-     * @param {?Uint8WasmArray} [options.buffer=null] - Array of length equal to the number of cells in `metrics`, to be used to store the low-quality calls.
+     * @param {?Uint8WasmArray} [options.buffer=null] - Array of length equal to the number of cells in `metrics`, to be used to store the high-quality calls.
      *
      * @return {Uint8Array} Array of length equal to the number of cells in `metrics`.
-     * Each entry is truthy if the corresponding cell is deemed to be of low-quality based on its values in `metrics`.
+     * Each entry is truthy if the corresponding cell is deemed to be of high-quality based on its values in `metrics`.
      * If `buffer` is supplied, the returned array is a view on `buffer`.
      */
     filter(metrics, { block = null, buffer = null } = {}) {
@@ -89,7 +96,7 @@ export function suggestCrisprQcFilters(metrics, { numberOfMADs = 3, block = null
         metrics,
         block,
         (x, use_blocks, bptr) => gc.call(
-            module => module.suggest_crispr_qc_filters(x.results.$$.ptr, use_blocks, bptr, numberOfMADs),
+            module => module.suggest_crispr_qc_filters(x.results, use_blocks, bptr, numberOfMADs),
             SuggestCrisprQcFiltersResults
         )
     );
@@ -105,7 +112,7 @@ export function suggestCrisprQcFilters(metrics, { numberOfMADs = 3, block = null
  */
 export function emptySuggestCrisprQcFiltersResults(numberOfBlocks) {
     return gc.call(
-        module => new module.SuggestCrisprQcFilters_Results(numberOfBlocks),
+        module => new module.SuggestCrisprQcFiltersResults(numberOfBlocks),
         SuggestCrisprQcFiltersResults,
         /* filled = */ false 
     );

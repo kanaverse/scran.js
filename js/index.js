@@ -1,8 +1,11 @@
 export { initialize, terminate, wasmArraySpace, heapSize, maximumThreads } from "./wasm.js";
 export { createUint8WasmArray, createInt32WasmArray, createFloat64WasmArray, free } from "./utils.js";
 
-export * from "./initializeSparseMatrix.js";
+export * from "./initializeSparseMatrixFromArrays.js";
+export * from "./initializeSparseMatrixFromRds.js";
+export * from "./initializeSparseMatrixFromMatrixMarket.js";
 export * from "./initializeSparseMatrixFromHdf5.js";
+
 export * from "./rds.js";
 export * from "./file.js"; 
 
@@ -25,9 +28,7 @@ export * from "./suggestAdtQcFilters.js";
 export * from "./suggestCrisprQcFilters.js";
 export * from "./filterCells.js";
 
-export * from "./medianSizeFactors.js";
-export * from "./groupedSizeFactors.js";
-export * from "./quickAdtSizeFactors.js";
+export * from "./computeClrm1Factors.js";
 export * from "./logNormCounts.js";
 
 export * from "./modelGeneVariances.js";
@@ -35,10 +36,11 @@ export * from "./chooseHvgs.js";
 export * from "./runPca.js";
 
 export * from "./findNearestNeighbors.js";
-export * from "./clusterSnnGraph.js";
 export * from "./runTsne.js";
 export * from "./runUmap.js";
 
+export * from "./buildSnnGraph.js";
+export * from "./clusterGraph.js";
 export * from "./clusterKmeans.js";
 
 export * from "./mnnCorrect.js";
@@ -48,9 +50,9 @@ export * from "./scaleByNeighbors.js";
 export * from "./scoreMarkers.js";
 export * from "./labelCells.js";
 
-export * from "./scoreFeatureSet.js";
+export * from "./scoreGsdecon.js";
 export * from "./hypergeometricTest.js";
-export * from "./testFeatureSetEnrichment.js";
+export * from "./testGeneSetEnrichment.js";
 
 export * from "./aggregateAcrossCells.js";
 
