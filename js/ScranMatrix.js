@@ -74,64 +74,62 @@ export class ScranMatrix {
      * @param {number} i - Index of the row to extract.
      * This should be a non-negative integer less than {@linkcode ScranMatrix#numberOfRows numberOfRows}.
      * @param {object} [options={}] - Optional parameters.
+     * @param {boolean} [options.asTypedArray=true] - Whether to return a Float64Array.
+     * If `false`, a Float64WasmArray is returned instead.
      * @param {?Float64WasmArray} [options.buffer=null] - Buffer for storing the extracted data.
      * If supplied, this should have length equal to {@linkcode ScranMatrix#numberOfColumns numberOfColumns}.
      *
-     * @return {Float64Array} An array containing the contents of row `i`.
-     *
-     * If `buffer` was supplied, the returned array is a view into it.
-     * Note that this may be invalidated on the next allocation on the Wasm heap.
+     * @return {Float64Array|Float64WasmArray} An array containing the contents of row `i`.
+     * If `buffer` is supplied, the function returns `buffer` if `asTypedArray = false`, or a view on `buffer` if `asTypedArray = true`.
      */
     row(i, options = {}) {
-        let { buffer = null, ...others } = options;
+        let { asTypedArray = true, buffer = null, ...others } = options;
         utils.checkOtherOptions(others);
+        let tmp = null;
 
-        if (buffer != null) {
-            this.#matrix.row(i, buffer.offset);
-            return buffer.array();
-        } else {
-            var output;
-            buffer = utils.createFloat64WasmArray(this.#matrix.ncol());
-            try {
-                this.#matrix.row(i, buffer.offset);
-                output = buffer.slice();
-            } finally {
-                buffer.free();
+        try {
+            if (buffer == null) {
+                tmp = utils.createFloat64WasmArray(this.#matrix.ncol());
+                buffer = tmp;
             }
-            return output;
+            this.#matrix.row(i, buffer.offset);
+        } catch (e) {
+            utils.free(tmp);
+            throw e;
         }
+
+        return utils.toTypedArray(buffer, tmp == null, asTypedArray);
     }
 
     /**
      * @param {number} i - Index of the column to extract.
      * This should be a non-negative integer less than {@linkcode ScranMatrix#numberOfColumns numberOfColumns}.
      * @param {object} [options={}] - Optional parameters.
+     * @param {boolean} [options.asTypedArray=true] - Whether to return a Float64Array.
+     * If `false`, a Float64WasmArray is returned instead.
      * @param {?Float64WasmArray} [options.buffer=null] - Buffer for storing the extracted data.
      * If supplied, this should have length equal to {@linkcode ScranMatrix#numberOfRows numberOfRows}.
      *
-     * @return {Float64Array} An array containing the contents of column `i`.
-     *
-     * If `buffer` was supplied, the returned array is a view into it.
-     * Note that this may be invalidated on the next allocation on the Wasm heap.
+     * @return {Float64Array|Float64WasmArray} An array containing the contents of column `i`.
+     * If `buffer` is supplied, the function returns `buffer` if `asTypedArray = false`, or a view on `buffer` if `asTypedArray = true`.
      */
     column(i, options = {}) {
-        let { buffer = null, ...others } = options;
+        let { asTypedArray = true, buffer = null, ...others } = options;
         utils.checkOtherOptions(others);
+        let tmp = null;
 
-        if (buffer != null) {
-            this.#matrix.column(i, buffer.offset);
-            return buffer.array();
-        } else {
-            var output;
-            buffer = utils.createFloat64WasmArray(this.#matrix.nrow());
-            try {
-                this.#matrix.column(i, buffer.offset);
-                output = buffer.slice();
-            } finally {
-                buffer.free();
+        try {
+            if (buffer == null) {
+                tmp = utils.createFloat64WasmArray(this.#matrix.nrow());
+                buffer = tmp;
             }
-            return output;
+            this.#matrix.column(i, buffer.offset);
+        } catch (e) {
+            utils.free(tmp);
+            throw e;
         }
+
+        return utils.toTypedArray(buffer, tmp == null, asTypedArray);
     }
 
     /** 

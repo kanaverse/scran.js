@@ -15,13 +15,12 @@ test("chooseHvgs works correctly", () => {
 
     var output = scran.chooseHvgs(res, { number: 101 });
     expect(output.length).toBe(ngenes);
-    expect(output.constructor.className).toBe("Uint8WasmArray");
+    expect(output.constructor.name).toBe("Uint8Array");
 
     var total = 0;
     var min_selected = Infinity, max_unselected = -Infinity;
-    var oarr = output.array();
     res.residuals().forEach((x, i) => {
-        if (oarr[i]) {
+        if (output[i]) {
             total++;
             min_selected = Math.min(min_selected, x);
         } else {
@@ -35,7 +34,6 @@ test("chooseHvgs works correctly", () => {
     mat.free();
     norm.free();
     res.free();
-    output.free();
 });
 
 test("chooseHvgs avoids picking zero or negative residuals", () => {
@@ -46,13 +44,9 @@ test("chooseHvgs avoids picking zero or negative residuals", () => {
     expected.fill(1);
     expected[0] = 0;
     expected[4] = 0;
-    expect(output.array()).toEqual(expected);
+    expect(output).toEqual(expected);
 
     let output2 = scran.chooseHvgs(res, { number: 101, minimum: -1 });
     expected[0] = 1;
-    expect(output2.array()).toEqual(expected);
-
-    // Cleaning up.
-    output.free();
-    output2.free();
+    expect(output2).toEqual(expected);
 })

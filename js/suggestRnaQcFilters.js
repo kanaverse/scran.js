@@ -83,19 +83,21 @@ export class SuggestRnaQcFiltersResults {
      * @param {?(Int32WasmArray|Array|TypedArray)} [options.block=null] - Array containing the block assignment for each cell in `metrics`.
      * This should have length equal to the number of cells and contain all values in `[0, n)` where `n` is the return value of {@linkcode SuggestRnaQcFilters#numberOfBlocks numberOfBlocks}.
      * `block` must be supplied if {@linkcode SuggestRnaQcFilters#isBlocked isBlocked} returns true, otherwise it is ignored.
+     * @param {boolean} [options.asTypedArray=true] - Whether to return a Uint8Array.
+     * If `false`, a Uint8WasmArray is returned instead.
      * @param {?Uint8WasmArray} [options.buffer=null] - Array of length equal to the number of cells in `metrics`, to be used to store the high-quality calls.
      *
-     * @return {Uint8Array} Array of length equal to the number of cells in `metrics`.
+     * @return {Uint8Array|Uint8WasmArray} Array of length equal to the number of cells in `metrics`.
      * Each entry is truthy if the corresponding cell is deemed to be of high-quality based on its values in `metrics`.
-     * If `buffer` is supplied, the returned array is a view on `buffer`.
+     * If `buffer` is supplied, the function returns `buffer` if `asTypedArray = false`, or a view on `buffer` if `asTypedArray = true`.
      */
     filter(metrics, options = {}) {
-        const { block = null, buffer = null, ...others } = options;
+        const { block = null, asTypedArray = true, buffer = null, ...others } = options;
         utils.checkOtherOptions(others);
         if (!(metrics instanceof PerCellRnaQcMetricsResults)) {
             throw new Error("'metrics' should be a PerCellRnaQcMetricsResults object");
         }
-        return internal.applyFilter(this.#results, metrics, block, buffer); 
+        return internal.applyFilter(this.#results, metrics, block, asTypedArray, buffer); 
     }
 
     /**

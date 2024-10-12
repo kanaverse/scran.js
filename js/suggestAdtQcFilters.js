@@ -21,7 +21,7 @@ export class SuggestAdtQcFiltersResults {
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      * This should be set to `false` or `"view"` to modify entries, e.g., after calling creating an instance with {@linkcode emptySuggestAdtQcFiltersResults}.
      *
-     * @return {?(Float64Array|Float64WasmArray)} Array containing the filtering threshold on the number of detected ADTs for each batch.
+     * @return {Float64Array|Float64WasmArray} Array containing the filtering threshold on the number of detected ADTs for each batch.
      */
     detected(options = {}) {
         const { copy = true, ...others } = options;
@@ -35,7 +35,7 @@ export class SuggestAdtQcFiltersResults {
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      * This should be set to `false` or `"view"` to modify entries, e.g., after calling creating an instance with {@linkcode emptySuggestAdtQcFiltersResults}.
      *
-     * @return {?(Float64Array|Float64WasmArray)} Array containing the filtering threshold on the total counts for subset `i` in each batch.
+     * @return {Float64Array|Float64WasmArray} Array containing the filtering threshold on the total counts for subset `i` in each batch.
      */
     subsetSum(i, options = {}) {
         const { copy = true, ...others } = options;
@@ -72,19 +72,21 @@ export class SuggestAdtQcFiltersResults {
      *
      * Alternatively, this may be `null`, in which case all cells are assumed to be in the same block.
      * This will raise an error if multiple blocks were used to compute the thresholds.
+     * @param {boolean} [options.asTypedArray=true] - Whether to return a Uint8Array.
+     * If `false`, a Uint8WasmArray is returned instead.
      * @param {?Uint8WasmArray} [options.buffer=null] - Array of length equal to the number of cells in `metrics`, to be used to store the high-quality calls.
      *
-     * @return {Uint8Array} Array of length equal to the number of cells in `metrics`.
+     * @return {Uint8Array|Uint8WasmArray} Array of length equal to the number of cells in `metrics`.
      * Each entry is truthy if the corresponding cell is deemed to be of high-quality based on its values in `metrics`.
-     * If `buffer` is supplied, the returned array is a view on `buffer`.
+     * If `buffer` is supplied, the function returns `buffer` if `asTypedArray = false`, or a view on `buffer` if `asTypedArray = true`.
      */
     filter(metrics, options = {}) {
-        const { block = null, buffer = null, ...others } = options;
+        const { block = null, asTypedArray = true, buffer = null, ...others } = options;
         utils.checkOtherOptions(others);
         if (!(metrics instanceof PerCellAdtQcMetricsResults)) {
             throw new Error("'metrics' should be a PerCellAdtQcMetricsResults object");
         }
-        return internal.applyFilter(this.#results, metrics, block, buffer); 
+        return internal.applyFilter(this.#results, metrics, block, asTypedArray, buffer); 
     }
 
     /**

@@ -31,10 +31,9 @@ export function computePerCellQcFilters(metrics, block, run) {
     return output;
 }
 
-export function applyFilter(thresholds, metrics, block, buffer) {
+export function applyFilter(thresholds, metrics, block, asTypedArray, buffer) {
     var block_data;
-    var rebuffer;
-    var output;
+    var tmp;
 
     try {
         var bptr = 0;
@@ -49,33 +48,21 @@ export function applyFilter(thresholds, metrics, block, buffer) {
             throw new Error("'block' must be supplied if blocking was used to compute the thresholds")
         }
 
-        let optr;
         if (buffer == null) {
-            rebuffer = utils.createUint8WasmArray(metrics.numberOfCells());
-            optr = rebuffer.offset;
-        } else {
-            if (buffer.length != metrics.numberOfCells()) {
-                throw new Error("'buffer' must be of length equal to the number of cells in 'metrics'");
-            }
-            optr = buffer.offset;
+            tmp = utils.createUint8WasmArray(metrics.numberOfCells());
+            buffer = tmp;
+        } else if (buffer.length != metrics.numberOfCells()) {
+            throw new Error("'buffer' must be of length equal to the number of cells in 'metrics'");
         }
 
-        wasm.call(module => thresholds.filter(metrics.results, bptr, optr));
-        if (buffer == null) {
-            output = rebuffer.slice();
-        } else {
-            output = buffer.array();
-        }
+        wasm.call(module => thresholds.filter(metrics.results, bptr, buffer.offset));
 
     } catch (e) {
-        utils.free(output);
+        utils.free(tmp);
         throw e;
-
     } finally {
         utils.free(block_data);
-        utils.free(rebuffer);
     }
 
-    return output;
+    return utils.toTypedArray(buffer, tmp == null, asTypedArray);
 }
-
