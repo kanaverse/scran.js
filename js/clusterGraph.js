@@ -10,7 +10,7 @@ export class ClusterMultilevelResults {
     #id;
     #results;
 
-    constructor(id, raw, filled = true) {
+    constructor(id, raw) {
         this.#id = id;
         this.#results = raw;
     }
@@ -36,7 +36,9 @@ export class ClusterMultilevelResults {
      *
      * @return {number} The modularity at the specified level.
      */
-    modularity({ level = null } = {}) {
+    modularity(options = {}) {
+        let { level = null, ...others } = options;
+        utils.checkOtherOptions(others);
         if (level == null) {
             level = this.bestLevel();
         }
@@ -51,7 +53,9 @@ export class ClusterMultilevelResults {
      *
      * @return {Int32Array|Int32WasmArray} Array containing the cluster membership for each cell.
      */
-    membership({ level = null, copy = true } = {}) {
+    membership(options = {}) {
+        let { level = null, copy = true, ...others } = options;
+        utils.checkOtherOptions(others);
         if (level == null) {
             level = -1;
         }
@@ -79,7 +83,7 @@ export class ClusterWalktrapResults {
     #id;
     #results;
 
-    constructor(id, raw, filled = true) {
+    constructor(id, raw) {
         this.#id = id;
         this.#results = raw;
     }
@@ -98,7 +102,9 @@ export class ClusterWalktrapResults {
      * Set to `null` to obtain the largest modularity across all merge steps.
      * @return {number} The modularity at the specified merge step, or the maximum modularity across all merge steps.
      */
-    modularity({ at = null } = {}) {
+    modularity(options = {}) {
+        let { at = null, ...others } = options;
+        utils.checkOtherOptions(others);
         if (at === null) {
             at = -1;
         }
@@ -110,7 +116,9 @@ export class ClusterWalktrapResults {
      * @param {boolean|string} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      * @return {Int32Array|Int32WasmArray} Array containing the cluster membership for each cell.
      */
-    membership({ copy = true } = {}) {
+    membership(options = {}) {
+        const { copy = true, ...others } = options;
+        utils.checkOtherOptions(others);
         return utils.possibleCopy(this.#results.membership(), copy);
     }
 
@@ -157,7 +165,9 @@ export class ClusterLeidenResults {
      *
      * @return {(Int32Array|Int32WasmArray)} Array containing the cluster membership for each cell.
      */
-    membership({ copy = true } = {}) {
+    membership(options = {}) {
+        const { copy = true, ...others } = options;
+        utils.checkOtherOptions(others);
         return utils.possibleCopy(this.#results.membership(), copy);
     }
 
@@ -193,15 +203,18 @@ export class ClusterLeidenResults {
  * @return {ClusterMultiLevelResults|ClusterWalktrapResults|ClusterLeidenResults} Object containing the clustering results.
  * The class of this object depends on the choice of `method`.
  */
-export function clusterGraph(x, { 
-    method = "multilevel", 
-    multiLevelResolution = 1, 
-    leidenResolution = 1, 
-    leidenModularityObjective = false,
-    walktrapSteps = 4
-} = {}) {
-    var output;
+export function clusterGraph(x, options = {}) {
+    const { 
+        method = "multilevel", 
+        multiLevelResolution = 1, 
+        leidenResolution = 1, 
+        leidenModularityObjective = false,
+        walktrapSteps = 4,
+        ...others
+    } = options;
+    utils.checkOtherOptions(others);
 
+    var output;
     try {
         if (method == "multilevel") {
             output = gc.call(

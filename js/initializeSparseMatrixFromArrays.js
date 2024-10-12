@@ -14,7 +14,10 @@ import { ScranMatrix } from "./ScranMatrix.js";
  *
  * @return {ScranMatrix} Matrix containing dense data.
  */
-export function initializeDenseMatrixFromDenseArray(numberOfRows, numberOfColumns, values, { forceInteger = false } = {}) {
+export function initializeDenseMatrixFromDenseArray(numberOfRows, numberOfColumns, values, options = {}) {
+    const { forceInteger = false, ...others } = options;
+    utils.checkOtherOptions(others);
+
     var val_data; 
     var output;
 
@@ -61,7 +64,10 @@ export function initializeDenseMatrixFromDenseArray(numberOfRows, numberOfColumn
  *
  * @return {ScranMatrix} Matrix containing sparse data.
  */
-export function initializeSparseMatrixFromDenseArray(numberOfRows, numberOfColumns, values, { forceInteger = true, layered = true } = {}) {
+export function initializeSparseMatrixFromDenseArray(numberOfRows, numberOfColumns, values, options = {}) {
+    const { forceInteger = true, layered = true, ...others } = options;
+    utils.checkOtherOptions(others);
+
     var val_data; 
     var output;
 
@@ -115,7 +121,10 @@ export function initializeSparseMatrixFromDenseArray(numberOfRows, numberOfColum
  *
  * @return {ScranMatrix} Matrix containing sparse data.
  */ 
-export function initializeSparseMatrixFromSparseArrays(numberOfRows, numberOfColumns, values, indices, pointers, { byRow = true, forceInteger = true, layered = true } = {}) {
+export function initializeSparseMatrixFromSparseArrays(numberOfRows, numberOfColumns, values, indices, pointers, options = {}) {
+    const { byRow = true, forceInteger = true, layered = true, ...others } = options;
+    utils.checkOtherOptions(others);
+
     var val_data;
     var ind_data;
     var indp_data;

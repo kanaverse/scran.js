@@ -20,7 +20,9 @@ import * as fac from "./factorize.js";
  *
  * If `buffer` was supplied, it is used as the return value. 
  */
-export function createBlock(ncells, { buffer = null } = {}) {
+export function createBlock(ncells, options = {}) {
+    let { buffer = null, ...other } = options;
+    utils.checkOtherOptions(other);
     let total = 0;
     ncells.forEach(x => { total += x; });
 
@@ -62,7 +64,9 @@ export function subsetBlock(x, subset, { filter = null, buffer = null } = {}) {
 }
 
 // Soft-deprecated, just use subsetFactor().
-export function filterBlock(x, filter, { buffer = null } = {}) {
+export function filterBlock(x, filter, options = {}) {
+    let { buffer = null, ...other } = options;
+    utils.checkOtherOptions(other);
     return subsetBlock(x, filter, { buffer: buffer, filter: true });
 }
 

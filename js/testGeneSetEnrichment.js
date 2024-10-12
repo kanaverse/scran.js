@@ -26,7 +26,10 @@ import * as utils from "./utils.js";
  * - `size`: Int32Array containing the size of each set.
  * - `pvalue`: Float64Array containing the p-value for enrichment in each set.
  */
-export function testGeneSetEnrichment(markers, geneSets, totalGenes, { numberOfThreads = null } = {}) {
+export function testGeneSetEnrichment(markers, geneSets, totalGenes, options = {}) {
+    const { numberOfThreads = null, ...others } = options;
+    utils.checkOtherOptions(others);
+
     for (const j of markers) {
         if (j >= totalGenes) {
             throw new Error("'markers' contains out-of-range indices (" + String(j) + ")");

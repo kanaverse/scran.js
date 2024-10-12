@@ -21,7 +21,9 @@ import * as wasm from "./wasm.js";
  * @return {ScranMatrix} A ScranMatrix containing the delayed arithmetic operation on `x`.
  * If `inPlace = true`, this is a reference to `x`, otherwise it is a new ScranMatrix.
  */
-export function delayedArithmetic(x, operation, value, { right = true, along = "row", inPlace = false } = {}) {
+export function delayedArithmetic(x, operation, value, options = {}) {
+    const { right = true, along = "row", inPlace = false, ...others } = options;
+    utils.checkOtherOptions(others);
     let xcopy;
     let vbuffer;
     let target;
@@ -68,7 +70,9 @@ export function delayedArithmetic(x, operation, value, { right = true, along = "
  * @return {ScranMatrix} A ScranMatrix containing the delayed math operation on `x`.
  * If `inPlace = true`, this is a reference to `x`, otherwise it is a new ScranMatrix.
  */
-export function delayedMath(x, operation, { logBase = null, inPlace = false } = {}) {
+export function delayedMath(x, operation, options = {}) {
+    let { logBase = null, inPlace = false, ...others } = options;
+    utils.checkOtherOptions(others);
     let xcopy;
     let target;
 
@@ -104,7 +108,9 @@ export function delayedMath(x, operation, { logBase = null, inPlace = false } = 
  * @return {ScranMatrix} A ScranMatrix containing the transposition of `x`.
  * If `inPlace = true`, this is a reference to `x`, otherwise it is a new ScranMatrix.
  */
-export function transpose(x, { inPlace = false } = {}) {
+export function transpose(x, options = {}) {
+    const { inPlace = false, ...others } = options;
+    utils.checkOtherOptions(others);
     let xcopy;
     let target;
 

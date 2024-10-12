@@ -1,4 +1,5 @@
 import * as methods from "./file.js";
+import * as utils from "./utils.js";
 import * as areal from "./abstract/realize.js";
 
 /**
@@ -10,7 +11,9 @@ import * as areal from "./abstract/realize.js";
  *
  * @return {string} Temporary file path.
  */
-export function chooseTemporaryPath({ extension = "" } = {}) {
+export function chooseTemporaryPath(options = {}) {
+    const { extension = "", ...others } = options;
+    utils.checkOtherOptions(others);
     return areal.temp("temp_", extension);    
 }
 
@@ -30,7 +33,10 @@ export function chooseTemporaryPath({ extension = "" } = {}) {
  * - `flush`: a function to be called to remove any temporary file created by this function.
  *   For Node.js, this will be a no-op if `file` is already a path. 
  */
-export function realizeFile(file, { extension = "" } = {}) {
+export function realizeFile(file, options = {}) {
+    const { extension = "", ...others } = options;
+    utils.checkOtherOptions(others);
+
     if (typeof file == "string") {
         return areal.handleString(file);
     }

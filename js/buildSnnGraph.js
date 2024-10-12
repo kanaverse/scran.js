@@ -52,7 +52,9 @@ export class BuildSnnGraphResults {
  *
  * @return {BuildSnnGraphResults} Object containing the graph.
  */
-export function buildSnnGraph(x, { scheme = "rank", neighbors = 10, numberOfThreads = null } = {}) {
+export function buildSnnGraph(x, options = {}) {
+    const { scheme = "rank", neighbors = 10, numberOfThreads = null, ...others } = options;
+    utils.checkOtherOptions(others);
     var output;
     var my_neighbors;
     let nthreads = utils.chooseNumberOfThreads(numberOfThreads);

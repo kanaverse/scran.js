@@ -18,7 +18,10 @@ import { ScranMatrix } from "./ScranMatrix.js";
  *
  * @return {ScranMatrix} Matrix containing sparse data.
  */
-export function initializeSparseMatrixFromMatrixMarket(x, { compression = "unknown", layered = true } = {}) {
+export function initializeSparseMatrixFromMatrixMarket(x, options = {}) {
+    const { compression = "unknown", layered = true, ...others } = options;
+    utils.checkOtherOptions(others);
+
     var buf_data;
     var output;
 
@@ -61,7 +64,10 @@ export function initializeSparseMatrixFromMatrixMarket(x, { compression = "unkno
  *
  * @return {object} An object containing the number of `rows`, `columns` and `lines` in the matrix.
  */
-export function extractMatrixMarketDimensions(x, { compression = "unknown" } = {}) {
+export function extractMatrixMarketDimensions(x, options = {}) {
+    const { compression = "unknown", ...others } = options;
+    utils.checkOtherOptions(others);
+
     var buf_data;
     var stats = utils.createFloat64WasmArray(3);
     let output = {};

@@ -63,7 +63,9 @@ export class BuildNeighborSearchIndexResults {
  *
  * @return {BuildNeighborSearchIndexResults} Index object to use for neighbor searches.
  */
-export function buildNeighborSearchIndex(x, { numberOfDims = null, numberOfCells = null, approximate = true } = {}) {
+export function buildNeighborSearchIndex(x, options = {}) {
+    let { numberOfDims = null, numberOfCells = null, approximate = true, ...others } = options;
+    utils.checkOtherOptions(others);
     var buffer;
     var output;
 
@@ -156,7 +158,10 @@ export class FindNearestNeighborsResults {
      *
      * If only some of the arguments are non-`null`, an error is raised.
      */
-    serialize({ runs = null, indices = null, distances = null } = {}) {
+    serialize(options = {}) {
+        const { runs = null, indices = null, distances = null, ...others } = options;
+        utils.checkOtherOptions(others);
+
         var copy = (runs === null) + (indices === null) + (distances === null);
         if (copy != 3 && copy != 0) {
             throw new Error("either all or none of 'runs', 'indices' and 'distances' can be 'null'");
@@ -261,7 +266,9 @@ export class FindNearestNeighborsResults {
  *
  * @return {FindNearestNeighborsResults} Object containing the search results.
  */
-export function findNearestNeighbors(x, k, { numberOfThreads = null } = {}) {
+export function findNearestNeighbors(x, k, options = {}) {
+    const { numberOfThreads = null, ...others } = options;
+    utils.checkOtherOptions(others);
     let nthreads = utils.chooseNumberOfThreads(numberOfThreads);
     return gc.call(
         module => module.find_nearest_neighbors(x.index, k, nthreads),

@@ -18,7 +18,9 @@ import * as wa from "wasmarrays.js";
  * Note that the factors are not centered and should be passed to {@linkcode centerSizeFactors} before calling {@linkcode normalizeCounts}.
  * If `buffer` is supplied, the function returns `buffer` if `asTypedArray = false`, or a view on `buffer` if `asTypedArray = true`.
  */
-export function computeClrm1Factors(x, { asTypedArray = true, buffer = null, priorCount = 10, numberOfThreads = null } = {}) {
+export function computeClrm1Factors(x, options = {}) {
+    let { asTypedArray = true, buffer = null, priorCount = 10, numberOfThreads = null, ...others } = options;
+    utils.checkOtherOptions(others);
     var local_buffer = null;
     let nthreads = utils.chooseNumberOfThreads(numberOfThreads);
 

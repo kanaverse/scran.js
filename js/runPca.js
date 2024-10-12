@@ -21,7 +21,9 @@ export class RunPcaResults {
      * @return {Float64Array|Float64Wasmarray} Array containing the principal components for all cells.
      * This should be treated as a column-major array where the rows are the PCs and columns are the cells.
      */
-    principalComponents({ copy = true } = {}) {
+    principalComponents(options = {}) {
+        const { copy = true, ...others } = options;
+        utils.checkOtherOptions(others);
         return utils.possibleCopy(this.#results.components(), copy);
     }
 
@@ -31,7 +33,9 @@ export class RunPcaResults {
      * @return {Float64Array|Float64Wasmarray} Array containing the rotation matrix for all cells.
      * This should be treated as a column-major array where the rows are the genes and the columns are the PCs.
      */
-    rotation({ copy = true } = {}) {
+    rotation(options = {}) {
+        const { copy = true, ...others } = options;
+        utils.checkOtherOptions(others);
         return utils.possibleCopy(this.#results.pcs(), copy);
     }
 
@@ -40,7 +44,9 @@ export class RunPcaResults {
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      * @return {Float64Array|Float64WasmArray} Array containing the variance explained for each requested PC.
      */
-    varianceExplained({ copy = true } = {}) {
+    varianceExplained(options = {}) {
+        const { copy = true, ...others } = options;
+        utils.checkOtherOptions(others);
         return utils.possibleCopy(this.#results.variance_explained(), copy);
     }
 
@@ -120,16 +126,19 @@ export class RunPcaResults {
  *
  * @return {RunPcaResults} Object containing the computed PCs.
  */
-export function runPca(x, { 
-    features = null,
-    numberOfPCs = 25,
-    scale = false,
-    block = null,
-    blockMethod = "regress",
-    blockWeightPolicy = "variable",
-    realizeMatrix = null,
-    numberOfThreads = null 
-} = {}) {
+export function runPca(x, options = {}) {
+    let { 
+        features = null,
+        numberOfPCs = 25,
+        scale = false,
+        block = null,
+        blockMethod = "regress",
+        blockWeightPolicy = "variable",
+        realizeMatrix = null,
+        numberOfThreads = null,
+        ...others
+    } = options;
+    utils.checkOtherOptions(others);
 
     var feat_data;
     var block_data;

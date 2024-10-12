@@ -23,15 +23,10 @@ export class SuggestCrisprQcFiltersResults {
      *
      * @return {?(Float64Array|Float64WasmArray)} Array containing the filtering threshold on the maximum count in each batch.
      */
-    maxValue({ copy = true } = {}) {
+    maxValue(options = {}) {
+        const { copy = true, ...others } = options;
+        utils.checkOtherOptions(others);
         return utils.possibleCopy(this.#results.max_value(), copy);
-    }
-
-    /**
-     * @ignore
-     */
-    thresholdsMaxCount({ copy = true } = {}) {
-        return this.thresholdsMaxValue({ copy });
     }
 
     /**
@@ -55,7 +50,9 @@ export class SuggestCrisprQcFiltersResults {
      * Each entry is truthy if the corresponding cell is deemed to be of high-quality based on its values in `metrics`.
      * If `buffer` is supplied, the returned array is a view on `buffer`.
      */
-    filter(metrics, { block = null, buffer = null } = {}) {
+    filter(metrics, options = {}) {
+        const { block = null, buffer = null, ...others } = options;
+        utils.checkOtherOptions(others);
         if (!(metrics instanceof PerCellCrisprQcMetricsResults)) {
             throw new Error("'metrics' should be a PerCellCrisprQcMetricsResults object");
         }
@@ -88,10 +85,14 @@ export class SuggestCrisprQcFiltersResults {
  *
  * @return {SuggestCrisprQcFiltersResults} Object containing the filtering results.
  */
-export function suggestCrisprQcFilters(metrics, { numberOfMADs = 3, block = null } = {}) {
+export function suggestCrisprQcFilters(metrics, options = {}) {
+    const { numberOfMADs = 3, block = null, ...others } = options;
+    utils.checkOtherOptions(others);
+
     if (!(metrics instanceof PerCellCrisprQcMetricsResults)) {
         throw new Error("'metrics' should be a PerCellCrisprQcMetricsResults object");
     }
+
     return internal.computePerCellQcFilters(
         metrics,
         block,

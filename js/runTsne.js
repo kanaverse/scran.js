@@ -68,7 +68,9 @@ export class TsneStatus {
      * @return The algorithm status in `x` is advanced up to the requested number of iterations,
      * or until the requested run time is exceeded, whichever comes first.
      */
-    run({ maxIterations = 1000, runTime = null } = {}) {
+    run(options = {}) {
+        let { maxIterations = 1000, runTime = null, ...others } = options;
+        utils.checkOtherOptions(others);
         if (runTime === null) {
             runTime = -1;
         }
@@ -113,7 +115,10 @@ export function perplexityToNeighbors(perplexity) {
  *
  * @return {TsneStatus} Object containing the initial status of the t-SNE algorithm.
  */
-export function initializeTsne(x, { perplexity = 30, checkMismatch = true, numberOfThreads = null } = {}) {
+export function initializeTsne(x, options = {}) {
+    const { perplexity = 30, checkMismatch = true, numberOfThreads = null, ...others } = options;
+    utils.checkOtherOptions(others);
+
     var my_neighbors;
     var raw_coords;
     var output;
@@ -174,7 +179,9 @@ export function initializeTsne(x, { perplexity = 30, checkMismatch = true, numbe
  *
  * @return {object} Object containing coordinates of the t-SNE embedding, see {@linkcode TsneStatus#extractCoordinates TsneStatus.extractCoordinates} for more details.
  */
-export function runTsne(x, { perplexity = 30, checkMismatch = true, numberOfThreads = null, maxIterations = 1000 } = {}) {
+export function runTsne(x, options = {}) {
+    const { perplexity = 30, checkMismatch = true, numberOfThreads = null, maxIterations = 1000, ...others } = options;
+    utils.checkOtherOptions(others);
     let tstat = initializeTsne(x, { perplexity, checkMismatch, numberOfThreads });
     tstat.run({ maxIterations });
     return tstat.extractCoordinates();

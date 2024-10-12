@@ -23,7 +23,9 @@ export class SuggestRnaQcFiltersResults {
      *
      * @return {Float64Array|Float64WasmArray} Array containing the filtering threshold on the sums for each batch.
      */
-    sum({ copy = true } = {}) {
+    sum(options = {}) {
+        const { copy = true, ...others } = options;
+        utils.checkOtherOptions(others);
         return utils.possibleCopy(this.#results.sum(), copy);
     }
 
@@ -34,7 +36,9 @@ export class SuggestRnaQcFiltersResults {
      *
      * @return {Float64Array|Float64WasmArray} Array containing the filtering threshold on the number of detected genes for each batch.
      */
-    detected({ copy = true } = {}) {
+    detected(options = {}) {
+        const { copy = true, ...others } = options;
+        utils.checkOtherOptions(others);
         return utils.possibleCopy(this.#results.detected(), copy);
     }
 
@@ -46,7 +50,9 @@ export class SuggestRnaQcFiltersResults {
      *
      * @return {Float64Array|Float64WasmArray} Array containing the filtering threshold on the proportions for subset `i` in each batch.
      */
-    subsetProportion(i, { copy = true } = {}) {
+    subsetProportion(i, options = {}) {
+        const { copy = true, ...others } = options;
+        utils.checkOtherOptions(others);
         return utils.possibleCopy(this.#results.subset_proportion(i), copy);
     }
 
@@ -83,7 +89,9 @@ export class SuggestRnaQcFiltersResults {
      * Each entry is truthy if the corresponding cell is deemed to be of high-quality based on its values in `metrics`.
      * If `buffer` is supplied, the returned array is a view on `buffer`.
      */
-    filter(metrics, { block = null, buffer = null } = {}) {
+    filter(metrics, options = {}) {
+        const { block = null, buffer = null, ...others } = options;
+        utils.checkOtherOptions(others);
         if (!(metrics instanceof PerCellRnaQcMetricsResults)) {
             throw new Error("'metrics' should be a PerCellRnaQcMetricsResults object");
         }
@@ -116,10 +124,14 @@ export class SuggestRnaQcFiltersResults {
  *
  * @return {SuggestRnaQcFiltersResults} Object containing the filtering results.
  */
-export function suggestRnaQcFilters(metrics, { numberOfMADs = 3, block = null } = {}) {
+export function suggestRnaQcFilters(metrics, options = {}) {
+    const { numberOfMADs = 3, block = null, ...others } = options;
+    utils.checkOtherOptions(others);
+
     if (!(metrics instanceof PerCellRnaQcMetricsResults)) {
         throw new Error("'metrics' should be a PerCellRnaQcMetricsResults object");
     }
+
     return internal.computePerCellQcFilters(
         metrics,
         block,

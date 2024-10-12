@@ -92,21 +92,6 @@ maybe("works for dgCMatrix", () => {
         expect_all(x, y => y%1 == 0); // forced integers.
         test_okayish(x, 70, 30, layered);
 
-        // Same results in consumption mode.
-        {
-            let stuff2 = scran.readRds(rpath);
-            let vals2 = stuff2.value();
-            let x2 = scran.initializeSparseMatrixFromRds(vals2, { layered: layered, consume: true });
-
-            for (var c = 0; c < x.numberOfColumns(); c++) {
-                expect(compare.equalArrays(x.column(c), x2.column(c))).toBe(true);
-            }
-
-            x2.free();
-            vals2.free();
-            stuff2.free();
-        }
-
         x.free();
     }
 
@@ -130,21 +115,6 @@ maybe("works for dgTMatrix", () => {
         let x = scran.initializeSparseMatrixFromRds(vals, { layered: layered }); 
         test_okayish(x, 30, 70, layered);
         expect_all(x, y => y%1 == 0); // forced integers.
-
-        // Same results in consumption mode.
-        {
-            let stuff2 = scran.readRds(rpath);
-            let vals2 = stuff2.value();
-            let x2 = scran.initializeSparseMatrixFromRds(vals2, { layered: layered, consume: true });
-
-            for (var c = 0; c < x.numberOfColumns(); c++) {
-                expect(compare.equalArrays(x.column(c), x2.column(c))).toBe(true);
-            }
-
-            x2.free();
-            vals2.free();
-            stuff2.free();
-        }
 
         x.free();
     }

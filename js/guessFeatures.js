@@ -1,3 +1,5 @@
+import * as utils from "./utils.js";
+
 /**
  * Guess the identity of the features from their names.
  *
@@ -16,7 +18,10 @@
  *   This can either be `"ensembl"` or `"symbol"`.
  * - `confidence`: the percentage of entries in `x` that are consistent with the inferred identity.
  */
-export function guessFeatures(features, { forceTaxonomy = false } = {}) {
+export function guessFeatures(features, options = {}) {
+    const { forceTaxonomy = false, ...others } = options;
+    utils.checkOtherOptions(others);
+
     let ntotal = features.length;
     let early_threshold = Math.ceil(ntotal / 2);
     let format = payload => {

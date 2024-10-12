@@ -82,7 +82,10 @@ export class ScranMatrix {
      * If `buffer` was supplied, the returned array is a view into it.
      * Note that this may be invalidated on the next allocation on the Wasm heap.
      */
-    row(i, { buffer = null } = {}) {
+    row(i, options = {}) {
+        let { buffer = null, ...others } = options;
+        utils.checkOtherOptions(others);
+
         if (buffer != null) {
             this.#matrix.row(i, buffer.offset);
             return buffer.array();
@@ -111,7 +114,10 @@ export class ScranMatrix {
      * If `buffer` was supplied, the returned array is a view into it.
      * Note that this may be invalidated on the next allocation on the Wasm heap.
      */
-    column(i, { buffer = null } = {}) {
+    column(i, options = {}) {
+        let { buffer = null, ...others } = options;
+        utils.checkOtherOptions(others);
+
         if (buffer != null) {
             this.#matrix.column(i, buffer.offset);
             return buffer.array();

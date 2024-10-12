@@ -21,7 +21,10 @@ import * as wasm from "./wasm.js";
  *
  * @return {ScranMatrix} A matrix of the same type as `x` containing log-transformed normalized expression values.
  */
-export function logNormCounts(x, { sizeFactors = null, allowZeros = false, allowNonFinite = false } = {}) {
+export function logNormCounts(x, options = {}) {
+    const { sizeFactors = null, allowZeros = false, allowNonFinite = false, ...others } = options;
+    utils.checkOtherOptions(others);
+
     var sf_data;
     var output;
 
@@ -69,7 +72,10 @@ export function logNormCounts(x, { sizeFactors = null, allowZeros = false, allow
  * @return {Float64Array|Float64WasmArray} Array containing the centered size factors.
  * If `buffer` is supplied, the function returns `buffer` if `asTypedArray = false`, or a view on `buffer` if `asTypedArray = true`.
  */
-export function centerSizeFactors(sizeFactors, { block = null, asTypedArray = true, buffer = null, toLowestBlock = true } = {}) {
+export function centerSizeFactors(sizeFactors, options = {}) {
+    let { block = null, asTypedArray = true, buffer = null, toLowestBlock = true, ...others } = options;
+    utils.checkOtherOptions(others);
+
     let local_buffer = null;
     let block_data;
 

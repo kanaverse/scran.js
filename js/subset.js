@@ -16,7 +16,10 @@ import { MultiMatrix } from "./MultiMatrix.js";
  * A ScranMatrix containing the subset of rows from `mat` specified by `indices`.
  * If `inPlace = true`, this is a reference to `x`, otherwise it is a new ScranMatrix.
  */
-export function subsetRows(x, indices, { inPlace = false } = {}) {
+export function subsetRows(x, indices, options = {}) {
+    const { inPlace = false, ...others } = options;
+    utils.checkOtherOptions(others);
+
     let xcopy;
     let target;
     let wasm_indices;
@@ -57,7 +60,10 @@ export function subsetRows(x, indices, { inPlace = false } = {}) {
  * A new ScranMatrix containing the subset of columns from `mat` specified by `indices`.
  * If `inPlace = true`, this is a reference to `x`, otherwise it is a new ScranMatrix.
  */
-export function subsetColumns(x, indices, { inPlace = false } = {}) {
+export function subsetColumns(x, indices, options = {}) {
+    const { inPlace = false, ...others } = options;
+    utils.checkOtherOptions(others);
+
     let xcopy;
     let target;
     let wasm_indices;
@@ -98,7 +104,10 @@ export function subsetColumns(x, indices, { inPlace = false } = {}) {
  * @return {object|MultiMatrix} Object with the same keys as `split` where each value is a ScranMatrix for the corresponding subset of rows.
  * Alternatively, this is wrapped in a MultiMatrix if `createMultiMatrix = true`.
  */
-export function splitRows(matrix, split, { singleNull = false, createMultiMatrix = false } = {}) { 
+export function splitRows(matrix, split, options = {}) {
+    const { singleNull = false, createMultiMatrix = false, ...others } = options;
+    utils.checkOtherOptions(others);
+
     let output = {};
     let tkeys = Object.keys(split);
 

@@ -275,7 +275,7 @@ test("initialization from HDF5 works correctly with forced integers", () => {
     }
 
     // Using raw access.
-    var mat3 = scran.initializeSparseMatrixFromHdf5(path, "foobar", { numberOfRows: nr, numberOfColumns: nc, sparseByRow: false, forceInteger: true, layered: true });
+    var mat3 = scran.initializeSparseMatrixFromHdf5Group(path, "foobar", nr, nc, false, { forceInteger: true, layered: true });
     expect(mat3.numberOfRows()).toBe(nr); 
     expect(mat3.numberOfColumns()).toBe(nc);
     expect(compare.equalArrays(mat3.row(0), mat1.row(0))).toBe(true);

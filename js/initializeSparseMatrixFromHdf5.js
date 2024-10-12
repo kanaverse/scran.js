@@ -25,7 +25,10 @@ import { ScranMatrix } from "./ScranMatrix.js";
  *
  * @return {ScranMatrix} Matrix containing sparse data.
  */
-export function initializeSparseMatrixFromHdf5(file, name, { forceInteger = true, layered = true, subsetRow = null, subsetColumn = null } = {}) {
+export function initializeSparseMatrixFromHdf5(file, name, options = {}) {
+    const { forceInteger = true, layered = true, subsetRow = null, subsetColumn = null, ...others } = options;
+    utils.checkOtherOptions(others);
+
     const details = extractHdf5MatrixDetails(file, name);
     if (details.format == "dense") {
         return initializeSparseMatrixFromHdf5Dataset(file, name, { forceInteger, layered, subsetRow, subsetColumn });
@@ -103,7 +106,10 @@ function processSubsets(subsetRow, subsetColumn, FUN) {
  *
  * @return {ScranMatrix} Matrix containing sparse data.
  */
-export function initializeSparseMatrixFromHdf5Dataset(file, name, { transposed = true, forceInteger = true, layered = true, subsetRow = null, subsetColumn = null } = {}) {
+export function initializeSparseMatrixFromHdf5Dataset(file, name, options = {}) {
+    const { transposed = true, forceInteger = true, layered = true, subsetRow = null, subsetColumn = null, ...others } = options;
+    utils.checkOtherOptions(others);
+
     return processSubsets(
         subsetRow,
         subsetColumn, 
@@ -147,7 +153,10 @@ export function initializeSparseMatrixFromHdf5Dataset(file, name, { transposed =
  *
  * @return {ScranMatrix} Matrix containing sparse data.
  */
-export function initializeSparseMatrixFromHdf5Group(file, name, numberOfRows, numberOfColumns, byRow, { forceInteger = true, layered = true, subsetRow = null, subsetColumn = null } = {}) {
+export function initializeSparseMatrixFromHdf5Group(file, name, numberOfRows, numberOfColumns, byRow, options = {}) {
+    const { forceInteger = true, layered = true, subsetRow = null, subsetColumn = null, ...others } = options;
+    utils.checkOtherOptions(others);
+
     return processSubsets(
         subsetRow,
         subsetColumn, 

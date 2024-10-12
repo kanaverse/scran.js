@@ -10,7 +10,7 @@ export class ClusterKmeansResults {
     #id;
     #results;
 
-    constructor(id, raw, filled = true) {
+    constructor(id, raw) {
         this.#results = raw;
         this.#id = id;
     }
@@ -34,7 +34,9 @@ export class ClusterKmeansResults {
      * @param {boolean|string} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      * @return {Int32Array|Int32WasmArray} Array containing the cluster assignment for each cell.
      */
-    clusters({ copy = true } = {}) {
+    clusters(options = {}) {
+        const { copy = true, ...others } = options;
+        utils.checkOtherOptions(others);
         return utils.possibleCopy(this.#results.clusters(), copy);
     }
 
@@ -43,7 +45,9 @@ export class ClusterKmeansResults {
      * @param {boolean|string} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      * @return {Int32Array|Int32WasmArray} Array containing the number of cells in each cluster.
      */
-    sizes({ copy = true } = {}) {
+    sizes(options = {}) {
+        const { copy = true, ...others } = options;
+        utils.checkOtherOptions(others);
         return utils.possibleCopy(this.#results.cluster_sizes(), copy);
     }
 
@@ -53,7 +57,9 @@ export class ClusterKmeansResults {
      * @return {Float64Array|Float64WasmArray} Array containing the cluster centers in column-major format,
      * where rows are dimensions and columns are the clusters.
      */
-    centers({ copy = true } = {}) {
+    centers(options = {}) {
+        const { copy = true, ...others } = options;
+        utils.checkOtherOptions(others);
         return utils.possibleCopy(this.#results.centers(), copy);
     }
 
@@ -88,7 +94,7 @@ export class ClusterKmeansResults {
  * Cluster cells using k-means.
  * A variety of initialization and refinement algorithms can be used here, see the [**kmeans** documentation](https://github.com/LTLA/CppKmeans) for more details.
  *
-* @param {(RunPcaResults|Float64WasmArray|Array|TypedArray)} x - Numeric coordinates of each cell in the dataset.
+ * @param {(RunPcaResults|Float64WasmArray|Array|TypedArray)} x - Numeric coordinates of each cell in the dataset.
  * For array inputs, this is expected to be in column-major format where the rows are the variables and the columns are the cells.
  * For a {@linkplain RunPcaResults} input, we extract the principal components.
  * @param {number} clusters Number of clusters to create.
@@ -115,18 +121,22 @@ export class ClusterKmeansResults {
  *
  * @return {ClusterKmeansResults} Object containing the clustering results.
  */
-export function clusterKmeans(x, clusters, { 
-    numberOfDims = null, 
-    numberOfCells = null, 
-    initMethod = "var-part", 
-    initSeed = 5768, 
-    initVarPartSizeAdjust = 1, 
-    initVarPartOptimize = true, 
-    refineMethod = "hartigan-wong",
-    refineLloydIterations = 100,
-    refineHartiganWongIterations = 10,
-    numberOfThreads = null 
-} = {}) {
+export function clusterKmeans(x, clusters, options = {}) {
+    let { 
+        numberOfDims = null, 
+        numberOfCells = null, 
+        initMethod = "var-part", 
+        initSeed = 5768, 
+        initVarPartSizeAdjust = 1, 
+        initVarPartOptimize = true, 
+        refineMethod = "hartigan-wong",
+        refineLloydIterations = 100,
+        refineHartiganWongIterations = 10,
+        numberOfThreads = null,
+        ...others
+    } = options;
+    utils.checkOtherOptions(others);
+
     var buffer;
     var output;
     let nthreads = utils.chooseNumberOfThreads(numberOfThreads);

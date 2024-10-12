@@ -31,7 +31,10 @@ import { buildNeighborSearchIndex, BuildNeighborSearchIndexResults } from "./fin
  * @return {Float64Array|Float64WasmArray} Array containing the combined embeddings in column-major format, i.e., dimensions in rows and cells in columns.
  * If `buffer` is supplied, the function returns `buffer` if `asTypedArray = false`, or a view on `buffer` if `asTypedArray = true`.
  */
-export function scaleByNeighbors(embeddings, numberOfCells, { neighbors = 20, indices = null, asTypedArray = true, buffer = null, approximate = true, weights = null, numberOfThreads = null } = {}) {
+export function scaleByNeighbors(embeddings, numberOfCells, options = {}) {
+    let { neighbors = 20, indices = null, asTypedArray = true, buffer = null, approximate = true, weights = null, numberOfThreads = null, ...others } = options;
+    utils.checkOtherOptions(others);
+
     let embed_ptrs;
     let index_ptrs;
     let holding_weights;

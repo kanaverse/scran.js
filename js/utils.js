@@ -153,12 +153,6 @@ export function matchOptions(name, value, choices) {
     }
 }
 
-export function spawnArray(n, fill) {
-    let output = new Array(n);
-    output.fill(fill);
-    return output;
-}
-
 export function toTypedArray(buffer, wasSupplied, asTypedArray) {
     if (asTypedArray) {
         if (!wasSupplied) {
@@ -170,5 +164,11 @@ export function toTypedArray(buffer, wasSupplied, asTypedArray) {
         }
     } else {
         return buffer;
+    }
+}
+
+export function checkOtherOptions(options) {
+    for (const key of Object.keys(options)) {
+        throw new Error("unknown option '" + key + "'");
     }
 }

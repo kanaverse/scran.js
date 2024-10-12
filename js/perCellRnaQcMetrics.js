@@ -26,7 +26,9 @@ export class PerCellRnaQcMetricsResults {
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      * @return {Float64Array|Float64WasmArray} Array containing the total count across genes for each cell.
      */
-    sum({ copy = true } = {}) {
+    sum(options = {}) {
+        const { copy = true, ...others } = options;
+        utils.checkOtherOptions(others);
         return utils.possibleCopy(this.#results.sum(), copy);
     }
 
@@ -35,7 +37,9 @@ export class PerCellRnaQcMetricsResults {
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      * @return {Int32Array|Int32WasmArray} Array containing the total number of detected genes for each cell.
      */
-    detected({ copy = true } = {}) {
+    detected(options = {}) {
+        const { copy = true, ...others } = options;
+        utils.checkOtherOptions(others);
         return utils.possibleCopy(this.#results.detected(), copy);
     }
 
@@ -45,7 +49,9 @@ export class PerCellRnaQcMetricsResults {
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      * @return {Float64Array|Float64WasmArray} Array containing the proportion of counts in the subset `i` for each cell.
      */
-    subsetProportion(i, { copy = true, fillable = false } = {}) {
+    subsetProportion(i, options = {}) {
+        const { copy = true, ...others } = options;
+        utils.checkOtherOptions(others);
         return utils.possibleCopy(this.#results.subset_proportion(i), copy);
     }
 
@@ -95,9 +101,11 @@ export class PerCellRnaQcMetricsResults {
  *
  * @return {PerCellRnaQcMetricsResults} Object containing the QC metrics.
  */
-export function perCellRnaQcMetrics(x, subsets, { numberOfThreads = null } = {}) {
+export function perCellRnaQcMetrics(x, subsets, options = {}) {
+    const { numberOfThreads = null, ...others } = options;
+    utils.checkOtherOptions(others);
     let nthreads = utils.chooseNumberOfThreads(numberOfThreads);
-     return internal.computePerCellQcMetrics(
+    return internal.computePerCellQcMetrics(
         x, 
         subsets, 
         (matrix, nsubsets, subset_offset) => gc.call(

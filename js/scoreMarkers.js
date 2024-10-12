@@ -35,7 +35,9 @@ export class ScoreMarkersResults {
      * @return {?(Float64Array|Float64WasmArray)} Array of length equal to the number of genes,
      * containing the mean expression for the requested group in the requested block.
      */
-    mean(group, { copy = true } = {}) {
+    mean(group, options = {}) {
+        const { copy = true, ...others } = options;
+        utils.checkOtherOptions(others);
         return utils.possibleCopy(this.#results.mean(group), copy);
     }
 
@@ -48,7 +50,9 @@ export class ScoreMarkersResults {
      * @return {Float64Array|Float64WasmArray} Array of length equal to the number of genes,
      * containing the proportion of cells with detectable expression for the requested group in the requested block.
      */
-    detected(group, { copy = true } = {}) {
+    detected(group, options = {}) {
+        const { copy = true, ...others } = options;
+        utils.checkOtherOptions(others);
         return utils.possibleCopy(this.#results.detected(group), copy);
     }
 
@@ -70,7 +74,9 @@ export class ScoreMarkersResults {
      * @return {Float64Array|Float64WasmArray} Array of length equal to the number of genes,
      * containing the summarized Cohen's d for the comparisons between `group` and all other groups.
      */
-    cohensD(group, { summary = "mean", copy = true } = {}) {
+    cohensD(group, options = {}) {
+        const { summary = "mean", copy = true, ...others } = options;
+        utils.checkOtherOptions(others);
         this.#check_forbidden(summary);
         return utils.possibleCopy(wasm.call(_ => this.#results.cohens_d(group, summary)), copy);
     }
@@ -90,7 +96,9 @@ export class ScoreMarkersResults {
      * @return {Float64Array|Float64WasmArray} Array of length equal to the number of genes,
      * containing the summarized AUC for the comparisons between `group` and all other groups.
      */
-    auc(group, { summary = "mean", copy = true } = {}) {
+    auc(group, options = {}) {
+        const { summary = "mean", copy = true, ...others } = options;
+        utils.checkOtherOptions(others);
         this.#check_forbidden(summary);
         return utils.possibleCopy(wasm.call(_ => this.#results.auc(group, summary)), copy);
     }
@@ -108,7 +116,9 @@ export class ScoreMarkersResults {
      * containing the summarized delta-mean for the comparisons between `group` and all other groups.
      * This can be interpreted as the log-fold change if log-expression values are used in {@linkcode scoreMarkers}.
      */
-    deltaMean(group, { summary = "mean", copy = true } = {}) {
+    deltaMean(group, options = {}) {
+        const { summary = "mean", copy = true, ...others } = options;
+        utils.checkOtherOptions(others);
         this.#check_forbidden(summary);
         return utils.possibleCopy(wasm.call(_ => this.#results.delta_mean(group, summary)), copy);
     }
@@ -125,7 +135,9 @@ export class ScoreMarkersResults {
      * @return {Float64Array|Float64WasmArray} Array of length equal to the number of genes,
      * containing the summarized delta-detected for the comparisons between `group` and all other groups.
      */
-    deltaDetected(group, { summary = "mean", copy = true } = {}) {
+    deltaDetected(group, options = {}) {
+        const { summary = "mean", copy = true, ...others } = options;
+        utils.checkOtherOptions(others);
         this.#check_forbidden(summary);
         return utils.possibleCopy(wasm.call(_ => this.#results.delta_detected(group, summary)), copy);
     }
@@ -168,7 +180,10 @@ export class ScoreMarkersResults {
  *
  * @return {ScoreMarkersResults} Object containing the marker scoring results.
  */
-export function scoreMarkers(x, groups, { block = null, threshold = 0, computeAuc = true, computeMedian = false, computeMaximum = false , numberOfThreads = null} = {}) {
+export function scoreMarkers(x, groups, options = {}) {
+    const { block = null, threshold = 0, computeAuc = true, computeMedian = false, computeMaximum = false , numberOfThreads = null, ...others } = options;
+    utils.checkOtherOptions(others);
+
     var output;
     var block_data;
     var group_data;

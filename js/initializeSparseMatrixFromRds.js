@@ -16,7 +16,10 @@ import { ScranMatrix } from "./ScranMatrix.js";
  *
  * @return {ScranMatrix} Matrix containing sparse data.
  */
-export function initializeSparseMatrixFromRds(x, { forceInteger = true, layered = true } = {}) {
+export function initializeSparseMatrixFromRds(x, options = {}) {
+    const { forceInteger = true, layered = true, ...others } = options;
+    utils.checkOtherOptions(others);
+
     var ids = null;
     var output;
 

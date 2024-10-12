@@ -23,7 +23,9 @@ export class SuggestAdtQcFiltersResults {
      *
      * @return {?(Float64Array|Float64WasmArray)} Array containing the filtering threshold on the number of detected ADTs for each batch.
      */
-    detected({ copy = true } = {}) {
+    detected(options = {}) {
+        const { copy = true, ...others } = options;
+        utils.checkOtherOptions(others);
         return utils.possibleCopy(this.#results.detected(), copy);
     }
 
@@ -35,7 +37,9 @@ export class SuggestAdtQcFiltersResults {
      *
      * @return {?(Float64Array|Float64WasmArray)} Array containing the filtering threshold on the total counts for subset `i` in each batch.
      */
-    subsetSum(i, { copy = true } = {}) {
+    subsetSum(i, options = {}) {
+        const { copy = true, ...others } = options;
+        utils.checkOtherOptions(others);
         return utils.possibleCopy(this.#results.subset_sum(i), copy);
     }
 
@@ -74,7 +78,9 @@ export class SuggestAdtQcFiltersResults {
      * Each entry is truthy if the corresponding cell is deemed to be of high-quality based on its values in `metrics`.
      * If `buffer` is supplied, the returned array is a view on `buffer`.
      */
-    filter(metrics, { block = null, buffer = null } = {}) {
+    filter(metrics, options = {}) {
+        const { block = null, buffer = null, ...others } = options;
+        utils.checkOtherOptions(others);
         if (!(metrics instanceof PerCellAdtQcMetricsResults)) {
             throw new Error("'metrics' should be a PerCellAdtQcMetricsResults object");
         }
@@ -109,10 +115,14 @@ export class SuggestAdtQcFiltersResults {
  *
  * @return {SuggestAdtQcFiltersResults} Object containing the filtering results.
  */
-export function suggestAdtQcFilters(metrics, { numberOfMADs = 3, minDetectedDrop = 0.1, block = null } = {}) {
+export function suggestAdtQcFilters(metrics, options = {}) {
+    const { numberOfMADs = 3, minDetectedDrop = 0.1, block = null, ...others } = options;
+    utils.checkOtherOptions(others);
+
     if (!(metrics instanceof PerCellAdtQcMetricsResults)) {
         throw new Error("'metrics' should be a PerCellAdtQcMetricsResults object");
     }
+
     return internal.computePerCellQcFilters(
         metrics, 
         block,

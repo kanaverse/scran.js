@@ -101,7 +101,9 @@ export class RdsIntegerVector extends RdsVector {
      *
      * @return {Int32Array|Int32WasmArray} Values of the integer vector.
      */
-    values({ copy = true } = {}) {
+    values(options = {}) {
+        const { copy = true, ...others } = options;
+        utils.checkOtherOptions(others);
         return utils.possibleCopy(this.object.numeric_vector(), copy);
     }
 }
@@ -124,7 +126,9 @@ export class RdsBooleanVector extends RdsVector {
      * @return {Int32Array|Int32WasmArray} Values of the logical vector.
      * Zero values are falsey and values of 1 are truthy.
      */
-    values({ copy = true } = {}) {
+    values(options = {}) {
+        const { copy = true, ...others } = options;
+        utils.checkOtherOptions(others);
         return utils.possibleCopy(this.object.numeric_vector(), copy);
     }
 }
@@ -146,7 +150,9 @@ export class RdsDoubleVector extends RdsVector {
      *
      * @return {Float64Array|Float64WasmArray} Values of the double vector.
      */
-    values({ copy = true } = {}) {
+    values(options = {}) {
+        const { copy = true, ...others } = options;
+        utils.checkOtherOptions(others);
         return utils.possibleCopy(this.object.numeric_vector(), copy);
     }
 }

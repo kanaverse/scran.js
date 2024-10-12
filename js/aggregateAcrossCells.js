@@ -39,7 +39,9 @@ export class AggregateAcrossCellsResults {
      * @return {Float64Array|Float64WasmArray} Array of length equal to the number of genes, containing the per-gene sum of values across across all cells in the specified `group`.
      * If `average = true` in {@linkcode aggregateAcrossCells}, each element is the mean value instead.
      */
-    groupSums(group, { copy = true } = {}) {
+    groupSums(group, options = {}) {
+        const { copy = true, ...others } = options;
+        utils.checkOtherOptions(others);
         return utils.possibleCopy(this.#results.group_sums(group), copy);
     }
 
@@ -57,7 +59,9 @@ export class AggregateAcrossCellsResults {
      * If `average = true` in {@linkcode aggregateAcrossCells}, each element is the mean value instead.
      * If `buffer` is supplied, the function returns `buffer` if `asTypedArray = false`, or a view on `buffer` if `asTypedArray = true`.
      */
-    allSums({ asTypedArray = true, buffer = null } = {}) {
+    allSums(options = {}) {
+        let { asTypedArray = true, buffer = null, ...others } = options;
+        utils.checkOtherOptions(others);
         let tmp = null;
 
         try {
@@ -83,7 +87,9 @@ export class AggregateAcrossCellsResults {
      * @return {Float64Array|Float64WasmArray} Array of length equal to the number of genes, containing the number of cells with detected expression for each gene in the specified `group`.
      * If `average = true` in {@linkcode aggregateAcrossCells}, each element is the proportion of detected cells instead.
      */
-    groupDetected(group, { copy = true } = {}) {
+    groupDetected(group, options = {}) {
+        const { copy = true, ...others } = options;
+        utils.checkOtherOptions(others);
         return utils.possibleCopy(this.#results.group_detected(group), copy);
     }
 
@@ -100,7 +106,9 @@ export class AggregateAcrossCellsResults {
      * If `average = true` in {@linkcode aggregateAcrossCells}, each element is the proportion of detected cells instead.
      * If `buffer` is supplied, the function returns `buffer` if `asTypedArray = false`, or a view on `buffer` if `asTypedArray = true`.
      */
-    allDetected({ asTypedArray = true, buffer = null } = {}) {
+    allDetected(options = {}) {
+        let { asTypedArray = true, buffer = null, ...others } = options;
+        utils.checkOtherOptions(others);
         let tmp = null;
 
         try {
@@ -144,7 +152,9 @@ export class AggregateAcrossCellsResults {
  *
  * @return {AggregateAcrossCellsResults} Object containing the aggregation results.
  */
-export function aggregateAcrossCells(x, groups, { average = false, numberOfThreads = null } = {}) {
+export function aggregateAcrossCells(x, groups, options = {}) {
+    const { average = false, numberOfThreads = null, ...others } = options;
+    utils.checkOtherOptions(others);
     var group_data;
     var output;
     let nthreads = utils.chooseNumberOfThreads(numberOfThreads);

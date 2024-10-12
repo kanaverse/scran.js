@@ -14,7 +14,10 @@ export class MultiMatrix {
      * Each matrix should correspond to a different modality, named according to its key.
      * All matrices should have data for the same set of cells, i.e., same number of columns.
      */
-    constructor({ store = {} } = {}) {
+    constructor(options = {}) {
+        const { store = {}, ...others } = options;
+        utils.checkOtherOptions(others);
+
         this.#store = store;
         this.#ncols = null;
 

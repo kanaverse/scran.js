@@ -276,12 +276,15 @@ test("labelCells ignores nulls correctly", () => {
     for (var i = 0; i < until; i++) {
         copy[i] = null;
     }
+
     let built = scran.trainLabelCellsReference(copy, refinfo, mockids);
     expect(built.numberOfFeatures() > 0).toBe(true);
+
     let results = scran.labelCells(mat, built); 
     let labels = results.predicted();
-    expect(compare.equalArrays(labels, refresults.predicted({ copy: false }))).toBe(false);
-    let firstscore = results.scoreForCell(0, { copy: false });
+    expect(compare.equalArrays(labels, refresults.predicted({ copy: false }))).toBe(false); // should have some diff!
+    let firstscore = results.scoreForCell(0); 
+    expect(compare.equalFloatArrays(firstscore, refresults.scoreForCell(0))).toBe(false);
 
     // Manually removing the first gene from the test matrix.
     {

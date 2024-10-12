@@ -10,7 +10,7 @@ export class PerCellAdtQcMetricsResults {
     #id;
     #results;
 
-    constructor(id, raw, filled = true) {
+    constructor(id, raw) {
         this.#id = id;
         this.#results = raw;
         return;
@@ -26,7 +26,9 @@ export class PerCellAdtQcMetricsResults {
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      * @return {Float64Array|Float64WasmArray} Array containing the total ADT count for each cell.
      */
-    sum({ copy = true } = {}) {
+    sum(options = {}) {
+        const { copy = true, ...others } = options;
+        utils.checkOtherOptions(others);
         return utils.possibleCopy(this.#results.sum(), copy);
     }
 
@@ -35,7 +37,9 @@ export class PerCellAdtQcMetricsResults {
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      * @return {Int32Array|Int32WasmArray} Array containing the total number of detected ADT features for each cell.
      */
-    detected({ copy = true } = {}) {
+    detected(options = {}) {
+        const { copy = true, ...others } = options;
+        utils.checkOtherOptions(others);
         return utils.possibleCopy(this.#results.detected(), copy);
     }
 
@@ -45,7 +49,9 @@ export class PerCellAdtQcMetricsResults {
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      * @return {Float64Array|Float64WasmArray} Array containing the total count in the ADT subset `i` for each cell.
      */
-    subsetSum(i, { copy = true } = {}) {
+    subsetSum(i, options = {}) {
+        const { copy = true, ...others } = options;
+        utils.checkOtherOptions(others);
         return utils.possibleCopy(this.#results.subset_sum(i), copy);
     }
 
@@ -95,7 +101,9 @@ export class PerCellAdtQcMetricsResults {
  *
  * @return {PerCellAdtQcMetricsResults} Object containing the ADT-based QC metrics.
  */
-export function perCellAdtQcMetrics(x, subsets, { numberOfThreads = null } = {}) {
+export function perCellAdtQcMetrics(x, subsets, options = {}) {
+    const { numberOfThreads = null, ...others } = options;
+    utils.checkOtherOptions(others);
     let nthreads = utils.chooseNumberOfThreads(numberOfThreads);
     return internal.computePerCellQcMetrics(
         x, 

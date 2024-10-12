@@ -25,7 +25,9 @@ export class PerCellCrisprQcMetricsResults {
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      * @return {Float64Array|Float64WasmArray} Array containing the total count across guides for each cell.
      */
-    sum({ copy = true } = {}) {
+    sum(options = {}) {
+        const { copy = true, ...others } = options;
+        utils.checkOtherOptions(others);
         return utils.possibleCopy(this.#results.sum(), copy);
     }
 
@@ -34,7 +36,9 @@ export class PerCellCrisprQcMetricsResults {
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      * @return {Int32Array|Int32WasmArray} Array containing the total number of detected guides for each cell.
      */
-    detected({ copy = true } = {}) {
+    detected(options = {}) {
+        const { copy = true, ...others } = options;
+        utils.checkOtherOptions(others);
         return utils.possibleCopy(this.#results.detected(), copy);
     }
 
@@ -43,7 +47,9 @@ export class PerCellCrisprQcMetricsResults {
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      * @return {Float64Array|Float64WasmArray} Array containing the count of the most abundant guide for each cell.
      */
-    maxValue({ copy = true } = {}) {
+    maxValue(options = {}) {
+        const { copy = true, ...others } = options;
+        utils.checkOtherOptions(others);
         return utils.possibleCopy(this.#results.max_value(), copy);
     }
 
@@ -62,7 +68,9 @@ export class PerCellCrisprQcMetricsResults {
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
      * @return {Int32Array|Int32WasmArray} Array containing the index of the most abundant guide for each cell.
      */
-    maxIndex({ copy = true } = {}) {
+    maxIndex(options = {}) {
+        const { copy = true, ...others } = options;
+        utils.checkOtherOptions(others);
         return utils.possibleCopy(this.#results.max_index(), copy);
     }
 
@@ -96,7 +104,9 @@ export class PerCellCrisprQcMetricsResults {
  *
  * @return {PerCellCrisprQcMetricsResults} Object containing the QC metrics.
  */
-export function perCellCrisprQcMetrics(x, { numberOfThreads = null } = {}) {
+export function perCellCrisprQcMetrics(x, options = {}) {
+    const { numberOfThreads = null, ...others } = options;
+    utils.checkOtherOptions(others);
     let nthreads = utils.chooseNumberOfThreads(numberOfThreads);
     return gc.call(
         module => module.per_cell_crispr_qc_metrics(x.matrix, nthreads),

@@ -1,5 +1,6 @@
 import * as h5 from "./hdf5.js";
 import * as wasm from "./wasm.js";
+import * as utils from "./utils.js";
 
 /**
  * Write a sparse {@linkplain ScranMatrix} into HDF5 file, in the form of its compressed sparse components.
@@ -23,7 +24,9 @@ import * as wasm from "./wasm.js";
  *
  * @return `x` is written to `path` at `name`.
  */
-export function writeSparseMatrixToHdf5(x, path, name, { format = "tenx_matrix", forceInteger = false } = {}) {
+export function writeSparseMatrixToHdf5(x, path, name, options = {}) {
+    const { format = "tenx_matrix", forceInteger = false, ...others } = options;
+    utils.checkOtherOptions(others);
     wasm.call(module => module.write_sparse_matrix_to_hdf5(x.matrix, path, name, format, forceInteger));
 
     let handle = new h5.H5Group(path, name);

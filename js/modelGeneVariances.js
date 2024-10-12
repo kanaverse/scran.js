@@ -26,7 +26,9 @@ export class ModelGeneVariancesResults {
      * containing the mean log-expression across all cells in the specified `block`
      * (or the average across all blocks, if `block = null`).
      */
-    means({ block = null, copy = true } = {}) {
+    means(options = {}) {
+        const { block = null, copy = true, ...others } = options;
+        utils.checkOtherOptions(others);
         return utils.possibleCopy(this.#results.means(block == null ? -1 : block), copy);
     }
 
@@ -42,7 +44,9 @@ export class ModelGeneVariancesResults {
      * containing the variance of log-expression across all cells in the specified `block`
      * (or the average across all blocks, if `block = null`).
      */
-    variances({ block = null, copy = true } = {}) {
+    variances(options = {}) {
+        const { block = null, copy = true, ...others } = options;
+        utils.checkOtherOptions(others);
         return utils.possibleCopy(this.#results.variances(block == null ? -1 : block), copy);
     }
 
@@ -59,7 +63,9 @@ export class ModelGeneVariancesResults {
      * (or the average across all blocks, if `block = null`).
      * Alternatively `null`, if `fillable = false` and the array was not already filled.
      */
-    fitted({ block = null, copy = true } = {}) {
+    fitted(options = {}) {
+        const { block = null, copy = true, ...others } = options;
+        utils.checkOtherOptions(others);
         return utils.possibleCopy(this.#results.fitted(block == null ? -1 : block), copy);
     }
 
@@ -75,7 +81,9 @@ export class ModelGeneVariancesResults {
      * containing the residuals from the mean-variance trend for the specified `block`
      * (or the average across all blocks, if `block = null`).
      */
-    residuals({ block = null, copy = true } = {}) {
+    residuals(options = {}) {
+        const { block = null, copy = true, ...others } = options;
+        utils.checkOtherOptions(others);
         return utils.possibleCopy(this.#results.residuals(block == null ? -1 : block), copy);
     }
 
@@ -129,7 +137,10 @@ export class ModelGeneVariancesResults {
  *
  * @return {ModelGeneVariancesResults} Object containing the variance modelling results.
  */
-export function modelGeneVariances(x, { block = null, span = 0.3, blockWeightPolicy = "variable", numberOfThreads = null } = {}) {
+export function modelGeneVariances(x, options = {}) {
+    const { block = null, span = 0.3, blockWeightPolicy = "variable", numberOfThreads = null, ...others } = options;
+    utils.checkOtherOptions(others);
+
     var block_data;
     var output;
     let nthreads = utils.chooseNumberOfThreads(numberOfThreads);

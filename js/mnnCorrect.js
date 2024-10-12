@@ -40,19 +40,22 @@ import * as wasm from "./wasm.js";
  * Corrected values are organized using the column-major layout, where rows are dimensions and columns are cells.
  * If `buffer` is supplied, the function returns `buffer` if `asTypedArray = false`, or a view on `buffer` if `asTypedArray = true`.
  */
-export function mnnCorrect(x, block, { 
-    asTypedArray = true,
-    buffer = null, 
-    numberOfDims = null,
-    numberOfCells = null,
-    k = 15,
-    numberOfMADs = 3, 
-    robustIterations = 2, 
-    robustTrim = 0.25,
-    referencePolicy = "max-rss",
-    approximate = true,
-    numberOfThreads = null
-} = {}) {
+export function mnnCorrect(x, block, options = {}) {
+    let { 
+        asTypedArray = true,
+        buffer = null, 
+        numberOfDims = null,
+        numberOfCells = null,
+        k = 15,
+        numberOfMADs = 3, 
+        robustIterations = 2, 
+        robustTrim = 0.25,
+        referencePolicy = "max-rss",
+        approximate = true,
+        numberOfThreads = null,
+        ...others
+    } = options;
+    utils.checkOtherOptions(others);
 
     let local_buffer = null;
     let x_data;

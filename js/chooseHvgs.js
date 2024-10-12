@@ -16,9 +16,12 @@ import { ModelGeneVariancesResults } from "./modelGeneVariances.js";
  * @return {Uint8WasmArray} Array of length equal to the number of genes.
  * Highly variable genes are marked with a value of 1 and all other genes have values of zero.
  */
-export function chooseHvgs(x, { number = 4000, minimum = 0 } = {}) {
+export function chooseHvgs(x, options = {}) {
+    const { number = 4000, minimum = 0, ...others } = options;
+    utils.checkOtherOptions(others);
     let stat;
     let chosen;
+
     try {
         if (x instanceof ModelGeneVariancesResults) {
             stat = x.residuals({ copy: "view" });
@@ -27,11 +30,13 @@ export function chooseHvgs(x, { number = 4000, minimum = 0 } = {}) {
         }
         chosen = utils.createUint8WasmArray(stat.length);
         wasm.call(module => module.choose_highly_variable_genes(stat.length, stat.offset, chosen.offset, number, minimum));
+
     } catch (e) {
         chosen.free();
         throw e;
     } finally {
         stat.free();
     }
+
     return chosen;
 }

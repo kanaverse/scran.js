@@ -23,7 +23,10 @@ import * as wasm from "./wasm.js";
  * The i-th entry contains the p-value for enrichment computed using the i-th entry of each supplied array. 
  * If `buffer` is supplied, the function returns `buffer` if `asTypedArray = false`, or a view on `buffer` if `asTypedArray = true`.
  */
-export function hypergeometricTest(markersInSet, numberOfMarkers, geneSetSize, numberOfGenes, { asTypedArray = true, buffer = null, log = false, numberOfThreads = null } = {}) {
+export function hypergeometricTest(markersInSet, numberOfMarkers, geneSetSize, numberOfGenes, options = {}) {
+    let { asTypedArray = true, buffer = null, log = false, numberOfThreads = null, ...others } = options;
+    utils.checkOtherOptions(others);
+
     let markersInSet_data;
     let numberOfMarkers_data;
     let geneSetSize_data;

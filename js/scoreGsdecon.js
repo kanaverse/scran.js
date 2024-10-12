@@ -31,7 +31,10 @@ import * as wa from "wasmarrays.js";
  * - `weights`, a Float64Array containing per-gene weights for each feature in the set.
  * - `scores`, a Float64Array containing the per-cell scores for each column of `x`.
  */
-export function scoreGsdecon(x, features, { block = null, scale = false, blockWeightPolicy = "variable", numberOfThreads = null } = {}) {
+export function scoreGsdecon(x, features, options = {}) {
+    const { block = null, scale = false, blockWeightPolicy = "variable", numberOfThreads = null, ...others } = options;
+    utils.checkOtherOptions(others);
+
     let temp;
     let output = {};
     let feature_data, block_data;

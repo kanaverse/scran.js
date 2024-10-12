@@ -34,7 +34,9 @@ import * as utils from "./utils.js";
  *
  * If `buffer` was supplied, it is used as the value of the `ids` property.
  */
-export function convertToFactor(x, { asWasmArray = true, buffer = null, levels = null, action = "error", placeholder = -1 } = {}) {
+export function convertToFactor(x, options = {}) {
+    let { asWasmArray = true, buffer = null, levels = null, action = "error", placeholder = -1, ...others } = options;
+    utils.checkOtherOptions(others);
     let local_buffer;
 
     let failure;
@@ -184,7 +186,10 @@ export function dropUnusedLevels(x) {
  * @return `x` is modified by reference such that `x.levels` is set to `newLevels`.
  * `x.ids` is updated so that the indices now refer to the appropriate value in `newLevels`.
  */
-export function resetLevels(x, newLevels, { action = "error", placeholder = -1 } = {}) {
+export function resetLevels(x, newLevels, options = {}) {
+    const { action = "error", placeholder = -1, ...others } = options;
+    utils.checkOtherOptions(others);
+
     let mapping = new Map;
     for (var i = 0; i < newLevels.length; i++) {
         mapping.set(newLevels[i], i);
@@ -275,7 +280,10 @@ export function resetLevels(x, newLevels, { action = "error", placeholder = -1 }
  *
  * If `buffer` is supplied, the returned `ids` will be set to `buffer`.
  */
-export function subsetFactor(x, subset, { drop = true, filter = null, buffer = null } = {}) {
+export function subsetFactor(x, subset, options = {}) {
+    let { drop = true, filter = null, buffer = null, ...others } = options;
+    utils.checkOtherOptions(others);
+
     let output = { ids: null, levels: x.levels };
 
     if (x.ids instanceof wa.WasmArray) {

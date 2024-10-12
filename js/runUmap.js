@@ -64,7 +64,9 @@ export class UmapStatus {
      * @return The algorithm status in `x` is advanced up to the total number of epochs used to initialize `x`,
      * or until the requested run time is exceeded, whichever comes first.
      */
-    run({ runTime = null } = {}) {
+    run(options = {}) {
+        let { runTime = null, ...others } = options;
+        utils.checkOtherOptions(others);
         if (runTime === null) {
             runTime = -1;
         }
@@ -111,7 +113,10 @@ export class UmapStatus {
  *
  * @return {UmapStatus} Object containing the initial status of the UMAP algorithm.
  */
-export function initializeUmap(x, { neighbors = 15, epochs = 500, minDist = 0.01, numberOfThreads = null } = {}) {
+export function initializeUmap(x, options = {}) {
+    const { neighbors = 15, epochs = 500, minDist = 0.01, numberOfThreads = null, ...others } = options;
+    utils.checkOtherOptions(others);
+
     var my_neighbors;
     var raw_coords;
     var output;
@@ -163,7 +168,9 @@ export function initializeUmap(x, { neighbors = 15, epochs = 500, minDist = 0.01
  *
  * @return {object} Object containing coordinates of the UMAP embedding, see {@linkcode UmapStatus#extractCoordinates UmapStatus.extractCoordinates} for more details.
  */
-export function runUmap(x, { neighbors = 15, epochs = 500, minDist = 0.01, numberOfThreads = null } = {}) {
+export function runUmap(x, options = {}){
+    const { neighbors = 15, epochs = 500, minDist = 0.01, numberOfThreads = null, ...others } = options;
+    utils.checkOtherOptions(others);
     let ustat = initializeUmap(x, { neighbors, epochs, minDist, numberOfThreads });
     ustat.run();
     return ustat.extractCoordinates();
