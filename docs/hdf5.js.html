@@ -203,7 +203,10 @@ export class H5Base {
         return output;
     }
 
-    #create_attribute(attr, type, shape, { maxStringLength = null, levels = null } = {}) { // internal use only.
+    #create_attribute(attr, type, shape, options = {}) { // internal use only.
+        const { maxStringLength = null, levels = null, ...others } = options;
+        utils.checkOtherOptions(others);
+
         let shape_arr = utils.wasmifyArray(shape, "Int32WasmArray");
         try {
             if (type == "String") {
@@ -246,7 +249,10 @@ export class H5Base {
      * If supplied, `x` should be an array of integers that index into `levels`.
      * Alternatively, `levels` may be `null`, in which case `x` should be an array of strings that is used to infer `levels`.
      */
-    writeAttribute(attr, type, shape, x, { maxStringLength = null, levels = null } = {}) {
+    writeAttribute(attr, type, shape, x, options = {}) {
+        let { maxStringLength = null, levels = null, ...others } = options;
+        utils.checkOtherOptions(others);
+
         if (x === null) {
             throw new Error("cannot write 'null' to HDF5"); 
         }
@@ -305,8 +311,11 @@ export class H5Group extends H5Base {
     /**
      * @param {string} file - Path to the HDF5 file.
      * @param {string} name - Name of the group inside the file.
+     * @param {object} [options={}] - Optional parameters, for internal use only.
      */
-    constructor(file, name, { newlyCreated = false } = {}) {
+    constructor(file, name, options = {}) {
+        const { newlyCreated = false, ...others } = options;
+        utils.checkOtherOptions(others);
         super(file, name);
 
         if (newlyCreated) {
@@ -415,9 +424,11 @@ export class H5Group extends H5Base {
      * @return {H5DataSet} A dataset of the specified type and shape is created as an immediate child of the current group.
      * A {@linkplain H5DataSet} object is returned representing this new dataset.
      */
-    createDataSet(name, type, shape, { maxStringLength = 10, levels = null, compression = 6, chunks = null } = {}) {
-        let new_name = this.#child_name(name);
+    createDataSet(name, type, shape, options = {}) {
+        const { maxStringLength = 10, levels = null, compression = 6, chunks = null, ...others } = options;
+        utils.checkOtherOptions(others);
 
+        let new_name = this.#child_name(name);
         let shape_arr;
         let chunk_arr; 
         try {
@@ -479,7 +490,10 @@ export class H5Group extends H5Base {
      * The same dataset is then filled with the contents of `x`.
      * A {@linkplain H5DataSet} object is returned representing this new dataset.
      */
-     writeDataSet(name, type, shape, x, { levels = null, compression = 6, chunks = null, cache = false } = {}) {
+     writeDataSet(name, type, shape, x, options = {}) {
+        const { levels = null, compression = 6, chunks = null, cache = false, ...others } = options;
+        utils.checkOtherOptions(others);
+
         if (x === null) {
             throw new Error("cannot write 'null' to HDF5"); 
         }
@@ -523,6 +537,7 @@ export class H5Group extends H5Base {
 export class H5File extends H5Group {
     /**
      * @param {string} file - Path to the HDF5 file.
+     * @param {object} [options={}] - Further options to pass to the {@linkplain H5Group} constructor.
      */
     constructor(file, options = {}) {
         super(file, "/", options);
@@ -599,7 +614,9 @@ export class H5DataSet extends H5Base {
      * @param {boolean} [options.load=false] - Whether or not to load the contents of the dataset in the constructor.
      * If `false`, the contents can be loaded later with {@linkcode H5DataSet#load load}.
      */
-    constructor(file, name, { load = false, newlyCreated = false, shape = null, type = null, values = null } = {}) {
+    constructor(file, name, options = {}) {
+        const { load = false, newlyCreated = false, shape = null, type = null, values = null, ...others } = options;
+        utils.checkOtherOptions(others);
         super(file, name);
 
         if (newlyCreated) {
@@ -705,7 +722,7 @@ export class H5DataSet extends H5Base {
     }
 
     /**
-     * @param {(Array|TypedArray|number|string)} x - Values to write to the dataset.
+     * @param {Array|TypedArray|number|string} x - Values to write to the dataset.
      * This should be of length equal to the product of {@linkcode H5DataSet#shape shape};
      * unless `shape` is empty, in which case it should either be of length 1, or a single number or string.
      * @param {object} [options={}] - Optional parameters.
@@ -714,11 +731,13 @@ export class H5DataSet extends H5Base {
      * @return `x` is written to the dataset on file.
      * No return value is provided.
      */
-    write(x, { cache = false } = {}) {
+    write(x, options = {}) {
+        const { cache = false, ...others } = options;
+        utils.checkOtherOptions(others);
+
         if (x === null) {
             throw new Error("cannot write 'null' to HDF5"); 
         }
-
         x = check_shape(x, this.shape);
 
         if (this.type == "String") {
@@ -793,13 +812,17 @@ function extract_names(host, output, recursive = true) {
  * these nested objects are empty if `recursive = false`.
  * HDF5 datasets are represented by strings specifying the data type - i.e., `"integer"`, `"float"`, `"string"` or `"other"`.
  */
-export function extractHdf5ObjectNames (path, { group = "", recursive = true } = {}) {
+export function extractHdf5ObjectNames(path, options = {}) {
+    const { group = "", recursive = true, ...others } = options;
+    utils.checkOtherOptions(others);
+
     var src;
     if (group == "") {
         src = new H5File(path);
     } else {
         src = new H5Group(path, group);
     }
+
     var output = {};
     extract_names(src, output, recursive);
     return output;
@@ -837,7 +860,7 @@ export function loadHdf5Dataset(path, name) {
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.11</a> on Fri Oct 11 2024 18:33:28 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.11</a> on Sat Oct 12 2024 09:15:04 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>
