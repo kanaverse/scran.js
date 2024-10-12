@@ -4,18 +4,20 @@ import * as utils from "./utils.js";
 import { ScranMatrix } from "./ScranMatrix.js";
 
 /**
- * Initialize a dense matrix from a dense array in column-major format.
+ * Initialize a dense matrix from a dense array. 
  *
  * @param {number} numberOfRows Number of rows in the matrix.
  * @param {number} numberOfColumns Number of columns in the matrix.
- * @param {WasmArray|Array|TypedArray} values Values of all elements in the matrix, stored in column-major order.
+ * @param {WasmArray|Array|TypedArray} values Values of all elements in the matrix.
+ * This is generally expected to contain non-negative integers; otherwise, users should set `forceInteger = false`.
  * @param {object} [options={}] - Optional parameters.
+ * @param {boolean} [options.columnMajor=true] - Whether `values` contains the matrix in a column-major order.
  * @param {boolean} [options.forceInteger=false] - Whether to coerce `values` to integers via truncation.
  *
  * @return {ScranMatrix} Matrix containing dense data.
  */
 export function initializeDenseMatrixFromDenseArray(numberOfRows, numberOfColumns, values, options = {}) {
-    const { forceInteger = false, ...others } = options;
+    const { columnMajor = true, forceInteger = false, ...others } = options;
     utils.checkOtherOptions(others);
 
     var val_data; 
@@ -33,6 +35,7 @@ export function initializeDenseMatrixFromDenseArray(numberOfRows, numberOfColumn
                 numberOfColumns, 
                 val_data.offset, 
                 val_data.constructor.className.replace("Wasm", ""),
+                columnMajor,
                 forceInteger
             ),
             ScranMatrix
@@ -54,9 +57,11 @@ export function initializeDenseMatrixFromDenseArray(numberOfRows, numberOfColumn
  *
  * @param {number} numberOfRows Number of rows in the matrix.
  * @param {number} numberOfColumns Number of columns in the matrix.
- * @param {WasmArray|Array|TypedArray} values Values of all elements in the matrix, stored in column-major order.
+ * @param {WasmArray|Array|TypedArray} values Values of all elements in the matrix.
  * This is generally expected to contain non-negative integers; otherwise, users should set `forceInteger = false`.
+ * @param {boolean} columnMajor - Whether `values` contains the matrix in a column-major order.
  * @param {object} [options={}] - Optional parameters.
+ * @param {boolean} [options.columnMajor=true] - Whether `values` contains the matrix in a column-major order.
  * @param {boolean} [options.forceInteger=true] - Whether to coerce `values` to integers via truncation.
  * @param {boolean} [options.layered=true] - Whether to create a layered sparse matrix, see [**tatami_layered**](https://github.com/tatami-inc/tatami_layered) for more details.
  * Only used if `values` contains an integer type and/or `forceInteger = true`.
@@ -65,7 +70,7 @@ export function initializeDenseMatrixFromDenseArray(numberOfRows, numberOfColumn
  * @return {ScranMatrix} Matrix containing sparse data.
  */
 export function initializeSparseMatrixFromDenseArray(numberOfRows, numberOfColumns, values, options = {}) {
-    const { forceInteger = true, layered = true, ...others } = options;
+    const { columnMajor = true, forceInteger = true, layered = true, ...others } = options;
     utils.checkOtherOptions(others);
 
     var val_data; 
@@ -83,6 +88,7 @@ export function initializeSparseMatrixFromDenseArray(numberOfRows, numberOfColum
                 numberOfColumns, 
                 val_data.offset, 
                 val_data.constructor.className.replace("Wasm", ""),
+                columnMajor,
                 forceInteger,
                 layered
             ),
@@ -112,7 +118,7 @@ export function initializeSparseMatrixFromDenseArray(numberOfRows, numberOfColum
  * @param {WasmArray} pointers Pointers specifying the start of each column in `indices`.
  * This should have length equal to `numberOfColumns + 1`.
  * @param {object} [options={}] - Optional parameters.
- * @param {boolean} [options.byRow=true] - Whether the input arrays are supplied in the compressed sparse column format.
+ * @param {boolean} [options.byRow=true] - Whether the input arrays are supplied in the compressed sparse row format.
  * If `true`, `indices` should contain column indices and `pointers` should specify the start of each row in `indices`.
  * @param {boolean} [options.forceInteger=true] - Whether to coerce `values` to integers via truncation.
  * @param {boolean} [options.layered=true] - Whether to create a layered sparse matrix, see [**tatami_layered**](https://github.com/tatami-inc/tatami_layered) for more details.

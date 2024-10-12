@@ -22,13 +22,13 @@ test("aggregation works as expected", () => {
     expect(res.numberOfGenes()).toBe(ngenes);
 
     let payload = res.allSums({ asTypedArray: false });
-    let agmat = scran.ScranMatrix.createDenseMatrix(res.numberOfGenes(), res.numberOfGroups(), payload);
+    let agmat = scran.initializeDenseMatrixFromDenseArray(res.numberOfGenes(), res.numberOfGroups(), payload);
     expect(agmat.numberOfColumns()).toBe(3);
     expect(agmat.numberOfRows()).toBe(ngenes);
     payload.free();
 
     payload = res.allDetected({ asTypedArray: false });
-    let dagmat = scran.ScranMatrix.createDenseMatrix(res.numberOfGenes(), res.numberOfGroups(), payload);
+    let dagmat = scran.initializeDenseMatrixFromDenseArray(res.numberOfGenes(), res.numberOfGroups(), payload);
     expect(dagmat.numberOfColumns()).toBe(3);
     expect(dagmat.numberOfRows()).toBe(ngenes);
     payload.free();

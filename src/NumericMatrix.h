@@ -12,8 +12,6 @@ struct NumericMatrix {
 
     NumericMatrix(std::shared_ptr<const tatami::NumericMatrix> p);
 
-    NumericMatrix(int32_t nr, int32_t nc, uintptr_t values, bool, bool);
-
 public:
     int32_t nrow() const;
 
