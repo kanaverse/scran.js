@@ -50,27 +50,3 @@ export function createBlock(ncells, options = {}) {
 
     return buffer;
 }
-
-// Soft-deprecated in favor of the more general convertToFactor().
-export function convertBlock(x, { buffer = null } = {}) {
-    let output = fac.convertToFactor(x, { buffer, action: "warn", placeholder: 0 });
-    output.levels = output.levels.map(String);
-    return output;
-}
-
-// Soft-deprecated in favor of the more general subsetFactor(), or wasmarrays.js's subsetWasmArray, take your choice.
-export function subsetBlock(x, subset, { filter = null, buffer = null } = {}) {
-    return wa.subsetWasmArray(x, subset, { filter, buffer });
-}
-
-// Soft-deprecated, just use subsetFactor().
-export function filterBlock(x, filter, options = {}) {
-    let { buffer = null, ...other } = options;
-    utils.checkOtherOptions(other);
-    return subsetBlock(x, filter, { buffer: buffer, filter: true });
-}
-
-// Soft-deprecated in favor of dropUnusedLevels().
-export function dropUnusedBlock(x) {
-    return fac.dropUnusedLevels(x);
-}

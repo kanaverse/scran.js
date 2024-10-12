@@ -134,11 +134,6 @@ export function convertToFactor(x, options = {}) {
     };
 }
 
-// Back-compatible renaming.
-export function factorize(x, options = {}) {
-    return convertToFactor(x, options);
-}
-
 /**
  * Reindex the factor indices to remove unused levels.
  * This is done by adjusting the indices such that every index from `[0, N)` is represented at least once, where `N` is the number of (used) levels.
