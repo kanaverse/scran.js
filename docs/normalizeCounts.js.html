@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>IntegratedLabelCellsReferences - Documentation</title>
+    <title>normalizeCounts.js - Documentation</title>
     
     
     <script src="scripts/prettify/prettify.js"></script>
@@ -34,255 +34,136 @@
 
 <div id="main">
     
-    <h1 class="page-title">IntegratedLabelCellsReferences</h1>
+    <h1 class="page-title">normalizeCounts.js</h1>
     
 
     
 
 
 
-
-<section>
-
-<header>
     
-        <h2>
-        IntegratedLabelCellsReferences
-        </h2>
-        
-            <div class="class-description usertext"><p>Wrapper around integrated reference datasets on the Wasm heap, typically produced by <code>integrateLabelledReferences</code>.</p></div>
-        
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import * as gc from "./gc.js";
+import * as utils from "./utils.js";
+import * as wa from "wasmarrays.js";
+import * as wasm from "./wasm.js";
+
+/**
+ * Compute log-transformed normalized expression values.
+ *
+ * @param {ScranMatrix} x The count matrix, usually after filtering.
+ * @param {object} [options={}] - Optional parameters.
+ * @param {?(Float64WasmArray|Array|TypedArray)} [options.sizeFactors=null] - Array of positive numbers containing the size factor for each cell in `x`.
+ * This should have length equal to the number of columns in `x`.
+ * If centering is required, it should be applied with {@linkcode centerSizeFactors} - no additional centering is performed here.
+ * If `null`, size factors are computed from the centered column sums of `x`.
+ * @param {boolean} [options.log=true] - Whether to perform log-transformation.
+ * @param {boolean} [options.allowZeros=false] - Whether size factors of zero should be allowed.
+ * If `true`, size factors of zero are converted to the smallest non-zero size factor across all cells.
+ * If `false`, an error is raised instead.
+ * @param {boolean} [options.allowZeros=false] - Whether non-finite size factors should be allowed.
+ * If `true`, size factors of infinity or NaN are converted to the largest non-zero size factor in the dataset or 1, respectively.
+ * If `false`, an error is raised instead.
+ *
+ * @return {ScranMatrix} A matrix of the same type as `x` containing normalized expression values.
+ * If `log = true`, the values in the matrix are log-transformed.
+ */
+export function normalizeCounts(x, options = {}) {
+    const { sizeFactors = null, log = true, allowZeros = false, allowNonFinite = false, ...others } = options;
+    utils.checkOtherOptions(others);
+
+    var sf_data;
+    var output;
+
+    try {
+        if (sizeFactors !== null) {
+            sf_data = utils.wasmifyArray(sizeFactors, "Float64WasmArray");
+            if (sf_data.length != x.numberOfColumns()) {
+                throw new Error("length of 'sizeFactors' must be equal to number of columns in 'x'");
+            }
+        } else {
+            sf_data = utils.createFloat64WasmArray(x.numberOfColumns());
+            wasm.call(module => module.library_size_factors(x.matrix, sf_data.offset));
+            wasm.call(module => module.center_size_factors(sf_data.length, sf_data.offset, false, 0, true)); // assume unblocked in the default case.
+        }
+
+        output = gc.call(
+            module => module.normalize_counts(x.matrix, sf_data.offset, log, allowZeros, allowNonFinite),
+            x.constructor
+        );
+
+    } catch (e) {
+        utils.free(output);
+        throw e;
+
+    } finally {
+        utils.free(sf_data);
+    }
     
-</header>
-
-<article>
-    
-
-    
-
-    
-
-    
-    
-    
-
-     
-
-    
-
-    
-
-    
-        <h3 class="subsection-title">Methods</h3>
-
-        
-            
-
-    
-
-    <h4 class="name" id="free"><span class="type-signature"></span>free<span class="signature">()</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-
-<dl class="details">
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="labelCells.js.html">labelCells.js</a>, <a href="labelCells.js.html#line466">line 466</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>Frees the memory allocated on the Wasm heap for this object.
-This invalidates this object and all references to it.</p>
-</div>
-
-
-
-    
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="numberOfReferences"><span class="type-signature"></span>numberOfReferences<span class="signature">()</span><span class="type-signature"> &rarr; {number}</span></h4>
-
-    
-
-
-
-
-<dl class="details">
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="labelCells.js.html">labelCells.js</a>, <a href="labelCells.js.html#line458">line 458</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>Number of reference datasets.</p>
-</div>
-
-
-
-<dl class="param-type">
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">number</span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-        
-    
-
-    
-
-    
-</article>
-
-</section>
+    return output;
+}
+
+/**
+ * Center size factors in preparation for log-transformation.
+ * This is usually called by {@linkcode normalizeCounts} internally, but can also be directly called by users to reconstitute the size factors used in the log-normalized matrix.
+ *
+ * @param {TypedArray|WasmArray} sizeFactors - Array of non-negative size factors, one per cell.
+ * @param {object} [options={}] - Optional parameters.
+ * @param {?(Int32WasmArray|Array|TypedArray)} [options.block=null] - Array containing the block assignment for each cell, see {@linkcode normalizeCounts}.
+ * @param {boolean} [options.asTypedArray=true] - Whether to return a Float64Array.
+ * If `false`, a Float64WasmArray is returned instead.
+ * @param {?Float64WasmArray} [options.buffer=null] - Buffer in which to store the output size factors.
+ * Length should be equal to that of `sizeFactors`.
+ * If `null`, an array is allocated by the function.
+ *
+ * @return {Float64Array|Float64WasmArray} Array containing the centered size factors.
+ * If `buffer` is supplied, the function returns `buffer` if `asTypedArray = false`, or a view on `buffer` if `asTypedArray = true`.
+ */
+export function centerSizeFactors(sizeFactors, options = {}) {
+    let { block = null, asTypedArray = true, buffer = null, toLowestBlock = true, ...others } = options;
+    utils.checkOtherOptions(others);
+
+    let local_buffer = null;
+    let block_data;
+
+    try {
+        if (buffer === null) {
+            local_buffer = utils.createFloat64WasmArray(sizeFactors.length);
+            buffer = local_buffer;
+        }
+
+        if (buffer !== sizeFactors) {
+            buffer.set(sizeFactors instanceof wa.WasmArray ? sizeFactors.array() : sizeFactors);
+        }
+
+        var bptr = 0;
+        var use_blocks = false;
+
+        if (block !== null) {
+            block_data = utils.wasmifyArray(block, "Int32WasmArray");
+            if (block_data.length != buffer.length) {
+                throw new Error("'block' must be of length equal to that of 'sizeFactors'");
+            }
+            use_blocks = true;
+            bptr = block_data.offset;
+        }
+
+        wasm.call(module => module.center_size_factors(buffer.length, buffer.offset, use_blocks, bptr, toLowestBlock));
+
+    } catch(e) {
+        utils.free(local_buffer);
+        throw e;
+
+    } finally {
+        utils.free(block_data);
+    }
+
+    return utils.toTypedArray(buffer, local_buffer == null, asTypedArray);
+}
+</code></pre>
+        </article>
+    </section>
 
 
 
