@@ -76,7 +76,7 @@ let qc_thresholds = scran.suggestRnaQcFilters(qc_metrics);
 let filtered = scran.filterCells(mat, qc_thresholds.filter(qc_metrics));
 
 // Log-normalizing.
-let normalized = scran.logNormCounts(filtered);
+let normalized = scran.normalizeCounts(filtered);
 
 // Modelling per-gene variance and selecting top HVGs. 
 let varmodel = scran.modelGeneVariances(normalized);
@@ -90,7 +90,7 @@ let index = scran.buildNeighborSearchIndex(pcs);
 
 // Performing the clustering. 
 let cluster_graph = scran.buildSnnGraph(index, { neighbors: 10 });
-let clustering = scran.clusterSnnGraph(cluster_graph);
+let clustering = scran.clusterGraph(cluster_graph);
 
 // Performing the t-SNE and UMAP.
 let tsne_res = scran.runTsne(index);
@@ -114,7 +114,7 @@ Developer notes are also available [here](docs/related/developer_notes.md).
 
 ## Links
 
-Check out [kana](https://github.com/jkanche/kana) to see how **scran.js** is used in an interactive scRNA-seq analysis application.
+Check out [kana](https://github.com/kanaverse/kana) to see how **scran.js** is used in an interactive scRNA-seq analysis application.
 
-The [**scran.chan**](https://github.com/LTLA/scran.chan) R package and [**scran**](https://github.com/LTLA/scran-cli) executable 
+The [**scrapper**](https://github.com/libscran/scrapper) R package and [**scran**](https://github.com/LTLA/scran-cli) executable 
 are based on the same C++ libraries and allow the same analysis to be performed in different environments.

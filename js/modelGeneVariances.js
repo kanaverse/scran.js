@@ -61,7 +61,6 @@ export class ModelGeneVariancesResults {
      * @return {Float64Array|Float64WasmArray} Array of length equal to the number of genes,
      * containing the fitted value of the mean-variance trend for the specified `block`
      * (or the average across all blocks, if `block = null`).
-     * Alternatively `null`, if `fillable = false` and the array was not already filled.
      */
     fitted(options = {}) {
         const { block = null, copy = true, ...others } = options;

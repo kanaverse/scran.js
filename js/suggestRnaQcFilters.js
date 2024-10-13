@@ -146,7 +146,6 @@ export function suggestRnaQcFilters(metrics, options = {}) {
 
 /**
  * Create an empty {@linkplain SuggestRnaQcFiltersResults} object, to be filled with custom results.
- * Note that filling requires use of `fillable: true` in the various getters to obtain a writeable memory view.
  *
  * @param {number} numberOfSubsets Number of feature subsets.
  * @param {number} numberOfBlocks Number of blocks in the dataset.

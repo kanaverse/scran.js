@@ -18,14 +18,14 @@ Several datasets have been processed and made available [here](https://github.co
 Assuming the files have been downloaded and are available as `ArrayBuffer`s, we load the reference:
 
 ```js
-let loaded = scran.loadLabelledReferenceFromBuffers(rankbuf, markbuf, labbuf); // files 1, 2 and 3, respectively.
+let loaded = scran.loadLabelCellsReferenceFromBuffers(rankbuf, markbuf, labbuf); // files 1, 2 and 3, respectively.
 ```
 
 We then build the reference given `testfeatures`, an array with the names of the features in our test dataset;
 and `reffeatures`, an array with the names of the features in our reference (extracted from file **4**).
 
 ```js
-let built = scran.buildLabelledReference(testfeatures, loaded, reffeatures);
+let built = scran.trainLabelCellsReference(testfeatures, loaded, reffeatures);
 ```
 
 Finally, we can generate labels from our input matrix.
@@ -44,12 +44,12 @@ Advanced users can integrate cell labels from multiple references with the `inte
 Firstly, we classify our test dataset against each of the references individually:
 
 ```js
-let loaded_A = scran.loadLabelledReferenceFromBuffers(rankbuf_A, markbuf_A, labbuf_A); 
-let built_A = scran.buildLabelledReference(testfeatures, loaded_A, reffeatures_A);
+let loaded_A = scran.loadLabelCellsReferenceFromBuffers(rankbuf_A, markbuf_A, labbuf_A); 
+let built_A = scran.trainLabelCellsReference(testfeatures, loaded_A, reffeatures_A);
 let labels_A = scran.labelCells(mat, built_A);
 
-let loaded_B = scran.loadLabelledReferenceFromBuffers(rankbuf_B, markbuf_B, labbuf_B); 
-let built_B = scran.buildLabelledReference(testfeatures, loaded_B, reffeatures_B);
+let loaded_B = scran.loadLabelCellsReferenceFromBuffers(rankbuf_B, markbuf_B, labbuf_B); 
+let built_B = scran.trainLabelCellsReference(testfeatures, loaded_B, reffeatures_B);
 let labels_B = scran.labelCells(mat, built_B);
 ```
 
@@ -57,11 +57,12 @@ We then integrate the references and the associated labels to obtain a single se
 More specifically, this chooses the best reference for each cell, based on each reference's best cell type call for that cell. 
 
 ```js
-let interbuilt = scran.integrateLabelledReferences(testfeatures, 
+let interbuilt = scran.integrateLabelCellsReferences(
+    testfeatures, 
     [loaded_A, loaded_B], 
     [reffeatures_A, reffeatures_B], 
     [built_A, built_B]
 );
 
-let interlabels = scran.integrateCellLabels(mat, [labels_A, labels_B], inter);
+let interlabels = scran.integrateLabelCells(mat, [labels_A, labels_B], inter);
 ```
