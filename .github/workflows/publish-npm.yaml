@@ -10,33 +10,16 @@ jobs:
   build:
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    container: ghcr.io/kanaverse/scran.js-docker/builder:master
-    defaults:
-      run:
-        working-directory: /scran.js
+    container: ghcr.io/kanaverse/emcmake-docker/builder:master
 
     steps:
-    - name: Get to the right branch
-      run: |
-        git fetch --all
-        git checkout $GITHUB_SHA
-
-    # We run the various preparatory steps to ensure that they do, in fact, run.
-    # This avoids nasty surprises when we actually do want to publish something.
-    - name: Update node build 
-      run: bash build.sh main
-
-    - name: Update browser build
-      run: bash build.sh browser
+    - name: Checkout repo
+      uses: actions/checkout@v4
 
     - name: Set up Node
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
-        registry-url: 'https://registry.npmjs.org'
-        node-version: 16
-
-    - name: Update NPM packages
-      run: npm i --include=dev
+        node-version: 18
 
     # We only run the remaining (remote-touching) steps if the version has actually changed.
     - name: Extract package versions
@@ -48,6 +31,43 @@ jobs:
         update=0 && [[ $old_version != $current_version ]] && update=1
         echo "UPDATE_SCRANJS=${update}" >> $GITHUB_ENV
         echo "Current version is ${current_version} (published ${old_version})"
+
+    - name: Cache installed
+      if: env.UPDATE_SCRANJS == 1
+      uses: actions/cache@v4
+      with:
+        path: extern/installed
+        key: deps-${{ hashFiles('extern/**/build.sh') }}-${{ env.IMAGE_VERSION }}
+
+    - name: Cache Modules
+      if: env.UPDATE_SCRANJS == 1
+      uses: actions/cache@v4
+      with:
+        path: '**/node_modules'
+        key: npm-${{ hashFiles('package.json') }}
+
+    - name: Update NPM packages
+      if: env.UPDATE_SCRANJS == 1
+      run: npm i --include=dev
+
+    - name: Update node build 
+      if: env.UPDATE_SCRANJS == 1
+      run: bash build.sh main
+
+    - name: Update browser build
+      if: env.UPDATE_SCRANJS == 1
+      run: bash build.sh browser
+
+    - name: Cache RDS files
+      if: env.UPDATE_SCRANJS == 1
+      uses: actions/cache@v4
+      with:
+        path: tests/rds/*.rds
+        key: rds-${{ hashFiles('tests/rds/generate.R') }}
+
+    - name: Double-checking tests
+      if: env.UPDATE_SCRANJS == 1
+      run: CHECK_RDS=1 npm run test
 
     - name: Publish to NPM
       if: env.UPDATE_SCRANJS == 1

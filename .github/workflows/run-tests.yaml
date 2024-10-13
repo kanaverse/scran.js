@@ -26,16 +26,18 @@ jobs:
     - name: Checkout repo
       uses: actions/checkout@v4
 
+    - name: Cache RDS files
+      id: cache-rds
+      uses: actions/cache@v4
+      with:
+        path: tests/rds/*.rds
+        key: rds-${{ hashFiles('tests/rds/generate.R') }}
+
     - name: Build RDS files
+      if: steps.cache-rds.outputs.cache-hit != 'true'
       run: |
         cd tests/rds
         R -f generate.R
-
-    - name: Upload RDS files
-      uses: actions/upload-artifact@v4
-      with:
-        name: rds-files
-        path: tests/rds/*.rds
 
   build_deps:
     runs-on: ubuntu-latest
@@ -51,7 +53,7 @@ jobs:
       uses: actions/cache@v4
       with:
         path: extern/installed
-        key: deps-${{ hashFiles('**/extern/**/build.sh') }}-${{ env.IMAGE_VERSION }}
+        key: deps-${{ hashFiles('extern/**/build.sh') }}-${{ env.IMAGE_VERSION }}
 
     - name: Build HDF5
       if: steps.installed.outputs.cache-hit != 'true'
@@ -83,7 +85,7 @@ jobs:
       uses: actions/cache@v4
       with:
         path: '**/node_modules'
-        key: npm-${{ hashFiles('**/package.json') }}
+        key: npm-${{ hashFiles('package.json') }}
 
     - name: Update NPM packages
       run: npm i --include=dev
@@ -92,24 +94,24 @@ jobs:
       uses: actions/cache@v4
       with:
         path: extern/installed
-        key: deps-${{ hashFiles('**/extern/**/build.sh') }}-${{ env.IMAGE_VERSION }}
+        key: deps-${{ hashFiles('extern/**/build.sh') }}-${{ env.IMAGE_VERSION }}
+
+    - name: Cache RDS files
+      uses: actions/cache@v4
+      with:
+        path: tests/rds/*.rds
+        key: rds-${{ hashFiles('tests/rds/generate.R') }}
 
     - name: Cache node build
       id: wasm-build
       uses: actions/cache@v4
       with:
         path: js/wasm
-        key: wasm-${{ hashFiles('**/build.sh', '**/CMakeLists.txt', '**/src/*') }}-${{ env.IMAGE_VERSION }}
+        key: wasm-${{ hashFiles('build.sh', 'extern/**/build.sh', 'CMakeLists.txt', 'extern/CMakeLists.txt', 'src/*') }}-${{ env.IMAGE_VERSION }}
 
     - name: Update node build 
       if: steps.wasm-build.outputs.cache-hit != 'true'
       run: bash build.sh main
-
-    - name: Download RDS files
-      uses: actions/download-artifact@v4
-      with:
-        name: rds-files
-        path: tests/rds
 
     - name: Run tests
       run: |
