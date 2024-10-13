@@ -10,7 +10,7 @@ test("Log-normalization works as expected", () => {
     var ncells = 20;
     var mat = simulate.simulateMatrix(ngenes, ncells);
 
-    var norm = scran.logNormCounts(mat);
+    var norm = scran.normalizeCounts(mat);
     expect(norm.constructor.name).toBe(mat.constructor.name);
     expect(norm.numberOfRows()).toBe(mat.numberOfRows());
     expect(norm.numberOfColumns()).toBe(mat.numberOfColumns());
@@ -40,7 +40,7 @@ test("Log-normalization works as expected with pre-supplied size factors", () =>
         sf[i] = Math.random();
     }
 
-    var norm = scran.logNormCounts(mat, { sizeFactors: sf });
+    var norm = scran.normalizeCounts(mat, { sizeFactors: sf });
     expect(norm.constructor.name).toBe(mat.constructor.name);
     expect(norm.numberOfRows()).toBe(mat.numberOfRows());
     expect(norm.numberOfColumns()).toBe(mat.numberOfColumns());
@@ -89,10 +89,10 @@ test("Log-normalization behaves with zeros", () => {
 
     var empty = new Float64Array(ncells);
     empty.fill(0);
-    expect(() => scran.logNormCounts(mat, { sizeFactors: empty })).toThrow("zero");
+    expect(() => scran.normalizeCounts(mat, { sizeFactors: empty })).toThrow("zero");
 
     // Now trying with allowed zeros.
-    let out = scran.logNormCounts(mat, { sizeFactors: empty, allowZeros: true });
+    let out = scran.normalizeCounts(mat, { sizeFactors: empty, allowZeros: true });
     let ocol = out.column(0);
     let rcol = mat.column(0);
     for (var i = 0; i < ngenes; i++) {

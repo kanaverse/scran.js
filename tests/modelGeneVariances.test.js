@@ -10,7 +10,7 @@ test("Variance modelling works as expected", () => {
     var ncells = 100;
 
     var mat = simulate.simulateMatrix(ngenes, ncells);
-    var norm = scran.logNormCounts(mat);
+    var norm = scran.normalizeCounts(mat);
     var res = scran.modelGeneVariances(norm);
 
     // Some cursory tests.
@@ -32,7 +32,7 @@ test("Variance modelling works as expected with blocking", () => {
     var ncells = 100;
 
     var mat = simulate.simulateMatrix(ngenes, ncells);
-    var norm = scran.logNormCounts(mat);
+    var norm = scran.normalizeCounts(mat);
 
     var block = new Array(ncells);
     var half = ncells / 2;

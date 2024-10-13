@@ -9,7 +9,7 @@ test("scoreGsdecon works as expected with Uint8Array inputs", () => {
     var ngenes = 1000;
     var ncells = 20;
     var mat = simulate.simulateMatrix(ngenes, ncells);
-    var norm = scran.logNormCounts(mat);
+    var norm = scran.normalizeCounts(mat);
 
     let features = new Uint8Array(ngenes);
     features.fill(1, 10, 20);
@@ -25,7 +25,7 @@ test("scoreGsdecon gives different results after scaling", () => {
     var ngenes = 1000;
     var ncells = 20;
     var mat = simulate.simulateMatrix(ngenes, ncells);
-    var norm = scran.logNormCounts(mat);
+    var norm = scran.normalizeCounts(mat);
 
     let features = new Uint8Array(ngenes);
     features.fill(1, 10, 20);
@@ -40,7 +40,7 @@ test("scoreGsdecon works with blocking", () => {
     var ngenes = 1000;
     var ncells = 50;
     var mat = simulate.simulateMatrix(ngenes, ncells);
-    var norm = scran.logNormCounts(mat);
+    var norm = scran.normalizeCounts(mat);
 
     let features = new Uint8Array(ngenes);
     features.fill(1, 0, 5);

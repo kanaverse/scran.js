@@ -10,7 +10,7 @@ test("chooseHvgs works correctly", () => {
     var ncells = 100;
 
     var mat = simulate.simulateMatrix(ngenes, ncells);
-    var norm = scran.logNormCounts(mat);
+    var norm = scran.normalizeCounts(mat);
     var res = scran.modelGeneVariances(norm);
 
     var output = scran.chooseHvgs(res, { number: 101 });

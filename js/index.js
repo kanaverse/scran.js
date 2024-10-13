@@ -29,7 +29,7 @@ export * from "./suggestCrisprQcFilters.js";
 export * from "./filterCells.js";
 
 export * from "./computeClrm1Factors.js";
-export * from "./logNormCounts.js";
+export * from "./normalizeCounts.js";
 
 export * from "./modelGeneVariances.js";
 export * from "./chooseHvgs.js";

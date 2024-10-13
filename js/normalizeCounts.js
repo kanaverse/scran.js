@@ -12,6 +12,7 @@ import * as wasm from "./wasm.js";
  * This should have length equal to the number of columns in `x`.
  * If centering is required, it should be applied with {@linkcode centerSizeFactors} - no additional centering is performed here.
  * If `null`, size factors are computed from the centered column sums of `x`.
+ * @param {boolean} [options.log=true] - Whether to perform log-transformation.
  * @param {boolean} [options.allowZeros=false] - Whether size factors of zero should be allowed.
  * If `true`, size factors of zero are converted to the smallest non-zero size factor across all cells.
  * If `false`, an error is raised instead.
@@ -19,10 +20,11 @@ import * as wasm from "./wasm.js";
  * If `true`, size factors of infinity or NaN are converted to the largest non-zero size factor in the dataset or 1, respectively.
  * If `false`, an error is raised instead.
  *
- * @return {ScranMatrix} A matrix of the same type as `x` containing log-transformed normalized expression values.
+ * @return {ScranMatrix} A matrix of the same type as `x` containing normalized expression values.
+ * If `log = true`, the values in the matrix are log-transformed.
  */
-export function logNormCounts(x, options = {}) {
-    const { sizeFactors = null, allowZeros = false, allowNonFinite = false, ...others } = options;
+export function normalizeCounts(x, options = {}) {
+    const { sizeFactors = null, log = true, allowZeros = false, allowNonFinite = false, ...others } = options;
     utils.checkOtherOptions(others);
 
     var sf_data;
@@ -41,7 +43,7 @@ export function logNormCounts(x, options = {}) {
         }
 
         output = gc.call(
-            module => module.normalize_counts(x.matrix, sf_data.offset, allowZeros, allowNonFinite),
+            module => module.normalize_counts(x.matrix, sf_data.offset, log, allowZeros, allowNonFinite),
             x.constructor
         );
 
@@ -58,11 +60,11 @@ export function logNormCounts(x, options = {}) {
 
 /**
  * Center size factors in preparation for log-transformation.
- * This is usually called by {@linkcode logNormCounts} internally, but can also be directly called by users to reconstitute the size factors used in the log-normalized matrix.
+ * This is usually called by {@linkcode normalizeCounts} internally, but can also be directly called by users to reconstitute the size factors used in the log-normalized matrix.
  *
  * @param {TypedArray|WasmArray} sizeFactors - Array of non-negative size factors, one per cell.
  * @param {object} [options={}] - Optional parameters.
- * @param {?(Int32WasmArray|Array|TypedArray)} [options.block=null] - Array containing the block assignment for each cell, see {@linkcode logNormCounts}.
+ * @param {?(Int32WasmArray|Array|TypedArray)} [options.block=null] - Array containing the block assignment for each cell, see {@linkcode normalizeCounts}.
  * @param {boolean} [options.asTypedArray=true] - Whether to return a Float64Array.
  * If `false`, a Float64WasmArray is returned instead.
  * @param {?Float64WasmArray} [options.buffer=null] - Buffer in which to store the output size factors.

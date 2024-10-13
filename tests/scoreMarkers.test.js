@@ -9,7 +9,7 @@ test("scoreMarkers works as expected", () => {
     var ngenes = 1000;
     var ncells = 20;
     var mat = simulate.simulateMatrix(ngenes, ncells);
-    var norm = scran.logNormCounts(mat);
+    var norm = scran.normalizeCounts(mat);
 
     var groups = [];
     for (var i = 0; i < ncells; i++) {
@@ -40,7 +40,7 @@ test("scoreMarkers works with a log-fold change threshold", () => {
     var ngenes = 1000;
     var ncells = 20;
     var mat = simulate.simulateMatrix(ngenes, ncells);
-    var norm = scran.logNormCounts(mat);
+    var norm = scran.normalizeCounts(mat);
 
     var groups = [];
     for (var i = 0; i < ncells; i++) {
@@ -67,7 +67,7 @@ test("scoreMarkers works after turning off AUCs", () => {
     var ngenes = 1000;
     var ncells = 20;
     var mat = simulate.simulateMatrix(ngenes, ncells);
-    var norm = scran.logNormCounts(mat);
+    var norm = scran.normalizeCounts(mat);
 
     var groups = [];
     for (var i = 0; i < ncells; i++) {
@@ -96,7 +96,7 @@ test("scoreMarkers works with maximum and medians", () => {
     var ngenes = 1000;
     var ncells = 20;
     var mat = simulate.simulateMatrix(ngenes, ncells);
-    var norm = scran.logNormCounts(mat);
+    var norm = scran.normalizeCounts(mat);
 
     var groups = [];
     for (var i = 0; i < ncells; i++) {
@@ -118,7 +118,7 @@ test("scoreMarkers works as expected with blocking", () => {
     var ngenes = 1000;
     var ncells = 20;
     var mat = simulate.simulateMatrix(ngenes, ncells);
-    var norm = scran.logNormCounts(mat);
+    var norm = scran.normalizeCounts(mat);
 
     var groups = [];
     for (var i = 0; i < ncells; i++) {

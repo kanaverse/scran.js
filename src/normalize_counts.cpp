@@ -25,7 +25,7 @@ void center_size_factors(size_t n, uintptr_t ptr, bool use_blocks, uintptr_t blo
     }
 }
 
-NumericMatrix normalize_counts(const NumericMatrix& mat, uintptr_t size_factors, bool allow_zero, bool allow_non_finite) {
+NumericMatrix normalize_counts(const NumericMatrix& mat, uintptr_t size_factors, bool log, bool allow_zero, bool allow_non_finite) {
     const double* sfptr = reinterpret_cast<const double*>(size_factors);
     std::vector<double> sf(sfptr, sfptr + mat.ncol());
 
@@ -40,6 +40,7 @@ NumericMatrix normalize_counts(const NumericMatrix& mat, uintptr_t size_factors,
     scran_norm::sanitize_size_factors(sf.size(), sf.data(), san_opt);
 
     scran_norm::NormalizeCountsOptions norm_opt;
+    norm_opt.log = log;
     return NumericMatrix(scran_norm::normalize_counts(mat.ptr, std::move(sf), norm_opt));
 }
 
