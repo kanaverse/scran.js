@@ -104,7 +104,6 @@ export class UmapStatus {
  *
  * Alternatively, a pre-computed set of neighbor search results for all cells (see {@linkcode findNearestNeighbors}).
  * The number of neighbors should be equal to `neighbors`, otherwise a warning is raised.
- * or a pre-computed set of neighbor search results for all cells (see {@linkcode findNearestNeighbors}).
  * @param {object} [options={}] - Optional parameters.
  * @param {number} [options.neighbors=15] - Number of neighbors to use in the UMAP algorithm.
  * Ignored if `x` is a {@linkplain FindNearestNeighborsResults} object.

@@ -12,7 +12,7 @@ test("clusterGraph works as expected", () => {
 
     var k = 5;
     var res = scran.findNearestNeighbors(index, k);
-    var graph = scran.buildSnnGraph(res);
+    var graph = scran.buildSnnGraph(res, { neighbors: k });
     expect(graph instanceof scran.BuildSnnGraphResults).toBe(true);
 
     var clusters = scran.clusterGraph(graph);
@@ -49,7 +49,7 @@ test("clusterGraph works with other clustering methods", () => {
 
     var k = 5;
     var res = scran.findNearestNeighbors(index, k);
-    var graph = scran.buildSnnGraph(res);
+    var graph = scran.buildSnnGraph(res, { neighbors: k });
 
     var clusters = scran.clusterGraph(graph, { method: "walktrap" });
     expect(clusters instanceof scran.ClusterWalktrapResults);

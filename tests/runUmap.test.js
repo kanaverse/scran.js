@@ -25,6 +25,12 @@ test("runUmap works as expected", () => {
     expect(compare.equalArrays(start.x, finished.x)).toBe(false);
     expect(compare.equalArrays(start.y, finished.y)).toBe(false);
 
+    // We get the same results when starting from existing NN results.
+    let nnres2 = scran.findNearestNeighbors(index, 15);
+    let finished2 = scran.runUmap(nnres2);
+    expect(finished2.x).toEqual(finished.x);
+    expect(finished2.y).toEqual(finished.y);
+
     // Cleaning up.
     index.free();
     init.free();
