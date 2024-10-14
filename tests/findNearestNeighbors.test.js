@@ -120,4 +120,10 @@ test("neighbor search can be truncated", () => {
     expect(tdump.indices[2]).toEqual(dump.indices[5]);
     expect(tdump.indices[5]).toEqual(dump.indices[11]);
     expect(tdump.indices[51]).toEqual(dump.indices[126]);
+
+    // Checking we get the same results with truncated serialization.
+    var tdump2 = res.serialize({ truncate: 2 });
+    expect(tdump2.runs).toEqual(tdump.runs);
+    expect(tdump2.indices).toEqual(tdump.indices);
+    expect(tdump2.distances).toEqual(tdump.distances);
 })

@@ -122,11 +122,16 @@ export class FindNearestNeighborsResults {
     }
 
     /**
+     * @param {object} [options={}] - Optional parameters.
+     * @param {?number} [options.truncate=null] - Maximum number of neighbors to count for each cell.
+     * If `null` or greater than the number of available neighbors, all neighbors are counted.
      * @return {number} The total number of neighbors across all cells.
      * This is usually the product of the number of neighbors and the number of cells.
      */
-    size() {
-        return this.#results.size();
+    size(options = {}) {
+        const { truncate = null, ...others } = options;
+        utils.checkOtherOptions(others);
+        return this.#results.size(FindNearestNeighborsResults.#numberToTruncate(truncate));
     }
 
     /**
@@ -141,6 +146,10 @@ export class FindNearestNeighborsResults {
         return this.#results;
     }
 
+    static #numberToTruncate(truncate) {
+        return (truncate === null ? -1 : truncate);
+    }
+
     /**
      * @param {object} [options={}] - Optional parameters.
      * @param {?Int32WasmArray} [options.runs=null] - A Wasm-allocated array of length equal to `numberOfCells()`,
@@ -149,6 +158,8 @@ export class FindNearestNeighborsResults {
      * to be used to store the indices of the neighbors of each cell.
      * @param {?Float64WasmArray} [options.distances=null] - A Wasm-allocated array of length equal to `size()`,
      * to be used to store the distances to the neighbors of each cell.
+     * @param {?number} [options.truncate=null] - Number of nearest neighbors to serialize for each cell.
+     * If `null` or greater than the number of available neighbors, all neighbors are used.
      *
      * @return {object} 
      * An object is returned with the `runs`, `indices` and `distances` keys, each with an appropriate TypedArray as the value.
@@ -159,7 +170,7 @@ export class FindNearestNeighborsResults {
      * If only some of the arguments are non-`null`, an error is raised.
      */
     serialize(options = {}) {
-        const { runs = null, indices = null, distances = null, ...others } = options;
+        const { runs = null, indices = null, distances = null, truncate = null, ...others } = options;
         utils.checkOtherOptions(others);
 
         var copy = (runs === null) + (indices === null) + (distances === null);
@@ -167,6 +178,7 @@ export class FindNearestNeighborsResults {
             throw new Error("either all or none of 'runs', 'indices' and 'distances' can be 'null'");
         }
 
+        let nkeep = FindNearestNeighborsResults.#numberToTruncate(truncate);
         var output;
 
         if (copy === 3) {
@@ -176,10 +188,10 @@ export class FindNearestNeighborsResults {
             
             try {
                 run_data = utils.createInt32WasmArray(this.numberOfCells());
-                let s = this.size();
+                let s = this.#results.size(nkeep);
                 ind_data = utils.createInt32WasmArray(s);
                 dist_data = utils.createFloat64WasmArray(s);
-                this.#results.serialize(run_data.offset, ind_data.offset, dist_data.offset);
+                this.#results.serialize(run_data.offset, ind_data.offset, dist_data.offset, nkeep);
 
                 output = { 
                     "runs": run_data.slice(), 
@@ -193,7 +205,7 @@ export class FindNearestNeighborsResults {
             }
 
         } else {
-            this.#results.serialize(runs.offset, indices.offset, distances.offset);
+            this.#results.serialize(runs.offset, indices.offset, distances.offset, nkeep);
             output = {
                 "runs": runs.array(),
                 "indices": indices.array(),
