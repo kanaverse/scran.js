@@ -152,13 +152,13 @@ export class FindNearestNeighborsResults {
 
     /**
      * @param {object} [options={}] - Optional parameters.
-     * @param {?Int32WasmArray} [options.runs=null] - A Wasm-allocated array of length equal to `numberOfCells()`,
+     * @param {?Int32WasmArray} [options.runs=null] - A Wasm-allocated array of length equal to {@linkcode FindNearestNeighborsResults#numberOfCells numberOfCells},
      * to be used to store the number of neighbors per cell.
-     * @param {?Int32WasmArray} [options.indices=null] - A Wasm-allocated array of length equal to `size()`,
+     * @param {?Int32WasmArray} [options.indices=null] - A Wasm-allocated array of length equal to {@linkcode FindNearestNeighborsResults#size size},
      * to be used to store the indices of the neighbors of each cell.
-     * @param {?Float64WasmArray} [options.distances=null] - A Wasm-allocated array of length equal to `size()`,
+     * @param {?Float64WasmArray} [options.distances=null] - A Wasm-allocated array of length equal to {@linkcode FindNearestNeighborsResults#size size},
      * to be used to store the distances to the neighbors of each cell.
-     * @param {?number} [options.truncate=null] - Number of nearest neighbors to serialize for each cell.
+     * @param {?number} [options.truncate=null] - Maximum number of nearest neighbors to serialize for each cell.
      * If `null` or greater than the number of available neighbors, all neighbors are used.
      *
      * @return {object} 
@@ -217,11 +217,11 @@ export class FindNearestNeighborsResults {
     }
 
     /**
-     * @param {Int32WasmArray|Array|TypedArray} runs An array of length equal to `numberOfCells()`,
+     * @param {Int32WasmArray|Array|TypedArray} runs An array of length equal to {@linkcode FindNearestNeighborsResults#numberOfCells numberOfCells},
      * containing the number of neighbors per cell.
-     * @param {Int32WasmArray|Array|TypedArray} indices An array of length equal to `size()`,
+     * @param {Int32WasmArray|Array|TypedArray} indices An array of length equal to {@linkcode FindNearestNeighborsResults#size size},
      * containing the indices of the neighbors of each cell.
-     * @param {Float64WasmArray|Array|TypedArray} indices An array of length equal to `size()`,
+     * @param {Float64WasmArray|Array|TypedArray} indices An array of length equal to {@linkcode FindNearestNeighborsResults#size size},
      * containing the distances to the neighbors of each cell.
      *
      * @return {FindNearestNeighborsResults} Object containing the unserialized search results.

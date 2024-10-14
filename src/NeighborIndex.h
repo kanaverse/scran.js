@@ -21,8 +21,6 @@ struct NeighborIndex {
 
 std::unique_ptr<knncolle::Builder<knncolle::SimpleMatrix<int32_t, int32_t, double>, double> > create_builder(bool);
 
-NeighborIndex build_neighbor_index(uintptr_t, int32_t, int32_t, bool);
-
 struct NeighborResults { 
     typedef std::vector<std::vector<std::pair<int32_t, double> > > Neighbors;
 
@@ -79,7 +77,5 @@ public:
         }
     }
 };
-
-NeighborResults find_nearest_neighbors(const NeighborIndex&, int32_t, int32_t);
 
 #endif
