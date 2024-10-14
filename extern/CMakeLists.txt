@@ -212,6 +212,7 @@ FetchContent_Declare(
   GIT_TAG v1.1.0
 )
 
+FetchContent_MakeAvailable(aarand)
 FetchContent_MakeAvailable(subpar)
 
 FetchContent_MakeAvailable(tatami)
