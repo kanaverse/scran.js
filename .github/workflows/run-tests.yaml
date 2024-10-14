@@ -113,6 +113,26 @@ jobs:
       if: steps.wasm-build.outputs.cache-hit != 'true'
       run: bash build.sh main
 
+    - name: Check all transitive dependencies are pinned
+      if: steps.wasm-build.outputs.cache-hit != 'true'
+      shell: bash -e
+      run: |
+        cat extern/CMakeLists.txt | \
+            grep "FetchContent_MakeAvailable" | \
+            sed "s/FetchContent_MakeAvailable(//" | \
+            sed "s/)//" | \
+            tr '[:upper:]' '[:lower:]' | \
+            sort > requested.txt
+        ls build_main/_deps/ | \
+            grep "src$" | \
+            sed "s/-src//" | \
+            sort > observed.txt
+        diffs=$(diff observed.txt requested.txt )
+        if [[ $diffs != '' ]]
+        then
+            exit 1
+        fi
+
     - name: Run tests
       run: |
         export CHECK_RDS=1
