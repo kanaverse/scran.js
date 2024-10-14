@@ -134,7 +134,7 @@ export function initializeUmap(x, options = {}) {
 
         raw_coords = utils.createFloat32WasmArray(2 * nnres.numberOfCells());
         output = gc.call(
-            module => module.initialize_umap(nnres.results, neighbors, epochs, minDist, raw_coords.offset, nthreads),
+            module => module.initialize_umap(nnres.results, epochs, minDist, raw_coords.offset, nthreads),
             UmapStatus,
             raw_coords
         );
