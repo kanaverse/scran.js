@@ -115,7 +115,7 @@ jobs:
 
     - name: Check all transitive dependencies are pinned
       if: steps.wasm-build.outputs.cache-hit != 'true'
-      shell: bash -e
+      shell: /bin/bash -e {0}
       run: |
         cat extern/CMakeLists.txt | \
             grep "FetchContent_MakeAvailable" | \
