@@ -5,6 +5,8 @@
 #include "knncolle/knncolle.hpp"
 #include "knncolle_annoy/knncolle_annoy.hpp"
 
+#include <algorithm>
+
 std::unique_ptr<knncolle::Builder<knncolle::SimpleMatrix<int32_t, int32_t, double>, double> > create_builder(bool approximate) {
     std::unique_ptr<knncolle::Builder<knncolle::SimpleMatrix<int32_t, int32_t, double>, double> > builder;
     if (approximate) {
@@ -30,8 +32,24 @@ NeighborResults find_nearest_neighbors(const NeighborIndex& index, int32_t k, in
     return output;
 }
 
+NeighborResults truncate_nearest_neighbors(const NeighborResults& original, int32_t k) {
+    NeighborResults output;
+    size_t nobs = original.neighbors.size();
+    output.neighbors.resize(nobs);
+    size_t desired = static_cast<size_t>(k);
+    for (size_t i = 0; i <nobs; ++i) {
+        const auto& current = original.neighbors[i];
+        auto& curout = output.neighbors[i];
+        size_t size = std::min(current.size(), desired);
+        curout.insert(curout.end(), current.begin(), current.begin() + size);
+    }
+    return output;
+}
+
 EMSCRIPTEN_BINDINGS(build_neighbor_index) {
     emscripten::function("find_nearest_neighbors", &find_nearest_neighbors, emscripten::return_value_policy::take_ownership());
+
+    emscripten::function("truncate_nearest_neighbors", &truncate_nearest_neighbors, emscripten::return_value_policy::take_ownership());
 
     emscripten::function("build_neighbor_index", &build_neighbor_index, emscripten::return_value_policy::take_ownership());
 

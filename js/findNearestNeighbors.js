@@ -275,3 +275,21 @@ export function findNearestNeighbors(x, k, options = {}) {
         FindNearestNeighborsResults
     );
 }
+
+/**
+ * Truncate existing neighbor search results to the `k` nearest neighbors for each cell.
+ * This is exactly or approximately equal to calling {@linkcode findNearestNeighbors} with the new `k`,
+ * depending on whether `approximate = false` or `approximate = true` was used to build the search index, respectively.
+ *
+ * @param {FindNEarestNeighborsResults} x Existing neighbor search results from {@linkcode findNearestNeighbors}.
+ * @param {number} k Number of neighbors to retain.
+ * If this is larger than the number of available neighbors, all neighbors are retained.
+ *
+ * @return {FindNearestNeighborsResults} Object containing the truncated search results.
+ */
+export function truncateNearestNeighbors(x, k) {
+    return gc.call(
+        module => module.truncate_nearest_neighbors(x.results, k),
+        FindNearestNeighborsResults
+    );
+}
