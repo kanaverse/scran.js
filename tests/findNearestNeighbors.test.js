@@ -26,6 +26,8 @@ test("neighbor index building works with various inputs", () => {
     var res1 = scran.findNearestNeighbors(index, k);
     var res2 = scran.findNearestNeighbors(index2, k);
 
+    expect(res1.numberOfNeighbors()).toBe(k);
+    expect(res2.numberOfNeighbors()).toBe(k);
     expect(res1.numberOfCells()).toBe(ncells);
     expect(res2.numberOfCells()).toBe(ncells);
     expect(res1.size()).toBe(ncells * k);
@@ -45,6 +47,16 @@ test("neighbor index building works with various inputs", () => {
     res1.free();
     res2.free();
 });
+
+test("neighbor search works with an empty input", () => {
+    var ngenes = 1000;
+    var buffer = scran.createFloat64WasmArray(0);
+    var index = scran.buildNeighborSearchIndex(buffer, { numberOfDims: ngenes, numberOfCells: 0 });
+    var res = scran.findNearestNeighbors(index, 5);
+    expect(res.numberOfCells()).toBe(0);
+    expect(res.numberOfNeighbors()).toBe(0);
+    expect(res.size()).toBe(0);
+})
 
 test("neighbor search works with serialization", () => {
     var ndim = 5;

@@ -100,8 +100,10 @@ export class UmapStatus {
 }
 
 /**
- * @param {(BuildNeighborSearchIndexResults|FindNearestNeighborsResults)} x 
- * Either a pre-built neighbor search index for the dataset (see {@linkcode buildNeighborSearchIndex}),
+ * @param {BuildNeighborSearchIndexResults|FindNearestNeighborsResults} x * A pre-built neighbor search index for the dataset (see {@linkcode buildNeighborSearchIndex}).
+ *
+ * Alternatively, a pre-computed set of neighbor search results for all cells (see {@linkcode findNearestNeighbors}).
+ * The number of neighbors should be equal to `neighbors`, otherwise a warning is raised.
  * or a pre-computed set of neighbor search results for all cells (see {@linkcode findNearestNeighbors}).
  * @param {object} [options={}] - Optional parameters.
  * @param {number} [options.neighbors=15] - Number of neighbors to use in the UMAP algorithm.
@@ -117,7 +119,7 @@ export function initializeUmap(x, options = {}) {
     const { neighbors = 15, epochs = 500, minDist = 0.01, numberOfThreads = null, ...others } = options;
     utils.checkOtherOptions(others);
 
-    var my_neighbors;
+    var my_nnres;
     var raw_coords;
     var output;
     let nthreads = utils.chooseNumberOfThreads(numberOfThreads);
@@ -126,9 +128,12 @@ export function initializeUmap(x, options = {}) {
         let nnres;
 
         if (x instanceof BuildNeighborSearchIndexResults) {
-            my_neighbors = findNearestNeighbors(x, neighbors, { numberOfThreads: nthreads });
-            nnres = my_neighbors;
+            my_nnres = findNearestNeighbors(x, neighbors, { numberOfThreads: nthreads });
+            nnres = my_nnres;
         } else {
+            if (neighbors != x.numberOfNeighbors()) {
+                console.warn("number of neighbors in 'x' does not match 'neighbors'");
+            }
             nnres = x;
         }
 
@@ -145,7 +150,7 @@ export function initializeUmap(x, options = {}) {
         throw e;
 
     } finally {
-        utils.free(my_neighbors);
+        utils.free(my_nnres);
     }
 
     return output;
@@ -155,9 +160,10 @@ export function initializeUmap(x, options = {}) {
  * Run the UMAP algorithm.
  * This is a wrapper around {@linkcode initializeUmap} and {@linkcode UmapStatus#run run}.
  *
- * @param {(BuildNeighborSearchIndexResults|FindNearestNeighborsResults)} x 
- * Either a pre-built neighbor search index for the dataset (see {@linkcode buildNeighborSearchIndex}),
- * or a pre-computed set of neighbor search results for all cells (see {@linkcode findNearestNeighbors}).
+ * @param {BuildNeighborSearchIndexResults|FindNearestNeighborsResults} x A pre-built neighbor search index from {@linkcode buildNeighborSearchIndex}.
+ *
+ * Alternatively, a pre-computed set of neighbor search results from {linkcode findNearestNeighbors}.
+ * The number of neighbors should be equal to `neighbors`, otherwise a warning is raised.
  * @param {object} [options={}] - Optional parameters.
  * @param {number} [options.neighbors=15] - Number of neighbors to use in the UMAP algorithm.
  * Ignored if `x` is a {@linkplain FindNearestNeighborsResults} object.

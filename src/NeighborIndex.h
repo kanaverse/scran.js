@@ -56,6 +56,10 @@ public:
         return neighbors.size();
     }
 
+    int32_t num_neighbors() const {
+        return (neighbors.empty() ? 0 : neighbors.front().size());
+    }
+
     void serialize(uintptr_t runs, uintptr_t indices, uintptr_t distances, int32_t truncate) const {
         auto rptr = reinterpret_cast<int32_t*>(runs);
         auto iptr = reinterpret_cast<int32_t*>(indices);

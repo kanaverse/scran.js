@@ -103,49 +103,47 @@ export function perplexityToNeighbors(perplexity) {
 }
 
 /**
- * @param {BuildNeighborSearchIndexResults|FindNearestNeighborsResults} x 
- * Either a pre-built neighbor search index for the dataset (see {@linkcode buildNeighborSearchIndex}),
- * or a pre-computed set of neighbor search results for all cells (see {@linkcode findNearestNeighbors}).
+ * @param {BuildNeighborSearchIndexResults|FindNearestNeighborsResults} x A pre-built neighbor search index from {@linkcode buildNeighborSearchIndex}.
+ *
+ * Alternatively, a pre-computed set of neighbor search results from {linkcode findNearestNeighbors}.
+ * The number of neighbors should be equal to `neighbors`, otherwise a warning is raised.
  * @param {object} [options={}] - Optional parameters.
  * @param {number} [options.perplexity=30] - Perplexity to use when computing neighbor probabilities in the t-SNE.
- * @param {boolean} [options.checkMismatch=true] - Whether to check for a mismatch between the perplexity and the number of searched neighbors.
- * Only relevant if `x` is a {@linkplain FindNearestNeighborsResults} object.
+ * @param {?number} [options.neighbors=null] - Number of nearest neighbors to find.
+ * If `null`, defaults to the output of {@linkcode perplexityToNeighbors perplexityToNeighbors(perplexity)}.
  * @param {?number} [options.numberOfThreads=null] - Number of threads to use.
  * If `null`, defaults to {@linkcode maximumThreads}.
  *
  * @return {TsneStatus} Object containing the initial status of the t-SNE algorithm.
  */
 export function initializeTsne(x, options = {}) {
-    const { perplexity = 30, checkMismatch = true, numberOfThreads = null, ...others } = options;
+    const { perplexity = 30, neighbors = null, numberOfThreads = null, ...others } = options;
     utils.checkOtherOptions(others);
 
-    var my_neighbors;
+    var my_nnres;
     var raw_coords;
     var output;
     let nthreads = utils.chooseNumberOfThreads(numberOfThreads);
 
+    const k = (neighbors == null ? perplexityToNeighbors(perplexity) : neighbors);
+
     try {
-        let neighbors;
+        let nnres;
 
         if (x instanceof BuildNeighborSearchIndexResults) {
-            let k = perplexityToNeighbors(perplexity);
-            my_neighbors = findNearestNeighbors(x, k, { numberOfThreads: nthreads });
-            neighbors = my_neighbors;
-
+            my_nnres = findNearestNeighbors(x, k, { numberOfThreads: nthreads });
+            nnres = my_nnres
         } else {
-            if (checkMismatch) {
-                let k = perplexityToNeighbors(perplexity);
-                if (k * x.numberOfCells() != x.size()) {
-                    throw new Error("number of neighbors in 'x' does not match '3 * perplexity'");
-                }
+            if (k != x.numberOfNeighbors()) {
+                console.warn("number of neighbors in 'x' does not match 'neighbors'");
             }
-            neighbors = x;
+            nnres = x;
         }
 
-        raw_coords = utils.createFloat64WasmArray(2 * neighbors.numberOfCells());
-        wasm.call(module => module.randomize_tsne_start(neighbors.numberOfCells(), raw_coords.offset, 42));
+        raw_coords = utils.createFloat64WasmArray(2 * nnres.numberOfCells());
+        wasm.call(module => module.randomize_tsne_start(nnres.numberOfCells(), raw_coords.offset, 42));
         output = gc.call(
-            module => module.initialize_tsne(neighbors.results, perplexity, nthreads),
+            module => module.initialize_tsne(nnres.results, perplexity, nthreads),
             TsneStatus,
             raw_coords
         );
@@ -156,7 +154,7 @@ export function initializeTsne(x, options = {}) {
         throw e;
 
     } finally {
-        utils.free(my_neighbors);
+        utils.free(my_nnres);
     }
 
     return output;
@@ -166,13 +164,14 @@ export function initializeTsne(x, options = {}) {
  * Run the t-SNE algorithm to the specified number of iterations.
  * This is a wrapper around {@linkcode initializeTsne} and {@linkcode TsneStatus#run run}.
  *
- * @param {BuildNeighborSearchIndexResults|FindNearestNeighborsResults} x 
- * Either a pre-built neighbor search index for the dataset (see {@linkcode buildNeighborSearchIndex}),
- * or a pre-computed set of neighbor search results for all cells (see {@linkcode findNearestNeighbors}).
+ * @param {BuildNeighborSearchIndexResults|FindNearestNeighborsResults} x A pre-built neighbor search index from {@linkcode buildNeighborSearchIndex}.
+ *
+ * Alternatively, a pre-computed set of neighbor search results from {linkcode findNearestNeighbors}.
+ * The number of neighbors should be equal to `neighbors`, otherwise a warning is raised.
  * @param {object} [options={}] - Optional parameters.
  * @param {number} [options.perplexity=30] - Perplexity to use when computing neighbor probabilities in the t-SNE.
- * @param {boolean} [options.checkMismatch=true] - Whether to check for a mismatch between the perplexity and the number of searched neighbors.
- * Only relevant if `x` is a {@linkplain FindNearestNeighborsResults} object.
+ * @param {?number} [options.neighbors=null] - Number of nearest neighbors to find.
+ * If `null`, defaults to the output of {@linkcode perplexityToNeighbors perplexityToNeighbors(perplexity)}.
  * @param {?number} [options.numberOfThreads=null] - Number of threads to use.
  * If `null`, defaults to {@linkcode maximumThreads}.
  * @param {number} [options.maxIterations=1000] - Maximum number of iterations to perform.
@@ -180,9 +179,9 @@ export function initializeTsne(x, options = {}) {
  * @return {object} Object containing coordinates of the t-SNE embedding, see {@linkcode TsneStatus#extractCoordinates TsneStatus.extractCoordinates} for more details.
  */
 export function runTsne(x, options = {}) {
-    const { perplexity = 30, checkMismatch = true, numberOfThreads = null, maxIterations = 1000, ...others } = options;
+    const { perplexity = 30, neighbors = null, numberOfThreads = null, maxIterations = 1000, ...others } = options;
     utils.checkOtherOptions(others);
-    let tstat = initializeTsne(x, { perplexity, checkMismatch, numberOfThreads });
+    let tstat = initializeTsne(x, { perplexity, neighbors, numberOfThreads });
     tstat.run({ maxIterations });
     return tstat.extractCoordinates();
 }
