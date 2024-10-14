@@ -60,6 +60,8 @@ test("neighbor search works with serialization", () => {
     // Dumping.
     var dump = res.serialize();
     expect(dump.runs.length).toBe(ncells);
+    expect(dump.runs[0]).toBe(k);
+    expect(dump.runs[ncells-1]).toBe(k);
     expect(dump.indices.length).toBe(ncells * k);
     expect(dump.distances.length).toBe(ncells * k);
 
@@ -92,3 +94,36 @@ test("neighbor search works with serialization", () => {
     buf_indices.free();
     buf_distances.free();
 });
+
+test("neighbor search can be truncated", () => {
+    var ndim = 5;
+    var ncells = 100;
+    var buffer = scran.createFloat64WasmArray(ndim * ncells);
+    var arr = buffer.array();
+    arr.forEach((x, i) => arr[i] = Math.random());
+
+    var index = scran.buildNeighborSearchIndex(buffer, { numberOfDims: ndim, numberOfCells: ncells });
+    var k = 5;
+    var res = scran.findNearestNeighbors(index, k);
+    var dump = res.serialize();
+
+    var tres = scran.truncateNearestNeighbors(res, 2);
+    var tdump = tres.serialize();
+    expect(tdump.runs.length).toBe(ncells);
+    expect(tdump.runs[0]).toBe(2);
+    expect(tdump.runs[ncells-1]).toBe(2);
+    expect(tdump.indices.length).toBe(ncells * 2);
+    expect(tdump.distances.length).toBe(ncells * 2);
+
+    // Checking that the neighbors are the same.
+    expect(tdump.indices[0]).toEqual(dump.indices[0]);
+    expect(tdump.indices[2]).toEqual(dump.indices[5]);
+    expect(tdump.indices[5]).toEqual(dump.indices[11]);
+    expect(tdump.indices[51]).toEqual(dump.indices[126]);
+
+    // Checking we get the same results with truncated serialization.
+    var tdump2 = res.serialize({ truncate: 2 });
+    expect(tdump2.runs).toEqual(tdump.runs);
+    expect(tdump2.indices).toEqual(tdump.indices);
+    expect(tdump2.distances).toEqual(tdump.distances);
+})

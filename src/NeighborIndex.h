@@ -2,6 +2,7 @@
 #define NEIGHBOR_INDEX_H
 
 #include <memory>
+#include <algorithm>
 #include <vector>
 
 #include "knncolle/knncolle.hpp"
@@ -44,10 +45,11 @@ public:
     }
 
 public:
-    size_t size() const {
+    size_t size(int32_t truncate) const {
         size_t out = 0;
+        size_t long_truncate = truncate;
         for (const auto& current : neighbors) {
-            out += current.size();
+            out += std::min(long_truncate, current.size());
         }
         return out;
     }
@@ -56,16 +58,19 @@ public:
         return neighbors.size();
     }
 
-    void serialize(uintptr_t runs, uintptr_t indices, uintptr_t distances) const {
+    void serialize(uintptr_t runs, uintptr_t indices, uintptr_t distances, int32_t truncate) const {
         auto rptr = reinterpret_cast<int32_t*>(runs);
         auto iptr = reinterpret_cast<int32_t*>(indices);
         auto dptr = reinterpret_cast<double*>(distances);
 
+        size_t long_truncate = truncate;
         for (const auto& current : neighbors) {
-            *rptr = current.size();
+            size_t nkeep = std::min(long_truncate, current.size());
+            *rptr = nkeep;
             ++rptr;
 
-            for (const auto& x : current) {
+            for (int32_t i = 0; i < nkeep; ++i) {
+                const auto& x = current[i];
                 *iptr = x.first;
                 *dptr = x.second;
                 ++iptr;
