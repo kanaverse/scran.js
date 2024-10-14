@@ -293,7 +293,7 @@ export function findNearestNeighbors(x, k, options = {}) {
  * This is exactly or approximately equal to calling {@linkcode findNearestNeighbors} with the new `k`,
  * depending on whether `approximate = false` or `approximate = true` was used to build the search index, respectively.
  *
- * @param {FindNEarestNeighborsResults} x Existing neighbor search results from {@linkcode findNearestNeighbors}.
+ * @param {FindNearestNeighborsResults} x Existing neighbor search results from {@linkcode findNearestNeighbors}.
  * @param {number} k Number of neighbors to retain.
  * If this is larger than the number of available neighbors, all neighbors are retained.
  *
