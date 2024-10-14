@@ -35,6 +35,17 @@ export function createBigUint64WasmArray (length) {
 }
 
 /**
+ * Helper function to create a Float32WasmArray from the **wasmarrays.js** package.
+ *
+ * @param {number} length - Length of the array.
+ *
+ * @return {Float32WasmArray} Float32WasmArray on the **scran.js** Wasm heap.
+ */
+export function createFloat32WasmArray(length) {
+    return wa.createFloat32WasmArray(wasmArraySpace(), length);
+}
+
+/**
  * Helper function to create a Float64WasmArray from the **wasmarrays.js** package.
  *
  * @param {number} length - Length of the array.
