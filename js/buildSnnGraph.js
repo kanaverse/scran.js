@@ -35,11 +35,13 @@ export class BuildSnnGraphResults {
 }
 
 /**
- * Build a shared nearest graph.
+ * Build a shared nearest graph where each cell is a node.
+ * Edges are formed between cells that share one or more nearest neighbors, weighted by the number or rank of those shared neighbors.
  *
- * @param {BuildNeighborSearchIndexResults|FindNearestNeighborsResults} x 
- * Either a pre-built neighbor search index for the dataset (see {@linkcode buildNeighborSearchIndex}),
- * or a pre-computed set of neighbor search results for all cells (see {@linkcode findNearestNeighbors}).
+ * @param {BuildNeighborSearchIndexResults|FindNearestNeighborsResults} x A pre-built neighbor search index from {@linkcode buildNeighborSearchIndex}.
+ *
+ * Alternatively, a pre-computed set of neighbor search results from {linkcode findNearestNeighbors}.
+ * The number of neighbors should be equal to `neighbors`, otherwise a warning is raised.
  * @param {object} [options={}] - Optional parameters.
  * @param {number} [options.scheme="rank"] - Weighting scheme for the edges between cells.
  * This can be based on the top ranks of the shared neighbors (`"rank"`),
@@ -64,6 +66,9 @@ export function buildSnnGraph(x, options = {}) {
     try {
         let ref;
         if (x instanceof FindNearestNeighborsResults) {
+            if (neighbors != x.numberOfNeighbors()) {
+                console.warn("number of neighbors in 'x' does not match 'neighbors'");
+            }
             ref = x;
         } else {
             my_neighbors = findNearestNeighbors(x, neighbors, { numberOfThreads: nthreads }); 

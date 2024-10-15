@@ -60,6 +60,7 @@ EMSCRIPTEN_BINDINGS(build_neighbor_index) {
     emscripten::class_<NeighborResults>("NeighborResults")
         .constructor<size_t, uintptr_t, uintptr_t, uintptr_t>()
         .function("num_obs", &NeighborResults::num_obs, emscripten::return_value_policy::take_ownership())
+        .function("num_neighbors", &NeighborResults::num_neighbors, emscripten::return_value_policy::take_ownership())
         .function("size", &NeighborResults::size, emscripten::return_value_policy::take_ownership())
         .function("serialize", &NeighborResults::serialize, emscripten::return_value_policy::take_ownership());
 }

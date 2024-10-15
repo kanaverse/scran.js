@@ -114,7 +114,7 @@ export function buildNeighborSearchIndex(x, options = {}) {
 export class FindNearestNeighborsResults {
     #id;
     #results;
-
+u
     constructor(id, raw) {
         this.#id = id;
         this.#results = raw;
@@ -139,6 +139,13 @@ export class FindNearestNeighborsResults {
      */
     numberOfCells() {
         return this.#results.num_obs();
+    }
+
+    /**
+     * @return {number} Number of neighbors that were requested in the search.
+     */
+    numberOfNeighbors() {
+        return this.#results.num_neighbors();
     }
 
     // Internal use only, not documented.
