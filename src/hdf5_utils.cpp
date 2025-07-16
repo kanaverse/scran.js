@@ -195,7 +195,7 @@ struct H5DataSetDetails : public H5AttrDetails {
 
         auto dtype = dhandle.getDataType();
         type_ = guess_hdf5_type(dhandle, dtype);
-        if (type_ == "Compoud") {
+        if (type_ == "Compound") {
             compdetails_ = guess_hdf5_type(dhandle, dhandle.getCompType());
         }
 
@@ -782,16 +782,6 @@ void write_string_hdf5_base(Handle& handle, size_t n, uintptr_t lengths, uintptr
     return;
 }
 
-template<class Reader, class Handle>
-void write_compound_hdf5_base(Handle& handle, size_t n, const emscripten::val& type, const emscripten::val& data) {
-    std::vector<
-
-}
-
-
-
-
-
 void configure_dataset_parameters(H5::DataSpace& dspace, int32_t nshape, uintptr_t shape, H5::DSetCreatPropList& plist, int32_t deflate_level, uintptr_t chunks) {
     if (nshape == 0) { // if zero, it's a scalar, and the default DataSpace is correct.
         return;
@@ -815,6 +805,20 @@ void configure_dataset_parameters(H5::DataSpace& dspace, int32_t nshape, uintptr
         std::copy(cptr, cptr + nshape, dims.begin());
         plist.setChunk(nshape, dims.data());
     }
+}
+
+H5::CompType translate_compound_type(const emscripten::val& type_info) {
+    H5::CompType ctype;
+    for (const auto& member_info : type_info) {
+        auto name = member_info["name"].as<std::string>();
+        auto type = member_info["type"].as<std::string>();
+        if (type == "String") {
+            ctype.insertMember(name, choose_numeric_data_type(type, max_len));
+        } else {
+            ctype.insertMember(name, choose_numeric_data_type(type));
+        }
+    }
+    return ctype;
 }
 
 /************* Dataset writers **************/
@@ -844,6 +848,11 @@ void create_enum_hdf5_dataset(std::string path, std::string name, int32_t nshape
     H5::DataType dtype = choose_enum_data_type(nlevels, levlen, levbuffer);
     create_hdf5_dataset(path, name, dtype, nshape, shape, deflate_level, chunks);
     return;
+}
+
+void create_compound_hdf5_dataset(std::string path, std::string name, const emscripten::val& type_info, int32_t nshape, uintptr_t shape, int32_t deflate_level, uintptr_t chunks, int32_t max_str_len) {
+    auto ctype = translate_compound_type(type_info, max_str_len);
+    create_hdf5_dataset(path, name, ctype, nshape, shape, deflate_level, chunks);
 }
 
 struct DataSetHandleWriter {
@@ -918,6 +927,12 @@ void create_string_hdf5_attribute(std::string path, std::string name, std::strin
 void create_enum_hdf5_attribute(std::string path, std::string name, std::string attr, int32_t nshape, uintptr_t shape, size_t nlevels, uintptr_t levlen, uintptr_t levbuffer) {
     H5::DataType dtype = choose_enum_data_type(nlevels, levlen, levbuffer);
     create_hdf5_attribute(path, name, attr, dtype, nshape, shape);
+    return;
+}
+
+void create_compound_hdf5_attribute(std::string path, std::string name, std::string attr, const emscripten::val& type_info, int32_t nshape, uintptr_t shape, int32_t max_str_len) {
+    auto ctype = translate_compound_type(type_info, max_str_len);
+    create_hdf5_attribute(path, name, attr, ctype, nshape, shape);
     return;
 }
 
