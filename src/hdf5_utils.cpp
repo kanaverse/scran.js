@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <cstdint>
+#include <cstddef>
 #include <algorithm>
 #include <unordered_map>
 
@@ -785,26 +786,36 @@ void write_string_hdf5_base(Handle& handle, size_t n, uintptr_t lengths, uintptr
 
 template<class Reader, class Handle>
 void write_compound_hdf5_base(Handle& handle, size_t n, const emscripten::val& type_info, const emscripten::val& data) {
-    H5::CompType ctype;
-    std::vector<std::pair<std::string, char> > members;
+    struct MemberType {
+        MemberType() = default;
+        MemberType(std::string name, std::size_t offset, H5::DataType dtype) : name(std::move(name)), offset(offset), dtype(std::move(dtype)) {}
+        std::string name;
+        std::size_t offset;
+        H5::DataType dtype;
+    };
+    std::vector<MemberType> members;
     std::size_t offset = 0;
     bool has_string = false;
+
     for (const auto& member : type_info) {
-        auto name = member["name"].as<std::string>();
-        auto type = member["type"].as<std::string>();
+        auto name = member["name"].template as<std::string>();
+        auto type = member["type"].template as<std::string>();
         if (type == "String") {
-            members.emplace_back(name, true);
-            auto stype = H5::StrType(0, H5T_VARIABLE);
-            ctype.insertMember(name, offset, stype);
-            offset += stype.getSize();
+            members.emplace_back(std::move(name), offset, H5::StrType(0, H5T_VARIABLE));
             has_string = true;
         } else if (type.rfind("Int", 0) == 0 || type.rfind("Uint", 0) == 0 || type.rfind("Float", 0) == 0) {
-            members.emplace_back(name, false);
-            ctype.insertMember(name, offset, H5::PredType::NATIVE_DOUBLE);
-            offset += 8;
+            members.emplace_back(std::move(name), offset, H5::PredType::NATIVE_DOUBLE);
         } else {
             throw std::runtime_error("only numbers and strings are supported in compound data types");
         }
+        offset += members.back().dtype.getSize();
+    }
+
+    std::vector<std::pair<std::string, bool> > members_simple(members.size());
+    H5::CompType ctype(offset);
+    for (const auto& x : members) {
+        ctype.insertMember(x.name, x.offset, x.dtype);
+        members_simple.emplace_back(std::move(x.name), x.dtype.getClass() == H5T_STRING);
     }
 
     std::vector<unsigned char> payload;
@@ -815,16 +826,16 @@ void write_compound_hdf5_base(Handle& handle, size_t n, const emscripten::val& t
     }
 
     for (const auto& entry : data) {
-        for (const auto& member : members) {
+        for (const auto& member : members_simple) {
             auto res = entry[member.first];
             if (member.second) {
-                auto str = res.as<std::string>();
+                auto str = res.template as<std::string>();
                 all_strings.push_back(std::move(str));
                 auto ptr = all_strings.back().c_str();
                 auto start = reinterpret_cast<const unsigned char*>(&ptr);
                 payload.insert(payload.end(), start, start + sizeof(decltype(ptr)));
             } else {
-                auto dbl = res.as<double>();
+                auto dbl = res.template as<double>();
                 auto start = reinterpret_cast<const unsigned char*>(&dbl);
                 payload.insert(payload.end(), start, start + sizeof(decltype(dbl)));
             }
@@ -860,22 +871,34 @@ void configure_dataset_parameters(H5::DataSpace& dspace, int32_t nshape, uintptr
 }
 
 H5::CompType translate_compound_type_for_create(const emscripten::val& named_type_info, int32_t max_str_len) {
-    H5::CompType ctype;
+    struct MemberType {
+        MemberType() = default;
+        MemberType(std::string name, std::size_t offset, H5::DataType dtype) : name(std::move(name)), offset(offset), dtype(std::move(dtype)) {}
+        std::string name;
+        std::size_t offset;
+        H5::DataType dtype;
+    };
+    std::vector<MemberType> all_types;
     std::size_t offset = 0;
+
     for (const auto& member_info : named_type_info) {
         auto name = member_info["name"].as<std::string>();
         auto type = member_info["type"].as<std::string>();
         if (type == "String") {
             auto dtype = choose_string_data_type(max_str_len);
-            ctype.insertMember(name, offset, dtype);
-            offset += dtype.getSize();
+            all_types.emplace_back(std::move(name), offset, std::move(dtype));
         } else if (type.rfind("Int", 0) == 0 || type.rfind("Uint", 0) == 0 || type.rfind("Float", 0) == 0) {
             auto dtype = choose_numeric_data_type(type);
-            ctype.insertMember(name, offset, dtype);
-            offset += dtype.getSize();
+            all_types.emplace_back(std::move(name), offset, std::move(dtype));
         } else {
             throw std::runtime_error("only numbers and strings are supported in compound data types");
         }
+        offset += all_types.back().dtype.getSize();
+    }
+
+    H5::CompType ctype(offset);
+    for (auto& x : all_types) {
+        ctype.insertMember(std::move(x.name), x.offset, std::move(x.dtype));
     }
     return ctype;
 }
@@ -909,7 +932,7 @@ void create_enum_hdf5_dataset(std::string path, std::string name, int32_t nshape
     return;
 }
 
-void create_compound_hdf5_dataset(std::string path, std::string name, const emscripten::val& type_info, int32_t nshape, uintptr_t shape, int32_t deflate_level, uintptr_t chunks, int32_t max_str_len) {
+void create_compound_hdf5_dataset(std::string path, std::string name, int32_t nshape, uintptr_t shape, int32_t deflate_level, uintptr_t chunks, const emscripten::val& type_info, int32_t max_str_len) {
     auto ctype = translate_compound_type_for_create(type_info, max_str_len);
     create_hdf5_dataset(path, name, ctype, nshape, shape, deflate_level, chunks);
 }

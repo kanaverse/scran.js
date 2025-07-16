@@ -341,6 +341,17 @@ test("HDF5 64-bit integer dataset creation works as expected", () => {
     }
 })
 
+test("HDF5 compound dataset creation and loading works as expected", () => {
+    const path = dir + "/test.write.h5";
+    purge(path)
+
+    {
+        let fhandle = scran.createNewHdf5File(path);
+        let data = [ { foo: 1, bar: 1.5 }, { foo: 2, bar: 2.5 }, { foo: 3, bar: 3.5 }, { foo: 4, bar: 4.5 }, { foo: 5, bar: 5.5 } ];
+        fhandle.writeDataSet("compound", { "foo": "Int32", "bar": "Float64" }, null, data);
+    }
+})
+
 test("HDF5 numeric attribute creation and loading works as expected", () => {
     const path = dir + "/test.write.h5";
     purge(path)

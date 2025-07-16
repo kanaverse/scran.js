@@ -171,6 +171,12 @@ export class H5Base {
                 }
                 let [ lengths, buffer ] = packer.repack_strings(levels);
                 wasm.call(module => module.create_enum_hdf5_attribute(this.file, this.name, attr, shape_arr.length, shape_arr.offset, lengths.length, lengths.offset, buffer.offset));
+            } else if (type instanceof Object) {
+                let type_info = [];
+                for (const [key, val] of Object.entries(type)) {
+                    type_info.push({ name: key, type: val });
+                }
+                wasm.call(module => module.create_compound_hdf5_attribute(this.file, this.name, attr, shape_arr.length, shape_arr.offset, type_info, maxStringLength));
             } else {
                 wasm.call(module => module.create_numeric_hdf5_attribute(this.file, this.name, attr, shape_arr.length, shape_arr.offset, type));
             }
@@ -405,6 +411,12 @@ export class H5Group extends H5Base {
                 }
                 let [ lengths, buffer ] = packer.repack_strings(levels);
                 wasm.call(module => module.create_enum_hdf5_dataset(this.file, new_name, shape_arr.length, shape_arr.offset, compression, chunk_offset, lengths.length, lengths.offset, buffer.offset));
+            } else if (type instanceof Object) {
+                let type_info = [];
+                for (const [key, val] of Object.entries(type)) {
+                    type_info.push({ name: key, type: val });
+                }
+                wasm.call(module => module.create_compound_hdf5_dataset(this.file, new_name, shape_arr.length, shape_arr.offset, compression, chunk_offset, type_info, maxStringLength));
             } else {
                 wasm.call(module => module.create_numeric_hdf5_dataset(this.file, new_name, shape_arr.length, shape_arr.offset, compression, chunk_offset, type));
             }
@@ -473,6 +485,10 @@ export class H5Group extends H5Base {
             let processed = process_enum_input(x, levels, "x");
             handle = this.createDataSet(name, type, shape, { levels: processed.levels, compression: compression, chunks: chunks });
             handle.write(processed.values, { cache: cache });
+
+        } else if (type instanceof Object) {
+            handle = this.createDataSet(name, type, shape, { compression: compression, chunks: chunks });
+            handle.write(x, { cache: cache });
 
         } else {
             handle = this.createDataSet(name, type, shape, { compression: compression, chunks: chunks });
@@ -711,6 +727,13 @@ export class H5DataSet extends H5Base {
             } finally {
                 y.free();
             }
+
+        } else if (this.type instanceof Object) {
+            let type_info = [];
+            for (const [key, val] of Object.entries(this.type)) {
+                type_info.push({ name: key, type: val });
+            }
+            wasm.call(module => module.write_compound_hdf5_dataset(this.file, this.name, x.length, type_info, x));
 
         } else {
             forbid_strings(x);
