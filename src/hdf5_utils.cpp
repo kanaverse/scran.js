@@ -427,7 +427,7 @@ private:
             emscripten::val obj = emscripten::val::object();
 
             for (const auto& member : members) {
-                auto start = reinterpret_cast<const char*>(unified_buffer.data() + offset);
+                auto start = unified_buffer.data() + offset;
 
                 if (!member.is_string) {
                     double val;
@@ -435,13 +435,21 @@ private:
                     obj.set(member.name, val);
 
                 } else if (!member.is_variable) {
+                    auto cstart = reinterpret_cast<const char*>(start);
                     val.clear();
-                    val.insert(0, start, start + member.size);
+                    for (decltype(member.size) i = 0; i < member.size; ++i) {
+                        if (cstart[i] == 0) {
+                            break;
+                        }
+                        val += cstart[i];
+                    }
                     obj.set(member.name, val);
 
                 } else {
+                    char* ptr;
+                    std::copy_n(start, member.size, reinterpret_cast<unsigned char*>(&ptr));
                     val.clear();
-                    val.insert(0, start);
+                    val.insert(0, ptr);
                     obj.set(member.name, val);
                 }
 
@@ -718,6 +726,13 @@ H5::DataType choose_enum_data_type(size_t nlevels, uintptr_t level_lengths, uint
     return dtype;
 }
 
+H5::DataType choose_compound_data_type(const emscripten::val& specification, int32_t max_str_len) {
+    for (const auto& el : specification) {
+
+    }
+}
+
+
 template<class Reader, class Handle>
 void write_numeric_hdf5_base(Handle& handle, const std::string& type, uintptr_t data) {
     if (type == "Uint8WasmArray") {
@@ -766,6 +781,16 @@ void write_string_hdf5_base(Handle& handle, size_t n, uintptr_t lengths, uintptr
     Reader::write(handle, temp.data(), stype);
     return;
 }
+
+template<class Reader, class Handle>
+void write_compound_hdf5_base(Handle& handle, size_t n, const emscripten::val& type, const emscripten::val& data) {
+    std::vector<
+
+}
+
+
+
+
 
 void configure_dataset_parameters(H5::DataSpace& dspace, int32_t nshape, uintptr_t shape, H5::DSetCreatPropList& plist, int32_t deflate_level, uintptr_t chunks) {
     if (nshape == 0) { // if zero, it's a scalar, and the default DataSpace is correct.
