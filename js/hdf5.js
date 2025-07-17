@@ -374,11 +374,7 @@ export class H5Group extends H5Base {
 
     /**
      * @param {string} name - Name of the dataset to create.
-     * @param {string} type - Type of dataset to create.
-     * This can be `"IntX"` or `"UintX"` for `X` of 8, 16, 32, or 64;
-     * or `"FloatX"` for `X` of 32 or 64;
-     * or `"String"`;
-     * or `"Enum"`.
+     * @param {string} type - Type of dataset to create, see {@linkcode H5DataSet#type H5DataSet.type}.
      * @param {Array} shape - Array containing the dimensions of the dataset to create.
      * This can be set to an empty array to create a scalar dataset.
      * @param {object} [options={}] - Optional parameters.
@@ -444,14 +440,11 @@ export class H5Group extends H5Base {
      * It is particularly useful for string types as it avoids having to specify the `maxStringLength` during creation based on the `x` used during writing.
      * 
      * @param {string} name - Name of the dataset to create.
-     * @param {string} type - Type of dataset to create.
-     * This can be `"IntX"` or `"UintX"` for `X` of 8, 16, 32, or 64;
-     * or `"FloatX"` for `X` of 32 or 64;
-     * or `"String"`.
+     * @param {string} type - Type of dataset to create, see {@linkcode H5DataSet#type H5DataSet.type}.
      * @param {Array} shape - Array containing the dimensions of the dataset to create.
      * If set to an empty array, this will create a scalar dataset.
      * If set to `null`, this is determined from `x`.
-     * @param {(TypedArray|Array|string|number)} x - Values to be written to the new dataset, see {@linkcode H5DataSet#write write}.
+     * @param {(TypedArray|Array|string|number)} x - Values to be written to the new dataset, see {@linkcode H5DataSet#write H5DataSet.write}.
      * @param {object} [options={}] - Optional parameters.
      * @param {?Array} [options.levels=null] - Array of strings containing enum levels when `type = "Enum"`.
      * If supplied, `x` should be an array of integers that index into `levels`.
@@ -634,11 +627,14 @@ export class H5DataSet extends H5Base {
     }
 
     /**
-     * @member {object}
+     * @member {string|object}
      * @desc String containing the type of the dataset.
      * This may be `"IntX"` or `"UintX"` for `X` of 8, 16, 32, or 64;
      * or `"FloatX"` for `X` of 32 or 64;
      * `"String"`, `"Enum"`, or `"Other"`.
+     *
+     * For compound datasets, this is instead an object where the keys are the names of the compound members and the values are strings specifying the type.
+     * Types may be any of those prefixed with `Int`, `Float` or `String`.
      */
     get type() {
         return this.#type;
