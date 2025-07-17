@@ -1,4 +1,3 @@
-#include <emscripten.h>
 #include <emscripten/bind.h>
 #include "H5Cpp.h"
 #include <vector>
@@ -70,7 +69,6 @@ std::string guess_hdf5_type(const Handle& handle, const H5::DataType& dtype) {
     std::string type;
 
     if (dclass == H5T_INTEGER) {
-        bool is_unsigned = false;
         if constexpr(std::is_same<Handle, H5::DataSet>::value) {
             H5::IntType itype(handle);
             type = guess_hdf5_type(itype);
@@ -82,8 +80,8 @@ std::string guess_hdf5_type(const Handle& handle, const H5::DataType& dtype) {
 
     } else if (dclass == H5T_FLOAT) {
         type += "Float";
-        auto isize = dtype.getSize();
-        if (isize <= 4) {
+        auto fsize = dtype.getSize();
+        if (fsize <= 4) {
             type += "32";
         } else {
             type += "64";
@@ -113,7 +111,30 @@ emscripten::val guess_hdf5_type(const Handle& handle, const H5::CompType& ctype)
     for (decltype(nmembers) m = 0; m < nmembers; ++m) {
         auto memname = ctype.getMemberName(m);
         auto memtype = ctype.getMemberDataType(m);
-        output.set(std::move(memname), guess_hdf5_type(handle, memtype));
+        auto memclass = memtype.getClass();
+
+        std::string type;
+        if (memclass == H5T_INTEGER) {
+            auto memitype = ctype.getMemberIntType(m);
+            type = guess_hdf5_type(memitype);
+
+        } else if (memclass == H5T_FLOAT) {
+            type += "Float";
+            auto fsize = memtype.getSize();
+            if (fsize <= 4) {
+                type += "32";
+            } else {
+                type += "64";
+            }
+
+        } else if (memclass == H5T_STRING) {
+            type = "String";
+                
+        } else { // other things aren't supported yet.
+            type = "Other";
+        }
+
+        output.set(std::move(memname), type);
     }
 
     return output;
@@ -392,7 +413,6 @@ private:
 
     template<class Reader, class Handle>
     void fill_compound_data(const Handle& handle, hsize_t full_length) {
-        std::cout << "YAY" << std::endl;
         auto ctype = handle.getCompType();
         int nmembers = ctype.getNmembers();
 
@@ -489,7 +509,6 @@ protected:
         auto dtype = handle.getDataType();
         type_ = guess_hdf5_type(handle, dtype);
         if (type_ == "Compound") {
-            std::cout << "FOO 2" << std::endl;
             comptype_ = guess_hdf5_type(handle, handle.getCompType());
         }
 
@@ -570,9 +589,7 @@ protected:
             }
 
         } else if (type_ == "Compound") {
-            std::cout << "FOO 3" << std::endl;
             fill_compound_data<Reader>(handle, full_length);
-            std::cout << "FOO 4" << std::endl;
 
         } else if (type_ != "Other") { // don't fail outright; we want to be able to construct the LoadedH5Dataset so that users can call type().
             fill_numeric_contents<Reader>(handle, type_, full_length);
@@ -592,9 +609,7 @@ struct LoadedH5DataSet : public LoadedH5Base, public H5AttrDetails {
         try {
             H5::H5File handle(path, H5F_ACC_RDONLY);
             auto dhandle = handle.openDataSet(name);
-            std::cout << "BAR " << std::endl;
             fill_contents<Internal>(dhandle);
-            std::cout << "BAR 2" << std::endl;
             fill_attribute_names(dhandle);
         } catch (H5::Exception& e) {
             throw std::runtime_error(e.getCDetailMsg());
@@ -1127,7 +1142,7 @@ EMSCRIPTEN_BINDINGS(hdf5_utils) {
         .function("type", &LoadedH5DataSet::type, emscripten::return_value_policy::take_ownership())
         .function("shape", &LoadedH5DataSet::shape, emscripten::return_value_policy::take_ownership())
         .function("numeric_values", &LoadedH5DataSet::numeric_values, emscripten::return_value_policy::take_ownership())
-        .function("compound_values", &LoadedH5Attr::compound_values, emscripten::return_value_policy::take_ownership())
+        .function("compound_values", &LoadedH5DataSet::compound_values, emscripten::return_value_policy::take_ownership())
         .function("string_buffer", &LoadedH5DataSet::string_buffer, emscripten::return_value_policy::take_ownership())
         .function("string_lengths", &LoadedH5DataSet::string_lengths, emscripten::return_value_policy::take_ownership())
         .function("attr_buffer", &LoadedH5DataSet::attr_buffer, emscripten::return_value_policy::take_ownership())

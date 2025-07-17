@@ -545,14 +545,10 @@ export class H5DataSet extends H5Base {
         let shape;
         let attr;
         let levels = null;
-            console.log("LAODING2");
-            console.log(file, name);
 
         let x = wasm.call(module => new module.LoadedH5DataSet(file, name));
-            console.log("FOO");
         try {
             type = x.type();
-            console.log(type);
             if (type == "other") {
                 throw new Error("cannot load dataset for an unsupported type");
             }
