@@ -102,40 +102,40 @@ export class H5StringType {
  * Representation of a HDF5 enum type.
  */
 export class H5EnumType {
-    #codeType;
-    #levelType;
+    #code;
     #levels;
 
     /**
-     * @param {string} codeType - String specifying the integer type for the codes.
+     * @param {string} code - String specifying the integer type for the codes.
      * This should be `"IntX"` or `"UintX"` for `X` of 8, 16, 32, or 64.
-     * @param {H5StringType} levelType - String type for the levels.
-     * @param {Array} levels - Array of unique strings containing the levels.
+     * @param {Array|object} levels - Array of unique strings containing the names of the levels.
+     * The position of each string in this array is used as the integer code for each level.
+     * Alternatively, an object where each key is the name of a level and each value is the corresponding integer code.
      */
-    constructor(codeType, levelType, levels) {
-        this.#codeType = codeType;
-        this.#levels = levelType;
+    constructor(code, levels) {
+        this.#code = code;
+        if (levels instanceof Array) {
+            let collected = {};
+            for (var i = 0; i < levels.length; i++) {
+                collected[levels[i]] = i;
+            }
+            this.#levels = collected;
+        } else {
+            this.#levels = levels;
+        }
     }
 
     /**
      * @member {string}
      * @desc Integer type for the codes.
      */
-    get codeType() {
-        return this.#codeType
+    get code() {
+        return this.#code;
     }
 
     /**
-     * @member {H5StringType}
-     * @desc String type for the levels.
-     */
-    get levelType() {
-        return this.#levelType
-    }
-
-    /**
-     * @member {Array}
-     * @desc Array of levels.
+     * @member {object}
+     * @desc Mapping from level names (keys) and the corresponding integer code (values).evels.
      */
     get levels() {
         return this.#levels;
@@ -194,7 +194,7 @@ function downcast_type(type) {
 function upcast_type(type) {
     if (type.mode == "string") {
         return new H5StringType(type.encoding, type.length);
-    } else if (type.mode == "numeric") {
+    } else if (type.mode == "numeric" || type.mode == "other") {
         return type.type;
     } else if (type.mode == "enum") {
         return new H5EnumType(type.code_type, new H5StringType(type.level_encoding, type.level_length), type.levels);
@@ -271,7 +271,7 @@ export class H5Base {
 
         let x = wasm.call(module => new module.LoadedH5Attr(this.file, this.name, attr));
         try {
-            output.shape = Array.from(x.shape());
+            output.shape = x.shape();
             output.type = upcast_type(x.type());
             if (typeof output.type == "String") {
                 output.values = x.string_values();
@@ -603,7 +603,7 @@ export class H5DataSet extends H5Base {
             let x = wasm.call(module => new module.H5DataSetDetails(file, name));
             try {
                 this.#type = upcast_type(x.type());
-                this.#shape = Array.from(x.shape());
+                this.#shape = x.shape();
                 this.set_attributes(x.attributes());
             } finally {
                 x.delete();

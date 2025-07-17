@@ -7,38 +7,17 @@
 #include <algorithm>
 #include <unordered_map>
 
-struct H5AttrDetails {
-    void fill_attribute_names(const H5::H5Object& handle) {
-        std::vector<std::string> collected;
-        size_t num = handle.getNumAttrs();
-        for (size_t i = 0; i < num; ++i) {
-            auto attr = handle.openAttribute(i);
-            collected.push_back(attr.getName());
-        }
-
-        attr_runs_.resize(collected.size());
-        size_t n = 0;
-        for (size_t i = 0; i < collected.size(); ++i) {
-            const auto& x = collected[i];
-            n += x.size();
-            attr_runs_[i] = x.size();
-        }
-
-        attr_buffer_.resize(n);
-        size_t i = 0;
-        for (const auto& x : collected) {
-            for (auto y : x) {
-                attr_buffer_[i] = y;
-                ++i;
-            }
-        }
+emscripten::val extract_attribute_names(const H5::H5Object& handle) {
+    auto output = emscripten::val::array();
+    auto num = handle.getNumAttrs();
+    for (decltype(num) i = 0; i < num; ++i) {
+        auto attr = handle.openAttribute(i);
+        output.call<void>("push", emscripten::val(attr.getName()));
     }
+    return output;
+}
 
-    std::vector<char> attr_buffer_;
-    std::vector<int32_t> attr_runs_;
-};
-
-std::string guess_hdf5_type(const H5::IntType& itype) {
+emscripten::val format_integer_type(const H5::IntType& itype) {
     std::string type;
 
     bool is_unsigned = (itype.getSign() == H5T_SGN_NONE);
@@ -59,211 +38,203 @@ std::string guess_hdf5_type(const H5::IntType& itype) {
         type += "64";
     }
 
-    return type;
-}
-
-template<class Handle>
-std::string guess_hdf5_type(const Handle& handle, const H5::DataType& dtype) {
-    auto dclass = dtype.getClass();
-    std::string type;
-
-    if (dclass == H5T_INTEGER) {
-        if constexpr(std::is_same<Handle, H5::DataSet>::value) {
-            H5::IntType itype(handle);
-            type = guess_hdf5_type(itype);
-        } else {
-            // Assume it's an attribute.
-            auto itype = handle.getIntType();
-            type = guess_hdf5_type(itype);
-        }
-
-    } else if (dclass == H5T_FLOAT) {
-        type += "Float";
-        auto fsize = dtype.getSize();
-        if (fsize <= 4) {
-            type += "32";
-        } else {
-            type += "64";
-        }
-
-    } else if (dclass == H5T_STRING) {
-        type = "String";
-            
-    } else if (dclass == H5T_ENUM) {
-        type = "Enum";
-
-    } else if (dclass == H5T_COMPOUND) {
-        type = "Compound";
-
-    } else {
-        type = "Other";
-    }
-
-    return type;
-}
-
-template<class Handle>
-emscripten::val guess_hdf5_type(const Handle& handle, const H5::CompType& ctype) {
     auto output = emscripten::val::object();
-    auto nmembers = ctype.getNmembers();
+    output.set("mode", emscripten::val("numeric"));
+    output.set("type", emscripten::val(type));
+    return otuput;
+}
 
-    for (decltype(nmembers) m = 0; m < nmembers; ++m) {
-        auto memname = ctype.getMemberName(m);
-        auto memtype = ctype.getMemberDataType(m);
-        auto memclass = memtype.getClass();
+emscripten::val format_float_type(const H5::FloatType& ftype) {
+    auto output = emscripten::val::object();
+    output.set("mode", emscripten::val("numeric"));
+    auto fsize = memtype.getSize();
+    if (fsize <= 4) {
+        output.set("type", emscripten::val("Float32"));
+    } else {
+        output.set("type", emscripten::val("Float64"));
+    }
+    return output;
+}
 
-        std::string type;
-        if (memclass == H5T_INTEGER) {
-            auto memitype = ctype.getMemberIntType(m);
-            type = guess_hdf5_type(memitype);
+emscripten::val format_string_type(const H5::StrType& stype) {
+    auto output = emscripten::val::object();
+    output.set("mode", emscripten::val("string"));
+    if (stype.getCSet() == H5T_CSET_ASCII) {
+        output.set("encoding", emscripten::val("ASCII"));
+    } else {
+        output.set("encoding", emscripten::val("UTF-8"));
+    }
+    if (stype.isVariableStr()) {
+        output.set("length", emscripten::val(-1));
+    } else {
+        output.set("length", emscripten::val(stype.getSize()));
+    }
+    return output;
+}
 
-        } else if (memclass == H5T_FLOAT) {
-            type += "Float";
-            auto fsize = memtype.getSize();
-            if (fsize <= 4) {
-                type += "32";
-            } else {
-                type += "64";
-            }
+template<typename Code_>
+emscripten::val format_enum_levels(const H5::EnumType etype) {
+    auto output = emscripten::val::object();
+    auto nlevels = etype.getNmembers();
+    for (decltype(nlevels) l = 0; l < nlevels; ++l) {
+        Code_ v;
+        etype.getMemberValue(l, &v);
+        std::string name = etype.nameOf(&v, 1000); // name better be shorter than 1000 bytes!
+        output.set(std::move(name), emscripten::val(v));
+    }
+    return output;
+}
 
-        } else if (memclass == H5T_STRING) {
-            type = "String";
-                
-        } else { // other things aren't supported yet.
-            type = "Other";
+emscripten::val format_enum_type(const H5::EnumType& etype, const H5::IntType& itype) {
+    auto output = emscripten::val::object();
+    output.set("mode", emscripten::val("enum"));
+    output.set("code", format_integer_type(itype));
+
+    bool is_unsigned = (itype.getSign() == H5T_SGN_NONE);
+    auto isize = itype.getSize();
+    if (isize <= 1) {
+        if (is_unsigned) {
+            output.set("levels", format_enum_type<uint8_t>(etype));
+        } else {
+            output.set("levels", format_enum_type<int8_t>(etype));
         }
-
-        output.set(std::move(memname), type);
+    } else if (isize <= 2) {
+        if (is_unsigned) {
+            output.set("levels", format_enum_type<uint16_t>(etype));
+        } else {
+            output.set("levels", format_enum_type<int16_t>(etype));
+        }
+    } else if (isize <= 4) {
+        if (is_unsigned) {
+            output.set("levels", format_enum_type<uint32_t>(etype));
+        } else {
+            output.set("levels", format_enum_type<int32_t>(etype));
+        }
+    } else {
+        if (is_unsigned) {
+            output.set("levels", format_enum_type<uint64_t>(etype));
+        } else {
+            output.set("levels", format_enum_type<int64_t>(etype));
+        }
     }
 
     return output;
 }
 
+emscripten::val format_compound_type(const H5::CompType& ctype) {
+    auto nmembers = ctype.getNmembers();
+    auto outmembers = emscripten::val::object();
+    for (decltype(nmembers) m = 0; m < nmembers; ++m) {
+        auto memname = ctype.getMemberName(m);
+        auto memclass = memtype.getClass();
+
+        emscripten::val type;
+        if (memclass == H5T_INTEGER) {
+            type = format_integer_type(ctype.getMemberIntType(m));
+        } else if (memclass == H5T_FLOAT) {
+            type = format_float_type(ctype.getMemberFloatType(m));
+        } else if (memclass == H5T_STRING) {
+            type = format_string_type(ctype.getMemberStrType(m));
+        } else { // other things aren't supported yet.
+            type.set("mode", emscripten::val("other"));
+            type.set("type", emscripten::val("Other"));
+        }
+
+        outmembers.set(std::move(memname), type);
+    }
+
+    auto output = emscripten::val::object();
+    output.set("mode", emscripten::val("compound"));
+    output.set("members", outmembers);
+    return output;
+}
+
+template<typename Handle_>
+emscripten::val format_type(const Handle_& handle) {
+    auto dclass = handle.getTypeClass();
+    if (dclass == H5T_INTEGER) {
+        return format_integer_type(handle.getIntType());
+    } else if (dclass == H5T_FLOAT) {
+        return format_numeric_type(handle.getFloatType());
+    } else if (dclass == H5T_STRING) {
+        return format_string_type(handle.getStrType());
+    } else if (dclass == H5T_ENUM) {
+        return format_enum_type(handle.getEnumType(), handle.getIntType());
+    } else if (dclass == H5T_COMPOUND) {
+        return format_compound_type(handle.getCompoundType());
+    } else {
+        auto output = emscripten::val::object();
+        output.set("mode", emscripten::val("other"));
+        output.set("type", emscripten::val("Other"));
+        return output;
+    }
+}
+
 /************* Unloaded details **************/
 
-struct H5GroupDetails : public H5AttrDetails {
-    H5GroupDetails(std::string file, std::string name) {
-        H5::H5File handle(file, H5F_ACC_RDONLY);
-        H5::Group ghandle = handle.openGroup(name);
+class H5GroupDetails {
+    H5::H5File my_fhandle;
+    H5::Group my_ghandle;
 
-        std::vector<std::string> collected;
-        size_t num = ghandle.getNumObjs();
-        for (size_t i = 0; i < num; ++i) {
-            auto child_name = ghandle.getObjnameByIdx(i);
-            collected.push_back(child_name);
+public:
+    H5GroupDetails(std::string file, std::string name) : my_fhandle(file, H5F_ACC_RDONLY), my_ghandle(my_fhandle.openGroup(name)) {}
 
-            auto child_type = ghandle.childObjType(child_name);
+    emscripten::val attributes() {
+        return extract_attribute_names(my_ghandle);
+    }
+
+    emscripten::val children() {
+        my_children = emscripten::val::object();
+        auto num = my_ghandle.getNumObjs();
+        for (decltype(num) i = 0; i < num; ++i) {
+            auto child_name = my_ghandle.getObjnameByIdx(i);
+            auto child_type = my_ghandle.childObjType(child_name);
             if (child_type == H5O_TYPE_GROUP) {
-                child_types_.push_back(0);
+                children.set(child_name, emscripten::val("Group"));
             } else if (child_type == H5O_TYPE_DATASET) {
-                child_types_.push_back(1);
+                children.set(child_name, emscripten::val("DataSet"));
             } else {
-                child_types_.push_back(2);
-            }
-        }
-        
-        child_runs_.resize(collected.size());
-        size_t n = 0;
-        for (size_t i = 0; i < collected.size(); ++i) {
-            const auto& x = collected[i];
-            n += x.size();
-            child_runs_[i] = x.size();
-        }
-
-        child_buffer_.resize(n);
-        size_t i = 0;
-        for (const auto& x : collected) {
-            for (auto y : x) {
-                child_buffer_[i] = y;
-                ++i;
+                children.set(child_name, emscripten::val("Other"));
             }
         }
 
-        fill_attribute_names(ghandle);
-    }
-
-public:
-    emscripten::val child_buffer() const {
-        return emscripten::val(emscripten::typed_memory_view(child_buffer_.size(), child_buffer_.data()));
-    }
-
-    emscripten::val child_lengths() const {
-        return emscripten::val(emscripten::typed_memory_view(child_runs_.size(), child_runs_.data()));
-    }
-
-    emscripten::val child_types() const {
-        return emscripten::val(emscripten::typed_memory_view(child_types_.size(), child_types_.data()));
-    }
-
-    std::vector<char> child_buffer_;
-    std::vector<int32_t> child_runs_;
-    std::vector<int32_t> child_types_;
-
-public:
-    emscripten::val attr_buffer() const {
-        return emscripten::val(emscripten::typed_memory_view(attr_buffer_.size(), attr_buffer_.data()));
-    }
-
-    emscripten::val attr_lengths() const {
-        return emscripten::val(emscripten::typed_memory_view(attr_runs_.size(), attr_runs_.data()));
+        return extract_attribute_names(ghandle);
     }
 };
 
-struct H5DataSetDetails : public H5AttrDetails {
-    H5DataSetDetails(std::string file, std::string name) {
-        H5::H5File handle(file, H5F_ACC_RDONLY);
-        auto dhandle = handle.openDataSet(name);
-
-        auto dtype = dhandle.getDataType();
-        type_ = guess_hdf5_type(dhandle, dtype);
-        if (type_ == "Compound") {
-            comptype_ = guess_hdf5_type(dhandle, dhandle.getCompType());
-        }
-
-        auto dspace = dhandle.getSpace();
-        int32_t ndims = dspace.getSimpleExtentNdims();
-        std::vector<hsize_t> dims(ndims);
-        dspace.getSimpleExtentDims(dims.data());
-        shape_.insert(shape_.end(), dims.begin(), dims.end());
-
-        fill_attribute_names(dhandle);
-        return;
-    }
+class H5DataSetDetails : public H5AttrDetails {
+    H5::H5File my_fhandle;
+    H5::DataSet my_dhandle;
 
 public:
-    emscripten::val type() const {
-        if (type_ == "Compound") {
-            return comptype_;
-        } else {
-            return emscripten::val(type_);
-        }
+    H5GroupDetails(std::string file, std::string name) : my_fhandle(file, H5F_ACC_RDONLY), my_dhandle(my_fhandle.openDataSet(name)) {}
+
+    emscripten::val attributes() {
+        return extract_attribute_names(my_dhandle);
     }
 
     emscripten::val shape() const {
-        return emscripten::val(emscripten::typed_memory_view(shape_.size(), shape_.data()));        
+        auto dspace = dhandle.getSpace();
+        auto ndims = dspace.getSimpleExtentNdims();
+        std::vector<hsize_t> dims(ndims);
+        dspace.getSimpleExtentDims(dims.data());
+
+        auto output = emscripten::val::array();
+        for (auto x : dims) {
+            output.call<void>("push", emscripten::val(static_cast<double>(x)); // hopefully it fits, who knows?
+        }
+        return output;
     }
 
-    std::string type_;
-    emscripten::val comptype_;
-    std::vector<int32_t> shape_;
-
-public:
-    emscripten::val attr_buffer() const {
-        return emscripten::val(emscripten::typed_memory_view(attr_buffer_.size(), attr_buffer_.data()));
-    }
-
-    emscripten::val attr_lengths() const {
-        return emscripten::val(emscripten::typed_memory_view(attr_runs_.size(), attr_runs_.data()));
+    emscripten::val type() {
+        return format_type(my_dhandle);
     }
 };
 
 /************* Loaded details **************/
 
-struct LoadedH5Base {
-    std::string type_;
-    emscripten::val comptype_;
-    std::vector<int32_t> shape_;
-
+class LoadedH5Numeric {
+protected:
     // Store all the possible numeric types here.
     std::vector<uint8_t> u8_data;
     std::vector<int8_t> i8_data;
@@ -278,92 +249,33 @@ struct LoadedH5Base {
     std::vector<double> u64_data; 
     std::vector<double> i64_data;
 
-    // For strings.
-    std::vector<char> str_data;
-    std::vector<int32_t> lengths_;
-
-    // For enums.
-    std::string enum_type;
-
-    // For compound types
-    emscripten::val comp_data;
+    enum class NumericType : char { U8, I8, U16, I16, U32, I32, U64, I64, F32, F64 };
+    NumericType numtype;
 
 protected:
-    emscripten::val type() const {
-        if (type_ == "Compound") {
-            return comptype_;
-        } else {
-            return emscripten::val(type_);
-        }
-    }
-
-    emscripten::val numeric_values_(const std::string& t) const {
-        if (t == "Uint8") {
-            return emscripten::val(emscripten::typed_memory_view(u8_data.size(), u8_data.data()));
-        } else if (t == "Int8") {
-            return emscripten::val(emscripten::typed_memory_view(i8_data.size(), i8_data.data()));
-        } else if (t == "Uint16") {
-            return emscripten::val(emscripten::typed_memory_view(u16_data.size(), u16_data.data()));
-        } else if (t == "Int16") {
-            return emscripten::val(emscripten::typed_memory_view(i16_data.size(), i16_data.data()));
-        } else if (t == "Uint32") {
-            return emscripten::val(emscripten::typed_memory_view(u32_data.size(), u32_data.data()));
-        } else if (t == "Int32") {
-            return emscripten::val(emscripten::typed_memory_view(i32_data.size(), i32_data.data()));
-        } else if (t == "Uint64") {
-            return emscripten::val(emscripten::typed_memory_view(u64_data.size(), u64_data.data()));
-        } else if (t == "Int64") {
-            return emscripten::val(emscripten::typed_memory_view(i64_data.size(), i64_data.data()));
-        } else if (type_ == "Float32") {
-            return emscripten::val(emscripten::typed_memory_view(f32_data.size(), f32_data.data()));
-        } else { // a.k.a. if (type_ == "Float64") {
-            return emscripten::val(emscripten::typed_memory_view(f64_data.size(), f64_data.data()));
+    emscripten::val numeric_values() const {
+        switch(numtype) {
+            case NumericType::U8:
+                return emscripten::val(emscripten::typed_memory_view(u8_data.size(), u8_data.data()));
+            case NumericType::I8:
+                return emscripten::val(emscripten::typed_memory_view(i8_data.size(), i8_data.data()));
+            case NumericType::U16:
+                return emscripten::val(emscripten::typed_memory_view(u16_data.size(), u16_data.data()));
+            case NumericType::I16:
+                return emscripten::val(emscripten::typed_memory_view(i16_data.size(), i16_data.data()));
+            case NumericType::U32:
+                return emscripten::val(emscripten::typed_memory_view(u32_data.size(), u32_data.data()));
+            case NumericType::I32:
+                return emscripten::val(emscripten::typed_memory_view(i32_data.size(), i32_data.data()));
+            case NumericType::U64:
+                return emscripten::val(emscripten::typed_memory_view(u64_data.size(), u64_data.data()));
+            case NumericType::I64:
+                return emscripten::val(emscripten::typed_memory_view(i64_data.size(), i64_data.data()));
+            case NumericType::F32:
+                return emscripten::val(emscripten::typed_memory_view(f32_data.size(), f32_data.data()));
+            default: // a.k.a. if (type_ == "Float64") {
+                return emscripten::val(emscripten::typed_memory_view(f64_data.size(), f64_data.data()));
         } 
-    }
-
-    emscripten::val numeric_values_() const {
-        if (type_ == "Enum") {
-            return numeric_values_(enum_type);
-        } else {
-            return numeric_values_(type_);
-        }
-    }
-
-    emscripten::val string_buffer_() const {
-        return emscripten::val(emscripten::typed_memory_view(str_data.size(), str_data.data()));
-    }
-
-    emscripten::val string_lengths_() const {
-        return emscripten::val(emscripten::typed_memory_view(lengths_.size(), lengths_.data()));
-    }
-
-    emscripten::val compound_values_() const {
-        return comp_data;
-    }
-
-private:
-    template<typename T, typename Tout>
-    void fill_enum_levels(const H5::EnumType& etype, std::vector<Tout>& index) {
-        int32_t nlevels = etype.getNmembers();
-        std::unordered_map<Tout, Tout> mapping;
-
-        for (int32_t l = 0; l < nlevels; ++l) {
-            T v;
-            etype.getMemberValue(l, &v);
-            std::string name = etype.nameOf(&v, 1000); // name better be shorter than 1000 bytes!
-            str_data.insert(str_data.end(), name.begin(), name.end());
-            lengths_.push_back(name.size());
-            mapping[v] = l;
-        }
-
-        for (auto& i : index) {
-            auto it = mapping.find(i);
-            if (it != mapping.end()) { 
-                i = it->second;
-            } else {
-                i = nlevels; // some kind of fail flag here.
-            }
-        }
     }
 
     template<class Reader, class Handle>
