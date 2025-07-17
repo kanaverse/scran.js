@@ -1062,7 +1062,7 @@ void create_enum_hdf5_attribute(std::string path, std::string name, std::string 
     return;
 }
 
-void create_compound_hdf5_attribute(std::string path, std::string name, std::string attr, const emscripten::val& type_info, int32_t nshape, uintptr_t shape, int32_t max_str_len) {
+void create_compound_hdf5_attribute(std::string path, std::string name, std::string attr, int32_t nshape, uintptr_t shape, const emscripten::val& type_info, int32_t max_str_len) {
     auto ctype = translate_compound_type_for_create(type_info, max_str_len);
     create_hdf5_attribute(path, name, attr, ctype, nshape, shape);
     return;

@@ -477,3 +477,23 @@ test("HDF5 enum attribute creation and loading works as expected", () => {
         expect(reidols.shape).toEqual([idol_chosen.length]);
     }
 })
+
+test("HDF5 compound attribute creation and loading works as expected", () => {
+    const path = dir + "/test.write.h5";
+    purge(path)
+
+    let data = { foo: 1, bar: 1.5 }
+    {
+        let fhandle = scran.createNewHdf5File(path);
+        let ghandle = fhandle.createGroup("whee");
+        ghandle.writeAttribute("compound", { "foo": "Int32", "bar": "Float64" }, null, data);
+    }
+
+    {
+        let fhandle = new scran.H5File(path);
+        let ghandle = fhandle.open("whee");
+        let res = ghandle.readAttribute("compound");
+        expect(res.values).toEqual([data]);
+        expect(res.shape).toEqual([]);
+    }
+})

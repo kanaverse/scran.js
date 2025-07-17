@@ -23,7 +23,7 @@ function check_shape(x, shape) {
 
 function guess_shape(x, shape) {
     if (shape === null) {
-        if (typeof x == "string" || typeof x == "number") {
+        if (typeof x == "string" || typeof x == "number" || (x instanceof Object && x.constructor == Object)) {
             x = [x];
             shape = []; // scalar, I guess.
         } else {
@@ -147,6 +147,8 @@ export class H5Base {
             } else if (type == "Enum") {
                 output.values = x.numeric_values().slice();
                 output.levels = packer.unpack_strings(x.string_buffer(), x.string_lengths());
+            } else if (type instanceof Object) {
+                output.values = x.compound_values();
             } else {
                 output.values = x.numeric_values().slice();
             }
@@ -243,6 +245,14 @@ export class H5Base {
             } finally {
                 y.free();
             }
+
+        } else if (type instanceof Object) {
+            this.#create_attribute(attr, type, shape, { maxStringLength: maxStringLength });
+            let type_info = [];
+            for (const [key, val] of Object.entries(type)) {
+                type_info.push({ name: key, type: val });
+            }
+            wasm.call(module => module.write_compound_hdf5_attribute(this.file, this.name, attr, x.length, type_info, x));
 
         } else {
             forbid_strings(x);
