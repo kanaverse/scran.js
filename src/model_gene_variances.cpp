@@ -82,8 +82,8 @@ ModelGeneVariancesResults model_gene_variances(const NumericMatrix& mat, bool us
 void choose_highly_variable_genes(int32_t n, uintptr_t statistics, uintptr_t output, int32_t top, double bound) {
     scran_variances::ChooseHighlyVariableGenesOptions copt;
     copt.top = top;
-    copt.bound.first = true;
-    copt.bound.second = bound;
+    copt.use_bound = true;
+    copt.bound = bound;
     scran_variances::choose_highly_variable_genes(n, reinterpret_cast<double*>(statistics), reinterpret_cast<uint8_t*>(output), copt);
 }
 

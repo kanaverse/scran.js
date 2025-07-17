@@ -23,7 +23,7 @@ function check_shape(x, shape) {
 
 function guess_shape(x, shape) {
     if (shape === null) {
-        if (typeof x == "string" || typeof x == "number") {
+        if (typeof x == "string" || typeof x == "number" || (x instanceof Object && x.constructor == Object)) {
             x = [x];
             shape = []; // scalar, I guess.
         } else {
@@ -147,6 +147,8 @@ export class H5Base {
             } else if (type == "Enum") {
                 output.values = x.numeric_values().slice();
                 output.levels = packer.unpack_strings(x.string_buffer(), x.string_lengths());
+            } else if (type instanceof Object) {
+                output.values = x.compound_values();
             } else {
                 output.values = x.numeric_values().slice();
             }
@@ -171,6 +173,12 @@ export class H5Base {
                 }
                 let [ lengths, buffer ] = packer.repack_strings(levels);
                 wasm.call(module => module.create_enum_hdf5_attribute(this.file, this.name, attr, shape_arr.length, shape_arr.offset, lengths.length, lengths.offset, buffer.offset));
+            } else if (type instanceof Object) {
+                let type_info = [];
+                for (const [key, val] of Object.entries(type)) {
+                    type_info.push({ name: key, type: val });
+                }
+                wasm.call(module => module.create_compound_hdf5_attribute(this.file, this.name, attr, shape_arr.length, shape_arr.offset, type_info, maxStringLength));
             } else {
                 wasm.call(module => module.create_numeric_hdf5_attribute(this.file, this.name, attr, shape_arr.length, shape_arr.offset, type));
             }
@@ -237,6 +245,10 @@ export class H5Base {
             } finally {
                 y.free();
             }
+
+        } else if (type instanceof Object) {
+            this.#create_attribute(attr, type, shape, { maxStringLength: maxStringLength });
+            wasm.call(module => module.write_compound_hdf5_attribute(this.file, this.name, attr, x.length, x));
 
         } else {
             forbid_strings(x);
@@ -358,11 +370,7 @@ export class H5Group extends H5Base {
 
     /**
      * @param {string} name - Name of the dataset to create.
-     * @param {string} type - Type of dataset to create.
-     * This can be `"IntX"` or `"UintX"` for `X` of 8, 16, 32, or 64;
-     * or `"FloatX"` for `X` of 32 or 64;
-     * or `"String"`;
-     * or `"Enum"`.
+     * @param {string} type - Type of dataset to create, see {@linkcode H5DataSet#type H5DataSet.type}.
      * @param {Array} shape - Array containing the dimensions of the dataset to create.
      * This can be set to an empty array to create a scalar dataset.
      * @param {object} [options={}] - Optional parameters.
@@ -405,6 +413,12 @@ export class H5Group extends H5Base {
                 }
                 let [ lengths, buffer ] = packer.repack_strings(levels);
                 wasm.call(module => module.create_enum_hdf5_dataset(this.file, new_name, shape_arr.length, shape_arr.offset, compression, chunk_offset, lengths.length, lengths.offset, buffer.offset));
+            } else if (type instanceof Object) {
+                let type_info = [];
+                for (const [key, val] of Object.entries(type)) {
+                    type_info.push({ name: key, type: val });
+                }
+                wasm.call(module => module.create_compound_hdf5_dataset(this.file, new_name, shape_arr.length, shape_arr.offset, compression, chunk_offset, type_info, maxStringLength));
             } else {
                 wasm.call(module => module.create_numeric_hdf5_dataset(this.file, new_name, shape_arr.length, shape_arr.offset, compression, chunk_offset, type));
             }
@@ -422,14 +436,11 @@ export class H5Group extends H5Base {
      * It is particularly useful for string types as it avoids having to specify the `maxStringLength` during creation based on the `x` used during writing.
      * 
      * @param {string} name - Name of the dataset to create.
-     * @param {string} type - Type of dataset to create.
-     * This can be `"IntX"` or `"UintX"` for `X` of 8, 16, 32, or 64;
-     * or `"FloatX"` for `X` of 32 or 64;
-     * or `"String"`.
+     * @param {string} type - Type of dataset to create, see {@linkcode H5DataSet#type H5DataSet.type}.
      * @param {Array} shape - Array containing the dimensions of the dataset to create.
      * If set to an empty array, this will create a scalar dataset.
      * If set to `null`, this is determined from `x`.
-     * @param {(TypedArray|Array|string|number)} x - Values to be written to the new dataset, see {@linkcode H5DataSet#write write}.
+     * @param {(TypedArray|Array|string|number)} x - Values to be written to the new dataset, see {@linkcode H5DataSet#write H5DataSet.write}.
      * @param {object} [options={}] - Optional parameters.
      * @param {?Array} [options.levels=null] - Array of strings containing enum levels when `type = "Enum"`.
      * If supplied, `x` should be an array of integers that index into `levels`.
@@ -473,6 +484,10 @@ export class H5Group extends H5Base {
             let processed = process_enum_input(x, levels, "x");
             handle = this.createDataSet(name, type, shape, { levels: processed.levels, compression: compression, chunks: chunks });
             handle.write(processed.values, { cache: cache });
+
+        } else if (type instanceof Object) {
+            handle = this.createDataSet(name, type, shape, { compression: compression, chunks: chunks });
+            handle.write(x, { cache: cache });
 
         } else {
             handle = this.createDataSet(name, type, shape, { compression: compression, chunks: chunks });
@@ -542,6 +557,8 @@ export class H5DataSet extends H5Base {
             } else if (type == "Enum") {
                 vals = x.numeric_values().slice();
                 levels = packer.unpack_strings(x.string_buffer(), x.string_lengths());
+            } else if (type instanceof Object) {
+                vals = x.compound_values();
             } else {
                 vals = x.numeric_values().slice();
             }
@@ -606,11 +623,14 @@ export class H5DataSet extends H5Base {
     }
 
     /**
-     * @member {object}
+     * @member {string|object}
      * @desc String containing the type of the dataset.
      * This may be `"IntX"` or `"UintX"` for `X` of 8, 16, 32, or 64;
      * or `"FloatX"` for `X` of 32 or 64;
      * `"String"`, `"Enum"`, or `"Other"`.
+     *
+     * For compound datasets, this is instead an object where the keys are the names of the compound members and the values are strings specifying the type.
+     * Types may be any of those prefixed with `Int`, `Float` or `String`.
      */
     get type() {
         return this.#type;
@@ -711,6 +731,9 @@ export class H5DataSet extends H5Base {
             } finally {
                 y.free();
             }
+
+        } else if (this.type instanceof Object) {
+            wasm.call(module => module.write_compound_hdf5_dataset(this.file, this.name, x.length, x));
 
         } else {
             forbid_strings(x);

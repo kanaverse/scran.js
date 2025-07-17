@@ -341,6 +341,38 @@ test("HDF5 64-bit integer dataset creation works as expected", () => {
     }
 })
 
+test("HDF5 compound dataset creation and loading works as expected", () => {
+    const path = dir + "/test.write.h5";
+    purge(path)
+
+    let data = [ { foo: 1, bar: 1.5 }, { foo: 2, bar: 2.5 }, { foo: 3, bar: 3.5 }, { foo: 4, bar: 4.5 }, { foo: 5, bar: 5.5 } ];
+    {
+        let fhandle = scran.createNewHdf5File(path);
+        fhandle.writeDataSet("compound", { "foo": "Int32", "bar": "Float64" }, null, data);
+    }
+
+    {
+        let fhandle = new scran.H5File(path);
+        let dhandle = fhandle.open("compound", { load: true });
+        expect(dhandle.values).toEqual(data);
+        expect(dhandle.type).toEqual({ "foo": "Int32", "bar": "Float64" });;
+    }
+
+    // Works for strings as well.
+    data = [ { foo: "a", bar: "A" }, { foo: "bb", bar: "BB" }, { foo: "ccc", bar: "CCC" }, { foo: "dddd", bar: "DDDD" }, { foo: "eeeee", bar: "EEEEE" } ];
+    {
+        let fhandle = scran.createNewHdf5File(path);
+        fhandle.writeDataSet("compound", { "foo": "String", "bar": "String" }, null, data);
+    }
+
+    {
+        let fhandle = new scran.H5File(path);
+        let dhandle = fhandle.open("compound", { load: true });
+        expect(dhandle.values).toEqual(data);
+        expect(dhandle.type).toEqual({ "foo": "String", "bar": "String" });;
+    }
+})
+
 test("HDF5 numeric attribute creation and loading works as expected", () => {
     const path = dir + "/test.write.h5";
     purge(path)
@@ -457,5 +489,25 @@ test("HDF5 enum attribute creation and loading works as expected", () => {
         expect(reidols.values).toEqual(new Int32Array(idol_chosen));
         expect(reidols.levels).toEqual(idol_levels);
         expect(reidols.shape).toEqual([idol_chosen.length]);
+    }
+})
+
+test("HDF5 compound attribute creation and loading works as expected", () => {
+    const path = dir + "/test.write.h5";
+    purge(path)
+
+    let data = { foo: 1, bar: 1.5 }
+    {
+        let fhandle = scran.createNewHdf5File(path);
+        let ghandle = fhandle.createGroup("whee");
+        ghandle.writeAttribute("compound", { "foo": "Int32", "bar": "Float64" }, null, data);
+    }
+
+    {
+        let fhandle = new scran.H5File(path);
+        let ghandle = fhandle.open("whee");
+        let res = ghandle.readAttribute("compound");
+        expect(res.values).toEqual([data]);
+        expect(res.shape).toEqual([]);
     }
 })
