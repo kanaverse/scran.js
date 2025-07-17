@@ -7,6 +7,7 @@
 #include <cstddef>
 #include <algorithm>
 #include <unordered_map>
+#include <iostream>
 
 struct H5AttrDetails {
     void fill_attribute_names(const H5::H5Object& handle) {
@@ -105,15 +106,14 @@ std::string guess_hdf5_type(const Handle& handle, const H5::DataType& dtype) {
 }
 
 template<class Handle>
-std::vector<std::pair<std::string, std::string> > guess_hdf5_type(const Handle& handle, const H5::CompType& ctype) {
-    std::vector<std::pair<std::string, std::string> > output;
+emscripten::val guess_hdf5_type(const Handle& handle, const H5::CompType& ctype) {
+    auto output = emscripten::val::object();
     auto nmembers = ctype.getNmembers();
-    output.reserve(nmembers);
 
     for (decltype(nmembers) m = 0; m < nmembers; ++m) {
         auto memname = ctype.getMemberName(m);
         auto memtype = ctype.getMemberDataType(m);
-        output.emplace_back(std::move(memname), guess_hdf5_type(handle, memtype));
+        output.set(std::move(memname), guess_hdf5_type(handle, memtype));
     }
 
     return output;
@@ -197,7 +197,7 @@ struct H5DataSetDetails : public H5AttrDetails {
         auto dtype = dhandle.getDataType();
         type_ = guess_hdf5_type(dhandle, dtype);
         if (type_ == "Compound") {
-            compdetails_ = guess_hdf5_type(dhandle, dhandle.getCompType());
+            comptype_ = guess_hdf5_type(dhandle, dhandle.getCompType());
         }
 
         auto dspace = dhandle.getSpace();
@@ -211,8 +211,12 @@ struct H5DataSetDetails : public H5AttrDetails {
     }
 
 public:
-    std::string type() const {
-        return type_;
+    emscripten::val type() const {
+        if (type_ == "Compound") {
+            return comptype_;
+        } else {
+            return emscripten::val(type_);
+        }
     }
 
     emscripten::val shape() const {
@@ -220,8 +224,8 @@ public:
     }
 
     std::string type_;
+    emscripten::val comptype_;
     std::vector<int32_t> shape_;
-    std::vector<std::pair<std::string, std::string> > compdetails_;
 
 public:
     emscripten::val attr_buffer() const {
@@ -237,6 +241,7 @@ public:
 
 struct LoadedH5Base {
     std::string type_;
+    emscripten::val comptype_;
     std::vector<int32_t> shape_;
 
     // Store all the possible numeric types here.
@@ -264,6 +269,14 @@ struct LoadedH5Base {
     emscripten::val comp_data;
 
 protected:
+    emscripten::val type() const {
+        if (type_ == "Compound") {
+            return comptype_;
+        } else {
+            return emscripten::val(type_);
+        }
+    }
+
     emscripten::val numeric_values_(const std::string& t) const {
         if (t == "Uint8") {
             return emscripten::val(emscripten::typed_memory_view(u8_data.size(), u8_data.data()));
@@ -379,47 +392,52 @@ private:
 
     template<class Reader, class Handle>
     void fill_compound_data(const Handle& handle, hsize_t full_length) {
+        std::cout << "YAY" << std::endl;
         auto ctype = handle.getCompType();
         int nmembers = ctype.getNmembers();
 
-        H5::CompType memtype;
-        std::size_t offset = 0;
-
         struct Member {
             Member() = default;
-            Member(std::string name, std::size_t offset, bool is_string, bool is_variable, std::size_t strlen) :
-                name(std::move(name)), offset(offset), is_string(is_string), is_variable(is_variable), strlen(strlen) {}
+            Member(std::string name, std::size_t size, bool is_string, bool is_variable) :
+                name(std::move(name)), size(size), is_string(is_string), is_variable(is_variable) {}
             std::string name;
-            std::size_t offset;
+            std::size_t size;
             bool is_string;
             bool is_variable;
-            std::size_t strlen;
         };
         std::vector<Member> members;
         members.reserve(nmembers);
+        std::vector<H5::DataType> h5types;
+        h5types.reserve(nmembers);
         bool has_variable = false;
+        std::size_t offset = 0;
 
         for (decltype(nmembers) m = 0; m < nmembers; ++m) {
             auto memname = ctype.getMemberName(m);
-            auto memcls = memtype.getMemberClass(m);
+            auto memcls = ctype.getMemberClass(m);
             if (memcls == H5T_STRING) {
-                memtype.insertMember(memname, offset, memtype);
                 auto stype = ctype.getMemberStrType(m);
-                auto ssize = stype.getSize();
-                members.emplace_back(std::move(memname), offset, true, stype.isVariableStr(), ssize);
+                members.emplace_back(std::move(memname), stype.getSize(), true, stype.isVariableStr());
                 has_variable = has_variable || stype.isVariableStr();
-                offset += ssize;
+                h5types.push_back(std::move(stype));
             } else if (memcls == H5T_INTEGER || memcls == H5T_FLOAT) {
-                memtype.insertMember(memname, offset, H5::PredType::NATIVE_DOUBLE);
-                members.emplace_back(std::move(memname), offset, false, false, 8);
-                offset += 8;
+                members.emplace_back(std::move(memname), 8, false, false);
+                h5types.push_back(H5::PredType::NATIVE_DOUBLE);
             } else {
                 throw std::runtime_error("unsupported member type in compound data type");
             }
+            offset += h5types.back().getSize();
+        }
+
+        H5::CompType ctype2(offset);
+        offset = 0;
+        for (decltype(nmembers) m = 0; m < nmembers; ++m) {
+            ctype2.insertMember(members[m].name, offset, h5types[m]);
+            offset += h5types[m].getSize();
         }
 
         std::vector<unsigned char> unified_buffer(full_length * offset);
-        Reader::read(handle, unified_buffer.data(), ctype);
+        Reader::read(handle, unified_buffer.data(), ctype2);
         comp_data = emscripten::val::array();
 
         offset = 0;
@@ -432,7 +450,7 @@ private:
 
                 if (!member.is_string) {
                     double val;
-                    std::copy_n(start, member.size, reinterpret_cast<unsigned char*>(&val));
+                    std::copy_n(start, sizeof(decltype(val)), reinterpret_cast<unsigned char*>(&val));
                     obj.set(member.name, val);
 
                 } else if (!member.is_variable) {
@@ -448,7 +466,7 @@ private:
 
                 } else {
                     char* ptr;
-                    std::copy_n(start, member.size, reinterpret_cast<unsigned char*>(&ptr));
+                    std::copy_n(start, sizeof(decltype(ptr)), reinterpret_cast<unsigned char*>(&ptr));
                     val.clear();
                     val.insert(0, ptr);
                     obj.set(member.name, val);
@@ -470,6 +488,10 @@ protected:
     void fill_contents(const Handle& handle) {
         auto dtype = handle.getDataType();
         type_ = guess_hdf5_type(handle, dtype);
+        if (type_ == "Compound") {
+            std::cout << "FOO 2" << std::endl;
+            comptype_ = guess_hdf5_type(handle, handle.getCompType());
+        }
 
         auto dspace = handle.getSpace();
         int32_t ndims = dspace.getSimpleExtentNdims();
@@ -547,6 +569,11 @@ protected:
                 }
             }
 
+        } else if (type_ == "Compound") {
+            std::cout << "FOO 3" << std::endl;
+            fill_compound_data<Reader>(handle, full_length);
+            std::cout << "FOO 4" << std::endl;
+
         } else if (type_ != "Other") { // don't fail outright; we want to be able to construct the LoadedH5Dataset so that users can call type().
             fill_numeric_contents<Reader>(handle, type_, full_length);
         }
@@ -565,7 +592,9 @@ struct LoadedH5DataSet : public LoadedH5Base, public H5AttrDetails {
         try {
             H5::H5File handle(path, H5F_ACC_RDONLY);
             auto dhandle = handle.openDataSet(name);
+            std::cout << "BAR " << std::endl;
             fill_contents<Internal>(dhandle);
+            std::cout << "BAR 2" << std::endl;
             fill_attribute_names(dhandle);
         } catch (H5::Exception& e) {
             throw std::runtime_error(e.getCDetailMsg());
@@ -574,8 +603,8 @@ struct LoadedH5DataSet : public LoadedH5Base, public H5AttrDetails {
     }
 
 public:
-    std::string type() const {
-        return type_;
+    emscripten::val type() const {
+        return LoadedH5Base::type();
     }
 
     emscripten::val shape() const {
@@ -641,8 +670,8 @@ struct LoadedH5Attr : public LoadedH5Base {
     }
 
 public:
-    std::string type() const {
-        return type_;
+    emscripten::val type() const {
+        return LoadedH5Base::type();
     }
 
     emscripten::val shape() const {
@@ -811,7 +840,7 @@ void write_compound_hdf5_base(Handle& handle, size_t n, const emscripten::val& t
         offset += members.back().dtype.getSize();
     }
 
-    std::vector<std::pair<std::string, bool> > members_simple(members.size());
+    std::vector<std::pair<std::string, bool> > members_simple;
     H5::CompType ctype(offset);
     for (const auto& x : members) {
         ctype.insertMember(x.name, x.offset, x.dtype);
