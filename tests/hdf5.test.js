@@ -357,6 +357,20 @@ test("HDF5 compound dataset creation and loading works as expected", () => {
         expect(dhandle.values).toEqual(data);
         expect(dhandle.type).toEqual({ "foo": "Int32", "bar": "Float64" });;
     }
+
+    // Works for strings as well.
+    data = [ { foo: "a", bar: "A" }, { foo: "bb", bar: "BB" }, { foo: "ccc", bar: "CCC" }, { foo: "dddd", bar: "DDDD" }, { foo: "eeeee", bar: "EEEEE" } ];
+    {
+        let fhandle = scran.createNewHdf5File(path);
+        fhandle.writeDataSet("compound", { "foo": "String", "bar": "String" }, null, data);
+    }
+
+    {
+        let fhandle = new scran.H5File(path);
+        let dhandle = fhandle.open("compound", { load: true });
+        expect(dhandle.values).toEqual(data);
+        expect(dhandle.type).toEqual({ "foo": "String", "bar": "String" });;
+    }
 })
 
 test("HDF5 numeric attribute creation and loading works as expected", () => {

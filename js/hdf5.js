@@ -248,11 +248,7 @@ export class H5Base {
 
         } else if (type instanceof Object) {
             this.#create_attribute(attr, type, shape, { maxStringLength: maxStringLength });
-            let type_info = [];
-            for (const [key, val] of Object.entries(type)) {
-                type_info.push({ name: key, type: val });
-            }
-            wasm.call(module => module.write_compound_hdf5_attribute(this.file, this.name, attr, x.length, type_info, x));
+            wasm.call(module => module.write_compound_hdf5_attribute(this.file, this.name, attr, x.length, x));
 
         } else {
             forbid_strings(x);
@@ -737,11 +733,7 @@ export class H5DataSet extends H5Base {
             }
 
         } else if (this.type instanceof Object) {
-            let type_info = [];
-            for (const [key, val] of Object.entries(this.type)) {
-                type_info.push({ name: key, type: val });
-            }
-            wasm.call(module => module.write_compound_hdf5_dataset(this.file, this.name, x.length, type_info, x));
+            wasm.call(module => module.write_compound_hdf5_dataset(this.file, this.name, x.length, x));
 
         } else {
             forbid_strings(x);

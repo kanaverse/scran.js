@@ -6,7 +6,6 @@
 #include <cstddef>
 #include <algorithm>
 #include <unordered_map>
-#include <iostream>
 
 struct H5AttrDetails {
     void fill_attribute_names(const H5::H5Object& handle) {
@@ -829,55 +828,82 @@ void write_string_hdf5_base(Handle& handle, size_t n, uintptr_t lengths, uintptr
 }
 
 template<class Reader, class Handle>
-void write_compound_hdf5_base(Handle& handle, size_t n, const emscripten::val& type_info, const emscripten::val& data) {
-    struct MemberType {
-        MemberType() = default;
-        MemberType(std::string name, std::size_t offset, H5::DataType dtype) : name(std::move(name)), offset(offset), dtype(std::move(dtype)) {}
-        std::string name;
-        std::size_t offset;
-        H5::DataType dtype;
-    };
-    std::vector<MemberType> members;
-    std::size_t offset = 0;
-    bool has_string = false;
+void write_compound_hdf5_base(Handle& handle, size_t n, const emscripten::val& data) {
+    auto dtype = handle.getCompType();
+    auto nmembers = dtype.getNmembers();
 
-    for (const auto& member : type_info) {
-        auto name = member["name"].template as<std::string>();
-        auto type = member["type"].template as<std::string>();
-        if (type == "String") {
-            members.emplace_back(std::move(name), offset, H5::StrType(0, H5T_VARIABLE));
-            has_string = true;
-        } else if (type.rfind("Int", 0) == 0 || type.rfind("Uint", 0) == 0 || type.rfind("Float", 0) == 0) {
-            members.emplace_back(std::move(name), offset, H5::PredType::NATIVE_DOUBLE);
+    struct H5MemberDetails {
+        std::string name;
+        H5::DataType dtype;
+        std::size_t offset;
+    };
+    std::vector<H5MemberDetails> h5_members(nmembers);
+
+    struct CompactDetails {
+        std::string name;
+        bool is_string = false;
+        bool is_variable = false;
+        std::size_t strlen = 0;
+    };
+    std::vector<CompactDetails> compact_members(nmembers);
+
+    std::size_t offset = 0;
+    decltype(nmembers) num_vstrings = 0;
+    for (decltype(nmembers) m = 0; m < nmembers; ++m) {
+        auto& current = h5_members[m];
+        current.name = dtype.getMemberName(m);
+        current.offset = offset;
+        auto cls = dtype.getMemberClass(m);
+        compact_members[m].name = current.name;
+
+        if (cls == H5T_STRING) {
+            auto stype = dtype.getMemberStrType(m);
+            current.dtype = stype;
+            compact_members[m].is_string = true;
+            if (stype.isVariableStr()) {
+                compact_members[m].is_variable = true;
+                ++num_vstrings;
+            } else {
+                compact_members[m].strlen = stype.getSize();
+            }
+        } else if (cls == H5T_INTEGER || cls == H5T_FLOAT) {
+            auto dbtype = H5::PredType::NATIVE_DOUBLE;
+            current.dtype = dbtype;
         } else {
             throw std::runtime_error("only numbers and strings are supported in compound data types");
         }
-        offset += members.back().dtype.getSize();
+
+        offset += current.dtype.getSize();
     }
 
-    std::vector<std::pair<std::string, bool> > members_simple;
     H5::CompType ctype(offset);
-    for (const auto& x : members) {
+    for (const auto& x : h5_members) {
         ctype.insertMember(x.name, x.offset, x.dtype);
-        members_simple.emplace_back(std::move(x.name), x.dtype.getClass() == H5T_STRING);
     }
+    h5_members.clear();
 
     std::vector<unsigned char> payload;
     payload.reserve(n * ctype.getSize());
-    std::vector<std::string> all_strings;
-    if (has_string) {
-        all_strings.reserve(n);
-    }
+    std::vector<std::string> vstrings;
+    vstrings.reserve(n * num_vstrings);
 
     for (const auto& entry : data) {
-        for (const auto& member : members_simple) {
-            auto res = entry[member.first];
-            if (member.second) {
+        for (const auto& member : compact_members) {
+            auto res = entry[member.name];
+            if (member.is_string) {
                 auto str = res.template as<std::string>();
-                all_strings.push_back(std::move(str));
-                auto ptr = all_strings.back().c_str();
-                auto start = reinterpret_cast<const unsigned char*>(&ptr);
-                payload.insert(payload.end(), start, start + sizeof(decltype(ptr)));
+                if (member.is_variable) {
+                    vstrings.push_back(std::move(str));
+                    auto ptr = vstrings.back().c_str();
+                    auto start = reinterpret_cast<const unsigned char*>(&ptr);
+                    payload.insert(payload.end(), start, start + sizeof(decltype(ptr)));
+                } else {
+                    auto ptr = str.c_str();
+                    auto start = reinterpret_cast<const unsigned char*>(ptr);
+                    auto to_copy = std::min(str.size(), member.strlen);
+                    payload.insert(payload.end(), start, start + to_copy);
+                    payload.insert(payload.end(), member.strlen - to_copy, '\0');
+                }
             } else {
                 auto dbl = res.template as<double>();
                 auto start = reinterpret_cast<const unsigned char*>(&dbl);
@@ -1008,10 +1034,10 @@ void write_enum_hdf5_dataset(std::string path, std::string name, uintptr_t data)
     return;
 }
 
-void write_compound_hdf5_dataset(std::string path, std::string name, size_t n, const emscripten::val& type, const emscripten::val& data) {
+void write_compound_hdf5_dataset(std::string path, std::string name, size_t n, const emscripten::val& data) {
     H5::H5File handle(path, H5F_ACC_RDWR);
     auto dhandle = handle.openDataSet(name);
-    write_compound_hdf5_base<DataSetHandleWriter>(dhandle, n, type, data);
+    write_compound_hdf5_base<DataSetHandleWriter>(dhandle, n, data);
 }
 
 /************* Attribute writers **************/
@@ -1111,9 +1137,9 @@ void write_enum_hdf5_attribute(std::string path, std::string name, std::string a
     });
 }
 
-void write_compound_hdf5_attribute(std::string path, std::string name, std::string attr, size_t n, const emscripten::val& type, const emscripten::val& data) {
+void write_compound_hdf5_attribute(std::string path, std::string name, std::string attr, size_t n, const emscripten::val& data) {
     write_hdf5_attribute(path, name, attr, [&](auto& ahandle) -> void {
-        write_compound_hdf5_base<AttributeHandleWriter>(ahandle, n, type, data);
+        write_compound_hdf5_base<AttributeHandleWriter>(ahandle, n, data);
     });
 }
 
