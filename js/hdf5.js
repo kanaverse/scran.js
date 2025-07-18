@@ -183,7 +183,7 @@ function downcast_type(type) {
         for (const [key, val] of Object.entries(type.levels)) {
             levels.push({ name: key, value: val });
         }
-        return { mode: "enum", code_type: type.codeType, levels: levels };
+        return { mode: "enum", code_type: type.code, levels: levels };
     } else if (type instanceof H5CompoundType) {
         let converted = [];
         for (const [key, val] of Object.entries(type.compoundType)) {
