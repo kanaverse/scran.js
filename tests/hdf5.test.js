@@ -265,7 +265,7 @@ test("HDF5 string dataset creation works as expected", () => {
     let content = str_shandle.load();
     expect(content[0]).toBe("Bummer");
 
-    expect(() => ghandle.writeDataSet("foobar", "String", [3], [1,2,3])).toThrow(/strings/)
+    expect(() => ghandle.writeDataSet("foobar", "String", [3], [1,2,3])).toThrow(/Cannot pass non-string/)
 
     // Checking that the quick writer works.
     let str_dhandleX = ghandle.writeDataSet("stuffX", "String", [5], colleagues);
@@ -300,7 +300,7 @@ test("HDF5 enum dataset creation and loading works as expected", () => {
 
         let dhandle2 = fhandle.open("idols", { load: true });
         expect(dhandle2.values).toEqual(new Int32Array([3,2,1,0,2,3]));
-        expect(dhandle2.levels).toEqual(["kaede", "kaori", "shizuka", "uzuki"]);
+        expect(dhandle2.levels).toEqual({"kaede": 0, "kaori": 1, "shizuka": 2, "uzuki": 3});
         expect(dhandle2.shape).toEqual([2, 3]);
     }
 
@@ -312,7 +312,7 @@ test("HDF5 enum dataset creation and loading works as expected", () => {
 
         let dhandle2 = fhandle.open("idols2", { load: true });
         expect(dhandle2.values).toEqual(new Int32Array(idol_chosen));
-        expect(dhandle2.levels).toEqual(idol_levels);
+        expect(dhandle2.levels).toEqual({ "rin": 0, "mio": 1, "mika": 2, "rika": 3 });
         expect(dhandle2.shape).toEqual([4, 2]);
     }
 })
@@ -355,7 +355,7 @@ test("HDF5 compound dataset creation and loading works as expected", () => {
         let fhandle = new scran.H5File(path);
         let dhandle = fhandle.open("compound", { load: true });
         expect(dhandle.values).toEqual(data);
-        expect(dhandle.type).toEqual({ "foo": "Int32", "bar": "Float64" });;
+        expect(dhandle.type.members).toEqual({ "foo": "Int32", "bar": "Float64" });;
     }
 
     // Works for strings as well.
@@ -369,7 +369,7 @@ test("HDF5 compound dataset creation and loading works as expected", () => {
         let fhandle = new scran.H5File(path);
         let dhandle = fhandle.open("compound", { load: true });
         expect(dhandle.values).toEqual(data);
-        expect(dhandle.type).toEqual({ "foo": "String", "bar": "String" });;
+        expect(Object.keys(dhandle.type.members)).toEqual(["foo", "bar"]);
     }
 })
 
@@ -471,7 +471,7 @@ test("HDF5 enum attribute creation and loading works as expected", () => {
 
         let reidols = dhandle2.readAttribute("idols");
         expect(reidols.values).toEqual(new Int32Array([0,1,2,2,1,0]));
-        expect(reidols.levels).toEqual(["chihaya", "haruka", "miki"]);
+        expect(reidols.levels).toEqual({"chihaya":0,"haruka":1, "miki":2});
         expect(reidols.shape).toEqual([6]);
     }
 
@@ -487,7 +487,7 @@ test("HDF5 enum attribute creation and loading works as expected", () => {
 
         let reidols = dhandle2.readAttribute("idols2");
         expect(reidols.values).toEqual(new Int32Array(idol_chosen));
-        expect(reidols.levels).toEqual(idol_levels);
+        expect(reidols.levels).toEqual({iori:0, mami:1, ami:2, azusa:3, takane:4});
         expect(reidols.shape).toEqual([idol_chosen.length]);
     }
 })

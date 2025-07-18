@@ -154,7 +154,7 @@ export class H5CompoundType {
      * Each value may be:
      * - The string `"IntX"` or `"UintX"` for `X` of 8, 16, 32, or 64.
      * - The string `"FloatX"` for `X` of 32 or 64.
-     * - A {@linkplain H5StrType}.
+     * - A {@linkplain H5StringType}.
      */
     constructor(members) {
         this.#members = members;
@@ -170,13 +170,13 @@ export class H5CompoundType {
 }
 
 function downcast_type(type) {
-    if (typeof type == "String") {
+    if (typeof type == "string") {
         if (type == "String") {
             return { mode: "string", encoding: "UTF-8", length: -1 };
         } else {
             return { mode: "numeric", type: type };
         }
-    } else if (type instanceof H5StrType) {
+    } else if (type instanceof H5StringType) {
         return { mode: "string", encoding: type.encoding, length: type.length };
     } else if (type instanceof H5EnumType) {
         let levels = [];
@@ -186,11 +186,12 @@ function downcast_type(type) {
         return { mode: "enum", code_type: type.code, levels: levels };
     } else if (type instanceof H5CompoundType) {
         let converted = [];
-        for (const [key, val] of Object.entries(type.compoundType)) {
-            converted.push({ name: key, type: downcast_type(type) });
+        for (const [key, val] of Object.entries(type.members)) {
+            converted.push({ name: key, type: downcast_type(val) });
         }
         return { mode: "compound", members: converted };
     } else {
+        console.log(type);
         throw new Error("unknown type when downcasting");
     }
 }
@@ -202,19 +203,51 @@ function upcast_type(type) {
         return type.type;
     } else if (type.mode == "enum") {
         let levels = {};
-        for (const [key, val] of type.levels) {
-            levels[key] = val;
+        for (const { name, value } of type.levels) {
+            levels[name] = value;
         }
-        return new H5EnumType(type.code_type, type.levels);
+        return new H5EnumType(type.code_type, levels);
     } else if (type.mode == "compound") {
         let converted = {};
-        for (const [key, val] of type.members) {
-            converted[key] = upcast_type(val);
+        for (const x of type.members) {
+            converted[x.name] = upcast_type(x.type);
         }
         return new H5CompoundType(converted);
     } else {
         throw new Error("unknown type '" + type.mode + "' when upcasting");
     }
+}
+
+function upgrade_type(type, levels, maxStringLength) {
+    if (typeof type == "string") {
+        if (type == "String") {
+            if (maxStringLength === null) {
+                maxStringLength = H5StringType.variableLength;
+            }
+            return new H5StringType("UTF-8", maxStringLength);
+        } else if (type == "Enum") {
+            return new H5EnumType("Int32", levels);
+        }
+    } else if (type.constructor == Object) {
+        let replacement = {};
+        for (const [key, val] of Object.entries(type)) {
+            replacement[key] = upgrade_type(val, levels, maxStringLength);
+        }
+        return new H5CompoundType(replacement);
+    }
+    return type;
+}
+
+function convert_enums(type, levels, x) {
+    if (type == "Enum" && (typeof levels == "undefined" || levels == null)) {
+        let ulevels = new Set(x);
+        let levels = Array.from(ulevels).sort();
+        let mapping = {};
+        levels.forEach((l, i) => { mapping[l] = i; });
+        type = new H5EnumType("Int32", mapping);
+        x = x.map(y => mapping[y]);
+    }
+    return { type, x };
 }
 
 /**
@@ -281,11 +314,11 @@ export class H5Base {
         try {
             output.shape = x.shape();
             output.type = upcast_type(x.type());
-            if (typeof output.type == "String") {
+            if (output.type instanceof H5StringType) {
                 output.values = x.string_values();
-            } else if (type instance of H5EnumType) {
+            } else if (output.type instanceof H5EnumType) {
                 output.values = x.numeric_values().slice();
-            } else if (type instance of H5CompoundType) {
+            } else if (output.type instanceof H5CompoundType) {
                 output.values = x.compound_values();
             } else {
                 output.values = x.numeric_values().slice();
@@ -314,16 +347,15 @@ export class H5Base {
      * This should be of length equal to the product of `shape`;
      * unless `shape` is empty, in which case it should either be of length 1, or a single number or string.
      * @param {object} [options={}] - Optional parameters.
-     * @param {?number} [options.maxStringLength=null] - Maximum length of the strings to be saved.
-     * Only used when `type = "String"`.
-     * If `null`, this is inferred from the maximum length of strings in `x`.
-     * @param {?Array} [options.levels=null] - Array of strings containing enum levels when `type = "Enum"`.
-     * If supplied, `x` should be an array of integers that index into `levels`.
-     * Alternatively, `levels` may be `null`, in which case `x` should be an array of strings that is used to infer `levels`.
      */
     writeAttribute(attr, type, shape, x, options = {}) {
         let { maxStringLength = null, levels = null, ...others } = options;
         utils.checkOtherOptions(others);
+
+        let conv = convert_enums(type, levels, x);
+        type = conv.type;
+        x = conv.x;
+        type = upgrade_type(type, levels, maxStringLength);
 
         if (x === null) {
             throw new Error("cannot write 'null' to HDF5"); 
@@ -333,35 +365,43 @@ export class H5Base {
         x = guessed.x;
         shape = guessed.shape;
 
+        // For back-compatibility purposes.
+        if (type == "String") {
+            type = new H5StringType("UTF-8", H5StringType.variableLength);
+        } else if (type == "Enum") {
+            type = new H5EnumType("Int32", levels);
+        }
+
         let type2 = downcast_type(type);
         if (type2.mode == "string") {
-            wasm.call(module => module.create_string_hdf5_attribute(this.file, this.name, attr, shape_arr.length, shape_arr.offset, type2.encoding, type2.length));
+            wasm.call(module => module.create_string_hdf5_attribute(this.file, this.name, attr, shape, type2.encoding, type2.length));
             wasm.call(module => module.write_string_hdf5_attribute(this.file, this.name, attr, x));
 
         } else if (type2.mode == "enum") {
-            wasm.call(module => module.create_enum_hdf5_attribute(this.file, this.name, attr, shape_arr.length, shape_arr.offset, type2.code_type, type2.level_encoding, type2.level_length);
-            let y = utils.wasmifyArray(processed.values, "Int32WasmArray");
+            wasm.call(module => module.create_enum_hdf5_attribute(this.file, this.name, attr, shape, type2.code_type, type2.levels));
+            let y = utils.wasmifyArray(x, type2.code_type + "WasmArray");
             try {
                 wasm.call(module => module.write_enum_hdf5_attribute(this.file, this.name, attr, y.offset));
             } finally {
                 y.free();
             }
 
-        } else if (type.mode == "compound") {
-            wasm.call(module => module.create_compound_hdf5_attribute(this.file, this.name, attr, shape_arr.length, shape_arr.offset, type2));
-            wasm.call(module => module.write_compound_hdf5_attribute(this.file, this.name, attr, x.length, x));
+        } else if (type2.mode == "compound") {
+            wasm.call(module => module.create_compound_hdf5_attribute(this.file, this.name, attr, shape, type2.members));
+            wasm.call(module => module.write_compound_hdf5_attribute(this.file, this.name, attr, x));
 
         } else {
             forbid_strings(x);
             let y = utils.wasmifyArray(x, null);
             try {
-                wasm.call(module => module.create_numeric_hdf5_attribute(this.file, this.name, attr, shape_arr.length, shape_arr.offset, type2.type));
+                wasm.call(module => module.create_numeric_hdf5_attribute(this.file, this.name, attr, shape, type2.type));
                 wasm.call(module => module.write_numeric_hdf5_attribute(this.file, this.name, attr, y.constructor.className, y.offset));
             } finally {
                 y.free();
             }
         }
 
+        this.#attributes.push(attr);
         return;
     }
 }
@@ -466,50 +506,33 @@ export class H5Group extends H5Base {
      * @param {Array} shape - Array containing the dimensions of the dataset to create.
      * This can be set to an empty array to create a scalar dataset.
      * @param {object} [options={}] - Optional parameters.
-     * @param {number} [options.maxStringLength=10] - Maximum length of the strings to be saved.
-     * Only used when `type = "String"`.
      * @param {number} [options.compression=6] - Deflate compression level.
      * @param {?Array} [options.chunks=null] - Array containing the chunk dimensions.
      * This should have length equal to `shape`, with each value being no greater than the corresponding value of `shape`.
      * If `null`, it defaults to `shape`.
-     * @param {?Array} [options.levels=null] - Array of strings containing enum levels.
-     * Only used (and mandatory) when `type = "Enum"`.
      *
      * @return {H5DataSet} A dataset of the specified type and shape is created as an immediate child of the current group.
      * A {@linkplain H5DataSet} object is returned representing this new dataset.
      */
     createDataSet(name, type, shape, options = {}) {
-        const { maxStringLength = 10, levels = null, compression = 6, chunks = null, ...others } = options;
+        let { maxStringLength = 10, levels = null, compression = 6, chunks = null, ...others } = options;
         utils.checkOtherOptions(others);
+        type = upgrade_type(type, levels, maxStringLength);
 
         let new_name = this.#child_name(name);
-        let shape_arr;
-        let chunk_arr; 
-        try {
-            shape_arr = utils.wasmifyArray(shape, "Int32WasmArray");
+        if (chunks === null) {
+            chunks = shape;
+        }
 
-            let chunk_offset = shape_arr.offset;
-            if (chunks !== null) {
-                chunk_arr = utils.wasmifyArray(chunks, "Int32WasmArray");
-                if (chunk_arr.length != shape_arr.length) {
-                    throw new Error("'chunks' and 'shape' should have the same dimensions");
-                }
-                chunk_offset = chunk_arr.offset;
-            }
-
-            let type2 = downcast_type(type);
-            if (type2.mode == "string") {
-                wasm.call(module => module.create_string_hdf5_dataset(this.file, new_name, shape_arr.length, shape_arr.offset, compression, chunk_offset, type2.length));
-            } else if (type2.mode == "enum") {
-                wasm.call(module => module.create_enum_hdf5_dataset(this.file, new_name, shape_arr.length, shape_arr.offset, compression, chunk_offset, type2.code_type, type2.level_encoding, type2.level_length);
-            } else if (type2.mode == "compound") {
-                wasm.call(module => module.create_compound_hdf5_dataset(this.file, new_name, shape_arr.length, shape_arr.offset, compression, chunk_offset, type2.members));
-            } else {
-                wasm.call(module => module.create_numeric_hdf5_dataset(this.file, new_name, shape_arr.length, shape_arr.offset, compression, chunk_offset, type2.type));
-            }
-
-        } finally {
-            shape_arr.free();
+        let type2 = downcast_type(type);
+        if (type2.mode == "string") {
+            wasm.call(module => module.create_string_hdf5_dataset(this.file, new_name, shape, compression, chunks, type2.encoding, type2.length));
+        } else if (type2.mode == "enum") {
+            wasm.call(module => module.create_enum_hdf5_dataset(this.file, new_name, shape, compression, chunks, type2.code_type, type2.levels));
+        } else if (type2.mode == "compound") {
+            wasm.call(module => module.create_compound_hdf5_dataset(this.file, new_name, shape, compression, chunks, type2.members));
+        } else {
+            wasm.call(module => module.create_numeric_hdf5_dataset(this.file, new_name, shape, compression, chunks, type2.type));
         }
 
         this.children[name] = "DataSet";
@@ -527,26 +550,28 @@ export class H5Group extends H5Base {
      * If set to `null`, this is determined from `x`.
      * @param {(TypedArray|Array|string|number)} x - Values to be written to the new dataset, see {@linkcode H5DataSet#write H5DataSet.write}.
      * @param {object} [options={}] - Optional parameters.
-     * @param {?Array} [options.levels=null] - Array of strings containing enum levels when `type = "Enum"`.
-     * If supplied, `x` should be an array of integers that index into `levels`.
-     * Alternatively, `levels` may be `null`, in which case `x` should be an array of strings that is used to infer `levels`.
      * @param {number} [options.compression=6] - Deflate compression level.
      * @param {?Array} [options.chunks=null] - Array containing the chunk dimensions.
      * This should have length equal to `shape`, with each value being no greater than the corresponding value of `shape`.
      * If `null`, it defaults to `shape`.
-     * @param {boolean} [options.cache=false] - Whether to cache the written values in the returned {@linkplain H5DataSet} object.
      *
      * @return {H5DataSet} A dataset of the specified type and shape is created as an immediate child of the current group.
      * The same dataset is then filled with the contents of `x`.
      * A {@linkplain H5DataSet} object is returned representing this new dataset.
      */
-     writeDataSet(name, type, shape, x, options = {}) {
+    writeDataSet(name, type, shape, x, options = {}) {
         if (x === null) {
             throw new Error("cannot write 'null' to HDF5"); 
         }
+
+        let conv = convert_enums(type, options.levels, x);
+        type = conv.type;
+        x = conv.x;
+
         let guessed = guess_shape(x, shape);
-        handle = this.createDataSet(name, type, guessed.shape, options);
+        let handle = this.createDataSet(name, type, guessed.shape, options);
         handle.write(guessed.x);
+        return handle;
     }
 }
 
@@ -595,7 +620,7 @@ export class H5DataSet extends H5Base {
      * @param {object} [options={}] - Optional parameters.
      */
     constructor(file, name, options = {}) {
-        const { newlyCreated = false, shape = null, type = null, values = null, ...others } = options;
+        const { newlyCreated = false, load = null, shape = null, type = null, values = null, ...others } = options;
         utils.checkOtherOptions(others);
         super(file, name);
 
@@ -649,7 +674,7 @@ export class H5DataSet extends H5Base {
     get values() {
         let x = wasm.call(module => new module.LoadedH5DataSet(this.file, this.name));
         try {
-            if (typeof this.#type == "String") {
+            if (typeof this.#type == "string") {
                 if (this.#type == "Other") {
                     throw new Error("cannot load dataset for an unsupported type");
                 }
@@ -674,7 +699,7 @@ export class H5DataSet extends H5Base {
     }
 
     load() {
-        return this.#values;
+        return this.values;
     }
 
     get loaded() {
@@ -700,7 +725,7 @@ export class H5DataSet extends H5Base {
         }
         x = check_shape(x, this.shape);
 
-        if (typeof this.#type == "String") {
+        if (typeof this.#type == "string") {
             if (this.#type == "Other") {
                 throw new Error("cannot write dataset for an unsupported type");
             }
@@ -708,16 +733,15 @@ export class H5DataSet extends H5Base {
             let y = utils.wasmifyArray(x, null);
             try {
                 wasm.call(module => module.write_numeric_hdf5_dataset(this.file, this.name, y.constructor.className, y.offset));
-                this.cache_loaded(y, cache);
             } finally {
                 y.free();
             }
 
         } else if (this.#type instanceof H5StringType) {
-            wasm.call(module => module.write_string_hdf5_dataset(this.file, this.name, x.length, x));
+            wasm.call(module => module.write_string_hdf5_dataset(this.file, this.name, x));
 
         } else if (this.#type instanceof H5EnumType) {
-            let y = utils.wasmifyArray(x, "Int32WasmArray");
+            let y = utils.wasmifyArray(x, this.#type.code + "WasmArray");
             try {
                 wasm.call(module => module.write_enum_hdf5_dataset(this.file, this.name, y.offset));
             } finally {
@@ -725,7 +749,7 @@ export class H5DataSet extends H5Base {
             }
 
         } else if (this.#type instanceof H5CompoundType) {
-            wasm.call(module => module.write_compound_hdf5_dataset(this.file, this.name, x.length, x));
+            wasm.call(module => module.write_compound_hdf5_dataset(this.file, this.name, x));
 
         } else {
             throw new Error("cannot write dataset for an unsupported type");
@@ -744,12 +768,22 @@ function extract_names(host, output, recursive = true) {
             let data = host.open(key);
 
             let dclass;
-            if (data.type.startsWith("Uint") || data.type.startsWith("Int")) {
-                dclass = "integer";
-            } else if (data.type.startsWith("Float")) {
-                dclass = "float";
+            if (data.type instanceof H5StringType) {
+                dclass = "string";
+            } else if (data.type instanceof H5EnumType) {
+                dclass = "enum";
+            } else if (data.type instanceof H5CompoundType) {
+                dclass = "compound";
+            } else if (typeof data.type == "string") {
+                if (data.type.startsWith("Uint") || data.type.startsWith("Int")) {
+                    dclass = "integer";
+                } else if (data.type.startsWith("Float")) {
+                    dclass = "float";
+                } else {
+                    dclass = data.type.toLowerCase();
+                }
             } else {
-                dclass = data.type.toLowerCase();
+                dclass = "unknown";
             }
 
             output[key] = dclass + " dataset";
