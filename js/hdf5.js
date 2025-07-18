@@ -71,6 +71,7 @@ export class H5StringType {
     /**
      * @param {string} encoding - Encoding for the strings, should be either ASCII or UTF-8.
      * @param {number} length - Non-negative integer specifying the maximum length of the strings.
+     * (See {@linkcode findMaxStringLength} to determine the maximum length from an array of strings.)
      * This can be set to {@linkcode H5StringType#variableLength variableLength} to indicate that the strings are of variable length. 
      */
     constructor(encoding, length) {
@@ -97,6 +98,27 @@ export class H5StringType {
         return this.#encoding;
     }
 };
+
+/**
+ * Determine the maximum string length in an array of strings or an array of objects with string properties.
+ * This is typically used to set the maximum string length in the {@linkplain H5StringType} constructor.
+ *
+ * @param {Array} x - An array of strings, or an array of objects where the properties named in `fields` contain strings.
+ * @param {?Array} fields - An array of strings containing the names of properties that are strings for each entry of `x`.
+ * This assumes that each entry of `x` is an object, otherwise it should be set to `null` if each entry of `x` contains a string.
+ *
+ * @return {number|Array} The maximum string length across all strings in `x`, if `fields = null`.
+ * Otherwise, an array of length equal to `fields` containing the maximum string length for each field.
+ */
+export function findMaxStringLength(x, fields) {
+    if (fields === null) {
+        return wasm.call(module => module.get_max_str_len(x));
+    } else if (fields instanceof Array) {
+        return wasm.call(module => module.get_max_str_len_compound(x, fields));
+    } else {
+        throw new Error("'fields' must be 'null' or an array of property names");
+    }
+}
 
 /**
  * Representation of a HDF5 enum type.
@@ -191,7 +213,6 @@ function downcast_type(type) {
         }
         return { mode: "compound", members: converted };
     } else {
-        console.log(type);
         throw new Error("unknown type when downcasting");
     }
 }
@@ -218,22 +239,21 @@ function upcast_type(type) {
     }
 }
 
-function upgrade_type(type, levels, maxStringLength) {
+function upgrade_type(type, levels, maxStringLength, x) {
     if (typeof type == "string") {
         if (type == "String") {
             if (maxStringLength === null) {
-                maxStringLength = H5StringType.variableLength;
+                if (x === null) {
+                    maxStringLength = H5StringType.variableLength;
+                } else {
+                    // Use fixed width strings to take better advantage of ccompression.
+                    maxStringLength = findMaxStringLength(x, null);
+                }
             }
             return new H5StringType("UTF-8", maxStringLength);
         } else if (type == "Enum") {
             return new H5EnumType("Int32", levels);
         }
-    } else if (type.constructor == Object) {
-        let replacement = {};
-        for (const [key, val] of Object.entries(type)) {
-            replacement[key] = upgrade_type(val, levels, maxStringLength);
-        }
-        return new H5CompoundType(replacement);
     }
     return type;
 }
@@ -355,7 +375,6 @@ export class H5Base {
         let conv = convert_enums(type, levels, x);
         type = conv.type;
         x = conv.x;
-        type = upgrade_type(type, levels, maxStringLength);
 
         if (x === null) {
             throw new Error("cannot write 'null' to HDF5"); 
@@ -364,6 +383,7 @@ export class H5Base {
         let guessed = guess_shape(x, shape);
         x = guessed.x;
         shape = guessed.shape;
+        type = upgrade_type(type, levels, maxStringLength, x);
 
         // For back-compatibility purposes.
         if (type == "String") {
@@ -515,9 +535,9 @@ export class H5Group extends H5Base {
      * A {@linkplain H5DataSet} object is returned representing this new dataset.
      */
     createDataSet(name, type, shape, options = {}) {
-        let { maxStringLength = 10, levels = null, compression = 6, chunks = null, ...others } = options;
+        let { maxStringLength = null, x = null, levels = null, compression = 6, chunks = null, ...others } = options;
         utils.checkOtherOptions(others);
-        type = upgrade_type(type, levels, maxStringLength);
+        type = upgrade_type(type, levels, maxStringLength, x);
 
         let new_name = this.#child_name(name);
         if (chunks === null) {
@@ -569,7 +589,7 @@ export class H5Group extends H5Base {
         x = conv.x;
 
         let guessed = guess_shape(x, shape);
-        let handle = this.createDataSet(name, type, guessed.shape, options);
+        let handle = this.createDataSet(name, type, guessed.shape, { x, ...options });
         handle.write(guessed.x);
         return handle;
     }

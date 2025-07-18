@@ -1198,6 +1198,47 @@ void write_compound_hdf5_attribute(std::string path, std::string name, std::stri
     }
 }
 
+/************* String length guessers **************/
+
+std::size_t get_max_str_len(emscripten::val x) {
+    std::size_t strlen = 0;
+    for (auto y : x) {
+        if (y.isString()) {
+            auto current = y.template as<std::string>();
+            if (current.size() > strlen) {
+                strlen = current.size();
+            }
+        }
+    }
+    return strlen;
+}
+
+emscripten::val get_max_str_len_compound(emscripten::val x, emscripten::val fields) {
+    std::vector<std::pair<std::string, std::size_t> > to_access; 
+    for (auto f : fields) {
+        to_access.emplace_back(f.template as<std::string>(), 0);
+    }
+
+    std::size_t strlen = 0;
+    for (auto y : x) {
+        for (auto& t : to_access) {
+            auto current_raw = y[t.first];
+            if (current_raw.isString()) {
+                auto current = current_raw.template as<std::string>();
+                if (current.size() > t.second) {
+                    t.second = current.size();
+                }
+            }
+        }
+    }
+
+    auto output = emscripten::val::array();
+    for (const auto& t : to_access) {
+        output.call<void>("push", emscripten::val(t.second));
+    }
+    return output;
+}
+
 /************* Emscripten bindings **************/
 
 EMSCRIPTEN_BINDINGS(hdf5_utils) {
@@ -1252,4 +1293,7 @@ EMSCRIPTEN_BINDINGS(hdf5_utils) {
    emscripten::function("write_string_hdf5_attribute", &write_string_hdf5_attribute, emscripten::return_value_policy::take_ownership());
    emscripten::function("write_enum_hdf5_attribute", &write_enum_hdf5_attribute, emscripten::return_value_policy::take_ownership());
    emscripten::function("write_compound_hdf5_attribute", &write_compound_hdf5_attribute, emscripten::return_value_policy::take_ownership());
+
+   emscripten::function("get_max_str_len", &get_max_str_len, emscripten::return_value_policy::take_ownership());
+   emscripten::function("get_max_str_len_compound", &get_max_str_len_compound, emscripten::return_value_policy::take_ownership());
 }

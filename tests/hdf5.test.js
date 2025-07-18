@@ -245,46 +245,89 @@ test("HDF5 numeric dataset creation works as expected", () => {
     expect(() => ghandle.writeDataSet("stuffZ", "Int32", [0], null)).toThrow(/null/)
 })
 
+test("findMaxStringLength works as expected", () => {
+    expect(scran.findMaxStringLength(["a", "bb", "CCC", "d"], null)).toEqual(3);
+    expect(scran.findMaxStringLength(["aa", "bbbbb", "CCC", "dd"], null)).toEqual(5);
+    expect(scran.findMaxStringLength(["aa", "β-globin", "C", "d"], null)).toEqual(9); // works with unicode.
+
+    expect(scran.findMaxStringLength([{ foo: "A", bar: "CC" }, { foo: "aaa", bar: "D" }], ["foo", "bar"])).toEqual([3, 2]);
+    expect(scran.findMaxStringLength([{ foo: "α2-macroglobulin", bar: "CC" }, { foo: "aaa", bar: "180π" }], ["foo", "bar"])).toEqual([17, 5]); // works with unicode.
+})
+
 test("HDF5 string dataset creation works as expected", () => {
+    const options = [
+        { type: "String", maxStringLength: null },
+        { type: "String", maxStringLength: 15 },
+        { type: new scran.H5StringType("UTF-8", 15), maxStringLength: null },
+        { type: new scran.H5StringType("UTF-8", scran.H5StringType.variableLength), maxStringLength: null },
+        { type: new scran.H5StringType("ASCII", scran.H5StringType.variableLength), maxStringLength: null }
+    ];
+
     const path = dir + "/test.write.h5";
-    purge(path)
+    const colleagues = ["Aaron", "Jayaram", "Michael", "Allison", "Sebastien"]; // ranked by amount of hair.
 
-    let fhandle = scran.createNewHdf5File(path);
-    let ghandle = fhandle.createGroup("foo");
+    for (const { type, maxStringLength } of options) {
+        purge(path)
+        let fhandle = scran.createNewHdf5File(path);
+        let ghandle = fhandle.createGroup("foo");
 
-    // Checking the writing of strings.
-    let str_dhandle = ghandle.createDataSet("stuff", "String", [5], { maxStringLength: 15 });
-    let colleagues = ["Aaron", "Jayaram", "Michael", "Allison", "Sebastien"]; // ranked by amount of hair.
+        // Checking the writing of strings.
+        {
+            let str_dhandle = ghandle.createDataSet("stuff", type, [5], { maxStringLength });
+            str_dhandle.write(colleagues);
 
-    str_dhandle.write(colleagues);
-    let vals = str_dhandle.load();
-    expect(compare.equalArrays(vals, colleagues)).toBe(true);
+            let str_dhandle2 = ghandle.open("stuff");
+            expect(str_dhandle2.type instanceof scran.H5StringType).toBe(true);
+            expect(str_dhandle2.type.encoding).toBe(str_dhandle.type.encoding);
+            expect(str_dhandle2.type.length).toBe(str_dhandle.type.length);
+            expect(compare.equalArrays(str_dhandle2.values, colleagues)).toBe(true);
+        }
 
-    let str_shandle = ghandle.createDataSet("whee", "String", [], { maxStringLength: 15 });
-    str_shandle.write("Bummer");
-    let content = str_shandle.load();
-    expect(content[0]).toBe("Bummer");
+        {
+            let str_shandle = ghandle.createDataSet("whee", type, [], { maxStringLength });
+            str_shandle.write("Bummer");
 
-    expect(() => ghandle.writeDataSet("foobar", "String", [3], [1,2,3])).toThrow(/Cannot pass non-string/)
+            let str_shandle2 = ghandle.open("whee");
+            expect(str_shandle2.type instanceof scran.H5StringType).toBe(true);
+            expect(str_shandle2.type.encoding).toBe(str_shandle.type.encoding);
+            expect(str_shandle2.type.length).toBe(str_shandle.type.length);
+            expect(str_shandle2.values).toEqual(["Bummer"]);
+        }
 
-    // Checking that the quick writer works.
-    let str_dhandleX = ghandle.writeDataSet("stuffX", "String", [5], colleagues);
-    let valsX = str_dhandleX.load();
-    expect(compare.equalArrays(valsX, colleagues)).toBe(true);
+        expect(() => ghandle.writeDataSet("foobar", type, [3], [1,2,3])).toThrow(/Cannot pass non-string/)
 
-    // Checking that the quick string writer gets the lengths right with unicode. 
-    let complicated = "β-globin";
-    let str_shandle2 = ghandle.writeDataSet("whee2", "String", [], complicated);
-    let content2 = str_shandle2.load();
-    expect(content2[0]).toBe(complicated);
+        // Checking that the quick writer works.
+        {
+            let str_dhandleX = ghandle.writeDataSet("stuffX", type, [5], colleagues, { maxStringLength });
+            expect(str_dhandleX instanceof scran.H5DataSet);
 
-    // Checking that it works fine with empty strings.
-    let str_shandle3 = ghandle.writeDataSet("whee3", "String", [3], ["", "", ""]);
-    let content3 = str_shandle3.load();
-    expect(content3.length).toBe(3);
-    expect(content3[0]).toBe("");
-    expect(content3[1]).toBe("");
-    expect(content3[2]).toBe("");
+            let str_dhandleX2 = ghandle.open("stuffX");
+            expect(str_dhandleX2.type instanceof scran.H5StringType).toBe(true);
+            expect(str_dhandleX2.type.encoding).toBe(str_dhandleX.type.encoding);
+            expect(str_dhandleX2.type.length).toBe(str_dhandleX.type.length);
+            expect(compare.equalArrays(str_dhandleX.values, colleagues)).toBe(true);
+        }
+
+        // Checking that the quick string writer gets the lengths right with unicode. 
+        if (type instanceof scran.H5StringType && type.encoding == "UTF-8") {
+            let complicated = "β-globin";
+            let str_shandle2 = ghandle.writeDataSet("whee2", type, [], complicated);
+            let content2 = str_shandle2.values;
+            expect(content2[0]).toBe(complicated);
+        }
+
+        // Checking that it works fine with empty strings.
+        {
+            let str_ehandle = ghandle.writeDataSet("whee3", type, [3], ["", "", ""]);
+            expect(str_ehandle instanceof scran.H5DataSet);
+
+            let str_ehandle2 = ghandle.open("whee3");
+            expect(str_ehandle2.type instanceof scran.H5StringType).toBe(true);
+            expect(str_ehandle2.type.encoding).toBe(str_ehandle.type.encoding);
+            expect(str_ehandle2.type.length).toBe(str_ehandle.type.length == 0 ? 1 : str_ehandle.type.length); // minimum of 1, otherwise HDF5 complains.
+            expect(str_ehandle2.values).toEqual(["", "", ""]);
+        }
+    }
 })
 
 test("HDF5 enum dataset creation and loading works as expected", () => {
@@ -314,6 +357,18 @@ test("HDF5 enum dataset creation and loading works as expected", () => {
         expect(dhandle2.values).toEqual(new Int32Array(idol_chosen));
         expect(dhandle2.levels).toEqual({ "rin": 0, "mio": 1, "mika": 2, "rika": 3 });
         expect(dhandle2.shape).toEqual([4, 2]);
+    }
+
+    // Using the type class with a custom mapping.
+    {
+        let idol_levels = { "ranko": 5, "anzu": 2, "minami": 7, "kirari": 4 };
+        let idol_chosen = [5,4,2,5,2,7];
+        fhandle.writeDataSet("idols3", new scran.H5EnumType("Uint8", idol_levels), [6], idol_chosen);
+
+        let dhandle2 = fhandle.open("idols3", { load: true });
+        expect(dhandle2.values).toEqual(new Uint8Array(idol_chosen));
+        expect(dhandle2.levels).toEqual(idol_levels);
+        expect(dhandle2.shape).toEqual([6]);
     }
 })
 
@@ -348,12 +403,12 @@ test("HDF5 compound dataset creation and loading works as expected", () => {
     let data = [ { foo: 1, bar: 1.5 }, { foo: 2, bar: 2.5 }, { foo: 3, bar: 3.5 }, { foo: 4, bar: 4.5 }, { foo: 5, bar: 5.5 } ];
     {
         let fhandle = scran.createNewHdf5File(path);
-        fhandle.writeDataSet("compound", { "foo": "Int32", "bar": "Float64" }, null, data);
+        fhandle.writeDataSet("compound", new scran.H5CompoundType({ "foo": "Int32", "bar": "Float64" }), null, data);
     }
 
     {
         let fhandle = new scran.H5File(path);
-        let dhandle = fhandle.open("compound", { load: true });
+        let dhandle = fhandle.open("compound");
         expect(dhandle.values).toEqual(data);
         expect(dhandle.type.members).toEqual({ "foo": "Int32", "bar": "Float64" });;
     }
@@ -362,14 +417,17 @@ test("HDF5 compound dataset creation and loading works as expected", () => {
     data = [ { foo: "a", bar: "A" }, { foo: "bb", bar: "BB" }, { foo: "ccc", bar: "CCC" }, { foo: "dddd", bar: "DDDD" }, { foo: "eeeee", bar: "EEEEE" } ];
     {
         let fhandle = scran.createNewHdf5File(path);
-        fhandle.writeDataSet("compound", { "foo": "String", "bar": "String" }, null, data);
+        let ctype = new scran.H5CompoundType({ foo: new scran.H5StringType("UTF-8", 5), bar: new scran.H5StringType("ASCII", scran.H5StringType.variableLength) });
+        fhandle.writeDataSet("compound", ctype, null, data);
     }
 
     {
         let fhandle = new scran.H5File(path);
-        let dhandle = fhandle.open("compound", { load: true });
+        let dhandle = fhandle.open("compound");
         expect(dhandle.values).toEqual(data);
         expect(Object.keys(dhandle.type.members)).toEqual(["foo", "bar"]);
+        expect(dhandle.type.members.foo.length).toEqual(5);
+        expect(dhandle.type.members.bar.encoding).toEqual("ASCII");
     }
 })
 
@@ -432,24 +490,37 @@ test("HDF5 numeric attribute creation and loading works as expected", () => {
 })
 
 test("HDF5 string attribute creation and loading works as expected", () => {
+    const options = [
+        { type: "String", maxStringLength: null },
+        { type: "String", maxStringLength: 15 },
+        { type: new scran.H5StringType("UTF-8", 15), maxStringLength: null },
+        { type: new scran.H5StringType("UTF-8", scran.H5StringType.variableLength), maxStringLength: null },
+        { type: new scran.H5StringType("ASCII", scran.H5StringType.variableLength), maxStringLength: null }
+    ];
+
     const path = dir + "/test.write.h5";
-    purge(path)
+    const colleagues = ["Allison", "Aaron", "Jayaram", "Michael", "Sebastien"]; // ranked by age.
 
-    let fhandle = scran.createNewHdf5File(path);
-    let dhandle = fhandle.writeDataSet("stuffX", "Int32", null, [1,2,3,4,5]);
+    for (const { type, maxStringLength } of options) {
+        purge(path)
+        const fhandle = scran.createNewHdf5File(path);
 
-    let colleagues = ["Allison", "Aaron", "Jayaram", "Michael", "Sebastien"]; // ranked by age.
-    dhandle.writeAttribute("colleagues", "String", null, colleagues);
-    expect(dhandle.attributes.indexOf("colleagues")).toBe(0);
+        {
+            let dhandle = fhandle.writeDataSet("stuffX", "Int32", null, [1,2,3,4,5]);
+            dhandle.writeAttribute("colleagues", type, null, colleagues, { maxStringLength });
+            expect(dhandle.attributes.indexOf("colleagues")).toBe(0);
+        }
 
-    // Make sure we get the same thing out.
-    {
-        let dhandle2 = fhandle.open("stuffX");
-        expect(dhandle2.attributes.indexOf("colleagues")).toBe(0);
+        // Make sure we get the same thing out.
+        {
+            let dhandle2 = fhandle.open("stuffX");
+            expect(dhandle2.attributes.indexOf("colleagues")).toBe(0);
 
-        let recolleagues = dhandle2.readAttribute("colleagues");
-        expect(recolleagues.values).toEqual(colleagues);
-        expect(recolleagues.shape).toEqual([5]);
+            let recolleagues = dhandle2.readAttribute("colleagues");
+            expect(recolleagues.values).toEqual(colleagues);
+            expect(recolleagues.type instanceof scran.H5StringType).toBe(true);
+            expect(recolleagues.shape).toEqual([5]);
+        }
     }
 })
 
@@ -490,6 +561,22 @@ test("HDF5 enum attribute creation and loading works as expected", () => {
         expect(reidols.levels).toEqual({iori:0, mami:1, ami:2, azusa:3, takane:4});
         expect(reidols.shape).toEqual([idol_chosen.length]);
     }
+
+    // Using the type class with a custom mapping.
+    {
+        let idol_levels = { "ranko": 5, "anzu": 2, "minami": 7, "kirari": 4 };
+        let idol_chosen = [5,4,2,5,2,7];
+        dhandle.writeAttribute("idols3", new scran.H5EnumType("Uint16", idol_levels), null, idol_chosen);
+        expect(dhandle.attributes.indexOf("idols3")).toBe(2);
+
+        let dhandle2 = fhandle.open("stuffX");
+        expect(dhandle2.attributes.indexOf("idols3")).toBe(2);
+
+        let reidols = dhandle2.readAttribute("idols3");
+        expect(reidols.values).toEqual(new Uint16Array(idol_chosen));
+        expect(reidols.type.levels).toEqual(idol_levels);
+        expect(reidols.shape).toEqual([idol_chosen.length]);
+    }
 })
 
 test("HDF5 compound attribute creation and loading works as expected", () => {
@@ -500,7 +587,7 @@ test("HDF5 compound attribute creation and loading works as expected", () => {
     {
         let fhandle = scran.createNewHdf5File(path);
         let ghandle = fhandle.createGroup("whee");
-        ghandle.writeAttribute("compound", { "foo": "Int32", "bar": "Float64" }, null, data);
+        ghandle.writeAttribute("compound", new scran.H5CompoundType({ "foo": "Int32", "bar": "Float64" }), null, data);
     }
 
     {
@@ -508,6 +595,7 @@ test("HDF5 compound attribute creation and loading works as expected", () => {
         let ghandle = fhandle.open("whee");
         let res = ghandle.readAttribute("compound");
         expect(res.values).toEqual([data]);
+        expect(res.type.members).toEqual({ "foo": "Int32", "bar": "Float64" });
         expect(res.shape).toEqual([]);
     }
 })
