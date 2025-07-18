@@ -41,13 +41,13 @@ emscripten::val format_integer_type(const H5::IntType& itype) {
     auto output = emscripten::val::object();
     output.set("mode", emscripten::val("numeric"));
     output.set("type", emscripten::val(type));
-    return otuput;
+    return output;
 }
 
 emscripten::val format_float_type(const H5::FloatType& ftype) {
     auto output = emscripten::val::object();
     output.set("mode", emscripten::val("numeric"));
-    auto fsize = memtype.getSize();
+    auto fsize = ftype.getSize();
     if (fsize <= 4) {
         output.set("type", emscripten::val("Float32"));
     } else {
@@ -59,7 +59,7 @@ emscripten::val format_float_type(const H5::FloatType& ftype) {
 emscripten::val format_string_type(const H5::StrType& stype) {
     auto output = emscripten::val::object();
     output.set("mode", emscripten::val("string"));
-    if (stype.getCSet() == H5T_CSET_ASCII) {
+    if (stype.getCset() == H5T_CSET_ASCII) {
         output.set("encoding", emscripten::val("ASCII"));
     } else {
         output.set("encoding", emscripten::val("UTF-8"));
@@ -94,27 +94,27 @@ emscripten::val format_enum_type(const H5::EnumType& etype, const H5::IntType& i
     auto isize = itype.getSize();
     if (isize <= 1) {
         if (is_unsigned) {
-            output.set("levels", format_enum_type<uint8_t>(etype));
+            output.set("levels", format_enum_levels<std::uint8_t>(etype));
         } else {
-            output.set("levels", format_enum_type<int8_t>(etype));
+            output.set("levels", format_enum_levels<std::int8_t>(etype));
         }
     } else if (isize <= 2) {
         if (is_unsigned) {
-            output.set("levels", format_enum_type<uint16_t>(etype));
+            output.set("levels", format_enum_levels<std::uint16_t>(etype));
         } else {
-            output.set("levels", format_enum_type<int16_t>(etype));
+            output.set("levels", format_enum_levels<std::int16_t>(etype));
         }
     } else if (isize <= 4) {
         if (is_unsigned) {
-            output.set("levels", format_enum_type<uint32_t>(etype));
+            output.set("levels", format_enum_levels<std::uint32_t>(etype));
         } else {
-            output.set("levels", format_enum_type<int32_t>(etype));
+            output.set("levels", format_enum_levels<std::int32_t>(etype));
         }
     } else {
         if (is_unsigned) {
-            output.set("levels", format_enum_type<uint64_t>(etype));
+            output.set("levels", format_enum_levels<std::uint64_t>(etype));
         } else {
-            output.set("levels", format_enum_type<int64_t>(etype));
+            output.set("levels", format_enum_levels<std::int64_t>(etype));
         }
     }
 
@@ -126,7 +126,7 @@ emscripten::val format_compound_type(const H5::CompType& ctype) {
     auto outmembers = emscripten::val::object();
     for (decltype(nmembers) m = 0; m < nmembers; ++m) {
         auto memname = ctype.getMemberName(m);
-        auto memclass = memtype.getClass();
+        auto memclass = ctype.getMemberClass(m);
 
         emscripten::val type;
         if (memclass == H5T_INTEGER) {
@@ -155,13 +155,13 @@ emscripten::val format_type(const Handle_& handle) {
     if (dclass == H5T_INTEGER) {
         return format_integer_type(handle.getIntType());
     } else if (dclass == H5T_FLOAT) {
-        return format_numeric_type(handle.getFloatType());
+        return format_float_type(handle.getFloatType());
     } else if (dclass == H5T_STRING) {
         return format_string_type(handle.getStrType());
     } else if (dclass == H5T_ENUM) {
         return format_enum_type(handle.getEnumType(), handle.getIntType());
     } else if (dclass == H5T_COMPOUND) {
-        return format_compound_type(handle.getCompoundType());
+        return format_compound_type(handle.getCompType());
     } else {
         auto output = emscripten::val::object();
         output.set("mode", emscripten::val("other"));
@@ -184,7 +184,7 @@ public:
     }
 
     emscripten::val children() {
-        my_children = emscripten::val::object();
+        auto children = emscripten::val::object();
         auto num = my_ghandle.getNumObjs();
         for (decltype(num) i = 0; i < num; ++i) {
             auto child_name = my_ghandle.getObjnameByIdx(i);
@@ -197,31 +197,30 @@ public:
                 children.set(child_name, emscripten::val("Other"));
             }
         }
-
-        return extract_attribute_names(ghandle);
+        return children;
     }
 };
 
-class H5DataSetDetails : public H5AttrDetails {
+class H5DataSetDetails {
     H5::H5File my_fhandle;
     H5::DataSet my_dhandle;
 
 public:
-    H5GroupDetails(std::string file, std::string name) : my_fhandle(file, H5F_ACC_RDONLY), my_dhandle(my_fhandle.openDataSet(name)) {}
+    H5DataSetDetails(std::string file, std::string name) : my_fhandle(file, H5F_ACC_RDONLY), my_dhandle(my_fhandle.openDataSet(name)) {}
 
     emscripten::val attributes() {
         return extract_attribute_names(my_dhandle);
     }
 
     emscripten::val shape() const {
-        auto dspace = dhandle.getSpace();
+        auto dspace = my_dhandle.getSpace();
         auto ndims = dspace.getSimpleExtentNdims();
         std::vector<hsize_t> dims(ndims);
         dspace.getSimpleExtentDims(dims.data());
 
         auto output = emscripten::val::array();
         for (auto x : dims) {
-            output.call<void>("push", emscripten::val(static_cast<double>(x)); // hopefully it fits, who knows?
+            output.call<void>("push", emscripten::val(static_cast<double>(x))); // hopefully it fits, who knows?
         }
         return output;
     }
@@ -233,15 +232,28 @@ public:
 
 /************* Loaded details **************/
 
+template<typename Handle_>
+hsize_t get_full_length(const Handle_& handle) {
+    auto dspace = handle.getSpace();
+    auto ndims = dspace.getSimpleExtentNdims();
+    std::vector<hsize_t> dims(ndims);
+    dspace.getSimpleExtentDims(dims.data());
+    hsize_t total = 1;
+    for (auto d : dims) {
+        total *= d;
+    }
+    return total;
+}
+
 class LoadedH5Numeric {
 protected:
     // Store all the possible numeric types here.
-    std::vector<uint8_t> u8_data;
-    std::vector<int8_t> i8_data;
-    std::vector<uint16_t> u16_data;
-    std::vector<int16_t> i16_data;
-    std::vector<uint32_t> u32_data;
-    std::vector<int32_t> i32_data;
+    std::vector<std::uint8_t> u8_data;
+    std::vector<std::int8_t> i8_data;
+    std::vector<std::uint16_t> u16_data;
+    std::vector<std::int16_t> i16_data;
+    std::vector<std::uint32_t> u32_data;
+    std::vector<std::int32_t> i32_data;
     std::vector<float> f32_data;
     std::vector<double> f64_data;
 
@@ -252,7 +264,7 @@ protected:
     enum class NumericType : char { U8, I8, U16, I16, U32, I32, U64, I64, F32, F64 };
     NumericType numtype;
 
-protected:
+public:
     emscripten::val numeric_values() const {
         switch(numtype) {
             case NumericType::U8:
@@ -275,240 +287,221 @@ protected:
                 return emscripten::val(emscripten::typed_memory_view(f32_data.size(), f32_data.data()));
             default: // a.k.a. if (type_ == "Float64") {
                 return emscripten::val(emscripten::typed_memory_view(f64_data.size(), f64_data.data()));
-        } 
-    }
-
-    template<class Reader, class Handle>
-    void fill_numeric_contents(const Handle& handle, const std::string& curtype, hsize_t full_length) {
-        if (curtype == "Uint8") {
-            u8_data.resize(full_length);
-            Reader::read(handle, u8_data.data(), H5::PredType::NATIVE_UINT8);
-
-        } else if (curtype == "Int8") {
-            i8_data.resize(full_length);
-            Reader::read(handle, i8_data.data(), H5::PredType::NATIVE_INT8);
-
-        } else if (curtype == "Uint16") {
-            u16_data.resize(full_length);
-            Reader::read(handle, u16_data.data(), H5::PredType::NATIVE_UINT16);
-
-        } else if (curtype == "Int16") {
-            i16_data.resize(full_length);
-            Reader::read(handle, i16_data.data(), H5::PredType::NATIVE_INT16);
-
-        } else if (curtype == "Uint32") {
-            u32_data.resize(full_length);
-            Reader::read(handle, u32_data.data(), H5::PredType::NATIVE_UINT32);
-
-        } else if (curtype == "Int32") {
-            i32_data.resize(full_length);
-            Reader::read(handle, i32_data.data(), H5::PredType::NATIVE_INT32);
-
-        } else if (curtype == "Uint64") {
-            u64_data.resize(full_length);
-            Reader::read(handle, u64_data.data(), H5::PredType::NATIVE_DOUBLE); // see comments above about embind.
-
-        } else if (curtype == "Int64") {
-            i64_data.resize(full_length);
-            Reader::read(handle, i64_data.data(), H5::PredType::NATIVE_DOUBLE); // see comments above about embind.
-
-        } else if (curtype == "Float32") {
-            f32_data.resize(full_length);
-            Reader::read(handle, f32_data.data(), H5::PredType::NATIVE_FLOAT);
-
-        } else if (curtype == "Float64") {
-            f64_data.resize(full_length);
-            Reader::read(handle, f64_data.data(), H5::PredType::NATIVE_DOUBLE);
         }
     }
 
-    template<class Reader, class Handle>
-    void fill_compound_data(const Handle& handle, hsize_t full_length) {
-        auto ctype = handle.getCompType();
-        int nmembers = ctype.getNmembers();
-
-        struct Member {
-            Member() = default;
-            Member(std::string name, std::size_t size, bool is_string, bool is_variable) :
-                name(std::move(name)), size(size), is_string(is_string), is_variable(is_variable) {}
-            std::string name;
-            std::size_t size;
-            bool is_string;
-            bool is_variable;
-        };
-        std::vector<Member> members;
-        members.reserve(nmembers);
-        std::vector<H5::DataType> h5types;
-        h5types.reserve(nmembers);
-        bool has_variable = false;
-        std::size_t offset = 0;
-
-        for (decltype(nmembers) m = 0; m < nmembers; ++m) {
-            auto memname = ctype.getMemberName(m);
-            auto memcls = ctype.getMemberClass(m);
-            if (memcls == H5T_STRING) {
-                auto stype = ctype.getMemberStrType(m);
-                members.emplace_back(std::move(memname), stype.getSize(), true, stype.isVariableStr());
-                has_variable = has_variable || stype.isVariableStr();
-                h5types.push_back(std::move(stype));
-            } else if (memcls == H5T_INTEGER || memcls == H5T_FLOAT) {
-                members.emplace_back(std::move(memname), 8, false, false);
-                h5types.push_back(H5::PredType::NATIVE_DOUBLE);
-            } else {
-                throw std::runtime_error("unsupported member type in compound data type");
-            }
-            offset += h5types.back().getSize();
-        }
-
-        H5::CompType ctype2(offset);
-        offset = 0;
-        for (decltype(nmembers) m = 0; m < nmembers; ++m) {
-            ctype2.insertMember(members[m].name, offset, h5types[m]);
-            offset += h5types[m].getSize();
-        }
-
-        std::vector<unsigned char> unified_buffer(full_length * offset);
-        Reader::read(handle, unified_buffer.data(), ctype2);
-        comp_data = emscripten::val::array();
-
-        offset = 0;
-        std::string val;
-        for (decltype(full_length) i = 0; i < full_length; ++i) {
-            emscripten::val obj = emscripten::val::object();
-
-            for (const auto& member : members) {
-                auto start = unified_buffer.data() + offset;
-
-                if (!member.is_string) {
-                    double val;
-                    std::copy_n(start, sizeof(decltype(val)), reinterpret_cast<unsigned char*>(&val));
-                    obj.set(member.name, val);
-
-                } else if (!member.is_variable) {
-                    auto cstart = reinterpret_cast<const char*>(start);
-                    val.clear();
-                    for (decltype(member.size) i = 0; i < member.size; ++i) {
-                        if (cstart[i] == 0) {
-                            break;
-                        }
-                        val += cstart[i];
-                    }
-                    obj.set(member.name, val);
-
-                } else {
-                    char* ptr;
-                    std::copy_n(start, sizeof(decltype(ptr)), reinterpret_cast<unsigned char*>(&ptr));
-                    val.clear();
-                    val.insert(0, ptr);
-                    obj.set(member.name, val);
-                }
-
-                offset += member.size;
-            }
-
-            comp_data.call<void>("push", obj);
-        }
-
-        if (has_variable) {
-            H5Dvlen_reclaim(ctype.getId(), handle.getSpace().getId(), H5P_DEFAULT, unified_buffer.data());
-        }
-    }
-
-protected:
-    template<class Reader, class Handle>
-    void fill_contents(const Handle& handle) {
+    template<class Reader_, class Handle_>
+    void fill_numeric_contents(const Handle_& handle) {
+        auto full_length = get_full_length(handle);
         auto dtype = handle.getDataType();
-        type_ = guess_hdf5_type(handle, dtype);
-        if (type_ == "Compound") {
-            comptype_ = guess_hdf5_type(handle, handle.getCompType());
-        }
+        auto dclass = dtype.getClass();
 
-        auto dspace = handle.getSpace();
-        int32_t ndims = dspace.getSimpleExtentNdims();
-        std::vector<hsize_t> dims(ndims);
-        dspace.getSimpleExtentDims(dims.data());
-        shape_.insert(shape_.end(), dims.begin(), dims.end());
+        if (dclass == H5T_INTEGER) {
+            auto itype = handle.getIntType();
+            bool is_unsigned = (itype.getSign() == H5T_SGN_NONE);
+            auto isize = itype.getSize();
 
-        // Full length defaults to 1 for scalars when 'dims' is empty.
-        hsize_t full_length = 1;
-        for (auto d : dims) {
-            full_length *= d;
-        }
-
-        if (type_ == "Enum") {
-            H5::IntType itype;
-            H5::EnumType etype;
-            if constexpr(std::is_same<Handle, H5::DataSet>::value) {
-                itype = H5::IntType(handle);
-                etype = H5::EnumType(handle);
-            } else {
-                itype = handle.getIntType(); // Assume it's an attribute.
-                etype = handle.getEnumType(); // Assume it's an attribute.
-            }
-            enum_type = guess_hdf5_type(itype);
-            fill_numeric_contents<Reader>(handle, enum_type, full_length);
-
-            if (enum_type == "Uint8") {
-                fill_enum_levels<uint8_t>(etype, u8_data);
-            } else if (enum_type == "Int8") {
-                fill_enum_levels<int8_t>(etype, i8_data);
-            } else if (enum_type == "Uint16") {
-                fill_enum_levels<uint16_t>(etype, u16_data);
-            } else if (enum_type == "Int16") {
-                fill_enum_levels<int16_t>(etype, i16_data);
-            } else if (enum_type == "Uint32") {
-                fill_enum_levels<uint32_t>(etype, u32_data);
-            } else if (enum_type == "Int32") {
-                fill_enum_levels<int32_t>(etype, i32_data);
-            } else if (enum_type == "Uint64") {
-                fill_enum_levels<uint64_t>(etype, u64_data);
-            } else if (enum_type == "Int64") {
-                fill_enum_levels<int64_t>(etype, i64_data);
-            } else {
-                throw std::runtime_error("unrecognized enum level type '" + enum_type + "'");
-            }
-
-        } else if (type_ == "String") {
-            lengths_.resize(full_length);
-
-            if (dtype.isVariableStr()) {
-                std::vector<char*> buffer(full_length);
-                Reader::read(handle, buffer.data(), dtype);
-
-                str_data.reserve(full_length); // guessing that each string is of at least length 1.
-                for (size_t i = 0; i < full_length; ++i) {
-                    std::string current(buffer[i]);
-                    lengths_[i] = current.size();
-                    str_data.insert(str_data.end(), current.begin(), current.end());
+            if (isize <= 1) {
+                if (is_unsigned) {
+                    u8_data.resize(full_length);
+                    Reader_::read(handle, u8_data.data(), H5::PredType::NATIVE_UINT8);
+                    numtype = NumericType::U8;
+                } else {
+                    i8_data.resize(full_length);
+                    Reader_::read(handle, i8_data.data(), H5::PredType::NATIVE_INT8);
+                    numtype = NumericType::I8;
                 }
 
-                H5Dvlen_reclaim(dtype.getId(), dspace.getId(), H5P_DEFAULT, buffer.data());
+            } else if (isize <= 2) {
+                if (is_unsigned) {
+                    u16_data.resize(full_length);
+                    Reader_::read(handle, u16_data.data(), H5::PredType::NATIVE_UINT16);
+                    numtype = NumericType::U16;
+                } else {
+                    i16_data.resize(full_length);
+                    Reader_::read(handle, i16_data.data(), H5::PredType::NATIVE_INT16);
+                    numtype = NumericType::I16;
+                }
+
+            } else if (isize <= 4) {
+                if (is_unsigned) {
+                    u32_data.resize(full_length);
+                    Reader_::read(handle, u32_data.data(), H5::PredType::NATIVE_UINT32);
+                    numtype = NumericType::U32;
+                } else {
+                    i32_data.resize(full_length);
+                    Reader_::read(handle, i32_data.data(), H5::PredType::NATIVE_INT32);
+                    numtype = NumericType::I32;
+                }
 
             } else {
-                size_t len = dtype.getSize();
-                std::vector<char> buffer(len * full_length);
-                Reader::read(handle, buffer.data(), dtype);
-
-                str_data.reserve(buffer.size()); // guessing that each string is of length 'len'.
-                auto start = buffer.data();
-                for (size_t i = 0; i < full_length; ++i, start += len) {
-                    size_t j = 0;
-                    for (; j < len && start[j] != '\0'; ++j) {}
-                    lengths_[i] = j;
-                    str_data.insert(str_data.end(), start, start + j);
+                if (is_unsigned) {
+                    u64_data.resize(full_length);
+                    Reader_::read(handle, u64_data.data(), H5::PredType::NATIVE_DOUBLE); // see comments above about embind.
+                    numtype = NumericType::U64;
+                } else {
+                    i64_data.resize(full_length);
+                    Reader_::read(handle, i64_data.data(), H5::PredType::NATIVE_DOUBLE); // see comments above about embind.
+                    numtype = NumericType::I64;
                 }
             }
 
-        } else if (type_ == "Compound") {
-            fill_compound_data<Reader>(handle, full_length);
+        } else {
+            auto ftype = handle.getFloatType();
+            if (ftype.getSize() == 4) {
+                f32_data.resize(full_length);
+                Reader_::read(handle, f32_data.data(), H5::PredType::NATIVE_FLOAT);
+                numtype = NumericType::F32;
 
-        } else if (type_ != "Other") { // don't fail outright; we want to be able to construct the LoadedH5Dataset so that users can call type().
-            fill_numeric_contents<Reader>(handle, type_, full_length);
+            } else {
+                f64_data.resize(full_length);
+                Reader_::read(handle, f64_data.data(), H5::PredType::NATIVE_DOUBLE);
+                numtype = NumericType::F64;
+            }
         }
     }
 };
 
-struct LoadedH5DataSet : public LoadedH5Base, public H5AttrDetails {
+template<typename Func_>
+struct CleanUp {
+    CleanUp(Func_ f) : f(std::move(f)) {}
+    ~CleanUp() { f(); }
+    Func_ f;
+};
+
+template<class Reader_, class Handle_>
+emscripten::val extract_compound_values(const Handle_& handle) {
+    auto ctype = handle.getCompType();
+    int nmembers = ctype.getNmembers();
+    auto full_length = get_full_length(handle);
+
+    struct Member {
+        Member() = default;
+        Member(std::string name, std::size_t size, bool is_string, bool is_variable) :
+            name(std::move(name)), size(size), is_string(is_string), is_variable(is_variable) {}
+        std::string name;
+        std::size_t size;
+        bool is_string;
+        bool is_variable;
+    };
+    std::vector<Member> members;
+    members.reserve(nmembers);
+    std::vector<H5::DataType> h5types;
+    h5types.reserve(nmembers);
+    bool has_variable = false;
+    std::size_t offset = 0;
+
+    for (decltype(nmembers) m = 0; m < nmembers; ++m) {
+        auto memname = ctype.getMemberName(m);
+        auto memcls = ctype.getMemberClass(m);
+        if (memcls == H5T_STRING) {
+            auto stype = ctype.getMemberStrType(m);
+            members.emplace_back(std::move(memname), stype.getSize(), true, stype.isVariableStr());
+            has_variable = has_variable || stype.isVariableStr();
+            h5types.push_back(std::move(stype));
+        } else if (memcls == H5T_INTEGER || memcls == H5T_FLOAT) {
+            members.emplace_back(std::move(memname), 8, false, false);
+            h5types.push_back(H5::PredType::NATIVE_DOUBLE);
+        } else {
+            throw std::runtime_error("unsupported member type in compound data type");
+        }
+        offset += h5types.back().getSize();
+    }
+
+    H5::CompType ctype2(offset);
+    offset = 0;
+    for (decltype(nmembers) m = 0; m < nmembers; ++m) {
+        ctype2.insertMember(members[m].name, offset, h5types[m]);
+        offset += h5types[m].getSize();
+    }
+
+    std::vector<unsigned char> unified_buffer(full_length * offset);
+    Reader_::read(handle, unified_buffer.data(), ctype2);
+    CleanUp tmp([&]() -> void {
+        if (has_variable) {
+            H5Dvlen_reclaim(ctype.getId(), handle.getSpace().getId(), H5P_DEFAULT, unified_buffer.data());
+        }
+    });
+
+    auto comp_data = emscripten::val::array();
+    offset = 0;
+    std::string bufstr;
+    for (decltype(full_length) i = 0; i < full_length; ++i) {
+        emscripten::val obj = emscripten::val::object();
+
+        for (const auto& member : members) {
+            auto start = unified_buffer.data() + offset;
+
+            if (!member.is_string) {
+                double num;
+                std::copy_n(start, sizeof(decltype(num)), reinterpret_cast<unsigned char*>(&num));
+                obj.set(member.name, num);
+
+            } else if (!member.is_variable) {
+                auto cstart = reinterpret_cast<const char*>(start);
+                bufstr.clear();
+                for (decltype(member.size) i = 0; i < member.size; ++i) {
+                    if (cstart[i] == 0) {
+                        break;
+                    }
+                    bufstr += cstart[i];
+                }
+                obj.set(member.name, emscripten::val(bufstr));
+
+            } else {
+                char* ptr;
+                std::copy_n(start, sizeof(decltype(ptr)), reinterpret_cast<unsigned char*>(&ptr));
+                bufstr.clear();
+                bufstr.insert(0, ptr);
+                obj.set(member.name, emscripten::val(bufstr));
+            }
+
+            offset += member.size;
+        }
+
+        comp_data.call<void>("push", obj);
+    }
+
+    return comp_data;
+}
+
+template<class Reader_, class Handle_>
+emscripten::val extract_string_values(const Handle_& handle) {
+    auto dtype = handle.getDataType();
+    auto dspace = handle.getSpace();
+    auto output = emscripten::val::array();
+    auto full_length = get_full_length(handle);
+
+    if (dtype.isVariableStr()) {
+        std::vector<char*> buffer(full_length);
+        Reader_::read(handle, buffer.data(), dtype);
+        CleanUp tmp([&]() -> void {
+            H5Dvlen_reclaim(dtype.getId(), dspace.getId(), H5P_DEFAULT, buffer.data());
+        });
+        for (decltype(full_length) i = 0; i < full_length; ++i) {
+            output.call<void>("push", emscripten::val(buffer[i]));
+        }
+
+    } else {
+        auto strlen = dtype.getSize();
+        std::vector<char> buffer(strlen * full_length);
+        Reader_::read(handle, buffer.data(), dtype);
+        auto start = buffer.data();
+        std::string bufstr;
+        for (decltype(full_length) i = 0; i < full_length; ++i) {
+            decltype(strlen) j = 0;
+            for (; j < strlen && start[j] != '\0'; ++j) {}
+            bufstr.clear();
+            bufstr.insert(bufstr.end(), start, start + j);
+            output.call<void>("push", emscripten::val(bufstr));
+            start += strlen;
+        }
+    }
+
+    return output;
+}
+
+class LoadedH5DataSet {
     struct Internal {
         template<class Handle, typename T, class MemType>
         static void read(const Handle& dhandle, T* buffer, const MemType& mem_type) {
@@ -516,54 +509,40 @@ struct LoadedH5DataSet : public LoadedH5Base, public H5AttrDetails {
         }
     };
 
-    LoadedH5DataSet(std::string path, std::string name) {
-        try {
-            H5::H5File handle(path, H5F_ACC_RDONLY);
-            auto dhandle = handle.openDataSet(name);
-            fill_contents<Internal>(dhandle);
-            fill_attribute_names(dhandle);
-        } catch (H5::Exception& e) {
-            throw std::runtime_error(e.getCDetailMsg());
-        }
-        return;
-    }
+    H5::H5File my_fhandle;
+    H5::DataSet my_dhandle;
+    LoadedH5Numeric my_numeric;
 
 public:
-    emscripten::val type() const {
-        return LoadedH5Base::type();
-    }
+    LoadedH5DataSet(std::string path, std::string name) : my_fhandle(path, H5F_ACC_RDONLY), my_dhandle(my_fhandle.openDataSet(name)) {}
 
-    emscripten::val shape() const {
-        return emscripten::val(emscripten::typed_memory_view(shape_.size(), shape_.data()));        
-    }
-
-    emscripten::val string_lengths() const {
-        return string_lengths_();
-    }
-
-    emscripten::val string_buffer() const {
-        return string_buffer_();
-    }
-
-    emscripten::val numeric_values() const {
-        return numeric_values_();
+    emscripten::val numeric_values() {
+        try {
+            my_numeric.template fill_numeric_contents<Internal>(my_dhandle);
+        } catch (H5::Exception& e) {
+            throw std::runtime_error(e.getCDetailMsg());
+        } 
+        return my_numeric.numeric_values();
     }
 
     emscripten::val compound_values() const {
-        return compound_values_();
+        try {
+            return extract_compound_values<Internal>(my_dhandle);
+        } catch (H5::Exception& e) {
+            throw std::runtime_error(e.getCDetailMsg());
+        } 
     }
 
-public:
-    emscripten::val attr_buffer() const {
-        return emscripten::val(emscripten::typed_memory_view(attr_buffer_.size(), attr_buffer_.data()));
-    }
-
-    emscripten::val attr_lengths() const {
-        return emscripten::val(emscripten::typed_memory_view(attr_runs_.size(), attr_runs_.data()));
+    emscripten::val string_values() const {
+        try {
+            return extract_string_values<Internal>(my_dhandle);
+        } catch (H5::Exception& e) {
+            throw std::runtime_error(e.getCDetailMsg());
+        } 
     }
 };
 
-struct LoadedH5Attr : public LoadedH5Base {
+class LoadedH5Attr {
     struct Internal {
         template<class Handle, typename T, class MemType>
         static void read(const Handle& ahandle, T* buffer, const MemType& mem_type) {
@@ -571,53 +550,49 @@ struct LoadedH5Attr : public LoadedH5Base {
         } 
     };
 
-    LoadedH5Attr(std::string path, std::string name, std::string attr) {
+    H5::H5File my_fhandle;
+    H5::DataSet my_dhandle;
+    H5::Group my_ghandle;
+    H5::Attribute my_ahandle;
+    LoadedH5Numeric my_numeric;
+
+public:
+    LoadedH5Attr(std::string path, std::string name, std::string attr) : my_fhandle(path, H5F_ACC_RDONLY) {
+        auto child_type = my_fhandle.childObjType(name);
+        if (child_type == H5O_TYPE_GROUP) {
+            my_ghandle = my_fhandle.openGroup(name);
+            my_ahandle = my_ghandle.openAttribute(attr);
+        } else if (child_type == H5O_TYPE_DATASET) {
+            my_dhandle = my_fhandle.openDataSet(name);
+            my_ahandle = my_dhandle.openAttribute(attr);
+        } else {
+            throw std::runtime_error("cannot fetch attribute from unknown HDF5 object '" + name + "'");
+        }
+    }
+
+    emscripten::val numeric_values() {
         try {
-            H5::H5File handle(path, H5F_ACC_RDONLY);
-
-            auto child_type = handle.childObjType(name);
-            if (child_type == H5O_TYPE_GROUP) {
-                auto ghandle = handle.openGroup(name);
-                auto ahandle = ghandle.openAttribute(attr);
-                fill_contents<Internal>(ahandle);
-            } else if (child_type == H5O_TYPE_DATASET) {
-                auto dhandle = handle.openDataSet(name);
-                auto ahandle = dhandle.openAttribute(attr);
-                fill_contents<Internal>(ahandle);
-            } else {
-                throw std::runtime_error("cannot fetch attribute from unknown HDF5 object '" + name + "'");
-            }
-
+            my_numeric.template fill_numeric_contents<Internal>(my_ahandle);
         } catch (H5::Exception& e) {
             throw std::runtime_error(e.getCDetailMsg());
         }
-
-        return;
-    }
-
-public:
-    emscripten::val type() const {
-        return LoadedH5Base::type();
-    }
-
-    emscripten::val shape() const {
-        return emscripten::val(emscripten::typed_memory_view(shape_.size(), shape_.data()));        
-    }
-
-    emscripten::val string_lengths() const {
-        return string_lengths_();
-    }
-
-    emscripten::val string_buffer() const {
-        return string_buffer_();
-    }
-
-    emscripten::val numeric_values() const {
-        return numeric_values_();
+        return my_numeric.numeric_values();
     }
 
     emscripten::val compound_values() const {
-        return compound_values_();
+        try {
+            return extract_compound_values<Internal>(my_ahandle);
+        } catch (H5::Exception& e) {
+            throw std::runtime_error(e.getCDetailMsg());
+        }
+    }
+
+    emscripten::val string_values() const {
+        try {
+            return extract_string_values<Internal>(my_ahandle);
+        } catch (H5::Exception& e) {
+            throw std::runtime_error(e.getCDetailMsg());
+        }
     }
 };
 
@@ -634,16 +609,18 @@ void create_hdf5_group(std::string path, std::string name) {
     return;
 }
 
-/************* Writing utilities **************/
+/************* Creation utilities **************/
 
-std::vector<hsize_t> process_shape(int32_t nshape, uintptr_t shape) {
-    std::vector<hsize_t> dims(nshape);
-    auto sptr = reinterpret_cast<const int32_t*>(shape);
-    std::copy(sptr, sptr + nshape, dims.begin());
+std::vector<hsize_t> array_to_vector(const emscripten::val& input) {
+    std::vector<hsize_t> dims;
+    for (auto x : input) {
+        auto d = x.template as<double>();
+        dims.push_back(d);
+    }
     return dims;
 }
 
-H5::DataType choose_numeric_data_type(const std::string& type) {
+H5::PredType choose_numeric_type(const std::string& type) {
     if (type == "Uint8") {
         return H5::PredType::NATIVE_UINT8;
     } else if (type == "Int8") {
@@ -662,33 +639,239 @@ H5::DataType choose_numeric_data_type(const std::string& type) {
         return H5::PredType::NATIVE_INT64;
     } else if (type == "Float32") {
         return H5::PredType::NATIVE_FLOAT;
-   } else { // a.k.a. if (type == "Float64") {
+    } else if (type != "Float64") {
+        throw std::runtime_error("unknown type '" + type + "' for numeric data");
+    } else {
         return H5::PredType::NATIVE_DOUBLE;
-   }
-}
-
-H5::DataType choose_string_data_type(int32_t max_str_len) {
-    return H5::StrType(0, std::max(1, max_str_len)); // Make sure that is at least of length 1.
-}
-
-H5::DataType choose_enum_data_type(size_t nlevels, uintptr_t level_lengths, uintptr_t level_buffer) {
-    auto buf_ptr = reinterpret_cast<const uint8_t*>(level_buffer); 
-    auto len_ptr = reinterpret_cast<const int32_t*>(level_lengths);
-    H5::EnumType dtype(H5::PredType::NATIVE_INT32);
-
-    std::vector<uint8_t> name_buffer;
-    for (size_t i = 0; i < nlevels; ++i) {
-        name_buffer.resize(len_ptr[i] + 1);
-        std::copy(buf_ptr, buf_ptr + len_ptr[i], name_buffer.data());
-        name_buffer.back() = 0; // set null terminator.
-
-        uint32_t type = i;
-        dtype.insert(reinterpret_cast<char*>(name_buffer.data()), &type);
-        buf_ptr += len_ptr[i];
     }
-    
-    return dtype;
 }
+
+H5::StrType choose_string_type(const std::string& encoding, std::int32_t strlen) {
+    H5::StrType stype;
+    if (strlen < 0) {
+        stype = H5::StrType(0, H5T_VARIABLE);
+    } else {
+        stype = H5::StrType(0, std::max(1, strlen)); // Make sure that is at least of length 1.
+    }
+    if (encoding == "ASCII") {
+        stype.setCset(H5T_CSET_ASCII);
+    } else {
+        stype.setCset(H5T_CSET_UTF8);
+    }
+    return stype;
+}
+
+H5::EnumType choose_enum_type(const std::string& code_type, const emscripten::val& levels) {
+    H5::IntType itype;
+    if (code_type == "Uint8") {
+        itype = H5::PredType::NATIVE_UINT8;
+    } else if (code_type == "Int8") {
+        itype = H5::PredType::NATIVE_INT8;
+    } else if (code_type == "Uint16") {
+        itype = H5::PredType::NATIVE_UINT16;
+    } else if (code_type == "Int16") {
+        itype = H5::PredType::NATIVE_INT16;
+    } else if (code_type == "Uint32") {
+        itype = H5::PredType::NATIVE_UINT32;
+    } else if (code_type == "Int32") {
+        itype = H5::PredType::NATIVE_INT32;
+    } else if (code_type == "Uint64") {
+        itype = H5::PredType::NATIVE_UINT64;
+    } else if (code_type == "Int64") {
+        itype = H5::PredType::NATIVE_INT64;
+    } else {
+        throw std::runtime_error("unsupported type '" + code_type + "' for enum codes");
+    }
+
+    H5::EnumType etype(itype);
+    for (auto x : levels) {
+        auto str = x["name"].template as<std::string>();
+        double raw_val = x["value"].template as<double>();
+        if (code_type == "Uint8") {
+            std::uint8_t val = raw_val;
+            etype.insert(str, &val);
+        } else if (code_type == "Int8") {
+            std::int8_t val = raw_val;
+            etype.insert(str, &val);
+        } else if (code_type == "Uint16") {
+            std::uint16_t val = raw_val;
+            etype.insert(str, &val);
+        } else if (code_type == "Int16") {
+            std::int16_t val = raw_val;
+            etype.insert(str, &val);
+        } else if (code_type == "Uint32") {
+            std::uint32_t val = raw_val;
+            etype.insert(str, &val);
+        } else if (code_type == "Int32") {
+            std::int8_t val = raw_val;
+            etype.insert(str, &val);
+        } else if (code_type == "Uint64") {
+            std::uint64_t val = raw_val;
+            etype.insert(str, &val);
+        } else if (code_type == "Int64") {
+            std::int64_t val = raw_val;
+            etype.insert(str, &val);
+        }
+    }
+
+    return etype;
+}
+
+H5::CompType choose_compound_type(const emscripten::val& members) {
+    struct MemberType {
+        MemberType() = default;
+        MemberType(std::string name, std::size_t offset, H5::DataType dtype) : name(std::move(name)), offset(offset), dtype(std::move(dtype)) {}
+        std::string name;
+        std::size_t offset;
+        H5::DataType dtype;
+    };
+    std::vector<MemberType> all_types;
+    std::size_t offset = 0;
+
+    for (const auto& x : members) {
+        auto name = x["name"].template as<std::string>();
+        auto type = x["type"];
+        auto mode = type["mode"].template as<std::string>();
+        if (mode == "string") {
+            auto encoding = type["encoding"].template as<std::string>(); 
+            auto str_len = type["length"].template as<double>(); 
+            all_types.emplace_back(std::move(name), offset, choose_string_type(encoding, str_len));
+        } else if (mode == "numeric") {
+            auto type2 = type["type"].template as<std::string>(); 
+            all_types.emplace_back(std::move(name), offset, choose_numeric_type(type2));
+        } else {
+            throw std::runtime_error("only numbers and strings are currently supported in compound data types");
+        }
+        offset += all_types.back().dtype.getSize();
+    }
+
+    H5::CompType ctype(offset);
+    for (auto& x : all_types) {
+        ctype.insertMember(std::move(x.name), x.offset, std::move(x.dtype));
+    }
+    return ctype;
+}
+
+/************* Dataset creation **************/
+
+void create_hdf5_dataset(const std::string& path, const std::string& name, const H5::DataType& dtype, const emscripten::val& shape, int32_t deflate_level, const emscripten::val& chunks) {
+    H5::DataSpace dspace;
+    auto dims = array_to_vector(shape);
+    if (!dims.empty()) { // if zero, it's a scalar, and the default DataSpace is correct.
+        dspace = H5::DataSpace(dims.size(), dims.data());
+    }
+
+    // Checking for non-zero length, otherwise chunking will fail.
+    bool all_nonzero = true;
+    for (auto d : dims) {
+        if (d == 0) {
+            all_nonzero = false;
+            break;
+        }
+    }
+
+ 	H5::DSetCreatPropList plist;
+    if (deflate_level >= 0 && all_nonzero) {
+        plist.setDeflate(deflate_level);
+        auto chunkdim = array_to_vector(chunks);
+        plist.setChunk(chunkdim.size(), chunkdim.data());
+    }
+
+    H5::H5File handle(path, H5F_ACC_RDWR);
+    handle.createDataSet(name, dtype, dspace, plist);
+}
+
+void create_numeric_hdf5_dataset(std::string path, std::string name, emscripten::val shape, int32_t deflate_level, emscripten::val chunks, std::string type) {
+    try {
+        create_hdf5_dataset(path, name, choose_numeric_type(type), shape, deflate_level, chunks);
+    } catch (H5::Exception& e) {
+        throw std::runtime_error(e.getCDetailMsg());
+    }
+}
+
+void create_string_hdf5_dataset(std::string path, std::string name, emscripten::val shape, int32_t deflate_level, emscripten::val chunks, std::string encoding, std::int32_t strlen) {
+    try {
+        create_hdf5_dataset(path, name, choose_string_type(encoding, strlen), shape, deflate_level, chunks);
+    } catch (H5::Exception& e) {
+        throw std::runtime_error(e.getCDetailMsg());
+    }
+}
+
+void create_enum_hdf5_dataset(std::string path, std::string name, emscripten::val shape, int32_t deflate_level, emscripten::val chunks, std::string code_type, emscripten::val levels) {
+    try {
+        create_hdf5_dataset(path, name, choose_enum_type(code_type, levels), shape, deflate_level, chunks);
+    } catch (H5::Exception& e) {
+        throw std::runtime_error(e.getCDetailMsg());
+    }
+}
+
+void create_compound_hdf5_dataset(std::string path, std::string name, emscripten::val shape, int32_t deflate_level, emscripten::val chunks, emscripten::val members) {
+    try {
+        create_hdf5_dataset(path, name, choose_compound_type(members), shape, deflate_level, chunks);
+    } catch (H5::Exception& e) {
+        throw std::runtime_error(e.getCDetailMsg());
+    }
+}
+
+/************* Attribute creation **************/
+
+void create_hdf5_attribute(const std::string& path, const std::string& name, const std::string& attr, const H5::DataType& dtype, emscripten::val shape) {
+    H5::H5File handle(path, H5F_ACC_RDWR);
+
+    auto creator = [&](const H5::H5Object& handle) -> void {
+        H5::DataSpace dspace;
+        auto dims = array_to_vector(shape);
+        if (!dims.empty()) { // if zero, it's a scalar, and the default DataSpace is correct.
+            dspace = H5::DataSpace(dims.size(), dims.data());
+        }
+        handle.createAttribute(attr, dtype, dspace);
+    };
+
+    auto child_type = handle.childObjType(name);
+    if (child_type == H5O_TYPE_GROUP) {
+        auto ghandle = handle.openGroup(name);
+        creator(ghandle);
+    } else if (child_type == H5O_TYPE_DATASET) {
+        auto dhandle = handle.openDataSet(name);
+        creator(dhandle);
+    } else {
+        throw std::runtime_error("cannot fetch attribute from unknown HDF5 object '" + name + "'");
+    }
+} 
+
+void create_numeric_hdf5_attribute(std::string path, std::string name, std::string attr, emscripten::val shape, std::string type) {
+    try {
+        create_hdf5_attribute(path, name, attr, choose_numeric_type(type), shape);
+    } catch (H5::Exception& e) {
+        throw std::runtime_error(e.getCDetailMsg());
+    }
+}
+
+void create_string_hdf5_attribute(std::string path, std::string name, std::string attr, emscripten::val shape, std::string encoding, std::int32_t strlen) {
+    try {
+        create_hdf5_attribute(path, name, attr, choose_string_type(encoding, strlen), shape);
+    } catch (H5::Exception& e) {
+        throw std::runtime_error(e.getCDetailMsg());
+    }
+}
+
+void create_enum_hdf5_attribute(std::string path, std::string name, std::string attr, emscripten::val shape, std::string code_type, emscripten::val levels) {
+    try {
+        create_hdf5_attribute(path, name, attr, choose_enum_type(code_type, levels), shape);
+    } catch (H5::Exception& e) {
+        throw std::runtime_error(e.getCDetailMsg());
+    }
+}
+
+void create_compound_hdf5_attribute(std::string path, std::string name, std::string attr, emscripten::val shape, emscripten::val members) {
+    try {
+        create_hdf5_attribute(path, name, attr, choose_compound_type(members), shape);
+    } catch (H5::Exception& e) {
+        throw std::runtime_error(e.getCDetailMsg());
+    }
+}
+
+/************* Writing utilities **************/
 
 template<class Reader, class Handle>
 void write_numeric_hdf5_base(Handle& handle, const std::string& type, uintptr_t data) {
@@ -827,97 +1010,8 @@ void write_compound_hdf5_base(Handle& handle, size_t n, const emscripten::val& d
     Reader::write(handle, payload.data(), ctype);
 }
 
-void configure_dataset_parameters(H5::DataSpace& dspace, int32_t nshape, uintptr_t shape, H5::DSetCreatPropList& plist, int32_t deflate_level, uintptr_t chunks) {
-    if (nshape == 0) { // if zero, it's a scalar, and the default DataSpace is correct.
-        return;
-    }
-
-    auto dims = process_shape(nshape, shape);
-    dspace = H5::DataSpace(nshape, dims.data());
-
-    // Checking for non-zero length, otherwise chunking will fail.
-    bool all_nonzero = true;
-    for (auto d : dims) {
-        if (d == 0) {
-            all_nonzero = false;
-            break;
-        }
-    }
-
-    if (deflate_level >= 0 && all_nonzero) {
-        plist.setDeflate(deflate_level);
-        auto cptr = reinterpret_cast<const int32_t*>(chunks);
-        std::copy(cptr, cptr + nshape, dims.begin());
-        plist.setChunk(nshape, dims.data());
-    }
-}
-
-H5::CompType translate_compound_type_for_create(const emscripten::val& named_type_info, int32_t max_str_len) {
-    struct MemberType {
-        MemberType() = default;
-        MemberType(std::string name, std::size_t offset, H5::DataType dtype) : name(std::move(name)), offset(offset), dtype(std::move(dtype)) {}
-        std::string name;
-        std::size_t offset;
-        H5::DataType dtype;
-    };
-    std::vector<MemberType> all_types;
-    std::size_t offset = 0;
-
-    for (const auto& member_info : named_type_info) {
-        auto name = member_info["name"].as<std::string>();
-        auto type = member_info["type"].as<std::string>();
-        if (type == "String") {
-            auto dtype = choose_string_data_type(max_str_len);
-            all_types.emplace_back(std::move(name), offset, std::move(dtype));
-        } else if (type.rfind("Int", 0) == 0 || type.rfind("Uint", 0) == 0 || type.rfind("Float", 0) == 0) {
-            auto dtype = choose_numeric_data_type(type);
-            all_types.emplace_back(std::move(name), offset, std::move(dtype));
-        } else {
-            throw std::runtime_error("only numbers and strings are supported in compound data types");
-        }
-        offset += all_types.back().dtype.getSize();
-    }
-
-    H5::CompType ctype(offset);
-    for (auto& x : all_types) {
-        ctype.insertMember(std::move(x.name), x.offset, std::move(x.dtype));
-    }
-    return ctype;
-}
 
 /************* Dataset writers **************/
-
-void create_hdf5_dataset(const std::string& path, const std::string& name, const H5::DataType& dtype, int32_t nshape, uintptr_t shape, int32_t deflate_level, uintptr_t chunks) {
-    H5::H5File handle(path, H5F_ACC_RDWR);
-
-    H5::DataSpace dspace;
- 	H5::DSetCreatPropList plist;
-    configure_dataset_parameters(dspace, nshape, shape, plist, deflate_level, chunks);
-    handle.createDataSet(name, dtype, dspace, plist);
-}
-
-void create_numeric_hdf5_dataset(std::string path, std::string name, int32_t nshape, uintptr_t shape, int32_t deflate_level, uintptr_t chunks, std::string type) {
-    H5::DataType dtype = choose_numeric_data_type(type);
-    create_hdf5_dataset(path, name, dtype, nshape, shape, deflate_level, chunks);
-    return;
-}
-
-void create_string_hdf5_dataset(std::string path, std::string name, int32_t nshape, uintptr_t shape, int32_t deflate_level, uintptr_t chunks, int32_t max_str_len) {
-    H5::DataType dtype = choose_string_data_type(max_str_len);
-    create_hdf5_dataset(path, name, dtype, nshape, shape, deflate_level, chunks);
-    return;
-}
-
-void create_enum_hdf5_dataset(std::string path, std::string name, int32_t nshape, uintptr_t shape, int32_t deflate_level, uintptr_t chunks, size_t nlevels, uintptr_t levlen, uintptr_t levbuffer) {
-    H5::DataType dtype = choose_enum_data_type(nlevels, levlen, levbuffer);
-    create_hdf5_dataset(path, name, dtype, nshape, shape, deflate_level, chunks);
-    return;
-}
-
-void create_compound_hdf5_dataset(std::string path, std::string name, int32_t nshape, uintptr_t shape, int32_t deflate_level, uintptr_t chunks, const emscripten::val& type_info, int32_t max_str_len) {
-    auto ctype = translate_compound_type_for_create(type_info, max_str_len);
-    create_hdf5_dataset(path, name, ctype, nshape, shape, deflate_level, chunks);
-}
 
 struct DataSetHandleWriter {
     template<class Handle, typename T, class MemType>
@@ -953,58 +1047,6 @@ void write_compound_hdf5_dataset(std::string path, std::string name, size_t n, c
 }
 
 /************* Attribute writers **************/
-
-void create_hdf5_attribute(const std::string& path, const std::string& name, const std::string& attr, const H5::DataType& dtype, int32_t nshape, uintptr_t shape) {
-    try {
-        H5::H5File handle(path, H5F_ACC_RDWR);
-
-        auto creator = [&](const H5::H5Object& handle) -> void {
-            H5::DataSpace dspace;
-            if (nshape) { // if zero, it's a scalar.
-                auto dims = process_shape(nshape, shape);
-                dspace = H5::DataSpace(nshape, dims.data());
-            }
-            handle.createAttribute(attr, dtype, dspace);
-        };
-
-        auto child_type = handle.childObjType(name);
-        if (child_type == H5O_TYPE_GROUP) {
-            auto ghandle = handle.openGroup(name);
-            creator(ghandle);
-        } else if (child_type == H5O_TYPE_DATASET) {
-            auto dhandle = handle.openDataSet(name);
-            creator(dhandle);
-        } else {
-            throw std::runtime_error("cannot fetch attribute from unknown HDF5 object '" + name + "'");
-        }
-    } catch (H5::Exception& e) {
-        throw std::runtime_error(e.getCDetailMsg());
-    }
-} 
-
-void create_numeric_hdf5_attribute(std::string path, std::string name, std::string attr, int32_t nshape, uintptr_t shape, std::string type) {
-    H5::DataType dtype = choose_numeric_data_type(type);
-    create_hdf5_attribute(path, name, attr, dtype, nshape, shape);
-    return;
-}
-
-void create_string_hdf5_attribute(std::string path, std::string name, std::string attr, int32_t nshape, uintptr_t shape, int32_t max_str_len) {
-    H5::DataType dtype = choose_string_data_type(max_str_len);
-    create_hdf5_attribute(path, name, attr, dtype, nshape, shape);
-    return;
-}
-
-void create_enum_hdf5_attribute(std::string path, std::string name, std::string attr, int32_t nshape, uintptr_t shape, size_t nlevels, uintptr_t levlen, uintptr_t levbuffer) {
-    H5::DataType dtype = choose_enum_data_type(nlevels, levlen, levbuffer);
-    create_hdf5_attribute(path, name, attr, dtype, nshape, shape);
-    return;
-}
-
-void create_compound_hdf5_attribute(std::string path, std::string name, std::string attr, int32_t nshape, uintptr_t shape, const emscripten::val& type_info, int32_t max_str_len) {
-    auto ctype = translate_compound_type_for_create(type_info, max_str_len);
-    create_hdf5_attribute(path, name, attr, ctype, nshape, shape);
-    return;
-}
 
 struct AttributeHandleWriter {
     template<class Handle, typename T, class MemType>
@@ -1060,41 +1102,29 @@ void write_compound_hdf5_attribute(std::string path, std::string name, std::stri
 EMSCRIPTEN_BINDINGS(hdf5_utils) {
     emscripten::class_<H5GroupDetails>("H5GroupDetails")
         .constructor<std::string, std::string>()
-        .function("child_buffer", &H5GroupDetails::child_buffer, emscripten::return_value_policy::take_ownership())
-        .function("child_lengths", &H5GroupDetails::child_lengths, emscripten::return_value_policy::take_ownership())
-        .function("child_types", &H5GroupDetails::child_types, emscripten::return_value_policy::take_ownership())
-        .function("attr_buffer", &H5GroupDetails::attr_buffer, emscripten::return_value_policy::take_ownership())
-        .function("attr_lengths", &H5GroupDetails::attr_lengths, emscripten::return_value_policy::take_ownership())
+        .function("children", &H5GroupDetails::children, emscripten::return_value_policy::take_ownership())
+        .function("attributes", &H5GroupDetails::attributes, emscripten::return_value_policy::take_ownership())
         ;
 
     emscripten::class_<H5DataSetDetails>("H5DataSetDetails")
         .constructor<std::string, std::string>()
         .function("type", &H5DataSetDetails::type, emscripten::return_value_policy::take_ownership())
         .function("shape", &H5DataSetDetails::shape, emscripten::return_value_policy::take_ownership())
-        .function("attr_buffer", &H5DataSetDetails::attr_buffer, emscripten::return_value_policy::take_ownership())
-        .function("attr_lengths", &H5DataSetDetails::attr_lengths, emscripten::return_value_policy::take_ownership())
+        .function("attributes", &H5GroupDetails::attributes, emscripten::return_value_policy::take_ownership())
         ;
 
     emscripten::class_<LoadedH5DataSet>("LoadedH5DataSet")
         .constructor<std::string, std::string>()
-        .function("type", &LoadedH5DataSet::type, emscripten::return_value_policy::take_ownership())
-        .function("shape", &LoadedH5DataSet::shape, emscripten::return_value_policy::take_ownership())
         .function("numeric_values", &LoadedH5DataSet::numeric_values, emscripten::return_value_policy::take_ownership())
+        .function("string_values", &LoadedH5DataSet::string_values, emscripten::return_value_policy::take_ownership())
         .function("compound_values", &LoadedH5DataSet::compound_values, emscripten::return_value_policy::take_ownership())
-        .function("string_buffer", &LoadedH5DataSet::string_buffer, emscripten::return_value_policy::take_ownership())
-        .function("string_lengths", &LoadedH5DataSet::string_lengths, emscripten::return_value_policy::take_ownership())
-        .function("attr_buffer", &LoadedH5DataSet::attr_buffer, emscripten::return_value_policy::take_ownership())
-        .function("attr_lengths", &LoadedH5DataSet::attr_lengths, emscripten::return_value_policy::take_ownership())
         ;
 
     emscripten::class_<LoadedH5Attr>("LoadedH5Attr")
         .constructor<std::string, std::string, std::string>()
-        .function("type", &LoadedH5Attr::type, emscripten::return_value_policy::take_ownership())
-        .function("shape", &LoadedH5Attr::shape, emscripten::return_value_policy::take_ownership())
         .function("numeric_values", &LoadedH5Attr::numeric_values, emscripten::return_value_policy::take_ownership())
+        .function("string_values", &LoadedH5Attr::string_values, emscripten::return_value_policy::take_ownership())
         .function("compound_values", &LoadedH5Attr::compound_values, emscripten::return_value_policy::take_ownership())
-        .function("string_buffer", &LoadedH5Attr::string_buffer, emscripten::return_value_policy::take_ownership())
-        .function("string_lengths", &LoadedH5Attr::string_lengths, emscripten::return_value_policy::take_ownership())
         ;
 
    emscripten::function("create_hdf5_file", &create_hdf5_file, emscripten::return_value_policy::take_ownership());

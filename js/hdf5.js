@@ -179,7 +179,11 @@ function downcast_type(type) {
     } else if (type instanceof H5StrType) {
         return { mode: "string", encoding: type.encoding, length: type.length };
     } else if (type instanceof H5EnumType) {
-        return { mode: "enum", code_type: type.codeType, level_encoding: type.levelType.encoding, level_length: type.levelType.length, levels: levels };
+        let levels = [];
+        for (const [key, val] of Object.entries(type.levels)) {
+            levels.push({ name: key, value: val });
+        }
+        return { mode: "enum", code_type: type.codeType, levels: levels };
     } else if (type instanceof H5CompoundType) {
         let converted = [];
         for (const [key, val] of Object.entries(type.compoundType)) {
@@ -197,7 +201,11 @@ function upcast_type(type) {
     } else if (type.mode == "numeric" || type.mode == "other") {
         return type.type;
     } else if (type.mode == "enum") {
-        return new H5EnumType(type.code_type, new H5StringType(type.level_encoding, type.level_length), type.levels);
+        let levels = {};
+        for (const [key, val] of type.levels) {
+            levels[key] = val;
+        }
+        return new H5EnumType(type.code_type, type.levels);
     } else if (type.mode == "compound") {
         let converted = {};
         for (const [key, val] of type.members) {
