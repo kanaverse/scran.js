@@ -1,6 +1,5 @@
 import * as utils from "./utils.js";
 import * as wasm from "./wasm.js";
-import * as packer from "./internal/pack_strings.js";
 import * as fac from "./factorize.js";
 
 function check_shape(x, shape) {

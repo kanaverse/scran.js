@@ -1,7 +1,6 @@
 import * as utils from "./utils.js";
 import * as wasm from "./wasm.js";
 import * as gc from "./gc.js";
-import * as packer from "./internal/pack_strings.js";
 
 /**
  * Base class for RDS objects.
@@ -54,12 +53,7 @@ export class RdsVector extends RdsObject {
      * @return {Array} Names of all attributes.
      */
     attributeNames() {
-        return wasm.call(mod => {
-            this.object.fill_attribute_names();
-            let anames_buf = this.object.attribute_names_buffer();
-            let anames_len = this.object.attribute_names_length();
-            return packer.unpack_strings(anames_buf, anames_len);
-        });
+        return wasm.call(mod => this.object.attribute_names());
     }
 
     /**
@@ -172,12 +166,7 @@ export class RdsStringVector extends RdsVector {
      * @return {Array} Values of the string vector.
      */
     values() {
-        return wasm.call(mod => {
-            this.object.fill_string_vector();
-            let buf = this.object.string_vector_buffer();
-            let len = this.object.string_vector_length();
-            return packer.unpack_strings(buf, len);
-        });
+        return wasm.call(mod => this.object.string_vector());
     }
 }
 
@@ -230,12 +219,7 @@ export class RdsS4Object extends RdsObject {
      * @return {Array} Names of all attributes.
      */
     attributeNames() {
-        return wasm.call(mod => {
-            this.object.fill_attribute_names();
-            let anames_buf = this.object.attribute_names_buffer();
-            let anames_len = this.object.attribute_names_length();
-            return packer.unpack_strings(anames_buf, anames_len);
-        });
+        return wasm.call(mod => this.object.attribute_names());
     }
 
     /**

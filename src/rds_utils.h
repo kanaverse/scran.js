@@ -80,40 +80,21 @@ public:
     }
 
 private:
-    static void fill_strings(const std::vector<std::string>& values, std::vector<char>& buffer, std::vector<int32_t>& lengths) {
-        size_t n = 0;
-        lengths.clear();
-        lengths.reserve(values.size());
+    static emscripten::val extract_strings(const std::vector<std::string>& values) {
+        auto output = emscripten::val::array(); 
         for (const auto& s : values) {
-            n += s.size();
-            lengths.push_back(s.size());
+            output.call<void>("push", emscripten::val(s));
         }
-
-        buffer.clear();
-        buffer.reserve(n);
-        for (const auto& s : values) {
-            buffer.insert(buffer.end(), s.begin(), s.end());
-        }
+        return output;
     }
 
-    std::vector<char> string_vector_buffer_;
-    std::vector<int32_t> string_vector_lengths_;
-
 public:
-    void fill_string_vector() {
+    emscripten::val string_vector() {
         if (ptr->type() != rds2cpp::SEXPType::STR) {
             throw std::runtime_error("cannot return string values for non-string RObject type");
         }
         auto sptr = static_cast<const rds2cpp::StringVector*>(ptr);
-        fill_strings(sptr->data, string_vector_buffer_, string_vector_lengths_);
-    }
-    
-    emscripten::val string_vector_buffer() const {
-        return emscripten::val(emscripten::typed_memory_view(string_vector_buffer_.size(), string_vector_buffer_.data()));
-    }
-    
-    emscripten::val string_vector_lengths() const {
-        return emscripten::val(emscripten::typed_memory_view(string_vector_lengths_.size(), string_vector_lengths_.data()));
+        return extract_strings(sptr->data);
     }
 
 private:
@@ -121,46 +102,29 @@ private:
     std::vector<int32_t> attribute_names_lengths_;
 
     template<class AttrClass>
-    void fill_attribute_names_() {
+    emscripten::val extract_attribute_names() {
         auto aptr = static_cast<const AttrClass*>(ptr);
-        fill_strings(aptr->attributes.names, attribute_names_buffer_, attribute_names_lengths_);
+        return extract_strings(aptr->attributes.names);
     }
 
 public:
-    void fill_attribute_names() {
+    emscripten::val attribute_names() {
         switch (ptr->type()) {
             case rds2cpp::SEXPType::INT:
-                fill_attribute_names_<rds2cpp::IntegerVector>();
-                break;
+                return extract_attribute_names<rds2cpp::IntegerVector>();
             case rds2cpp::SEXPType::REAL:
-                fill_attribute_names_<rds2cpp::DoubleVector>();
-                break;
+                return extract_attribute_names<rds2cpp::DoubleVector>();
             case rds2cpp::SEXPType::LGL:
-                fill_attribute_names_<rds2cpp::LogicalVector>();
-                break;
+                return extract_attribute_names<rds2cpp::LogicalVector>();
             case rds2cpp::SEXPType::STR:
-                fill_attribute_names_<rds2cpp::StringVector>();
-                break;
+                return extract_attribute_names<rds2cpp::StringVector>();
             case rds2cpp::SEXPType::VEC:
-                fill_attribute_names_<rds2cpp::GenericVector>();
-                break;
+                return extract_attribute_names<rds2cpp::GenericVector>();
             case rds2cpp::SEXPType::S4:
-                fill_attribute_names_<rds2cpp::S4Object>();
-                break;
+                return extract_attribute_names<rds2cpp::S4Object>();
             default:
-                attribute_names_lengths_.clear();
-                attribute_names_buffer_.clear();
-                break;
+                return emscripten::val::array();
         }
-        return;
-    }
-
-    emscripten::val attribute_names_buffer() const {
-        return emscripten::val(emscripten::typed_memory_view(attribute_names_buffer_.size(), attribute_names_buffer_.data()));
-    }
-    
-    emscripten::val attribute_names_lengths() const {
-        return emscripten::val(emscripten::typed_memory_view(attribute_names_lengths_.size(), attribute_names_lengths_.data()));
     }
 
 private:
