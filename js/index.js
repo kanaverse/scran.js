@@ -1,10 +1,10 @@
 export { initialize, terminate, wasmArraySpace, heapSize, maximumThreads } from "./wasm.js";
 export { createUint8WasmArray, createInt32WasmArray, createFloat64WasmArray, free } from "./utils.js";
 
-export * from "./initializeSparseMatrixFromArrays.js";
+export * from "./initializeMatrixFromArrays.js";
+export * from "./initializeMatrixFromHdf5.js";
 export * from "./initializeSparseMatrixFromRds.js";
 export * from "./initializeSparseMatrixFromMatrixMarket.js";
-export * from "./initializeMatrixFromHdf5.js";
 
 export * from "./rds.js";
 export * from "./file.js"; 

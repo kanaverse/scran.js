@@ -3,7 +3,7 @@ import * as wasm from "./wasm.js";
 import * as utils from "./utils.js";
 import { ScranMatrix } from "./ScranMatrix.js";
 import * as wa from "wasmarrays.js";
-import * as init from "./initializeSparseMatrixFromArrays.js";
+import * as init from "./initializeMatrixFromArrays.js";
 
 /**************************************************
  **************************************************/
