@@ -1,5 +1,9 @@
 # Single cell RNA-seq analysis in Javascript
 
+[![Unit tests](https://github.com/kanaverse/scran.js/actions/workflows/run-tests.yaml/badge.svg)](https://github.com/kanaverse/scran.js/actions/workflows/run-tests.yaml)
+[![Build docs](https://github.com/kanaverse/scran.js/actions/workflows/build-docs.yaml/badge.svg)](https://github.com/kanaverse/scran.js/actions/workflows/build-docs.yaml)
+[![NPM Version](https://img.shields.io/npm/v/scran.js)](http://npmjs.com/package/scran.js)
+
 ## Overview
 
 This repository contains **scran.js**, a Javascript library for single-cell RNA-seq (scRNA-seq) analysis in the browser.
