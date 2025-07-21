@@ -1,5 +1,36 @@
 # scran.js news
 
+## 4.0.0
+
+- Overhauled the HDF5 bindings:
+  - HDF5 readers and writers can now handle compound data types.
+  - Introduced the `H5StringType` and `H5EnumType` classes to better represent their associated HDF5 types.
+  - `H5DataSet::type()` will now report `H5StringType` and `H5EnumType` instead of `"String"` and `"Enum"`. 
+  - `readAttribute()` will now report the type of the attribute for `H5Group` and `H5DataSet` objects.
+- Updated the ADT normalization code:
+  - Added the `computeClrm1Factors()` function to implement the CLRm1 method.
+  - Removed the `median/groupedSizeFactors()` functions.
+- Renamed `logNormCounts()` to `normalizeCounts()` with a new `log=true` option.
+- Renamed `testFeatureSetEnrichment()` to `testGeneSetEnrichment()`.
+- Rotation matrices are now reported from `runPca()`.
+- Block weighting is supported in `modelGeneVariances()`.
+- Renamed `clusterSnnGraph()` to `clusterGraph()`.
+- Added a `truncateNearestNeighbors()` utility to truncate the neighbor search results.
+- Emit warnings if the requested and observed number of neighbors are different in functions that accept existing neighbor search results.
+- Renamed `scoreFeatureSet()` to `scoreGsdecon()`.
+- Updated the k-means clustering code in `clusterKmeans()`.
+  - Replaced PCA-partitioning with variance partitioning for k-means initialization.
+  - Exposed options for choosing the refinement algorithm and number of iterations.
+- Update the filtering during quality control.
+  - All `Suggest*FilterResults::filter()` methods now return the cells to **keep**.
+  - `filterCells()` now accepts a vector of cells to **keep**.
+- Use single-precision floats in `runUmap()`, for speed and consistency with R.
+- Renamed some methods to avoid unnecessary plurals, e.g., `sum()` instead of `sums()`.
+- Added `isBlocked()` methods to `*Results` classes with methods that accept block IDs.
+- Renamed all of the SingleR-related functions, for consistency with the underlying C++ library.
+- Added an `asTypedArray=` option to various methods/functions to allow users to choose between returning a TypedArray or TypedWasmArray.
+- Added a `columnMajor=` option for dense array initialization in `initializeDenseMatrixFromDenseArray()`, replacing `ScranMatrix::createDenseMatrix()`.
+
 ## 3.0.2
 
 **New**
