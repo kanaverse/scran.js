@@ -4,38 +4,43 @@ import * as utils from "./utils.js";
 import { ScranMatrix } from "./ScranMatrix.js";
 
 /**
- * Initialize a (potentially layered) sparse matrix from a HDF5 file,
- * either as a 2-dimensional dataset ({@linkcode initializeSparseMatrixFromHdf5Dataset})
+ * Initialize a {@link ScranMatrix} from a HDF5 file.
+ * The matrix may be represented as a 2-dimensional dataset ({@linkcode initializeSparseMatrixFromHdf5Dataset})
  * or as a group containing compressed sparse vectors ({@linkcode initializeSparseMatrixFromHdf5Group}).
  *
  * @param {string} file Path to the HDF5 file.
  * For browsers, the file should have been saved to the virtual filesystem.
  * @param {string} name Name of the matrix inside the file.
- * This can be a HDF5 Dataset for dense matrices or a HDF5 Group for sparse matrices.
+ * This can be a HDF5 dataset for dense matrices or a HDF5 group for sparse matrices.
  * For the latter, we expect the `data`, `indices` and `indptr` datasets, corresponding to the compressed sparse components.
  * @param {object} [options={}] - Optional parameters.
  * @param {boolean} [options.forceInteger=true] - Whether to coerce all elements to integers via truncation.
+ * @param {boolean} [options.forceSparse=true] - Whether to create a sparse matrix in memory, even when `name` refers to a dense matrix in a HDF5 dataset.
  * @param {boolean} [options.layered=true] - Whether to create a layered sparse matrix, see [**tatami_layered**](https://github.com/tatami-inc/tatami_layered) for more details.
- * Only used if the relevant HDF5 dataset contains an integer type and/or `forceInteger = true`.
+ * Only used if a sparse matrix is created (i.e., `forceSparse = true` or `name` refers to a HDF5 group)
+ * and the matrix contents are integer (i.e., the relevant HDF5 dataset is of an integer type or `forceInteger = true`).
  * Setting to `true` assumes that the matrix contains only non-negative integers.
  * @param {?(Array|TypedArray|Int32WasmArray)} [options.subsetRow=null] - Row indices to extract.
  * All indices must be non-negative integers less than the number of rows in the sparse matrix.
  * @param {?(Array|TypedArray|Int32WasmArray)} [options.subsetColumn=null] - Column indices to extract.
  * All indices must be non-negative integers less than the number of columns in the sparse matrix.
  *
- * @return {ScranMatrix} Matrix containing sparse data.
+ * @return {ScranMatrix} In-memory matrix.
  */
-export function initializeSparseMatrixFromHdf5(file, name, options = {}) {
-    const { forceInteger = true, layered = true, subsetRow = null, subsetColumn = null, ...others } = options;
+export function initializeMatrixFromHdf5(file, name, options = {}) {
+    const { forceInteger = true, forceSparse = true, layered = true, subsetRow = null, subsetColumn = null, ...others } = options;
     utils.checkOtherOptions(others);
 
     const details = extractHdf5MatrixDetails(file, name);
     if (details.format == "dense") {
-        return initializeSparseMatrixFromHdf5Dataset(file, name, { forceInteger, layered, subsetRow, subsetColumn });
+        return initializeSparseMatrixFromHdf5Dataset(file, name, { forceInteger, forceSparse, layered, subsetRow, subsetColumn });
     } else {
         return initializeSparseMatrixFromHdf5Group(file, name, details.rows, details.columns, (details.format == "csr"), { forceInteger, layered, subsetRow, subsetColumn });
     }
 }
+
+// Back-compatibility.
+export const initializeSparseMatrixFromHdf5 = initializeMatrixFromHdf5;
 
 function processSubsets(subsetRow, subsetColumn, FUN) {
     let output;
@@ -87,7 +92,7 @@ function processSubsets(subsetRow, subsetColumn, FUN) {
 }
 
 /**
- * Initialize a (potentially layered) sparse matrix from a 2-dimensional dataset in a HDF5 file.
+ * Initialize a {@link ScranMatrix} from a 2-dimensional dataset in a HDF5 file.
  *
  * @param {string} file Path to the HDF5 file.
  * For browsers, the file should have been saved to the virtual filesystem.
@@ -96,18 +101,20 @@ function processSubsets(subsetRow, subsetColumn, FUN) {
  * @param {boolean} [options.transposed=true] - Whether the matrix is stored in a transposed format (i.e., HDF5 rows correspond to columns of the matrix).
  * Transposition is commonly used to preserve the memory layout when storing matrices from column-major frameworks like R or Fortran.
  * @param {boolean} [options.forceInteger=true] - Whether to coerce all elements to integers via truncation.
+ * @param {boolean} [options.forceSparse=true] - Whether to create a sparse matrix, even when `name` refers to a dense matrix in a HDF5 dataset.
  * @param {boolean} [options.layered=true] - Whether to create a layered sparse matrix, see [**tatami_layered**](https://github.com/tatami-inc/tatami_layered) for more details.
- * Only used if the relevant HDF5 dataset contains an integer type and/or `forceInteger = true`.
+ * Only used if a sparse matrix is created (i.e., `forceSparse = true` or `name` refers to a HDF5 group)
+ * and the matrix contents are integer (i.e., the relevant HDF5 dataset is of an integer type or `forceInteger = true`).
  * Setting to `true` assumes that the matrix contains only non-negative integers.
  * @param {?(Array|TypedArray|Int32WasmArray)} [options.subsetRow=null] - Row indices to extract.
  * All indices must be non-negative integers less than the number of rows in the sparse matrix.
  * @param {?(Array|TypedArray|Int32WasmArray)} [options.subsetColumn=null] - Column indices to extract.
  * All indices must be non-negative integers less than the number of columns in the sparse matrix.
  *
- * @return {ScranMatrix} Matrix containing sparse data.
+ * @return {ScranMatrix} In-memory matrix.
  */
-export function initializeSparseMatrixFromHdf5Dataset(file, name, options = {}) {
-    const { transposed = true, forceInteger = true, layered = true, subsetRow = null, subsetColumn = null, ...others } = options;
+export function initializeMatrixFromHdf5Dataset(file, name, options = {}) {
+    const { transposed = true, forceInteger = true, forceSparse = true, layered = true, subsetRow = null, subsetColumn = null, ...others } = options;
     utils.checkOtherOptions(others);
 
     return processSubsets(
@@ -119,6 +126,7 @@ export function initializeSparseMatrixFromHdf5Dataset(file, name, options = {}) 
                 name, 
                 transposed,
                 forceInteger,
+                forceSparse,
                 layered,
                 use_row_subset,
                 row_offset,
@@ -131,8 +139,11 @@ export function initializeSparseMatrixFromHdf5Dataset(file, name, options = {}) 
     );
 }
 
+// Back-compatibility.
+export const initializeSparseMatrixFromHdf5Dataset = initializeMatrixFromHdf5Dataset;
+
 /**
- * Initialize a (potentially layered) sparse matrix from a group in a HDF5 file.
+ * Initialize a (potentially layered) sparse {@link ScranMatrix} from a group in a HDF5 file.
  *
  * @param {string} file Path to the HDF5 file.
  * For browsers, the file should have been saved to the virtual filesystem.
@@ -151,7 +162,7 @@ export function initializeSparseMatrixFromHdf5Dataset(file, name, options = {}) 
  * @param {?(Array|TypedArray|Int32WasmArray)} [options.subsetColumn=null] - Column indices to extract.
  * All indices must be non-negative integers less than the number of columns in the sparse matrix.
  *
- * @return {ScranMatrix} Matrix containing sparse data.
+ * @return {ScranMatrix} In-memory matrix containing sparse data.
  */
 export function initializeSparseMatrixFromHdf5Group(file, name, numberOfRows, numberOfColumns, byRow, options = {}) {
     const { forceInteger = true, layered = true, subsetRow = null, subsetColumn = null, ...others } = options;
@@ -186,7 +197,7 @@ export function initializeSparseMatrixFromHdf5Group(file, name, numberOfRows, nu
  * @param {string} file Path to the HDF5 file.
  * For browsers, the file should have been saved to the virtual filesystem.
  * @param {string} name Name of the dataset inside the file.
- * This can be a HDF5 Dataset for dense matrices or a HDF5 Group for sparse matrices.
+ * This can be a HDF5 dataset for dense matrices or a HDF5 group for sparse matrices.
  * For the latter, both H5AD and 10X-style sparse formats are supported.
  *
  * @return {object} An object containing:

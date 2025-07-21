@@ -21,7 +21,7 @@
 - Updated the k-means clustering code in `clusterKmeans()`.
   - Replaced PCA-partitioning with variance partitioning for k-means initialization.
   - Exposed options for choosing the refinement algorithm and number of iterations.
-- Update the filtering during quality control.
+- Updated the filtering during quality control.
   - All `Suggest*FilterResults::filter()` methods now return the cells to **keep**.
   - `filterCells()` now accepts a vector of cells to **keep**.
 - Use single-precision floats in `runUmap()`, for speed and consistency with R.
@@ -30,6 +30,9 @@
 - Renamed all of the SingleR-related functions, for consistency with the underlying C++ library.
 - Added an `asTypedArray=` option to various methods/functions to allow users to choose between returning a TypedArray or TypedWasmArray.
 - Added a `columnMajor=` option for dense array initialization in `initializeDenseMatrixFromDenseArray()`, replacing `ScranMatrix::createDenseMatrix()`.
+- Updated the matrix initialization from HDF5 datasets:
+  - Renamed `initializeSparseMatrixFromHdf5()` to `initializeMatrixFromHdf5()`, with a new `forceSparse=` option to indicate whether the matrix should be sparse.
+  - Renamed `initializeSparseMatrixFromHdf5DataSet()` to `initializeMatrixFromHdf5DataSet()`, with a new `forceSparse=` option to indicate whether the matrix should be sparse.
 
 ## 3.0.2
 

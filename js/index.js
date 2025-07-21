@@ -4,7 +4,7 @@ export { createUint8WasmArray, createInt32WasmArray, createFloat64WasmArray, fre
 export * from "./initializeSparseMatrixFromArrays.js";
 export * from "./initializeSparseMatrixFromRds.js";
 export * from "./initializeSparseMatrixFromMatrixMarket.js";
-export * from "./initializeSparseMatrixFromHdf5.js";
+export * from "./initializeMatrixFromHdf5.js";
 
 export * from "./rds.js";
 export * from "./file.js"; 

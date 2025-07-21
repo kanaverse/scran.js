@@ -119,6 +119,7 @@ void extract_hdf5_matrix_details(std::string path, std::string name, uintptr_t p
 template<typename T>
 NumericMatrix apply_post_processing(
     std::shared_ptr<tatami::Matrix<T, int32_t> > mat,
+    bool sparse,
     bool layered, 
     bool row_subset, 
     uintptr_t row_offset, 
@@ -141,7 +142,11 @@ NumericMatrix apply_post_processing(
         mat = std::move(smat);
     }
 
-    return sparse_from_tatami(*mat, layered);
+    if (sparse) {
+        return sparse_from_tatami(*mat, layered);
+    } else {
+        return NumericMatrix(tatami::convert_to_dense<double, int32_t, T>(mat.get(), true));
+    }
 }
 
 template<typename T>
@@ -149,6 +154,7 @@ NumericMatrix initialize_from_hdf5_dense_internal(
     const std::string& path, 
     const std::string& name, 
     bool trans,
+    bool sparse,
     bool layered, 
     bool row_subset, 
     uintptr_t row_offset, 
@@ -157,28 +163,25 @@ NumericMatrix initialize_from_hdf5_dense_internal(
     uintptr_t col_offset,
     int32_t col_length)
 {
-    std::shared_ptr<tatami::Matrix<T, int32_t> > mat;
+    NumericMatrix mat;
 
     try {
-        if (trans) {
-            mat.reset(new tatami_hdf5::DenseMatrix<T, int32_t>(path, name, true));
-        } else {
-            mat.reset(new tatami_hdf5::DenseMatrix<T, int32_t>(path, name, false));
-        }
+        mat = apply_post_processing<T>(
+            std::make_shared<tatami_hdf5::DenseMatrix<T, int32_t> >(path, name, trans),
+            sparse,
+            layered, 
+            row_subset, 
+            row_offset, 
+            row_length, 
+            col_subset, 
+            col_offset, 
+            col_length
+        );
     } catch (H5::Exception& e) {
         throw std::runtime_error(e.getCDetailMsg());
     }
 
-    return apply_post_processing(
-        std::move(mat),
-        layered, 
-        row_subset, 
-        row_offset, 
-        row_length, 
-        col_subset, 
-        col_offset, 
-        col_length
-    );
+    return mat;
 }
 
 NumericMatrix initialize_from_hdf5_dense(
@@ -186,6 +189,7 @@ NumericMatrix initialize_from_hdf5_dense(
     std::string name, 
     bool trans,
     bool force_integer,
+    bool sparse,
     bool layered, 
     bool row_subset, 
     uintptr_t row_offset, 
@@ -206,9 +210,9 @@ NumericMatrix initialize_from_hdf5_dense(
     }
 
     if (as_integer) {
-        return initialize_from_hdf5_dense_internal<int32_t>(path, name, trans, layered, row_subset, row_offset, row_length, col_subset, col_offset, col_length);
+        return initialize_from_hdf5_dense_internal<int32_t>(path, name, trans, sparse, layered, row_subset, row_offset, row_length, col_subset, col_offset, col_length);
     } else {
-        return initialize_from_hdf5_dense_internal<double>(path, name, trans, false, row_subset, row_offset, row_length, col_subset, col_offset, col_length);
+        return initialize_from_hdf5_dense_internal<double>(path, name, trans, sparse, false, row_subset, row_offset, row_length, col_subset, col_offset, col_length);
     }
 }
 
@@ -227,30 +231,22 @@ NumericMatrix initialize_from_hdf5_sparse_internal(
     uintptr_t col_offset,
     int32_t col_length)
 {
-    if (!layered && !csc && !row_subset && !col_subset) {
-        std::shared_ptr<const tatami::Matrix<double, int32_t> > mat;
+    NumericMatrix output;
 
-        // Don't do the same with CSC matrices; there is an implicit
-        // expectation that all instances of this function prefer row matrices,
-        // and if we did it with CSC, we'd get a column-major matrix instead.
-        try {
-            mat = tatami_hdf5::load_compressed_sparse_matrix<double, int32_t, std::vector<T> >(nr, nc, path, name + "/data", name + "/indices", name + "/indptr", true);
-        } catch (H5::Exception& e) {
-            throw std::runtime_error(e.getCDetailMsg());
-        }
-
-        return NumericMatrix(std::move(mat));
-
-    } else {
+    try {
         std::shared_ptr<tatami::Matrix<T, int32_t> > mat;
-        try {
+        if (!layered && !csc && !row_subset && !col_subset) {
+            // Don't do the same with CSC matrices; there is an implicit
+            // expectation that all instances of this function prefer row matrices,
+            // and if we did it with CSC, we'd get a column-major matrix instead.
+            mat = tatami_hdf5::load_compressed_sparse_matrix<T, int32_t, std::vector<T> >(nr, nc, path, name + "/data", name + "/indices", name + "/indptr", true);
+        } else {
             mat.reset(new tatami_hdf5::CompressedSparseMatrix<T, int32_t>(nr, nc, path, name + "/data", name + "/indices", name + "/indptr", !csc));
-        } catch (H5::Exception& e) {
-            throw std::runtime_error(e.getCDetailMsg());
         }
 
-        return apply_post_processing(
+        output = apply_post_processing(
             std::move(mat),
+            false,
             layered, 
             row_subset, 
             row_offset, 
@@ -259,7 +255,12 @@ NumericMatrix initialize_from_hdf5_sparse_internal(
             col_offset, 
             col_length
         );
+
+    } catch (H5::Exception& e) {
+        throw std::runtime_error(e.getCDetailMsg());
     }
+
+    return output;
 }
 
 NumericMatrix initialize_from_hdf5_sparse(

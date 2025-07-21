@@ -45,13 +45,13 @@ test("initialization from HDF5 works correctly with dense inputs", () => {
 
     // Ingesting it.
     var mat = scran.initializeSparseMatrixFromHdf5(path, "stuff", { layered: false });
+    expect(mat.isSparse()).toBe(true);
     expect(mat.numberOfRows()).toBe(50); // Transposed; rows in HDF5 are typically samples.
     expect(mat.numberOfColumns()).toBe(20);
 
     // Checking that we're working in column-major (or row-major, in HDF5).
     var first_col = mat.column(0);
     expect(compare.equalArrays(first_col, x.slice(0, 50))).toBe(true);
-
     var last_col = mat.column(19);
     expect(compare.equalArrays(last_col, x.slice(19 * 50, 20 * 50))).toBe(true);
 
@@ -66,6 +66,14 @@ test("initialization from HDF5 works correctly with dense inputs", () => {
     expect(mat3.numberOfColumns()).toBe(mat2.numberOfRows());
     expect(compare.equalArrays(mat3.column(0), mat2.row(0))).toBe(true);
     expect(compare.equalArrays(mat3.row(0), mat2.column(0))).toBe(true);
+
+    // Checking that it works when dense extraction is requested.
+    var dmat = scran.initializeSparseMatrixFromHdf5(path, "stuff", { forceSparse: false });
+    expect(dmat.isSparse()).toBe(false);
+    expect(dmat.numberOfRows()).toBe(50);
+    expect(dmat.numberOfColumns()).toBe(20);
+    expect(compare.equalArrays(dmat.column(0), first_col)).toBe(true);
+    expect(compare.equalArrays(dmat.column(19), last_col)).toBe(true);
 
     // Freeing.
     mat.free();
@@ -287,64 +295,75 @@ test("initialization from HDF5 works correctly with forced integers", () => {
     mat3.free();
 })
 
-test("initialization from HDF5 works correctly with subsetting", () => {
-    const path = dir + "/test.sparse_tenx.h5";
-    purge(path);
+test("initialization from HDF5 groups works correctly with subsetting", () => {
+    for (const sparse of [true, false]) {
+        let nr = 50;
+        let nc = 20;
+        const path = dir + "/test.subsetted.h5";
+        purge(path);
 
-    // Creating a CSC sparse matrix, injecting in some big numbers.
-    let nr = 50;
-    let nc = 20;
-    const { data, indices, indptrs } = simulate.simulateSparseData(nc, nr, /* injectBigValues = */ true);
+        if (sparse) {
+            // Creating a CSC sparse matrix, injecting in some big numbers.
+            const { data, indices, indptrs } = simulate.simulateSparseData(nc, nr, /* injectBigValues = */ true);
+            let f = new hdf5.File(path, "w");
+            f.create_group("foobar");
+            f.get("foobar").create_dataset("data", data);
+            f.get("foobar").create_dataset("indices", indices);
+            f.get("foobar").create_dataset("indptr", indptrs);
+            f.get("foobar").create_dataset("shape", [nr, nc], null, "<i");
+            f.close();
+        } else {
+            let x = new Int32Array(1000);
+            x.forEach((y, i) => {
+                x[i] = Math.round(Math.random() * 10);
+            });
+            let f = new hdf5.File(path, "w");
+            f.create_dataset("foobar", x, [20, 50]);
+            f.close();
+        }
 
-    let f = new hdf5.File(path, "w");
-    f.create_group("foobar");
-    f.get("foobar").create_dataset("data", data);
-    f.get("foobar").create_dataset("indices", indices);
-    f.get("foobar").create_dataset("indptr", indptrs);
-    f.get("foobar").create_dataset("shape", [nr, nc], null, "<i");
-    f.close();
+        // Loading various flavors into memory.
+        var full = scran.initializeMatrixFromHdf5(path, "foobar", { layered: false });
 
-    // Loading various flavors into memory.
-    var full = scran.initializeSparseMatrixFromHdf5(path, "foobar", { layered: false });
+        let rs = [];
+        for (var i = 1; i < nr; i += 2) {
+            rs.push(i);
+        }
+        var row_sub = scran.initializeMatrixFromHdf5(path, "foobar", { layered: false, subsetRow: rs });
+        expect(row_sub.numberOfRows()).toEqual(rs.length);
+        expect(row_sub.numberOfColumns()).toEqual(nc);
 
-    let rs = [];
-    for (var i = 1; i < nr; i += 2) {
-        rs.push(i);
-    }
-    var row_sub = scran.initializeSparseMatrixFromHdf5(path, "foobar", { layered: false, subsetRow: rs });
-    expect(row_sub.numberOfRows()).toEqual(rs.length);
-    expect(row_sub.numberOfColumns()).toEqual(nc);
+        let cs = [];
+        for (var i = 0; i < nc; i += 2) {
+            cs.push(i);
+        }
+        var col_sub = scran.initializeMatrixFromHdf5(path, "foobar", { layered: false, subsetColumn: cs });
+        expect(col_sub.numberOfRows()).toEqual(nr);
+        expect(col_sub.numberOfColumns()).toEqual(cs.length);
 
-    let cs = [];
-    for (var i = 0; i < nc; i += 2) {
-        cs.push(i);
-    }
-    var col_sub = scran.initializeSparseMatrixFromHdf5(path, "foobar", { layered: false, subsetColumn: cs });
-    expect(col_sub.numberOfRows()).toEqual(nr);
-    expect(col_sub.numberOfColumns()).toEqual(cs.length);
+        var both_sub = scran.initializeMatrixFromHdf5(path, "foobar", { layered: false, subsetRow: rs, subsetColumn: cs });
+        expect(both_sub.numberOfRows()).toEqual(rs.length);
+        expect(both_sub.numberOfColumns()).toEqual(cs.length);
 
-    var both_sub = scran.initializeSparseMatrixFromHdf5(path, "foobar", { layered: false, subsetRow: rs, subsetColumn: cs });
-    expect(both_sub.numberOfRows()).toEqual(rs.length);
-    expect(both_sub.numberOfColumns()).toEqual(cs.length);
+        // Checking the contents.
+        for (var c = 0; c < nc; ++c) {
+            let raw_ref = full.column(c);
+            let ref = rs.map(i => raw_ref[i]);
+            let sub = row_sub.column(c);
+            expect(compare.equalFloatArrays(ref, sub)).toBe(true);
+        }
 
-    // Checking the contents.
-    for (var c = 0; c < nc; ++c) {
-        let raw_ref = full.column(c);
-        let ref = rs.map(i => raw_ref[i]);
-        let sub = row_sub.column(c);
-        expect(compare.equalFloatArrays(ref, sub)).toBe(true);
-    }
+        for (var r = 0; r < nr; ++r) {
+            let raw_ref = full.row(r);
+            let ref = cs.map(i => raw_ref[i]);
+            let sub = col_sub.row(r);
+            expect(compare.equalFloatArrays(ref, sub)).toBe(true);
+        }
 
-    for (var r = 0; r < nr; ++r) {
-        let raw_ref = full.row(r);
-        let ref = cs.map(i => raw_ref[i]);
-        let sub = col_sub.row(r);
-        expect(compare.equalFloatArrays(ref, sub)).toBe(true);
-    }
-
-    for (var i = 0; i < rs.length; ++i) {
-        let ref = col_sub.row(rs[i]);
-        let sub = both_sub.row(i);
-        expect(compare.equalFloatArrays(ref, sub)).toBe(true);
+        for (var i = 0; i < rs.length; ++i) {
+            let ref = col_sub.row(rs[i]);
+            let sub = both_sub.row(i);
+            expect(compare.equalFloatArrays(ref, sub)).toBe(true);
+        }
     }
 })
