@@ -246,7 +246,7 @@ NumericMatrix initialize_from_hdf5_sparse_internal(
 
         output = apply_post_processing(
             std::move(mat),
-            false,
+            true,
             layered, 
             row_subset, 
             row_offset, 

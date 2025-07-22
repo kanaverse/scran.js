@@ -153,6 +153,7 @@ test("initialization from HDF5 works correctly with 10X inputs", () => {
     var mat = scran.initializeSparseMatrixFromHdf5(path, "foobar");
     expect(mat.numberOfRows()).toBe(nr); 
     expect(mat.numberOfColumns()).toBe(nc);
+    expect(mat.isSparse()).toBe(true);
 
     var raw_mat = scran.initializeSparseMatrixFromHdf5(path, "foobar", { layered: false });
     expect(raw_mat.numberOfRows()).toBe(nr); 
@@ -212,6 +213,7 @@ test("initialization from HDF5 works correctly with H5AD inputs", () => {
     var mat = scran.initializeSparseMatrixFromHdf5(path, "layers/counts");
     expect(mat.numberOfRows()).toBe(nr); 
     expect(mat.numberOfColumns()).toBe(nc);
+    expect(mat.isSparse()).toBe(true);
 
     // Checking that we can extract successfully.
     var first_row = mat.row(0);
@@ -302,48 +304,50 @@ test("initialization from HDF5 groups works correctly with subsetting", () => {
         const path = dir + "/test.subsetted.h5";
         purge(path);
 
+        let f = new hdf5.File(path, "w");
         if (sparse) {
             // Creating a CSC sparse matrix, injecting in some big numbers.
             const { data, indices, indptrs } = simulate.simulateSparseData(nc, nr, /* injectBigValues = */ true);
-            let f = new hdf5.File(path, "w");
             f.create_group("foobar");
             f.get("foobar").create_dataset("data", data);
             f.get("foobar").create_dataset("indices", indices);
             f.get("foobar").create_dataset("indptr", indptrs);
             f.get("foobar").create_dataset("shape", [nr, nc], null, "<i");
-            f.close();
         } else {
             let x = new Int32Array(1000);
             x.forEach((y, i) => {
                 x[i] = Math.round(Math.random() * 10);
             });
-            let f = new hdf5.File(path, "w");
             f.create_dataset("foobar", x, [20, 50]);
-            f.close();
         }
+        f.close();
 
         // Loading various flavors into memory.
-        var full = scran.initializeMatrixFromHdf5(path, "foobar", { layered: false });
+        var full = scran.initializeMatrixFromHdf5(path, "foobar", { layered: false, forceSparse: sparse });
+        expect(full.isSparse()).toBe(sparse);
 
         let rs = [];
         for (var i = 1; i < nr; i += 2) {
             rs.push(i);
         }
-        var row_sub = scran.initializeMatrixFromHdf5(path, "foobar", { layered: false, subsetRow: rs });
+        var row_sub = scran.initializeMatrixFromHdf5(path, "foobar", { layered: false, forceSparse: sparse, subsetRow: rs });
         expect(row_sub.numberOfRows()).toEqual(rs.length);
         expect(row_sub.numberOfColumns()).toEqual(nc);
+        expect(row_sub.isSparse()).toBe(sparse);
 
         let cs = [];
         for (var i = 0; i < nc; i += 2) {
             cs.push(i);
         }
-        var col_sub = scran.initializeMatrixFromHdf5(path, "foobar", { layered: false, subsetColumn: cs });
+        var col_sub = scran.initializeMatrixFromHdf5(path, "foobar", { layered: false, forceSparse: sparse, subsetColumn: cs });
         expect(col_sub.numberOfRows()).toEqual(nr);
         expect(col_sub.numberOfColumns()).toEqual(cs.length);
+        expect(col_sub.isSparse()).toBe(sparse);
 
-        var both_sub = scran.initializeMatrixFromHdf5(path, "foobar", { layered: false, subsetRow: rs, subsetColumn: cs });
+        var both_sub = scran.initializeMatrixFromHdf5(path, "foobar", { layered: false, forceSparse: sparse, subsetRow: rs, subsetColumn: cs });
         expect(both_sub.numberOfRows()).toEqual(rs.length);
         expect(both_sub.numberOfColumns()).toEqual(cs.length);
+        expect(both_sub.isSparse()).toBe(sparse);
 
         // Checking the contents.
         for (var c = 0; c < nc; ++c) {
