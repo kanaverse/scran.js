@@ -36,7 +36,10 @@
         "single-cell",
         "webassembly"
     ],
-    "repository": "github:kanaverse/scran.js",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/kanaverse/scran.js.git"
+    },
     "homepage": "https://github.com/kanaverse/scran.js#readme",
     "dependencies": {
         "wasmarrays.js": "^0.1.3"
