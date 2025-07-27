@@ -94,3 +94,35 @@ test("saving a sparse matrix to HDF5 works correctly when forcing integers", () 
         expect(output.column(i)).toEqual(expected);
     }
 })
+
+test("saving a sparse matrix can ignore shape", () => {
+    const path = dir + "/test.sparse.out.h5";
+    let simmed = simulate.simulateMatrix(50, 80, /* density */ 0.2, /* maxcount */ 10, /* forceInteger */ false);
+    purge(path);
+    scran.writeSparseMatrixToHdf5(simmed, path, "foo", { saveShape: false });
+
+    let handle = new scran.H5File(path);
+    let fhandle = handle.open("foo");
+    expect("shape" in fhandle.children).toBe(false);
+    expect("shape" in fhandle.attributes).toBe(false);
+    expect("data" in fhandle.children).toBe(true); // as a positive control.
+})
+
+test("saving a sparse matrix can preserve existing files", () => {
+    const path = dir + "/test.sparse.out.h5";
+    purge(path);
+    let handle = scran.createNewHdf5File(path);
+    handle.createGroup("foo");
+
+    let simmed = simulate.simulateMatrix(50, 80, /* density */ 0.2, /* maxcount */ 10, /* forceInteger */ false);
+    scran.writeSparseMatrixToHdf5(simmed, path, "bar", { overwrite: false });
+    handle = new scran.H5File(path);
+    expect("foo" in handle.children).toBe(true);
+    expect("bar" in handle.children).toBe(true);
+
+    // That said, default is to overwrite.
+    scran.writeSparseMatrixToHdf5(simmed, path, "bar");
+    handle = new scran.H5File(path);
+    expect("foo" in handle.children).toBe(false);
+    expect("bar" in handle.children).toBe(true);
+})
