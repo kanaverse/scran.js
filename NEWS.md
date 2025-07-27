@@ -1,5 +1,15 @@
 # scran.js news
 
+## 4.0.2
+
+- Added more options to `writeSparseMatrixToHdf5()`.
+  - Setting `saveShape=false` will skip saving of the shape dataset/attribute.
+  - Setting `overwrite=false` will add matrix contents to an existing HDF5 file.
+
+## 4.0.1
+
+- Bugfix to actually return sparse matrices from the various `initializeMatrixFromHdf5()` functions.
+
 ## 4.0.0
 
 - Overhauled the HDF5 bindings:
