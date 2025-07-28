@@ -730,7 +730,6 @@ export class H5DataSet extends H5Base {
      * This should be of length equal to the product of {@linkcode H5DataSet#shape shape};
      * unless `shape` is empty, in which case it should either be of length 1, or a single number or string.
      * @param {object} [options={}] - Optional parameters.
-     * @param {boolean} [options.cache=false] - Whether to cache the written values in this {@linkplain H5DataSet} object.
      *
      * @return `x` is written to the dataset on file.
      * No return value is provided.
