@@ -15,7 +15,7 @@ static emscripten::val get_effect_summary(const scran_markers::SummaryResults<do
         const auto& current = res.min_rank;
         return emscripten::val(emscripten::typed_memory_view(current.size(), current.data()));
     } else {
-        const auto& current = [&]{
+        const auto& current = [&]() -> const std::vector<double>& {
             if (type == "minimum") {
                 return res.min;
             } else if (type == "maximum") {

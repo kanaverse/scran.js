@@ -1,5 +1,9 @@
 # scran.js news
 
+## 4.0.3
+
+- Bugfix to avoid a dangling memory view when retrieving statistics from a `ScoreMarkersResults` object.
+
 ## 4.0.2
 
 - Added more options to `writeSparseMatrixToHdf5()`.

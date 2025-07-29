@@ -1,6 +1,6 @@
 {
     "name": "scran.js",
-    "version": "4.0.2",
+    "version": "4.0.3",
     "description": "Single cell RNA-seq analysis in Javascript",
     "license": "MIT",
     "main": "main/index.js",
