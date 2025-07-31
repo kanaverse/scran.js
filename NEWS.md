@@ -1,5 +1,9 @@
 # scran.js news
 
+## 4.0.4
+
+- Fixed a performance regression for `readRds()`.
+
 ## 4.0.3
 
 - Bugfix to avoid a dangling memory view when retrieving statistics from a `ScoreMarkersResults` object.

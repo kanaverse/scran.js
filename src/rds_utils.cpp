@@ -30,11 +30,11 @@ public:
 
 LoadedRds parse_rds_from_buffer(uintptr_t buffer, int32_t size) {
     byteme::SomeBufferReader reader(reinterpret_cast<const uint8_t*>(buffer), size);
-    return LoadedRds(rds2cpp::parse_rds(reader));
+    return LoadedRds(rds2cpp::parse_rds<true>(reader)); // setting parallel=true because rds2cpp::parse_rds() is bugged and parallel=true is actually serial.
 }
 
 LoadedRds parse_rds_from_file(std::string path) {
-    return LoadedRds(rds2cpp::parse_rds(path));
+    return LoadedRds(rds2cpp::parse_rds<true>(path));
 }
 
 EMSCRIPTEN_BINDINGS(rds_utils) {
