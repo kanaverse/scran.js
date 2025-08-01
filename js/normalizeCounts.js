@@ -60,17 +60,21 @@ export function normalizeCounts(x, options = {}) {
 }
 
 /**
- * Center size factors in preparation for log-transformation.
- * This is usually called by {@linkcode normalizeCounts} internally, but can also be directly called by users to reconstitute the size factors used in the log-normalized matrix.
+ * Center size factors in preparation for log-transformation in {@linkcode normalizeCounts}.
  *
  * @param {TypedArray|WasmArray} sizeFactors - Array of non-negative size factors, one per cell.
  * @param {object} [options={}] - Optional parameters.
- * @param {?(Int32WasmArray|Array|TypedArray)} [options.block=null] - Array containing the block assignment for each cell, see {@linkcode normalizeCounts}.
+ * @param {?(Int32WasmArray|Array|TypedArray)} [options.block=null] - Array of length equal to `sizeFactors`, containing the block assignment for each cell.
+ * If `toLowestBlock = true`, all size factors are scaled by the same value such that the block with the lowest mean size factor is centered.
+ * Otherwise, the size factors in each block are centered separately. 
  * @param {boolean} [options.asTypedArray=true] - Whether to return a Float64Array.
  * If `false`, a Float64WasmArray is returned instead.
  * @param {?Float64WasmArray} [options.buffer=null] - Buffer in which to store the output size factors.
  * Length should be equal to that of `sizeFactors`.
  * If `null`, an array is allocated by the function.
+ * @param {boolean} [options.toLowestBlock=true] - Whether to scale the size factors so that the block with the lowest mean size factor is centered.
+ * This preserves differences in scaling between blocks.
+ * If `false`, each block of size factors is centered as if `centerSizeFactors` was called separately on each block.
  *
  * @return {Float64Array|Float64WasmArray} Array containing the centered size factors.
  * If `buffer` is supplied, the function returns `buffer` if `asTypedArray = false`, or a view on `buffer` if `asTypedArray = true`.
