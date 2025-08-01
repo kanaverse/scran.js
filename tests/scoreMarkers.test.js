@@ -160,3 +160,16 @@ test("scoreMarkers works as expected with blocking", () => {
     sub2.free();
     res2.free();
 });
+
+test("chooseTopMarkers works correctly", async () => {
+    expect(scran.chooseTopMarkers([2, -2, -1, 0, 1], 0)).toEqual([]);
+
+    expect(scran.chooseTopMarkers([2, -2, -1, 0, 1], 1)).toEqual([0]);
+    expect(scran.chooseTopMarkers([2, -2, -1, 0, 1], 2)).toEqual([0, 4]);
+    expect(scran.chooseTopMarkers([2, -2, -1, 0, 1], 3, { threshold: 0.5 })).toEqual([0, 4]);
+    expect(scran.chooseTopMarkers([2, -2, -1, 0, 1], 3, { threshold: 0 })).toEqual([0, 3, 4]);
+
+    expect(scran.chooseTopMarkers([2, 3, 1, 2, 5], 1, { useLargest: false })).toEqual([2]);
+    expect(scran.chooseTopMarkers([2, 3, 1, 2, 5], 2, { useLargest: false })).toEqual([0,2,3]);
+    expect(scran.chooseTopMarkers([2, 3, 1, 2, 5], 2, { useLargest: false, threshold: 1 })).toEqual([2]);
+})

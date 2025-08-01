@@ -224,3 +224,59 @@ export function scoreMarkers(x, groups, options = {}) {
 
     return output;
 }
+
+/**
+ * Choose the top marker genes, typically from the statistics from {@linkcode scoreMarkers}.
+ *
+ * @param {Float64Array} stats - Array of length equal to the number of genes, containing marker statistics from, e.g., {@linkcode scoreMarkers#cohensD ScoreMarkers.cohensD}.
+ * @param {number} number - Number of top markers to report.
+ * @param {object} [options={}] Further options.
+ * @param {boolean} [options.useLargest=true] - Whether to choose the genes with the largest values in `stats`.
+ * If `false`, the smallest values are chosen instead.
+ * @param {?number} [options.threshold=null] - Threshold to apply to the statistics in `stats`.
+ * If provided, genes with smaller (if `useLargest = true`) or larger values (otherwise) will not be chosen, even if they are among the top `number` genes.
+ *
+ * @return {Array} Array of indices specifying the top markers according to their `stats`.
+ */
+export function chooseTopMarkers(stats, number, options = {}) {
+    let { useLargest = true, threshold = null, ...others } = options;
+    utils.checkOtherOptions(others);
+
+    let output = [];
+    if (number == 0) {
+        return output;
+    } else if (number >= stats.length) {
+        for (var i = 0; i < stats.length; i++) {
+            output.push(i);
+        }
+        return output;
+    }
+
+    let copy = new Float64Array(stats);
+    copy.sort();
+
+    if (useLargest) {
+        let actual_threshold = copy[copy.length - number];
+        if (threshold !== null) {
+            actual_threshold = Math.max(actual_threshold, threshold);
+        }
+        stats.forEach((x, i) => {
+            if (x >= actual_threshold) {
+                output.push(i);
+            }
+        });
+
+    } else {
+        let actual_threshold = copy[number - 1];
+        if (threshold !== null) {
+            actual_threshold = Math.min(actual_threshold, threshold);
+        }
+        stats.forEach((x, i) => {
+            if (x <= actual_threshold) {
+                output.push(i);
+            }
+        });
+    }
+
+    return output;
+}
