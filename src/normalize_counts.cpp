@@ -9,12 +9,6 @@
 #include <vector>
 #include <cstdint>
 
-void library_size_factors(const NumericMatrix& mat, uintptr_t size_factors, int32_t nthreads) {
-    tatami_stats::sums::Options opt;
-    opt.num_threads = nthreads;
-    tatami_stats::sums::apply(false, mat.ptr.get(), reinterpret_cast<double*>(size_factors), opt);
-}
-
 void center_size_factors(size_t n, uintptr_t ptr, bool use_blocks, uintptr_t blocks, bool to_lowest_block) {
     scran_norm::CenterSizeFactorsOptions opt;
     if (use_blocks) {
@@ -45,7 +39,6 @@ NumericMatrix normalize_counts(const NumericMatrix& mat, uintptr_t size_factors,
 }
 
 EMSCRIPTEN_BINDINGS(normalize_counts) {
-    emscripten::function("library_size_factors", &library_size_factors, emscripten::return_value_policy::take_ownership());
     emscripten::function("center_size_factors", &center_size_factors, emscripten::return_value_policy::take_ownership());
     emscripten::function("normalize_counts", &normalize_counts, emscripten::return_value_policy::take_ownership());
 }

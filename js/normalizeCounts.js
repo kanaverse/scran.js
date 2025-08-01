@@ -2,6 +2,7 @@ import * as gc from "./gc.js";
 import * as utils from "./utils.js";
 import * as wa from "wasmarrays.js";
 import * as wasm from "./wasm.js";
+import { columnSums } from "./matrixStats.js";
 
 /**
  * Compute log-transformed normalized expression values.
@@ -38,7 +39,7 @@ export function normalizeCounts(x, options = {}) {
             }
         } else {
             sf_data = utils.createFloat64WasmArray(x.numberOfColumns());
-            wasm.call(module => module.library_size_factors(x.matrix, sf_data.offset));
+            columnSums(x, { buffer : sf_data });
             wasm.call(module => module.center_size_factors(sf_data.length, sf_data.offset, false, 0, true)); // assume unblocked in the default case.
         }
 

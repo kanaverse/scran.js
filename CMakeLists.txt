@@ -20,6 +20,7 @@ add_executable(
     src/cbind.cpp
     src/subset.cpp
     src/delayed.cpp
+    src/matrix_stats.cpp
 
     src/initialize_from_arrays.cpp
     src/initialize_from_rds.cpp

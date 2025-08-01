@@ -19,6 +19,7 @@ export * from "./factorize.js";
 export * from "./cbind.js";
 export * from "./subset.js";
 export * from "./delayed.js";
+export * from "./matrixStats.js";
 
 export * from "./perCellRnaQcMetrics.js";
 export * from "./perCellAdtQcMetrics.js";
