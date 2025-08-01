@@ -11,11 +11,13 @@ import * as utils from "./utils.js";
  * Each entry of the array is a unique integer index identifying a marker gene in the common namespace, where each index lies in `[0, totalGenes)`.
  *
  * In other words, given a common namespace array `X` containing the gene names, the marker names can be obtained as `Array.from(markers).map(i => X[i])`.
+ * See {@linkcode remapGeneSets} for more details.
  * @param {Array} geneSets - Array containing the gene sets.
  * Each entry corresponds to a single gene set and may be an Array or TypedArray.
  * Each array should contain unique indices for the genes belonging to the set.
  * 
  * In other words, given a common namespace array `X` containing the gene names, the names of the genes in set `s` can be obtained as `Array.from(geneSets[s]).map(i => X[i])`.
+ * See {@linkcode remapGeneSets} for more details.
  * @param {number} totalGenes - Total number of genes in the common namespace. 
  * @param {object} [options={}] - Optional parameters.
  * @param {?number} [options.numberOfThreads=null] - Number of threads to use for computing the p-values, see {@linkcode hypergeometricTest}.
@@ -71,17 +73,18 @@ export function testGeneSetEnrichment(markers, geneSets, totalGenes, options = {
  * This involves defining a common namespace consisting of gene names that are shared in both namespaces,
  * and then mapping the gene sets to the common namespace.
  *
- * The `target_indices` property returned by this function can be used to generate the indices of `markers` in {@linkcode testGeneSetEnrichment}.
- * Given a function that determines whether a gene in the target namespace is a marker, we can populate `markers` as below:
+ * The `target_indices` property returned by this function should be used to generate the indices of `markers=` in {@linkcode testGeneSetEnrichment}.
+ * This is typically done by extracting the relevant marker statistics for all genes in the common namespace,
+ * and then choosing the top markers with {@linkcode chooseTopMarkers}:
  * 
  * ```
- * let markers = [];
- * target_indices.forEach((x, i) => {
- *     if (is_marker(x)) { // in other words, 'targetGenes[x]' is a marker.
- *         markers.push(i); // we want to store 'i' as this is the index into the common namespace.
- *     }
- * });
+ * let stats = marker_stats.auc(0); // statistics for all genes, typically from scran.scoreMarkers().
+ * let stats_common = []; // subset to the statistics for genes in the common namespace.
+ * target_indices.forEach(x => { stats_common_namespace.push(stats[x]); });
+ * let markers_common = scran.chooseTopMarkers(stats_common, 1000);
  * ```
+ *
+ * The `sets` property returned by this function can be directly used as `geneSets=` in {@linkcode testGeneSetEnrichment}
  *
  * @param {Array} targetGenes - Array of strings containing the gene names in the target namespace.
  * Any `null` entries are considered to be incomparable.
@@ -93,7 +96,7 @@ export function testGeneSetEnrichment(markers, geneSets, totalGenes, options = {
  *
  * @return {object} Object containing:
  *
- * - `target_indices`: an Int32Array of length equal to the number of common genes between `targetGenes` and `referenceGenes`.
+ * - `target_indices`: an Int32Array of length equal to the size of the common namespace.
  *   Each entry is an index into `targetGenes` to identify the gene in the common namespace,
  *   i.e., the common namespace can be defined as `Array.from(target_indices).map(i => targetGenes[i])`.
  * - `reference_indices`: an Int32Array of length equal to the size of the common namespace.
