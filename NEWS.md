@@ -1,5 +1,10 @@
 # scran.js news
 
+## 4.0.5
+
+- Added `rowSums()` and `columnSums()` to compute the row and column sums, respectively, of a `ScranMatrix`.
+- Added `chooseTopMarkers()` to get a array of the top markers from the `ScoreMarkersResults` statistics.
+
 ## 4.0.4
 
 - Fixed a performance regression for `readRds()`.
