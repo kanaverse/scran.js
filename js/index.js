@@ -61,3 +61,5 @@ export * from "./ScranMatrix.js";
 export * from "./MultiMatrix.js";
 
 export * from "./realizeFile.js";
+
+export * from "./transposeMatrix.js";

@@ -1,5 +1,9 @@
 # scran.js news
 
+## 4.0.6
+
+- Added `transposeMatrix()` to quickly transpose a matrix stored in a contiguous TypedArray.
+
 ## 4.0.5
 
 - Added `rowSums()` and `columnSums()` to compute the row and column sums, respectively, of a `ScranMatrix`.

@@ -27,6 +27,8 @@ add_executable(
     src/initialize_from_mtx.cpp
     src/initialize_from_hdf5.cpp
 
+    src/transpose_matrix.cpp
+
     src/rds_utils.cpp
     src/hdf5_utils.cpp
     src/write_sparse_matrix_to_hdf5.cpp
