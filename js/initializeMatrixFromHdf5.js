@@ -3,30 +3,6 @@ import * as wasm from "./wasm.js";
 import * as utils from "./utils.js"; 
 import { ScranMatrix } from "./ScranMatrix.js";
 
-/**
- * Initialize a {@link ScranMatrix} from a HDF5 file.
- * The matrix may be represented as a 2-dimensional dataset ({@linkcode initializeSparseMatrixFromHdf5Dataset})
- * or as a group containing compressed sparse vectors ({@linkcode initializeSparseMatrixFromHdf5Group}).
- *
- * @param {string} file Path to the HDF5 file.
- * For browsers, the file should have been saved to the virtual filesystem.
- * @param {string} name Name of the matrix inside the file.
- * This can be a HDF5 dataset for dense matrices or a HDF5 group for sparse matrices.
- * For the latter, we expect the `data`, `indices` and `indptr` datasets, corresponding to the compressed sparse components.
- * @param {object} [options={}] - Optional parameters.
- * @param {boolean} [options.forceInteger=true] - Whether to coerce all elements to integers via truncation.
- * @param {boolean} [options.forceSparse=true] - Whether to create a sparse matrix in memory, even when `name` refers to a dense matrix in a HDF5 dataset.
- * @param {boolean} [options.layered=true] - Whether to create a layered sparse matrix, see [**tatami_layered**](https://github.com/tatami-inc/tatami_layered) for more details.
- * Only used if a sparse matrix is created (i.e., `forceSparse = true` or `name` refers to a HDF5 group)
- * and the matrix contents are integer (i.e., the relevant HDF5 dataset is of an integer type or `forceInteger = true`).
- * Setting to `true` assumes that the matrix contains only non-negative integers.
- * @param {?(Array|TypedArray|Int32WasmArray)} [options.subsetRow=null] - Row indices to extract.
- * All indices must be non-negative integers less than the number of rows in the sparse matrix.
- * @param {?(Array|TypedArray|Int32WasmArray)} [options.subsetColumn=null] - Column indices to extract.
- * All indices must be non-negative integers less than the number of columns in the sparse matrix.
- *
- * @return {ScranMatrix} In-memory matrix.
- */
 export function initializeMatrixFromHdf5(file, name, options = {}) {
     const { forceInteger = true, forceSparse = true, layered = true, subsetRow = null, subsetColumn = null, ...others } = options;
     utils.checkOtherOptions(others);
@@ -191,21 +167,6 @@ export function initializeSparseMatrixFromHdf5Group(file, name, numberOfRows, nu
     );
 }
 
-/**
- * Extract the format and dimensions of a HDF5 matrix.
- *
- * @param {string} file Path to the HDF5 file.
- * For browsers, the file should have been saved to the virtual filesystem.
- * @param {string} name Name of the dataset inside the file.
- * This can be a HDF5 dataset for dense matrices or a HDF5 group for sparse matrices.
- * For the latter, both H5AD and 10X-style sparse formats are supported.
- *
- * @return {object} An object containing:
- * - `rows`, the number of rows in the matrix.
- * - `columns`, the number of columns.
- * - `format`, whether the matrix is dense, CSR or CSC.
- * - `integer`, whether the matrix data is stored as integers or doubles.
- */
 export function extractHdf5MatrixDetails(file, name) { 
     let output = {};
     let arr = utils.createInt32WasmArray(5);
