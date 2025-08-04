@@ -123,8 +123,9 @@ export const initializeSparseMatrixFromHdf5Dataset = initializeMatrixFromHdf5Dat
  *
  * @param {string} file Path to the HDF5 file.
  * For browsers, the file should have been saved to the virtual filesystem.
- * @param {string} name Name of the HDF5 group containing the matrix.
- * For the latter, we expect the `data`, `indices` and `indptr` datasets, corresponding to the compressed sparse components.
+ * @param {string|object} name - Name of the HDF5 group containing the matrix.
+ * This group should contain the `data`, `indices` and `indptr` datasets, corresponding to the compressed sparse components.
+ * Alternatively, this may be an object with the `data`, `indices` and `indptr` properties, each of which is a string contianing the name of the dataset corresponding to each component.
  * @param {number} numberOfRows - Number of rows in the sparse matrix.
  * @param {number} numberOfColumns - Number of columns in the sparse matrix.
  * @param {boolean} byRow - Whether the matrix is in the compressed sparse row format.
@@ -144,13 +145,19 @@ export function initializeSparseMatrixFromHdf5Group(file, name, numberOfRows, nu
     const { forceInteger = true, layered = true, subsetRow = null, subsetColumn = null, ...others } = options;
     utils.checkOtherOptions(others);
 
+    if (typeof name == "string") {
+        name = { data: name + "/data", indices: name + "/indices", indptr: name + "/indptr" };
+    }
+
     return processSubsets(
         subsetRow,
         subsetColumn, 
         (module, use_row_subset, row_offset, row_length, use_col_subset, col_offset, col_length) => {
             return module.initialize_from_hdf5_sparse(
                 file,
-                name,
+                name.data,
+                name.indices,
+                name.indptr,
                 numberOfRows,
                 numberOfColumns,
                 !byRow,

@@ -219,7 +219,9 @@ NumericMatrix initialize_from_hdf5_dense(
 template<typename T>
 NumericMatrix initialize_from_hdf5_sparse_internal(
     const std::string& path, 
-    const std::string& name, 
+    const std::string& data_name, 
+    const std::string& indices_name, 
+    const std::string& indptr_name, 
     int32_t nr,
     int32_t nc,
     bool csc,
@@ -239,9 +241,9 @@ NumericMatrix initialize_from_hdf5_sparse_internal(
             // Don't do the same with CSC matrices; there is an implicit
             // expectation that all instances of this function prefer row matrices,
             // and if we did it with CSC, we'd get a column-major matrix instead.
-            mat = tatami_hdf5::load_compressed_sparse_matrix<T, int32_t, std::vector<T> >(nr, nc, path, name + "/data", name + "/indices", name + "/indptr", true);
+            mat = tatami_hdf5::load_compressed_sparse_matrix<T, int32_t, std::vector<T> >(nr, nc, path, data_name, indices_name, indptr_name, true);
         } else {
-            mat.reset(new tatami_hdf5::CompressedSparseMatrix<T, int32_t>(nr, nc, path, name + "/data", name + "/indices", name + "/indptr", !csc));
+            mat.reset(new tatami_hdf5::CompressedSparseMatrix<T, int32_t>(nr, nc, path, data_name, indices_name, indptr_name, !csc));
         }
 
         output = apply_post_processing(
@@ -265,7 +267,9 @@ NumericMatrix initialize_from_hdf5_sparse_internal(
 
 NumericMatrix initialize_from_hdf5_sparse(
     std::string path, 
-    std::string name, 
+    std::string data_name, 
+    std::string indices_name, 
+    std::string indptr_name, 
     int32_t nr,
     int32_t nc,
     bool csc,
@@ -282,7 +286,7 @@ NumericMatrix initialize_from_hdf5_sparse(
     if (!force_integer) {
         try {
             H5::H5File handle(path, H5F_ACC_RDONLY);
-            auto dhandle = handle.openDataSet(name + "/data");
+            auto dhandle = handle.openDataSet(data_name);
             as_integer = dhandle.getTypeClass() == H5T_INTEGER;
         } catch (H5::Exception& e) {
             throw std::runtime_error(e.getCDetailMsg());
@@ -290,9 +294,9 @@ NumericMatrix initialize_from_hdf5_sparse(
     }
 
     if (as_integer) {
-        return initialize_from_hdf5_sparse_internal<int32_t>(path, name, nr, nc, csc, layered, row_subset, row_offset, row_length, col_subset, col_offset, col_length);
+        return initialize_from_hdf5_sparse_internal<int32_t>(path, data_name, indices_name, indptr_name, nr, nc, csc, layered, row_subset, row_offset, row_length, col_subset, col_offset, col_length);
     } else {
-        return initialize_from_hdf5_sparse_internal<double>(path, name, nr, nc, csc, false, row_subset, row_offset, row_length, col_subset, col_offset, col_length);
+        return initialize_from_hdf5_sparse_internal<double>(path, data_name, indices_name, indptr_name, nr, nc, csc, false, row_subset, row_offset, row_length, col_subset, col_offset, col_length);
     }
 }
 

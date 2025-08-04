@@ -371,3 +371,34 @@ test("initialization from HDF5 groups works correctly with subsetting", () => {
         }
     }
 })
+
+test("initialization from HDF5 works correctly with custom sparse names", () => {
+    const path = dir + "/test.sparse_tenx.h5";
+    purge(path);
+
+    // Creating a CSC sparse matrix, injecting in some big numbers.
+    let nr = 50;
+    let nc = 20;
+    const { data, indices, indptrs } = simulate.simulateSparseData(nc, nr, /* injectBigValues = */ true);
+
+    let f = new hdf5.File(path, "w");
+    f.create_group("foobar");
+    f.get("foobar").create_dataset("whee", data);
+    f.get("foobar").create_dataset("foo", indices);
+    f.get("foobar").create_dataset("bar", indptrs);
+    f.close();
+
+    var mat = scran.initializeSparseMatrixFromHdf5Group(path, { data: "foobar/whee", indices: "foobar/foo", indptr: "foobar/bar" }, nr, nc, false);
+    expect(mat.isSparse()).toBe(true);
+    expect(mat.numberOfRows()).toBe(50); // Transposed; rows in HDF5 are typically samples.
+    expect(mat.numberOfColumns()).toBe(20);
+
+    for (var c = 0; c < nc; c++) {
+        var ref = new Array(nr);
+        ref.fill(0);
+        for (var j = indptrs[c]; j < indptrs[c+1]; j++) {
+            ref[indices[j]] = data[j];
+        }
+        expect(compare.equalArrays(mat.column(c), ref)).toBe(true);
+    }
+})
