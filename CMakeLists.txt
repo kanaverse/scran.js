@@ -131,7 +131,6 @@ target_link_options(scran_wasm PRIVATE
     -pthread
     -sPTHREAD_POOL_SIZE=Module.scran_custom_nthreads
     -sEXPORTED_FUNCTIONS=_malloc,_free
-    -sEXPORTED_RUNTIME_METHODS=wasmMemory,PThread
 )
 
 set_target_properties(scran_wasm PROPERTIES OUTPUT_NAME scran)
@@ -141,10 +140,11 @@ if (COMPILE_NODE)
     target_link_options(scran_wasm PRIVATE
         -sENVIRONMENT=node 
         -sNODERAWFS=1
+        -sEXPORTED_RUNTIME_METHODS=wasmMemory,PThread
     )
 else ()
     target_link_options(scran_wasm PRIVATE 
         -sENVIRONMENT=web,worker 
-        -sEXPORTED_RUNTIME_METHODS=FS
+        -sEXPORTED_RUNTIME_METHODS=wasmMemory,PThread,FS
     )
 endif()
