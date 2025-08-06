@@ -36,7 +36,7 @@ export class RunPcaResults {
     rotation(options = {}) {
         const { copy = true, ...others } = options;
         utils.checkOtherOptions(others);
-        return utils.possibleCopy(this.#results.pcs(), copy);
+        return utils.possibleCopy(this.#results.rotation(), copy);
     }
 
     /**

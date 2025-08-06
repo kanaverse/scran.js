@@ -12,6 +12,7 @@ test("PCA works as expected", () => {
 
     var pca = scran.runPca(mat, { numberOfPCs: 20 });
     expect(pca.principalComponents().length).toBe(ncells * 20);
+    expect(pca.rotation().length).toBe(ngenes * 20);
     expect(pca.varianceExplained().length).toBe(20);
     expect(pca.totalVariance() > 0).toBe(true);
 
