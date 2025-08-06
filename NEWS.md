@@ -1,5 +1,13 @@
 # scran.js news
 
+## 4.0.7
+
+- Soft-deprecated use of an array as input to `labelCells()`, `integrateLabelCells()`.
+  Callers should construct and pass a `ScranMatrix` instead.
+- Support custom names for component datasets in `initializeSparseMatrixFromHdf5Group()`.
+- Soft-deprecated `initializeMatrixFromHdf5()` and `extractHdf5MatrixDetails()`.
+  Callers should be more explicit about how the layout and shape is determined for each HDF5-based format.
+
 ## 4.0.6
 
 - Added `transposeMatrix()` to quickly transpose a matrix stored in a contiguous TypedArray.
