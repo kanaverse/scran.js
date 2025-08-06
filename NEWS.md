@@ -1,5 +1,10 @@
 # scran.js news
 
+## 4.0.8
+
+- Bugfix to the `rotation()` method in `RunPcaResults`.
+- Bugfix to exported methods in the browser build of the Wasm module.
+
 ## 4.0.7
 
 - Soft-deprecated use of an array as input to `labelCells()`, `integrateLabelCells()`.
