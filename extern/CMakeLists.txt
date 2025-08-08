@@ -161,7 +161,7 @@ FetchContent_Declare(
 FetchContent_Declare(
   phyper 
   GIT_REPOSITORY https://github.com/libscran/phyper
-  GIT_TAG v0.1.0
+  GIT_TAG v0.1.1
 )
 
 FetchContent_Declare(

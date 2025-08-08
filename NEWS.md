@@ -1,5 +1,9 @@
 # scran.js news
 
+## 4.0.9
+
+- Updated the **phyper** library for more accurate p-value calculations in `hypergeometricTest()`.
+
 ## 4.0.8
 
 - Bugfix to the `rotation()` method in `RunPcaResults`.
