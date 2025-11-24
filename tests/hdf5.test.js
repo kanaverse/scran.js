@@ -246,12 +246,12 @@ test("HDF5 numeric dataset creation works as expected", () => {
 })
 
 test("findMaxStringLength works as expected", () => {
-    expect(scran.findMaxStringLength(["a", "bb", "CCC", "d"], null)).toEqual(3);
-    expect(scran.findMaxStringLength(["aa", "bbbbb", "CCC", "dd"], null)).toEqual(5);
-    expect(scran.findMaxStringLength(["aa", "β-globin", "C", "d"], null)).toEqual(9); // works with unicode.
+    expect(scran.findMaxStringLength(["a", "bb", "CCC", "d"], null)).toEqual(3n);
+    expect(scran.findMaxStringLength(["aa", "bbbbb", "CCC", "dd"], null)).toEqual(5n);
+    expect(scran.findMaxStringLength(["aa", "β-globin", "C", "d"], null)).toEqual(9n); // works with unicode.
 
-    expect(scran.findMaxStringLength([{ foo: "A", bar: "CC" }, { foo: "aaa", bar: "D" }], ["foo", "bar"])).toEqual([3, 2]);
-    expect(scran.findMaxStringLength([{ foo: "α2-macroglobulin", bar: "CC" }, { foo: "aaa", bar: "180π" }], ["foo", "bar"])).toEqual([17, 5]); // works with unicode.
+    expect(scran.findMaxStringLength([{ foo: "A", bar: "CC" }, { foo: "aaa", bar: "D" }], ["foo", "bar"])).toEqual([3n, 2n]);
+    expect(scran.findMaxStringLength([{ foo: "α2-macroglobulin", bar: "CC" }, { foo: "aaa", bar: "180π" }], ["foo", "bar"])).toEqual([17n, 5n]); // works with unicode.
 })
 
 test("HDF5 string dataset creation works as expected", () => {

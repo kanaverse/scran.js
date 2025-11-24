@@ -6,6 +6,7 @@
 #include <cstddef>
 #include <algorithm>
 #include <unordered_map>
+#include <iostream>
 
 emscripten::val extract_attribute_names(const H5::H5Object& handle) {
     auto output = emscripten::val::array();
@@ -17,6 +18,10 @@ emscripten::val extract_attribute_names(const H5::H5Object& handle) {
     return output;
 }
 
+// Note that we get strange bugs when returning size_t's directly.
+// I guess Emscripten doesn't know what to do with uint64_ts in Javascript.
+// So in general we cast them to int64_t's so they can show up as BigInts.
+
 template<typename Handle_>
 emscripten::val extract_shape(const Handle_& handle) {
     auto dspace = handle.getSpace();
@@ -26,7 +31,7 @@ emscripten::val extract_shape(const Handle_& handle) {
 
     auto output = emscripten::val::array();
     for (auto x : dims) {
-        output.call<void>("push", emscripten::val(static_cast<double>(x))); // hopefully it fits, who knows?
+        output.call<void>("push", emscripten::val(static_cast<std::int64_t>(x))); // hopefully it fits, who knows?
     }
     return output;
 }
@@ -79,9 +84,9 @@ emscripten::val format_string_type(const H5::StrType& stype) {
         output.set("encoding", emscripten::val("UTF-8"));
     }
     if (stype.isVariableStr()) {
-        output.set("length", emscripten::val(-1));
+        output.set("length", emscripten::val(static_cast<std::int64_t>(-1)));
     } else {
-        output.set("length", emscripten::val(stype.getSize()));
+        output.set("length", emscripten::val(static_cast<std::int64_t>(stype.getSize())));
     }
     return output;
 }
@@ -674,12 +679,12 @@ H5::PredType choose_numeric_type(const std::string& type) {
     }
 }
 
-H5::StrType choose_string_type(const std::string& encoding, std::int32_t strlen) {
+H5::StrType choose_string_type(const std::string& encoding, std::int64_t strlen_or_var) {
     H5::StrType stype;
-    if (strlen < 0) {
+    if (strlen_or_var < 0) {
         stype = H5::StrType(0, H5T_VARIABLE);
     } else {
-        stype = H5::StrType(0, std::max(1, strlen)); // Make sure that is at least of length 1.
+        stype = H5::StrType(0, std::max(static_cast<std::int64_t>(1), strlen_or_var)); // Make sure that is at least of length 1.
     }
     if (encoding == "ASCII") {
         stype.setCset(H5T_CSET_ASCII);
@@ -762,7 +767,7 @@ H5::CompType choose_compound_type(const emscripten::val& members) {
         auto mode = type["mode"].template as<std::string>();
         if (mode == "string") {
             auto encoding = type["encoding"].template as<std::string>(); 
-            auto str_len = type["length"].template as<double>(); 
+            auto str_len = type["length"].template as<std::size_t>(); 
             all_types.emplace_back(std::move(name), offset, choose_string_type(encoding, str_len));
         } else if (mode == "numeric") {
             auto type2 = type["type"].template as<std::string>(); 
@@ -817,9 +822,9 @@ void create_numeric_hdf5_dataset(std::string path, std::string name, emscripten:
     }
 }
 
-void create_string_hdf5_dataset(std::string path, std::string name, emscripten::val shape, int32_t deflate_level, emscripten::val chunks, std::string encoding, std::int32_t strlen) {
+void create_string_hdf5_dataset(std::string path, std::string name, emscripten::val shape, std::int32_t deflate_level, emscripten::val chunks, std::string encoding, std::int64_t strlen_or_var) {
     try {
-        create_hdf5_dataset(path, name, choose_string_type(encoding, strlen), shape, deflate_level, chunks);
+        create_hdf5_dataset(path, name, choose_string_type(encoding, strlen_or_var), shape, deflate_level, chunks);
     } catch (H5::Exception& e) {
         throw std::runtime_error(e.getCDetailMsg());
     }
@@ -875,9 +880,9 @@ void create_numeric_hdf5_attribute(std::string path, std::string name, std::stri
     }
 }
 
-void create_string_hdf5_attribute(std::string path, std::string name, std::string attr, emscripten::val shape, std::string encoding, std::int32_t strlen) {
+void create_string_hdf5_attribute(std::string path, std::string name, std::string attr, emscripten::val shape, std::string encoding, std::int64_t strlen_or_var) {
     try {
-        create_hdf5_attribute(path, name, attr, choose_string_type(encoding, strlen), shape);
+        create_hdf5_attribute(path, name, attr, choose_string_type(encoding, strlen_or_var), shape);
     } catch (H5::Exception& e) {
         throw std::runtime_error(e.getCDetailMsg());
     }
@@ -1200,7 +1205,7 @@ void write_compound_hdf5_attribute(std::string path, std::string name, std::stri
 
 /************* String length guessers **************/
 
-std::size_t get_max_str_len(emscripten::val x) {
+std::int64_t get_max_str_len(emscripten::val x) {
     std::size_t strlen = 0;
     for (auto y : x) {
         if (y.isString()) {
@@ -1210,7 +1215,7 @@ std::size_t get_max_str_len(emscripten::val x) {
             }
         }
     }
-    return strlen;
+    return static_cast<std::int64_t>(strlen); // hopefully it fits, who knows?
 }
 
 emscripten::val get_max_str_len_compound(emscripten::val x, emscripten::val fields) {
@@ -1219,7 +1224,6 @@ emscripten::val get_max_str_len_compound(emscripten::val x, emscripten::val fiel
         to_access.emplace_back(f.template as<std::string>(), 0);
     }
 
-    std::size_t strlen = 0;
     for (auto y : x) {
         for (auto& t : to_access) {
             auto current_raw = y[t.first];
@@ -1234,7 +1238,7 @@ emscripten::val get_max_str_len_compound(emscripten::val x, emscripten::val fiel
 
     auto output = emscripten::val::array();
     for (const auto& t : to_access) {
-        output.call<void>("push", emscripten::val(t.second));
+        output.call<void>("push", emscripten::val(static_cast<std::int64_t>(t.second))); // hopefully it fits, who knows.
     }
     return output;
 }

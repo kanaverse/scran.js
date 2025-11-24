@@ -71,6 +71,7 @@ target_compile_options(
     scran_wasm PUBLIC 
     -O3
     -pthread
+    -sMEMORY64
 )
 
 target_link_libraries(
@@ -121,6 +122,7 @@ target_link_options(scran_wasm PRIVATE
     -O3
     --bind 
     -sALLOW_MEMORY_GROWTH=1 
+    -sMEMORY64
     -sMAXIMUM_MEMORY=4GB 
     -sSTACK_SIZE=2MB
     -sUSE_ZLIB=1 
@@ -137,14 +139,15 @@ set_target_properties(scran_wasm PROPERTIES OUTPUT_NAME scran)
 
 set(COMPILE_NODE OFF CACHE BOOL "Compile for Node.js")
 if (COMPILE_NODE)
+    # Exporting HEAP8 for compatibility with old wasmarrays.js.
     target_link_options(scran_wasm PRIVATE
         -sENVIRONMENT=node 
         -sNODERAWFS=1
-        -sEXPORTED_RUNTIME_METHODS=wasmMemory,PThread
+        -sEXPORTED_RUNTIME_METHODS=wasmMemory,HEAP8,PThread
     )
 else ()
     target_link_options(scran_wasm PRIVATE 
         -sENVIRONMENT=web,worker 
-        -sEXPORTED_RUNTIME_METHODS=wasmMemory,PThread,FS
+        -sEXPORTED_RUNTIME_METHODS=wasmMemory,HEAP8,PThread,FS
     )
 endif()

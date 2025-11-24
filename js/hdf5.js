@@ -65,7 +65,7 @@ export class H5StringType {
     /**
      * Sentinel value for variable-length strings.
      */
-    static variableLength = -1; 
+    static variableLength = -1n; 
 
     /**
      * @param {string} encoding - Encoding for the strings, should be either ASCII or UTF-8.
