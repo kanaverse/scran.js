@@ -13,9 +13,16 @@ jobs:
   prepare-version:
     runs-on: ubuntu-latest
     steps:
-    - run: echo "null"
+    - name: Checkout repo
+      uses: actions/checkout@v4
+
+    - id: find-version
+      run: |
+        version=$(cat .image-version)
+        echo "version=${version}" >> $GITHUB_OUTPUT
+
     outputs:
-      version: ${{ env.IMAGE_VERSION }}
+      version: ${{ steps.find-version.outputs.version }}
 
   # Building the RDS files for the various RDS-reading utilities.
   create_rds:
@@ -79,7 +86,7 @@ jobs:
     - name: Set up Node
       uses: actions/setup-node@v4
       with:
-        node-version: 18
+        node-version: 24
 
     - name: Cache Modules
       uses: actions/cache@v4
