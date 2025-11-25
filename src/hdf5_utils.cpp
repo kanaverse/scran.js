@@ -18,9 +18,8 @@ emscripten::val extract_attribute_names(const H5::H5Object& handle) {
     return output;
 }
 
-// Note that we get strange bugs when returning size_t's directly.
-// I guess Emscripten doesn't know what to do with uint64_ts in Javascript.
-// So in general we cast them to int64_t's so they can show up as BigInts.
+// Don't return size_t's directly, instead convert them to doubles so that we get Numbers in javascript.
+// Otherwise we have to deal with BigInts and those are a  pain.
 
 template<typename Handle_>
 emscripten::val extract_shape(const Handle_& handle) {
@@ -31,7 +30,7 @@ emscripten::val extract_shape(const Handle_& handle) {
 
     auto output = emscripten::val::array();
     for (auto x : dims) {
-        output.call<void>("push", emscripten::val(static_cast<std::int64_t>(x))); // hopefully it fits, who knows?
+        output.call<void>("push", emscripten::val(static_cast<double>(x))); // hopefully it fits, who knows?
     }
     return output;
 }
@@ -84,9 +83,9 @@ emscripten::val format_string_type(const H5::StrType& stype) {
         output.set("encoding", emscripten::val("UTF-8"));
     }
     if (stype.isVariableStr()) {
-        output.set("length", emscripten::val(static_cast<std::int64_t>(-1)));
+        output.set("length", emscripten::val(static_cast<double>(-1)));
     } else {
-        output.set("length", emscripten::val(static_cast<std::int64_t>(stype.getSize())));
+        output.set("length", emscripten::val(static_cast<double>(stype.getSize())));
     }
     return output;
 }
@@ -1205,7 +1204,7 @@ void write_compound_hdf5_attribute(std::string path, std::string name, std::stri
 
 /************* String length guessers **************/
 
-std::int64_t get_max_str_len(emscripten::val x) {
+double get_max_str_len(emscripten::val x) {
     std::size_t strlen = 0;
     for (auto y : x) {
         if (y.isString()) {
@@ -1215,7 +1214,7 @@ std::int64_t get_max_str_len(emscripten::val x) {
             }
         }
     }
-    return static_cast<std::int64_t>(strlen); // hopefully it fits, who knows?
+    return static_cast<double>(strlen); // hopefully it fits, who knows?
 }
 
 emscripten::val get_max_str_len_compound(emscripten::val x, emscripten::val fields) {
@@ -1238,7 +1237,7 @@ emscripten::val get_max_str_len_compound(emscripten::val x, emscripten::val fiel
 
     auto output = emscripten::val::array();
     for (const auto& t : to_access) {
-        output.call<void>("push", emscripten::val(static_cast<std::int64_t>(t.second))); // hopefully it fits, who knows.
+        output.call<void>("push", emscripten::val(static_cast<double>(t.second))); // hopefully it fits, who knows.
     }
     return output;
 }

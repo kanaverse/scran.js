@@ -10,12 +10,12 @@
 struct NeighborIndex {
     std::unique_ptr<knncolle::Prebuilt<int32_t, int32_t, double> > index;
 
-    size_t num_obs() const {
-        return index->num_observations();
+    double num_obs() const {
+        return static_cast<double>(index->num_observations());
     }
 
-    size_t num_dim() const {
-        return index->num_dimensions();
+    double num_dim() const {
+        return static_cast<double>(index->num_dimensions());
     }
 };
 
@@ -43,20 +43,20 @@ public:
     }
 
 public:
-    size_t size(int32_t truncate) const {
+    double size(int32_t truncate) const {
         size_t out = 0;
         size_t long_truncate = truncate;
         for (const auto& current : neighbors) {
             out += std::min(long_truncate, current.size());
         }
-        return out;
+        return static_cast<double>(out);
     }
 
-    size_t num_obs() const {
-        return neighbors.size();
+    double num_obs() const {
+        return static_cast<double>(neighbors.size());
     }
 
-    int32_t num_neighbors() const {
+    double num_neighbors() const {
         return (neighbors.empty() ? 0 : neighbors.front().size());
     }
 

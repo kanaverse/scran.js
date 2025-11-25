@@ -174,8 +174,8 @@ public:
     SingleppIntegratedReferences(Store s) : store(std::move(s)) {};
 
 public:
-    size_t num_references() const {
-        return store.num_references();
+    double num_references() const {
+        return static_cast<double>(store.num_references());
     }
 };
 
