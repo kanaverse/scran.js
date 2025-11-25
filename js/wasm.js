@@ -8,9 +8,7 @@ const cache = {};
  * @param {object} [options={}] - Optional parameters.
  * @param {number} [options.numberOfThreads=4] - Number of threads to use for calculations.
  * This will spin up the requested number of Web Workers during module initialization.
- * @param {boolean} [options.localFile=false] - Whether or not to look for the Wasm and worker scripts locally.
- * This should only be `true` when using old versions of Node.js where file URLs are not supported, 
- * and is ignored completely outside of Node.js contexts.
+ * @param {boolean} [options.localFile=false] - Deprecated and ignored.
  *
  * @return {boolean}
  * The Wasm bindings are initialized and `true` is returned.
@@ -24,10 +22,6 @@ export async function initialize({ numberOfThreads = 4, localFile = false } = {}
     let options = {
         scran_custom_nthreads: numberOfThreads
     };
-
-    if (localFile) {                                                                /** NODE ONLY **/  
-        options.locateFile = (x) => import.meta.url.substring(7) + "/../wasm/" + x; /** NODE ONLY **/
-    }                                                                               /** NODE ONLY **/
 
     cache.module = await loadScran(options);
     cache.space = register(cache.module);

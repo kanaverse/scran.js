@@ -45,12 +45,16 @@ if [ ! -e $builddir ]
 then
     mkdir $builddir
     echo "{}" > $builddir/package.json # avoid assuming ES6 syntax for igraph config scripts.
+
+    # Setting the C flags below, even though we don't have any C;
+    # this ensures that emcmake knows to operate in 64-bit mode for find_package().
     emcmake cmake \
         -S . \
         -B $builddir \
         -DCOMPILE_NODE=${node_flag} \
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_PREFIX_PATH=extern/installed \
+        -DCMAKE_C_FLAGS="-sMEMORY64" \
         -DTATAMI_HDF5_FIND_HDF5=OFF
 fi
 

@@ -6,16 +6,20 @@ on:
 
 name: Test JS bindings
 
-env:
-  IMAGE_VERSION: master
-
 jobs:
   prepare-version:
     runs-on: ubuntu-latest
     steps:
-    - run: echo "null"
+    - name: Checkout repo
+      uses: actions/checkout@v4
+
+    - id: find-version
+      run: |
+        version=$(cat .image-version)
+        echo "version=${version}" >> $GITHUB_OUTPUT
+
     outputs:
-      version: ${{ env.IMAGE_VERSION }}
+      version: ${{ steps.find-version.outputs.version }}
 
   # Building the RDS files for the various RDS-reading utilities.
   create_rds:
@@ -53,7 +57,7 @@ jobs:
       uses: actions/cache@v4
       with:
         path: extern/installed
-        key: deps-${{ hashFiles('extern/**/build.sh') }}-${{ env.IMAGE_VERSION }}
+        key: deps-${{ hashFiles('extern/**/build.sh') }}-${{ needs.prepare-version.outputs.version }}
 
     - name: Build HDF5
       if: steps.installed.outputs.cache-hit != 'true'
@@ -79,7 +83,7 @@ jobs:
     - name: Set up Node
       uses: actions/setup-node@v4
       with:
-        node-version: 18
+        node-version: 24
 
     - name: Cache Modules
       uses: actions/cache@v4
@@ -94,7 +98,7 @@ jobs:
       uses: actions/cache@v4
       with:
         path: extern/installed
-        key: deps-${{ hashFiles('extern/**/build.sh') }}-${{ env.IMAGE_VERSION }}
+        key: deps-${{ hashFiles('extern/**/build.sh') }}-${{ needs.prepare-version.outputs.version }}
 
     - name: Cache RDS files
       uses: actions/cache@v4
@@ -107,7 +111,7 @@ jobs:
       uses: actions/cache@v4
       with:
         path: js/wasm
-        key: wasm-${{ hashFiles('build.sh', 'extern/**/build.sh', 'CMakeLists.txt', 'extern/CMakeLists.txt', 'src/*') }}-${{ env.IMAGE_VERSION }}
+        key: wasm-${{ hashFiles('build.sh', 'extern/**/build.sh', 'CMakeLists.txt', 'extern/CMakeLists.txt', 'src/*') }}-${{ needs.prepare-version.outputs.version }}
 
     - name: Update node build 
       if: steps.wasm-build.outputs.cache-hit != 'true'

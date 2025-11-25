@@ -40,18 +40,18 @@ public:
     ScoreMarkersResults(Store s) : store(std::move(s)) {}
 
 public:
-    emscripten::val mean(int32_t g) const {
+    emscripten::val mean(std::int32_t g) const {
         const auto& current = store.mean[g];
         return emscripten::val(emscripten::typed_memory_view(current.size(), current.data()));
     }
 
-    emscripten::val detected(int32_t g) const {
+    emscripten::val detected(std::int32_t g) const {
         const auto& current = store.detected[g];
         return emscripten::val(emscripten::typed_memory_view(current.size(), current.data()));
     }
 
-    size_t num_groups() const {
-        return store.detected.size();
+    double num_groups() const {
+        return static_cast<double>(store.detected.size()); // return a number instead of a BigInt.
     }
 
 public:

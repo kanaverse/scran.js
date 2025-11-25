@@ -23,7 +23,7 @@ BUILD_DIR=build-${IGRAPH_VERSION}
 if [ ! -e ${BUILD_DIR} ]
 then
     mkdir -p ../installed
-    coreflags="-pthread" # propagating compile flags from the root scran.js CMakeLists.txt.
+    coreflags="-pthread -sMEMORY64" # propagating compile flags from the root scran.js CMakeLists.txt.
     echo "{}" > package.json # avoid assuming ES6 module syntax from the root scran.js package.json.
     emcmake cmake \
         -S ${SOURCE_DIR} \
