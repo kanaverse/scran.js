@@ -123,7 +123,7 @@ target_link_options(scran_wasm PRIVATE
     --bind 
     -sALLOW_MEMORY_GROWTH=1 
     -sMEMORY64
-    -sMAXIMUM_MEMORY=4GB 
+    -sMAXIMUM_MEMORY=50GB # placeholder 'very large value', for the time being.
     -sSTACK_SIZE=2MB
     -sUSE_ZLIB=1 
     -sMODULARIZE=1 

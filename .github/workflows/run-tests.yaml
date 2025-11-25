@@ -6,9 +6,6 @@ on:
 
 name: Test JS bindings
 
-env:
-  IMAGE_VERSION: master
-
 jobs:
   prepare-version:
     runs-on: ubuntu-latest
