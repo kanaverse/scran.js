@@ -53,7 +53,7 @@ jobs:
       uses: actions/cache@v4
       with:
         path: extern/installed
-        key: deps-${{ hashFiles('extern/**/build.sh') }}-${{ env.IMAGE_VERSION }}
+        key: deps-${{ hashFiles('extern/**/build.sh') }}-${{ needs.prepare-version.outputs.version }}
 
     - name: Cache Modules
       if: env.UPDATE_SCRANJS == 1
@@ -79,7 +79,7 @@ jobs:
       uses: actions/cache@v4
       with:
         path: tests/rds/*.rds
-        key: rds-${{ hashFiles('tests/rds/generate.R') }}
+        key: rds-${{ hashFiles('tests/rds/generate.R') }}-${{ needs.prepare-version.outputs.version }}
 
     - name: Double-checking tests
       if: env.UPDATE_SCRANJS == 1
