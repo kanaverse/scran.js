@@ -4,6 +4,7 @@
 #include <string>
 #include <cstdint>
 #include <cstddef>
+#include <stdexcept>
 
 #include "NumericMatrix.h"
 #include "utils.h"

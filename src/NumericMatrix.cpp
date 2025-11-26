@@ -4,6 +4,9 @@
 
 #include <cstdint>
 
+#include "tatami/tatami.hpp"
+#include "sanisizer/sanisizer.hpp"
+
 NumericMatrix::NumericMatrix(std::shared_ptr<const tatami::NumericMatrix> p) : my_ptr(std::move(p)) {}
 
 const std::shared_ptr<const tatami::Matrix<double, std::int32_t> >& NumericMatrix::ptr() const {
@@ -30,6 +33,14 @@ std::int32_t NumericMatrix::nrow() const {
 
 std::int32_t NumericMatrix::ncol() const {
     return my_ptr->ncol();
+}
+
+double NumericMatrix::nrow_dbl() const {
+    return sanisizer::to_float<double>(my_ptr->nrow());
+}
+
+double NumericMatrix::ncol_dbl() const {
+    return sanisizer::to_float<double>(my_ptr->ncol());
 }
 
 void NumericMatrix::row(std::int32_t r, std::uintptr_t values) {
@@ -62,8 +73,8 @@ NumericMatrix NumericMatrix::clone() const {
 
 EMSCRIPTEN_BINDINGS(NumericMatrix) {
     emscripten::class_<NumericMatrix>("NumericMatrix")
-        .function("nrow", &NumericMatrix::nrow, emscripten::return_value_policy::take_ownership())
-        .function("ncol", &NumericMatrix::ncol, emscripten::return_value_policy::take_ownership())
+        .function("nrow", &NumericMatrix::nrow_dbl, emscripten::return_value_policy::take_ownership())
+        .function("ncol", &NumericMatrix::ncol_dbl, emscripten::return_value_policy::take_ownership())
         .function("row", &NumericMatrix::row, emscripten::return_value_policy::take_ownership())
         .function("column", &NumericMatrix::column, emscripten::return_value_policy::take_ownership())
         .function("sparse", &NumericMatrix::sparse, emscripten::return_value_policy::take_ownership())

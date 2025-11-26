@@ -2,96 +2,108 @@
 #include <emscripten/bind.h>
 
 #include <cstdint>
+#include <cstddef>
+#include <string>
+#include <stdexcept>
 
+#include "utils.h"
 #include "read_utils.h"
 #include "NumericMatrix.h"
 
 #include "tatami_mtx/tatami_mtx.hpp"
 #include "tatami_layered/tatami_layered.hpp"
+#include "eminem/eminem.hpp"
 
-NumericMatrix initialize_from_mtx_buffer(uintptr_t buffer, size_t size, std::string compression, bool layered) {
+NumericMatrix initialize_from_mtx_buffer(std::uintptr_t buffer, std::size_t size, std::string compression, bool layered) {
     unsigned char* bufptr = reinterpret_cast<unsigned char*>(buffer);
     if (layered) {
         if (compression == "none") {
-            return NumericMatrix(tatami_layered::read_layered_sparse_from_matrix_market_text_buffer<double, int32_t>(bufptr, size));
+            return NumericMatrix(tatami_layered::read_layered_sparse_from_matrix_market_text_buffer<double, std::int32_t>(bufptr, size));
         } else if (compression == "gzip") {
-            return NumericMatrix(tatami_layered::read_layered_sparse_from_matrix_market_zlib_buffer<double, int32_t>(bufptr, size));
+            return NumericMatrix(tatami_layered::read_layered_sparse_from_matrix_market_zlib_buffer<double, std::int32_t>(bufptr, size));
         } else if (compression != "unknown") {
             throw std::runtime_error("unknown compression '" + compression + "'");
         }
-        return NumericMatrix(tatami_layered::read_layered_sparse_from_matrix_market_some_buffer<double, int32_t>(bufptr, size));
+        return NumericMatrix(tatami_layered::read_layered_sparse_from_matrix_market_some_buffer<double, std::int32_t>(bufptr, size));
 
     } else {
         tatami_mtx::Options opt;
         opt.row = true;
         if (compression == "none") {
-            return NumericMatrix(tatami_mtx::load_matrix_from_text_buffer<double, int32_t>(bufptr, size, opt));
+            return NumericMatrix(tatami_mtx::load_matrix_from_text_buffer<double, std::int32_t>(bufptr, size, opt));
         } else if (compression == "gzip") {
-            return NumericMatrix(tatami_mtx::load_matrix_from_zlib_buffer<double, int32_t>(bufptr, size, opt));
+            return NumericMatrix(tatami_mtx::load_matrix_from_zlib_buffer<double, std::int32_t>(bufptr, size, opt));
         } else if (compression != "unknown") {
             throw std::runtime_error("unknown compression '" + compression + "'");
         } 
-        return NumericMatrix(tatami_mtx::load_matrix_from_some_buffer<double, int32_t>(bufptr, size, opt));
+        return NumericMatrix(tatami_mtx::load_matrix_from_some_buffer<double, std::int32_t>(bufptr, size, opt));
     }
 }
 
 NumericMatrix initialize_from_mtx_file(std::string path, std::string compression, bool layered) {
     if (layered) {
         if (compression == "none") {
-            return NumericMatrix(tatami_layered::read_layered_sparse_from_matrix_market_text_file<double, int32_t>(path.c_str()));
+            return NumericMatrix(tatami_layered::read_layered_sparse_from_matrix_market_text_file<double, std::int32_t>(path.c_str()));
         } else if (compression == "gzip") {
-            return NumericMatrix(tatami_layered::read_layered_sparse_from_matrix_market_gzip_file<double, int32_t>(path.c_str()));
+            return NumericMatrix(tatami_layered::read_layered_sparse_from_matrix_market_gzip_file<double, std::int32_t>(path.c_str()));
         } else if (compression != "unknown") {
             throw std::runtime_error("unknown compression '" + compression + "'");
         }
-        return NumericMatrix(tatami_layered::read_layered_sparse_from_matrix_market_some_file<double, int32_t>(path.c_str()));
+        return NumericMatrix(tatami_layered::read_layered_sparse_from_matrix_market_some_file<double, std::int32_t>(path.c_str()));
 
     } else {
         tatami_mtx::Options opt;
         opt.row = true;
         if (compression == "none") {
-            return NumericMatrix(tatami_mtx::load_matrix_from_text_file<double, int32_t>(path.c_str(), opt));
+            return NumericMatrix(tatami_mtx::load_matrix_from_text_file<double, std::int32_t>(path.c_str(), opt));
         } else if (compression == "gzip") {
-            return NumericMatrix(tatami_mtx::load_matrix_from_gzip_file<double, int32_t>(path.c_str(), opt));
+            return NumericMatrix(tatami_mtx::load_matrix_from_gzip_file<double, std::int32_t>(path.c_str(), opt));
         } else if (compression != "unknown") {
             throw std::runtime_error("unknown compression '" + compression + "'");
         }
-        return NumericMatrix(tatami_mtx::load_matrix_from_some_file<double, int32_t>(path.c_str(), opt));
+        return NumericMatrix(tatami_mtx::load_matrix_from_some_file<double, std::int32_t>(path.c_str(), opt));
     }
 }
 
-template<class Parser_>
-void check_preamble(Parser_ parser, uintptr_t output) {
-    double* outptr = reinterpret_cast<double*>(output);
+emscripten::val get_preamble(std::unique_ptr<byteme::PerByteSerial<char> > input) {
+    eminem::Parser<I<decltype(input)> > parser(std::move(input), {});
     parser.scan_preamble();
-    outptr[0] = parser.get_nrows();
-    outptr[1] = parser.get_ncols();
-    outptr[2] = parser.get_nlines();
+    auto output = emscripten::val::object();
+
+    // Cast to double so they show up in Javascript as Numbers.
+    output.set("rows", sanisizer::to_float<double>(parser.get_nrows()));
+    output.set("columns", sanisizer::to_float<double>(parser.get_ncols()));
+    output.set("lines", sanisizer::to_float<double>(parser.get_nlines()));
+    return output;
 }
 
-void read_header_from_mtx_buffer(uintptr_t buffer, int32_t size, std::string compression, uintptr_t output) {
+emscripten::val read_header_from_mtx_buffer(std::uintptr_t buffer, std::int32_t size, std::string compression) {
     unsigned char* bufptr = reinterpret_cast<unsigned char*>(buffer);
+    std::unique_ptr<byteme::Reader> input;
     if (compression == "none") {
-        check_preamble(eminem::TextBufferParser(bufptr, size), output);
+        input.reset(new byteme::RawBufferReader(bufptr, size));
     } else if (compression == "gzip") {
-        check_preamble(eminem::ZlibBufferParser(bufptr, size), output);
+        input.reset(new byteme::ZlibBufferReader(bufptr, size, {}));
     } else if (compression == "unknown") {
-        check_preamble(eminem::SomeBufferParser(bufptr, size), output);
+        input.reset(new byteme::SomeBufferReader(bufptr, size, {}));
     } else {
         throw std::runtime_error("unknown compression '" + compression + "'");
     }
+    return get_preamble(std::make_unique<byteme::PerByteSerial<char> >(std::move(input)));
 }
 
-void read_header_from_mtx_file(std::string path, std::string compression, uintptr_t output) {
+emscripten::val read_header_from_mtx_file(std::string path, std::string compression, uintptr_t output) {
+    std::unique_ptr<byteme::Reader> input;
     if (compression == "none") {
-        check_preamble(eminem::TextFileParser(path.c_str()), output);
+        input.reset(new byteme::RawFileReader(path.c_str(), {}));
     } else if (compression == "gzip") {
-        check_preamble(eminem::GzipFileParser(path.c_str()), output);
+        input.reset(new byteme::GzipFileReader(path.c_str(), {}));
     } else if (compression == "unknown") {
-        check_preamble(eminem::SomeFileParser(path.c_str()), output);
+        input.reset(new byteme::SomeFileReader(path.c_str(), {}));
     } else {
         throw std::runtime_error("unknown compression '" + compression + "'");
     }
+    return get_preamble(std::make_unique<byteme::PerByteSerial<char> >(std::move(input)));
 }
 
 EMSCRIPTEN_BINDINGS(read_matrix_market) {

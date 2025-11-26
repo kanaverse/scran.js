@@ -16,6 +16,13 @@ public:
 
     std::int32_t ncol() const;
 
+    // Returning doubles so that Javascript can deal with Numbers.
+    // Technically not necessary here as int32_t will get converted to a Number by embind,
+    // but it's best to be safe just in case we change the Index_ type later.
+    double nrow_dbl() const;
+
+    double ncol_dbl() const;
+
 public:
     bool sparse() const;
 

@@ -175,27 +175,5 @@ export function initializeSparseMatrixFromHdf5Group(file, name, numberOfRows, nu
 }
 
 export function extractHdf5MatrixDetails(file, name) { 
-    let output = {};
-    let arr = utils.createInt32WasmArray(5);
-
-    try {
-        wasm.call(module => module.extract_hdf5_matrix_details(file, name, arr.offset));
-
-        let vals = arr.array();
-        if (vals[0] > 0) {
-            output.format = "dense";
-        } else if (vals[1] > 0) {
-            output.format = "csc";
-        } else {
-            output.format = "csr";
-        }
-
-        output.rows = vals[2];
-        output.columns = vals[3];
-        output.integer = vals[4] > 0;
-    } finally {
-        arr.free();
-    }
-
-    return output;
+    return wasm.call(module => module.extract_hdf5_matrix_details(file, name));
 }

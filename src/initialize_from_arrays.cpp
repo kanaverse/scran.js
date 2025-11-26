@@ -1,12 +1,18 @@
 #include <emscripten/bind.h>
+#include <cstdint>
+#include <cstddef>
+#include <string>
+#include <stdexcept>
+#include <vector>
 
 #include "NumericMatrix.h"
 #include "read_utils.h"
+#include "utils.h"
 
-#include "tatami/utils/SomeNumericArray.hpp"
+#include "tatami/tatami.hpp"
 
-template<typename T>
-tatami::SomeNumericArray<T> create_SomeNumericArray(uintptr_t ptr, size_t len, const std::string& type) {
+template<typename Type_>
+tatami::SomeNumericArray<Type_> create_SomeNumericArray(std::uintptr_t ptr, std::size_t len, const std::string& type) {
     tatami::SomeNumericType t;
 
     if (type == "Int8Array") {
@@ -33,7 +39,7 @@ tatami::SomeNumericArray<T> create_SomeNumericArray(uintptr_t ptr, size_t len, c
         throw std::runtime_error("unknown array type '" + type + "'");
     }
 
-    return tatami::SomeNumericArray<T>(reinterpret_cast<void*>(ptr), len, t);
+    return tatami::SomeNumericArray<Type_>(reinterpret_cast<void*>(ptr), len, t);
 }
 
 bool is_type_integer(const std::string& type) {
@@ -47,48 +53,56 @@ bool is_type_integer(const std::string& type) {
 
 /**********************************/
 
-template<typename T>
+template<typename Type_>
 NumericMatrix initialize_sparse_matrix_internal(
-    size_t nrows,
-    size_t ncols,
-    size_t nelements, 
-    uintptr_t values,
+    std::int32_t nrows,
+    std::int32_t ncols,
+    std::size_t nelements, 
+    std::uintptr_t values,
     const std::string& value_type,
-    uintptr_t indices,
+    std::uintptr_t indices,
     const std::string& index_type,
-    uintptr_t indptrs,
+    std::uintptr_t indptrs,
     const std::string& indptr_type,
     bool by_row,
-    bool layered)
-{
-    auto val = create_SomeNumericArray<T>(values, nelements, value_type);
-    auto idx = create_SomeNumericArray<int32_t>(indices, nelements, index_type);
+    bool layered
+) {
+    auto val = create_SomeNumericArray<Type_>(values, nelements, value_type);
+    auto idx = create_SomeNumericArray<std::int32_t>(indices, nelements, index_type);
 
     if (by_row && !layered) {
         // Directly creating a CSR matrix.
-        auto ind = create_SomeNumericArray<size_t>(indptrs, nrows + 1, indptr_type);
-        return copy_into_sparse<T>(nrows, ncols, val, idx, ind);
+        auto ind = create_SomeNumericArray<std::size_t>(indptrs, sanisizer::sum<std::size_t>(nrows, 1), indptr_type);
+        return copy_into_sparse<Type_>(nrows, ncols, val, idx, ind);
     } else {
-        std::shared_ptr<tatami::Matrix<T, int32_t> > mat;
+        std::shared_ptr<tatami::Matrix<Type_, std::int32_t> > mat;
         if (by_row) {
-            auto ind = create_SomeNumericArray<size_t>(indptrs, nrows + 1, indptr_type);
-            mat.reset(new tatami::CompressedSparseRowMatrix<T, int32_t, decltype(val), decltype(idx), decltype(ind)>(nrows, ncols, val, idx, ind));
+            auto ind = create_SomeNumericArray<std::size_t>(indptrs, sanisizer::sum<std::size_t>(nrows, 1), indptr_type);
+            mat.reset(new tatami::CompressedSparseRowMatrix<Type_, std::int32_t, I<decltype(val)>, I<decltype(idx)>, I<decltype(ind)> >(nrows, ncols, val, idx, ind));
         } else {
-            auto ind = create_SomeNumericArray<size_t>(indptrs, ncols + 1, indptr_type);
-            mat.reset(new tatami::CompressedSparseColumnMatrix<T, int32_t, decltype(val), decltype(idx), decltype(ind)>(nrows, ncols, val, idx, ind));
+            auto ind = create_SomeNumericArray<std::size_t>(indptrs, sanisizer::sum<std::size_t>(ncols, 1), indptr_type);
+            mat.reset(new tatami::CompressedSparseColumnMatrix<Type_, std::int32_t, I<decltype(val)>, I<decltype(idx)>, I<decltype(ind)> >(nrows, ncols, val, idx, ind));
         }
         return sparse_from_tatami(*mat, layered);
     }
 }
 
-NumericMatrix initialize_from_sparse_arrays(size_t nrows, size_t ncols, size_t nelements, 
-    uintptr_t values, std::string value_type,
-    uintptr_t indices, std::string index_type,
-    uintptr_t indptrs, std::string indptr_type,
-    bool by_row, bool force_integer, bool layered)
-{
+NumericMatrix initialize_from_sparse_arrays(
+    std::int32_t nrows,
+    std::int32_t ncols,
+    std::size_t nelements, 
+    std::uintptr_t values,
+    std::string value_type,
+    std::uintptr_t indices,
+    std::string index_type,
+    std::uintptr_t indptrs,
+    std::string indptr_type,
+    bool by_row,
+    bool force_integer,
+    bool layered
+) {
     if (force_integer || is_type_integer(value_type)) {
-        return initialize_sparse_matrix_internal<int32_t>(nrows, ncols, nelements, values, value_type, indices, index_type, indptrs, indptr_type, by_row, layered);
+        return initialize_sparse_matrix_internal<std::int32_t>(nrows, ncols, nelements, values, value_type, indices, index_type, indptrs, indptr_type, by_row, layered);
     } else {
         return initialize_sparse_matrix_internal<double>(nrows, ncols, nelements, values, value_type, indices, index_type, indptrs, indptr_type, by_row, false);
     }
@@ -96,33 +110,62 @@ NumericMatrix initialize_from_sparse_arrays(size_t nrows, size_t ncols, size_t n
 
 /**********************************/
 
-template<typename T>
-NumericMatrix initialize_sparse_matrix_from_dense_vector_internal(size_t nrows, size_t ncols, uintptr_t values, const std::string& type, bool column_major, bool layered) {
-    auto vals = create_SomeNumericArray<T>(values, nrows*ncols, type);
-    tatami::DenseMatrix<T, int32_t, decltype(vals)> mat(nrows, ncols, vals, !column_major);
+template<typename Type_>
+NumericMatrix initialize_sparse_matrix_from_dense_vector_internal(
+    std::int32_t nrows,
+    std::int32_t ncols,
+    std::uintptr_t values,
+    const std::string& type,
+    bool column_major,
+    bool layered
+) {
+    auto vals = create_SomeNumericArray<Type_>(values, sanisizer::product<std::size_t>(nrows, ncols), type);
+    tatami::DenseMatrix<Type_, std::int32_t, I<decltype(vals)> > mat(nrows, ncols, vals, !column_major);
     return sparse_from_tatami(mat, layered);
 }
 
-NumericMatrix initialize_sparse_matrix_from_dense_array(size_t nrows, size_t ncols, uintptr_t values, std::string type, bool column_major, bool force_integer, bool layered) {
+NumericMatrix initialize_sparse_matrix_from_dense_array(
+    std::int32_t nrows,
+    std::int32_t ncols,
+    std::uintptr_t values,
+    std::string type,
+    bool column_major,
+    bool force_integer,
+    bool layered
+) {
     if (force_integer || is_type_integer(type)) {
-        return initialize_sparse_matrix_from_dense_vector_internal<int32_t>(nrows, ncols, values, type, column_major, layered);
+        return initialize_sparse_matrix_from_dense_vector_internal<std::int32_t>(nrows, ncols, values, type, column_major, layered);
     } else {
         return initialize_sparse_matrix_from_dense_vector_internal<double>(nrows, ncols, values, type, column_major, false);
     }
 }
 
-template<typename T>
-NumericMatrix initialize_dense_matrix_internal(size_t nrows, size_t ncols, uintptr_t values, const std::string& type, bool column_major) {
-    std::vector<T> tmp(nrows* ncols);
-    auto vals = create_SomeNumericArray<T>(values, nrows*ncols, type);
+template<typename Type_>
+NumericMatrix initialize_dense_matrix_internal(
+    std::int32_t nrows,
+    std::int32_t ncols,
+    std::uintptr_t values,
+    const std::string& type,
+    bool column_major
+) {
+    auto len = sanisizer::product<std::size_t>(nrows, ncols);
+    auto vals = create_SomeNumericArray<Type_>(values, len, type);
+    auto tmp = sanisizer::create<std::vector<Type_> >(len);
     std::copy(vals.begin(), vals.end(), tmp.begin());
-    auto ptr = std::shared_ptr<const tatami::NumericMatrix>(new tatami::DenseMatrix<double, int32_t, decltype(tmp)>(nrows, ncols, std::move(tmp), !column_major));
+    auto ptr = std::shared_ptr<const tatami::NumericMatrix>(new tatami::DenseMatrix<double, std::int32_t, I<decltype(tmp)> >(nrows, ncols, std::move(tmp), !column_major));
     return NumericMatrix(std::move(ptr));
 }
 
-NumericMatrix initialize_dense_matrix_from_dense_array(size_t nrows, size_t ncols, uintptr_t values, std::string type, bool column_major, bool force_integer) {
+NumericMatrix initialize_dense_matrix_from_dense_array(
+    std::int32_t nrows,
+    std::int32_t ncols,
+    std::uintptr_t values,
+    std::string type,
+    bool column_major,
+    bool force_integer
+) {
     if (force_integer || is_type_integer(type)) {
-        return initialize_dense_matrix_internal<int32_t>(nrows, ncols, values, type, column_major); 
+        return initialize_dense_matrix_internal<std::int32_t>(nrows, ncols, values, type, column_major); 
     } else {
         return initialize_dense_matrix_internal<double>(nrows, ncols, values, type, column_major); 
     }
