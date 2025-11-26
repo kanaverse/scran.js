@@ -3,13 +3,14 @@
 set -e
 set -u
 
-HDF5_VERSION=1.14.5
-HDF5_HASH=ec2e13c52e60f9a01491bb3158cb3778c985697131fc6a342262d32a26e58e44
+HDF5_VERSION=2.0.0
+HDF5_HASH=f4c2edc5668fb846627182708dbe1e16c60c467e63177a75b0b9f12c19d7efed
 SOURCE_DIR=hdf5-${HDF5_VERSION}
 
+echo $SOURCE_DIR
 if [[ ! -e ${SOURCE_DIR} ]]
 then
-    wget -q https://github.com/HDFGroup/hdf5/releases/download/hdf5_${HDF5_VERSION}/hdf5-${HDF5_VERSION}.tar.gz -O hdf5.tar.gz
+    wget -q https://github.com/HDFGroup/hdf5/releases/download/${HDF5_VERSION}/hdf5-${HDF5_VERSION}.tar.gz -O hdf5.tar.gz
     OBSERVED_HASH=($(shasum -a 256 hdf5.tar.gz))
     if [[ ${OBSERVED_HASH} != ${HDF5_HASH} ]]
     then
@@ -27,6 +28,7 @@ then
 fi
 
 BUILD_DIR=build-${HDF5_VERSION}
+echo $BUILD_DIR
 if [ ! -e ${BUILD_DIR} ]
 then
     mkdir -p ../installed
