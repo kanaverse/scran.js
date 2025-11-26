@@ -122,6 +122,7 @@ target_link_options(scran_wasm PRIVATE
     -O3
     --bind 
     -sALLOW_MEMORY_GROWTH=1 
+    --minify=0
     -sMEMORY64
     -sMAXIMUM_MEMORY=16GB # current maximum, otherwise Emscripten complains.
     -sSTACK_SIZE=2MB
