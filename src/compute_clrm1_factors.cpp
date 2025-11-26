@@ -3,10 +3,10 @@
 #include "NumericMatrix.h"
 #include "clrm1.hpp"
 
-void compute_clrm1_factors(const NumericMatrix& mat, uintptr_t output, int32_t nthreads) {
+void compute_clrm1_factors(const NumericMatrix& mat, std::uintptr_t output, JsFakeInt nthreads_raw) {
     clrm1::Options opt;
-    opt.num_threads = nthreads;
-    clrm1::compute(*(mat.ptr), opt, reinterpret_cast<double*>(output));
+    opt.num_threads = js2int<int>(nthreads_raw);
+    clrm1::compute(*mat, opt, reinterpret_cast<double*>(output));
 }
 
 EMSCRIPTEN_BINDINGS(compute_clrm1_factors) {
