@@ -55,8 +55,8 @@ bool is_type_integer(const std::string& type) {
 
 template<typename Type_>
 NumericMatrix initialize_sparse_matrix_internal(
-    std::int32_t nrows,
-    std::int32_t ncols,
+    MatrixIndex nrows,
+    MatrixIndex ncols,
     std::size_t nelements, 
     std::uintptr_t values,
     const std::string& value_type,
@@ -75,21 +75,21 @@ NumericMatrix initialize_sparse_matrix_internal(
         auto ind = create_SomeNumericArray<std::size_t>(indptrs, sanisizer::sum<std::size_t>(nrows, 1), indptr_type);
         return copy_into_sparse<Type_>(nrows, ncols, val, idx, ind);
     } else {
-        std::shared_ptr<tatami::Matrix<Type_, std::int32_t> > mat;
+        std::shared_ptr<tatami::Matrix<Type_, MatrixIndex> > mat;
         if (by_row) {
             auto ind = create_SomeNumericArray<std::size_t>(indptrs, sanisizer::sum<std::size_t>(nrows, 1), indptr_type);
-            mat.reset(new tatami::CompressedSparseRowMatrix<Type_, std::int32_t, I<decltype(val)>, I<decltype(idx)>, I<decltype(ind)> >(nrows, ncols, val, idx, ind));
+            mat.reset(new tatami::CompressedSparseRowMatrix<Type_, MatrixIndex, I<decltype(val)>, I<decltype(idx)>, I<decltype(ind)> >(nrows, ncols, val, idx, ind));
         } else {
             auto ind = create_SomeNumericArray<std::size_t>(indptrs, sanisizer::sum<std::size_t>(ncols, 1), indptr_type);
-            mat.reset(new tatami::CompressedSparseColumnMatrix<Type_, std::int32_t, I<decltype(val)>, I<decltype(idx)>, I<decltype(ind)> >(nrows, ncols, val, idx, ind));
+            mat.reset(new tatami::CompressedSparseColumnMatrix<Type_, MatrixIndex, I<decltype(val)>, I<decltype(idx)>, I<decltype(ind)> >(nrows, ncols, val, idx, ind));
         }
         return sparse_from_tatami(*mat, layered);
     }
 }
 
 NumericMatrix initialize_from_sparse_arrays(
-    std::int32_t nrows,
-    std::int32_t ncols,
+    JsNumber nrows_raw,
+    JsNumber ncols_raw,
     std::size_t nelements, 
     std::uintptr_t values,
     std::string value_type,
@@ -101,8 +101,10 @@ NumericMatrix initialize_from_sparse_arrays(
     bool force_integer,
     bool layered
 ) {
+    const auto nrows = js2int<MatrixIndex>(nrows_raw);
+    const auto ncols = js2int<MatrixIndex>(ncols_raw);
     if (force_integer || is_type_integer(value_type)) {
-        return initialize_sparse_matrix_internal<std::int32_t>(nrows, ncols, nelements, values, value_type, indices, index_type, indptrs, indptr_type, by_row, layered);
+        return initialize_sparse_matrix_internal<MatrixIndex>(nrows, ncols, nelements, values, value_type, indices, index_type, indptrs, indptr_type, by_row, layered);
     } else {
         return initialize_sparse_matrix_internal<double>(nrows, ncols, nelements, values, value_type, indices, index_type, indptrs, indptr_type, by_row, false);
     }
@@ -112,29 +114,31 @@ NumericMatrix initialize_from_sparse_arrays(
 
 template<typename Type_>
 NumericMatrix initialize_sparse_matrix_from_dense_vector_internal(
-    std::int32_t nrows,
-    std::int32_t ncols,
+    MatrixIndex nrows,
+    MatrixIndex ncols,
     std::uintptr_t values,
     const std::string& type,
     bool column_major,
     bool layered
 ) {
     auto vals = create_SomeNumericArray<Type_>(values, sanisizer::product<std::size_t>(nrows, ncols), type);
-    tatami::DenseMatrix<Type_, std::int32_t, I<decltype(vals)> > mat(nrows, ncols, vals, !column_major);
+    tatami::DenseMatrix<Type_, MatrixIndex, I<decltype(vals)> > mat(nrows, ncols, vals, !column_major);
     return sparse_from_tatami(mat, layered);
 }
 
 NumericMatrix initialize_sparse_matrix_from_dense_array(
-    std::int32_t nrows,
-    std::int32_t ncols,
+    JsNumber nrows_raw,
+    JsNumber ncols_raw,
     std::uintptr_t values,
     std::string type,
     bool column_major,
     bool force_integer,
     bool layered
 ) {
+    const auto nrows = js2int<MatrixIndex>(nrows_raw);
+    const auto ncols = js2int<MatrixIndex>(ncols_raw);
     if (force_integer || is_type_integer(type)) {
-        return initialize_sparse_matrix_from_dense_vector_internal<std::int32_t>(nrows, ncols, values, type, column_major, layered);
+        return initialize_sparse_matrix_from_dense_vector_internal<MatrixIndex>(nrows, ncols, values, type, column_major, layered);
     } else {
         return initialize_sparse_matrix_from_dense_vector_internal<double>(nrows, ncols, values, type, column_major, false);
     }
@@ -142,30 +146,32 @@ NumericMatrix initialize_sparse_matrix_from_dense_array(
 
 template<typename Type_>
 NumericMatrix initialize_dense_matrix_internal(
-    std::int32_t nrows,
-    std::int32_t ncols,
+    MatrixIndex nrows,
+    MatrixIndex ncols,
     std::uintptr_t values,
     const std::string& type,
     bool column_major
 ) {
-    auto len = sanisizer::product<std::size_t>(nrows, ncols);
+    const auto len = sanisizer::product<std::size_t>(nrows, ncols);
     auto vals = create_SomeNumericArray<Type_>(values, len, type);
     auto tmp = sanisizer::create<std::vector<Type_> >(len);
     std::copy(vals.begin(), vals.end(), tmp.begin());
-    auto ptr = std::shared_ptr<const tatami::NumericMatrix>(new tatami::DenseMatrix<double, std::int32_t, I<decltype(tmp)> >(nrows, ncols, std::move(tmp), !column_major));
+    auto ptr = std::shared_ptr<const tatami::NumericMatrix>(new tatami::DenseMatrix<double, MatrixIndex, I<decltype(tmp)> >(nrows, ncols, std::move(tmp), !column_major));
     return NumericMatrix(std::move(ptr));
 }
 
 NumericMatrix initialize_dense_matrix_from_dense_array(
-    std::int32_t nrows,
-    std::int32_t ncols,
+    JsNumber nrows_raw,
+    JsNumber ncols_raw,
     std::uintptr_t values,
     std::string type,
     bool column_major,
     bool force_integer
 ) {
+    const auto nrows = js2int<MatrixIndex>(nrows_raw);
+    const auto ncols = js2int<MatrixIndex>(ncols_raw);
     if (force_integer || is_type_integer(type)) {
-        return initialize_dense_matrix_internal<std::int32_t>(nrows, ncols, values, type, column_major); 
+        return initialize_dense_matrix_internal<MatrixIndex>(nrows, ncols, values, type, column_major); 
     } else {
         return initialize_dense_matrix_internal<double>(nrows, ncols, values, type, column_major); 
     }

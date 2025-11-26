@@ -38,7 +38,9 @@ void delayed_arithmetic_scalar(NumericMatrix& x, std::string op, bool right, dou
     x.reset_ptr(std::make_shared<tatami::DelayedUnaryIsometricOperation<double, double, std::int32_t> >(std::move(x.ptr()), std::move(operation)));
 }
 
-void delayed_arithmetic_vector(NumericMatrix& x, std::string op, bool right, std::int32_t margin, std::uintptr_t ptr, std::size_t n) {
+void delayed_arithmetic_vector(NumericMatrix& x, std::string op, bool right, JsNumber margin_raw, std::uintptr_t ptr, JsNumber n_raw) {
+    const auto margin = js2int<int>(margin_raw);
+    const auto n = js2int<std::size_t>(n_raw);
     if (sanisizer::is_equal(n, margin == 0 ? x.nrow() : x.ncol())) {
         throw std::runtime_error("inappropriate length of vector for delayed arithmetic");
     }

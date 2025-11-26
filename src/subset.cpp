@@ -9,17 +9,19 @@
 
 #include "tatami/tatami.hpp"
 
-void column_subset(NumericMatrix& matrix, std::uintptr_t offset, std::size_t length) {
-    auto offset_ptr = reinterpret_cast<const std::int32_t*>(offset);
+void column_subset(NumericMatrix& matrix, std::uintptr_t offset, JsNumber length_raw) {
+    const auto length = js2int<std::size_t>(length_raw);
+    const auto offset_ptr = reinterpret_cast<const std::int32_t*>(offset);
     check_subset_indices<false>(offset_ptr, length, matrix.ncol());
-    matrix.reset_ptr(tatami::make_DelayedSubset<double, std::int32_t>(matrix.ptr(), std::vector<std::int32_t>(offset_ptr, offset_ptr + length), false));
+    matrix.reset_ptr(tatami::make_DelayedSubset<MatrixValue, MatrixIndex>(matrix.ptr(), std::vector<std::int32_t>(offset_ptr, offset_ptr + length), false));
     return;
 }
 
-void row_subset(NumericMatrix& matrix, std::uintptr_t offset, std::size_t length) {
-    auto offset_ptr = reinterpret_cast<const std::int32_t*>(offset);
+void row_subset(NumericMatrix& matrix, std::uintptr_t offset, JsNumber length_raw) {
+    const auto length = js2int<std::size_t>(length_raw);
+    const auto offset_ptr = reinterpret_cast<const std::int32_t*>(offset);
     check_subset_indices<true>(offset_ptr, length, matrix.nrow());
-    matrix.reset_ptr(tatami::make_DelayedSubset<double, std::int32_t>(matrix.ptr(), std::vector<std::int32_t>(offset_ptr, offset_ptr + length), true));
+    matrix.reset_ptr(tatami::make_DelayedSubset<MatrixValue, MatrixIndex>(matrix.ptr(), std::vector<std::int32_t>(offset_ptr, offset_ptr + length), true));
     return;
 }
 

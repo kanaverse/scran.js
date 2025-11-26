@@ -9,12 +9,13 @@
 
 #include "tatami/tatami.hpp"
 
-NumericMatrix cbind(std::size_t n, std::uintptr_t mats) {
+NumericMatrix cbind(JsNumber n_raw, std::uintptr_t mats) {
+    const auto n = js2int<std::size_t>(n_raw);
     if (n == 0) {
         throw std::runtime_error("need at least one matrix to cbind");
     }
 
-    auto mat_ptrs = convert_array_of_offsets<const NumericMatrix*>(n, mats);
+    const auto mat_ptrs = convert_array_of_offsets<const NumericMatrix*>(n, mats);
     std::vector<std::shared_ptr<const tatami::Matrix<double, std::int32_t> > > collected;
     collected.reserve(mat_ptrs.size());
 
@@ -35,12 +36,13 @@ NumericMatrix cbind(std::size_t n, std::uintptr_t mats) {
     );
 }
 
-NumericMatrix rbind(std::size_t n, std::uintptr_t mats) {
+NumericMatrix rbind(JsNumber n_raw, std::uintptr_t mats) {
+    const auto n = js2int<std::size_t>(n_raw);
     if (n == 0) {
         throw std::runtime_error("need at least one matrix to rbind");
     }
 
-    auto mat_ptrs = convert_array_of_offsets<const NumericMatrix*>(n, mats);
+    const auto mat_ptrs = convert_array_of_offsets<const NumericMatrix*>(n, mats);
     std::vector<std::shared_ptr<const tatami::Matrix<double, std::int32_t> > > collected;
     collected.reserve(mat_ptrs.size());
 

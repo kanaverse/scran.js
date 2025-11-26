@@ -11,6 +11,18 @@
 template<typename Input_>
 using I = typename std::remove_reference<typename std::remove_cv<Input_>::type>::type;
 
+typedef double JsNumber;
+
+template<typename Input_>
+JsNumber int2js(Input_ x) {
+    return sanisizer::to_float<JsNumber>(x);
+}
+
+template<typename Output_>
+Output_ js2int(Output_ x) {
+    return sanisizer::from_float<Output_>(x);
+}
+
 template<typename T>
 std::vector<T> convert_array_of_offsets(std::size_t n, std::uintptr_t x) {
     auto output = sanisizer::create<std::vector<T> >(n);

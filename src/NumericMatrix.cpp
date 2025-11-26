@@ -9,15 +9,15 @@
 
 NumericMatrix::NumericMatrix(std::shared_ptr<const tatami::NumericMatrix> p) : my_ptr(std::move(p)) {}
 
-const std::shared_ptr<const tatami::Matrix<double, std::int32_t> >& NumericMatrix::ptr() const {
+const std::shared_ptr<const tatami::Matrix<MatrixValue, MatrixIndex> >& NumericMatrix::ptr() const {
     return my_ptr;
 }
 
-std::shared_ptr<const tatami::Matrix<double, std::int32_t> >& NumericMatrix::ptr() {
+std::shared_ptr<const tatami::Matrix<MatrixValue, MatrixIndex> >& NumericMatrix::ptr() {
     return my_ptr;
 }
 
-const tatami::Matrix<double, std::int32_t>& NumericMatrix::operator*() const {
+const tatami::Matrix<MatrixValue, MatrixIndex>& NumericMatrix::operator*() const {
     return *my_ptr;
 }
 
@@ -27,38 +27,38 @@ void NumericMatrix::reset_ptr(std::shared_ptr<const tatami::NumericMatrix> p) {
     my_by_column.reset();
 }
 
-std::int32_t NumericMatrix::nrow() const {
+MatrixIndex NumericMatrix::nrow() const {
     return my_ptr->nrow();
 }
 
-std::int32_t NumericMatrix::ncol() const {
+MatrixIndex NumericMatrix::ncol() const {
     return my_ptr->ncol();
 }
 
-double NumericMatrix::nrow_dbl() const {
-    return sanisizer::to_float<double>(my_ptr->nrow());
+JsNumber NumericMatrix::nrow_js() const {
+    return int2js(my_ptr->nrow());
 }
 
-double NumericMatrix::ncol_dbl() const {
-    return sanisizer::to_float<double>(my_ptr->ncol());
+JsNumber NumericMatrix::ncol_js() const {
+    return int2js(my_ptr->ncol());
 }
 
-void NumericMatrix::row(std::int32_t r, std::uintptr_t values) {
-    double* buffer = reinterpret_cast<double*>(values);
+void NumericMatrix::row(JsNumber r_raw, std::uintptr_t values) {
+    MatrixValue* buffer = reinterpret_cast<MatrixValue*>(values);
     if (!my_by_row) {
         my_by_row = my_ptr->dense_row();
     }
-    auto out = my_by_row->fetch(r, buffer);
+    auto out = my_by_row->fetch(js2int<MatrixIndex>(r_raw), buffer);
     tatami::copy_n(out, my_ptr->ncol(), buffer);
     return;
 }
 
-void NumericMatrix::column(std::int32_t c, std::uintptr_t values) {
-    double* buffer = reinterpret_cast<double*>(values);
+void NumericMatrix::column(JsNumber c_raw, std::uintptr_t values) {
+    MatrixValue* buffer = reinterpret_cast<MatrixValue*>(values);
     if (!my_by_column) {
         my_by_column = my_ptr->dense_column();
     }
-    auto out = my_by_column->fetch(c, buffer);
+    auto out = my_by_column->fetch(js2int<MatrixIndex>(c_raw), buffer);
     tatami::copy_n(out, my_ptr->nrow(), buffer);
     return;
 }
@@ -73,8 +73,8 @@ NumericMatrix NumericMatrix::clone() const {
 
 EMSCRIPTEN_BINDINGS(NumericMatrix) {
     emscripten::class_<NumericMatrix>("NumericMatrix")
-        .function("nrow", &NumericMatrix::nrow_dbl, emscripten::return_value_policy::take_ownership())
-        .function("ncol", &NumericMatrix::ncol_dbl, emscripten::return_value_policy::take_ownership())
+        .function("nrow", &NumericMatrix::nrow_js, emscripten::return_value_policy::take_ownership())
+        .function("ncol", &NumericMatrix::ncol_js, emscripten::return_value_policy::take_ownership())
         .function("row", &NumericMatrix::row, emscripten::return_value_policy::take_ownership())
         .function("column", &NumericMatrix::column, emscripten::return_value_policy::take_ownership())
         .function("sparse", &NumericMatrix::sparse, emscripten::return_value_policy::take_ownership())

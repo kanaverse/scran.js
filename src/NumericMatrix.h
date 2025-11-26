@@ -4,6 +4,10 @@
 #include <memory>
 #include <cstdint>
 #include "tatami/tatami.hpp"
+#include "utils.h"
+
+typedef double MatrixValue;
+typedef std::int32_t MatrixIndex;
 
 class NumericMatrix {
 public:
@@ -12,16 +16,13 @@ public:
     NumericMatrix(std::shared_ptr<const tatami::NumericMatrix> p);
 
 public:
-    std::int32_t nrow() const;
+    MatrixIndex nrow() const;
 
-    std::int32_t ncol() const;
+    MatrixIndex ncol() const;
 
-    // Returning doubles so that Javascript can deal with Numbers.
-    // Technically not necessary here as int32_t will get converted to a Number by embind,
-    // but it's best to be safe just in case we change the Index_ type later.
-    double nrow_dbl() const;
+    JsNumber nrow_js() const;
 
-    double ncol_dbl() const;
+    JsNumber ncol_js() const;
 
 public:
     bool sparse() const;
@@ -31,24 +32,23 @@ public:
     // Not thread-safe! by_row and by_column are initialized
     // on demand when particular rows and columns are requested
     // in Javascript. Don't use these functions from C++.
-    void row(std::int32_t r, std::uintptr_t values);
+    void row(JsNumber r, std::uintptr_t values);
 
-    void column(std::int32_t c, std::uintptr_t values);
+    void column(JsNumber c, std::uintptr_t values);
 
 public:
-    const std::shared_ptr<const tatami::Matrix<double, std::int32_t> >& ptr() const;
+    const std::shared_ptr<const tatami::Matrix<MatrixValue, MatrixIndex> >& ptr() const;
 
-    std::shared_ptr<const tatami::Matrix<double, std::int32_t> >& ptr();
+    std::shared_ptr<const tatami::Matrix<MatrixValue, MatrixIndex> >& ptr();
 
-    const tatami::Matrix<double, std::int32_t>& operator*() const;
+    const tatami::Matrix<MatrixValue, MatrixIndex>& operator*() const;
 
-    void reset_ptr(std::shared_ptr<const tatami::Matrix<double, std::int32_t> >);
+    void reset_ptr(std::shared_ptr<const tatami::Matrix<MatrixValue, MatrixIndex> >);
 
 private:
-    std::shared_ptr<const tatami::Matrix<double, std::int32_t> > my_ptr;
+    std::shared_ptr<const tatami::Matrix<MatrixValue, MatrixIndex> > my_ptr;
 
-    std::unique_ptr<tatami::MyopicDenseExtractor<double, std::int32_t> > my_by_row, my_by_column;
-
+    std::unique_ptr<tatami::MyopicDenseExtractor<MatrixValue, MatrixIndex> > my_by_row, my_by_column;
 };
 
 #endif

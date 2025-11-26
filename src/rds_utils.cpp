@@ -1,40 +1,45 @@
 #include <emscripten.h>
 #include <emscripten/bind.h>
 
+#include <cstdint>
+#include <cstddef>
+
 #include "rds_utils.h"
 #include "rds2cpp/rds2cpp.hpp"
 #include "byteme/SomeBufferReader.hpp"
 
 class LoadedRds {
 public:
-    LoadedRds(rds2cpp::Parsed f) : full(std::move(f)) {}
+    LoadedRds(rds2cpp::Parsed f) : my_full(std::move(f)) {}
 
     RdsObject load() {
-        return RdsObject(full.object.get());
+        return RdsObject(my_full.object.get());
     }
 
-    int32_t format_version() const {
-        return full.format_version;
+    JsNumber format_version() const {
+        return int2js(my_full.format_version);
     }
 
     emscripten::val writer_version() const {
-        return emscripten::val(emscripten::typed_memory_view(full.writer_version.size(), full.writer_version.data()));
+        return emscripten::val(emscripten::typed_memory_view(my_full.writer_version.size(), my_full.writer_version.data()));
     }
 
     emscripten::val reader_version() const {
-        return emscripten::val(emscripten::typed_memory_view(full.reader_version.size(), full.reader_version.data()));
+        return emscripten::val(emscripten::typed_memory_view(my_full.reader_version.size(), my_full.reader_version.data()));
     }
 
-    rds2cpp::Parsed full;
+private:
+    rds2cpp::Parsed my_full;
 };
 
-LoadedRds parse_rds_from_buffer(uintptr_t buffer, int32_t size) {
-    byteme::SomeBufferReader reader(reinterpret_cast<const uint8_t*>(buffer), size);
-    return LoadedRds(rds2cpp::parse_rds<true>(reader)); // setting parallel=true because rds2cpp::parse_rds() is bugged and parallel=true is actually serial.
+LoadedRds parse_rds_from_buffer(std::uintptr_t buffer, JsNumber size_raw) {
+    const auto size = js2int<std::size_t>(size_raw);
+    byteme::SomeBufferReader reader(reinterpret_cast<const std::uint8_t*>(buffer), size, {});
+    return LoadedRds(rds2cpp::parse_rds(reader, {}));
 }
 
 LoadedRds parse_rds_from_file(std::string path) {
-    return LoadedRds(rds2cpp::parse_rds<true>(path));
+    return LoadedRds(rds2cpp::parse_rds(path, {}));
 }
 
 EMSCRIPTEN_BINDINGS(rds_utils) {

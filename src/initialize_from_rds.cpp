@@ -13,7 +13,7 @@
 
 #include "tatami/tatami.hpp"
 
-std::pair<std::int32_t, std::int32_t> parse_dimensions(const rds2cpp::RObject* dimobj) {
+std::pair<MatrixIndex, MatrixIndex> parse_dimensions(const rds2cpp::RObject* dimobj) {
     if (dimobj->type() != rds2cpp::SEXPType::INT) {
         throw std::runtime_error("expected matrix dimensions to be integer");
     }
@@ -27,11 +27,14 @@ std::pair<std::int32_t, std::int32_t> parse_dimensions(const rds2cpp::RObject* d
         throw std::runtime_error("expected all matrix dimensions to be non-negative");
     }
 
-    return std::pair<std::int32_t, std::int32_t>(dims[0], dims[1]);
+    return std::make_pair(
+        sanisizer::cast<MatrixIndex>(dims[0]),
+        sanisizer::cast<MatrixIndex>(dims[1])
+    );
 }
 
 template<class Vector_>
-std::pair<std::int32_t, std::int32_t> fetch_array_dimensions(const Vector_* obj) {
+std::pair<MatrixIndex, MatrixIndex> fetch_array_dimensions(const Vector_* obj) {
     const auto& attr = obj->attributes.names;
 
     bool found = false;
@@ -55,7 +58,7 @@ template<typename Type_, class Vector_>
 NumericMatrix convert_ordinary_array_to_sparse_matrix(const Vector_* obj, bool layered) {
     auto dims = fetch_array_dimensions(obj);
     tatami::ArrayView view(obj->data.data(), obj->data.size());
-    tatami::DenseColumnMatrix<Type_, std::int32_t, I<decltype(view)> > raw(dims.first, dims.second, std::move(view));
+    tatami::DenseColumnMatrix<Type_, MatrixIndex, I<decltype(view)> > raw(dims.first, dims.second, std::move(view));
     return sparse_from_tatami(raw, layered);
 }
 
@@ -106,7 +109,7 @@ NumericMatrix convert_dgCMatrix_to_sparse_matrix(rds2cpp::S4Object* obj, bool la
     tatami::ArrayView xview(x.data(), x.size());
     tatami::ArrayView iview(i.data(), i.size());
     tatami::ArrayView pview(p.data(), p.size());
-    tatami::CompressedSparseColumnMatrix<Type_, int32_t, decltype(xview), decltype(iview), decltype(pview)> mat(
+    tatami::CompressedSparseColumnMatrix<Type_, MatrixIndex, decltype(xview), decltype(iview), decltype(pview)> mat(
         dims.first,
         dims.second,
         std::move(xview),
@@ -120,8 +123,8 @@ NumericMatrix convert_dgCMatrix_to_sparse_matrix(rds2cpp::S4Object* obj, bool la
 template<typename Type_>
 NumericMatrix convert_dgTMatrix_to_sparse_matrix(rds2cpp::S4Object* obj, bool layered) {
     std::unordered_map<std::string, rds2cpp::RObject*> by_name;
-    size_t nattr = obj->attributes.names.size();
-    for (size_t a = 0; a < nattr; ++a) {
+    const auto nattr = obj->attributes.names.size();
+    for (I<decltype(nattr)> a = 0; a < nattr; ++a) {
         by_name[obj->attributes.names[a]] = obj->attributes.values[a].get();
     }
 
@@ -166,7 +169,7 @@ NumericMatrix convert_dgTMatrix_to_sparse_matrix(rds2cpp::S4Object* obj, bool la
     auto jcopy = j;
     auto p = tatami::compress_sparse_triplets<false>(dims.first, dims.second, xcopy, icopy, jcopy);
 
-    tatami::CompressedSparseColumnMatrix<Type_, int32_t, I<decltype(xcopy)>, I<decltype(icopy)>, I<decltype(p)> > mat(
+    tatami::CompressedSparseColumnMatrix<Type_, MatrixIndex, I<decltype(xcopy)>, I<decltype(icopy)>, I<decltype(p)> > mat(
         dims.first,
         dims.second,
         std::move(xcopy),

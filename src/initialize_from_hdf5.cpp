@@ -47,8 +47,8 @@ emscripten::val extract_hdf5_matrix_details(const std::string& path, const std::
 
                 hsize_t dims[2];
                 shandle.read(dims, H5::PredType::NATIVE_HSIZE);
-                output.set("rows", sanisizer::to_float<double>(dims[0]));
-                output.set("columns", sanisizer::to_float<double>(dims[1]));
+                output.set("rows", int2js(dims[0]));
+                output.set("columns", int2js(dims[1]));
                 output.set("format", "csc");
 
             } else if (ohandle.attrExists("shape")) { // H5AD 
@@ -58,8 +58,8 @@ emscripten::val extract_hdf5_matrix_details(const std::string& path, const std::
                 hsize_t dims[2];
                 shandle.read(H5::PredType::NATIVE_HSIZE, dims);
                 // yes, the flip is deliberate, because of how H5AD puts its features in the columns.
-                output.set("rows", sanisizer::to_float<double>(dims[1]));
-                output.set("columns", sanisizer::to_float<double>(dims[0]));
+                output.set("rows", int2js(dims[1]));
+                output.set("columns", int2js(dims[0]));
 
                 if (!ohandle.attrExists("encoding-type")) {
                     throw std::runtime_error("expected an 'encoding-type' attribute for H5AD-like formats");
@@ -96,8 +96,8 @@ emscripten::val extract_hdf5_matrix_details(const std::string& path, const std::
             hsize_t dims[2];
             dspace.getSimpleExtentDims(dims);
             // again, transposed deliberately, as HDF5 rows are typically samples => array columns.
-            output.set("rows", sanisizer::to_float<double>(dims[1])); 
-            output.set("columns", sanisizer::to_float<double>(dims[0]));
+            output.set("rows", int2js(dims[1])); 
+            output.set("columns", int2js(dims[0]));
             output.set("is_integer", dhandle.getDataType().getClass() == H5T_INTEGER);
             output.set("format", "dense");
         }
@@ -110,7 +110,7 @@ emscripten::val extract_hdf5_matrix_details(const std::string& path, const std::
 
 template<typename Type_>
 NumericMatrix apply_post_processing(
-    std::shared_ptr<tatami::Matrix<Type_, std::int32_t> > mat,
+    std::shared_ptr<tatami::Matrix<Type_, MatrixIndex> > mat,
     bool sparse,
     bool layered, 
     bool row_subset, 
@@ -137,7 +137,7 @@ NumericMatrix apply_post_processing(
     if (sparse) {
         return sparse_from_tatami(*mat, layered);
     } else {
-        return NumericMatrix(tatami::convert_to_dense<double, std::int32_t, Type_>(*mat, true, {}));
+        return NumericMatrix(tatami::convert_to_dense<MatrixValue, MatrixIndex, Type_>(*mat, true, {}));
     }
 }
 
@@ -150,10 +150,10 @@ NumericMatrix initialize_from_hdf5_dense_internal(
     bool layered, 
     bool row_subset, 
     std::uintptr_t row_offset, 
-    std::int32_t row_length,
+    JsNumber row_length_raw,
     bool col_subset, 
     std::uintptr_t col_offset,
-    std::int32_t col_length
+    JsNumber col_length_raw
 ) {
     NumericMatrix mat;
 
@@ -164,10 +164,10 @@ NumericMatrix initialize_from_hdf5_dense_internal(
             layered, 
             row_subset, 
             row_offset, 
-            row_length, 
+            js2int<std::size_t>(row_length_raw), 
             col_subset, 
             col_offset, 
-            col_length
+            js2int<std::size_t>(col_length_raw)
         );
     } catch (H5::Exception& e) {
         throw std::runtime_error(e.getCDetailMsg());
@@ -185,10 +185,10 @@ NumericMatrix initialize_from_hdf5_dense(
     bool layered, 
     bool row_subset, 
     std::uintptr_t row_offset, 
-    std::int32_t row_length,
+    JsNumber row_length_raw,
     bool col_subset, 
     std::uintptr_t col_offset,
-    std::int32_t col_length
+    JsNumber col_length_raw
 ) {
     bool as_integer = force_integer;
     if (!force_integer) {
@@ -200,6 +200,9 @@ NumericMatrix initialize_from_hdf5_dense(
             throw std::runtime_error(e.getCDetailMsg());
         }
     }
+
+    const auto row_length = js2int<std::size_t>(row_length_raw);
+    const auto col_length = js2int<std::size_t>(col_length_raw);
 
     if (as_integer) {
         return initialize_from_hdf5_dense_internal<std::int32_t>(path, name, trans, sparse, layered, row_subset, row_offset, row_length, col_subset, col_offset, col_length);
@@ -262,18 +265,18 @@ NumericMatrix initialize_from_hdf5_sparse(
     std::string data_name, 
     std::string indices_name, 
     std::string indptr_name, 
-    std::int32_t nr,
-    std::int32_t nc,
+    JsNumber nr_raw,
+    JsNumber nc_raw,
     bool csc,
     bool force_integer, 
     bool layered,
     bool row_subset, 
     std::uintptr_t row_offset, 
-    std::size_t row_length,
+    JsNumber row_length_raw,
     bool col_subset, 
     std::uintptr_t col_offset,
-    std::size_t col_length)
-{
+    JsNumber col_length_raw
+) {
     bool as_integer = force_integer;
     if (!force_integer) {
         try {
@@ -284,6 +287,11 @@ NumericMatrix initialize_from_hdf5_sparse(
             throw std::runtime_error(e.getCDetailMsg());
         }
     }
+
+    const auto nr = js2int<MatrixIndex>(nr_raw);
+    const auto nc = js2int<MatrixIndex>(nc_raw);
+    const auto row_length = js2int<std::size_t>(row_length_raw);
+    const auto col_length = js2int<std::size_t>(col_length_raw);
 
     if (as_integer) {
         return initialize_from_hdf5_sparse_internal<std::int32_t>(path, data_name, indices_name, indptr_name, nr, nc, csc, layered, row_subset, row_offset, row_length, col_subset, col_offset, col_length);
