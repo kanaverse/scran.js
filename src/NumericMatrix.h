@@ -5,17 +5,16 @@
 #include <cstdint>
 #include "tatami/tatami.hpp"
 
-struct NumericMatrix {
-    NumericMatrix();
-
-    NumericMatrix(const tatami::NumericMatrix* p);
+class NumericMatrix {
+public:
+    NumericMatrix() = default;
 
     NumericMatrix(std::shared_ptr<const tatami::NumericMatrix> p);
 
 public:
-    int32_t nrow() const;
+    std::int32_t nrow() const;
 
-    int32_t ncol() const;
+    std::int32_t ncol() const;
 
 public:
     bool sparse() const;
@@ -25,16 +24,24 @@ public:
     // Not thread-safe! by_row and by_column are initialized
     // on demand when particular rows and columns are requested
     // in Javascript. Don't use these functions from C++.
-    void row(int32_t r, uintptr_t values);
+    void row(std::int32_t r, std::uintptr_t values);
 
-    void column(int32_t c, uintptr_t values);
+    void column(std::int32_t c, std::uintptr_t values);
 
 public:
-    std::shared_ptr<const tatami::Matrix<double, int32_t> > ptr;
+    const std::shared_ptr<const tatami::Matrix<double, std::int32_t> >& ptr() const;
 
-    std::unique_ptr<tatami::MyopicDenseExtractor<double, int32_t> > by_row, by_column;
+    std::shared_ptr<const tatami::Matrix<double, std::int32_t> >& ptr();
 
-    void reset_ptr(std::shared_ptr<const tatami::Matrix<double, int32_t> >);
+    const tatami::Matrix<double, std::int32_t>& operator*() const;
+
+    void reset_ptr(std::shared_ptr<const tatami::Matrix<double, std::int32_t> >);
+
+private:
+    std::shared_ptr<const tatami::Matrix<double, std::int32_t> > my_ptr;
+
+    std::unique_ptr<tatami::MyopicDenseExtractor<double, std::int32_t> > my_by_row, my_by_column;
+
 };
 
 #endif

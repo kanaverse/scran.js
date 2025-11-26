@@ -9,52 +9,56 @@
 
 #include "tatami/tatami.hpp"
 
-NumericMatrix cbind(int32_t n, uintptr_t mats) {
+NumericMatrix cbind(std::size_t n, std::uintptr_t mats) {
     if (n == 0) {
         throw std::runtime_error("need at least one matrix to cbind");
     }
 
     auto mat_ptrs = convert_array_of_offsets<const NumericMatrix*>(n, mats);
-    std::vector<std::shared_ptr<const tatami::Matrix<double, int32_t> > > collected;
+    std::vector<std::shared_ptr<const tatami::Matrix<double, std::int32_t> > > collected;
     collected.reserve(mat_ptrs.size());
 
     const auto& first = *(mat_ptrs.front());
-    size_t NR = first.ptr->nrow();
-    collected.push_back(first.ptr);
+    const auto NR = first.nrow();
+    collected.push_back(first.ptr());
 
-    for (int32_t i = 1; i < n; ++i) {
+    for (I<decltype(n)> i = 1; i < n; ++i) {
         const auto& current = *(mat_ptrs[i]);
-        if (current.ptr->nrow() != NR) {
+        if (current.nrow() != NR) {
             throw "all matrices to cbind should have the same number of rows";
         }
-        collected.push_back(current.ptr);
+        collected.push_back(current.ptr());
     }
 
-    return NumericMatrix(tatami::make_DelayedBind<1>(std::move(collected)));
+    return NumericMatrix(
+        std::make_shared<tatami::DelayedBind<double, std::int32_t> >(std::move(collected), false)
+    );
 }
 
-NumericMatrix rbind(int32_t n, uintptr_t mats) {
+NumericMatrix rbind(std::size_t n, std::uintptr_t mats) {
     if (n == 0) {
-        throw std::runtime_error("need at least one matrix to cbind");
+        throw std::runtime_error("need at least one matrix to rbind");
     }
 
     auto mat_ptrs = convert_array_of_offsets<const NumericMatrix*>(n, mats);
-    std::vector<std::shared_ptr<const tatami::Matrix<double, int32_t> > > collected;
+    std::vector<std::shared_ptr<const tatami::Matrix<double, std::int32_t> > > collected;
     collected.reserve(mat_ptrs.size());
 
     const auto& first = *(mat_ptrs.front());
-    size_t NC = first.ptr->ncol();
-    collected.push_back(first.ptr);
+    const auto NC = first.ncol();
+    collected.push_back(first.ptr());
 
-    for (int32_t i = 1; i < n; ++i) {
+    for (I<decltype(n)> i = 1; i < n; ++i) {
         const auto& current = *(mat_ptrs[i]);
-        if (current.ptr->ncol() != NC) {
+        if (current.ncol() != NC) {
             throw "all matrices to rbind should have the same number of columns";
         }
-        collected.push_back(current.ptr);
+        collected.push_back(current.ptr());
     }
 
-    return NumericMatrix(tatami::make_DelayedBind<0>(std::move(collected)));
+    return NumericMatrix(
+        std::make_shared<tatami::DelayedBind<double, std::int32_t> >(std::move(collected), false)
+    );
 }
 
 EMSCRIPTEN_BINDINGS(cbind) {

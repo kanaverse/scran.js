@@ -6,21 +6,25 @@
 #include <cmath>
 
 #include "scran_blocks/scran_blocks.hpp"
+#include "sanisizer/sanisizer.hpp"
+
+template<typename Input_>
+using I = typename std::remove_reference<typename std::remove_cv<Input_>::type>::type;
 
 template<typename T>
-std::vector<T> convert_array_of_offsets(size_t n, uintptr_t x) {
-    std::vector<T> output(n);
-    auto ptr = reinterpret_cast<const uint64_t*>(x); // using 64-bit offsets for future-proofing.
-    for (size_t i = 0; i < n; ++i) {
-        uintptr_t current = ptr[i];
+std::vector<T> convert_array_of_offsets(std::size_t n, std::uintptr_t x) {
+    auto output = sanisizer::create<std::vector<T> >(n);
+    auto ptr = reinterpret_cast<const uint64_t*>(x); 
+    for (I<decltype(n)> i = 0; i < n; ++i) {
+        std::uintptr_t current = ptr[i];
         output[i] = reinterpret_cast<T>(current);
     }
     return output;
 }
 
 template<bool row>
-void check_subset_indices(const int32_t* ptr, size_t len, int32_t limit) {
-    for (size_t i = 0; i < len; ++i) {
+void check_subset_indices(const std::int32_t* ptr, std::size_t len, std::int32_t limit) {
+    for (I<decltype(len)> i = 0; i < len; ++i) {
         if (ptr[i] < 0) {
             throw std::runtime_error("subset indices should be non-negative");
         } else if (ptr[i] >= limit) {
