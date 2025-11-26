@@ -35,13 +35,13 @@ public:
 
 private:
     template<class Vector_>
-    JsNumber size_() const {
+    JsFakeInt size_() const {
         auto xptr = static_cast<const Vector_*>(ptr);
         return int2js(xptr->data.size());
     }
 
 public:
-    JsNumber size() const {
+    JsFakeInt size() const {
         switch (ptr->type()) {
             case rds2cpp::SEXPType::INT:
                 return size_<rds2cpp::IntegerVector>();
@@ -162,7 +162,7 @@ private:
     }
 
 public:
-    JsNumber find_attribute(const std::string& name) const {
+    JsFakeInt find_attribute(const std::string& name) const {
         auto found = find_attribute_internal(name);
         if (found.has_value()) {
             return int2js(*found);
@@ -183,7 +183,7 @@ private:
     }
 
 public:
-    RdsObject load_attribute_by_index(JsNumber i_raw) const {
+    RdsObject load_attribute_by_index(JsFakeInt i_raw) const {
         const auto i = js2int<std::size_t>(i_raw);
         switch (ptr->type()) {
             case rds2cpp::SEXPType::INT:
@@ -215,7 +215,7 @@ public:
     }
 
 public:
-    RdsObject load_list_element(JsNumber i_raw) const {
+    RdsObject load_list_element(JsFakeInt i_raw) const {
         if (ptr->type() != rds2cpp::SEXPType::VEC) {
             throw std::runtime_error("cannot return list element for non-list R object");
         }

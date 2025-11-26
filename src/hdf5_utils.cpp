@@ -684,7 +684,7 @@ H5::PredType choose_numeric_type(const std::string& type) {
     }
 }
 
-H5::StrType choose_string_type(const std::string& encoding, JsNumber strlen_or_var) {
+H5::StrType choose_string_type(const std::string& encoding, JsFakeInt strlen_or_var) {
     H5::StrType stype;
     if (strlen_or_var < 0) {
         stype = H5::StrType(0, H5T_VARIABLE);
@@ -792,7 +792,7 @@ H5::CompType choose_compound_type(const emscripten::val& members) {
 
 /************* Dataset creation **************/
 
-void create_hdf5_dataset(const std::string& path, const std::string& name, const H5::DataType& dtype, const emscripten::val& shape, JsNumber deflate_level, const emscripten::val& chunks) {
+void create_hdf5_dataset(const std::string& path, const std::string& name, const H5::DataType& dtype, const emscripten::val& shape, JsFakeInt deflate_level, const emscripten::val& chunks) {
     H5::DataSpace dspace;
     auto dims = array_to_vector(shape);
     if (!dims.empty()) { // if zero, it's a scalar, and the default DataSpace is correct.
@@ -819,7 +819,7 @@ void create_hdf5_dataset(const std::string& path, const std::string& name, const
     handle.createDataSet(name, dtype, dspace, plist);
 }
 
-void create_numeric_hdf5_dataset(std::string path, std::string name, emscripten::val shape, JsNumber deflate_level, emscripten::val chunks, std::string type) {
+void create_numeric_hdf5_dataset(std::string path, std::string name, emscripten::val shape, JsFakeInt deflate_level, emscripten::val chunks, std::string type) {
     try {
         create_hdf5_dataset(path, name, choose_numeric_type(type), shape, deflate_level, chunks);
     } catch (H5::Exception& e) {
@@ -827,7 +827,7 @@ void create_numeric_hdf5_dataset(std::string path, std::string name, emscripten:
     }
 }
 
-void create_string_hdf5_dataset(std::string path, std::string name, emscripten::val shape, JsNumber deflate_level, emscripten::val chunks, std::string encoding, JsNumber strlen_or_var) {
+void create_string_hdf5_dataset(std::string path, std::string name, emscripten::val shape, JsFakeInt deflate_level, emscripten::val chunks, std::string encoding, JsFakeInt strlen_or_var) {
     try {
         create_hdf5_dataset(path, name, choose_string_type(encoding, strlen_or_var), shape, deflate_level, chunks);
     } catch (H5::Exception& e) {
@@ -835,7 +835,7 @@ void create_string_hdf5_dataset(std::string path, std::string name, emscripten::
     }
 }
 
-void create_enum_hdf5_dataset(std::string path, std::string name, emscripten::val shape, JsNumber deflate_level, emscripten::val chunks, std::string code_type, emscripten::val levels) {
+void create_enum_hdf5_dataset(std::string path, std::string name, emscripten::val shape, JsFakeInt deflate_level, emscripten::val chunks, std::string code_type, emscripten::val levels) {
     try {
         create_hdf5_dataset(path, name, choose_enum_type(code_type, levels), shape, deflate_level, chunks);
     } catch (H5::Exception& e) {
@@ -843,7 +843,7 @@ void create_enum_hdf5_dataset(std::string path, std::string name, emscripten::va
     }
 }
 
-void create_compound_hdf5_dataset(std::string path, std::string name, emscripten::val shape, JsNumber deflate_level, emscripten::val chunks, emscripten::val members) {
+void create_compound_hdf5_dataset(std::string path, std::string name, emscripten::val shape, JsFakeInt deflate_level, emscripten::val chunks, emscripten::val members) {
     try {
         create_hdf5_dataset(path, name, choose_compound_type(members), shape, deflate_level, chunks);
     } catch (H5::Exception& e) {
@@ -885,7 +885,7 @@ void create_numeric_hdf5_attribute(std::string path, std::string name, std::stri
     }
 }
 
-void create_string_hdf5_attribute(std::string path, std::string name, std::string attr, emscripten::val shape, std::string encoding, JsNumber strlen_or_var) {
+void create_string_hdf5_attribute(std::string path, std::string name, std::string attr, emscripten::val shape, std::string encoding, JsFakeInt strlen_or_var) {
     try {
         create_hdf5_attribute(path, name, attr, choose_string_type(encoding, strlen_or_var), shape);
     } catch (H5::Exception& e) {
@@ -1230,7 +1230,7 @@ void write_compound_hdf5_attribute(std::string path, std::string name, std::stri
 
 /************* String length guessers **************/
 
-JsNumber get_max_str_len(emscripten::val x) {
+JsFakeInt get_max_str_len(emscripten::val x) {
     std::size_t strlen = 0;
     for (auto y : x) {
         if (y.isString()) {

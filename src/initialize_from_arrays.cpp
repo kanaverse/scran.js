@@ -88,8 +88,8 @@ NumericMatrix initialize_sparse_matrix_internal(
 }
 
 NumericMatrix initialize_from_sparse_arrays(
-    JsNumber nrows_raw,
-    JsNumber ncols_raw,
+    JsFakeInt nrows_raw,
+    JsFakeInt ncols_raw,
     std::size_t nelements, 
     std::uintptr_t values,
     std::string value_type,
@@ -127,8 +127,8 @@ NumericMatrix initialize_sparse_matrix_from_dense_vector_internal(
 }
 
 NumericMatrix initialize_sparse_matrix_from_dense_array(
-    JsNumber nrows_raw,
-    JsNumber ncols_raw,
+    JsFakeInt nrows_raw,
+    JsFakeInt ncols_raw,
     std::uintptr_t values,
     std::string type,
     bool column_major,
@@ -161,8 +161,8 @@ NumericMatrix initialize_dense_matrix_internal(
 }
 
 NumericMatrix initialize_dense_matrix_from_dense_array(
-    JsNumber nrows_raw,
-    JsNumber ncols_raw,
+    JsFakeInt nrows_raw,
+    JsFakeInt ncols_raw,
     std::uintptr_t values,
     std::string type,
     bool column_major,

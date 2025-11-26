@@ -16,7 +16,7 @@ public:
         return RdsObject(my_full.object.get());
     }
 
-    JsNumber format_version() const {
+    JsFakeInt format_version() const {
         return int2js(my_full.format_version);
     }
 
@@ -32,7 +32,7 @@ private:
     rds2cpp::Parsed my_full;
 };
 
-LoadedRds parse_rds_from_buffer(std::uintptr_t buffer, JsNumber size_raw) {
+LoadedRds parse_rds_from_buffer(std::uintptr_t buffer, JsFakeInt size_raw) {
     const auto size = js2int<std::size_t>(size_raw);
     byteme::SomeBufferReader reader(reinterpret_cast<const std::uint8_t*>(buffer), size, {});
     return LoadedRds(rds2cpp::parse_rds(reader, {}));

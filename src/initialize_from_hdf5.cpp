@@ -150,10 +150,10 @@ NumericMatrix initialize_from_hdf5_dense_internal(
     bool layered, 
     bool row_subset, 
     std::uintptr_t row_offset, 
-    JsNumber row_length_raw,
+    JsFakeInt row_length_raw,
     bool col_subset, 
     std::uintptr_t col_offset,
-    JsNumber col_length_raw
+    JsFakeInt col_length_raw
 ) {
     NumericMatrix mat;
 
@@ -185,10 +185,10 @@ NumericMatrix initialize_from_hdf5_dense(
     bool layered, 
     bool row_subset, 
     std::uintptr_t row_offset, 
-    JsNumber row_length_raw,
+    JsFakeInt row_length_raw,
     bool col_subset, 
     std::uintptr_t col_offset,
-    JsNumber col_length_raw
+    JsFakeInt col_length_raw
 ) {
     bool as_integer = force_integer;
     if (!force_integer) {
@@ -265,17 +265,17 @@ NumericMatrix initialize_from_hdf5_sparse(
     std::string data_name, 
     std::string indices_name, 
     std::string indptr_name, 
-    JsNumber nr_raw,
-    JsNumber nc_raw,
+    JsFakeInt nr_raw,
+    JsFakeInt nc_raw,
     bool csc,
     bool force_integer, 
     bool layered,
     bool row_subset, 
     std::uintptr_t row_offset, 
-    JsNumber row_length_raw,
+    JsFakeInt row_length_raw,
     bool col_subset, 
     std::uintptr_t col_offset,
-    JsNumber col_length_raw
+    JsFakeInt col_length_raw
 ) {
     bool as_integer = force_integer;
     if (!force_integer) {

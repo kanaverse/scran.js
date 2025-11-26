@@ -35,15 +35,15 @@ MatrixIndex NumericMatrix::ncol() const {
     return my_ptr->ncol();
 }
 
-JsNumber NumericMatrix::nrow_js() const {
+JsFakeInt NumericMatrix::nrow_js() const {
     return int2js(my_ptr->nrow());
 }
 
-JsNumber NumericMatrix::ncol_js() const {
+JsFakeInt NumericMatrix::ncol_js() const {
     return int2js(my_ptr->ncol());
 }
 
-void NumericMatrix::row(JsNumber r_raw, std::uintptr_t values) {
+void NumericMatrix::row(JsFakeInt r_raw, std::uintptr_t values) {
     MatrixValue* buffer = reinterpret_cast<MatrixValue*>(values);
     if (!my_by_row) {
         my_by_row = my_ptr->dense_row();
@@ -53,7 +53,7 @@ void NumericMatrix::row(JsNumber r_raw, std::uintptr_t values) {
     return;
 }
 
-void NumericMatrix::column(JsNumber c_raw, std::uintptr_t values) {
+void NumericMatrix::column(JsFakeInt c_raw, std::uintptr_t values) {
     MatrixValue* buffer = reinterpret_cast<MatrixValue*>(values);
     if (!my_by_column) {
         my_by_column = my_ptr->dense_column();

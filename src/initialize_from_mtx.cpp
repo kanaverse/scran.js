@@ -14,7 +14,7 @@
 #include "tatami_layered/tatami_layered.hpp"
 #include "eminem/eminem.hpp"
 
-NumericMatrix initialize_from_mtx_buffer(std::uintptr_t buffer, JsNumber size_raw, std::string compression, bool layered) {
+NumericMatrix initialize_from_mtx_buffer(std::uintptr_t buffer, JsFakeInt size_raw, std::string compression, bool layered) {
     const auto size = js2int<std::size_t>(size_raw);
     unsigned char* bufptr = reinterpret_cast<unsigned char*>(buffer);
     if (layered) {
@@ -76,7 +76,7 @@ emscripten::val get_preamble(std::unique_ptr<byteme::PerByteSerial<char> > input
     return output;
 }
 
-emscripten::val read_header_from_mtx_buffer(std::uintptr_t buffer, JsNumber size_raw, std::string compression) {
+emscripten::val read_header_from_mtx_buffer(std::uintptr_t buffer, JsFakeInt size_raw, std::string compression) {
     const auto size = js2int<std::size_t>(size_raw);
     unsigned char* bufptr = reinterpret_cast<unsigned char*>(buffer);
     std::unique_ptr<byteme::Reader> input;

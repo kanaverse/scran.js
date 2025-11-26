@@ -7,134 +7,144 @@
 
 #include <cstdint>
 
-struct ComputeAdtQcMetricsResults {
-    typedef scran_qc::ComputeAdtQcMetricsResults<double, int32_t> Store;
+class ComputeAdtQcMetricsResults {
+private:
+    typedef scran_qc::ComputeAdtQcMetricsResults<double, std::int32_t> Store;
 
-    Store store;
+    Store my_store;
 
 public:
-    ComputeAdtQcMetricsResults(Store s) : store(std::move(s)) {}
+    ComputeAdtQcMetricsResults(Store s) : my_store(std::move(s)) {}
+
+    const Store& store() const {
+        return my_store;
+    }
 
 public:
     emscripten::val sum() const {
-        return emscripten::val(emscripten::typed_memory_view(store.sum.size(), store.sum.data()));
+        return emscripten::val(emscripten::typed_memory_view(my_store.sum.size(), my_store.sum.data()));
     }
 
     emscripten::val detected() const {
-        return emscripten::val(emscripten::typed_memory_view(store.detected.size(), store.detected.data()));
+        return emscripten::val(emscripten::typed_memory_view(my_store.detected.size(), my_store.detected.data()));
     }
 
-    emscripten::val subset_sum(int32_t i) const {
-        const auto& current = store.subset_sum[i];
+    emscripten::val subset_sum(JsFakeInt i_raw) const {
+        const auto i = js2int<std::size_t>(i_raw);
+        const auto& current = my_store.subset_sum[i];
         return emscripten::val(emscripten::typed_memory_view(current.size(), current.data()));
     }
 
-    int32_t num_subsets() const {
-        return store.subset_sum.size();
+    JsFakeInt num_subsets() const {
+        return int2js(my_store.subset_sum.size());
     }
 
-    int32_t num_cells() const {
-        return store.sum.size();
+    JsFakeInt num_cells() const {
+        return int2js(my_store.sum.size());
     }
 };
 
-ComputeAdtQcMetricsResults per_cell_adt_qc_metrics(const NumericMatrix& mat, int32_t nsubsets, uintptr_t subsets, int32_t nthreads) {
+ComputeAdtQcMetricsResults per_cell_adt_qc_metrics(const NumericMatrix& mat, JsFakeInt nsubsets_raw, std::uintptr_t subsets, JsFakeInt nthreads_raw) {
     scran_qc::ComputeAdtQcMetricsOptions opt;
-    opt.num_threads = nthreads;
-    auto store = scran_qc::compute_adt_qc_metrics(*(mat.ptr), convert_array_of_offsets<const uint8_t*>(nsubsets, subsets), opt);
+    opt.num_threads = js2int<int>(nthreads_raw);
+    auto store = scran_qc::compute_adt_qc_metrics(*mat, convert_array_of_offsets<const std::uint8_t*>(js2int<std::size_t>(nsubsets_raw), subsets), opt);
     return ComputeAdtQcMetricsResults(std::move(store));
 }
 
-struct SuggestAdtQcFiltersResults {
-    bool use_blocked = true;
-    scran_qc::AdtQcFilters<double> store_unblocked;
-    scran_qc::AdtQcBlockedFilters<double> store_blocked;
+class SuggestAdtQcFiltersResults {
+private:
+    bool my_use_blocked = true;
+    scran_qc::AdtQcFilters<double> my_store_unblocked;
+    scran_qc::AdtQcBlockedFilters<double> my_store_blocked;
 
 public:
-    SuggestAdtQcFiltersResults(scran_qc::AdtQcFilters<double> store) : store_unblocked(std::move(store)), use_blocked(false) {}
+    SuggestAdtQcFiltersResults(scran_qc::AdtQcFilters<double> store) : my_store_unblocked(std::move(store)), my_use_blocked(false) {}
 
-    SuggestAdtQcFiltersResults(scran_qc::AdtQcBlockedFilters<double> store) : store_blocked(std::move(store)) {}
+    SuggestAdtQcFiltersResults(scran_qc::AdtQcBlockedFilters<double> store) : my_store_blocked(std::move(store)) {}
 
-    SuggestAdtQcFiltersResults(int32_t num_subsets, int32_t num_blocks) {
+    SuggestAdtQcFiltersResults(JsFakeInt num_subsets_raw, JsFakeInt num_blocks_raw) {
+        const auto num_subsets = js2int<std::size_t>(num_subsets_raw);
+        const auto num_blocks = js2int<std::size_t>(num_blocks_raw);
+
         if (num_blocks <= 1) {
-            use_blocked = false;
-            store_unblocked.get_subset_sum().resize(num_subsets);
+            my_use_blocked = false;
+            sanisizer::resize(my_store_unblocked.get_subset_sum(), num_subsets);
         } else {
-            store_blocked.get_detected().resize(num_blocks);
-            auto& ssum = store_blocked.get_subset_sum();
-            ssum.resize(num_subsets);
-            for (int32_t s = 0; s < num_subsets; ++s) {
-                ssum[s].resize(num_blocks);
+            sanisizer::resize(my_store_blocked.get_detected(), num_blocks);
+            auto& subsum = my_store_blocked.get_subset_sum();
+            sanisizer::resize(subsum, num_subsets);
+            for (I<decltype(num_subsets)> s = 0; s < num_subsets; ++s) {
+                sanisizer::resize(subsum[s], num_blocks);
             }
         }
     }
 
 public:
     emscripten::val detected() {
-        if (use_blocked) {
-            auto& det = store_blocked.get_detected();
+        if (my_use_blocked) {
+            auto& det = my_store_blocked.get_detected();
             return emscripten::val(emscripten::typed_memory_view(det.size(), det.data()));
         } else {
             // Very important to be non-const, otherwise we'd take a reference to a temporary.
-            auto& det = store_unblocked.get_detected();
+            auto& det = my_store_unblocked.get_detected();
             return emscripten::val(emscripten::typed_memory_view(1, &det));
         }
     }
 
     emscripten::val subset_sum(int32_t i) {
-        if (use_blocked) {
-            auto& ssum = store_blocked.get_subset_sum()[i];
+        if (my_use_blocked) {
+            auto& ssum = my_store_blocked.get_subset_sum()[i];
             return emscripten::val(emscripten::typed_memory_view(ssum.size(), ssum.data()));
         } else {
             // Very important to be non-const, otherwise we'd take a reference to a temporary.
-            auto& ssum = store_unblocked.get_subset_sum()[i];
+            auto& ssum = my_store_unblocked.get_subset_sum()[i];
             return emscripten::val(emscripten::typed_memory_view(1, &ssum));
         }
     }
 
 public:
-    int32_t num_subsets() const {
-        if (use_blocked) {
-            return store_blocked.get_subset_sum().size();
+    JsFakeInt num_subsets() const {
+        if (my_use_blocked) {
+            return int2js(my_store_blocked.get_subset_sum().size());
         } else {
-            return store_unblocked.get_subset_sum().size();
+            return int2js(my_store_unblocked.get_subset_sum().size());
         }
     }
 
-    int32_t num_blocks() const {
-        if (use_blocked) {
-            return store_blocked.get_detected().size();
+    JsFakeInt num_blocks() const {
+        if (my_use_blocked) {
+            return int2js(my_store_blocked.get_detected().size());
         } else {
             return 1;
         }
     }
 
     bool is_blocked() const {
-        return use_blocked;
+        return my_use_blocked;
     }
 
-    void filter(const ComputeAdtQcMetricsResults& metrics, uintptr_t blocks, uintptr_t output) const {
-        auto optr = reinterpret_cast<uint8_t*>(output);
-        if (use_blocked) {
-            store_blocked.filter(metrics.store, reinterpret_cast<const int32_t*>(blocks), optr);
+    void filter(const ComputeAdtQcMetricsResults& metrics, std::uintptr_t blocks, std::uintptr_t output) const {
+        auto optr = reinterpret_cast<std::uint8_t*>(output);
+        if (my_use_blocked) {
+            my_store_blocked.filter(metrics.store(), reinterpret_cast<const std::int32_t*>(blocks), optr);
         } else {
-            store_unblocked.filter(metrics.store, optr);
+            my_store_unblocked.filter(metrics.store(), optr);
         }
         return;
     }
 };
 
-SuggestAdtQcFiltersResults suggest_adt_qc_filters(const ComputeAdtQcMetricsResults& metrics, bool use_blocks, uintptr_t blocks, double nmads, double min_drop) {
+SuggestAdtQcFiltersResults suggest_adt_qc_filters(const ComputeAdtQcMetricsResults& metrics, bool use_blocks, std::uintptr_t blocks, double nmads, double min_drop) {
     scran_qc::ComputeAdtQcFiltersOptions opt;
     opt.detected_num_mads = nmads;
     opt.subset_sum_num_mads = nmads;
     opt.detected_min_drop = min_drop;
 
     if (use_blocks) {
-        auto thresholds = scran_qc::compute_adt_qc_filters_blocked(metrics.store, reinterpret_cast<const int32_t*>(blocks), opt);
+        auto thresholds = scran_qc::compute_adt_qc_filters_blocked(metrics.store(), reinterpret_cast<const std::int32_t*>(blocks), opt);
         return SuggestAdtQcFiltersResults(std::move(thresholds));
     } else {
-        auto thresholds = scran_qc::compute_adt_qc_filters(metrics.store, opt);
+        auto thresholds = scran_qc::compute_adt_qc_filters(metrics.store(), opt);
         return SuggestAdtQcFiltersResults(std::move(thresholds));
     }
 }
@@ -153,7 +163,7 @@ EMSCRIPTEN_BINDINGS(quality_control_adt) {
     emscripten::function("suggest_adt_qc_filters", &suggest_adt_qc_filters, emscripten::return_value_policy::take_ownership());
 
     emscripten::class_<SuggestAdtQcFiltersResults>("SuggestAdtQcFiltersResults")
-        .constructor<int32_t, int32_t>()
+        .constructor<JsFakeInt, JsFakeInt>()
         .function("detected", &SuggestAdtQcFiltersResults::detected, emscripten::return_value_policy::take_ownership())
         .function("subset_sum", &SuggestAdtQcFiltersResults::subset_sum, emscripten::return_value_policy::take_ownership())
         .function("num_subsets", &SuggestAdtQcFiltersResults::num_subsets, emscripten::return_value_policy::take_ownership())

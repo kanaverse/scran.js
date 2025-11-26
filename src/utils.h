@@ -11,17 +11,22 @@
 template<typename Input_>
 using I = typename std::remove_reference<typename std::remove_cv<Input_>::type>::type;
 
-typedef double JsNumber;
+typedef double JsFakeInt;
 
 template<typename Input_>
-JsNumber int2js(Input_ x) {
-    return sanisizer::to_float<JsNumber>(x);
+JsFakeInt int2js(Input_ x) {
+    static_assert(std::numeric_limits<Input_>::is_integer);
+    return sanisizer::to_float<JsFakeInt>(x);
 }
 
 template<typename Output_>
-Output_ js2int(Output_ x) {
+Output_ js2int(JsFakeInt x) {
     return sanisizer::from_float<Output_>(x);
 }
+
+// Prevent accidentally calling js2int on an integer.
+template<typename Output_, typename Input_>
+Output_ js2int(Input_ x) = delete;
 
 template<typename T>
 std::vector<T> convert_array_of_offsets(std::size_t n, std::uintptr_t x) {

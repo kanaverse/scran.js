@@ -9,7 +9,7 @@
 
 #include "tatami/tatami.hpp"
 
-NumericMatrix cbind(JsNumber n_raw, std::uintptr_t mats) {
+NumericMatrix cbind(JsFakeInt n_raw, std::uintptr_t mats) {
     const auto n = js2int<std::size_t>(n_raw);
     if (n == 0) {
         throw std::runtime_error("need at least one matrix to cbind");
@@ -36,7 +36,7 @@ NumericMatrix cbind(JsNumber n_raw, std::uintptr_t mats) {
     );
 }
 
-NumericMatrix rbind(JsNumber n_raw, std::uintptr_t mats) {
+NumericMatrix rbind(JsFakeInt n_raw, std::uintptr_t mats) {
     const auto n = js2int<std::size_t>(n_raw);
     if (n == 0) {
         throw std::runtime_error("need at least one matrix to rbind");
