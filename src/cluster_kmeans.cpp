@@ -2,77 +2,87 @@
 
 #include <algorithm>
 #include <memory>
+#include <cstdint>
+#include <cstddef>
+
+#include "utils.h"
 
 #include "kmeans/kmeans.hpp"
 
-struct ClusterKmeansResult {
-    kmeans::Results<int32_t, double, int32_t> store;
-
-    ClusterKmeansResult(kmeans::Results<int32_t, double, int32_t> s) : store(std::move(s)) {}
+class ClusterKmeansResult {
+private:
+    kmeans::Results<std::int32_t, std::int32_t, double> my_store;
 
 public:
-    int32_t num_obs() const {
-        return store.clusters.size();
+    ClusterKmeansResult(kmeans::Results<std::int32_t, std::int32_t, double> s) : my_store(std::move(s)) {}
+
+    const auto& store() const {
+        return my_store;
     }
 
-    int32_t num_clusters() const {
-        return store.details.sizes.size();
+public:
+    JsFakeInt num_obs() const {
+        return int2js(my_store.clusters.size());
+    }
+
+    JsFakeInt num_clusters() const {
+        return int2js(my_store.details.sizes.size());
     }
 
     emscripten::val clusters() const {
-        const auto& c = store.clusters;
+        const auto& c = my_store.clusters;
         return emscripten::val(emscripten::typed_memory_view(c.size(), c.data()));
     }
 
     emscripten::val cluster_sizes() const {
-        const auto& s = store.details.sizes;
+        const auto& s = my_store.details.sizes;
         return emscripten::val(emscripten::typed_memory_view(s.size(), s.data()));
     }
 
-    int32_t iterations() const {
-        return store.details.iterations;
+    JsFakeInt iterations() const {
+        return int2js(my_store.details.iterations);
     }
 
-    int32_t status() const {
-        return store.details.status;
+    JsFakeInt status() const {
+        return int2js(my_store.details.status);
     }
 
     emscripten::val centers() const {
-        const auto& s = store.centers;
+        const auto& s = my_store.centers;
         return emscripten::val(emscripten::typed_memory_view(s.size(), s.data()));
     }
 };
 
 ClusterKmeansResult cluster_kmeans(
-    uintptr_t mat,
-    int32_t nr,
-    int32_t nc,
-    int32_t k,
+    std::uintptr_t mat,
+    JsFakeInt nr_raw,
+    JsFakeInt nc_raw,
+    JsFakeInt k_raw,
     std::string init_method,
-    int32_t init_seed,
+    JsFakeInt init_seed_raw,
     double init_varpart_size_adjust,
     double init_varpart_optimized,
     std::string refine_method,
-    int32_t refine_lloyd_iterations,
-    int32_t refine_hw_iterations,
-    int32_t nthreads)
-{
-    kmeans::SimpleMatrix<double, int32_t, int32_t> smat(nr, nc, reinterpret_cast<const double*>(mat));
+    JsFakeInt refine_lloyd_iterations_raw,
+    JsFakeInt refine_hw_iterations_raw,
+    JsFakeInt nthreads_raw
+) {
+    kmeans::SimpleMatrix<std::int32_t, double> smat(js2int<std::size_t>(nr_raw), js2int<std::int32_t>(nc_raw), reinterpret_cast<const double*>(mat));
 
-    std::unique_ptr<kmeans::Initialize<decltype(smat), int32_t, double> > iptr;
+    std::unique_ptr<kmeans::Initialize<std::int32_t, double, std::int32_t, double, I<decltype(smat)> > > iptr;
     if (init_method == "random") {
-        auto iptr2 = new kmeans::InitializeRandom<decltype(smat), int32_t, double>;
+        auto iptr2 = new kmeans::InitializeRandom<std::int32_t, double, std::int32_t, double, I<decltype(smat)> >;
         iptr.reset(iptr2);
-        iptr2->get_options().seed = init_seed;
+        iptr2->get_options().seed = js2int<std::uint64_t>(init_seed_raw);
 
     } else if (init_method == "kmeans++") {
-        auto iptr2 = new kmeans::InitializeKmeanspp<decltype(smat), int32_t, double>;
+        auto iptr2 = new kmeans::InitializeKmeanspp<std::int32_t, double, std::int32_t, double, I<decltype(smat)> >;
         iptr.reset(iptr2);
-        iptr2->get_options().seed = init_seed;
-        iptr2->get_options().num_threads = nthreads;
+        iptr2->get_options().seed = js2int<std::uint64_t>(init_seed_raw);
+        iptr2->get_options().num_threads = js2int<int>(nthreads_raw);
 
     } else if (init_method == "var-part") {
-        auto iptr2 = new kmeans::InitializeVariancePartition<decltype(smat), int32_t, double>;
+        auto iptr2 = new kmeans::InitializeVariancePartition<std::int32_t, double, std::int32_t, double, I<decltype(smat)> >;
         iptr.reset(iptr2);
         iptr2->get_options().size_adjustment = init_varpart_size_adjust;
         iptr2->get_options().optimize_partition = init_varpart_optimized;
@@ -81,23 +91,23 @@ ClusterKmeansResult cluster_kmeans(
         throw std::runtime_error("unknown initialization method '" + init_method + "'");
     }
 
-    std::unique_ptr<kmeans::Refine<decltype(smat), int32_t, double> > rptr;
+    std::unique_ptr<kmeans::Refine<std::int32_t, double, std::int32_t, double, I<decltype(smat)> > > rptr;
     if (refine_method == "lloyd") {
-        auto rptr2 = new kmeans::RefineLloyd<decltype(smat), int32_t, double>;
+        auto rptr2 = new kmeans::RefineLloyd<std::int32_t, double, std::int32_t, double, I<decltype(smat)> >;
         rptr.reset(rptr2);
-        rptr2->get_options().max_iterations = refine_lloyd_iterations;
-        rptr2->get_options().num_threads = nthreads;
+        rptr2->get_options().max_iterations = js2int<int>(refine_lloyd_iterations_raw);
+        rptr2->get_options().num_threads = js2int<int>(nthreads_raw);
 
     } else if (refine_method == "hartigan-wong") {
-        auto rptr2 = new kmeans::RefineHartiganWong<decltype(smat), int32_t, double>;
+        auto rptr2 = new kmeans::RefineHartiganWong<std::int32_t, double, std::int32_t, double, I<decltype(smat)> >;
         rptr.reset(rptr2);
-        rptr2->get_options().max_iterations = refine_hw_iterations;
+        rptr2->get_options().max_iterations = js2int<int>(refine_hw_iterations_raw);
 
     } else {
         throw std::runtime_error("unknown refinement method '" + refine_method + "'");
     }
 
-    auto output = kmeans::compute(smat, *iptr, *rptr, k);
+    auto output = kmeans::compute(smat, *iptr, *rptr, js2int<std::int32_t>(k_raw));
     return ClusterKmeansResult(std::move(output));
 }
 

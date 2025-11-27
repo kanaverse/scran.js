@@ -197,13 +197,13 @@ FetchContent_Declare(
 FetchContent_Declare(
   singlepp_loaders
   GIT_REPOSITORY https://github.com/SingleR-inc/singlepp_loaders
-  GIT_TAG v0.1.1
+  GIT_TAG v0.2.0
 )
 
 FetchContent_Declare(
   singlepp
   GIT_REPOSITORY https://github.com/SingleR-inc/singlepp
-  GIT_TAG v3.0.0
+  GIT_TAG v3.0.1
 )
 
 FetchContent_Declare(

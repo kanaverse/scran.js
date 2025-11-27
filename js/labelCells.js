@@ -244,6 +244,7 @@ export function trainLabelCellsReference(testFeatures, loadedReference, referenc
         ref_id_buffer = utils.wasmifyArray(intersection.reference, "Int32WasmArray");
         output = gc.call(
             module => module.train_singlepp_reference(
+                testFeatures.length,
                 test_id_buffer.length,
                 test_id_buffer.offset,
                 ref_id_buffer.offset,
