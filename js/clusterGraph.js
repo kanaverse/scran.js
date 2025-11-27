@@ -40,9 +40,10 @@ export class ClusterMultilevelResults {
         let { level = null, ...others } = options;
         utils.checkOtherOptions(others);
         if (level == null) {
-            level = this.bestLevel();
+            return this.#results.best_modularity();
+        } else {
+            return this.#results.modularity(level);
         }
-        return this.#results.modularity(level);
     }
 
     /**
@@ -50,6 +51,7 @@ export class ClusterMultilevelResults {
      * @param {?number} [options.level=null] - The clustering level for which to obtain the cluster membership.
      * Defaults to the best clustering level from {@linkcode ClusterMultilevelResults#bestLevel bestLevel}.
      * @param {boolean} [options.copy=true] - Whether to copy the results from the Wasm heap, see {@linkcode possibleCopy}.
+     * Only used if `level=null`, otherwise a copy is always made.
      *
      * @return {Int32Array|Int32WasmArray} Array containing the cluster membership for each cell.
      */
@@ -57,9 +59,11 @@ export class ClusterMultilevelResults {
         let { level = null, copy = true, ...others } = options;
         utils.checkOtherOptions(others);
         if (level == null) {
-            level = -1;
+            return utils.possibleCopy(this.#results.best_membership(), copy);
+        } else {
+            // We must take a copy as this is transient memory.
+            return this.#results.membership(level).slice();
         }
-        return utils.possibleCopy(this.#results.membership(level), copy);
     }
 
     /**
@@ -106,9 +110,10 @@ export class ClusterWalktrapResults {
         let { at = null, ...others } = options;
         utils.checkOtherOptions(others);
         if (at === null) {
-            at = -1;
+            return this.#results.best_modularity();
+        } else {
+            return this.#results.modularity(at);
         }
-        return this.#results.modularity(at);
     }
 
     /**
@@ -195,9 +200,9 @@ export class ClusterLeidenResults {
  * Larger values result in more fine-grained clusters.
  * @param {number} [options.leidenResolution=1] - The resolution of the Leiden clustering, when `method = "leiden"`.
  * Larger values result in more fine-grained clusters.
- * @param {boolean} [options.leidenModularityObjective=false] - Whether to use the modularity as the objective function when `method = "leiden"`.
- * By default, the Constant-Potts Model is used instead.
- * Set to `true` to get an interpretation of the resolution on par with that of `method = "multilevel"`.
+ * @param {boolean} [options.leidenObjective="cpm"] - Objective function to use when `method = "leiden"`.
+ * This can be the Constant-Potts Model (`cpm`), the graph modularity (`modularity`), or the Erdős-Rényi model (`er`).
+ * Set to `modularity` to get an interpretation of the resolution on par with that of `method = "multilevel"`.
  * @param {number} [options.walktrapSteps=4] - Number of steps for the Walktrap algorithm, when `method = "walktrap"`.
  *
  * @return {ClusterMultiLevelResults|ClusterWalktrapResults|ClusterLeidenResults} Object containing the clustering results.
@@ -208,7 +213,8 @@ export function clusterGraph(x, options = {}) {
         method = "multilevel", 
         multiLevelResolution = 1, 
         leidenResolution = 1, 
-        leidenModularityObjective = false,
+        leidenObjective = "cpm",
+        leidenModularityObjective = false, // For back-compatibility only.
         walktrapSteps = 4,
         ...others
     } = options;
@@ -227,8 +233,11 @@ export function clusterGraph(x, options = {}) {
                 ClusterWalktrapResults
             );
         } else if (method == "leiden") {
+            if (leidenModularityObjective) { // for back-compatibility.
+                leidenObjective = "modularity";
+            }
             output = gc.call(
-                module => module.cluster_leiden(x.graph, leidenResolution, leidenModularityObjective),
+                module => module.cluster_leiden(x.graph, leidenResolution, leidenObjective),
                 ClusterLeidenResults
             );
         } else {

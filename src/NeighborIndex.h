@@ -5,21 +5,23 @@
 #include <algorithm>
 #include <vector>
 
+#include "utils.h"
+
 #include "knncolle/knncolle.hpp"
 
 struct NeighborIndex {
-    std::unique_ptr<knncolle::Prebuilt<int32_t, int32_t, double> > index;
+    std::unique_ptr<knncolle::Prebuilt<std::int32_t, double, double> > index;
 
-    double num_obs() const {
-        return static_cast<double>(index->num_observations());
+    JsFakeInt num_obs() const {
+        return int2js(index->num_observations());
     }
 
-    double num_dim() const {
-        return static_cast<double>(index->num_dimensions());
+    JsFakeInt num_dim() const {
+        return int2js(index->num_dimensions());
     }
 };
 
-std::unique_ptr<knncolle::Builder<knncolle::SimpleMatrix<int32_t, int32_t, double>, double> > create_builder(bool);
+std::unique_ptr<knncolle::Builder<std::int32_t, double, double, knncolle::SimpleMatrix<std::int32_t, double> > > create_builder(bool);
 
 struct NeighborResults { 
     typedef std::vector<std::vector<std::pair<int32_t, double> > > Neighbors;

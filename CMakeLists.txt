@@ -100,6 +100,7 @@ target_link_libraries(
 
     igraph::igraph
     scran_graph_cluster
+    kmeans
 
     singlepp
     singlepp_loaders

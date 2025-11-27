@@ -70,7 +70,7 @@ export class UmapStatus {
         if (runTime === null) {
             runTime = -1;
         }
-        wasm.call(module => module.run_umap(this.#status, runTime));
+        wasm.call(module => module.run_umap(this.#status, this.#coordinates.offset, runTime));
     }
 
     /**

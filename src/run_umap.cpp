@@ -8,47 +8,57 @@
 
 #include <chrono>
 
-struct UmapStatus {
+class UmapStatus {
+private:
     typedef umappp::Status<int32_t, float> Status;
 
-    Status status;
+    Status my_status;
 
 public:
-    UmapStatus(Status s) : status(std::move(s)) {}
+    UmapStatus(Status s) : my_status(std::move(s)) {}
+
+    Status& status() {
+        return my_status;
+    }
 
 public:
-    int32_t epoch() const {
-        return status.epoch();
+    JsFakeInt epoch() const {
+        return int2js(my_status.epoch());
     }
 
-    int32_t num_epochs() const {
-        return status.num_epochs();
+    JsFakeInt num_epochs() const {
+        return int2js(my_status.num_epochs());
     }
 
-    UmapStatus deepcopy(uintptr_t Y) const {
-        auto copy = status;
-        copy.set_embedding(reinterpret_cast<float*>(Y), false);
-        return UmapStatus(std::move(copy));
+    UmapStatus deepcopy() const {
+        return UmapStatus(my_status);
     }
 
-    int32_t num_observations() const {
-        return status.num_observations();
+    JsFakeInt num_observations() const {
+        return int2js(my_status.num_observations());
     }
 };
 
-UmapStatus initialize_umap(const NeighborResults& neighbors, int32_t num_epochs, double min_dist, uintptr_t Y, int32_t nthreads) {
+UmapStatus initialize_umap(
+    const NeighborResults& neighbors,
+    JsFakeInt num_epochs_raw,
+    double min_dist,
+    std::uintptr_t Y,
+    JsFakeInt nthreads_raw
+) {
     umappp::Options opt;
     opt.min_dist = min_dist;
-    opt.num_epochs = num_epochs;
-    opt.num_threads = nthreads;
+    opt.num_epochs = js2int<int>(num_epochs_raw);
+    opt.num_threads = js2int<int>(nthreads_raw);
 
-    std::vector<std::vector<std::pair<int32_t, float> > > copy(neighbors.neighbors.size());
-    for (size_t i = 0, end = copy.size(); i < end; ++i) {
+    const auto nobs = neighbors.neighbors.size();
+    auto copy = sanisizer::create<std::vector<std::vector<std::pair<int32_t, float> > > >(nobs);
+    for (I<decltype(nobs)> i = 0; i < nobs; ++i) {
         auto& output = copy[i];
         const auto& src = neighbors.neighbors[i];
-        size_t n = src.size();
+        const auto n = src.size();
         output.reserve(n);
-        for (size_t j = 0; j < n; ++j) {
+        for (I<decltype(n)> j = 0; j < n; ++j) {
             output.emplace_back(src[j].first, src[j].second);
         }
     }
@@ -58,16 +68,20 @@ UmapStatus initialize_umap(const NeighborResults& neighbors, int32_t num_epochs,
     return UmapStatus(std::move(stat));
 }
 
-void run_umap(UmapStatus& status, int32_t runtime) {
+void run_umap(UmapStatus& obj, std::uintptr_t Y, JsFakeInt runtime_raw) {
+    const auto runtime = js2int<std::uint64_t>(runtime_raw); 
+    float* embedding = reinterpret_cast<float*>(Y);
+    auto& status = obj.status();
+
     if (runtime <= 0) {
-        status.status.run();
+        status.run(embedding);
     } else {
-        int32_t current = status.epoch();
-        const int32_t total = status.num_epochs();
-        auto end = std::chrono::steady_clock::now() + std::chrono::milliseconds(runtime);
+        auto current = status.epoch();
+        const auto total = status.num_epochs();
+        const auto end = std::chrono::steady_clock::now() + std::chrono::milliseconds(runtime);
         do {
             ++current;
-            status.status.run(current);
+            status.run(embedding, current);
         } while (current < total && std::chrono::steady_clock::now() < end);
     }
 }

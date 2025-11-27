@@ -5,6 +5,8 @@
 #include "raiigraph/raiigraph.hpp"
 #include "scran_graph_cluster/scran_graph_cluster.hpp"
 
+#include <vector>
+
 struct BuildSnnGraphResult {
     BuildSnnGraphResult(scran_graph_cluster::BuildSnnGraphResults<igraph_integer_t, igraph_real_t> g) : 
         graph(scran_graph_cluster::convert_to_graph(g)),

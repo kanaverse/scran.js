@@ -1,28 +1,47 @@
 #include <emscripten/bind.h>
 
 #include <vector>
+#include <cstdint>
+#include <cstddef>
 
 #include "NeighborIndex.h"
 #include "utils.h"
 
 #include "mumosa/mumosa.hpp"
 
-void scale_by_neighbors(int32_t ncells, int32_t nembed, uintptr_t embeddings, uintptr_t indices, uintptr_t combined, int32_t num_neighbors, bool use_weights, uintptr_t weights, int32_t nthreads) {
+void scale_by_neighbors(
+    JsFakeInt nembed_raw,
+    std::uintptr_t embeddings,
+    std::uintptr_t indices,
+    std::uintptr_t combined,
+    JsFakeInt num_neighbors,
+    bool use_weights,
+    std::uintptr_t weights,
+    JsFakeInt nthreads_raw
+) {
+    std::int32_t num_cells = -1;
+    const auto nembed = js2int<std::size_t>(nembed_raw);
     auto index_ptrs = convert_array_of_offsets<const NeighborIndex*>(nembed, indices);
-    std::vector<const knncolle::Prebuilt<int32_t, int32_t, double>*> actual_ptrs;
-    std::vector<int32_t> ndims;
+    std::vector<const knncolle::Prebuilt<std::int32_t, double, double>*> actual_ptrs;
+    std::vector<std::size_t> ndims;
     for (const auto& idx : index_ptrs) {
+        if (num_cells < 0) {
+            num_cells = idx->index->num_observations();
+        } else if (num_cells != idx->index->num_observations()) {
+            throw std::runtime_error("mismatch in number of cells between neighbor indices");
+        }
         actual_ptrs.emplace_back((idx->index).get());
         ndims.push_back((idx->index)->num_dimensions());
     }
 
     mumosa::Options opt;
     opt.num_neighbors = num_neighbors;
-    opt.num_threads = nthreads;
+    opt.num_threads = js2int<int>(nthreads_raw);
 
     std::vector<std::pair<double, double> > distances(nembed);
+    auto buffer = sanisizer::create<std::vector<double> >(num_cells);
     for (int32_t e = 0; e < nembed; ++e) {
-        distances[e] = mumosa::compute_distance(*(index_ptrs[e]->index), opt);
+        distances[e] = mumosa::compute_distance(*(index_ptrs[e]->index), buffer.data(), opt);
     }
 
     auto scaling = mumosa::compute_scale(distances);
@@ -36,7 +55,7 @@ void scale_by_neighbors(int32_t ncells, int32_t nembed, uintptr_t embeddings, ui
     // Interleaving the scaled embeddings.
     auto out_ptr = reinterpret_cast<double*>(combined);
     auto embed_ptrs = convert_array_of_offsets<const double*>(nembed, embeddings);
-    mumosa::combine_scaled_embeddings(ndims, ncells, embed_ptrs, scaling, out_ptr);
+    mumosa::combine_scaled_embeddings(ndims, num_cells, embed_ptrs, scaling, out_ptr);
 }
 
 EMSCRIPTEN_BINDINGS(scale_by_neighbors) {

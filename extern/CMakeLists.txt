@@ -185,7 +185,7 @@ FetchContent_Declare(
 FetchContent_Declare(
   mnncorrect 
   GIT_REPOSITORY https://github.com/libscran/mnncorrect
-  GIT_TAG v3.0.0
+  GIT_TAG v3.0.1
 )
 
 FetchContent_Declare(

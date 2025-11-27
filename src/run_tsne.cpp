@@ -5,58 +5,73 @@
 #include "qdtsne/qdtsne.hpp"
 
 #include <chrono>
+#include <cstdint>
+#include <cstddef>
 
-struct TsneStatus {
-    typedef qdtsne::Status<2, int32_t, double> Status;
+class TsneStatus {
+private:
+    typedef qdtsne::Status<2, std::int32_t, double> Status;
 
-    Status status;
+    Status my_status;
 
 public:
-    TsneStatus(Status s) : status(std::move(s)) {}
+    TsneStatus(Status s) : my_status(std::move(s)) {}
+
+    Status& status() {
+        return my_status;
+    }
 
 public:
-    int32_t iterations () const {
-        return status.iteration();
+    JsFakeInt iterations() const {
+        return int2js(my_status.iteration());
     }
 
     TsneStatus deepcopy() const {
-        return TsneStatus(status);
+        return TsneStatus(my_status);
     }
 
-    int32_t num_observations() const {
-        return status.num_observations();
+    JsFakeInt num_observations() const {
+        return int2js(my_status.num_observations());
     }
 };
 
-TsneStatus initialize_tsne(const NeighborResults& neighbors, double perplexity, int32_t nthreads) {
+TsneStatus initialize_tsne(const NeighborResults& neighbors, double perplexity, JsFakeInt nthreads_raw) {
     qdtsne::Options opt;
     opt.perplexity = perplexity;
-    opt.num_threads = nthreads;
+    opt.num_threads = js2int<int>(nthreads_raw);
     opt.max_depth = 7; // speed up iterations, avoid problems with duplicates.
     auto stat = qdtsne::initialize<2>(neighbors.neighbors, opt);
     return TsneStatus(std::move(stat));
 }
 
-void randomize_tsne_start(size_t n, uintptr_t Y, int32_t seed) {
-    qdtsne::initialize_random<2>(reinterpret_cast<double*>(Y), n, seed);
+void randomize_tsne_start(JsFakeInt n_raw, std::uintptr_t Y, JsFakeInt seed_raw) {
+    qdtsne::initialize_random<2>(
+        reinterpret_cast<double*>(Y),
+        js2int<std::size_t>(n_raw),
+        js2int<std::uint64_t>(seed_raw)
+    );
     return;
 }
 
-int32_t perplexity_to_k(double perplexity) {
-    return qdtsne::perplexity_to_k(perplexity);
+JsFakeInt perplexity_to_k(double perplexity) {
+    return int2js(qdtsne::perplexity_to_k(perplexity));
 }
 
-void run_tsne(TsneStatus& status, int32_t runtime, int32_t maxiter, uintptr_t Y) {
+void run_tsne(TsneStatus& obj, JsFakeInt runtime_raw, JsFakeInt maxiter_raw, std::uintptr_t Y) {
+    auto& status = obj.status();
     double* ptr = reinterpret_cast<double*>(Y);
-    int32_t iter = status.iterations();
+
+    auto iter = status.iteration();
+    const auto runtime = js2int<std::uint64_t>(runtime_raw);
+    const auto maxiter = js2int<I<decltype(iter)> >(maxiter_raw); 
 
     if (runtime <= 0) {
-        status.status.run(ptr, maxiter);
+        status.run(ptr, maxiter);
     } else {
         auto end = std::chrono::steady_clock::now() + std::chrono::milliseconds(runtime);
         do {
             ++iter;
-            status.status.run(ptr, iter);
+            status.run(ptr, iter);
         } while (iter < maxiter && std::chrono::steady_clock::now() < end);
     }
 }
