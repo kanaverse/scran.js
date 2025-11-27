@@ -481,7 +481,7 @@ test("HDF5 numeric attribute creation and loading works as expected", () => {
     add_attribute("thingy_float64", Float64Array, "Float64", [9]);
 
     let ghandle2 = fhandle.open("foo");
-    expect(ghandle2.attributes).toEqual(ghandle.attributes); // got added correctly.
+    expect(ghandle2.attributes.toSorted()).toEqual(ghandle.attributes.toSorted()); // got added correctly.
 
     let attrs = new Set(ghandle2.attributes);
     expect(attrs.has("thingy_int8")).toBe(true);

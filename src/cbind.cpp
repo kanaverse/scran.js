@@ -59,7 +59,7 @@ NumericMatrix rbind(JsFakeInt n_raw, std::uintptr_t mats) {
     }
 
     return NumericMatrix(
-        std::make_shared<tatami::DelayedBind<double, std::int32_t> >(std::move(collected), false)
+        std::make_shared<tatami::DelayedBind<double, std::int32_t> >(std::move(collected), true)
     );
 }
 

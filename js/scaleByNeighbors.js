@@ -108,7 +108,6 @@ export function scaleByNeighbors(embeddings, numberOfCells, options = {}) {
         }
 
         wasm.call(module => module.scale_by_neighbors(
-            numberOfCells, 
             nembed, 
             embed_ptrs.offset, 
             index_ptrs.offset, 

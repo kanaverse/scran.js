@@ -772,7 +772,7 @@ H5::CompType choose_compound_type(const emscripten::val& members) {
         auto mode = type["mode"].template as<std::string>();
         if (mode == "string") {
             auto encoding = type["encoding"].template as<std::string>(); 
-            auto str_len = type["length"].template as<std::size_t>(); 
+            auto str_len = type["length"].template as<double>(); 
             all_types.emplace_back(std::move(name), offset, choose_string_type(encoding, str_len));
         } else if (mode == "numeric") {
             auto type2 = type["type"].template as<std::string>(); 

@@ -222,11 +222,12 @@ export function intersectFeatures(testFeatures, referenceFeatures) { // exported
  * These features are taken from each pairwise comparison between labels.
  * @param {?number} [options.numberOfThreads=null] - Number of threads to use.
  * If `null`, defaults to {@linkcode maximumThreads}.
+ * @param {boolean} [options.approximate=true] - Whether to build an index for an approximate neighbor search.
  *
  * @return {TrainedLabelCellsReference} Object containing the built reference dataset.
  */
 export function trainLabelCellsReference(testFeatures, loadedReference, referenceFeatures, options = {}) {
-    const { top = 20, numberOfThreads = null, ...others } = options;
+    const { top = 20, numberOfThreads = null, approximate = true, ...others } = options;
     utils.checkOtherOptions(others);
 
     var test_id_buffer;
@@ -237,6 +238,7 @@ export function trainLabelCellsReference(testFeatures, loadedReference, referenc
     if (referenceFeatures.length != loadedReference.numberOfFeatures()) {
         throw new Error("length of 'referenceFeatures' should be equal to the number of features in 'loadedReference'");
     }
+
     const intersection = intersectFeatures(testFeatures, referenceFeatures);
 
     try {
@@ -250,6 +252,7 @@ export function trainLabelCellsReference(testFeatures, loadedReference, referenc
                 ref_id_buffer.offset,
                 loadedReference.reference,
                 top,
+                approximate,
                 nthreads
             ),
             TrainedLabelCellsReference,

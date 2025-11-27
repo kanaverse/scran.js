@@ -92,7 +92,7 @@ emscripten::val read_header_from_mtx_buffer(std::uintptr_t buffer, JsFakeInt siz
     return get_preamble(std::make_unique<byteme::PerByteSerial<char> >(std::move(input)));
 }
 
-emscripten::val read_header_from_mtx_file(std::string path, std::string compression, std::uintptr_t output) {
+emscripten::val read_header_from_mtx_file(std::string path, std::string compression) {
     std::unique_ptr<byteme::Reader> input;
     if (compression == "none") {
         input.reset(new byteme::RawFileReader(path.c_str(), {}));

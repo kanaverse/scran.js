@@ -30,11 +30,11 @@ void mnn_correct(
     options.num_threads = js2int<int>(nthreads_raw);
     options.builder = create_builder(approximate);
 
-    if (merge_policy == "max-variance") {
+    if (merge_policy == "variance") {
         options.merge_policy = mnncorrect::MergePolicy::VARIANCE;
-    } else if (merge_policy == "max-rss") {
+    } else if (merge_policy == "rss") {
         options.merge_policy = mnncorrect::MergePolicy::RSS;
-    } else if (merge_policy == "max-size") {
+    } else if (merge_policy == "size") {
         options.merge_policy = mnncorrect::MergePolicy::SIZE;
     } else if (merge_policy == "input") {
         options.merge_policy = mnncorrect::MergePolicy::INPUT;

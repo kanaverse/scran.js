@@ -39,7 +39,7 @@ std::pair<MatrixIndex, MatrixIndex> fetch_array_dimensions(const Vector_* obj) {
 
     bool found = false;
     const auto nattr = attr.size();
-    I<decltype(nattr)> adx;
+    I<decltype(nattr)> adx = 0;
     for (; adx < nattr; ++adx) {
         if (attr[adx] == "dim") {
             found = true;

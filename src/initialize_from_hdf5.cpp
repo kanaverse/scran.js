@@ -84,7 +84,7 @@ emscripten::val extract_hdf5_matrix_details(const std::string& path, const std::
                 throw std::runtime_error("expected a 'data' dataset");
             }
             auto dhandle = ohandle.openDataSet("data");
-            output.set("is_integer", dhandle.getDataType().getClass() == H5T_INTEGER);
+            output.set("integer", dhandle.getDataType().getClass() == H5T_INTEGER);
 
         } else {
             auto dhandle = handle.openDataSet(name);
@@ -98,7 +98,7 @@ emscripten::val extract_hdf5_matrix_details(const std::string& path, const std::
             // again, transposed deliberately, as HDF5 rows are typically samples => array columns.
             output.set("rows", int2js(dims[1])); 
             output.set("columns", int2js(dims[0]));
-            output.set("is_integer", dhandle.getDataType().getClass() == H5T_INTEGER);
+            output.set("integer", dhandle.getDataType().getClass() == H5T_INTEGER);
             output.set("format", "dense");
         }
     } catch (H5::Exception& e) {
