@@ -15,6 +15,12 @@ FetchContent_Declare(
 )
 
 FetchContent_Declare(
+  sanisizer 
+  GIT_REPOSITORY https://github.com/LTLA/sanisizer
+  GIT_TAG v0.1.4
+)
+
+FetchContent_Declare(
   tatami 
   GIT_REPOSITORY https://github.com/tatami-inc/tatami
   GIT_TAG v4.0.3
@@ -24,6 +30,12 @@ FetchContent_Declare(
   tatami_stats
   GIT_REPOSITORY https://github.com/tatami-inc/tatami_stats
   GIT_TAG v2.0.1
+)
+
+FetchContent_Declare(
+  tatami_mult
+  GIT_REPOSITORY https://github.com/tatami-inc/tatami_mult
+  GIT_TAG v0.1.3
 )
 
 FetchContent_Declare(
@@ -114,6 +126,12 @@ FetchContent_Declare(
   WeightedLowess 
   GIT_REPOSITORY https://github.com/LTLA/CppWeightedLowess
   GIT_TAG v2.1.4
+)
+
+FetchContent_Declare(
+  topicks
+  GIT_REPOSITORY https://github.com/libscran/topicks
+  GIT_TAG v0.2.2
 )
 
 FetchContent_Declare(
@@ -218,9 +236,11 @@ option(EIGEN_BUILD_CMAKE_PACKAGE "Build the Eigen Cmake package" ON)
 
 FetchContent_MakeAvailable(aarand)
 FetchContent_MakeAvailable(subpar)
+FetchContent_MakeAvailable(sanisizer)
 
 FetchContent_MakeAvailable(tatami)
 FetchContent_MakeAvailable(tatami_stats)
+FetchContent_MakeAvailable(tatami_mult)
 
 FetchContent_MakeAvailable(tatami_chunked)
 FetchContent_MakeAvailable(tatami_hdf5)
@@ -240,6 +260,7 @@ FetchContent_MakeAvailable(scran_qc)
 FetchContent_MakeAvailable(scran_norm)
 
 FetchContent_MakeAvailable(WeightedLowess)
+FetchContent_MakeAvailable(topicks)
 FetchContent_MakeAvailable(scran_variances)
 
 FetchContent_MakeAvailable(eigen)
