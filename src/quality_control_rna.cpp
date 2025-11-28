@@ -58,7 +58,7 @@ private:
     scran_qc::RnaQcBlockedFilters<double> my_store_blocked;
 
 public:
-    SuggestRnaQcFiltersResults(scran_qc::RnaQcFilters<double> store) : my_store_unblocked(std::move(store)), my_use_blocked(false) {}
+    SuggestRnaQcFiltersResults(scran_qc::RnaQcFilters<double> store) : my_use_blocked(false), my_store_unblocked(std::move(store)) {}
 
     SuggestRnaQcFiltersResults(scran_qc::RnaQcBlockedFilters<double> store) : my_store_blocked(std::move(store)) {}
 

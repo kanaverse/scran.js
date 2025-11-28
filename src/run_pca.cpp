@@ -17,10 +17,9 @@ class PcaResults {
     scran_pca::BlockedPcaResults<Eigen::MatrixXd, Eigen::VectorXd> my_store_blocked;
 
 public:
-    PcaResults(scran_pca::SimplePcaResults<Eigen::MatrixXd, Eigen::VectorXd> store) : my_store_unblocked(std::move(store)), my_use_blocked(false) {}
+    PcaResults(scran_pca::SimplePcaResults<Eigen::MatrixXd, Eigen::VectorXd> store) : my_use_blocked(false), my_store_unblocked(std::move(store)) {}
 
     PcaResults(scran_pca::BlockedPcaResults<Eigen::MatrixXd, Eigen::VectorXd> store) : my_store_blocked(std::move(store)) {}
-
 
 private:
     static emscripten::val format_matrix(const Eigen::MatrixXd& mat) {
@@ -102,7 +101,6 @@ PcaResults run_pca(
     }
 
     auto ptr = mat.ptr();
-    const auto NC = ptr->ncol();
     const auto NR = ptr->nrow();
 
     if (use_subset) {

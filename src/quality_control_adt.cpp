@@ -58,7 +58,7 @@ private:
     scran_qc::AdtQcBlockedFilters<double> my_store_blocked;
 
 public:
-    SuggestAdtQcFiltersResults(scran_qc::AdtQcFilters<double> store) : my_store_unblocked(std::move(store)), my_use_blocked(false) {}
+    SuggestAdtQcFiltersResults(scran_qc::AdtQcFilters<double> store) : my_use_blocked(false), my_store_unblocked(std::move(store)) {}
 
     SuggestAdtQcFiltersResults(scran_qc::AdtQcBlockedFilters<double> store) : my_store_blocked(std::move(store)) {}
 

@@ -71,6 +71,9 @@ target_compile_options(
     scran_wasm PUBLIC 
     -O3
     -pthread
+    -Wall
+    -Wpedantic
+    -Wextra
     -sMEMORY64
 )
 

@@ -57,7 +57,7 @@ private:
     scran_qc::CrisprQcBlockedFilters<double> my_store_blocked;
 
 public:
-    SuggestCrisprQcFiltersResults(scran_qc::CrisprQcFilters<double> store) : my_store_unblocked(std::move(store)), my_use_blocked(false) {}
+    SuggestCrisprQcFiltersResults(scran_qc::CrisprQcFilters<double> store) : my_use_blocked(false), my_store_unblocked(std::move(store)) {}
 
     SuggestCrisprQcFiltersResults(scran_qc::CrisprQcBlockedFilters<double> store) : my_store_blocked(std::move(store)) {}
 

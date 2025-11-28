@@ -15,7 +15,8 @@ private:
     scran_variances::ModelGeneVariancesBlockedResults<double> my_store_blocked;
 
 public:
-    ModelGeneVariancesResults(scran_variances::ModelGeneVariancesResults<double> store) : my_store_unblocked(std::move(store)), my_use_blocked(false) {}
+    ModelGeneVariancesResults(scran_variances::ModelGeneVariancesResults<double> store) : my_use_blocked(false), my_store_unblocked(std::move(store)) {}
+
     ModelGeneVariancesResults(scran_variances::ModelGeneVariancesBlockedResults<double> store) : my_store_blocked(std::move(store)) {}
 
 private:
