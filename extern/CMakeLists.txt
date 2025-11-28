@@ -161,7 +161,7 @@ FetchContent_Declare(
 FetchContent_Declare(
   scran_graph_cluster
   GIT_REPOSITORY https://github.com/libscran/scran_graph_cluster
-  GIT_TAG v0.3.1
+  GIT_TAG v0.3.0
 )
 
 FetchContent_Declare(
