@@ -182,7 +182,7 @@ NumericMatrix convert_dgTMatrix_to_sparse_matrix(rds2cpp::S4Object* obj, bool la
 
 NumericMatrix js_initialize_from_rds(JsFakeInt ptr_raw, bool force_integer, bool layered) {
     RdsObject* wrapper = reinterpret_cast<RdsObject*>(js2int<std::uintptr_t>(ptr_raw));
-    auto obj = wrapper->ptr;
+    auto obj = wrapper->ptr();
 
     if (obj->type() == rds2cpp::SEXPType::INT) {
         auto ivec = static_cast<const rds2cpp::IntegerVector*>(obj);

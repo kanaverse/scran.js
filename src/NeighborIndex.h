@@ -9,15 +9,23 @@
 
 #include "knncolle/knncolle.hpp"
 
-struct NeighborIndex {
-    std::unique_ptr<knncolle::Prebuilt<std::int32_t, double, double> > index;
+class NeighborIndex {
+private:
+    std::unique_ptr<knncolle::Prebuilt<std::int32_t, double, double> > my_ptr;
+
+public:
+    NeighborIndex(std::unique_ptr<knncolle::Prebuilt<std::int32_t, double, double> > ptr) : my_ptr(std::move(ptr)) {};
+
+    const std::unique_ptr<knncolle::Prebuilt<std::int32_t, double, double> >& ptr() const {
+        return my_ptr;
+    }
 
     JsFakeInt js_num_obs() const {
-        return int2js(index->num_observations());
+        return int2js(my_ptr->num_observations());
     }
 
     JsFakeInt js_num_dim() const {
-        return int2js(index->num_dimensions());
+        return int2js(my_ptr->num_dimensions());
     }
 };
 

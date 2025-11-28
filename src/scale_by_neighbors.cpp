@@ -24,13 +24,13 @@ void js_scale_by_neighbors(
     std::vector<const knncolle::Prebuilt<std::int32_t, double, double>*> actual_ptrs;
     std::vector<std::size_t> ndims;
 
-    std::int32_t num_cells = (nembed ? index_ptrs.front()->index->num_observations() : 0);
+    std::int32_t num_cells = (nembed ? index_ptrs.front()->ptr()->num_observations() : 0);
     for (const auto& idx : index_ptrs) {
-        if (num_cells != idx->index->num_observations()) {
+        if (num_cells != idx->ptr()->num_observations()) {
             throw std::runtime_error("mismatch in number of cells between neighbor indices");
         }
-        actual_ptrs.emplace_back((idx->index).get());
-        ndims.push_back((idx->index)->num_dimensions());
+        actual_ptrs.emplace_back((idx->ptr()).get());
+        ndims.push_back((idx->ptr())->num_dimensions());
     }
 
     mumosa::Options opt;
@@ -40,7 +40,7 @@ void js_scale_by_neighbors(
     auto distances = sanisizer::create<std::vector<std::pair<double, double> > >(nembed);
     auto buffer = sanisizer::create<std::vector<double> >(num_cells);
     for (I<decltype(nembed)> e = 0; e < nembed; ++e) {
-        distances[e] = mumosa::compute_distance(*(index_ptrs[e]->index), buffer.data(), opt);
+        distances[e] = mumosa::compute_distance(*(index_ptrs[e]->ptr()), buffer.data(), opt);
     }
 
     auto scaling = mumosa::compute_scale(distances);

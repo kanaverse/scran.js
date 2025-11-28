@@ -42,16 +42,14 @@ std::unique_ptr<knncolle::Builder<std::int32_t, double, double, knncolle::Simple
 
 NeighborIndex js_build_neighbor_index(JsFakeInt mat_raw, JsFakeInt nr_raw, JsFakeInt nc_raw, bool approximate) {
     auto builder = create_builder(approximate);
-    NeighborIndex output;
     const auto nr = js2int<std::size_t>(nr_raw);
     const auto nc = js2int<std::int32_t>(nc_raw);
     const double* ptr = reinterpret_cast<const double*>(js2int<std::uintptr_t>(mat_raw));
-    output.index = builder->build_unique(knncolle::SimpleMatrix<std::int32_t, double>(nr, nc, ptr));
-    return output;
+    return NeighborIndex(builder->build_unique(knncolle::SimpleMatrix<std::int32_t, double>(nr, nc, ptr)));
 }
 
 NeighborResults js_find_nearest_neighbors(const NeighborIndex& index, JsFakeInt k_raw, JsFakeInt nthreads_raw) {
-    return NeighborResults(knncolle::find_nearest_neighbors(*(index.index), js2int<int>(k_raw), js2int<int>(nthreads_raw)));
+    return NeighborResults(knncolle::find_nearest_neighbors(*(index.ptr()), js2int<int>(k_raw), js2int<int>(nthreads_raw)));
 }
 
 NeighborResults js_truncate_nearest_neighbors(const NeighborResults& input, JsFakeInt k_raw) {

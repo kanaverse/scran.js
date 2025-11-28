@@ -387,7 +387,8 @@ public:
 };
 
 template<typename Func_>
-struct CleanUp {
+class CleanUp {
+public:
     CleanUp(Func_ f) : f(std::move(f)) {}
     ~CleanUp() { f(); }
     Func_ f;
@@ -529,7 +530,8 @@ emscripten::val extract_string_values(const Handle_& handle) {
 }
 
 class LoadedH5DataSet {
-    struct Internal {
+    class Internal {
+    public:
         template<class Handle_, typename Type_, class MemType_>
         static void read(const Handle_& dhandle, Type_* buffer, const MemType_& mem_type) {
             dhandle.read(buffer, mem_type);            
@@ -570,7 +572,8 @@ public:
 };
 
 class LoadedH5Attr {
-    struct Internal {
+    class Internal {
+    public:
         template<class Handle_, typename Type_, class MemType_>
         static void read(const Handle_& ahandle, Type_* buffer, const MemType_& mem_type) {
             ahandle.read(mem_type, buffer);
@@ -1093,7 +1096,8 @@ void write_compound_hdf5_base(Handle_& handle, const emscripten::val& data) {
 
 /************* Dataset writers **************/
 
-struct DataSetHandleWriter {
+class DataSetHandleWriter {
+public:
     template<class Handle, typename T, class MemType>
     static void write(Handle& handle, T* data, const MemType& memtype) {
         handle.write(data, memtype);
@@ -1142,7 +1146,8 @@ void js_write_compound_hdf5_dataset(std::string path, std::string name, const em
 
 /************* Attribute writers **************/
 
-struct AttributeHandleWriter {
+class AttributeHandleWriter {
+public:
     template<class Handle_, typename Type_, class MemType_>
     static void write(Handle_& handle, Type_* data, const MemType_& memtype) {
         handle.write(memtype, data);
