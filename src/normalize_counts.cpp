@@ -26,7 +26,7 @@ void js_center_size_factors(JsFakeInt n_raw, JsFakeInt ptr_raw, bool use_blocks,
 NumericMatrix js_normalize_counts(const NumericMatrix& mat, JsFakeInt size_factors_raw, bool log, bool allow_zero, bool allow_non_finite) {
     const auto size_factors = js2int<std::uintptr_t>(size_factors_raw);
     const double* sfptr = reinterpret_cast<const double*>(size_factors);
-    std::vector<double> sf(sfptr, sfptr + mat.ncol());
+    std::vector<double> sf(sfptr, sfptr + mat.ptr()->ncol());
 
     scran_norm::SanitizeSizeFactorsOptions san_opt;
     if (allow_zero) {

@@ -41,7 +41,7 @@ void js_delayed_arithmetic_scalar(NumericMatrix& x, std::string op, bool right, 
 void js_delayed_arithmetic_vector(NumericMatrix& x, std::string op, bool right, JsFakeInt margin_raw, JsFakeInt ptr_raw, JsFakeInt n_raw) {
     const auto margin = js2int<int>(margin_raw);
     const auto n = js2int<std::size_t>(n_raw);
-    if (!sanisizer::is_equal(n, margin == 0 ? x.nrow() : x.ncol())) {
+    if (!sanisizer::is_equal(n, margin == 0 ? x.ptr()->nrow() : x.ptr()->ncol())) {
         throw std::runtime_error("inappropriate length of vector for delayed arithmetic");
     }
 

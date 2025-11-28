@@ -47,7 +47,7 @@ public:
 ComputeAdtQcMetricsResults js_per_cell_adt_qc_metrics(const NumericMatrix& mat, JsFakeInt nsubsets_raw, JsFakeInt subsets_raw, JsFakeInt nthreads_raw) {
     scran_qc::ComputeAdtQcMetricsOptions opt;
     opt.num_threads = js2int<int>(nthreads_raw);
-    auto store = scran_qc::compute_adt_qc_metrics(*mat, convert_array_of_offsets<const std::uint8_t*>(nsubsets_raw, subsets_raw), opt);
+    auto store = scran_qc::compute_adt_qc_metrics(*(mat.ptr()), convert_array_of_offsets<const std::uint8_t*>(nsubsets_raw, subsets_raw), opt);
     return ComputeAdtQcMetricsResults(std::move(store));
 }
 

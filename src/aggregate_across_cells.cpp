@@ -56,10 +56,10 @@ AggregateAcrossCellsResults js_aggregate_across_cells(const NumericMatrix& mat, 
     scran_aggregate::AggregateAcrossCellsOptions aopt;
     aopt.num_threads = js2int<int>(nthreads_raw);
     auto fptr = reinterpret_cast<const std::int32_t*>(js2int<std::uintptr_t>(factor_raw));
-    auto store = scran_aggregate::aggregate_across_cells<double, double>(*mat, fptr, aopt);
+    auto store = scran_aggregate::aggregate_across_cells<double, double>(*(mat.ptr()), fptr, aopt);
 
     if (average) {
-        auto sizes = tatami_stats::tabulate_groups(fptr, mat.ncol());
+        auto sizes = tatami_stats::tabulate_groups(fptr, mat.ptr()->ncol());
         const auto ngroups = sizes.size();
         for (I<decltype(ngroups)> i = 0; i < ngroups; ++i) {
             double denom = 1.0 / sizes[i];
@@ -72,7 +72,7 @@ AggregateAcrossCellsResults js_aggregate_across_cells(const NumericMatrix& mat, 
         }
     }
 
-    return AggregateAcrossCellsResults(mat.nrow(), std::move(store));
+    return AggregateAcrossCellsResults(mat.ptr()->nrow(), std::move(store));
 }
 
 EMSCRIPTEN_BINDINGS(aggregate_across_cells) {

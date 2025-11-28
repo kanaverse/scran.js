@@ -46,7 +46,7 @@ public:
 ComputeCrisprQcMetricsResults js_per_cell_crispr_qc_metrics(const NumericMatrix& mat, JsFakeInt nthreads_raw) {
     scran_qc::ComputeCrisprQcMetricsOptions opt;
     opt.num_threads = js2int<int>(nthreads_raw);
-    auto store = scran_qc::compute_crispr_qc_metrics(*mat, opt);
+    auto store = scran_qc::compute_crispr_qc_metrics(*(mat.ptr()), opt);
     return ComputeCrisprQcMetricsResults(std::move(store));
 }
 

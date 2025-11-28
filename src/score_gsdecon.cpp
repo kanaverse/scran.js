@@ -37,7 +37,7 @@ GsdeconResults js_score_gsdecon(
     std::string weight_policy,
     JsFakeInt nthreads_raw
 ) {
-    const auto NR = mat.nrow();
+    const auto NR = mat.ptr()->nrow();
     const auto subset = js2int<std::uintptr_t>(subset_raw);
     auto subptr = reinterpret_cast<const std::uint8_t*>(subset);
     std::vector<I<decltype(NR)> > keep;

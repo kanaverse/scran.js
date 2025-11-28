@@ -101,10 +101,10 @@ ScoreMarkersResults js_score_markers(
     auto gptr = reinterpret_cast<const std::int32_t*>(groups);
     if (use_blocks) {
         const auto blocks = js2int<std::uintptr_t>(blocks_raw);
-        auto store = scran_markers::score_markers_summary_blocked(*mat, gptr, reinterpret_cast<const std::int32_t*>(blocks), mopt);
+        auto store = scran_markers::score_markers_summary_blocked(*(mat.ptr()), gptr, reinterpret_cast<const std::int32_t*>(blocks), mopt);
         return ScoreMarkersResults(std::move(store));
     } else {
-        auto store = scran_markers::score_markers_summary(*mat, gptr, mopt);
+        auto store = scran_markers::score_markers_summary(*(mat.ptr()), gptr, mopt);
         return ScoreMarkersResults(std::move(store));
     }
 }

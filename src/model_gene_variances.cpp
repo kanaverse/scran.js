@@ -82,10 +82,10 @@ ModelGeneVariancesResults js_model_gene_variances(
 
     if (use_blocks) {
         const auto blocks = js2int<std::uintptr_t>(blocks_raw);
-        auto store = scran_variances::model_gene_variances_blocked(*mat, reinterpret_cast<const std::int32_t*>(blocks), vopt);
+        auto store = scran_variances::model_gene_variances_blocked(*(mat.ptr()), reinterpret_cast<const std::int32_t*>(blocks), vopt);
         return ModelGeneVariancesResults(std::move(store));
     } else {
-        auto store = scran_variances::model_gene_variances(*mat, vopt);
+        auto store = scran_variances::model_gene_variances(*(mat.ptr()), vopt);
         return ModelGeneVariancesResults(std::move(store));
     }
 }

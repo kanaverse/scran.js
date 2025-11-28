@@ -7,7 +7,7 @@ void js_compute_clrm1_factors(const NumericMatrix& mat, JsFakeInt output_raw, Js
     clrm1::Options opt;
     opt.num_threads = js2int<int>(nthreads_raw);
     const auto output = js2int<std::uintptr_t>(output_raw);
-    clrm1::compute(*mat, opt, reinterpret_cast<double*>(output));
+    clrm1::compute(*(mat.ptr()), opt, reinterpret_cast<double*>(output));
 }
 
 EMSCRIPTEN_BINDINGS(compute_clrm1_factors) {

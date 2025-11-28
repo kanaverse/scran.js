@@ -19,16 +19,16 @@ NumericMatrix js_cbind(JsFakeInt n_raw, JsFakeInt mats_raw) {
     std::vector<std::shared_ptr<const tatami::Matrix<double, std::int32_t> > > collected;
     collected.reserve(mat_ptrs.size());
 
-    const auto& first = *(mat_ptrs.front());
-    const auto NR = first.nrow();
-    collected.push_back(first.ptr());
+    const auto& first = mat_ptrs.front()->ptr();
+    const auto NR = first->nrow();
+    collected.push_back(first);
 
     for (I<decltype(n)> i = 1; i < n; ++i) {
-        const auto& current = *(mat_ptrs[i]);
-        if (current.nrow() != NR) {
+        const auto& current = mat_ptrs[i]->ptr();
+        if (current->nrow() != NR) {
             throw "all matrices to cbind should have the same number of rows";
         }
-        collected.push_back(current.ptr());
+        collected.push_back(current);
     }
 
     return NumericMatrix(
@@ -46,16 +46,16 @@ NumericMatrix js_rbind(JsFakeInt n_raw, JsFakeInt mats_raw) {
     std::vector<std::shared_ptr<const tatami::Matrix<double, std::int32_t> > > collected;
     collected.reserve(mat_ptrs.size());
 
-    const auto& first = *(mat_ptrs.front());
-    const auto NC = first.ncol();
-    collected.push_back(first.ptr());
+    const auto& first = mat_ptrs.front()->ptr();
+    const auto NC = first->ncol();
+    collected.push_back(first);
 
     for (I<decltype(n)> i = 1; i < n; ++i) {
-        const auto& current = *(mat_ptrs[i]);
-        if (current.ncol() != NC) {
+        const auto& current = mat_ptrs[i]->ptr();
+        if (current->ncol() != NC) {
             throw "all matrices to rbind should have the same number of columns";
         }
-        collected.push_back(current.ptr());
+        collected.push_back(current);
     }
 
     return NumericMatrix(

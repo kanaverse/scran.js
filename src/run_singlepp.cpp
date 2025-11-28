@@ -218,7 +218,7 @@ SingleppResults js_run_singlepp(
     singlepp::ClassifySingleOptions<double> opt;
     opt.quantile = quantile;
     opt.num_threads = js2int<int>(nthreads_raw);
-    auto store = singlepp::classify_single_intersect(*mat, built.store(), opt);
+    auto store = singlepp::classify_single_intersect(*(mat.ptr()), built.store(), opt);
     return SingleppResults(std::move(store));
 }
 
@@ -355,7 +355,7 @@ SingleppIntegratedResults js_integrate_singlepp(
     opt.quantile = quantile;
     opt.num_threads = js2int<int>(nthreads_raw);
     auto ass_ptrs = convert_array_of_offsets<const std::int32_t*>(integrated.store().num_references(), assigned_raw);
-    auto store = singlepp::classify_integrated(*mat, ass_ptrs, integrated.store(), opt);
+    auto store = singlepp::classify_integrated(*(mat.ptr()), ass_ptrs, integrated.store(), opt);
     return SingleppIntegratedResults(std::move(store));
 }
 

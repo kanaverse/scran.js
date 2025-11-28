@@ -12,7 +12,7 @@
 void js_matrix_sums(const NumericMatrix& mat, bool row, JsFakeInt buffer_raw, JsFakeInt nthreads_raw) {
     tatami_stats::sums::Options opt;
     opt.num_threads = js2int<int>(nthreads_raw);
-    tatami_stats::sums::apply(row, *mat, reinterpret_cast<double*>(js2int<std::uintptr_t>(buffer_raw)), opt);
+    tatami_stats::sums::apply(row, *(mat.ptr()), reinterpret_cast<double*>(js2int<std::uintptr_t>(buffer_raw)), opt);
 }
 
 EMSCRIPTEN_BINDINGS(matrix_stats) {
