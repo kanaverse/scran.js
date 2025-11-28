@@ -6,6 +6,10 @@ on:
 
 name: Build and publish to NPM 
 
+permissions:
+  id-token: write  # Required for OIDC
+  contents: read
+
 jobs:
   prepare-version:
     runs-on: ubuntu-latest
@@ -79,7 +83,7 @@ jobs:
       uses: actions/cache@v4
       with:
         path: tests/rds/*.rds
-        key: rds-${{ hashFiles('tests/rds/generate.R') }}-${{ needs.prepare-version.outputs.version }}
+        key: rds-${{ hashFiles('tests/rds/generate.R') }}
 
     - name: Double-checking tests
       if: env.UPDATE_SCRANJS == 1
@@ -88,8 +92,6 @@ jobs:
     - name: Publish to NPM
       if: env.UPDATE_SCRANJS == 1
       run: npm publish
-      env:
-        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
     - name: Tagging the release
       if: env.UPDATE_SCRANJS == 1
