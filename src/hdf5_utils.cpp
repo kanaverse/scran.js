@@ -926,9 +926,9 @@ void write_numeric_hdf5_base(Handle_& handle, const std::string& type, std::uint
     } else if (type == "Int32WasmArray") {
         Reader_::write(handle, reinterpret_cast<const std::int32_t*>(data), H5::PredType::NATIVE_INT32);
     } else if (type == "Uint64WasmArray") {
-        Reader_::write(handle, reinterpret_cast<const double*>(data), H5::PredType::NATIVE_UINT64);
+        Reader_::write(handle, reinterpret_cast<const std::uint64_t*>(data), H5::PredType::NATIVE_UINT64);
     } else if (type == "Int64WasmArray") {
-        Reader_::write(handle, reinterpret_cast<const double*>(data), H5::PredType::NATIVE_INT64);
+        Reader_::write(handle, reinterpret_cast<const std::int64_t*>(data), H5::PredType::NATIVE_INT64);
     } else if (type == "Float32WasmArray") {
         Reader_::write(handle, reinterpret_cast<const float*>(data), H5::PredType::NATIVE_FLOAT);
     } else if (type == "Float64WasmArray") {

@@ -28,9 +28,9 @@ tatami::SomeNumericArray<Type_> create_SomeNumericArray(std::uintptr_t ptr, std:
     } else if (type == "Uint32Array") {
         t = tatami::SomeNumericType::U32;
     } else if (type == "BigInt64Array") {
-        t = tatami::SomeNumericType::F64; // Aliasing these for the time being, as there is no BigInt support in the Wasm heap.
+        t = tatami::SomeNumericType::I64;
     } else if (type == "BigUint64Array") {
-        t = tatami::SomeNumericType::F64; // See above.
+        t = tatami::SomeNumericType::U64;
     } else if (type == "Float32Array") {
         t = tatami::SomeNumericType::F32;
     } else if (type == "Float64Array") {
