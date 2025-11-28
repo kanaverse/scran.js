@@ -20,7 +20,6 @@ then
 fi
 
 BUILD_DIR=build-${HDF5_VERSION}
-echo $BUILD_DIR
 if [ ! -e ${BUILD_DIR} ]
 then
     mkdir -p ../installed
