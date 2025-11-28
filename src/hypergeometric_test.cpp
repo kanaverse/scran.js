@@ -6,45 +6,50 @@
 #include "phyper/phyper.hpp"
 
 void hypergeometric_test(
-    int32_t ntests,
+    JsFakeInt ntests_raw,
     bool multi_markers_in_set, 
-    uintptr_t markers_in_set, 
+    std::uintptr_t markers_in_set, 
     bool multi_set_size, 
-    uintptr_t set_size, 
+    std::uintptr_t set_size, 
     bool multi_num_markers, 
-    uintptr_t num_markers, 
+    std::uintptr_t num_markers, 
     bool multi_num_features, 
-    uintptr_t num_features, 
-    uintptr_t output,
+    std::uintptr_t num_features, 
+    std::uintptr_t output,
     bool log, 
-    int32_t nthreads) 
-{
-    const int32_t* misptr = reinterpret_cast<const int32_t*>(markers_in_set);
-    const int32_t* ssptr = reinterpret_cast<const int32_t*>(set_size);
-    const int32_t* nmptr = reinterpret_cast<const int32_t*>(num_markers);
-    const int32_t* nfptr = reinterpret_cast<const int32_t*>(num_features);
+    JsFakeInt nthreads_raw
+) {
+    const auto ntests = js2int<std::size_t>(ntests_raw);
+    const auto misptr = reinterpret_cast<const std::int32_t*>(markers_in_set);
+    const auto ssptr = reinterpret_cast<const std::int32_t*>(set_size);
+    const auto nmptr = reinterpret_cast<const std::int32_t*>(num_markers);
+    const auto nfptr = reinterpret_cast<const std::int32_t*>(num_features);
     double* outptr = reinterpret_cast<double*>(output);
 
-    subpar::parallelize_range(nthreads, ntests, [&](int32_t, int32_t first, int32_t length) {
-        phyper::Options hopt;
-        hopt.log = log;
+    subpar::parallelize_range(
+        js2int<int>(nthreads_raw),
+        ntests,
+        [&](int, I<decltype(ntests)> first, I<decltype(ntests)> length) {
+            phyper::Options hopt;
+            hopt.log = log;
 
-        for (int32_t i = first, last = first + length; i < last; ++i) {
-            // We'll interpret the genes in the set as white balls,
-            // the features _not_ in the set as black balls,
-            // and the number of markers as the number of draws.
-            auto num_white = ssptr[multi_set_size ? i : 0];
-            auto num_black = nfptr[multi_num_features ? i : 0] - num_white;
+            for (I<decltype(ntests)> i = first, last = first + length; i < last; ++i) {
+                // We'll interpret the genes in the set as white balls,
+                // the features _not_ in the set as black balls,
+                // and the number of markers as the number of draws.
+                auto num_white = ssptr[multi_set_size ? i : 0];
+                auto num_black = nfptr[multi_num_features ? i : 0] - num_white;
 
-            outptr[i] = phyper::compute(
-                misptr[multi_markers_in_set ? i : 0],
-                num_white,
-                num_black,
-                nmptr[multi_num_markers ? i : 0],
-                hopt
-            );
+                outptr[i] = phyper::compute(
+                    misptr[multi_markers_in_set ? i : 0],
+                    num_white,
+                    num_black,
+                    nmptr[multi_num_markers ? i : 0],
+                    hopt
+                );
+            }
         }
-    }); 
+    ); 
 }
 
 EMSCRIPTEN_BINDINGS(hypergeometric_test) {

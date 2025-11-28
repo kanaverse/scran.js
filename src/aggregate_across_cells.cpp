@@ -7,55 +7,61 @@
 #include "tatami_stats/tatami_stats.hpp"
 #include "scran_aggregate/scran_aggregate.hpp"
 
-struct AggregateAcrossCellsResults {
-    int32_t ngenes;
-    scran_aggregate::AggregateAcrossCellsResults<double, double> store;
+class AggregateAcrossCellsResults {
+    std::int32_t my_ngenes;
+    scran_aggregate::AggregateAcrossCellsResults<double, double> my_store;
 
 public:
-    AggregateAcrossCellsResults(int32_t ngenes, scran_aggregate::AggregateAcrossCellsResults<double, double> store) : ngenes(ngenes), store(std::move(store)) {}
+    AggregateAcrossCellsResults(std::int32_t ngenes, scran_aggregate::AggregateAcrossCellsResults<double, double> store) : 
+        my_ngenes(ngenes), my_store(std::move(store))
+    {}
 
 public:
-    int32_t num_genes() const {
-        return ngenes;
+    JsFakeInt num_genes() const {
+        return int2js(my_ngenes);
     }
 
-    int32_t num_groups() const {
-        return store.sums.size();
+    JsFakeInt num_groups() const {
+        return int2js(my_store.sums.size());
     }
 
-    emscripten::val group_sums(int32_t i) const {
-        return emscripten::val(emscripten::typed_memory_view(ngenes, store.sums[i].data()));
+    emscripten::val group_sums(JsFakeInt i_raw) const {
+        const auto i = js2int<std::size_t>(i_raw);
+        return emscripten::val(emscripten::typed_memory_view(my_ngenes, my_store.sums[i].data()));
     }
 
-    void all_sums(uintptr_t output) const {
+    void all_sums(std::uintptr_t output) const {
         auto optr = reinterpret_cast<double*>(output);
-        for (const auto& ss : store.sums) {
-            std::copy_n(ss.begin(), ngenes, optr);
-            optr += ngenes;
+        for (const auto& ss : my_store.sums) {
+            std::copy_n(ss.begin(), my_ngenes, optr);
+            optr += my_ngenes;
         }
     }
 
-    emscripten::val group_detected(int32_t i) const {
-        return emscripten::val(emscripten::typed_memory_view(ngenes, store.detected[i].data()));
+    emscripten::val group_detected(JsFakeInt i_raw) const {
+        const auto i = js2int<std::size_t>(i_raw);
+        return emscripten::val(emscripten::typed_memory_view(my_ngenes, my_store.detected[i].data()));
     }
 
-    void all_detected(uintptr_t output) const {
+    void all_detected(std::uintptr_t output) const {
         auto optr = reinterpret_cast<double*>(output);
-        for (const auto& ds : store.detected) {
-            std::copy_n(ds.begin(), ngenes, optr);
-            optr += ngenes;
+        for (const auto& ds : my_store.detected) {
+            std::copy_n(ds.begin(), my_ngenes, optr);
+            optr += my_ngenes;
         }
     }
 };
 
-AggregateAcrossCellsResults aggregate_across_cells(const NumericMatrix& mat, uintptr_t factor, bool average, int32_t nthreads) {
+AggregateAcrossCellsResults aggregate_across_cells(const NumericMatrix& mat, std::uintptr_t factor, bool average, JsFakeInt nthreads_raw) {
     scran_aggregate::AggregateAcrossCellsOptions aopt;
-    auto fptr = reinterpret_cast<const int32_t*>(factor);
-    auto store = scran_aggregate::aggregate_across_cells<double, double>(*(mat.ptr), fptr, aopt);
+    aopt.num_threads = js2int<int>(nthreads_raw);
+    auto fptr = reinterpret_cast<const std::int32_t*>(factor);
+    auto store = scran_aggregate::aggregate_across_cells<double, double>(*mat, fptr, aopt);
 
     if (average) {
-        auto sizes = tatami_stats::tabulate_groups(fptr, mat.ptr->ncol());
-        for (size_t i = 0, end = sizes.size(); i < end; ++i) {
+        auto sizes = tatami_stats::tabulate_groups(fptr, mat.ncol());
+        const auto ngroups = sizes.size();
+        for (I<decltype(ngroups)> i = 0; i < ngroups; ++i) {
             double denom = 1.0 / sizes[i];
             for (auto& x : store.sums[i]) {
                 x *= denom;
@@ -66,7 +72,7 @@ AggregateAcrossCellsResults aggregate_across_cells(const NumericMatrix& mat, uin
         }
     }
 
-    return AggregateAcrossCellsResults(mat.ptr->nrow(), std::move(store));
+    return AggregateAcrossCellsResults(mat.nrow(), std::move(store));
 }
 
 EMSCRIPTEN_BINDINGS(aggregate_across_cells) {

@@ -1,5 +1,5 @@
 #include <emscripten/bind.h>
-#include "H5Cpp.h"
+
 #include <vector>
 #include <string>
 #include <cstdint>
@@ -8,12 +8,16 @@
 #include <unordered_map>
 #include <iostream>
 
+#include "utils.h"
+
+#include "H5Cpp.h"
+
 emscripten::val extract_attribute_names(const H5::H5Object& handle) {
     auto output = emscripten::val::array();
     auto num = handle.getNumAttrs();
-    for (decltype(num) i = 0; i < num; ++i) {
+    for (I<decltype(num)> i = 0; i < num; ++i) {
         auto attr = handle.openAttribute(i);
-        output.call<void>("push", emscripten::val(attr.getName()));
+        output.call<void>("push", attr.getName());
     }
     return output;
 }
@@ -25,12 +29,12 @@ template<typename Handle_>
 emscripten::val extract_shape(const Handle_& handle) {
     auto dspace = handle.getSpace();
     auto ndims = dspace.getSimpleExtentNdims();
-    std::vector<hsize_t> dims(ndims);
+    auto dims = sanisizer::create<std::vector<hsize_t> >(ndims);
     dspace.getSimpleExtentDims(dims.data());
 
     auto output = emscripten::val::array();
     for (auto x : dims) {
-        output.call<void>("push", emscripten::val(static_cast<double>(x))); // hopefully it fits, who knows?
+        output.call<void>("push", int2js(x));
     }
     return output;
 }
@@ -57,8 +61,8 @@ emscripten::val format_integer_type(const H5::IntType& itype) {
     }
 
     auto output = emscripten::val::object();
-    output.set("mode", emscripten::val("numeric"));
-    output.set("type", emscripten::val(type));
+    output.set("mode", "numeric");
+    output.set("type", type);
     return output;
 }
 
@@ -67,9 +71,9 @@ emscripten::val format_float_type(const H5::FloatType& ftype) {
     output.set("mode", emscripten::val("numeric"));
     auto fsize = ftype.getSize();
     if (fsize <= 4) {
-        output.set("type", emscripten::val("Float32"));
+        output.set("type", "Float32");
     } else {
-        output.set("type", emscripten::val("Float64"));
+        output.set("type", "Float64");
     }
     return output;
 }
@@ -78,14 +82,14 @@ emscripten::val format_string_type(const H5::StrType& stype) {
     auto output = emscripten::val::object();
     output.set("mode", emscripten::val("string"));
     if (stype.getCset() == H5T_CSET_ASCII) {
-        output.set("encoding", emscripten::val("ASCII"));
+        output.set("encoding", "ASCII");
     } else {
-        output.set("encoding", emscripten::val("UTF-8"));
+        output.set("encoding", "UTF-8");
     }
     if (stype.isVariableStr()) {
-        output.set("length", emscripten::val(static_cast<double>(-1)));
+        output.set("length", int2js(-1));
     } else {
-        output.set("length", emscripten::val(static_cast<double>(stype.getSize())));
+        output.set("length", int2js(stype.getSize()));
     }
     return output;
 }
@@ -94,13 +98,13 @@ template<typename Code_>
 emscripten::val format_enum_levels(const H5::EnumType etype) {
     auto output = emscripten::val::array();
     auto nlevels = etype.getNmembers();
-    for (decltype(nlevels) l = 0; l < nlevels; ++l) {
+    for (I<decltype(nlevels)> l = 0; l < nlevels; ++l) {
         Code_ v;
         etype.getMemberValue(l, &v);
         std::string name = etype.nameOf(&v, 1000); // name better be shorter than 1000 bytes!
         auto current = emscripten::val::object();
-        current.set("name", emscripten::val(name));
-        current.set("value", emscripten::val(v));
+        current.set("name", name);
+        current.set("value", int2js(v));
         output.call<void>("push", std::move(current));
     }
     return output;
@@ -110,8 +114,8 @@ emscripten::val format_enum_type(const H5::EnumType& etype, const H5::IntType& i
     auto output = emscripten::val::object();
     output.set("mode", emscripten::val("enum"));
 
-    bool is_unsigned = (itype.getSign() == H5T_SGN_NONE);
-    auto isize = itype.getSize();
+    const bool is_unsigned = (itype.getSign() == H5T_SGN_NONE);
+    const auto isize = itype.getSize();
     if (isize <= 1) {
         if (is_unsigned) {
             output.set("code_type", "Uint8");
@@ -150,9 +154,9 @@ emscripten::val format_enum_type(const H5::EnumType& etype, const H5::IntType& i
 }
 
 emscripten::val format_compound_type(const H5::CompType& ctype) {
-    auto nmembers = ctype.getNmembers();
+    const auto nmembers = ctype.getNmembers();
     auto outmembers = emscripten::val::array();
-    for (decltype(nmembers) m = 0; m < nmembers; ++m) {
+    for (I<decltype(nmembers)> m = 0; m < nmembers; ++m) {
         auto memname = ctype.getMemberName(m);
         auto memclass = ctype.getMemberClass(m);
 
@@ -164,12 +168,13 @@ emscripten::val format_compound_type(const H5::CompType& ctype) {
         } else if (memclass == H5T_STRING) {
             type = format_string_type(ctype.getMemberStrType(m));
         } else { // other things aren't supported yet.
+            type = emscripten::val::object();
             type.set("mode", emscripten::val("other"));
             type.set("type", emscripten::val("Other"));
         }
 
         auto current = emscripten::val::object();
-        current.set("name", emscripten::val(memname));
+        current.set("name", memname);
         current.set("type", type);
         outmembers.call<void>("push", current);
     }
@@ -394,8 +399,7 @@ struct CleanUp {
 template<class Reader_, class Handle_>
 emscripten::val extract_compound_values(const Handle_& handle) {
     auto ctype = handle.getCompType();
-    int nmembers = ctype.getNmembers();
-    auto full_length = get_full_length(handle);
+    const auto nmembers = ctype.getNmembers();
 
     struct Member {
         Member() = default;
@@ -413,7 +417,7 @@ emscripten::val extract_compound_values(const Handle_& handle) {
     bool has_variable = false;
     std::size_t offset = 0;
 
-    for (decltype(nmembers) m = 0; m < nmembers; ++m) {
+    for (I<decltype(nmembers)> m = 0; m < nmembers; ++m) {
         auto memname = ctype.getMemberName(m);
         auto memcls = ctype.getMemberClass(m);
         if (memcls == H5T_STRING) {
@@ -422,6 +426,7 @@ emscripten::val extract_compound_values(const Handle_& handle) {
             has_variable = has_variable || stype.isVariableStr();
             h5types.push_back(std::move(stype));
         } else if (memcls == H5T_INTEGER || memcls == H5T_FLOAT) {
+            // Just convert integers to doubles here, it'll get cast to +/-Inf if it doesn't fit.
             members.emplace_back(std::move(memname), 8, false, false);
             h5types.push_back(H5::PredType::NATIVE_DOUBLE);
         } else {
@@ -432,11 +437,12 @@ emscripten::val extract_compound_values(const Handle_& handle) {
 
     H5::CompType ctype2(offset);
     offset = 0;
-    for (decltype(nmembers) m = 0; m < nmembers; ++m) {
+    for (I<decltype(nmembers)> m = 0; m < nmembers; ++m) {
         ctype2.insertMember(members[m].name, offset, h5types[m]);
         offset += h5types[m].getSize();
     }
 
+    const auto full_length = get_full_length(handle);
     std::vector<unsigned char> unified_buffer(full_length * offset);
     Reader_::read(handle, unified_buffer.data(), ctype2);
     CleanUp tmp([&]() -> void {
@@ -448,7 +454,7 @@ emscripten::val extract_compound_values(const Handle_& handle) {
     auto comp_data = emscripten::val::array();
     offset = 0;
     std::string bufstr;
-    for (decltype(full_length) i = 0; i < full_length; ++i) {
+    for (I<decltype(full_length)> i = 0; i < full_length; ++i) {
         emscripten::val obj = emscripten::val::object();
 
         for (const auto& member : members) {
@@ -462,20 +468,20 @@ emscripten::val extract_compound_values(const Handle_& handle) {
             } else if (!member.is_variable) {
                 auto cstart = reinterpret_cast<const char*>(start);
                 bufstr.clear();
-                for (decltype(member.size) i = 0; i < member.size; ++i) {
+                for (I<decltype(member.size)> i = 0; i < member.size; ++i) {
                     if (cstart[i] == 0) {
                         break;
                     }
                     bufstr += cstart[i];
                 }
-                obj.set(member.name, emscripten::val(bufstr));
+                obj.set(member.name, bufstr);
 
             } else {
                 char* ptr;
                 std::copy_n(start, sizeof(decltype(ptr)), reinterpret_cast<unsigned char*>(&ptr));
                 bufstr.clear();
                 bufstr.insert(0, ptr);
-                obj.set(member.name, emscripten::val(bufstr));
+                obj.set(member.name, bufstr);
             }
 
             offset += member.size;
@@ -501,10 +507,10 @@ emscripten::val extract_string_values(const Handle_& handle) {
         CleanUp tmp([&]() -> void {
             H5Dvlen_reclaim(dtype.getId(), dspace.getId(), H5P_DEFAULT, buffer.data());
         });
-        for (decltype(full_length) i = 0; i < full_length; ++i) {
+        for (I<decltype(full_length)> i = 0; i < full_length; ++i) {
             bufstr.clear();
             bufstr.insert(0, buffer[i]);
-            output.call<void>("push", emscripten::val(bufstr));
+            output.call<void>("push", bufstr);
         }
 
     } else {
@@ -512,12 +518,12 @@ emscripten::val extract_string_values(const Handle_& handle) {
         std::vector<char> buffer(strlen * full_length);
         Reader_::read(handle, buffer.data(), dtype);
         auto start = buffer.data();
-        for (decltype(full_length) i = 0; i < full_length; ++i) {
-            decltype(strlen) j = 0;
+        for (I<decltype(full_length)> i = 0; i < full_length; ++i) {
+            I<decltype(strlen)> j = 0;
             for (; j < strlen && start[j] != '\0'; ++j) {}
             bufstr.clear();
             bufstr.insert(bufstr.end(), start, start + j);
-            output.call<void>("push", emscripten::val(bufstr));
+            output.call<void>("push", bufstr);
             start += strlen;
         }
     }
@@ -527,8 +533,8 @@ emscripten::val extract_string_values(const Handle_& handle) {
 
 class LoadedH5DataSet {
     struct Internal {
-        template<class Handle, typename T, class MemType>
-        static void read(const Handle& dhandle, T* buffer, const MemType& mem_type) {
+        template<class Handle_, typename Type_, class MemType_>
+        static void read(const Handle_& dhandle, Type_* buffer, const MemType_& mem_type) {
             dhandle.read(buffer, mem_type);            
         }
     };
@@ -568,8 +574,8 @@ public:
 
 class LoadedH5Attr {
     struct Internal {
-        template<class Handle, typename T, class MemType>
-        static void read(const Handle& ahandle, T* buffer, const MemType& mem_type) {
+        template<class Handle_, typename Type_, class MemType_>
+        static void read(const Handle_& ahandle, Type_* buffer, const MemType_& mem_type) {
             ahandle.read(mem_type, buffer);
         } 
     };
@@ -647,7 +653,7 @@ std::vector<hsize_t> array_to_vector(const emscripten::val& input) {
     std::vector<hsize_t> dims;
     for (auto x : input) {
         auto d = x.template as<double>();
-        dims.push_back(d);
+        dims.push_back(js2int<hsize_t>(d));
     }
     return dims;
 }
@@ -678,12 +684,12 @@ H5::PredType choose_numeric_type(const std::string& type) {
     }
 }
 
-H5::StrType choose_string_type(const std::string& encoding, std::int64_t strlen_or_var) {
+H5::StrType choose_string_type(const std::string& encoding, JsFakeInt strlen_or_var) {
     H5::StrType stype;
     if (strlen_or_var < 0) {
         stype = H5::StrType(0, H5T_VARIABLE);
     } else {
-        stype = H5::StrType(0, std::max(static_cast<std::int64_t>(1), strlen_or_var)); // Make sure that is at least of length 1.
+        stype = H5::StrType(0, std::max(static_cast<std::size_t>(1), js2int<std::size_t>(strlen_or_var))); // Make sure that is at least of length 1.
     }
     if (encoding == "ASCII") {
         stype.setCset(H5T_CSET_ASCII);
@@ -766,7 +772,7 @@ H5::CompType choose_compound_type(const emscripten::val& members) {
         auto mode = type["mode"].template as<std::string>();
         if (mode == "string") {
             auto encoding = type["encoding"].template as<std::string>(); 
-            auto str_len = type["length"].template as<std::size_t>(); 
+            auto str_len = type["length"].template as<double>(); 
             all_types.emplace_back(std::move(name), offset, choose_string_type(encoding, str_len));
         } else if (mode == "numeric") {
             auto type2 = type["type"].template as<std::string>(); 
@@ -786,7 +792,7 @@ H5::CompType choose_compound_type(const emscripten::val& members) {
 
 /************* Dataset creation **************/
 
-void create_hdf5_dataset(const std::string& path, const std::string& name, const H5::DataType& dtype, const emscripten::val& shape, int32_t deflate_level, const emscripten::val& chunks) {
+void create_hdf5_dataset(const std::string& path, const std::string& name, const H5::DataType& dtype, const emscripten::val& shape, JsFakeInt deflate_level, const emscripten::val& chunks) {
     H5::DataSpace dspace;
     auto dims = array_to_vector(shape);
     if (!dims.empty()) { // if zero, it's a scalar, and the default DataSpace is correct.
@@ -804,7 +810,7 @@ void create_hdf5_dataset(const std::string& path, const std::string& name, const
 
  	H5::DSetCreatPropList plist;
     if (deflate_level >= 0 && dims.size() > 0 && all_nonzero) {
-        plist.setDeflate(deflate_level);
+        plist.setDeflate(js2int<int>(deflate_level));
         auto chunkdim = array_to_vector(chunks);
         plist.setChunk(chunkdim.size(), chunkdim.data());
     }
@@ -813,7 +819,7 @@ void create_hdf5_dataset(const std::string& path, const std::string& name, const
     handle.createDataSet(name, dtype, dspace, plist);
 }
 
-void create_numeric_hdf5_dataset(std::string path, std::string name, emscripten::val shape, int32_t deflate_level, emscripten::val chunks, std::string type) {
+void create_numeric_hdf5_dataset(std::string path, std::string name, emscripten::val shape, JsFakeInt deflate_level, emscripten::val chunks, std::string type) {
     try {
         create_hdf5_dataset(path, name, choose_numeric_type(type), shape, deflate_level, chunks);
     } catch (H5::Exception& e) {
@@ -821,7 +827,7 @@ void create_numeric_hdf5_dataset(std::string path, std::string name, emscripten:
     }
 }
 
-void create_string_hdf5_dataset(std::string path, std::string name, emscripten::val shape, std::int32_t deflate_level, emscripten::val chunks, std::string encoding, std::int64_t strlen_or_var) {
+void create_string_hdf5_dataset(std::string path, std::string name, emscripten::val shape, JsFakeInt deflate_level, emscripten::val chunks, std::string encoding, JsFakeInt strlen_or_var) {
     try {
         create_hdf5_dataset(path, name, choose_string_type(encoding, strlen_or_var), shape, deflate_level, chunks);
     } catch (H5::Exception& e) {
@@ -829,7 +835,7 @@ void create_string_hdf5_dataset(std::string path, std::string name, emscripten::
     }
 }
 
-void create_enum_hdf5_dataset(std::string path, std::string name, emscripten::val shape, int32_t deflate_level, emscripten::val chunks, std::string code_type, emscripten::val levels) {
+void create_enum_hdf5_dataset(std::string path, std::string name, emscripten::val shape, JsFakeInt deflate_level, emscripten::val chunks, std::string code_type, emscripten::val levels) {
     try {
         create_hdf5_dataset(path, name, choose_enum_type(code_type, levels), shape, deflate_level, chunks);
     } catch (H5::Exception& e) {
@@ -837,7 +843,7 @@ void create_enum_hdf5_dataset(std::string path, std::string name, emscripten::va
     }
 }
 
-void create_compound_hdf5_dataset(std::string path, std::string name, emscripten::val shape, int32_t deflate_level, emscripten::val chunks, emscripten::val members) {
+void create_compound_hdf5_dataset(std::string path, std::string name, emscripten::val shape, JsFakeInt deflate_level, emscripten::val chunks, emscripten::val members) {
     try {
         create_hdf5_dataset(path, name, choose_compound_type(members), shape, deflate_level, chunks);
     } catch (H5::Exception& e) {
@@ -879,7 +885,7 @@ void create_numeric_hdf5_attribute(std::string path, std::string name, std::stri
     }
 }
 
-void create_string_hdf5_attribute(std::string path, std::string name, std::string attr, emscripten::val shape, std::string encoding, std::int64_t strlen_or_var) {
+void create_string_hdf5_attribute(std::string path, std::string name, std::string attr, emscripten::val shape, std::string encoding, JsFakeInt strlen_or_var) {
     try {
         create_hdf5_attribute(path, name, attr, choose_string_type(encoding, strlen_or_var), shape);
     } catch (H5::Exception& e) {
@@ -906,19 +912,19 @@ void create_compound_hdf5_attribute(std::string path, std::string name, std::str
 /************* Writing utilities **************/
 
 template<class Reader_, class Handle_>
-void write_numeric_hdf5_base(Handle_& handle, const std::string& type, uintptr_t data) {
+void write_numeric_hdf5_base(Handle_& handle, const std::string& type, std::uintptr_t data) {
     if (type == "Uint8WasmArray") {
-        Reader_::write(handle, reinterpret_cast<const uint8_t*>(data), H5::PredType::NATIVE_UINT8);
+        Reader_::write(handle, reinterpret_cast<const std::uint8_t*>(data), H5::PredType::NATIVE_UINT8);
     } else if (type == "Int8WasmArray") {
-        Reader_::write(handle, reinterpret_cast<const int8_t*>(data), H5::PredType::NATIVE_INT8);
+        Reader_::write(handle, reinterpret_cast<const std::int8_t*>(data), H5::PredType::NATIVE_INT8);
     } else if (type == "Uint16WasmArray") {
-        Reader_::write(handle, reinterpret_cast<const uint16_t*>(data), H5::PredType::NATIVE_UINT16);
+        Reader_::write(handle, reinterpret_cast<const std::uint16_t*>(data), H5::PredType::NATIVE_UINT16);
     } else if (type == "Int16WasmArray") {
-        Reader_::write(handle, reinterpret_cast<const int16_t*>(data), H5::PredType::NATIVE_INT16);
+        Reader_::write(handle, reinterpret_cast<const std::int16_t*>(data), H5::PredType::NATIVE_INT16);
     } else if (type == "Uint32WasmArray") {
-        Reader_::write(handle, reinterpret_cast<const uint32_t*>(data), H5::PredType::NATIVE_UINT32);
+        Reader_::write(handle, reinterpret_cast<const std::uint32_t*>(data), H5::PredType::NATIVE_UINT32);
     } else if (type == "Int32WasmArray") {
-        Reader_::write(handle, reinterpret_cast<const int32_t*>(data), H5::PredType::NATIVE_INT32);
+        Reader_::write(handle, reinterpret_cast<const std::int32_t*>(data), H5::PredType::NATIVE_INT32);
     } else if (type == "Uint64WasmArray") {
         Reader_::write(handle, reinterpret_cast<const double*>(data), H5::PredType::NATIVE_UINT64);
     } else if (type == "Int64WasmArray") {
@@ -952,7 +958,7 @@ void write_string_hdf5_base(Handle_& handle, const emscripten::val& data) {
 
     } else {
         auto max_len = stype.getSize();
-        std::vector<char> temp(max_len * full_length, '\0');
+        std::vector<char> temp(sanisizer::product<typename std::vector<char>::size_type>(max_len, full_length), '\0');
         auto it = temp.data();
         for (auto x : data) {
             auto current = x.template as<std::string>();
@@ -965,10 +971,10 @@ void write_string_hdf5_base(Handle_& handle, const emscripten::val& data) {
 }
 
 template<class Writer_, class Handle_>
-void write_enum_hdf5_base(Handle_& handle, uintptr_t data) {
+void write_enum_hdf5_base(Handle_& handle, std::uintptr_t data) {
     auto itype = handle.getIntType();
-    bool is_unsigned = (itype.getSign() == H5T_SGN_NONE);
-    auto isize = itype.getSize();
+    const bool is_unsigned = (itype.getSign() == H5T_SGN_NONE);
+    const auto isize = itype.getSize();
 
     if (isize <= 1) {
         if (is_unsigned) {
@@ -1000,7 +1006,7 @@ void write_enum_hdf5_base(Handle_& handle, uintptr_t data) {
 
 template<class Writer_, class Handle_>
 void write_compound_hdf5_base(Handle_& handle, const emscripten::val& data) {
-    auto full_length = get_full_length(handle);
+    const auto full_length = get_full_length(handle);
     auto dtype = handle.getCompType();
     auto nmembers = dtype.getNmembers();
 
@@ -1020,8 +1026,8 @@ void write_compound_hdf5_base(Handle_& handle, const emscripten::val& data) {
     std::vector<CompactDetails> compact_members(nmembers);
 
     std::size_t offset = 0;
-    decltype(nmembers) num_vstrings = 0;
-    for (decltype(nmembers) m = 0; m < nmembers; ++m) {
+    I<decltype(nmembers)> num_vstrings = 0;
+    for (I<decltype(nmembers)> m = 0; m < nmembers; ++m) {
         auto& current = h5_members[m];
         current.name = dtype.getMemberName(m);
         current.offset = offset;
@@ -1054,9 +1060,9 @@ void write_compound_hdf5_base(Handle_& handle, const emscripten::val& data) {
     h5_members.clear();
 
     std::vector<unsigned char> payload;
-    payload.reserve(full_length * ctype.getSize());
+    payload.reserve(sanisizer::product<I<decltype(payload.size())> >(full_length, ctype.getSize()));
     std::vector<std::string> vstrings;
-    vstrings.reserve(full_length  * num_vstrings);
+    vstrings.reserve(sanisizer::product<I<decltype(vstrings.size())> >(full_length , num_vstrings));
 
     for (const auto& entry : data) {
         for (const auto& member : compact_members) {
@@ -1095,7 +1101,7 @@ struct DataSetHandleWriter {
     }
 };
 
-void write_numeric_hdf5_dataset(std::string path, std::string name, std::string type, uintptr_t data) {
+void write_numeric_hdf5_dataset(std::string path, std::string name, std::string type, std::uintptr_t data) {
     try {
         H5::H5File handle(path, H5F_ACC_RDWR);
         auto dhandle = handle.openDataSet(name);
@@ -1115,7 +1121,7 @@ void write_string_hdf5_dataset(std::string path, std::string name, emscripten::v
     }
 }
 
-void write_enum_hdf5_dataset(std::string path, std::string name, uintptr_t data) {
+void write_enum_hdf5_dataset(std::string path, std::string name, std::uintptr_t data) {
     try {
         H5::H5File handle(path, H5F_ACC_RDWR);
         auto dhandle = handle.openDataSet(name);
@@ -1138,14 +1144,14 @@ void write_compound_hdf5_dataset(std::string path, std::string name, const emscr
 /************* Attribute writers **************/
 
 struct AttributeHandleWriter {
-    template<class Handle, typename T, class MemType>
-    static void write(Handle& handle, T* data, const MemType& memtype) {
+    template<class Handle_, typename Type_, class MemType_>
+    static void write(Handle_& handle, Type_* data, const MemType_& memtype) {
         handle.write(memtype, data);
     }
 };
 
-template<class Function>
-void write_hdf5_attribute(const std::string& path, const std::string& name, const std::string& attr, Function writer) {
+template<class Function_>
+void write_hdf5_attribute(const std::string& path, const std::string& name, const std::string& attr, Function_ writer) {
     H5::H5File handle(path, H5F_ACC_RDWR);
 
     auto child_type = handle.childObjType(name);
@@ -1162,11 +1168,16 @@ void write_hdf5_attribute(const std::string& path, const std::string& name, cons
     }
 }
 
-void write_numeric_hdf5_attribute(std::string path, std::string name, std::string attr, std::string type, uintptr_t data) {
+void write_numeric_hdf5_attribute(std::string path, std::string name, std::string attr, std::string type, std::uintptr_t data) {
     try {
-        write_hdf5_attribute(path, name, attr, [&](auto& ahandle) -> void {
-            write_numeric_hdf5_base<AttributeHandleWriter>(ahandle, type, data);
-        });
+        write_hdf5_attribute(
+            path,
+            name,
+            attr,
+            [&](auto& ahandle) -> void {
+                write_numeric_hdf5_base<AttributeHandleWriter>(ahandle, type, data);
+            }
+        );
     } catch (H5::Exception& e) {
         throw std::runtime_error(e.getCDetailMsg());
     }
@@ -1174,19 +1185,29 @@ void write_numeric_hdf5_attribute(std::string path, std::string name, std::strin
 
 void write_string_hdf5_attribute(std::string path, std::string name, std::string attr, emscripten::val data) {
     try {
-        write_hdf5_attribute(path, name, attr, [&](auto& ahandle) -> void {
-            write_string_hdf5_base<AttributeHandleWriter>(ahandle, data);
-        });
+        write_hdf5_attribute(
+            path,
+            name,
+            attr,
+            [&](auto& ahandle) -> void {
+                write_string_hdf5_base<AttributeHandleWriter>(ahandle, data);
+            }
+        );
     } catch (H5::Exception& e) {
         throw std::runtime_error(e.getCDetailMsg());
     }
 }
 
-void write_enum_hdf5_attribute(std::string path, std::string name, std::string attr, uintptr_t data) {
+void write_enum_hdf5_attribute(std::string path, std::string name, std::string attr, std::uintptr_t data) {
     try {
-        write_hdf5_attribute(path, name, attr, [&](auto& ahandle) -> void {
-            write_enum_hdf5_base<AttributeHandleWriter>(ahandle, data);
-        });
+        write_hdf5_attribute(
+            path,
+            name,
+            attr,
+            [&](auto& ahandle) -> void {
+                write_enum_hdf5_base<AttributeHandleWriter>(ahandle, data);
+            }
+        );
     } catch (H5::Exception& e) {
         throw std::runtime_error(e.getCDetailMsg());
     }
@@ -1194,9 +1215,14 @@ void write_enum_hdf5_attribute(std::string path, std::string name, std::string a
 
 void write_compound_hdf5_attribute(std::string path, std::string name, std::string attr, const emscripten::val& data) {
     try {
-        write_hdf5_attribute(path, name, attr, [&](auto& ahandle) -> void {
-            write_compound_hdf5_base<AttributeHandleWriter>(ahandle, data);
-        });
+        write_hdf5_attribute(
+            path,
+            name,
+            attr,
+            [&](auto& ahandle) -> void {
+                write_compound_hdf5_base<AttributeHandleWriter>(ahandle, data);
+            }
+        );
     } catch (H5::Exception& e) {
         throw std::runtime_error(e.getCDetailMsg());
     }
@@ -1204,7 +1230,7 @@ void write_compound_hdf5_attribute(std::string path, std::string name, std::stri
 
 /************* String length guessers **************/
 
-double get_max_str_len(emscripten::val x) {
+JsFakeInt get_max_str_len(emscripten::val x) {
     std::size_t strlen = 0;
     for (auto y : x) {
         if (y.isString()) {
@@ -1214,7 +1240,7 @@ double get_max_str_len(emscripten::val x) {
             }
         }
     }
-    return static_cast<double>(strlen); // hopefully it fits, who knows?
+    return int2js(strlen);
 }
 
 emscripten::val get_max_str_len_compound(emscripten::val x, emscripten::val fields) {
@@ -1237,7 +1263,7 @@ emscripten::val get_max_str_len_compound(emscripten::val x, emscripten::val fiel
 
     auto output = emscripten::val::array();
     for (const auto& t : to_access) {
-        output.call<void>("push", emscripten::val(static_cast<double>(t.second))); // hopefully it fits, who knows.
+        output.call<void>("push", int2js(t.second));
     }
     return output;
 }

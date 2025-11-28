@@ -5,59 +5,52 @@
 #include <cstdint>
 
 #include "build_snn_graph.h"
+#include "utils.h"
 
 #include "scran_graph_cluster/scran_graph_cluster.hpp"
+#include "sanisizer/sanisizer.hpp"
 
-struct ClusterMultilevelResult {
-    std::vector<double> modularity_by_level;
-    int32_t best = 0;
+class ClusterMultilevelResult {
+    typedef scran_graph_cluster::ClusterMultilevelResults Store;
 
-    std::vector<int32_t> membership_best;
-    std::vector<int32_t> membership_by_level;
+    Store my_store;
+    std::size_t my_best = 0;
+    raiigraph::IntegerVector my_buffer;
 
 public:
-    ClusterMultilevelResult(scran_graph_cluster::ClusterMultilevelResults store) :
-        modularity_by_level(store.modularity.begin(), store.modularity.end()),
-        membership_best(store.membership.begin(), store.membership.end())
-    {
-        if (modularity_by_level.size()) {
-            best = std::max_element(modularity_by_level.begin(), modularity_by_level.end()) - modularity_by_level.begin();
-        }
-
-        size_t NR = store.levels.nrow(), NC = store.levels.ncol();
-        membership_by_level.resize(NR * NC);
-        auto lIt = membership_by_level.begin();
-        for (size_t r = 0; r < NR; ++r, lIt += NC) {
-            auto row = store.levels.row(r);
-            std::copy(row.begin(), row.end(), lIt);
+    ClusterMultilevelResult(scran_graph_cluster::ClusterMultilevelResults store) : my_store(std::move(store)) {
+        if (store.modularity.size()) {
+            sanisizer::can_ptrdiff<I<decltype(store.modularity.begin())> >(store.modularity.size());
+            my_best = std::max_element(my_store.modularity.begin(), my_store.modularity.end()) - my_store.modularity.begin();
         }
     }
 
 public:
-    int32_t num_levels() const {
-        return modularity_by_level.size();
+    JsFakeInt num_levels() const {
+        return int2js(my_store.modularity.size());
     }
 
-    int32_t best_level() const {
-        return best;
+    JsFakeInt best_level() const {
+        return int2js(my_best);
     }
 
-    double modularity(int32_t i) const {
-        if (i < 0) {
-            i = best;
-        }
-        return modularity_by_level[i];
+    double modularity(JsFakeInt i_raw) const {
+        return my_store.modularity[js2int<std::size_t>(i_raw)];
     }
 
-    emscripten::val membership(int32_t i) const {
-        size_t NC = membership_best.size();
-        const int32_t* ptr;
-        if (i < 0) {
-            ptr = membership_best.data();
-        } else {
-            ptr = membership_by_level.data() + NC * static_cast<size_t>(i);
-        }
-        return emscripten::val(emscripten::typed_memory_view(NC, ptr));
+    emscripten::val membership(JsFakeInt i_raw) {
+        sanisizer::resize(my_buffer, my_store.levels.nrow());
+        auto row = my_store.levels.row(js2int<std::size_t>(i_raw));
+        std::copy(row.begin(), row.end(), my_buffer.begin());
+        return emscripten::val(emscripten::typed_memory_view(my_buffer.size(), my_buffer.data()));
+    }
+
+    double best_modularity() const {
+        return my_store.modularity[my_best];
+    }
+
+    emscripten::val best_membership() const {
+        return emscripten::val(emscripten::typed_memory_view(my_store.membership.size(), my_store.membership.data()));
     }
 };
 
@@ -70,67 +63,79 @@ ClusterMultilevelResult cluster_multilevel(const BuildSnnGraphResult& graph, dou
 
 /**********************************/
 
-struct ClusterWalktrapResult {
+class ClusterWalktrapResult {
     typedef scran_graph_cluster::ClusterWalktrapResults Store;
 
-    Store store;
-    int32_t best = 0; 
+    Store my_store;
+    std::size_t my_best = 0; 
 
 public:
-    ClusterWalktrapResult(Store s) : store(std::move(s)) {
-        if (store.modularity.size()) {
-            best = std::max_element(store.modularity.begin(), store.modularity.end()) - store.modularity.begin();
+    ClusterWalktrapResult(Store s) : my_store(std::move(s)) {
+        if (my_store.modularity.size()) {
+            sanisizer::can_ptrdiff<I<decltype(my_store.modularity.begin())> >(my_store.modularity.size());
+            my_best = std::max_element(my_store.modularity.begin(), my_store.modularity.end()) - my_store.modularity.begin();
         }
     }
 
 public:
-    int32_t num_merge_steps() const {
-        return store.merges.size();
+    JsFakeInt num_merge_steps() const {
+        return int2js(my_store.merges.size());
     }
 
-    double modularity(int32_t i) const {
-        if (i < 0) {
-            i = best;
-        }
-        return store.modularity[i];
+    double modularity(JsFakeInt i_raw) const {
+        return my_store.modularity[js2int<std::size_t>(i_raw)];
+    }
+
+    double best_modularity() const {
+        return my_store.modularity[my_best];
     }
 
     emscripten::val membership() const {
-        return emscripten::val(emscripten::typed_memory_view(store.membership.size(), store.membership.data()));
+        return emscripten::val(emscripten::typed_memory_view(my_store.membership.size(), my_store.membership.data()));
     }
 };
 
-ClusterWalktrapResult cluster_walktrap(const BuildSnnGraphResult& graph, int32_t steps) {
+ClusterWalktrapResult cluster_walktrap(const BuildSnnGraphResult& graph, JsFakeInt steps_raw) {
     scran_graph_cluster::ClusterWalktrapOptions opt;
-    opt.steps = steps;
+    opt.steps = js2int<igraph_int_t>(steps_raw);
     auto output = scran_graph_cluster::cluster_walktrap(graph.graph, graph.weights, opt);
     return ClusterWalktrapResult(std::move(output));
 }
 
 /**********************************/
 
-struct ClusterLeidenResult {
+class ClusterLeidenResult {
     typedef scran_graph_cluster::ClusterLeidenResults Store;
 
-    Store store;
+    Store my_store;
 
 public:
-    ClusterLeidenResult(Store s) : store(std::move(s)) {}
+    ClusterLeidenResult(Store s) : my_store(std::move(s)) {}
 
 public:
     double quality() const {
-        return store.quality;
+        return my_store.quality;
     }
 
     emscripten::val membership() const {
-        return emscripten::val(emscripten::typed_memory_view(store.membership.size(), store.membership.data()));
+        return emscripten::val(emscripten::typed_memory_view(my_store.membership.size(), my_store.membership.data()));
     }
 };
 
-ClusterLeidenResult cluster_leiden(const BuildSnnGraphResult& graph, double resolution, bool use_modularity) {
+ClusterLeidenResult cluster_leiden(const BuildSnnGraphResult& graph, double resolution, std::string objective) {
     scran_graph_cluster::ClusterLeidenOptions opt;
     opt.resolution = resolution;
-    opt.modularity = use_modularity;
+
+    if (objective == "modularity") {
+        opt.objective = IGRAPH_LEIDEN_OBJECTIVE_MODULARITY;
+    } else if (objective == "cpm") {
+        opt.objective = IGRAPH_LEIDEN_OBJECTIVE_CPM;
+    } else if (objective == "er") {
+        opt.objective = IGRAPH_LEIDEN_OBJECTIVE_ER;
+    } else {
+        throw std::runtime_error("unknown objective '" + objective + "'");
+    }
+
     auto output = scran_graph_cluster::cluster_leiden(graph.graph, graph.weights, opt);
     return ClusterLeidenResult(std::move(output));
 }
@@ -145,6 +150,8 @@ EMSCRIPTEN_BINDINGS(cluster_graph) {
         .function("best_level", &ClusterMultilevelResult::best_level, emscripten::return_value_policy::take_ownership())
         .function("modularity", &ClusterMultilevelResult::modularity, emscripten::return_value_policy::take_ownership())
         .function("membership", &ClusterMultilevelResult::membership, emscripten::return_value_policy::take_ownership())
+        .function("best_modularity", &ClusterMultilevelResult::best_modularity, emscripten::return_value_policy::take_ownership())
+        .function("best_membership", &ClusterMultilevelResult::best_membership, emscripten::return_value_policy::take_ownership())
         ;
 
     emscripten::function("cluster_walktrap", &cluster_walktrap, emscripten::return_value_policy::take_ownership());

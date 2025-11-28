@@ -24,14 +24,9 @@ import * as wasm from "./wasm.js";
  * @param {?number} [options.numberOfCells=null] - Number of cells in `x`.
  * This should be specified if an array-like object is provided, otherwise it is ignored.
  * @param {number} [options.k=15] - Number of neighbors to use in the MNN search. 
- * @param {number} [options.numberOfMADs=3] - Number of MADs to use to define the threshold on the distances to the neighbors,
- * see comments [here](https://ltla.github.io/CppMnnCorrect).
- * @param {number} [options.robustIterations=2] - Number of robustness iterations to use for computing the center of mass,
- * see comments [here](https://ltla.github.io/CppMnnCorrect).
- * @param {number} [options.robustTrim=0.25] - Proportion of furthest observations to remove during robustness iterations, 
- * see comments [here](https://ltla.github.io/CppMnnCorrect).
- * @param {string} [options.referencePolicy="max-rss"] - What policy to use to choose the first reference batch.
- * This can be the largest batch (`"max-size"`), the most variable batch (`"max-variance"`), the batch with the highest RSS (`"max-rss"`) or batch 0 in `block` (`"input"`).
+ * @param {number} [options.steps=1] - Number of steps to take in the nearest neighbor graph when computing the center of mass for each cell in an MNN pair.
+ * @param {string} [options.mergePolicy="rss"] - What policy to use for ordering the batches to be merged.
+ * Options are to use the size (`"size"`), the variance (`"variance"`), the residual sum of squares (`"rss"`) or the input order (`"input"`).
  * @param {boolean} [options.approximate=true] - Whether to perform an approximate nearest neighbor search.
  * @param {?number} [options.numberOfThreads=null] - Number of threads to use.
  * If `null`, defaults to {@linkcode maximumThreads}.
@@ -47,10 +42,12 @@ export function mnnCorrect(x, block, options = {}) {
         numberOfDims = null,
         numberOfCells = null,
         k = 15,
-        numberOfMADs = 3, 
-        robustIterations = 2, 
-        robustTrim = 0.25,
-        referencePolicy = "max-rss",
+        steps = 1,
+        numberOfMADs = 3, // back-compatibility
+        robustIterations = null,  // back-compatibility
+        robustTrim = null, // back-compatibility
+        referencePolicy = null, // back-compatibility
+        mergePolicy = "rss",
         approximate = true,
         numberOfThreads = null,
         ...others
@@ -61,6 +58,11 @@ export function mnnCorrect(x, block, options = {}) {
     let x_data;
     let block_data;
     let nthreads = utils.chooseNumberOfThreads(numberOfThreads);
+
+    if (referencePolicy !== null) {
+        console.warning("'referencePolicy=' is deprecated, use 'mergePolicy' instead");
+        mergePolicy = referencePolicy.replace(/^max-/, "");
+    }
 
     try {
         if (x instanceof RunPcaResults) {
@@ -94,10 +96,8 @@ export function mnnCorrect(x, block, options = {}) {
             block_data.offset,
             buffer.offset,
             k,
-            numberOfMADs,
-            robustIterations,
-            robustTrim,
-            referencePolicy,
+            steps,
+            mergePolicy,
             approximate,
             nthreads
         ));

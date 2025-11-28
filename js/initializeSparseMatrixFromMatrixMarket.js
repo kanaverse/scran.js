@@ -69,25 +69,16 @@ export function extractMatrixMarketDimensions(x, options = {}) {
     utils.checkOtherOptions(others);
 
     var buf_data;
-    var stats = utils.createFloat64WasmArray(3);
-    let output = {};
-
+    let output;
     try {
         if (typeof x !== "string") {
             buf_data = utils.wasmifyArray(x, "Uint8WasmArray");
-            wasm.call(module => module.read_header_from_mtx_buffer(buf_data.offset, buf_data.length, compression, stats.offset));
+            output = wasm.call(module => module.read_header_from_mtx_buffer(buf_data.offset, buf_data.length, compression));
         } else {
-            wasm.call(module => module.read_header_from_mtx_file(x, compression, stats.offset));
+            output = wasm.call(module => module.read_header_from_mtx_file(x, compression));
         }
-
-        let sarr = stats.array();
-        output.rows = sarr[0];
-        output.columns = sarr[1];
-        output.lines = sarr[2];
-
     } finally {
         utils.free(buf_data);
-        utils.free(stats);
     }
 
     return output;

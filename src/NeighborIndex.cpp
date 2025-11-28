@@ -6,41 +6,63 @@
 #include "knncolle_annoy/knncolle_annoy.hpp"
 
 #include <algorithm>
+#include <cstdint>
+#include <cstddef>
 
-std::unique_ptr<knncolle::Builder<knncolle::SimpleMatrix<int32_t, int32_t, double>, double> > create_builder(bool approximate) {
-    std::unique_ptr<knncolle::Builder<knncolle::SimpleMatrix<int32_t, int32_t, double>, double> > builder;
+std::unique_ptr<knncolle::Builder<std::int32_t, double, double, knncolle::SimpleMatrix<std::int32_t, double> > > create_builder(bool approximate) {
     if (approximate) {
         knncolle_annoy::AnnoyOptions opt;
-        builder.reset(new knncolle_annoy::AnnoyBuilder<Annoy::Euclidean>(opt));
+        return std::make_unique<
+            knncolle_annoy::AnnoyBuilder<
+                std::int32_t,
+                double,
+                double,
+                Annoy::Euclidean,
+                /* AnnoyIndex_ = */ std::int32_t,
+                /* AnnoyData_ = */ float,
+                /* AnnoyRng_ = */ Annoy::Kiss64Random,
+                /* AnnoyThreadPolicy_ = */ Annoy::AnnoyIndexSingleThreadedBuildPolicy,
+                /* Matrix_ = */ knncolle::SimpleMatrix<std::int32_t, double>
+            >
+        >(opt);
     } else {
-        builder.reset(new knncolle::VptreeBuilder<knncolle::EuclideanDistance>);
+        return std::make_unique<
+            knncolle::VptreeBuilder<
+                std::int32_t,
+                double,
+                double,
+                knncolle::SimpleMatrix<std::int32_t, double>,
+                knncolle::EuclideanDistance<double, double>
+            >
+        >(
+            std::make_shared<knncolle::EuclideanDistance<double, double> >()
+        );
     }
-    return builder;
 }
 
-NeighborIndex build_neighbor_index(uintptr_t mat, int32_t nr, int32_t nc, bool approximate) {
+NeighborIndex build_neighbor_index(std::uintptr_t mat, JsFakeInt nr_raw, JsFakeInt nc_raw, bool approximate) {
     auto builder = create_builder(approximate);
     NeighborIndex output;
     const double* ptr = reinterpret_cast<const double*>(mat);
-    output.index = builder->build_unique(knncolle::SimpleMatrix<int32_t, int32_t, double>(nr, nc, ptr));
+    output.index = builder->build_unique(knncolle::SimpleMatrix<std::int32_t, double>(js2int<std::size_t>(nr_raw), js2int<std::int32_t>(nc_raw), ptr));
     return output;
 }
 
-NeighborResults find_nearest_neighbors(const NeighborIndex& index, int32_t k, int32_t nthreads) {
+NeighborResults find_nearest_neighbors(const NeighborIndex& index, JsFakeInt k_raw, JsFakeInt nthreads_raw) {
     NeighborResults output;
-    output.neighbors = knncolle::find_nearest_neighbors(*(index.index), k, nthreads);
+    output.neighbors = knncolle::find_nearest_neighbors(*(index.index), js2int<int>(k_raw), js2int<int>(nthreads_raw));
     return output;
 }
 
-NeighborResults truncate_nearest_neighbors(const NeighborResults& original, int32_t k) {
+NeighborResults truncate_nearest_neighbors(const NeighborResults& original, JsFakeInt k_raw) {
     NeighborResults output;
-    size_t nobs = original.neighbors.size();
+    const auto nobs = original.neighbors.size();
     output.neighbors.resize(nobs);
-    size_t desired = static_cast<size_t>(k);
-    for (size_t i = 0; i <nobs; ++i) {
+    const auto desired = js2int<int>(k_raw);
+    for (I<decltype(nobs)> i = 0; i < nobs; ++i) {
         const auto& current = original.neighbors[i];
         auto& curout = output.neighbors[i];
-        size_t size = std::min(current.size(), desired);
+        const auto size = sanisizer::min(current.size(), desired);
         curout.insert(curout.end(), current.begin(), current.begin() + size);
     }
     return output;

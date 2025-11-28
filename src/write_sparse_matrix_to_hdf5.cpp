@@ -7,6 +7,7 @@
 #include "H5Cpp.h"
 #include "tatami_hdf5/tatami_hdf5.hpp"
 
+#include <string>
 #include <filesystem>
 
 void write_sparse_matrix_to_hdf5(const NumericMatrix& mat, std::string path, std::string name, bool csc, bool force_integer, bool overwrite) {
@@ -25,7 +26,7 @@ void write_sparse_matrix_to_hdf5(const NumericMatrix& mat, std::string path, std
     params.force_integer = force_integer;
 
     auto ghandle = fhandle.createGroup(name);
-    tatami_hdf5::write_compressed_sparse_matrix(mat.ptr.get(), ghandle, params);
+    tatami_hdf5::write_compressed_sparse_matrix(mat.ptr().get(), ghandle, params);
 }
 
 EMSCRIPTEN_BINDINGS(write_sparse_matrix_to_hdf5) {

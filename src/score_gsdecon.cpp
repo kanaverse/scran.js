@@ -8,44 +8,52 @@
 #include <vector>
 #include <string>
 
-struct GsdeconResults {
+class GsdeconResults {
     typedef gsdecon::Results<double> Store;
 
-    Store store;
+    Store my_store;
 
 public:
-    GsdeconResults(Store s) : store(std::move(s)) {}
+    GsdeconResults(Store s) : my_store(std::move(s)) {}
 
 public:
     emscripten::val weights() const {
-        const auto& current = store.weights;
+        const auto& current = my_store.weights;
         return emscripten::val(emscripten::typed_memory_view(current.size(), current.data()));
     }
 
     emscripten::val scores() const {
-        const auto& current = store.scores;
+        const auto& current = my_store.scores;
         return emscripten::val(emscripten::typed_memory_view(current.size(), current.data()));
     }
 };
 
-GsdeconResults score_gsdecon(const NumericMatrix& mat, uintptr_t subset, bool use_blocks, uintptr_t blocks, bool scale, std::string weight_policy, int32_t nthreads) {
-    int32_t NR = mat.ptr->nrow();
-    auto subptr = reinterpret_cast<const uint8_t*>(subset);
-    std::vector<int32_t> keep;
-    for (int32_t r = 0; r < NR; ++r) {
+GsdeconResults score_gsdecon(
+    const NumericMatrix& mat,
+    std::uintptr_t subset,
+    bool use_blocks,
+    std::uintptr_t blocks,
+    bool scale,
+    std::string weight_policy,
+    JsFakeInt nthreads_raw
+) {
+    const auto NR = mat.nrow();
+    auto subptr = reinterpret_cast<const std::uint8_t*>(subset);
+    std::vector<I<decltype(NR)> > keep;
+    for (I<decltype(NR)> r = 0; r < NR; ++r) {
         if (subptr[r]) {
             keep.push_back(r);
         }
     }
-    auto ptr = tatami::make_DelayedSubset(mat.ptr, std::move(keep), true);
+    auto ptr = tatami::make_DelayedSubset(mat.ptr(), std::move(keep), true);
 
     gsdecon::Options opt;
     opt.scale = scale;
-    opt.num_threads = nthreads;
+    opt.num_threads = js2int<int>(nthreads_raw);
     opt.block_weight_policy = translate_block_weight_policy(weight_policy);
 
     if (use_blocks) {
-        auto store = gsdecon::compute_blocked(*ptr, reinterpret_cast<const int32_t*>(blocks), opt);
+        auto store = gsdecon::compute_blocked(*ptr, reinterpret_cast<const std::int32_t*>(blocks), opt);
         return GsdeconResults(std::move(store));
     } else {
         auto store = gsdecon::compute(*ptr, opt);

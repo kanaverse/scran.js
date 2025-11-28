@@ -3,13 +3,13 @@
 set -e
 set -u
 
-HDF5_VERSION=1.14.5
-HDF5_HASH=ec2e13c52e60f9a01491bb3158cb3778c985697131fc6a342262d32a26e58e44
+HDF5_VERSION=2.0.0
+HDF5_HASH=f4c2edc5668fb846627182708dbe1e16c60c467e63177a75b0b9f12c19d7efed
 SOURCE_DIR=hdf5-${HDF5_VERSION}
 
 if [[ ! -e ${SOURCE_DIR} ]]
 then
-    wget -q https://github.com/HDFGroup/hdf5/releases/download/hdf5_${HDF5_VERSION}/hdf5-${HDF5_VERSION}.tar.gz -O hdf5.tar.gz
+    wget -q https://github.com/HDFGroup/hdf5/releases/download/${HDF5_VERSION}/hdf5-${HDF5_VERSION}.tar.gz -O hdf5.tar.gz
     OBSERVED_HASH=($(shasum -a 256 hdf5.tar.gz))
     if [[ ${OBSERVED_HASH} != ${HDF5_HASH} ]]
     then
@@ -17,13 +17,6 @@ then
         exit 1
     fi
     tar -xf hdf5.tar.gz
-
-    # Some source-editing shenanigans are required to deal with the lack of
-    # FE_INVALID in Emscripten, see emscripten-core/emscripten#22005. Hey,
-    # I don't make the rules.
-    offender=${SOURCE_DIR}/src/H5Tinit_float.c 
-    cat ${offender} | sed "s/feclearexcept(FE_INVALID)/0/" > tmp
-    mv tmp ${offender}
 fi
 
 BUILD_DIR=build-${HDF5_VERSION}
@@ -45,7 +38,7 @@ then
         -DHDF5_BUILD_TOOLS=OFF \
         -DHDF5_BUILD_UTILS=OFF \
         -DHDF5_BUILD_CPP_LIB=ON \
-        -DHDF5_ENABLE_Z_LIB_SUPPORT=ON \
+        -DHDF5_ENABLE_ZLIB_SUPPORT=ON \
         -DZLIB_USE_EXTERNAL=OFF \
         -DHDF5_ENABLE_SZIP_SUPPORT=OFF
 fi

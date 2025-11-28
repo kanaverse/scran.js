@@ -1,51 +1,50 @@
 #include <emscripten/bind.h>
 
 #include <cstdint>
+#include <cstddef>
 
 #include "NeighborIndex.h"
+#include "utils.h"
+
 #include "mnncorrect/mnncorrect.hpp"
 
 void mnn_correct(
-    size_t nrows, 
-    size_t ncols, 
-    uintptr_t input, 
-    uintptr_t batch, 
-    uintptr_t output,
-    int32_t k, 
-    double nmads, 
-    int32_t riters, 
-    double rtrim,
-    std::string ref_policy, 
+    JsFakeInt nrows_raw, 
+    JsFakeInt ncols_raw, 
+    std::uintptr_t input, 
+    std::uintptr_t batch, 
+    std::uintptr_t output,
+    JsFakeInt k_raw, 
+    JsFakeInt steps_raw,
+    std::string merge_policy, 
     bool approximate,
-    int32_t nthreads)
-{
-    auto bptr = reinterpret_cast<const int32_t*>(batch);
+    JsFakeInt nthreads_raw
+) {
+    auto bptr = reinterpret_cast<const std::int32_t*>(batch);
     auto iptr = reinterpret_cast<const double*>(input);
     auto optr = reinterpret_cast<double*>(output);
 
-    mnncorrect::Options options;
-    options.num_neighbors = k;
-    options.num_mads = nmads;
-    options.robust_iterations = riters;
-    options.robust_trim = rtrim;
-    options.num_threads = nthreads;
+    mnncorrect::Options<std::int32_t, double, knncolle::SimpleMatrix<std::int32_t, double> > options;
+    options.num_neighbors = js2int<int>(k_raw);
+    options.num_steps = js2int<int>(steps_raw);
+    options.num_threads = js2int<int>(nthreads_raw);
     options.builder = create_builder(approximate);
 
-    if (ref_policy == "max-variance") {
-        options.reference_policy = mnncorrect::ReferencePolicy::MAX_VARIANCE;
-    } else if (ref_policy == "max-rss") {
-        options.reference_policy = mnncorrect::ReferencePolicy::MAX_RSS;
-    } else if (ref_policy == "max-size") {
-        options.reference_policy = mnncorrect::ReferencePolicy::MAX_SIZE;
-    } else if (ref_policy == "input") {
-        options.reference_policy = mnncorrect::ReferencePolicy::INPUT;
+    if (merge_policy == "variance") {
+        options.merge_policy = mnncorrect::MergePolicy::VARIANCE;
+    } else if (merge_policy == "rss") {
+        options.merge_policy = mnncorrect::MergePolicy::RSS;
+    } else if (merge_policy == "size") {
+        options.merge_policy = mnncorrect::MergePolicy::SIZE;
+    } else if (merge_policy == "input") {
+        options.merge_policy = mnncorrect::MergePolicy::INPUT;
     } else {
-        throw std::runtime_error("unknown reference policy '" + ref_policy + "'");
+        throw std::runtime_error("unknown reference policy '" + merge_policy + "'");
     }
 
     mnncorrect::compute(
-        nrows,
-        ncols,
+        js2int<std::size_t>(nrows_raw),
+        js2int<std::int32_t>(ncols_raw),
         iptr,
         bptr,
         optr,

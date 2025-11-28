@@ -9,7 +9,8 @@
 #include <vector>
 #include <cstdint>
 
-void center_size_factors(size_t n, uintptr_t ptr, bool use_blocks, uintptr_t blocks, bool to_lowest_block) {
+void center_size_factors(JsFakeInt n_raw, std::uintptr_t ptr, bool use_blocks, std::uintptr_t blocks, bool to_lowest_block) {
+    const auto n = js2int<std::size_t>(n_raw);
     scran_norm::CenterSizeFactorsOptions opt;
     if (use_blocks) {
         opt.block_mode = (to_lowest_block ? scran_norm::CenterBlockMode::LOWEST : scran_norm::CenterBlockMode::PER_BLOCK);
@@ -19,7 +20,7 @@ void center_size_factors(size_t n, uintptr_t ptr, bool use_blocks, uintptr_t blo
     }
 }
 
-NumericMatrix normalize_counts(const NumericMatrix& mat, uintptr_t size_factors, bool log, bool allow_zero, bool allow_non_finite) {
+NumericMatrix normalize_counts(const NumericMatrix& mat, std::uintptr_t size_factors, bool log, bool allow_zero, bool allow_non_finite) {
     const double* sfptr = reinterpret_cast<const double*>(size_factors);
     std::vector<double> sf(sfptr, sfptr + mat.ncol());
 
@@ -35,7 +36,7 @@ NumericMatrix normalize_counts(const NumericMatrix& mat, uintptr_t size_factors,
 
     scran_norm::NormalizeCountsOptions norm_opt;
     norm_opt.log = log;
-    return NumericMatrix(scran_norm::normalize_counts(mat.ptr, std::move(sf), norm_opt));
+    return NumericMatrix(scran_norm::normalize_counts(mat.ptr(), std::move(sf), norm_opt));
 }
 
 EMSCRIPTEN_BINDINGS(normalize_counts) {

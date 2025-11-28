@@ -2,6 +2,9 @@
 #define RDS_UTILS_H
 
 #include <emscripten.h>
+
+#include "utils.h"
+
 #include "rds2cpp/rds2cpp.hpp"
 
 class RdsObject {
@@ -31,14 +34,14 @@ public:
     }
 
 private:
-    template<class Vector>
-    int32_t size_() const {
-        auto xptr = static_cast<const Vector*>(ptr);
-        return xptr->data.size();
+    template<class Vector_>
+    JsFakeInt size_() const {
+        auto xptr = static_cast<const Vector_*>(ptr);
+        return int2js(xptr->data.size());
     }
 
 public:
-    int32_t size() const {
+    JsFakeInt size() const {
         switch (ptr->type()) {
             case rds2cpp::SEXPType::INT:
                 return size_<rds2cpp::IntegerVector>();
@@ -57,9 +60,9 @@ public:
     }
 
 private:
-    template<class Vector>
+    template<class Vector_>
     emscripten::val numeric_vector_() const {
-        auto xptr = static_cast<const Vector*>(ptr);
+        auto xptr = static_cast<const Vector_*>(ptr);
         return emscripten::val(emscripten::typed_memory_view(xptr->data.size(), xptr->data.data()));
     }
 
@@ -98,9 +101,6 @@ public:
     }
 
 private:
-    std::vector<char> attribute_names_buffer_;
-    std::vector<int32_t> attribute_names_lengths_;
-
     template<class AttrClass>
     emscripten::val extract_attribute_names() {
         auto aptr = static_cast<const AttrClass*>(ptr);
@@ -128,46 +128,54 @@ public:
     }
 
 private:
-    template<class AttrClass>
-    int32_t find_attribute_(const std::string& name) const {
-        auto aptr = static_cast<const AttrClass*>(ptr);
+    template<class Attr_>
+    std::optional<std::size_t> find_attribute_raw(const std::string& name) const {
+        auto aptr = static_cast<const Attr_*>(ptr);
         const auto& attr_names = aptr->attributes.names;
-
-        for (size_t i = 0; i < attr_names.size(); ++i) {
+        const auto nattr = attr_names.size();
+        for (I<decltype(nattr)> i = 0; i < nattr; ++i) {
             if (attr_names[i] == name) {
-                return i;                                
+                return sanisizer::cast<std::size_t>(i);
             }
         }
-
-        return -1;
+        return {};
     }
 
-public:
-    int32_t find_attribute(std::string name) const {
+    std::optional<std::size_t> find_attribute_internal(std::string name) const {
         switch (ptr->type()) {
             case rds2cpp::SEXPType::INT:
-                return find_attribute_<rds2cpp::IntegerVector>(name);
+                return find_attribute_raw<rds2cpp::IntegerVector>(name);
             case rds2cpp::SEXPType::REAL:
-                return find_attribute_<rds2cpp::DoubleVector>(name);
+                return find_attribute_raw<rds2cpp::DoubleVector>(name);
             case rds2cpp::SEXPType::LGL:
-                return find_attribute_<rds2cpp::LogicalVector>(name);
+                return find_attribute_raw<rds2cpp::LogicalVector>(name);
             case rds2cpp::SEXPType::STR:
-                return find_attribute_<rds2cpp::StringVector>(name);
+                return find_attribute_raw<rds2cpp::StringVector>(name);
             case rds2cpp::SEXPType::VEC:
-                return find_attribute_<rds2cpp::GenericVector>(name);
+                return find_attribute_raw<rds2cpp::GenericVector>(name);
             case rds2cpp::SEXPType::S4:
-                return find_attribute_<rds2cpp::S4Object>(name);
+                return find_attribute_raw<rds2cpp::S4Object>(name);
             default:
                 break;
         }
-        return -1;
+        return {};
+    }
+
+public:
+    JsFakeInt find_attribute(const std::string& name) const {
+        auto found = find_attribute_internal(name);
+        if (found.has_value()) {
+            return int2js(*found);
+        } else {
+            return -1;
+        }
     }
 
 private:
-    template<class AttrClass>
-    RdsObject load_attribute_(int32_t i) const {
-        auto aptr = static_cast<const AttrClass*>(ptr);
-        if (static_cast<size_t>(i) >= aptr->attributes.values.size()) {
+    template<class Attr_>
+    RdsObject load_attribute_(std::size_t i) const {
+        auto aptr = static_cast<const Attr_*>(ptr);
+        if (i >= aptr->attributes.values.size()) {
             throw std::runtime_error("requested attribute index " + std::to_string(i) + " is out of range");
         }
         const auto& chosen = aptr->attributes.values[i];
@@ -175,7 +183,8 @@ private:
     }
 
 public:
-    RdsObject load_attribute_by_index(int32_t i) const {
+    RdsObject load_attribute_by_index(JsFakeInt i_raw) const {
+        const auto i = js2int<std::size_t>(i_raw);
         switch (ptr->type()) {
             case rds2cpp::SEXPType::INT:
                 return load_attribute_<rds2cpp::IntegerVector>(i);
@@ -198,19 +207,20 @@ public:
     }
 
     RdsObject load_attribute_by_name(std::string n) const {
-        int32_t i = find_attribute(n);
-        if (i < 0) {
+        auto i = find_attribute_internal(n);
+        if (!i.has_value()) {
             throw std::runtime_error("no attribute named '" + n + "'");
         }
-        return load_attribute_by_index(i);
+        return load_attribute_by_index(*i);
     }
 
 public:
-    RdsObject load_list_element(int32_t i) const {
+    RdsObject load_list_element(JsFakeInt i_raw) const {
         if (ptr->type() != rds2cpp::SEXPType::VEC) {
             throw std::runtime_error("cannot return list element for non-list R object");
         }
         auto lptr = static_cast<const rds2cpp::GenericVector*>(ptr);
+        auto i = js2int<I<decltype(lptr->data.size())> >(i_raw);
         return RdsObject(lptr->data[i].get());
     }
 

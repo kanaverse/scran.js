@@ -6,146 +6,157 @@
 #include "scran_qc/scran_qc.hpp"
 
 #include <cstdint>
+#include <cstddef>
 
-struct ComputeRnaQcMetricsResults {
-    typedef scran_qc::ComputeRnaQcMetricsResults<double, int32_t, double> Store;
+class ComputeRnaQcMetricsResults {
+private:
+    typedef scran_qc::ComputeRnaQcMetricsResults<double, std::int32_t, double> Store;
 
-    Store store;
+    Store my_store;
 
 public:
-    ComputeRnaQcMetricsResults(Store s) : store(std::move(s)) {}
+    ComputeRnaQcMetricsResults(Store s) : my_store(std::move(s)) {}
+
+    const Store& store() const {
+        return my_store;
+    }
 
 public:
     emscripten::val sum() const {
-        return emscripten::val(emscripten::typed_memory_view(store.sum.size(), store.sum.data()));
+        return emscripten::val(emscripten::typed_memory_view(my_store.sum.size(), my_store.sum.data()));
     }
 
     emscripten::val detected() const {
-        return emscripten::val(emscripten::typed_memory_view(store.detected.size(), store.detected.data()));
+        return emscripten::val(emscripten::typed_memory_view(my_store.detected.size(), my_store.detected.data()));
     }
 
-    emscripten::val subset_proportion(int32_t i) const {
-        const auto& current = store.subset_proportion[i];
+    emscripten::val subset_proportion(JsFakeInt i_raw) const {
+        const auto& current = my_store.subset_proportion[js2int<std::size_t>(i_raw)];
         return emscripten::val(emscripten::typed_memory_view(current.size(), current.data()));
     }
 
-    int32_t num_subsets() const {
-        return store.subset_proportion.size();
+    JsFakeInt num_subsets() const {
+        return int2js(my_store.subset_proportion.size());
     }
 
-    int32_t num_cells() const {
-        return store.sum.size();
+    JsFakeInt num_cells() const {
+        return int2js(my_store.sum.size());
     }
 };
 
-ComputeRnaQcMetricsResults compute_rna_qc_metrics(const NumericMatrix& mat, int32_t nsubsets, uintptr_t subsets, int32_t nthreads) {
+ComputeRnaQcMetricsResults compute_rna_qc_metrics(const NumericMatrix& mat, JsFakeInt nsubsets_raw, std::uintptr_t subsets, JsFakeInt nthreads_raw) {
     scran_qc::ComputeRnaQcMetricsOptions opt;
-    opt.num_threads = nthreads;
-    auto store = scran_qc::compute_rna_qc_metrics(*(mat.ptr), convert_array_of_offsets<const uint8_t*>(nsubsets, subsets), opt);
+    opt.num_threads = js2int<int>(nthreads_raw);
+    auto store = scran_qc::compute_rna_qc_metrics(*mat, convert_array_of_offsets<const std::uint8_t*>(js2int<std::size_t>(nsubsets_raw), subsets), opt);
     return ComputeRnaQcMetricsResults(std::move(store));
 }
 
-struct SuggestRnaQcFiltersResults {
-    bool use_blocked = true;
-    scran_qc::RnaQcFilters<double> store_unblocked;
-    scran_qc::RnaQcBlockedFilters<double> store_blocked;
+class SuggestRnaQcFiltersResults {
+private:
+    bool my_use_blocked = true;
+    scran_qc::RnaQcFilters<double> my_store_unblocked;
+    scran_qc::RnaQcBlockedFilters<double> my_store_blocked;
 
 public:
-    SuggestRnaQcFiltersResults(scran_qc::RnaQcFilters<double> store) : store_unblocked(std::move(store)), use_blocked(false) {}
+    SuggestRnaQcFiltersResults(scran_qc::RnaQcFilters<double> store) : my_store_unblocked(std::move(store)), my_use_blocked(false) {}
 
-    SuggestRnaQcFiltersResults(scran_qc::RnaQcBlockedFilters<double> store) : store_blocked(std::move(store)) {}
+    SuggestRnaQcFiltersResults(scran_qc::RnaQcBlockedFilters<double> store) : my_store_blocked(std::move(store)) {}
 
-    SuggestRnaQcFiltersResults(int32_t num_subsets, int32_t num_blocks) {
+    SuggestRnaQcFiltersResults(JsFakeInt num_subsets_raw, JsFakeInt num_blocks_raw) {
+        const auto num_subsets = js2int<std::size_t>(num_subsets_raw);
+        const auto num_blocks = js2int<std::size_t>(num_blocks_raw);
+
         if (num_blocks <= 1) {
-            use_blocked = false;
-            store_unblocked.get_subset_proportion().resize(num_subsets);
+            my_use_blocked = false;
+            sanisizer::resize(my_store_unblocked.get_subset_proportion(), num_subsets);
         } else {
-            store_blocked.get_sum().resize(num_blocks);
-            store_blocked.get_detected().resize(num_blocks);
-            auto& sub = store_blocked.get_subset_proportion();
-            sub.resize(num_subsets);
-            for (int32_t s = 0; s < num_subsets; ++s) {
-                sub[s].resize(num_blocks);
+            sanisizer::resize(my_store_blocked.get_sum(), num_blocks);
+            sanisizer::resize(my_store_blocked.get_detected(), num_blocks);
+            auto& subprop = my_store_blocked.get_subset_proportion();
+            sanisizer::resize(subprop, num_subsets);
+            for (I<decltype(num_subsets)> s = 0; s < num_subsets; ++s) {
+                sanisizer::resize(subprop[s], num_blocks);
             }
         }
     }
 
 public:
     emscripten::val sum() {
-        if (use_blocked) {
-            auto& sum = store_blocked.get_sum();
+        if (my_use_blocked) {
+            auto& sum = my_store_blocked.get_sum();
             return emscripten::val(emscripten::typed_memory_view(sum.size(), sum.data()));
         } else {
             // Very important to be non-const, otherwise we'd take a reference to a temporary.
-            auto& sum = store_unblocked.get_sum();
+            auto& sum = my_store_unblocked.get_sum();
             return emscripten::val(emscripten::typed_memory_view(1, &sum));
         }
     }
 
     emscripten::val detected() {
-        if (use_blocked) {
-            auto& det = store_blocked.get_detected();
+        if (my_use_blocked) {
+            auto& det = my_store_blocked.get_detected();
             return emscripten::val(emscripten::typed_memory_view(det.size(), det.data()));
         } else {
             // Very important to be non-const, otherwise we'd take a reference to a temporary.
-            auto& det = store_unblocked.get_detected();
+            auto& det = my_store_unblocked.get_detected();
             return emscripten::val(emscripten::typed_memory_view(1, &det));
         }
     }
 
-    emscripten::val subset_proportion(int32_t i) {
-        if (use_blocked) {
-            auto& current = store_blocked.get_subset_proportion()[i];
+    emscripten::val subset_proportion(JsFakeInt i_raw) {
+        const auto i = js2int<std::size_t>(i_raw); 
+        if (my_use_blocked) {
+            auto& current = my_store_blocked.get_subset_proportion()[i];
             return emscripten::val(emscripten::typed_memory_view(current.size(), current.data()));
         } else {
             // Very important to be non-const, otherwise we'd take a reference to a temporary.
-            auto& current = store_unblocked.get_subset_proportion()[i];
+            auto& current = my_store_unblocked.get_subset_proportion()[i];
             return emscripten::val(emscripten::typed_memory_view(1, &current));
         }
     }
 
 public:
-    int32_t num_subsets() const {
-        if (use_blocked) {
-            return store_blocked.get_subset_proportion().size();
+    JsFakeInt num_subsets() const {
+        if (my_use_blocked) {
+            return int2js(my_store_blocked.get_subset_proportion().size());
         } else {
-            return store_unblocked.get_subset_proportion().size();
+            return int2js(my_store_unblocked.get_subset_proportion().size());
         }
     }
 
-    int32_t num_blocks() const {
-        if (use_blocked) {
-            return store_blocked.get_sum().size();
+    JsFakeInt num_blocks() const {
+        if (my_use_blocked) {
+            return int2js(my_store_blocked.get_sum().size());
         } else {
             return 1;
         }
     }
 
     bool is_blocked() const {
-        return use_blocked;
+        return my_use_blocked;
     }
 
-    void filter(const ComputeRnaQcMetricsResults& metrics, uintptr_t blocks, uintptr_t output) const {
-        auto optr = reinterpret_cast<uint8_t*>(output);
-        if (use_blocked) {
-            store_blocked.filter(metrics.store, reinterpret_cast<const int32_t*>(blocks), optr);
+    void filter(const ComputeRnaQcMetricsResults& metrics, std::uintptr_t blocks, std::uintptr_t output) const {
+        auto optr = reinterpret_cast<std::uint8_t*>(output);
+        if (my_use_blocked) {
+            my_store_blocked.filter(metrics.store(), reinterpret_cast<const std::int32_t*>(blocks), optr);
         } else {
-            store_unblocked.filter(metrics.store, optr);
+            my_store_unblocked.filter(metrics.store(), optr);
         }
     }
 };
 
-SuggestRnaQcFiltersResults suggest_rna_qc_filters(const ComputeRnaQcMetricsResults& metrics, bool use_blocks, uintptr_t blocks, double nmads) {
+SuggestRnaQcFiltersResults suggest_rna_qc_filters(const ComputeRnaQcMetricsResults& metrics, bool use_blocks, std::uintptr_t blocks, double nmads) {
     scran_qc::ComputeRnaQcFiltersOptions opt;
     opt.sum_num_mads = nmads;
     opt.detected_num_mads = nmads;
     opt.subset_proportion_num_mads = nmads;
 
     if (use_blocks) {
-        auto thresholds = scran_qc::compute_rna_qc_filters_blocked(metrics.store, reinterpret_cast<const int32_t*>(blocks), opt);
+        auto thresholds = scran_qc::compute_rna_qc_filters_blocked(metrics.store(), reinterpret_cast<const std::int32_t*>(blocks), opt);
         return SuggestRnaQcFiltersResults(std::move(thresholds));
     } else {
-        auto thresholds = scran_qc::compute_rna_qc_filters(metrics.store, opt);
+        auto thresholds = scran_qc::compute_rna_qc_filters(metrics.store(), opt);
         return SuggestRnaQcFiltersResults(std::move(thresholds));
     }
 }
@@ -164,7 +175,7 @@ EMSCRIPTEN_BINDINGS(quality_control_rna) {
     emscripten::function("suggest_rna_qc_filters", &suggest_rna_qc_filters, emscripten::return_value_policy::take_ownership());
 
     emscripten::class_<SuggestRnaQcFiltersResults>("SuggestRnaQcFiltersResults")
-        .constructor<int32_t, int32_t>()
+        .constructor<JsFakeInt, JsFakeInt>()
         .function("sum", &SuggestRnaQcFiltersResults::sum, emscripten::return_value_policy::take_ownership())
         .function("detected", &SuggestRnaQcFiltersResults::detected, emscripten::return_value_policy::take_ownership())
         .function("subset_proportion", &SuggestRnaQcFiltersResults::subset_proportion, emscripten::return_value_policy::take_ownership())

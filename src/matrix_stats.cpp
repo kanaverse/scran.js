@@ -7,11 +7,12 @@
 
 #include <vector>
 #include <cstdint>
+#include <cstddef>
 
-void matrix_sums(const NumericMatrix& mat, bool row, uintptr_t buffer, int32_t nthreads) {
+void matrix_sums(const NumericMatrix& mat, bool row, std::uintptr_t buffer, JsFakeInt nthreads_raw) {
     tatami_stats::sums::Options opt;
-    opt.num_threads = nthreads;
-    tatami_stats::sums::apply(row, mat.ptr.get(), reinterpret_cast<double*>(buffer), opt);
+    opt.num_threads = js2int<int>(nthreads_raw);
+    tatami_stats::sums::apply(row, *mat, reinterpret_cast<double*>(buffer), opt);
 }
 
 EMSCRIPTEN_BINDINGS(matrix_stats) {
