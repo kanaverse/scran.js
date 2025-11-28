@@ -35,9 +35,13 @@ This can either use k-means or community detection on a shared nearest neighbor 
 The theory behind these methods is described in more detail in the [**Orchestrating Single Cell Analysis with Bioconductor**](https://bioconductor.org/books/release/OSCA/) book. 
 All steps are implemented in C++ and compiled to WebAssembly for near-native performance - see the [developer notes](docs/related/developer_notes.md) for details.
 
+> [!IMPORTANT]
+> **scran.js** v4.1.0 and higher use WebAssembly in 64-bit mode, which makes it possible to process larger datasets.
+> However, this is only supported in more recent versions of Chrome, Firefox and Node.js (24+), and is currently not supported in Safari at all.
+
 ## Quick start
 
-**scran.js** is available as an [npm package](https://www.npmjs.com/package/scran.js), so installation can be performed via the usual procedure:
+**scran.js** is available as an [npm package](https://www.npmjs.com/package/scran.js), so installation can be performed via the usual commands:
 
 ```sh
 npm install scran.js

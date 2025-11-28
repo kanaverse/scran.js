@@ -18,47 +18,52 @@ This includes quality control, normalization, feature selection, PCA, clustering
 For each step, we use Emscripten to compile the associated C++ functions into Wasm and generate Javascript-visible bindings.
 We can then load the Wasm binary into a web application and call the desired functions on user-supplied data.
 
-## Build procedure 
+## Pre-requisites
 
-Make sure [Emscripten](https://emscripten.org/docs/getting_started/downloads.html) and [CMake](https://cmake.org/download/) are installed on your machine.
-Running the `build.sh` script will then generate ES6 and Node.js-compatible builds.
-To build the Node.js version:
+Install the most recent versions of the following tools.
+
+- [Emscripten](https://emscripten.org/docs/getting_started/downloads.html).
+- [CMake](https://cmake.org/download/). 
+  Avoid 4.2.0 though, see https://gitlab.kitware.com/cmake/cmake/-/issues/27421.
+- [Node.js](https://nodejs.org/en/download).
+  This requires 24.0.0 or higher to support Wasm64.
+
+Alternatively, developers can use the [Docker image](https://github.com/kanaverse/emcmake-docker) for building and test.
+This image is also used by our [GitHub actions](../../.github/workflows/run-tests.yaml), so it will probably work.
+
+## Build
+
+Running the `build.sh` script will generate browser or Node.js-compatible builds.
 
 ```sh
-bash build.sh main
+# For Node.js:
+./build.sh main
+
+# For the browser:
+./build.sh browser 
 ```
 
-To build the browser-compatible version:
-
-```sh
-bash build.sh browser 
-```
-
-This will create the `main` and `browser` directories respectively,
-containing the Wasm file in the `wasm` subdirectory as well as copying all the relevant Javascript bindings.
+These calls will create the `main` and `browser` directories respectively.
+Each directory will contain its corresponding Wasm file in the `wasm` subdirectory.
+All relevant Javascript files will also be copied into each subdirectory.
 
 ## Tests
 
-Run the test suite by calling:
-
 ```sh
-# install dev dependencies
 npm install --include=dev
 npm run test
 ```
 
-For earlier versions of Node, you may instead need to do some combination of the following options:
+To test the RDS reading functions, use a recent version of [R](https://cran.r-project.org/) to run [generate.R](../../tests/rds/generate.R) inside the `tests/rds` directory.
 
 ```sh
-node \
-    --experimental-vm-modules \
-    --experimental-wasm-threads \
-    --experimental-wasm-bulk-memory \
-    --experimental-wasm-bigint \
-    node_modules/jest/bin/jest.js --runInBand
+CHECK_RDS=1 npm run test -- tests/rds
 ```
 
-## Docker image
+## Documentation
 
-Alternatively, developers can use the [Docker image](https://github.com/kanaverse/scran.js-docker/pkgs/container/scran.js-docker%2Fbuilder) to build and test.
-This image is also used by our [GitHub actions](../../.github/workflows/run-tests.yaml), so it will probably work.
+```sh
+npm run jsdoc
+```
+
+This creates an index file at `docs/built/index.html`.

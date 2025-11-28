@@ -1,5 +1,16 @@
 # scran.js news
 
+## 4.1.0
+
+- Switch to 64-bit Wasm builds, which allows memory usage up to 16 GB.
+  These only work with Node.js 24 or higher, and are currently not supported on Safari at all.
+- Updated to the latest version of the **mnncorrect** library, which uses a new algorithm -
+  see https://github.com/libscran/mnncorrect/releases/tag/v3.0.0 for details.
+- Updated **igraph** to v1.0.0, which may yield different results for graph-based clustering.
+- Updated **hdf5** to v2.0.0, to support files produced in the new formats.
+- Updated to the latest version of the **tatami_hdf5** library,
+  which improves performance for several types of non-contiguous reads from the HDF5 file.
+
 ## 4.0.9
 
 - Updated the **phyper** library for more accurate p-value calculations in `hypergeometricTest()`.
