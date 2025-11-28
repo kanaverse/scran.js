@@ -12,8 +12,8 @@
     },
     "devDependencies": {
         "docdash": "^2.0.2",
-        "h5wasm": "^0.2.1",
-        "jest": "^27.4.7",
+        "h5wasm": "^0.8.8",
+        "jest": "^30.0.0",
         "jsdoc": "^4.0.5",
         "pako": "^2.0.4"
     },

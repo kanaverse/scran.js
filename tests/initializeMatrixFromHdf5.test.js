@@ -2,7 +2,7 @@ import * as scran from "../js/index.js";
 import * as fs from "fs";
 import * as compare from "./compare.js";
 import * as simulate from "./simulate.js";
-import * as hdf5 from "h5wasm";
+import * as hdf5 from "h5wasm/node";
 
 beforeAll(async () => { 
     await scran.initialize({ localFile: true });
@@ -33,7 +33,7 @@ test("initialization from HDF5 works correctly with dense inputs", () => {
     });
 
     let f = new hdf5.File(path, "w");
-    f.create_dataset("stuff", x, [20, 50]);
+    f.create_dataset({ name: "stuff", data: x, shape: [20, 50] });
     f.close();
 
     // Extracting details.
@@ -92,7 +92,7 @@ test("dense initialization from HDF5 works correctly with forced integers", () =
     });
 
     let f = new hdf5.File(path, "w");
-    f.create_dataset("stuff", x, [25, 40]);
+    f.create_dataset({ name: "stuff", data: x, shape: [25, 40] });
     f.close();
 
     let deets = scran.extractHdf5MatrixDetails(path, "stuff");
@@ -136,10 +136,10 @@ test("initialization from HDF5 works correctly with 10X inputs", () => {
 
     let f = new hdf5.File(path, "w");
     f.create_group("foobar");
-    f.get("foobar").create_dataset("data", data);
-    f.get("foobar").create_dataset("indices", indices);
-    f.get("foobar").create_dataset("indptr", indptrs);
-    f.get("foobar").create_dataset("shape", [nr, nc], null, "<i");
+    f.get("foobar").create_dataset({ name: "data", data: data });
+    f.get("foobar").create_dataset({ name: "indices", data: indices });
+    f.get("foobar").create_dataset({ name: "indptr", data: indptrs });
+    f.get("foobar").create_dataset({ name: "shape", data: [nr, nc], shape: null, dtype: "<i" });
     f.close();
 
     // Extracting details.
@@ -198,9 +198,9 @@ test("initialization from HDF5 works correctly with H5AD inputs", () => {
     f.get("layers/counts").create_attribute("shape", [nc, nr], null, "<i"); // deliberately transposed, as CSC for H5AD is CSR for us.
     f.get("layers/counts").create_attribute("encoding-type", "csc_matrix", Array(0), "S"); // again, CSC for H5AD == CSR for us.
 
-    f.get("layers/counts").create_dataset("data", data);
-    f.get("layers/counts").create_dataset("indices", indices);
-    f.get("layers/counts").create_dataset("indptr", indptrs);
+    f.get("layers/counts").create_dataset({ name: "data", data: data });
+    f.get("layers/counts").create_dataset({ name: "indices", data: indices });
+    f.get("layers/counts").create_dataset({ name: "indptr", data: indptrs });
     f.close();
 
     // Extracting details.
@@ -256,10 +256,10 @@ test("initialization from HDF5 works correctly with forced integers", () => {
 
     let f = new hdf5.File(path, "w");
     f.create_group("foobar");
-    f.get("foobar").create_dataset("data", data2);
-    f.get("foobar").create_dataset("indices", indices);
-    f.get("foobar").create_dataset("indptr", indptrs);
-    f.get("foobar").create_dataset("shape", [nr, nc], null, "<i");
+    f.get("foobar").create_dataset({ name: "data", data: data2 });
+    f.get("foobar").create_dataset({ name: "indices", data: indices });
+    f.get("foobar").create_dataset({ name: "indptr", data: indptrs });
+    f.get("foobar").create_dataset({ name: "shape", data: [nr, nc], shape: null, dtype: "<i" });
     f.close();
 
     let deets = scran.extractHdf5MatrixDetails(path, "foobar");
@@ -309,16 +309,16 @@ test("initialization from HDF5 groups works correctly with subsetting", () => {
             // Creating a CSC sparse matrix, injecting in some big numbers.
             const { data, indices, indptrs } = simulate.simulateSparseData(nc, nr, /* injectBigValues = */ true);
             f.create_group("foobar");
-            f.get("foobar").create_dataset("data", data);
-            f.get("foobar").create_dataset("indices", indices);
-            f.get("foobar").create_dataset("indptr", indptrs);
-            f.get("foobar").create_dataset("shape", [nr, nc], null, "<i");
+            f.get("foobar").create_dataset({ name: "data", data: data });
+            f.get("foobar").create_dataset({ name: "indices", data: indices });
+            f.get("foobar").create_dataset({ name: "indptr", data: indptrs });
+            f.get("foobar").create_dataset({ name: "shape", data: [nr, nc], shape: null, dtype: "<i" });
         } else {
             let x = new Int32Array(1000);
             x.forEach((y, i) => {
                 x[i] = Math.round(Math.random() * 10);
             });
-            f.create_dataset("foobar", x, [20, 50]);
+            f.create_dataset({ name: "foobar", data: x, shape: [20, 50] });
         }
         f.close();
 
@@ -383,9 +383,9 @@ test("initialization from HDF5 works correctly with custom sparse names", () => 
 
     let f = new hdf5.File(path, "w");
     f.create_group("foobar");
-    f.get("foobar").create_dataset("whee", data);
-    f.get("foobar").create_dataset("foo", indices);
-    f.get("foobar").create_dataset("bar", indptrs);
+    f.get("foobar").create_dataset({ name: "whee", data: data });
+    f.get("foobar").create_dataset({ name: "foo", data: indices });
+    f.get("foobar").create_dataset({ name: "bar", data: indptrs });
     f.close();
 
     var mat = scran.initializeSparseMatrixFromHdf5Group(path, { data: "foobar/whee", indices: "foobar/foo", indptr: "foobar/bar" }, nr, nc, false);

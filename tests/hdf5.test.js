@@ -1,7 +1,7 @@
 import * as scran from "../js/index.js";
 import * as fs from "fs";
 import * as compare from "./compare.js";
-import * as hdf5 from "h5wasm";
+import * as hdf5 from "h5wasm/node";
 
 beforeAll(async () => { 
     await scran.initialize({ localFile: true });
@@ -25,7 +25,7 @@ test("HDF5 name queries work as expected (simple)", () => {
     purge(path)
 
     let f = new hdf5.File(path, "w");
-    f.create_dataset("stuff", new Float64Array(1000), [20, 50]);
+    f.create_dataset({ name: "stuff", data: new Float64Array(1000), shape: [20, 50] });
     f.close();
 
     // Checking we can extract the name correctly.
@@ -40,10 +40,10 @@ test("HDF5 name queries work as expected (groups)", () => {
 
     let f = new hdf5.File(path, "w");
     f.create_group("foobar");
-    f.get("foobar").create_dataset("data", new Uint32Array(100));
-    f.get("foobar").create_dataset("indices", new Uint32Array(200));
-    f.get("foobar").create_dataset("indptr", new BigUint64Array(300));
-    f.get("foobar").create_dataset("shape", [200, 100], null, "<i");
+    f.get("foobar").create_dataset({ name: "data", data: new Uint32Array(100) });
+    f.get("foobar").create_dataset({ name: "indices", data: new Uint32Array(200) });
+    f.get("foobar").create_dataset({ name: "indptr", data: new BigUint64Array(300) });
+    f.get("foobar").create_dataset({ name: "shape", data: [200, 100], shape: null, dtype: "<i" });
     f.close();
  
     // Checking we can extract the name correctly.
@@ -64,8 +64,8 @@ test("HDF5 name queries work as expected (nested groups)", () => {
     let f = new hdf5.File(path, "w");
     f.create_group("foo");
     f.get("foo").create_group("bar");
-    f.get("foo").create_dataset("whee", new Float32Array(100));
-    f.get("foo").get("bar").create_dataset("stuff", ["A", "B", "C"], [3]);
+    f.get("foo").create_dataset({ name: "whee", data: new Float32Array(100) });
+    f.get("foo").get("bar").create_dataset({ name: "stuff", data: ["A", "B", "C"], shape: [3] });
     f.close();
 
     // Checking we can extract the name correctly.
@@ -108,9 +108,9 @@ test("HDF5 dataset loading works as expected", () => {
     let z = ["Aaron", "Jayaram", "Donald", "Joseph"]
 
     let f = new hdf5.File(path, "w");
-    f.create_dataset("stuff", x, [20, 50]);
-    f.create_dataset("whee", y, [90]);
-    f.create_dataset("mamaba", z, [2, 2, 1]);
+    f.create_dataset({ name: "stuff", data: x, shape: [20, 50] });
+    f.create_dataset({ name: "whee", data: y, shape: [90] });
+    f.create_dataset({ name: "mamaba", data: z, shape: [2, 2, 1] });
     f.close();
 
     var x2 = scran.loadHdf5Dataset(path, "stuff");
