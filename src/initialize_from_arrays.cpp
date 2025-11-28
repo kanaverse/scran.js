@@ -91,7 +91,7 @@ NumericMatrix initialize_sparse_matrix_internal(
     }
 }
 
-NumericMatrix initialize_from_sparse_arrays(
+NumericMatrix js_initialize_from_sparse_arrays(
     JsFakeInt nrows_raw,
     JsFakeInt ncols_raw,
     JsFakeInt nelements_raw, 
@@ -130,7 +130,7 @@ NumericMatrix initialize_sparse_matrix_from_dense_vector_internal(
     return sparse_from_tatami(mat, layered);
 }
 
-NumericMatrix initialize_sparse_matrix_from_dense_array(
+NumericMatrix js_initialize_sparse_matrix_from_dense_array(
     JsFakeInt nrows_raw,
     JsFakeInt ncols_raw,
     JsFakeInt values_raw,
@@ -164,7 +164,7 @@ NumericMatrix initialize_dense_matrix_internal(
     return NumericMatrix(std::move(ptr));
 }
 
-NumericMatrix initialize_dense_matrix_from_dense_array(
+NumericMatrix js_initialize_dense_matrix_from_dense_array(
     JsFakeInt nrows_raw,
     JsFakeInt ncols_raw,
     JsFakeInt values_raw,
@@ -182,7 +182,7 @@ NumericMatrix initialize_dense_matrix_from_dense_array(
 /**********************************/
 
 EMSCRIPTEN_BINDINGS(initialize_from_arrays) {
-    emscripten::function("initialize_dense_matrix_from_dense_array", &initialize_dense_matrix_from_dense_array, emscripten::return_value_policy::take_ownership());
-    emscripten::function("initialize_sparse_matrix_from_dense_array", &initialize_sparse_matrix_from_dense_array, emscripten::return_value_policy::take_ownership());
-    emscripten::function("initialize_from_sparse_arrays", &initialize_from_sparse_arrays, emscripten::return_value_policy::take_ownership());
+    emscripten::function("initialize_dense_matrix_from_dense_array", &js_initialize_dense_matrix_from_dense_array, emscripten::return_value_policy::take_ownership());
+    emscripten::function("initialize_sparse_matrix_from_dense_array", &js_initialize_sparse_matrix_from_dense_array, emscripten::return_value_policy::take_ownership());
+    emscripten::function("initialize_from_sparse_arrays", &js_initialize_from_sparse_arrays, emscripten::return_value_policy::take_ownership());
 }

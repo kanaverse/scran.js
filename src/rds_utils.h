@@ -3,6 +3,12 @@
 
 #include <emscripten.h>
 
+#include <optional>
+#include <string>
+#include <stdexcept>
+#include <vector>
+#include <cstddef>
+
 #include "utils.h"
 
 #include "rds2cpp/rds2cpp.hpp"
@@ -11,7 +17,7 @@ class RdsObject {
 public:
     RdsObject(const rds2cpp::RObject* p) : ptr(p) {}
 
-    std::string type() const {
+    std::string js_type() const {
         switch (ptr->type()) {
             case rds2cpp::SEXPType::INT:
                 return "integer";
@@ -35,24 +41,24 @@ public:
 
 private:
     template<class Vector_>
-    JsFakeInt size_() const {
+    JsFakeInt size() const {
         auto xptr = static_cast<const Vector_*>(ptr);
         return int2js(xptr->data.size());
     }
 
 public:
-    JsFakeInt size() const {
+    JsFakeInt js_size() const {
         switch (ptr->type()) {
             case rds2cpp::SEXPType::INT:
-                return size_<rds2cpp::IntegerVector>();
+                return size<rds2cpp::IntegerVector>();
             case rds2cpp::SEXPType::REAL:
-                return size_<rds2cpp::DoubleVector>();
+                return size<rds2cpp::DoubleVector>();
             case rds2cpp::SEXPType::STR:
-                return size_<rds2cpp::StringVector>();
+                return size<rds2cpp::StringVector>();
             case rds2cpp::SEXPType::LGL:
-                return size_<rds2cpp::LogicalVector>();
+                return size<rds2cpp::LogicalVector>();
             case rds2cpp::SEXPType::VEC:
-                return size_<rds2cpp::GenericVector>();
+                return size<rds2cpp::GenericVector>();
             default:
                 break;
         }
@@ -61,25 +67,25 @@ public:
 
 private:
     template<class Vector_>
-    emscripten::val numeric_vector_() const {
+    emscripten::val numeric_vector() const {
         auto xptr = static_cast<const Vector_*>(ptr);
         return emscripten::val(emscripten::typed_memory_view(xptr->data.size(), xptr->data.data()));
     }
 
 public:
-    emscripten::val numeric_vector() const {
+    emscripten::val js_numeric_vector() const {
         switch (ptr->type()) {
             case rds2cpp::SEXPType::INT:
-                return numeric_vector_<rds2cpp::IntegerVector>();
+                return numeric_vector<rds2cpp::IntegerVector>();
             case rds2cpp::SEXPType::REAL:
-                return numeric_vector_<rds2cpp::DoubleVector>();
+                return numeric_vector<rds2cpp::DoubleVector>();
             case rds2cpp::SEXPType::LGL:
-                return numeric_vector_<rds2cpp::LogicalVector>();
+                return numeric_vector<rds2cpp::LogicalVector>();
             default:
                 break;
         }
         throw std::runtime_error("cannot obtain numeric values for non-numeric RObject type");
-        return numeric_vector_<rds2cpp::IntegerVector>(); // avoid compiler warning.
+        return numeric_vector<rds2cpp::IntegerVector>(); // avoid compiler warning.
     }
 
 private:
@@ -92,7 +98,7 @@ private:
     }
 
 public:
-    emscripten::val string_vector() {
+    emscripten::val js_string_vector() const {
         if (ptr->type() != rds2cpp::SEXPType::STR) {
             throw std::runtime_error("cannot return string values for non-string RObject type");
         }
@@ -108,7 +114,7 @@ private:
     }
 
 public:
-    emscripten::val attribute_names() {
+    emscripten::val js_attribute_names() {
         switch (ptr->type()) {
             case rds2cpp::SEXPType::INT:
                 return extract_attribute_names<rds2cpp::IntegerVector>();
@@ -162,7 +168,7 @@ private:
     }
 
 public:
-    JsFakeInt find_attribute(const std::string& name) const {
+    JsFakeInt js_find_attribute(const std::string& name) const {
         auto found = find_attribute_internal(name);
         if (found.has_value()) {
             return int2js(*found);
@@ -173,7 +179,7 @@ public:
 
 private:
     template<class Attr_>
-    RdsObject load_attribute_(std::size_t i) const {
+    RdsObject load_attribute_raw(std::size_t i) const {
         auto aptr = static_cast<const Attr_*>(ptr);
         if (i >= aptr->attributes.values.size()) {
             throw std::runtime_error("requested attribute index " + std::to_string(i) + " is out of range");
@@ -182,40 +188,43 @@ private:
         return RdsObject(chosen.get());
     }
 
-public:
-    RdsObject load_attribute_by_index(JsFakeInt i_raw) const {
-        const auto i = js2int<std::size_t>(i_raw);
+    RdsObject load_attribute_by_index_internal(std::size_t i) const {
         switch (ptr->type()) {
             case rds2cpp::SEXPType::INT:
-                return load_attribute_<rds2cpp::IntegerVector>(i);
+                return load_attribute_raw<rds2cpp::IntegerVector>(i);
             case rds2cpp::SEXPType::REAL:
-                return load_attribute_<rds2cpp::IntegerVector>(i);
+                return load_attribute_raw<rds2cpp::IntegerVector>(i);
             case rds2cpp::SEXPType::LGL:
-                return load_attribute_<rds2cpp::LogicalVector>(i);
+                return load_attribute_raw<rds2cpp::LogicalVector>(i);
             case rds2cpp::SEXPType::STR:
-                return load_attribute_<rds2cpp::StringVector>(i);
+                return load_attribute_raw<rds2cpp::StringVector>(i);
             case rds2cpp::SEXPType::VEC:
-                return load_attribute_<rds2cpp::GenericVector>(i);
+                return load_attribute_raw<rds2cpp::GenericVector>(i);
             case rds2cpp::SEXPType::S4:
-                return load_attribute_<rds2cpp::S4Object>(i);
+                return load_attribute_raw<rds2cpp::S4Object>(i);
             default:
                 break;
         }
-
         throw std::runtime_error("unsupported R object type");
-        return load_attribute_<rds2cpp::S4Object>(i); // avoid compiler warnings.
+        return load_attribute_raw<rds2cpp::S4Object>(i); // avoid compiler warnings.
     }
 
-    RdsObject load_attribute_by_name(std::string n) const {
+public:
+    RdsObject js_load_attribute_by_index(JsFakeInt i_raw) const {
+        const auto i = js2int<std::size_t>(i_raw);
+        return load_attribute_by_index_internal(i);
+    }
+
+    RdsObject js_load_attribute_by_name(std::string n) const {
         auto i = find_attribute_internal(n);
         if (!i.has_value()) {
             throw std::runtime_error("no attribute named '" + n + "'");
         }
-        return load_attribute_by_index(*i);
+        return load_attribute_by_index_internal(*i);
     }
 
 public:
-    RdsObject load_list_element(JsFakeInt i_raw) const {
+    RdsObject js_load_list_element(JsFakeInt i_raw) const {
         if (ptr->type() != rds2cpp::SEXPType::VEC) {
             throw std::runtime_error("cannot return list element for non-list R object");
         }
@@ -225,7 +234,7 @@ public:
     }
 
 public:
-    std::string class_name() const {
+    std::string js_class_name() const {
         if (ptr->type() != rds2cpp::SEXPType::S4) {
             throw std::runtime_error("cannot return class name for non-S4 R object");
         }
@@ -233,7 +242,7 @@ public:
         return sptr->class_name;
     }
 
-    std::string package_name() const {
+    std::string js_package_name() const {
         if (ptr->type() != rds2cpp::SEXPType::S4) {
             throw std::runtime_error("cannot return class name for non-S4 R object");
         }

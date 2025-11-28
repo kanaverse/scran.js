@@ -12,7 +12,7 @@
 #include "tatami/tatami.hpp"
 #include "sanisizer/sanisizer.hpp"
 
-void delayed_arithmetic_scalar(NumericMatrix& x, std::string op, bool right, double val) {
+void js_delayed_arithmetic_scalar(NumericMatrix& x, std::string op, bool right, double val) {
     std::shared_ptr<tatami::DelayedUnaryIsometricOperationHelper<double, double, std::int32_t> > operation;
 
     if (op == "+") {
@@ -38,7 +38,7 @@ void delayed_arithmetic_scalar(NumericMatrix& x, std::string op, bool right, dou
     x.reset_ptr(std::make_shared<tatami::DelayedUnaryIsometricOperation<double, double, std::int32_t> >(std::move(x.ptr()), std::move(operation)));
 }
 
-void delayed_arithmetic_vector(NumericMatrix& x, std::string op, bool right, JsFakeInt margin_raw, JsFakeInt ptr_raw, JsFakeInt n_raw) {
+void js_delayed_arithmetic_vector(NumericMatrix& x, std::string op, bool right, JsFakeInt margin_raw, JsFakeInt ptr_raw, JsFakeInt n_raw) {
     const auto margin = js2int<int>(margin_raw);
     const auto n = js2int<std::size_t>(n_raw);
     if (!sanisizer::is_equal(n, margin == 0 ? x.nrow() : x.ncol())) {
@@ -74,7 +74,7 @@ void delayed_arithmetic_vector(NumericMatrix& x, std::string op, bool right, JsF
     x.reset_ptr(std::make_shared<tatami::DelayedUnaryIsometricOperation<double, double, std::int32_t> >(std::move(x.ptr()), std::move(operation)));
 }
 
-void delayed_math(NumericMatrix& x, std::string op, double base) {
+void js_delayed_math(NumericMatrix& x, std::string op, double base) {
     std::shared_ptr<tatami::DelayedUnaryIsometricOperationHelper<double, double, std::int32_t> > operation;
 
     if (op == "abs") {
@@ -100,14 +100,14 @@ void delayed_math(NumericMatrix& x, std::string op, double base) {
     x.reset_ptr(std::make_shared<tatami::DelayedUnaryIsometricOperation<double, double, std::int32_t> >(std::move(x.ptr()), std::move(operation)));
 }
 
-void transpose(NumericMatrix& x) {
+void js_transpose(NumericMatrix& x) {
     x.reset_ptr(std::make_shared<tatami::DelayedTranspose<double, std::int32_t> >(std::move(x.ptr())));
     return;
 }
 
 EMSCRIPTEN_BINDINGS(delayed_operations) {
-    emscripten::function("delayed_arithmetic_scalar", &delayed_arithmetic_scalar, emscripten::return_value_policy::take_ownership());
-    emscripten::function("delayed_arithmetic_vector", &delayed_arithmetic_vector, emscripten::return_value_policy::take_ownership());
-    emscripten::function("delayed_math", &delayed_math, emscripten::return_value_policy::take_ownership());
-    emscripten::function("transpose", &transpose, emscripten::return_value_policy::take_ownership());
+    emscripten::function("delayed_arithmetic_scalar", &js_delayed_arithmetic_scalar, emscripten::return_value_policy::take_ownership());
+    emscripten::function("delayed_arithmetic_vector", &js_delayed_arithmetic_vector, emscripten::return_value_policy::take_ownership());
+    emscripten::function("delayed_math", &js_delayed_math, emscripten::return_value_policy::take_ownership());
+    emscripten::function("transpose", &js_transpose, emscripten::return_value_policy::take_ownership());
 }

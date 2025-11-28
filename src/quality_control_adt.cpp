@@ -21,30 +21,30 @@ public:
     }
 
 public:
-    emscripten::val sum() const {
+    emscripten::val js_sum() const {
         return emscripten::val(emscripten::typed_memory_view(my_store.sum.size(), my_store.sum.data()));
     }
 
-    emscripten::val detected() const {
+    emscripten::val js_detected() const {
         return emscripten::val(emscripten::typed_memory_view(my_store.detected.size(), my_store.detected.data()));
     }
 
-    emscripten::val subset_sum(JsFakeInt i_raw) const {
+    emscripten::val js_subset_sum(JsFakeInt i_raw) const {
         const auto i = js2int<std::size_t>(i_raw);
         const auto& current = my_store.subset_sum[i];
         return emscripten::val(emscripten::typed_memory_view(current.size(), current.data()));
     }
 
-    JsFakeInt num_subsets() const {
+    JsFakeInt js_num_subsets() const {
         return int2js(my_store.subset_sum.size());
     }
 
-    JsFakeInt num_cells() const {
+    JsFakeInt js_num_cells() const {
         return int2js(my_store.sum.size());
     }
 };
 
-ComputeAdtQcMetricsResults per_cell_adt_qc_metrics(const NumericMatrix& mat, JsFakeInt nsubsets_raw, JsFakeInt subsets_raw, JsFakeInt nthreads_raw) {
+ComputeAdtQcMetricsResults js_per_cell_adt_qc_metrics(const NumericMatrix& mat, JsFakeInt nsubsets_raw, JsFakeInt subsets_raw, JsFakeInt nthreads_raw) {
     scran_qc::ComputeAdtQcMetricsOptions opt;
     opt.num_threads = js2int<int>(nthreads_raw);
     auto store = scran_qc::compute_adt_qc_metrics(*mat, convert_array_of_offsets<const std::uint8_t*>(nsubsets_raw, subsets_raw), opt);
@@ -80,7 +80,7 @@ public:
     }
 
 public:
-    emscripten::val detected() {
+    emscripten::val js_detected() {
         if (my_use_blocked) {
             auto& det = my_store_blocked.get_detected();
             return emscripten::val(emscripten::typed_memory_view(det.size(), det.data()));
@@ -91,7 +91,7 @@ public:
         }
     }
 
-    emscripten::val subset_sum(JsFakeInt i_raw) {
+    emscripten::val js_subset_sum(JsFakeInt i_raw) {
         const auto i = js2int<std::size_t>(i_raw);
         if (my_use_blocked) {
             auto& ssum = my_store_blocked.get_subset_sum()[i];
@@ -104,7 +104,7 @@ public:
     }
 
 public:
-    JsFakeInt num_subsets() const {
+    JsFakeInt js_num_subsets() const {
         if (my_use_blocked) {
             return int2js(my_store_blocked.get_subset_sum().size());
         } else {
@@ -112,7 +112,7 @@ public:
         }
     }
 
-    JsFakeInt num_blocks() const {
+    JsFakeInt js_num_blocks() const {
         if (my_use_blocked) {
             return int2js(my_store_blocked.get_detected().size());
         } else {
@@ -120,11 +120,11 @@ public:
         }
     }
 
-    bool is_blocked() const {
+    bool js_is_blocked() const {
         return my_use_blocked;
     }
 
-    void filter(const ComputeAdtQcMetricsResults& metrics, JsFakeInt blocks_raw, JsFakeInt output_raw) const {
+    void js_filter(const ComputeAdtQcMetricsResults& metrics, JsFakeInt blocks_raw, JsFakeInt output_raw) const {
         const auto output = js2int<std::uintptr_t>(output_raw);
         auto optr = reinterpret_cast<std::uint8_t*>(output);
         if (my_use_blocked) {
@@ -137,7 +137,7 @@ public:
     }
 };
 
-SuggestAdtQcFiltersResults suggest_adt_qc_filters(const ComputeAdtQcMetricsResults& metrics, bool use_blocks, JsFakeInt blocks_raw, double nmads, double min_drop) {
+SuggestAdtQcFiltersResults js_suggest_adt_qc_filters(const ComputeAdtQcMetricsResults& metrics, bool use_blocks, JsFakeInt blocks_raw, double nmads, double min_drop) {
     scran_qc::ComputeAdtQcFiltersOptions opt;
     opt.detected_num_mads = nmads;
     opt.subset_sum_num_mads = nmads;
@@ -154,25 +154,25 @@ SuggestAdtQcFiltersResults suggest_adt_qc_filters(const ComputeAdtQcMetricsResul
 }
 
 EMSCRIPTEN_BINDINGS(quality_control_adt) {
-    emscripten::function("per_cell_adt_qc_metrics", &per_cell_adt_qc_metrics, emscripten::return_value_policy::take_ownership());
+    emscripten::function("per_cell_adt_qc_metrics", &js_per_cell_adt_qc_metrics, emscripten::return_value_policy::take_ownership());
 
     emscripten::class_<ComputeAdtQcMetricsResults>("ComputeAdtQcMetricsResults")
-        .function("sum", &ComputeAdtQcMetricsResults::sum, emscripten::return_value_policy::take_ownership())
-        .function("detected", &ComputeAdtQcMetricsResults::detected, emscripten::return_value_policy::take_ownership())
-        .function("subset_sum", &ComputeAdtQcMetricsResults::subset_sum, emscripten::return_value_policy::take_ownership())
-        .function("num_subsets", &ComputeAdtQcMetricsResults::num_subsets, emscripten::return_value_policy::take_ownership())
-        .function("num_cells", &ComputeAdtQcMetricsResults::num_cells, emscripten::return_value_policy::take_ownership())
+        .function("sum", &ComputeAdtQcMetricsResults::js_sum, emscripten::return_value_policy::take_ownership())
+        .function("detected", &ComputeAdtQcMetricsResults::js_detected, emscripten::return_value_policy::take_ownership())
+        .function("subset_sum", &ComputeAdtQcMetricsResults::js_subset_sum, emscripten::return_value_policy::take_ownership())
+        .function("num_subsets", &ComputeAdtQcMetricsResults::js_num_subsets, emscripten::return_value_policy::take_ownership())
+        .function("num_cells", &ComputeAdtQcMetricsResults::js_num_cells, emscripten::return_value_policy::take_ownership())
         ;
 
-    emscripten::function("suggest_adt_qc_filters", &suggest_adt_qc_filters, emscripten::return_value_policy::take_ownership());
+    emscripten::function("suggest_adt_qc_filters", &js_suggest_adt_qc_filters, emscripten::return_value_policy::take_ownership());
 
     emscripten::class_<SuggestAdtQcFiltersResults>("SuggestAdtQcFiltersResults")
         .constructor<JsFakeInt, JsFakeInt>()
-        .function("detected", &SuggestAdtQcFiltersResults::detected, emscripten::return_value_policy::take_ownership())
-        .function("subset_sum", &SuggestAdtQcFiltersResults::subset_sum, emscripten::return_value_policy::take_ownership())
-        .function("num_subsets", &SuggestAdtQcFiltersResults::num_subsets, emscripten::return_value_policy::take_ownership())
-        .function("num_blocks", &SuggestAdtQcFiltersResults::num_blocks, emscripten::return_value_policy::take_ownership())
-        .function("is_blocked", &SuggestAdtQcFiltersResults::is_blocked, emscripten::return_value_policy::take_ownership())
-        .function("filter", &SuggestAdtQcFiltersResults::filter, emscripten::return_value_policy::take_ownership())
+        .function("detected", &SuggestAdtQcFiltersResults::js_detected, emscripten::return_value_policy::take_ownership())
+        .function("subset_sum", &SuggestAdtQcFiltersResults::js_subset_sum, emscripten::return_value_policy::take_ownership())
+        .function("num_subsets", &SuggestAdtQcFiltersResults::js_num_subsets, emscripten::return_value_policy::take_ownership())
+        .function("num_blocks", &SuggestAdtQcFiltersResults::js_num_blocks, emscripten::return_value_policy::take_ownership())
+        .function("is_blocked", &SuggestAdtQcFiltersResults::js_is_blocked, emscripten::return_value_policy::take_ownership())
+        .function("filter", &SuggestAdtQcFiltersResults::js_filter, emscripten::return_value_policy::take_ownership())
         ;
 }

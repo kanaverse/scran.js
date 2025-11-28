@@ -17,18 +17,18 @@ public:
     GsdeconResults(Store s) : my_store(std::move(s)) {}
 
 public:
-    emscripten::val weights() const {
+    emscripten::val js_weights() const {
         const auto& current = my_store.weights;
         return emscripten::val(emscripten::typed_memory_view(current.size(), current.data()));
     }
 
-    emscripten::val scores() const {
+    emscripten::val js_scores() const {
         const auto& current = my_store.scores;
         return emscripten::val(emscripten::typed_memory_view(current.size(), current.data()));
     }
 };
 
-GsdeconResults score_gsdecon(
+GsdeconResults js_score_gsdecon(
     const NumericMatrix& mat,
     JsFakeInt subset_raw,
     bool use_blocks,
@@ -64,11 +64,11 @@ GsdeconResults score_gsdecon(
 }
 
 EMSCRIPTEN_BINDINGS(score_gsdecon) {
-    emscripten::function("score_gsdecon", &score_gsdecon, emscripten::return_value_policy::take_ownership());
+    emscripten::function("score_gsdecon", &js_score_gsdecon, emscripten::return_value_policy::take_ownership());
 
     emscripten::class_<GsdeconResults>("GsdeconResults")
-        .function("weights", &GsdeconResults::weights, emscripten::return_value_policy::take_ownership())
-        .function("scores", &GsdeconResults::scores, emscripten::return_value_policy::take_ownership())
+        .function("weights", &GsdeconResults::js_weights, emscripten::return_value_policy::take_ownership())
+        .function("scores", &GsdeconResults::js_scores, emscripten::return_value_policy::take_ownership())
         ;
 }
 

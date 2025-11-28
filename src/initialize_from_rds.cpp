@@ -180,7 +180,7 @@ NumericMatrix convert_dgTMatrix_to_sparse_matrix(rds2cpp::S4Object* obj, bool la
     return sparse_from_tatami(mat, layered);
 }
 
-NumericMatrix initialize_from_rds(JsFakeInt ptr_raw, bool force_integer, bool layered) {
+NumericMatrix js_initialize_from_rds(JsFakeInt ptr_raw, bool force_integer, bool layered) {
     RdsObject* wrapper = reinterpret_cast<RdsObject*>(js2int<std::uintptr_t>(ptr_raw));
     auto obj = wrapper->ptr;
 
@@ -222,5 +222,5 @@ NumericMatrix initialize_from_rds(JsFakeInt ptr_raw, bool force_integer, bool la
 }
 
 EMSCRIPTEN_BINDINGS(initialize_from_rds) {
-    emscripten::function("initialize_from_rds", &initialize_from_rds, emscripten::return_value_policy::take_ownership());
+    emscripten::function("initialize_from_rds", &js_initialize_from_rds, emscripten::return_value_policy::take_ownership());
 }

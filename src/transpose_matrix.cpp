@@ -8,7 +8,7 @@
 #include <cstdint>
 #include <cstddef>
 
-void transpose_matrix(JsFakeInt nr_raw, JsFakeInt nc_raw, JsFakeInt input_raw, bool column_major, JsFakeInt output_raw) {
+void js_transpose_matrix(JsFakeInt nr_raw, JsFakeInt nc_raw, JsFakeInt input_raw, bool column_major, JsFakeInt output_raw) {
     const auto nr = js2int<std::size_t>(nr_raw);
     const auto nc = js2int<std::size_t>(nc_raw);
     const auto input = js2int<std::uintptr_t>(input_raw);
@@ -22,6 +22,6 @@ void transpose_matrix(JsFakeInt nr_raw, JsFakeInt nc_raw, JsFakeInt input_raw, b
 }
 
 EMSCRIPTEN_BINDINGS(transpose_matrix) {
-    emscripten::function("transpose_matrix", &transpose_matrix, emscripten::return_value_policy::take_ownership());
+    emscripten::function("transpose_matrix", &js_transpose_matrix, emscripten::return_value_policy::take_ownership());
 }
 

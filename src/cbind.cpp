@@ -9,7 +9,7 @@
 
 #include "tatami/tatami.hpp"
 
-NumericMatrix cbind(JsFakeInt n_raw, JsFakeInt mats_raw) {
+NumericMatrix js_cbind(JsFakeInt n_raw, JsFakeInt mats_raw) {
     const auto mat_ptrs = convert_array_of_offsets<const NumericMatrix*>(n_raw, mats_raw);
     const auto n = mat_ptrs.size();
     if (n == 0) {
@@ -36,7 +36,7 @@ NumericMatrix cbind(JsFakeInt n_raw, JsFakeInt mats_raw) {
     );
 }
 
-NumericMatrix rbind(JsFakeInt n_raw, JsFakeInt mats_raw) {
+NumericMatrix js_rbind(JsFakeInt n_raw, JsFakeInt mats_raw) {
     const auto mat_ptrs = convert_array_of_offsets<const NumericMatrix*>(n_raw, mats_raw);
     const auto n = mat_ptrs.size();
     if (n == 0) {
@@ -64,7 +64,7 @@ NumericMatrix rbind(JsFakeInt n_raw, JsFakeInt mats_raw) {
 }
 
 EMSCRIPTEN_BINDINGS(cbind) {
-    emscripten::function("cbind", &cbind, emscripten::return_value_policy::take_ownership());
+    emscripten::function("cbind", &js_cbind, emscripten::return_value_policy::take_ownership());
 
-    emscripten::function("rbind", &rbind, emscripten::return_value_policy::take_ownership());
+    emscripten::function("rbind", &js_rbind, emscripten::return_value_policy::take_ownership());
 }

@@ -10,7 +10,7 @@
 #include <string>
 #include <filesystem>
 
-void write_sparse_matrix_to_hdf5(const NumericMatrix& mat, std::string path, std::string name, bool csc, bool force_integer, bool overwrite) {
+void js_write_sparse_matrix_to_hdf5(const NumericMatrix& mat, std::string path, std::string name, bool csc, bool force_integer, bool overwrite) {
     auto omode = H5F_ACC_TRUNC;
     if (!overwrite && std::filesystem::exists(path)) {
         omode = H5F_ACC_RDWR;
@@ -30,5 +30,5 @@ void write_sparse_matrix_to_hdf5(const NumericMatrix& mat, std::string path, std
 }
 
 EMSCRIPTEN_BINDINGS(write_sparse_matrix_to_hdf5) {
-    emscripten::function("write_sparse_matrix_to_hdf5", &write_sparse_matrix_to_hdf5, emscripten::return_value_policy::take_ownership());
+    emscripten::function("write_sparse_matrix_to_hdf5", &js_write_sparse_matrix_to_hdf5, emscripten::return_value_policy::take_ownership());
 }

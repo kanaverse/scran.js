@@ -22,24 +22,24 @@ public:
     }
 
 public:
-    JsFakeInt epoch() const {
+    JsFakeInt js_epoch() const {
         return int2js(my_status.epoch());
     }
 
-    JsFakeInt num_epochs() const {
+    JsFakeInt js_num_epochs() const {
         return int2js(my_status.num_epochs());
     }
 
-    UmapStatus deepcopy() const {
+    UmapStatus js_deepcopy() const {
         return UmapStatus(my_status);
     }
 
-    JsFakeInt num_observations() const {
+    JsFakeInt js_num_observations() const {
         return int2js(my_status.num_observations());
     }
 };
 
-UmapStatus initialize_umap(
+UmapStatus js_initialize_umap(
     const NeighborResults& neighbors,
     JsFakeInt num_epochs_raw,
     double min_dist,
@@ -70,7 +70,7 @@ UmapStatus initialize_umap(
     return UmapStatus(std::move(stat));
 }
 
-void run_umap(UmapStatus& obj, JsFakeInt Y_raw, JsFakeInt runtime_raw) {
+void js_run_umap(UmapStatus& obj, JsFakeInt Y_raw, JsFakeInt runtime_raw) {
     const auto runtime = js2int<std::uint64_t>(runtime_raw); 
     const auto Y = js2int<std::uintptr_t>(Y_raw);
     float* embedding = reinterpret_cast<float*>(Y);
@@ -90,13 +90,14 @@ void run_umap(UmapStatus& obj, JsFakeInt Y_raw, JsFakeInt runtime_raw) {
 }
 
 EMSCRIPTEN_BINDINGS(run_umap) {
-    emscripten::function("initialize_umap", &initialize_umap, emscripten::return_value_policy::take_ownership());
+    emscripten::function("initialize_umap", &js_initialize_umap, emscripten::return_value_policy::take_ownership());
 
-    emscripten::function("run_umap", &run_umap, emscripten::return_value_policy::take_ownership());
+    emscripten::function("run_umap", &js_run_umap, emscripten::return_value_policy::take_ownership());
 
     emscripten::class_<UmapStatus>("UmapStatus")
-        .function("epoch", &UmapStatus::epoch, emscripten::return_value_policy::take_ownership())
-        .function("num_epochs", &UmapStatus::num_epochs, emscripten::return_value_policy::take_ownership())
-        .function("num_observations", &UmapStatus::num_observations, emscripten::return_value_policy::take_ownership())
-        .function("deepcopy", &UmapStatus::deepcopy, emscripten::return_value_policy::take_ownership());
+        .function("epoch", &UmapStatus::js_epoch, emscripten::return_value_policy::take_ownership())
+        .function("num_epochs", &UmapStatus::js_num_epochs, emscripten::return_value_policy::take_ownership())
+        .function("num_observations", &UmapStatus::js_num_observations, emscripten::return_value_policy::take_ownership())
+        .function("deepcopy", &UmapStatus::js_deepcopy, emscripten::return_value_policy::take_ownership())
+        ;
 }

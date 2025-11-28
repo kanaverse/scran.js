@@ -22,28 +22,28 @@ public:
     }
 
 public:
-    emscripten::val sum() const {
+    emscripten::val js_sum() const {
         return emscripten::val(emscripten::typed_memory_view(my_store.sum.size(), my_store.sum.data()));
     }
 
-    emscripten::val detected() const {
+    emscripten::val js_detected() const {
         return emscripten::val(emscripten::typed_memory_view(my_store.detected.size(), my_store.detected.data()));
     }
 
-    emscripten::val max_value() const {
+    emscripten::val js_max_value() const {
         return emscripten::val(emscripten::typed_memory_view(my_store.max_value.size(), my_store.max_value.data()));
     }
 
-    emscripten::val max_index() const {
+    emscripten::val js_max_index() const {
         return emscripten::val(emscripten::typed_memory_view(my_store.max_index.size(), my_store.max_index.data()));
     }
 
-    JsFakeInt num_cells() const {
+    JsFakeInt js_num_cells() const {
         return int2js(my_store.sum.size());
     }
 };
 
-ComputeCrisprQcMetricsResults per_cell_crispr_qc_metrics(const NumericMatrix& mat, JsFakeInt nthreads_raw) {
+ComputeCrisprQcMetricsResults js_per_cell_crispr_qc_metrics(const NumericMatrix& mat, JsFakeInt nthreads_raw) {
     scran_qc::ComputeCrisprQcMetricsOptions opt;
     opt.num_threads = js2int<int>(nthreads_raw);
     auto store = scran_qc::compute_crispr_qc_metrics(*mat, opt);
@@ -71,7 +71,7 @@ public:
     }
 
 public:
-    emscripten::val max_value() {
+    emscripten::val js_max_value() {
         if (my_use_blocked) {
             auto& mc = my_store_blocked.get_max_value();
             return emscripten::val(emscripten::typed_memory_view(mc.size(), mc.data()));
@@ -82,7 +82,7 @@ public:
         } 
     }
 
-    JsFakeInt num_blocks() const {
+    JsFakeInt js_num_blocks() const {
         if (my_use_blocked) {
             return int2js(my_store_blocked.get_max_value().size());
         } else {
@@ -90,11 +90,11 @@ public:
         }
     }
 
-    bool is_blocked() const {
+    bool js_is_blocked() const {
         return my_use_blocked;
     }
 
-    void filter(const ComputeCrisprQcMetricsResults& metrics, JsFakeInt blocks_raw, JsFakeInt output_raw) const {
+    void js_filter(const ComputeCrisprQcMetricsResults& metrics, JsFakeInt blocks_raw, JsFakeInt output_raw) const {
         const auto output = js2int<std::uintptr_t>(output_raw);
         auto optr = reinterpret_cast<std::uint8_t*>(output);
         if (my_use_blocked) {
@@ -107,7 +107,7 @@ public:
     }
 };
 
-SuggestCrisprQcFiltersResults suggest_crispr_qc_filters(const ComputeCrisprQcMetricsResults& metrics, bool use_blocks, JsFakeInt blocks_raw, double nmads) {
+SuggestCrisprQcFiltersResults js_suggest_crispr_qc_filters(const ComputeCrisprQcMetricsResults& metrics, bool use_blocks, JsFakeInt blocks_raw, double nmads) {
     scran_qc::ComputeCrisprQcFiltersOptions opt;
     opt.max_value_num_mads = nmads;
 
@@ -122,23 +122,23 @@ SuggestCrisprQcFiltersResults suggest_crispr_qc_filters(const ComputeCrisprQcMet
 }
 
 EMSCRIPTEN_BINDINGS(quality_control_crispr) {
-    emscripten::function("per_cell_crispr_qc_metrics", &per_cell_crispr_qc_metrics, emscripten::return_value_policy::take_ownership());
+    emscripten::function("per_cell_crispr_qc_metrics", &js_per_cell_crispr_qc_metrics, emscripten::return_value_policy::take_ownership());
 
     emscripten::class_<ComputeCrisprQcMetricsResults>("ComputeCrisprQcMetricsResults")
-        .function("sum", &ComputeCrisprQcMetricsResults::sum, emscripten::return_value_policy::take_ownership())
-        .function("detected", &ComputeCrisprQcMetricsResults::detected, emscripten::return_value_policy::take_ownership())
-        .function("max_value", &ComputeCrisprQcMetricsResults::max_value, emscripten::return_value_policy::take_ownership())
-        .function("max_index", &ComputeCrisprQcMetricsResults::max_index, emscripten::return_value_policy::take_ownership())
-        .function("num_cells", &ComputeCrisprQcMetricsResults::num_cells, emscripten::return_value_policy::take_ownership())
+        .function("sum", &ComputeCrisprQcMetricsResults::js_sum, emscripten::return_value_policy::take_ownership())
+        .function("detected", &ComputeCrisprQcMetricsResults::js_detected, emscripten::return_value_policy::take_ownership())
+        .function("max_value", &ComputeCrisprQcMetricsResults::js_max_value, emscripten::return_value_policy::take_ownership())
+        .function("max_index", &ComputeCrisprQcMetricsResults::js_max_index, emscripten::return_value_policy::take_ownership())
+        .function("num_cells", &ComputeCrisprQcMetricsResults::js_num_cells, emscripten::return_value_policy::take_ownership())
         ;
 
-    emscripten::function("suggest_crispr_qc_filters", &suggest_crispr_qc_filters, emscripten::return_value_policy::take_ownership());
+    emscripten::function("suggest_crispr_qc_filters", &js_suggest_crispr_qc_filters, emscripten::return_value_policy::take_ownership());
 
     emscripten::class_<SuggestCrisprQcFiltersResults>("SuggestCrisprQcFiltersResults")
         .constructor<JsFakeInt>()
-        .function("max_value", &SuggestCrisprQcFiltersResults::max_value, emscripten::return_value_policy::take_ownership())
-        .function("num_blocks", &SuggestCrisprQcFiltersResults::num_blocks, emscripten::return_value_policy::take_ownership())
-        .function("is_blocked", &SuggestCrisprQcFiltersResults::is_blocked, emscripten::return_value_policy::take_ownership())
-        .function("filter", &SuggestCrisprQcFiltersResults::filter, emscripten::return_value_policy::take_ownership())
+        .function("max_value", &SuggestCrisprQcFiltersResults::js_max_value, emscripten::return_value_policy::take_ownership())
+        .function("num_blocks", &SuggestCrisprQcFiltersResults::js_num_blocks, emscripten::return_value_policy::take_ownership())
+        .function("is_blocked", &SuggestCrisprQcFiltersResults::js_is_blocked, emscripten::return_value_policy::take_ownership())
+        .function("filter", &SuggestCrisprQcFiltersResults::js_filter, emscripten::return_value_policy::take_ownership())
         ;
 }

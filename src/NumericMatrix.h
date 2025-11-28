@@ -20,21 +20,21 @@ public:
 
     MatrixIndex ncol() const;
 
-    JsFakeInt nrow_js() const;
+    JsFakeInt js_nrow() const;
 
-    JsFakeInt ncol_js() const;
+    JsFakeInt js_ncol() const;
 
 public:
-    bool sparse() const;
+    bool js_sparse() const;
 
-    NumericMatrix clone() const;
+    NumericMatrix js_clone() const;
 
     // Not thread-safe! by_row and by_column are initialized
     // on demand when particular rows and columns are requested
     // in Javascript. Don't use these functions from C++.
-    void row(JsFakeInt r, JsFakeInt values_raw);
+    void js_row(JsFakeInt r, JsFakeInt values_raw);
 
-    void column(JsFakeInt c, JsFakeInt values_raw);
+    void js_column(JsFakeInt c, JsFakeInt values_raw);
 
 public:
     const std::shared_ptr<const tatami::Matrix<MatrixValue, MatrixIndex> >& ptr() const;

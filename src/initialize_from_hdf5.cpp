@@ -14,12 +14,12 @@
 #include "H5Cpp.h"
 #include "tatami_hdf5/tatami_hdf5.hpp"
 
-bool is_hdf5_dense(const std::string& path, const std::string& name) {
+bool js_is_hdf5_dense(std::string path, std::string name) {
     H5::H5File handle(path, H5F_ACC_RDONLY);
     return (handle.childObjType(name) == H5O_TYPE_DATASET);
 }
 
-emscripten::val extract_hdf5_matrix_details(const std::string& path, const std::string& name) {
+emscripten::val js_extract_hdf5_matrix_details(std::string path, std::string name) {
     auto output = emscripten::val::object();
 
     try {
@@ -178,7 +178,7 @@ NumericMatrix initialize_from_hdf5_dense_internal(
     return mat;
 }
 
-NumericMatrix initialize_from_hdf5_dense(
+NumericMatrix js_initialize_from_hdf5_dense(
     std::string path, 
     std::string name, 
     bool trans,
@@ -285,7 +285,7 @@ NumericMatrix initialize_from_hdf5_sparse_internal(
     return output;
 }
 
-NumericMatrix initialize_from_hdf5_sparse(
+NumericMatrix js_initialize_from_hdf5_sparse(
     std::string path, 
     std::string data_name, 
     std::string indices_name, 
@@ -351,8 +351,8 @@ NumericMatrix initialize_from_hdf5_sparse(
 }
 
 EMSCRIPTEN_BINDINGS(read_hdf5_matrix) {
-    emscripten::function("is_hdf5_dense", &is_hdf5_dense, emscripten::return_value_policy::take_ownership());
-    emscripten::function("extract_hdf5_matrix_details", &extract_hdf5_matrix_details, emscripten::return_value_policy::take_ownership());
-    emscripten::function("initialize_from_hdf5_dense", &initialize_from_hdf5_dense, emscripten::return_value_policy::take_ownership());
-    emscripten::function("initialize_from_hdf5_sparse", &initialize_from_hdf5_sparse, emscripten::return_value_policy::take_ownership());
+    emscripten::function("is_hdf5_dense", &js_is_hdf5_dense, emscripten::return_value_policy::take_ownership());
+    emscripten::function("extract_hdf5_matrix_details", &js_extract_hdf5_matrix_details, emscripten::return_value_policy::take_ownership());
+    emscripten::function("initialize_from_hdf5_dense", &js_initialize_from_hdf5_dense, emscripten::return_value_policy::take_ownership());
+    emscripten::function("initialize_from_hdf5_sparse", &js_initialize_from_hdf5_sparse, emscripten::return_value_policy::take_ownership());
 }

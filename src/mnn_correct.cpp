@@ -8,7 +8,7 @@
 
 #include "mnncorrect/mnncorrect.hpp"
 
-void mnn_correct(
+void js_mnn_correct(
     JsFakeInt nrows_raw, 
     JsFakeInt ncols_raw, 
     JsFakeInt input_raw, 
@@ -53,5 +53,5 @@ void mnn_correct(
 }
 
 EMSCRIPTEN_BINDINGS(mnn_correct) {
-    emscripten::function("mnn_correct", &mnn_correct, emscripten::return_value_policy::take_ownership());
+    emscripten::function("mnn_correct", &js_mnn_correct, emscripten::return_value_policy::take_ownership());
 }

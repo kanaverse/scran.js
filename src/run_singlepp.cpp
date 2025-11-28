@@ -46,20 +46,20 @@ public:
     }
 
 public:
-    JsFakeInt num_samples() const {
+    JsFakeInt js_num_samples() const {
         return int2js(my_matrix.ncol());
     }
 
-    JsFakeInt num_features() const {
+    JsFakeInt js_num_features() const {
         return int2js(my_matrix.nrow());
     }
 
-    JsFakeInt num_labels() const {
+    JsFakeInt js_num_labels() const {
         return int2js(my_markers.size());
     }
 };
 
-SingleppRawReference load_singlepp_reference(
+SingleppRawReference js_load_singlepp_reference(
     JsFakeInt labels_buffer_raw,
     JsFakeInt labels_len_raw,
     JsFakeInt markers_buffer_raw,
@@ -108,16 +108,16 @@ public:
     }
 
 public:
-    JsFakeInt num_features() const {
+    JsFakeInt js_num_features() const {
         return int2js(my_store.get_test_subset().size());
     }
 
-    JsFakeInt num_labels() const {
+    JsFakeInt js_num_labels() const {
         return int2js(my_store.num_labels());
     }
 };
 
-SingleppTrainedReference train_singlepp_reference(
+SingleppTrainedReference js_train_singlepp_reference(
     JsFakeInt num_test_features_raw,
     JsFakeInt num_intersected_raw,
     JsFakeInt test_feature_ids_raw,
@@ -176,19 +176,19 @@ public:
     }
 
 public:
-    JsFakeInt num_samples() const {
+    JsFakeInt js_num_samples() const {
         return int2js(my_store.best.size());
     }
 
-    JsFakeInt num_labels() const {
+    JsFakeInt js_num_labels() const {
         return int2js(my_store.scores.size());
     }
 
-    emscripten::val best() const {
+    emscripten::val js_best() const {
         return emscripten::val(emscripten::typed_memory_view(my_store.best.size(), my_store.best.data()));
     }
 
-    void score_for_sample(JsFakeInt i_raw, JsFakeInt output_raw) const {
+    void js_score_for_sample(JsFakeInt i_raw, JsFakeInt output_raw) const {
         const auto output = js2int<std::uintptr_t>(output_raw);
         auto optr = reinterpret_cast<double*>(output);
         const auto i = js2int<std::size_t>(i_raw); 
@@ -198,18 +198,18 @@ public:
         }
     }
 
-    emscripten::val score_for_label(JsFakeInt i_raw) const {
+    emscripten::val js_score_for_label(JsFakeInt i_raw) const {
         const auto i = js2int<std::size_t>(i_raw); 
         const auto& current = my_store.scores[i];
         return emscripten::val(emscripten::typed_memory_view(current.size(), current.data()));
     }
 
-    emscripten::val delta() const {
+    emscripten::val js_delta() const {
         return emscripten::val(emscripten::typed_memory_view(my_store.delta.size(), my_store.delta.data()));
     }
 };
 
-SingleppResults run_singlepp(
+SingleppResults js_run_singlepp(
     const NumericMatrix& mat,
     const SingleppTrainedReference& built,
     double quantile,
@@ -238,12 +238,12 @@ public:
     }
 
 public:
-    JsFakeInt num_references() const {
+    JsFakeInt js_num_references() const {
         return int2js(my_store.num_references());
     }
 };
 
-SingleppIntegratedReferences integrate_singlepp_references(
+SingleppIntegratedReferences js_integrate_singlepp_references(
     JsFakeInt nref_raw, 
     JsFakeInt intersection_sizes_raw,
     JsFakeInt test_feature_ids_raw,
@@ -312,19 +312,19 @@ public:
     }
 
 public:
-    JsFakeInt num_samples() const {
+    JsFakeInt js_num_samples() const {
         return int2js(my_store.best.size());
     }
 
-    JsFakeInt num_references() const {
+    JsFakeInt js_num_references() const {
         return int2js(my_store.scores.size());
     }
 
-    emscripten::val best() const {
+    emscripten::val js_best() const {
         return emscripten::val(emscripten::typed_memory_view(my_store.best.size(), my_store.best.data()));
     }
 
-    void score_for_sample(JsFakeInt i_raw, JsFakeInt output_raw) const {
+    void js_score_for_sample(JsFakeInt i_raw, JsFakeInt output_raw) const {
         const auto i = js2int<std::size_t>(i_raw);
         const auto output = js2int<std::uintptr_t>(output_raw);
         auto optr = reinterpret_cast<double*>(output);
@@ -334,17 +334,17 @@ public:
         }
     }
 
-    emscripten::val score_for_reference(JsFakeInt i_raw) const {
+    emscripten::val js_score_for_reference(JsFakeInt i_raw) const {
         const auto& current = my_store.scores[js2int<std::size_t>(i_raw)];
         return emscripten::val(emscripten::typed_memory_view(current.size(), current.data()));
     }
 
-    emscripten::val delta() const {
+    emscripten::val js_delta() const {
         return emscripten::val(emscripten::typed_memory_view(my_store.delta.size(), my_store.delta.data()));
     }
 };
 
-SingleppIntegratedResults integrate_singlepp(
+SingleppIntegratedResults js_integrate_singlepp(
     const NumericMatrix& mat,
     JsFakeInt assigned_raw,
     const SingleppIntegratedReferences& integrated,
@@ -363,45 +363,45 @@ SingleppIntegratedResults integrate_singlepp(
 
 EMSCRIPTEN_BINDINGS(run_singlepp) {
     emscripten::class_<SingleppRawReference>("SingleppRawReference")
-        .function("num_samples", &SingleppRawReference::num_samples, emscripten::return_value_policy::take_ownership())
-        .function("num_features", &SingleppRawReference::num_features, emscripten::return_value_policy::take_ownership())
-        .function("num_labels", &SingleppRawReference::num_labels, emscripten::return_value_policy::take_ownership())
+        .function("num_samples", &SingleppRawReference::js_num_samples, emscripten::return_value_policy::take_ownership())
+        .function("num_features", &SingleppRawReference::js_num_features, emscripten::return_value_policy::take_ownership())
+        .function("num_labels", &SingleppRawReference::js_num_labels, emscripten::return_value_policy::take_ownership())
         ;
 
-    emscripten::function("load_singlepp_reference", &load_singlepp_reference, emscripten::return_value_policy::take_ownership());
+    emscripten::function("load_singlepp_reference", &js_load_singlepp_reference, emscripten::return_value_policy::take_ownership());
 
     emscripten::class_<SingleppTrainedReference>("SingleppTrainedReference")
-        .function("num_features", &SingleppTrainedReference::num_features, emscripten::return_value_policy::take_ownership())
-        .function("num_labels", &SingleppTrainedReference::num_labels, emscripten::return_value_policy::take_ownership())
+        .function("num_features", &SingleppTrainedReference::js_num_features, emscripten::return_value_policy::take_ownership())
+        .function("num_labels", &SingleppTrainedReference::js_num_labels, emscripten::return_value_policy::take_ownership())
         ;
 
-    emscripten::function("train_singlepp_reference", &train_singlepp_reference, emscripten::return_value_policy::take_ownership());
+    emscripten::function("train_singlepp_reference", &js_train_singlepp_reference, emscripten::return_value_policy::take_ownership());
 
     emscripten::class_<SingleppResults>("SingleppResults")
-        .function("num_samples", &SingleppResults::num_samples, emscripten::return_value_policy::take_ownership()) 
-        .function("num_labels", &SingleppResults::num_labels, emscripten::return_value_policy::take_ownership())
-        .function("best", &SingleppResults::best, emscripten::return_value_policy::take_ownership())
-        .function("score_for_sample", &SingleppResults::score_for_sample, emscripten::return_value_policy::take_ownership())
-        .function("score_for_label", &SingleppResults::score_for_label, emscripten::return_value_policy::take_ownership())
-        .function("delta", &SingleppResults::delta, emscripten::return_value_policy::take_ownership())
+        .function("num_samples", &SingleppResults::js_num_samples, emscripten::return_value_policy::take_ownership()) 
+        .function("num_labels", &SingleppResults::js_num_labels, emscripten::return_value_policy::take_ownership())
+        .function("best", &SingleppResults::js_best, emscripten::return_value_policy::take_ownership())
+        .function("score_for_sample", &SingleppResults::js_score_for_sample, emscripten::return_value_policy::take_ownership())
+        .function("score_for_label", &SingleppResults::js_score_for_label, emscripten::return_value_policy::take_ownership())
+        .function("delta", &SingleppResults::js_delta, emscripten::return_value_policy::take_ownership())
         ;
 
-    emscripten::function("run_singlepp", &run_singlepp, emscripten::return_value_policy::take_ownership());
+    emscripten::function("run_singlepp", &js_run_singlepp, emscripten::return_value_policy::take_ownership());
 
     emscripten::class_<SingleppIntegratedReferences>("SingleppIntegratedReferences")
-        .function("num_references", &SingleppIntegratedReferences::num_references, emscripten::return_value_policy::take_ownership())
+        .function("num_references", &SingleppIntegratedReferences::js_num_references, emscripten::return_value_policy::take_ownership())
         ;
 
-    emscripten::function("integrate_singlepp_references", &integrate_singlepp_references, emscripten::return_value_policy::take_ownership());
+    emscripten::function("integrate_singlepp_references", &js_integrate_singlepp_references, emscripten::return_value_policy::take_ownership());
 
     emscripten::class_<SingleppIntegratedResults>("SingleppIntegratedResults")
-        .function("num_samples", &SingleppIntegratedResults::num_samples, emscripten::return_value_policy::take_ownership()) 
-        .function("num_references", &SingleppIntegratedResults::num_references, emscripten::return_value_policy::take_ownership())
-        .function("best", &SingleppIntegratedResults::best, emscripten::return_value_policy::take_ownership())
-        .function("score_for_sample", &SingleppIntegratedResults::score_for_sample, emscripten::return_value_policy::take_ownership())
-        .function("score_for_reference", &SingleppIntegratedResults::score_for_reference, emscripten::return_value_policy::take_ownership())
-        .function("delta", &SingleppIntegratedResults::delta, emscripten::return_value_policy::take_ownership())
+        .function("num_samples", &SingleppIntegratedResults::js_num_samples, emscripten::return_value_policy::take_ownership()) 
+        .function("num_references", &SingleppIntegratedResults::js_num_references, emscripten::return_value_policy::take_ownership())
+        .function("best", &SingleppIntegratedResults::js_best, emscripten::return_value_policy::take_ownership())
+        .function("score_for_sample", &SingleppIntegratedResults::js_score_for_sample, emscripten::return_value_policy::take_ownership())
+        .function("score_for_reference", &SingleppIntegratedResults::js_score_for_reference, emscripten::return_value_policy::take_ownership())
+        .function("delta", &SingleppIntegratedResults::js_delta, emscripten::return_value_policy::take_ownership())
         ;
 
-    emscripten::function("integrate_singlepp", &integrate_singlepp, emscripten::return_value_policy::take_ownership());
+    emscripten::function("integrate_singlepp", &js_integrate_singlepp, emscripten::return_value_policy::take_ownership());
 }

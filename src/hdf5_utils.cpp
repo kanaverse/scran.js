@@ -22,9 +22,6 @@ emscripten::val extract_attribute_names(const H5::H5Object& handle) {
     return output;
 }
 
-// Don't return size_t's directly, instead convert them to doubles so that we get Numbers in javascript.
-// Otherwise we have to deal with BigInts and those are a  pain.
-
 template<typename Handle_>
 emscripten::val extract_shape(const Handle_& handle) {
     auto dspace = handle.getSpace();
@@ -215,11 +212,11 @@ class H5GroupDetails {
 public:
     H5GroupDetails(std::string file, std::string name) : my_fhandle(file, H5F_ACC_RDONLY), my_ghandle(my_fhandle.openGroup(name)) {}
 
-    emscripten::val attributes() {
+    emscripten::val js_attributes() {
         return extract_attribute_names(my_ghandle);
     }
 
-    emscripten::val children() {
+    emscripten::val js_children() {
         auto children = emscripten::val::object();
         auto num = my_ghandle.getNumObjs();
         for (decltype(num) i = 0; i < num; ++i) {
@@ -244,15 +241,15 @@ class H5DataSetDetails {
 public:
     H5DataSetDetails(std::string file, std::string name) : my_fhandle(file, H5F_ACC_RDONLY), my_dhandle(my_fhandle.openDataSet(name)) {}
 
-    emscripten::val attributes() {
+    emscripten::val js_attributes() {
         return extract_attribute_names(my_dhandle);
     }
 
-    emscripten::val shape() const {
+    emscripten::val js_shape() const {
         return extract_shape(my_dhandle);
     }
 
-    emscripten::val type() {
+    emscripten::val js_type() {
         return format_type(my_dhandle);
     }
 };
@@ -546,7 +543,7 @@ class LoadedH5DataSet {
 public:
     LoadedH5DataSet(std::string path, std::string name) : my_fhandle(path, H5F_ACC_RDONLY), my_dhandle(my_fhandle.openDataSet(name)) {}
 
-    emscripten::val numeric_values() {
+    emscripten::val js_numeric_values() {
         try {
             my_numeric.template fill_numeric_contents<Internal>(my_dhandle);
         } catch (H5::Exception& e) {
@@ -555,7 +552,7 @@ public:
         return my_numeric.numeric_values();
     }
 
-    emscripten::val compound_values() const {
+    emscripten::val js_compound_values() const {
         try {
             return extract_compound_values<Internal>(my_dhandle);
         } catch (H5::Exception& e) {
@@ -563,7 +560,7 @@ public:
         } 
     }
 
-    emscripten::val string_values() const {
+    emscripten::val js_string_values() const {
         try {
             return extract_string_values<Internal>(my_dhandle);
         } catch (H5::Exception& e) {
@@ -600,7 +597,7 @@ public:
         }
     }
 
-    emscripten::val numeric_values() {
+    emscripten::val js_numeric_values() {
         try {
             my_numeric.template fill_numeric_contents<Internal>(my_ahandle);
         } catch (H5::Exception& e) {
@@ -609,7 +606,7 @@ public:
         return my_numeric.numeric_values();
     }
 
-    emscripten::val compound_values() const {
+    emscripten::val js_compound_values() const {
         try {
             return extract_compound_values<Internal>(my_ahandle);
         } catch (H5::Exception& e) {
@@ -617,7 +614,7 @@ public:
         }
     }
 
-    emscripten::val string_values() const {
+    emscripten::val js_string_values() const {
         try {
             return extract_string_values<Internal>(my_ahandle);
         } catch (H5::Exception& e) {
@@ -625,23 +622,23 @@ public:
         }
     }
 
-    emscripten::val shape() const {
+    emscripten::val js_shape() const {
         return extract_shape(my_ahandle);
     }
 
-    emscripten::val type() {
+    emscripten::val js_type() {
         return format_type(my_ahandle);
     }
 };
 
 /************* File creators **************/
 
-void create_hdf5_file(std::string path) {
+void js_create_hdf5_file(std::string path) {
     H5::H5File handle(path, H5F_ACC_TRUNC);
     return;
 }
 
-void create_hdf5_group(std::string path, std::string name) {
+void js_create_hdf5_group(std::string path, std::string name) {
     H5::H5File handle(path, H5F_ACC_RDWR);
     handle.createGroup(name);
     return;
@@ -819,7 +816,7 @@ void create_hdf5_dataset(const std::string& path, const std::string& name, const
     handle.createDataSet(name, dtype, dspace, plist);
 }
 
-void create_numeric_hdf5_dataset(std::string path, std::string name, emscripten::val shape, JsFakeInt deflate_level, emscripten::val chunks, std::string type) {
+void js_create_numeric_hdf5_dataset(std::string path, std::string name, emscripten::val shape, JsFakeInt deflate_level, emscripten::val chunks, std::string type) {
     try {
         create_hdf5_dataset(path, name, choose_numeric_type(type), shape, deflate_level, chunks);
     } catch (H5::Exception& e) {
@@ -827,7 +824,7 @@ void create_numeric_hdf5_dataset(std::string path, std::string name, emscripten:
     }
 }
 
-void create_string_hdf5_dataset(std::string path, std::string name, emscripten::val shape, JsFakeInt deflate_level, emscripten::val chunks, std::string encoding, JsFakeInt strlen_or_var) {
+void js_create_string_hdf5_dataset(std::string path, std::string name, emscripten::val shape, JsFakeInt deflate_level, emscripten::val chunks, std::string encoding, JsFakeInt strlen_or_var) {
     try {
         create_hdf5_dataset(path, name, choose_string_type(encoding, strlen_or_var), shape, deflate_level, chunks);
     } catch (H5::Exception& e) {
@@ -835,7 +832,7 @@ void create_string_hdf5_dataset(std::string path, std::string name, emscripten::
     }
 }
 
-void create_enum_hdf5_dataset(std::string path, std::string name, emscripten::val shape, JsFakeInt deflate_level, emscripten::val chunks, std::string code_type, emscripten::val levels) {
+void js_create_enum_hdf5_dataset(std::string path, std::string name, emscripten::val shape, JsFakeInt deflate_level, emscripten::val chunks, std::string code_type, emscripten::val levels) {
     try {
         create_hdf5_dataset(path, name, choose_enum_type(code_type, levels), shape, deflate_level, chunks);
     } catch (H5::Exception& e) {
@@ -843,7 +840,7 @@ void create_enum_hdf5_dataset(std::string path, std::string name, emscripten::va
     }
 }
 
-void create_compound_hdf5_dataset(std::string path, std::string name, emscripten::val shape, JsFakeInt deflate_level, emscripten::val chunks, emscripten::val members) {
+void js_create_compound_hdf5_dataset(std::string path, std::string name, emscripten::val shape, JsFakeInt deflate_level, emscripten::val chunks, emscripten::val members) {
     try {
         create_hdf5_dataset(path, name, choose_compound_type(members), shape, deflate_level, chunks);
     } catch (H5::Exception& e) {
@@ -877,7 +874,7 @@ void create_hdf5_attribute(const std::string& path, const std::string& name, con
     }
 } 
 
-void create_numeric_hdf5_attribute(std::string path, std::string name, std::string attr, emscripten::val shape, std::string type) {
+void js_create_numeric_hdf5_attribute(std::string path, std::string name, std::string attr, emscripten::val shape, std::string type) {
     try {
         create_hdf5_attribute(path, name, attr, choose_numeric_type(type), shape);
     } catch (H5::Exception& e) {
@@ -885,7 +882,7 @@ void create_numeric_hdf5_attribute(std::string path, std::string name, std::stri
     }
 }
 
-void create_string_hdf5_attribute(std::string path, std::string name, std::string attr, emscripten::val shape, std::string encoding, JsFakeInt strlen_or_var) {
+void js_create_string_hdf5_attribute(std::string path, std::string name, std::string attr, emscripten::val shape, std::string encoding, JsFakeInt strlen_or_var) {
     try {
         create_hdf5_attribute(path, name, attr, choose_string_type(encoding, strlen_or_var), shape);
     } catch (H5::Exception& e) {
@@ -893,7 +890,7 @@ void create_string_hdf5_attribute(std::string path, std::string name, std::strin
     }
 }
 
-void create_enum_hdf5_attribute(std::string path, std::string name, std::string attr, emscripten::val shape, std::string code_type, emscripten::val levels) {
+void js_create_enum_hdf5_attribute(std::string path, std::string name, std::string attr, emscripten::val shape, std::string code_type, emscripten::val levels) {
     try {
         create_hdf5_attribute(path, name, attr, choose_enum_type(code_type, levels), shape);
     } catch (H5::Exception& e) {
@@ -901,7 +898,7 @@ void create_enum_hdf5_attribute(std::string path, std::string name, std::string 
     }
 }
 
-void create_compound_hdf5_attribute(std::string path, std::string name, std::string attr, emscripten::val shape, emscripten::val members) {
+void js_create_compound_hdf5_attribute(std::string path, std::string name, std::string attr, emscripten::val shape, emscripten::val members) {
     try {
         create_hdf5_attribute(path, name, attr, choose_compound_type(members), shape);
     } catch (H5::Exception& e) {
@@ -1103,7 +1100,7 @@ struct DataSetHandleWriter {
     }
 };
 
-void write_numeric_hdf5_dataset(std::string path, std::string name, std::string type, JsFakeInt data) {
+void js_write_numeric_hdf5_dataset(std::string path, std::string name, std::string type, JsFakeInt data) {
     try {
         H5::H5File handle(path, H5F_ACC_RDWR);
         auto dhandle = handle.openDataSet(name);
@@ -1113,7 +1110,7 @@ void write_numeric_hdf5_dataset(std::string path, std::string name, std::string 
     }
 }
 
-void write_string_hdf5_dataset(std::string path, std::string name, emscripten::val data) {
+void js_write_string_hdf5_dataset(std::string path, std::string name, emscripten::val data) {
     try {
         H5::H5File handle(path, H5F_ACC_RDWR);
         auto dhandle = handle.openDataSet(name);
@@ -1123,7 +1120,7 @@ void write_string_hdf5_dataset(std::string path, std::string name, emscripten::v
     }
 }
 
-void write_enum_hdf5_dataset(std::string path, std::string name, JsFakeInt data) {
+void js_write_enum_hdf5_dataset(std::string path, std::string name, JsFakeInt data) {
     try {
         H5::H5File handle(path, H5F_ACC_RDWR);
         auto dhandle = handle.openDataSet(name);
@@ -1133,7 +1130,7 @@ void write_enum_hdf5_dataset(std::string path, std::string name, JsFakeInt data)
     }
 }
 
-void write_compound_hdf5_dataset(std::string path, std::string name, const emscripten::val& data) {
+void js_write_compound_hdf5_dataset(std::string path, std::string name, const emscripten::val& data) {
     try {
         H5::H5File handle(path, H5F_ACC_RDWR);
         auto dhandle = handle.openDataSet(name);
@@ -1170,7 +1167,7 @@ void write_hdf5_attribute(const std::string& path, const std::string& name, cons
     }
 }
 
-void write_numeric_hdf5_attribute(std::string path, std::string name, std::string attr, std::string type, JsFakeInt data) {
+void js_write_numeric_hdf5_attribute(std::string path, std::string name, std::string attr, std::string type, JsFakeInt data) {
     try {
         write_hdf5_attribute(
             path,
@@ -1185,7 +1182,7 @@ void write_numeric_hdf5_attribute(std::string path, std::string name, std::strin
     }
 }
 
-void write_string_hdf5_attribute(std::string path, std::string name, std::string attr, emscripten::val data) {
+void js_write_string_hdf5_attribute(std::string path, std::string name, std::string attr, emscripten::val data) {
     try {
         write_hdf5_attribute(
             path,
@@ -1200,7 +1197,7 @@ void write_string_hdf5_attribute(std::string path, std::string name, std::string
     }
 }
 
-void write_enum_hdf5_attribute(std::string path, std::string name, std::string attr, JsFakeInt data) {
+void js_write_enum_hdf5_attribute(std::string path, std::string name, std::string attr, JsFakeInt data) {
     try {
         write_hdf5_attribute(
             path,
@@ -1215,7 +1212,7 @@ void write_enum_hdf5_attribute(std::string path, std::string name, std::string a
     }
 }
 
-void write_compound_hdf5_attribute(std::string path, std::string name, std::string attr, const emscripten::val& data) {
+void js_write_compound_hdf5_attribute(std::string path, std::string name, std::string attr, const emscripten::val& data) {
     try {
         write_hdf5_attribute(
             path,
@@ -1232,7 +1229,7 @@ void write_compound_hdf5_attribute(std::string path, std::string name, std::stri
 
 /************* String length guessers **************/
 
-JsFakeInt get_max_str_len(emscripten::val x) {
+JsFakeInt js_get_max_str_len(emscripten::val x) {
     std::size_t strlen = 0;
     for (auto y : x) {
         if (y.isString()) {
@@ -1245,7 +1242,7 @@ JsFakeInt get_max_str_len(emscripten::val x) {
     return int2js(strlen);
 }
 
-emscripten::val get_max_str_len_compound(emscripten::val x, emscripten::val fields) {
+emscripten::val js_get_max_str_len_compound(emscripten::val x, emscripten::val fields) {
     std::vector<std::pair<std::string, std::size_t> > to_access; 
     for (auto f : fields) {
         to_access.emplace_back(f.template as<std::string>(), 0);
@@ -1275,56 +1272,56 @@ emscripten::val get_max_str_len_compound(emscripten::val x, emscripten::val fiel
 EMSCRIPTEN_BINDINGS(hdf5_utils) {
     emscripten::class_<H5GroupDetails>("H5GroupDetails")
         .constructor<std::string, std::string>()
-        .function("children", &H5GroupDetails::children, emscripten::return_value_policy::take_ownership())
-        .function("attributes", &H5GroupDetails::attributes, emscripten::return_value_policy::take_ownership())
+        .function("children", &H5GroupDetails::js_children, emscripten::return_value_policy::take_ownership())
+        .function("attributes", &H5GroupDetails::js_attributes, emscripten::return_value_policy::take_ownership())
         ;
 
     emscripten::class_<H5DataSetDetails>("H5DataSetDetails")
         .constructor<std::string, std::string>()
-        .function("type", &H5DataSetDetails::type, emscripten::return_value_policy::take_ownership())
-        .function("shape", &H5DataSetDetails::shape, emscripten::return_value_policy::take_ownership())
-        .function("attributes", &H5DataSetDetails::attributes, emscripten::return_value_policy::take_ownership())
+        .function("type", &H5DataSetDetails::js_type, emscripten::return_value_policy::take_ownership())
+        .function("shape", &H5DataSetDetails::js_shape, emscripten::return_value_policy::take_ownership())
+        .function("attributes", &H5DataSetDetails::js_attributes, emscripten::return_value_policy::take_ownership())
         ;
 
     emscripten::class_<LoadedH5DataSet>("LoadedH5DataSet")
         .constructor<std::string, std::string>()
-        .function("numeric_values", &LoadedH5DataSet::numeric_values, emscripten::return_value_policy::take_ownership())
-        .function("string_values", &LoadedH5DataSet::string_values, emscripten::return_value_policy::take_ownership())
-        .function("compound_values", &LoadedH5DataSet::compound_values, emscripten::return_value_policy::take_ownership())
+        .function("numeric_values", &LoadedH5DataSet::js_numeric_values, emscripten::return_value_policy::take_ownership())
+        .function("string_values", &LoadedH5DataSet::js_string_values, emscripten::return_value_policy::take_ownership())
+        .function("compound_values", &LoadedH5DataSet::js_compound_values, emscripten::return_value_policy::take_ownership())
         ;
 
     emscripten::class_<LoadedH5Attr>("LoadedH5Attr")
         .constructor<std::string, std::string, std::string>()
-        .function("type", &LoadedH5Attr::type, emscripten::return_value_policy::take_ownership())
-        .function("shape", &LoadedH5Attr::shape, emscripten::return_value_policy::take_ownership())
-        .function("numeric_values", &LoadedH5Attr::numeric_values, emscripten::return_value_policy::take_ownership())
-        .function("string_values", &LoadedH5Attr::string_values, emscripten::return_value_policy::take_ownership())
-        .function("compound_values", &LoadedH5Attr::compound_values, emscripten::return_value_policy::take_ownership())
+        .function("type", &LoadedH5Attr::js_type, emscripten::return_value_policy::take_ownership())
+        .function("shape", &LoadedH5Attr::js_shape, emscripten::return_value_policy::take_ownership())
+        .function("numeric_values", &LoadedH5Attr::js_numeric_values, emscripten::return_value_policy::take_ownership())
+        .function("string_values", &LoadedH5Attr::js_string_values, emscripten::return_value_policy::take_ownership())
+        .function("compound_values", &LoadedH5Attr::js_compound_values, emscripten::return_value_policy::take_ownership())
         ;
 
-   emscripten::function("create_hdf5_file", &create_hdf5_file, emscripten::return_value_policy::take_ownership());
-   emscripten::function("create_hdf5_group", &create_hdf5_group, emscripten::return_value_policy::take_ownership());
+   emscripten::function("create_hdf5_file", &js_create_hdf5_file, emscripten::return_value_policy::take_ownership());
+   emscripten::function("create_hdf5_group", &js_create_hdf5_group, emscripten::return_value_policy::take_ownership());
 
-   emscripten::function("create_numeric_hdf5_dataset", &create_numeric_hdf5_dataset, emscripten::return_value_policy::take_ownership());
-   emscripten::function("create_string_hdf5_dataset", &create_string_hdf5_dataset, emscripten::return_value_policy::take_ownership());
-   emscripten::function("create_enum_hdf5_dataset", &create_enum_hdf5_dataset, emscripten::return_value_policy::take_ownership());
-   emscripten::function("create_compound_hdf5_dataset", &create_compound_hdf5_dataset, emscripten::return_value_policy::take_ownership());
+   emscripten::function("create_numeric_hdf5_dataset", &js_create_numeric_hdf5_dataset, emscripten::return_value_policy::take_ownership());
+   emscripten::function("create_string_hdf5_dataset", &js_create_string_hdf5_dataset, emscripten::return_value_policy::take_ownership());
+   emscripten::function("create_enum_hdf5_dataset", &js_create_enum_hdf5_dataset, emscripten::return_value_policy::take_ownership());
+   emscripten::function("create_compound_hdf5_dataset", &js_create_compound_hdf5_dataset, emscripten::return_value_policy::take_ownership());
 
-   emscripten::function("create_numeric_hdf5_attribute", &create_numeric_hdf5_attribute, emscripten::return_value_policy::take_ownership());
-   emscripten::function("create_string_hdf5_attribute", &create_string_hdf5_attribute, emscripten::return_value_policy::take_ownership());
-   emscripten::function("create_enum_hdf5_attribute", &create_enum_hdf5_attribute, emscripten::return_value_policy::take_ownership());
-   emscripten::function("create_compound_hdf5_attribute", &create_compound_hdf5_attribute, emscripten::return_value_policy::take_ownership());
+   emscripten::function("create_numeric_hdf5_attribute", &js_create_numeric_hdf5_attribute, emscripten::return_value_policy::take_ownership());
+   emscripten::function("create_string_hdf5_attribute", &js_create_string_hdf5_attribute, emscripten::return_value_policy::take_ownership());
+   emscripten::function("create_enum_hdf5_attribute", &js_create_enum_hdf5_attribute, emscripten::return_value_policy::take_ownership());
+   emscripten::function("create_compound_hdf5_attribute", &js_create_compound_hdf5_attribute, emscripten::return_value_policy::take_ownership());
 
-   emscripten::function("write_numeric_hdf5_dataset", &write_numeric_hdf5_dataset, emscripten::return_value_policy::take_ownership());
-   emscripten::function("write_string_hdf5_dataset", &write_string_hdf5_dataset, emscripten::return_value_policy::take_ownership());
-   emscripten::function("write_enum_hdf5_dataset", &write_enum_hdf5_dataset, emscripten::return_value_policy::take_ownership());
-   emscripten::function("write_compound_hdf5_dataset", &write_compound_hdf5_dataset, emscripten::return_value_policy::take_ownership());
+   emscripten::function("write_numeric_hdf5_dataset", &js_write_numeric_hdf5_dataset, emscripten::return_value_policy::take_ownership());
+   emscripten::function("write_string_hdf5_dataset", &js_write_string_hdf5_dataset, emscripten::return_value_policy::take_ownership());
+   emscripten::function("write_enum_hdf5_dataset", &js_write_enum_hdf5_dataset, emscripten::return_value_policy::take_ownership());
+   emscripten::function("write_compound_hdf5_dataset", &js_write_compound_hdf5_dataset, emscripten::return_value_policy::take_ownership());
 
-   emscripten::function("write_numeric_hdf5_attribute", &write_numeric_hdf5_attribute, emscripten::return_value_policy::take_ownership());
-   emscripten::function("write_string_hdf5_attribute", &write_string_hdf5_attribute, emscripten::return_value_policy::take_ownership());
-   emscripten::function("write_enum_hdf5_attribute", &write_enum_hdf5_attribute, emscripten::return_value_policy::take_ownership());
-   emscripten::function("write_compound_hdf5_attribute", &write_compound_hdf5_attribute, emscripten::return_value_policy::take_ownership());
+   emscripten::function("write_numeric_hdf5_attribute", &js_write_numeric_hdf5_attribute, emscripten::return_value_policy::take_ownership());
+   emscripten::function("write_string_hdf5_attribute", &js_write_string_hdf5_attribute, emscripten::return_value_policy::take_ownership());
+   emscripten::function("write_enum_hdf5_attribute", &js_write_enum_hdf5_attribute, emscripten::return_value_policy::take_ownership());
+   emscripten::function("write_compound_hdf5_attribute", &js_write_compound_hdf5_attribute, emscripten::return_value_policy::take_ownership());
 
-   emscripten::function("get_max_str_len", &get_max_str_len, emscripten::return_value_policy::take_ownership());
-   emscripten::function("get_max_str_len_compound", &get_max_str_len_compound, emscripten::return_value_policy::take_ownership());
+   emscripten::function("get_max_str_len", &js_get_max_str_len, emscripten::return_value_policy::take_ownership());
+   emscripten::function("get_max_str_len_compound", &js_get_max_str_len_compound, emscripten::return_value_policy::take_ownership());
 }

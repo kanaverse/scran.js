@@ -17,20 +17,20 @@ public:
     {}
 
 public:
-    JsFakeInt num_genes() const {
+    JsFakeInt js_num_genes() const {
         return int2js(my_ngenes);
     }
 
-    JsFakeInt num_groups() const {
+    JsFakeInt js_num_groups() const {
         return int2js(my_store.sums.size());
     }
 
-    emscripten::val group_sums(JsFakeInt i_raw) const {
+    emscripten::val js_group_sums(JsFakeInt i_raw) const {
         const auto i = js2int<std::size_t>(i_raw);
         return emscripten::val(emscripten::typed_memory_view(my_ngenes, my_store.sums[i].data()));
     }
 
-    void all_sums(JsFakeInt output_raw) const {
+    void js_all_sums(JsFakeInt output_raw) const {
         auto optr = reinterpret_cast<double*>(js2int<std::uintptr_t>(output_raw));
         for (const auto& ss : my_store.sums) {
             std::copy_n(ss.begin(), my_ngenes, optr);
@@ -38,12 +38,12 @@ public:
         }
     }
 
-    emscripten::val group_detected(JsFakeInt i_raw) const {
+    emscripten::val js_group_detected(JsFakeInt i_raw) const {
         const auto i = js2int<std::size_t>(i_raw);
         return emscripten::val(emscripten::typed_memory_view(my_ngenes, my_store.detected[i].data()));
     }
 
-    void all_detected(JsFakeInt output_raw) const {
+    void js_all_detected(JsFakeInt output_raw) const {
         auto optr = reinterpret_cast<double*>(js2int<std::uintptr_t>(output_raw));
         for (const auto& ds : my_store.detected) {
             std::copy_n(ds.begin(), my_ngenes, optr);
@@ -52,7 +52,7 @@ public:
     }
 };
 
-AggregateAcrossCellsResults aggregate_across_cells(const NumericMatrix& mat, JsFakeInt factor_raw, bool average, JsFakeInt nthreads_raw) {
+AggregateAcrossCellsResults js_aggregate_across_cells(const NumericMatrix& mat, JsFakeInt factor_raw, bool average, JsFakeInt nthreads_raw) {
     scran_aggregate::AggregateAcrossCellsOptions aopt;
     aopt.num_threads = js2int<int>(nthreads_raw);
     auto fptr = reinterpret_cast<const std::int32_t*>(js2int<std::uintptr_t>(factor_raw));
@@ -76,14 +76,14 @@ AggregateAcrossCellsResults aggregate_across_cells(const NumericMatrix& mat, JsF
 }
 
 EMSCRIPTEN_BINDINGS(aggregate_across_cells) {
-    emscripten::function("aggregate_across_cells", &aggregate_across_cells, emscripten::return_value_policy::take_ownership());
+    emscripten::function("aggregate_across_cells", &js_aggregate_across_cells, emscripten::return_value_policy::take_ownership());
 
     emscripten::class_<AggregateAcrossCellsResults>("AggregateAcrossCellsResults")
-        .function("group_sums", &AggregateAcrossCellsResults::group_sums, emscripten::return_value_policy::take_ownership())
-        .function("all_sums", &AggregateAcrossCellsResults::all_sums, emscripten::return_value_policy::take_ownership())
-        .function("group_detected", &AggregateAcrossCellsResults::group_detected, emscripten::return_value_policy::take_ownership())
-        .function("all_detected", &AggregateAcrossCellsResults::all_detected, emscripten::return_value_policy::take_ownership())
-        .function("num_genes", &AggregateAcrossCellsResults::num_genes, emscripten::return_value_policy::take_ownership())
-        .function("num_groups", &AggregateAcrossCellsResults::num_groups, emscripten::return_value_policy::take_ownership())
+        .function("group_sums", &AggregateAcrossCellsResults::js_group_sums, emscripten::return_value_policy::take_ownership())
+        .function("all_sums", &AggregateAcrossCellsResults::js_all_sums, emscripten::return_value_policy::take_ownership())
+        .function("group_detected", &AggregateAcrossCellsResults::js_group_detected, emscripten::return_value_policy::take_ownership())
+        .function("all_detected", &AggregateAcrossCellsResults::js_all_detected, emscripten::return_value_policy::take_ownership())
+        .function("num_genes", &AggregateAcrossCellsResults::js_num_genes, emscripten::return_value_policy::take_ownership())
+        .function("num_groups", &AggregateAcrossCellsResults::js_num_groups, emscripten::return_value_policy::take_ownership())
         ;
 }

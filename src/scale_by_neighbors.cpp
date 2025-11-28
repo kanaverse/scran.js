@@ -9,7 +9,7 @@
 
 #include "mumosa/mumosa.hpp"
 
-void scale_by_neighbors(
+void js_scale_by_neighbors(
     JsFakeInt nembed_raw,
     JsFakeInt embeddings_raw,
     JsFakeInt indices_raw,
@@ -60,5 +60,5 @@ void scale_by_neighbors(
 }
 
 EMSCRIPTEN_BINDINGS(scale_by_neighbors) {
-    emscripten::function("scale_by_neighbors", &scale_by_neighbors, emscripten::return_value_policy::take_ownership());
+    emscripten::function("scale_by_neighbors", &js_scale_by_neighbors, emscripten::return_value_policy::take_ownership());
 }

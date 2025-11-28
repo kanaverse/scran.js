@@ -9,7 +9,7 @@
 #include <vector>
 #include <cstdint>
 
-void center_size_factors(JsFakeInt n_raw, JsFakeInt ptr_raw, bool use_blocks, JsFakeInt blocks_raw, bool to_lowest_block) {
+void js_center_size_factors(JsFakeInt n_raw, JsFakeInt ptr_raw, bool use_blocks, JsFakeInt blocks_raw, bool to_lowest_block) {
     const auto n = js2int<std::size_t>(n_raw);
     const auto ptr = reinterpret_cast<double*>(js2int<std::uintptr_t>(ptr_raw));
 
@@ -23,7 +23,7 @@ void center_size_factors(JsFakeInt n_raw, JsFakeInt ptr_raw, bool use_blocks, Js
     }
 }
 
-NumericMatrix normalize_counts(const NumericMatrix& mat, JsFakeInt size_factors_raw, bool log, bool allow_zero, bool allow_non_finite) {
+NumericMatrix js_normalize_counts(const NumericMatrix& mat, JsFakeInt size_factors_raw, bool log, bool allow_zero, bool allow_non_finite) {
     const auto size_factors = js2int<std::uintptr_t>(size_factors_raw);
     const double* sfptr = reinterpret_cast<const double*>(size_factors);
     std::vector<double> sf(sfptr, sfptr + mat.ncol());
@@ -44,6 +44,6 @@ NumericMatrix normalize_counts(const NumericMatrix& mat, JsFakeInt size_factors_
 }
 
 EMSCRIPTEN_BINDINGS(normalize_counts) {
-    emscripten::function("center_size_factors", &center_size_factors, emscripten::return_value_policy::take_ownership());
-    emscripten::function("normalize_counts", &normalize_counts, emscripten::return_value_policy::take_ownership());
+    emscripten::function("center_size_factors", &js_center_size_factors, emscripten::return_value_policy::take_ownership());
+    emscripten::function("normalize_counts", &js_normalize_counts, emscripten::return_value_policy::take_ownership());
 }

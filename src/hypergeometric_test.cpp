@@ -5,7 +5,7 @@
 #include "subpar/subpar.hpp"
 #include "phyper/phyper.hpp"
 
-void hypergeometric_test(
+void js_hypergeometric_test(
     JsFakeInt ntests_raw,
     bool multi_markers_in_set, 
     JsFakeInt markers_in_set_raw, 
@@ -53,5 +53,5 @@ void hypergeometric_test(
 }
 
 EMSCRIPTEN_BINDINGS(hypergeometric_test) {
-    emscripten::function("hypergeometric_test", &hypergeometric_test, emscripten::return_value_policy::take_ownership());
+    emscripten::function("hypergeometric_test", &js_hypergeometric_test, emscripten::return_value_policy::take_ownership());
 }

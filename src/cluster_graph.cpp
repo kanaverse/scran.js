@@ -26,35 +26,35 @@ public:
     }
 
 public:
-    JsFakeInt num_levels() const {
+    JsFakeInt js_num_levels() const {
         return int2js(my_store.modularity.size());
     }
 
-    JsFakeInt best_level() const {
+    JsFakeInt js_best_level() const {
         return int2js(my_best);
     }
 
-    double modularity(JsFakeInt i_raw) const {
+    double js_modularity(JsFakeInt i_raw) const {
         return my_store.modularity[js2int<std::size_t>(i_raw)];
     }
 
-    emscripten::val membership(JsFakeInt i_raw) {
+    emscripten::val js_membership(JsFakeInt i_raw) {
         sanisizer::resize(my_buffer, my_store.levels.nrow());
         auto row = my_store.levels.row(js2int<std::size_t>(i_raw));
         std::copy(row.begin(), row.end(), my_buffer.begin());
         return emscripten::val(emscripten::typed_memory_view(my_buffer.size(), my_buffer.data()));
     }
 
-    double best_modularity() const {
+    double js_best_modularity() const {
         return my_store.modularity[my_best];
     }
 
-    emscripten::val best_membership() const {
+    emscripten::val js_best_membership() const {
         return emscripten::val(emscripten::typed_memory_view(my_store.membership.size(), my_store.membership.data()));
     }
 };
 
-ClusterMultilevelResult cluster_multilevel(const BuildSnnGraphResult& graph, double resolution) {
+ClusterMultilevelResult js_cluster_multilevel(const BuildSnnGraphResult& graph, double resolution) {
     scran_graph_cluster::ClusterMultilevelOptions opt;
     opt.resolution = resolution;
     auto output = scran_graph_cluster::cluster_multilevel(graph.graph, graph.weights, opt);
@@ -78,24 +78,24 @@ public:
     }
 
 public:
-    JsFakeInt num_merge_steps() const {
+    JsFakeInt js_num_merge_steps() const {
         return int2js(my_store.merges.size());
     }
 
-    double modularity(JsFakeInt i_raw) const {
+    double js_modularity(JsFakeInt i_raw) const {
         return my_store.modularity[js2int<std::size_t>(i_raw)];
     }
 
-    double best_modularity() const {
+    double js_best_modularity() const {
         return my_store.modularity[my_best];
     }
 
-    emscripten::val membership() const {
+    emscripten::val js_membership() const {
         return emscripten::val(emscripten::typed_memory_view(my_store.membership.size(), my_store.membership.data()));
     }
 };
 
-ClusterWalktrapResult cluster_walktrap(const BuildSnnGraphResult& graph, JsFakeInt steps_raw) {
+ClusterWalktrapResult js_cluster_walktrap(const BuildSnnGraphResult& graph, JsFakeInt steps_raw) {
     scran_graph_cluster::ClusterWalktrapOptions opt;
     opt.steps = js2int<igraph_int_t>(steps_raw);
     auto output = scran_graph_cluster::cluster_walktrap(graph.graph, graph.weights, opt);
@@ -113,16 +113,16 @@ public:
     ClusterLeidenResult(Store s) : my_store(std::move(s)) {}
 
 public:
-    double quality() const {
+    double js_quality() const {
         return my_store.quality;
     }
 
-    emscripten::val membership() const {
+    emscripten::val js_membership() const {
         return emscripten::val(emscripten::typed_memory_view(my_store.membership.size(), my_store.membership.data()));
     }
 };
 
-ClusterLeidenResult cluster_leiden(const BuildSnnGraphResult& graph, double resolution, std::string objective) {
+ClusterLeidenResult js_cluster_leiden(const BuildSnnGraphResult& graph, double resolution, std::string objective) {
     scran_graph_cluster::ClusterLeidenOptions opt;
     opt.resolution = resolution;
 
@@ -143,29 +143,29 @@ ClusterLeidenResult cluster_leiden(const BuildSnnGraphResult& graph, double reso
 /**********************************/
 
 EMSCRIPTEN_BINDINGS(cluster_graph) {
-    emscripten::function("cluster_multilevel", &cluster_multilevel, emscripten::return_value_policy::take_ownership());
+    emscripten::function("cluster_multilevel", &js_cluster_multilevel, emscripten::return_value_policy::take_ownership());
 
     emscripten::class_<ClusterMultilevelResult>("ClusterMultilevelResult")
-        .function("num_levels", &ClusterMultilevelResult::num_levels, emscripten::return_value_policy::take_ownership())
-        .function("best_level", &ClusterMultilevelResult::best_level, emscripten::return_value_policy::take_ownership())
-        .function("modularity", &ClusterMultilevelResult::modularity, emscripten::return_value_policy::take_ownership())
-        .function("membership", &ClusterMultilevelResult::membership, emscripten::return_value_policy::take_ownership())
-        .function("best_modularity", &ClusterMultilevelResult::best_modularity, emscripten::return_value_policy::take_ownership())
-        .function("best_membership", &ClusterMultilevelResult::best_membership, emscripten::return_value_policy::take_ownership())
+        .function("num_levels", &ClusterMultilevelResult::js_num_levels, emscripten::return_value_policy::take_ownership())
+        .function("best_level", &ClusterMultilevelResult::js_best_level, emscripten::return_value_policy::take_ownership())
+        .function("modularity", &ClusterMultilevelResult::js_modularity, emscripten::return_value_policy::take_ownership())
+        .function("membership", &ClusterMultilevelResult::js_membership, emscripten::return_value_policy::take_ownership())
+        .function("best_modularity", &ClusterMultilevelResult::js_best_modularity, emscripten::return_value_policy::take_ownership())
+        .function("best_membership", &ClusterMultilevelResult::js_best_membership, emscripten::return_value_policy::take_ownership())
         ;
 
-    emscripten::function("cluster_walktrap", &cluster_walktrap, emscripten::return_value_policy::take_ownership());
+    emscripten::function("cluster_walktrap", &js_cluster_walktrap, emscripten::return_value_policy::take_ownership());
 
     emscripten::class_<ClusterWalktrapResult>("ClusterWalktrapResult")
-        .function("modularity", &ClusterWalktrapResult::modularity, emscripten::return_value_policy::take_ownership())
-        .function("membership", &ClusterWalktrapResult::membership, emscripten::return_value_policy::take_ownership())
-        .function("num_merge_steps", &ClusterWalktrapResult::num_merge_steps, emscripten::return_value_policy::take_ownership())
+        .function("modularity", &ClusterWalktrapResult::js_modularity, emscripten::return_value_policy::take_ownership())
+        .function("membership", &ClusterWalktrapResult::js_membership, emscripten::return_value_policy::take_ownership())
+        .function("num_merge_steps", &ClusterWalktrapResult::js_num_merge_steps, emscripten::return_value_policy::take_ownership())
         ;
 
-    emscripten::function("cluster_leiden", &cluster_leiden, emscripten::return_value_policy::take_ownership());
+    emscripten::function("cluster_leiden", &js_cluster_leiden, emscripten::return_value_policy::take_ownership());
 
     emscripten::class_<ClusterLeidenResult>("ClusterLeidenResult")
-        .function("quality", &ClusterLeidenResult::quality, emscripten::return_value_policy::take_ownership())
-        .function("membership", &ClusterLeidenResult::membership, emscripten::return_value_policy::take_ownership())
+        .function("quality", &ClusterLeidenResult::js_quality, emscripten::return_value_policy::take_ownership())
+        .function("membership", &ClusterLeidenResult::js_membership, emscripten::return_value_policy::take_ownership())
         ;
 }

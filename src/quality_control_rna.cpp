@@ -22,29 +22,29 @@ public:
     }
 
 public:
-    emscripten::val sum() const {
+    emscripten::val js_sum() const {
         return emscripten::val(emscripten::typed_memory_view(my_store.sum.size(), my_store.sum.data()));
     }
 
-    emscripten::val detected() const {
+    emscripten::val js_detected() const {
         return emscripten::val(emscripten::typed_memory_view(my_store.detected.size(), my_store.detected.data()));
     }
 
-    emscripten::val subset_proportion(JsFakeInt i_raw) const {
+    emscripten::val js_subset_proportion(JsFakeInt i_raw) const {
         const auto& current = my_store.subset_proportion[js2int<std::size_t>(i_raw)];
         return emscripten::val(emscripten::typed_memory_view(current.size(), current.data()));
     }
 
-    JsFakeInt num_subsets() const {
+    JsFakeInt js_num_subsets() const {
         return int2js(my_store.subset_proportion.size());
     }
 
-    JsFakeInt num_cells() const {
+    JsFakeInt js_num_cells() const {
         return int2js(my_store.sum.size());
     }
 };
 
-ComputeRnaQcMetricsResults compute_rna_qc_metrics(const NumericMatrix& mat, JsFakeInt nsubsets_raw, JsFakeInt subsets_raw, JsFakeInt nthreads_raw) {
+ComputeRnaQcMetricsResults js_compute_rna_qc_metrics(const NumericMatrix& mat, JsFakeInt nsubsets_raw, JsFakeInt subsets_raw, JsFakeInt nthreads_raw) {
     scran_qc::ComputeRnaQcMetricsOptions opt;
     opt.num_threads = js2int<int>(nthreads_raw);
     auto store = scran_qc::compute_rna_qc_metrics(*mat, convert_array_of_offsets<const std::uint8_t*>(nsubsets_raw, subsets_raw), opt);
@@ -81,7 +81,7 @@ public:
     }
 
 public:
-    emscripten::val sum() {
+    emscripten::val js_sum() {
         if (my_use_blocked) {
             auto& sum = my_store_blocked.get_sum();
             return emscripten::val(emscripten::typed_memory_view(sum.size(), sum.data()));
@@ -92,7 +92,7 @@ public:
         }
     }
 
-    emscripten::val detected() {
+    emscripten::val js_detected() {
         if (my_use_blocked) {
             auto& det = my_store_blocked.get_detected();
             return emscripten::val(emscripten::typed_memory_view(det.size(), det.data()));
@@ -103,7 +103,7 @@ public:
         }
     }
 
-    emscripten::val subset_proportion(JsFakeInt i_raw) {
+    emscripten::val js_subset_proportion(JsFakeInt i_raw) {
         const auto i = js2int<std::size_t>(i_raw); 
         if (my_use_blocked) {
             auto& current = my_store_blocked.get_subset_proportion()[i];
@@ -116,7 +116,7 @@ public:
     }
 
 public:
-    JsFakeInt num_subsets() const {
+    JsFakeInt js_num_subsets() const {
         if (my_use_blocked) {
             return int2js(my_store_blocked.get_subset_proportion().size());
         } else {
@@ -124,7 +124,7 @@ public:
         }
     }
 
-    JsFakeInt num_blocks() const {
+    JsFakeInt js_num_blocks() const {
         if (my_use_blocked) {
             return int2js(my_store_blocked.get_sum().size());
         } else {
@@ -132,11 +132,11 @@ public:
         }
     }
 
-    bool is_blocked() const {
+    bool js_is_blocked() const {
         return my_use_blocked;
     }
 
-    void filter(const ComputeRnaQcMetricsResults& metrics, JsFakeInt blocks_raw, JsFakeInt output_raw) const {
+    void js_filter(const ComputeRnaQcMetricsResults& metrics, JsFakeInt blocks_raw, JsFakeInt output_raw) const {
         const auto output = js2int<std::uintptr_t>(output_raw);
         auto optr = reinterpret_cast<std::uint8_t*>(output);
         if (my_use_blocked) {
@@ -148,7 +148,7 @@ public:
     }
 };
 
-SuggestRnaQcFiltersResults suggest_rna_qc_filters(const ComputeRnaQcMetricsResults& metrics, bool use_blocks, JsFakeInt blocks_raw, double nmads) {
+SuggestRnaQcFiltersResults js_suggest_rna_qc_filters(const ComputeRnaQcMetricsResults& metrics, bool use_blocks, JsFakeInt blocks_raw, double nmads) {
     scran_qc::ComputeRnaQcFiltersOptions opt;
     opt.sum_num_mads = nmads;
     opt.detected_num_mads = nmads;
@@ -165,26 +165,26 @@ SuggestRnaQcFiltersResults suggest_rna_qc_filters(const ComputeRnaQcMetricsResul
 }
 
 EMSCRIPTEN_BINDINGS(quality_control_rna) {
-    emscripten::function("compute_rna_qc_metrics", &compute_rna_qc_metrics, emscripten::return_value_policy::take_ownership());
+    emscripten::function("compute_rna_qc_metrics", &js_compute_rna_qc_metrics, emscripten::return_value_policy::take_ownership());
 
     emscripten::class_<ComputeRnaQcMetricsResults>("ComputeRnaQcMetricsResults")
-        .function("sum", &ComputeRnaQcMetricsResults::sum, emscripten::return_value_policy::take_ownership())
-        .function("detected", &ComputeRnaQcMetricsResults::detected, emscripten::return_value_policy::take_ownership())
-        .function("subset_proportion", &ComputeRnaQcMetricsResults::subset_proportion, emscripten::return_value_policy::take_ownership())
-        .function("num_subsets", &ComputeRnaQcMetricsResults::num_subsets, emscripten::return_value_policy::take_ownership())
-        .function("num_cells", &ComputeRnaQcMetricsResults::num_cells, emscripten::return_value_policy::take_ownership())
+        .function("sum", &ComputeRnaQcMetricsResults::js_sum, emscripten::return_value_policy::take_ownership())
+        .function("detected", &ComputeRnaQcMetricsResults::js_detected, emscripten::return_value_policy::take_ownership())
+        .function("subset_proportion", &ComputeRnaQcMetricsResults::js_subset_proportion, emscripten::return_value_policy::take_ownership())
+        .function("num_subsets", &ComputeRnaQcMetricsResults::js_num_subsets, emscripten::return_value_policy::take_ownership())
+        .function("num_cells", &ComputeRnaQcMetricsResults::js_num_cells, emscripten::return_value_policy::take_ownership())
         ;
 
-    emscripten::function("suggest_rna_qc_filters", &suggest_rna_qc_filters, emscripten::return_value_policy::take_ownership());
+    emscripten::function("suggest_rna_qc_filters", &js_suggest_rna_qc_filters, emscripten::return_value_policy::take_ownership());
 
     emscripten::class_<SuggestRnaQcFiltersResults>("SuggestRnaQcFiltersResults")
         .constructor<JsFakeInt, JsFakeInt>()
-        .function("sum", &SuggestRnaQcFiltersResults::sum, emscripten::return_value_policy::take_ownership())
-        .function("detected", &SuggestRnaQcFiltersResults::detected, emscripten::return_value_policy::take_ownership())
-        .function("subset_proportion", &SuggestRnaQcFiltersResults::subset_proportion, emscripten::return_value_policy::take_ownership())
-        .function("num_subsets", &SuggestRnaQcFiltersResults::num_subsets, emscripten::return_value_policy::take_ownership())
-        .function("num_blocks", &SuggestRnaQcFiltersResults::num_blocks, emscripten::return_value_policy::take_ownership())
-        .function("is_blocked", &SuggestRnaQcFiltersResults::is_blocked, emscripten::return_value_policy::take_ownership())
-        .function("filter", &SuggestRnaQcFiltersResults::filter, emscripten::return_value_policy::take_ownership())
+        .function("sum", &SuggestRnaQcFiltersResults::js_sum, emscripten::return_value_policy::take_ownership())
+        .function("detected", &SuggestRnaQcFiltersResults::js_detected, emscripten::return_value_policy::take_ownership())
+        .function("subset_proportion", &SuggestRnaQcFiltersResults::js_subset_proportion, emscripten::return_value_policy::take_ownership())
+        .function("num_subsets", &SuggestRnaQcFiltersResults::js_num_subsets, emscripten::return_value_policy::take_ownership())
+        .function("num_blocks", &SuggestRnaQcFiltersResults::js_num_blocks, emscripten::return_value_policy::take_ownership())
+        .function("is_blocked", &SuggestRnaQcFiltersResults::js_is_blocked, emscripten::return_value_policy::take_ownership())
+        .function("filter", &SuggestRnaQcFiltersResults::js_filter, emscripten::return_value_policy::take_ownership())
         ;
 }

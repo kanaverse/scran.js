@@ -6,7 +6,7 @@
 #include "NeighborIndex.h"
 #include "build_snn_graph.h"
 
-BuildSnnGraphResult build_snn_graph(const NeighborResults& neighbors, std::string scheme, JsFakeInt nthreads_raw) {
+BuildSnnGraphResult js_build_snn_graph(const NeighborResults& neighbors, std::string scheme, JsFakeInt nthreads_raw) {
     scran_graph_cluster::BuildSnnGraphOptions opt;
     opt.num_threads = js2int<int>(nthreads_raw);
 
@@ -24,7 +24,7 @@ BuildSnnGraphResult build_snn_graph(const NeighborResults& neighbors, std::strin
 }
 
 EMSCRIPTEN_BINDINGS(build_snn_graph) {
-    emscripten::function("build_snn_graph", &build_snn_graph, emscripten::return_value_policy::take_ownership());
+    emscripten::function("build_snn_graph", &js_build_snn_graph, emscripten::return_value_policy::take_ownership());
 
     emscripten::class_<BuildSnnGraphResult>("BuildSnnGraphResult");
 }

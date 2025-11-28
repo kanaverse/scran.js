@@ -40,7 +40,7 @@ std::unique_ptr<knncolle::Builder<std::int32_t, double, double, knncolle::Simple
     }
 }
 
-NeighborIndex build_neighbor_index(JsFakeInt mat_raw, JsFakeInt nr_raw, JsFakeInt nc_raw, bool approximate) {
+NeighborIndex js_build_neighbor_index(JsFakeInt mat_raw, JsFakeInt nr_raw, JsFakeInt nc_raw, bool approximate) {
     auto builder = create_builder(approximate);
     NeighborIndex output;
     const auto nr = js2int<std::size_t>(nr_raw);
@@ -50,11 +50,11 @@ NeighborIndex build_neighbor_index(JsFakeInt mat_raw, JsFakeInt nr_raw, JsFakeIn
     return output;
 }
 
-NeighborResults find_nearest_neighbors(const NeighborIndex& index, JsFakeInt k_raw, JsFakeInt nthreads_raw) {
+NeighborResults js_find_nearest_neighbors(const NeighborIndex& index, JsFakeInt k_raw, JsFakeInt nthreads_raw) {
     return NeighborResults(knncolle::find_nearest_neighbors(*(index.index), js2int<int>(k_raw), js2int<int>(nthreads_raw)));
 }
 
-NeighborResults truncate_nearest_neighbors(const NeighborResults& input, JsFakeInt k_raw) {
+NeighborResults js_truncate_nearest_neighbors(const NeighborResults& input, JsFakeInt k_raw) {
     NeighborResults output;
     const auto nobs = input.neighbors().size();
     auto& out_neighbors = output.neighbors();
@@ -72,20 +72,22 @@ NeighborResults truncate_nearest_neighbors(const NeighborResults& input, JsFakeI
 }
 
 EMSCRIPTEN_BINDINGS(build_neighbor_index) {
-    emscripten::function("find_nearest_neighbors", &find_nearest_neighbors, emscripten::return_value_policy::take_ownership());
+    emscripten::function("find_nearest_neighbors", &js_find_nearest_neighbors, emscripten::return_value_policy::take_ownership());
 
-    emscripten::function("truncate_nearest_neighbors", &truncate_nearest_neighbors, emscripten::return_value_policy::take_ownership());
+    emscripten::function("truncate_nearest_neighbors", &js_truncate_nearest_neighbors, emscripten::return_value_policy::take_ownership());
 
-    emscripten::function("build_neighbor_index", &build_neighbor_index, emscripten::return_value_policy::take_ownership());
+    emscripten::function("build_neighbor_index", &js_build_neighbor_index, emscripten::return_value_policy::take_ownership());
 
     emscripten::class_<NeighborIndex>("NeighborIndex")
-        .function("num_obs", &NeighborIndex::num_obs, emscripten::return_value_policy::take_ownership())
-        .function("num_dim", &NeighborIndex::num_dim, emscripten::return_value_policy::take_ownership());
+        .function("num_obs", &NeighborIndex::js_num_obs, emscripten::return_value_policy::take_ownership())
+        .function("num_dim", &NeighborIndex::js_num_dim, emscripten::return_value_policy::take_ownership())
+        ;
     
     emscripten::class_<NeighborResults>("NeighborResults")
         .constructor<JsFakeInt, JsFakeInt, JsFakeInt, JsFakeInt>()
-        .function("num_obs", &NeighborResults::num_obs, emscripten::return_value_policy::take_ownership())
-        .function("num_neighbors", &NeighborResults::num_neighbors, emscripten::return_value_policy::take_ownership())
-        .function("size", &NeighborResults::size, emscripten::return_value_policy::take_ownership())
-        .function("serialize", &NeighborResults::serialize, emscripten::return_value_policy::take_ownership());
+        .function("num_obs", &NeighborResults::js_num_obs, emscripten::return_value_policy::take_ownership())
+        .function("num_neighbors", &NeighborResults::js_num_neighbors, emscripten::return_value_policy::take_ownership())
+        .function("size", &NeighborResults::js_size, emscripten::return_value_policy::take_ownership())
+        .function("serialize", &NeighborResults::js_serialize, emscripten::return_value_policy::take_ownership())
+        ;
 }

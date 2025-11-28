@@ -22,20 +22,20 @@ public:
     }
 
 public:
-    JsFakeInt iterations() const {
+    JsFakeInt js_iterations() const {
         return int2js(my_status.iteration());
     }
 
-    TsneStatus deepcopy() const {
+    TsneStatus js_deepcopy() const {
         return TsneStatus(my_status);
     }
 
-    JsFakeInt num_observations() const {
+    JsFakeInt js_num_observations() const {
         return int2js(my_status.num_observations());
     }
 };
 
-TsneStatus initialize_tsne(const NeighborResults& neighbors, double perplexity, JsFakeInt nthreads_raw) {
+TsneStatus js_initialize_tsne(const NeighborResults& neighbors, double perplexity, JsFakeInt nthreads_raw) {
     qdtsne::Options opt;
     opt.perplexity = perplexity;
     opt.num_threads = js2int<int>(nthreads_raw);
@@ -44,7 +44,7 @@ TsneStatus initialize_tsne(const NeighborResults& neighbors, double perplexity, 
     return TsneStatus(std::move(stat));
 }
 
-void randomize_tsne_start(JsFakeInt n_raw, JsFakeInt Y_raw, JsFakeInt seed_raw) {
+void js_randomize_tsne_start(JsFakeInt n_raw, JsFakeInt Y_raw, JsFakeInt seed_raw) {
     const auto Y = js2int<std::uintptr_t>(Y_raw);
     qdtsne::initialize_random<2>(
         reinterpret_cast<double*>(Y),
@@ -54,11 +54,11 @@ void randomize_tsne_start(JsFakeInt n_raw, JsFakeInt Y_raw, JsFakeInt seed_raw) 
     return;
 }
 
-JsFakeInt perplexity_to_k(double perplexity) {
+JsFakeInt js_perplexity_to_k(double perplexity) {
     return int2js(qdtsne::perplexity_to_k(perplexity));
 }
 
-void run_tsne(TsneStatus& obj, JsFakeInt runtime_raw, JsFakeInt maxiter_raw, JsFakeInt Y_raw) {
+void js_run_tsne(TsneStatus& obj, JsFakeInt runtime_raw, JsFakeInt maxiter_raw, JsFakeInt Y_raw) {
     auto& status = obj.status();
     const auto Y = js2int<std::uintptr_t>(Y_raw);
     double* ptr = reinterpret_cast<double*>(Y);
@@ -79,16 +79,17 @@ void run_tsne(TsneStatus& obj, JsFakeInt runtime_raw, JsFakeInt maxiter_raw, JsF
 }
 
 EMSCRIPTEN_BINDINGS(run_tsne) {
-    emscripten::function("perplexity_to_k", &perplexity_to_k, emscripten::return_value_policy::take_ownership());
+    emscripten::function("perplexity_to_k", &js_perplexity_to_k, emscripten::return_value_policy::take_ownership());
 
-    emscripten::function("initialize_tsne", &initialize_tsne, emscripten::return_value_policy::take_ownership());
+    emscripten::function("initialize_tsne", &js_initialize_tsne, emscripten::return_value_policy::take_ownership());
 
-    emscripten::function("randomize_tsne_start", &randomize_tsne_start, emscripten::return_value_policy::take_ownership());
+    emscripten::function("randomize_tsne_start", &js_randomize_tsne_start, emscripten::return_value_policy::take_ownership());
 
-    emscripten::function("run_tsne", &run_tsne, emscripten::return_value_policy::take_ownership());
+    emscripten::function("run_tsne", &js_run_tsne, emscripten::return_value_policy::take_ownership());
 
     emscripten::class_<TsneStatus>("TsneStatus")
-        .function("iterations", &TsneStatus::iterations, emscripten::return_value_policy::take_ownership())
-        .function("deepcopy", &TsneStatus::deepcopy, emscripten::return_value_policy::take_ownership())
-        .function("num_observations", &TsneStatus::num_observations, emscripten::return_value_policy::take_ownership());
+        .function("iterations", &TsneStatus::js_iterations, emscripten::return_value_policy::take_ownership())
+        .function("deepcopy", &TsneStatus::js_deepcopy, emscripten::return_value_policy::take_ownership())
+        .function("num_observations", &TsneStatus::js_num_observations, emscripten::return_value_policy::take_ownership())
+        ;
 }

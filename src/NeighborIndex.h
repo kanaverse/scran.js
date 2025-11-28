@@ -12,11 +12,11 @@
 struct NeighborIndex {
     std::unique_ptr<knncolle::Prebuilt<std::int32_t, double, double> > index;
 
-    JsFakeInt num_obs() const {
+    JsFakeInt js_num_obs() const {
         return int2js(index->num_observations());
     }
 
-    JsFakeInt num_dim() const {
+    JsFakeInt js_num_dim() const {
         return int2js(index->num_dimensions());
     }
 };
@@ -70,7 +70,7 @@ public:
     }
 
 public:
-    JsFakeInt size(JsFakeInt truncate_raw) const {
+    JsFakeInt js_size(JsFakeInt truncate_raw) const {
         std::size_t out = 0;
         if (truncate_raw < 0) {
             for (const auto& current : my_neighbors) {
@@ -85,15 +85,15 @@ public:
         return int2js(out);
     }
 
-    JsFakeInt num_obs() const {
+    JsFakeInt js_num_obs() const {
         return int2js(my_neighbors.size());
     }
 
-    JsFakeInt num_neighbors() const {
+    JsFakeInt js_num_neighbors() const {
         return int2js(my_neighbors.empty() ? 0 : my_neighbors.front().size());
     }
 
-    void serialize(JsFakeInt runs_raw, JsFakeInt indices_raw, JsFakeInt distances_raw, JsFakeInt truncate_raw) const {
+    void js_serialize(JsFakeInt runs_raw, JsFakeInt indices_raw, JsFakeInt distances_raw, JsFakeInt truncate_raw) const {
         const auto runs = js2int<std::uintptr_t>(runs_raw);
         auto rptr = reinterpret_cast<int32_t*>(runs);
 

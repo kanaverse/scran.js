@@ -14,7 +14,7 @@
 #include "tatami_layered/tatami_layered.hpp"
 #include "eminem/eminem.hpp"
 
-NumericMatrix initialize_from_mtx_buffer(JsFakeInt buffer_raw, JsFakeInt size_raw, std::string compression, bool layered) {
+NumericMatrix js_initialize_from_mtx_buffer(JsFakeInt buffer_raw, JsFakeInt size_raw, std::string compression, bool layered) {
     const auto size = js2int<std::size_t>(size_raw);
     unsigned char* bufptr = reinterpret_cast<unsigned char*>(js2int<std::uintptr_t>(buffer_raw));
     if (layered) {
@@ -41,7 +41,7 @@ NumericMatrix initialize_from_mtx_buffer(JsFakeInt buffer_raw, JsFakeInt size_ra
     }
 }
 
-NumericMatrix initialize_from_mtx_file(std::string path, std::string compression, bool layered) {
+NumericMatrix js_initialize_from_mtx_file(std::string path, std::string compression, bool layered) {
     if (layered) {
         if (compression == "none") {
             return NumericMatrix(tatami_layered::read_layered_sparse_from_matrix_market_text_file<MatrixValue, MatrixIndex>(path.c_str()));
@@ -76,7 +76,7 @@ emscripten::val get_preamble(std::unique_ptr<byteme::PerByteSerial<char> > input
     return output;
 }
 
-emscripten::val read_header_from_mtx_buffer(JsFakeInt buffer_raw, JsFakeInt size_raw, std::string compression) {
+emscripten::val js_read_header_from_mtx_buffer(JsFakeInt buffer_raw, JsFakeInt size_raw, std::string compression) {
     const auto size = js2int<std::size_t>(size_raw);
     unsigned char* bufptr = reinterpret_cast<unsigned char*>(js2int<std::uintptr_t>(buffer_raw));
     std::unique_ptr<byteme::Reader> input;
@@ -92,7 +92,7 @@ emscripten::val read_header_from_mtx_buffer(JsFakeInt buffer_raw, JsFakeInt size
     return get_preamble(std::make_unique<byteme::PerByteSerial<char> >(std::move(input)));
 }
 
-emscripten::val read_header_from_mtx_file(std::string path, std::string compression) {
+emscripten::val js_read_header_from_mtx_file(std::string path, std::string compression) {
     std::unique_ptr<byteme::Reader> input;
     if (compression == "none") {
         input.reset(new byteme::RawFileReader(path.c_str(), {}));
@@ -107,8 +107,8 @@ emscripten::val read_header_from_mtx_file(std::string path, std::string compress
 }
 
 EMSCRIPTEN_BINDINGS(read_matrix_market) {
-    emscripten::function("initialize_from_mtx_buffer", &initialize_from_mtx_buffer, emscripten::return_value_policy::take_ownership());
-    emscripten::function("initialize_from_mtx_file", &initialize_from_mtx_file, emscripten::return_value_policy::take_ownership());
-    emscripten::function("read_header_from_mtx_buffer", &read_header_from_mtx_buffer, emscripten::return_value_policy::take_ownership());
-    emscripten::function("read_header_from_mtx_file", &read_header_from_mtx_file, emscripten::return_value_policy::take_ownership());
+    emscripten::function("initialize_from_mtx_buffer", &js_initialize_from_mtx_buffer, emscripten::return_value_policy::take_ownership());
+    emscripten::function("initialize_from_mtx_file", &js_initialize_from_mtx_file, emscripten::return_value_policy::take_ownership());
+    emscripten::function("read_header_from_mtx_buffer", &js_read_header_from_mtx_buffer, emscripten::return_value_policy::take_ownership());
+    emscripten::function("read_header_from_mtx_file", &js_read_header_from_mtx_file, emscripten::return_value_policy::take_ownership());
 }

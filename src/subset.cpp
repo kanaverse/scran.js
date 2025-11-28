@@ -9,7 +9,7 @@
 
 #include "tatami/tatami.hpp"
 
-void column_subset(NumericMatrix& matrix, JsFakeInt offset_raw, JsFakeInt length_raw) {
+void js_column_subset(NumericMatrix& matrix, JsFakeInt offset_raw, JsFakeInt length_raw) {
     const auto length = js2int<std::size_t>(length_raw);
     const auto offset = js2int<std::uintptr_t>(offset_raw);
     const auto offset_ptr = reinterpret_cast<const std::int32_t*>(offset);
@@ -18,7 +18,7 @@ void column_subset(NumericMatrix& matrix, JsFakeInt offset_raw, JsFakeInt length
     return;
 }
 
-void row_subset(NumericMatrix& matrix, JsFakeInt offset_raw, JsFakeInt length_raw) {
+void js_row_subset(NumericMatrix& matrix, JsFakeInt offset_raw, JsFakeInt length_raw) {
     const auto length = js2int<std::size_t>(length_raw);
     const auto offset = js2int<std::uintptr_t>(offset_raw);
     const auto offset_ptr = reinterpret_cast<const std::int32_t*>(offset);
@@ -28,7 +28,7 @@ void row_subset(NumericMatrix& matrix, JsFakeInt offset_raw, JsFakeInt length_ra
 }
 
 EMSCRIPTEN_BINDINGS(column_subset) {
-    emscripten::function("column_subset", &column_subset, emscripten::return_value_policy::take_ownership());
+    emscripten::function("column_subset", &js_column_subset, emscripten::return_value_policy::take_ownership());
 
-    emscripten::function("row_subset", &row_subset, emscripten::return_value_policy::take_ownership());
+    emscripten::function("row_subset", &js_row_subset, emscripten::return_value_policy::take_ownership());
 }

@@ -44,42 +44,42 @@ public:
     }
 
 public:
-    emscripten::val mean(JsFakeInt g_raw) const {
+    emscripten::val js_mean(JsFakeInt g_raw) const {
         const auto& current = my_store.mean[js2int<std::size_t>(g_raw)];
         return emscripten::val(emscripten::typed_memory_view(current.size(), current.data()));
     }
 
-    emscripten::val detected(JsFakeInt g_raw) const {
+    emscripten::val js_detected(JsFakeInt g_raw) const {
         const auto& current = my_store.detected[js2int<std::size_t>(g_raw)];
         return emscripten::val(emscripten::typed_memory_view(current.size(), current.data()));
     }
 
-    JsFakeInt num_groups() const {
+    JsFakeInt js_num_groups() const {
         return int2js(my_store.detected.size());
     }
 
 public:
-    emscripten::val cohens_d(JsFakeInt g_raw, std::string summary) const {
+    emscripten::val js_cohens_d(JsFakeInt g_raw, std::string summary) const {
         return get_effect_summary(my_store.cohens_d[js2int<std::size_t>(g_raw)], summary);
     }
 
-    emscripten::val auc(JsFakeInt g_raw, std::string summary) const {
+    emscripten::val js_auc(JsFakeInt g_raw, std::string summary) const {
         if (my_store.auc.empty()) {
             throw std::runtime_error("no AUCs available in the scoreMarkers results");
         }
         return get_effect_summary(my_store.auc[js2int<std::size_t>(g_raw)], summary);
     }
 
-    emscripten::val delta_mean(JsFakeInt g_raw, std::string summary) const {
+    emscripten::val js_delta_mean(JsFakeInt g_raw, std::string summary) const {
         return get_effect_summary(my_store.delta_mean[js2int<std::size_t>(g_raw)], summary);
     }
 
-    emscripten::val delta_detected(JsFakeInt g_raw, std::string summary) const {
+    emscripten::val js_delta_detected(JsFakeInt g_raw, std::string summary) const {
         return get_effect_summary(my_store.delta_detected[js2int<std::size_t>(g_raw)], summary);
     }
 };
 
-ScoreMarkersResults score_markers(
+ScoreMarkersResults js_score_markers(
     const NumericMatrix& mat, 
     JsFakeInt groups_raw, 
     bool use_blocks, 
@@ -110,15 +110,15 @@ ScoreMarkersResults score_markers(
 }
 
 EMSCRIPTEN_BINDINGS(score_markers) {
-    emscripten::function("score_markers", &score_markers, emscripten::return_value_policy::take_ownership());
+    emscripten::function("score_markers", &js_score_markers, emscripten::return_value_policy::take_ownership());
 
     emscripten::class_<ScoreMarkersResults>("ScoreMarkersResults")
-        .function("mean", &ScoreMarkersResults::mean, emscripten::return_value_policy::take_ownership())
-        .function("detected", &ScoreMarkersResults::detected, emscripten::return_value_policy::take_ownership())
-        .function("cohens_d", &ScoreMarkersResults::cohens_d, emscripten::return_value_policy::take_ownership())
-        .function("auc", &ScoreMarkersResults::auc, emscripten::return_value_policy::take_ownership())
-        .function("delta_mean", &ScoreMarkersResults::delta_mean, emscripten::return_value_policy::take_ownership())
-        .function("delta_detected", &ScoreMarkersResults::delta_detected, emscripten::return_value_policy::take_ownership())
-        .function("num_groups", &ScoreMarkersResults::num_groups, emscripten::return_value_policy::take_ownership())
+        .function("mean", &ScoreMarkersResults::js_mean, emscripten::return_value_policy::take_ownership())
+        .function("detected", &ScoreMarkersResults::js_detected, emscripten::return_value_policy::take_ownership())
+        .function("cohens_d", &ScoreMarkersResults::js_cohens_d, emscripten::return_value_policy::take_ownership())
+        .function("auc", &ScoreMarkersResults::js_auc, emscripten::return_value_policy::take_ownership())
+        .function("delta_mean", &ScoreMarkersResults::js_delta_mean, emscripten::return_value_policy::take_ownership())
+        .function("delta_detected", &ScoreMarkersResults::js_delta_detected, emscripten::return_value_policy::take_ownership())
+        .function("num_groups", &ScoreMarkersResults::js_num_groups, emscripten::return_value_policy::take_ownership())
         ;
 }

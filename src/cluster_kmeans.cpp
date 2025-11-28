@@ -21,39 +21,39 @@ public:
     }
 
 public:
-    JsFakeInt num_obs() const {
+    JsFakeInt js_num_obs() const {
         return int2js(my_store.clusters.size());
     }
 
-    JsFakeInt num_clusters() const {
+    JsFakeInt js_num_clusters() const {
         return int2js(my_store.details.sizes.size());
     }
 
-    emscripten::val clusters() const {
+    emscripten::val js_clusters() const {
         const auto& c = my_store.clusters;
         return emscripten::val(emscripten::typed_memory_view(c.size(), c.data()));
     }
 
-    emscripten::val cluster_sizes() const {
+    emscripten::val js_cluster_sizes() const {
         const auto& s = my_store.details.sizes;
         return emscripten::val(emscripten::typed_memory_view(s.size(), s.data()));
     }
 
-    JsFakeInt iterations() const {
+    JsFakeInt js_iterations() const {
         return int2js(my_store.details.iterations);
     }
 
-    JsFakeInt status() const {
+    JsFakeInt js_status() const {
         return int2js(my_store.details.status);
     }
 
-    emscripten::val centers() const {
+    emscripten::val js_centers() const {
         const auto& s = my_store.centers;
         return emscripten::val(emscripten::typed_memory_view(s.size(), s.data()));
     }
 };
 
-ClusterKmeansResult cluster_kmeans(
+ClusterKmeansResult js_cluster_kmeans(
     JsFakeInt mat_raw,
     JsFakeInt nr_raw,
     JsFakeInt nc_raw,
@@ -116,15 +116,15 @@ ClusterKmeansResult cluster_kmeans(
 }
 
 EMSCRIPTEN_BINDINGS(cluster_kmeans) {
-    emscripten::function("cluster_kmeans", &cluster_kmeans, emscripten::return_value_policy::take_ownership());
+    emscripten::function("cluster_kmeans", &js_cluster_kmeans, emscripten::return_value_policy::take_ownership());
 
     emscripten::class_<ClusterKmeansResult>("ClusterKmeansResult")
-        .function("num_obs", &ClusterKmeansResult::num_obs, emscripten::return_value_policy::take_ownership())
-        .function("num_clusters", &ClusterKmeansResult::num_clusters, emscripten::return_value_policy::take_ownership())
-        .function("cluster_sizes", &ClusterKmeansResult::cluster_sizes, emscripten::return_value_policy::take_ownership())
-        .function("clusters", &ClusterKmeansResult::clusters, emscripten::return_value_policy::take_ownership())
-        .function("centers", &ClusterKmeansResult::centers, emscripten::return_value_policy::take_ownership())
-        .function("iterations", &ClusterKmeansResult::iterations, emscripten::return_value_policy::take_ownership())
-        .function("status", &ClusterKmeansResult::status, emscripten::return_value_policy::take_ownership())
+        .function("num_obs", &ClusterKmeansResult::js_num_obs, emscripten::return_value_policy::take_ownership())
+        .function("num_clusters", &ClusterKmeansResult::js_num_clusters, emscripten::return_value_policy::take_ownership())
+        .function("cluster_sizes", &ClusterKmeansResult::js_cluster_sizes, emscripten::return_value_policy::take_ownership())
+        .function("clusters", &ClusterKmeansResult::js_clusters, emscripten::return_value_policy::take_ownership())
+        .function("centers", &ClusterKmeansResult::js_centers, emscripten::return_value_policy::take_ownership())
+        .function("iterations", &ClusterKmeansResult::js_iterations, emscripten::return_value_policy::take_ownership())
+        .function("status", &ClusterKmeansResult::js_status, emscripten::return_value_policy::take_ownership())
         ;
 }

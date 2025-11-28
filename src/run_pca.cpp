@@ -32,7 +32,7 @@ private:
     };
 
 public:
-    emscripten::val components() const {
+    emscripten::val js_components() const {
         if (my_use_blocked) {
             return format_matrix(my_store_blocked.components);
         } else {
@@ -40,7 +40,7 @@ public:
         }
     }
 
-    emscripten::val variance_explained() const {
+    emscripten::val js_variance_explained() const {
         if (my_use_blocked) {
             return format_vector(my_store_blocked.variance_explained);
         } else {
@@ -48,7 +48,7 @@ public:
         }
     }
 
-    double total_variance() const {
+    double js_total_variance() const {
         if (my_use_blocked) {
             return my_store_blocked.total_variance;
         } else {
@@ -56,7 +56,7 @@ public:
         }
     }
 
-    emscripten::val rotation() const {
+    emscripten::val js_rotation() const {
         if (my_use_blocked) {
             return format_matrix(my_store_blocked.rotation);
         } else {
@@ -65,7 +65,7 @@ public:
     }
 
 public:
-    JsFakeInt num_cells() const {
+    JsFakeInt js_num_cells() const {
         if (my_use_blocked) {
             return int2js(my_store_blocked.components.cols());
         } else {
@@ -73,7 +73,7 @@ public:
         }
     }
 
-    JsFakeInt num_pcs() const {
+    JsFakeInt js_num_pcs() const {
         if (my_use_blocked) {
             return int2js(my_store_blocked.variance_explained.size());
         } else {
@@ -82,7 +82,7 @@ public:
     }
 };
 
-PcaResults run_pca(
+PcaResults js_run_pca(
     const NumericMatrix& mat,
     JsFakeInt number_raw,
     bool use_subset,
@@ -144,14 +144,14 @@ PcaResults run_pca(
 }
 
 EMSCRIPTEN_BINDINGS(run_pca) {
-    emscripten::function("run_pca", &run_pca, emscripten::return_value_policy::take_ownership());
+    emscripten::function("run_pca", &js_run_pca, emscripten::return_value_policy::take_ownership());
 
     emscripten::class_<PcaResults>("PcaResults")
-        .function("components", &PcaResults::components, emscripten::return_value_policy::take_ownership())
-        .function("variance_explained", &PcaResults::variance_explained, emscripten::return_value_policy::take_ownership())
-        .function("total_variance", &PcaResults::total_variance, emscripten::return_value_policy::take_ownership())
-        .function("rotation", &PcaResults::rotation, emscripten::return_value_policy::take_ownership())
-        .function("num_cells", &PcaResults::num_cells, emscripten::return_value_policy::take_ownership())
-        .function("num_pcs", &PcaResults::num_pcs, emscripten::return_value_policy::take_ownership())
+        .function("components", &PcaResults::js_components, emscripten::return_value_policy::take_ownership())
+        .function("variance_explained", &PcaResults::js_variance_explained, emscripten::return_value_policy::take_ownership())
+        .function("total_variance", &PcaResults::js_total_variance, emscripten::return_value_policy::take_ownership())
+        .function("rotation", &PcaResults::js_rotation, emscripten::return_value_policy::take_ownership())
+        .function("num_cells", &PcaResults::js_num_cells, emscripten::return_value_policy::take_ownership())
+        .function("num_pcs", &PcaResults::js_num_pcs, emscripten::return_value_policy::take_ownership())
         ;
 }

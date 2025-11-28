@@ -35,15 +35,15 @@ MatrixIndex NumericMatrix::ncol() const {
     return my_ptr->ncol();
 }
 
-JsFakeInt NumericMatrix::nrow_js() const {
+JsFakeInt NumericMatrix::js_nrow() const {
     return int2js(my_ptr->nrow());
 }
 
-JsFakeInt NumericMatrix::ncol_js() const {
+JsFakeInt NumericMatrix::js_ncol() const {
     return int2js(my_ptr->ncol());
 }
 
-void NumericMatrix::row(JsFakeInt r_raw, JsFakeInt values_raw) {
+void NumericMatrix::js_row(JsFakeInt r_raw, JsFakeInt values_raw) {
     const auto values = js2int<std::uintptr_t>(values_raw);
     MatrixValue* buffer = reinterpret_cast<MatrixValue*>(values);
     if (!my_by_row) {
@@ -54,7 +54,7 @@ void NumericMatrix::row(JsFakeInt r_raw, JsFakeInt values_raw) {
     return;
 }
 
-void NumericMatrix::column(JsFakeInt c_raw, JsFakeInt values_raw) {
+void NumericMatrix::js_column(JsFakeInt c_raw, JsFakeInt values_raw) {
     const auto values = js2int<std::uintptr_t>(values_raw);
     MatrixValue* buffer = reinterpret_cast<MatrixValue*>(values);
     if (!my_by_column) {
@@ -65,21 +65,21 @@ void NumericMatrix::column(JsFakeInt c_raw, JsFakeInt values_raw) {
     return;
 }
 
-bool NumericMatrix::sparse() const {
+bool NumericMatrix::js_sparse() const {
     return my_ptr->sparse(); 
 }
 
-NumericMatrix NumericMatrix::clone() const {
+NumericMatrix NumericMatrix::js_clone() const {
     return NumericMatrix(my_ptr);
 }
 
 EMSCRIPTEN_BINDINGS(NumericMatrix) {
     emscripten::class_<NumericMatrix>("NumericMatrix")
-        .function("nrow", &NumericMatrix::nrow_js, emscripten::return_value_policy::take_ownership())
-        .function("ncol", &NumericMatrix::ncol_js, emscripten::return_value_policy::take_ownership())
-        .function("row", &NumericMatrix::row, emscripten::return_value_policy::take_ownership())
-        .function("column", &NumericMatrix::column, emscripten::return_value_policy::take_ownership())
-        .function("sparse", &NumericMatrix::sparse, emscripten::return_value_policy::take_ownership())
-        .function("clone", &NumericMatrix::clone, emscripten::return_value_policy::take_ownership())
+        .function("nrow", &NumericMatrix::js_nrow, emscripten::return_value_policy::take_ownership())
+        .function("ncol", &NumericMatrix::js_ncol, emscripten::return_value_policy::take_ownership())
+        .function("row", &NumericMatrix::js_row, emscripten::return_value_policy::take_ownership())
+        .function("column", &NumericMatrix::js_column, emscripten::return_value_policy::take_ownership())
+        .function("sparse", &NumericMatrix::js_sparse, emscripten::return_value_policy::take_ownership())
+        .function("clone", &NumericMatrix::js_clone, emscripten::return_value_policy::take_ownership())
         ;
 }
