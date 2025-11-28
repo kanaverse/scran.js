@@ -21,6 +21,11 @@ test("clusterGraph works as expected", () => {
     expect(clusters.bestLevel()).toBeLessThan(clusters.numberOfLevels());
     expect(clusters.modularity()).toBeGreaterThan(0);
 
+    let best = clusters.bestLevel();
+    expect(best).toBeLessThan(clusters.numberOfLevels());
+    expect(clusters.modularity()).toEqual(clusters.modularity(best));
+    expect(clusters.membership()).toEqual(clusters.membership(best));
+
     // Same results with index input.
     var graph2 = scran.buildSnnGraph(index, { neighbors: k });
     var clusters2 = scran.clusterGraph(graph2);
