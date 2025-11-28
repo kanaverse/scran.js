@@ -28,15 +28,23 @@ Output_ js2int(JsFakeInt x) {
 template<typename Output_, typename Input_>
 Output_ js2int(Input_ x) = delete;
 
-template<typename T>
-std::vector<T> convert_array_of_offsets(std::size_t n, std::uintptr_t x) {
-    auto output = sanisizer::create<std::vector<T> >(n);
-    auto ptr = reinterpret_cast<const uint64_t*>(x); 
+template<typename Pointer_>
+std::vector<Pointer_> convert_array_of_offsets(std::size_t n, JsFakeInt ptr_raw) {
+    const auto ptr = js2int<std::uintptr_t>(ptr_raw);
+    auto output = sanisizer::create<std::vector<Pointer_> >(n);
+    auto arr = reinterpret_cast<const std::uint64_t*>(ptr); 
     for (I<decltype(n)> i = 0; i < n; ++i) {
-        std::uintptr_t current = ptr[i];
-        output[i] = reinterpret_cast<T>(current);
+        const std::uintptr_t current = arr[i];
+        output[i] = reinterpret_cast<Pointer_>(current);
     }
+
     return output;
+}
+
+template<typename Pointer_>
+std::vector<Pointer_> convert_array_of_offsets(JsFakeInt n_raw, JsFakeInt ptr_raw) {
+    const auto n = js2int<std::size_t>(n_raw);
+    return convert_array_of_offsets<Pointer_>(n, ptr_raw);
 }
 
 template<bool row>

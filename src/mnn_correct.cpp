@@ -11,18 +11,18 @@
 void mnn_correct(
     JsFakeInt nrows_raw, 
     JsFakeInt ncols_raw, 
-    std::uintptr_t input, 
-    std::uintptr_t batch, 
-    std::uintptr_t output,
+    JsFakeInt input_raw, 
+    JsFakeInt batch_raw, 
+    JsFakeInt output_raw,
     JsFakeInt k_raw, 
     JsFakeInt steps_raw,
     std::string merge_policy, 
     bool approximate,
     JsFakeInt nthreads_raw
 ) {
-    auto bptr = reinterpret_cast<const std::int32_t*>(batch);
-    auto iptr = reinterpret_cast<const double*>(input);
-    auto optr = reinterpret_cast<double*>(output);
+    auto bptr = reinterpret_cast<const std::int32_t*>(js2int<std::uintptr_t>(batch_raw));
+    auto iptr = reinterpret_cast<const double*>(js2int<std::uintptr_t>(input_raw));
+    auto optr = reinterpret_cast<double*>(js2int<std::uintptr_t>(output_raw));
 
     mnncorrect::Options<std::int32_t, double, knncolle::SimpleMatrix<std::int32_t, double> > options;
     options.num_neighbors = js2int<int>(k_raw);

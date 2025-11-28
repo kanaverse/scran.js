@@ -8,23 +8,23 @@
 void hypergeometric_test(
     JsFakeInt ntests_raw,
     bool multi_markers_in_set, 
-    std::uintptr_t markers_in_set, 
+    JsFakeInt markers_in_set_raw, 
     bool multi_set_size, 
-    std::uintptr_t set_size, 
+    JsFakeInt set_size_raw, 
     bool multi_num_markers, 
-    std::uintptr_t num_markers, 
+    JsFakeInt num_markers_raw, 
     bool multi_num_features, 
-    std::uintptr_t num_features, 
-    std::uintptr_t output,
+    JsFakeInt num_features_raw, 
+    JsFakeInt output_raw,
     bool log, 
     JsFakeInt nthreads_raw
 ) {
     const auto ntests = js2int<std::size_t>(ntests_raw);
-    const auto misptr = reinterpret_cast<const std::int32_t*>(markers_in_set);
-    const auto ssptr = reinterpret_cast<const std::int32_t*>(set_size);
-    const auto nmptr = reinterpret_cast<const std::int32_t*>(num_markers);
-    const auto nfptr = reinterpret_cast<const std::int32_t*>(num_features);
-    double* outptr = reinterpret_cast<double*>(output);
+    const auto misptr = reinterpret_cast<const std::int32_t*>(js2int<std::uintptr_t>(markers_in_set_raw));
+    const auto ssptr = reinterpret_cast<const std::int32_t*>(js2int<std::uintptr_t>(set_size_raw));
+    const auto nmptr = reinterpret_cast<const std::int32_t*>(js2int<std::uintptr_t>(num_markers_raw));
+    const auto nfptr = reinterpret_cast<const std::int32_t*>(js2int<std::uintptr_t>(num_features_raw));
+    double* outptr = reinterpret_cast<double*>(js2int<std::uintptr_t>(output_raw));
 
     subpar::parallelize_range(
         js2int<int>(nthreads_raw),

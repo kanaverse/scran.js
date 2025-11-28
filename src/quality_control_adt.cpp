@@ -44,10 +44,10 @@ public:
     }
 };
 
-ComputeAdtQcMetricsResults per_cell_adt_qc_metrics(const NumericMatrix& mat, JsFakeInt nsubsets_raw, std::uintptr_t subsets, JsFakeInt nthreads_raw) {
+ComputeAdtQcMetricsResults per_cell_adt_qc_metrics(const NumericMatrix& mat, JsFakeInt nsubsets_raw, JsFakeInt subsets_raw, JsFakeInt nthreads_raw) {
     scran_qc::ComputeAdtQcMetricsOptions opt;
     opt.num_threads = js2int<int>(nthreads_raw);
-    auto store = scran_qc::compute_adt_qc_metrics(*mat, convert_array_of_offsets<const std::uint8_t*>(js2int<std::size_t>(nsubsets_raw), subsets), opt);
+    auto store = scran_qc::compute_adt_qc_metrics(*mat, convert_array_of_offsets<const std::uint8_t*>(nsubsets_raw, subsets_raw), opt);
     return ComputeAdtQcMetricsResults(std::move(store));
 }
 
@@ -91,7 +91,8 @@ public:
         }
     }
 
-    emscripten::val subset_sum(int32_t i) {
+    emscripten::val subset_sum(JsFakeInt i_raw) {
+        const auto i = js2int<std::size_t>(i_raw);
         if (my_use_blocked) {
             auto& ssum = my_store_blocked.get_subset_sum()[i];
             return emscripten::val(emscripten::typed_memory_view(ssum.size(), ssum.data()));
@@ -123,9 +124,11 @@ public:
         return my_use_blocked;
     }
 
-    void filter(const ComputeAdtQcMetricsResults& metrics, std::uintptr_t blocks, std::uintptr_t output) const {
+    void filter(const ComputeAdtQcMetricsResults& metrics, JsFakeInt blocks_raw, JsFakeInt output_raw) const {
+        const auto output = js2int<std::uintptr_t>(output_raw);
         auto optr = reinterpret_cast<std::uint8_t*>(output);
         if (my_use_blocked) {
+            const auto blocks = js2int<std::uintptr_t>(blocks_raw);
             my_store_blocked.filter(metrics.store(), reinterpret_cast<const std::int32_t*>(blocks), optr);
         } else {
             my_store_unblocked.filter(metrics.store(), optr);
@@ -134,13 +137,14 @@ public:
     }
 };
 
-SuggestAdtQcFiltersResults suggest_adt_qc_filters(const ComputeAdtQcMetricsResults& metrics, bool use_blocks, std::uintptr_t blocks, double nmads, double min_drop) {
+SuggestAdtQcFiltersResults suggest_adt_qc_filters(const ComputeAdtQcMetricsResults& metrics, bool use_blocks, JsFakeInt blocks_raw, double nmads, double min_drop) {
     scran_qc::ComputeAdtQcFiltersOptions opt;
     opt.detected_num_mads = nmads;
     opt.subset_sum_num_mads = nmads;
     opt.detected_min_drop = min_drop;
 
     if (use_blocks) {
+        const auto blocks = js2int<std::uintptr_t>(blocks_raw);
         auto thresholds = scran_qc::compute_adt_qc_filters_blocked(metrics.store(), reinterpret_cast<const std::int32_t*>(blocks), opt);
         return SuggestAdtQcFiltersResults(std::move(thresholds));
     } else {

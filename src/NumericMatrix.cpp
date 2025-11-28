@@ -43,7 +43,8 @@ JsFakeInt NumericMatrix::ncol_js() const {
     return int2js(my_ptr->ncol());
 }
 
-void NumericMatrix::row(JsFakeInt r_raw, std::uintptr_t values) {
+void NumericMatrix::row(JsFakeInt r_raw, JsFakeInt values_raw) {
+    const auto values = js2int<std::uintptr_t>(values_raw);
     MatrixValue* buffer = reinterpret_cast<MatrixValue*>(values);
     if (!my_by_row) {
         my_by_row = my_ptr->dense_row();
@@ -53,7 +54,8 @@ void NumericMatrix::row(JsFakeInt r_raw, std::uintptr_t values) {
     return;
 }
 
-void NumericMatrix::column(JsFakeInt c_raw, std::uintptr_t values) {
+void NumericMatrix::column(JsFakeInt c_raw, JsFakeInt values_raw) {
+    const auto values = js2int<std::uintptr_t>(values_raw);
     MatrixValue* buffer = reinterpret_cast<MatrixValue*>(values);
     if (!my_by_column) {
         my_by_column = my_ptr->dense_column();

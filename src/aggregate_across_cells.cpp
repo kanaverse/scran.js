@@ -30,8 +30,8 @@ public:
         return emscripten::val(emscripten::typed_memory_view(my_ngenes, my_store.sums[i].data()));
     }
 
-    void all_sums(std::uintptr_t output) const {
-        auto optr = reinterpret_cast<double*>(output);
+    void all_sums(JsFakeInt output_raw) const {
+        auto optr = reinterpret_cast<double*>(js2int<std::uintptr_t>(output_raw));
         for (const auto& ss : my_store.sums) {
             std::copy_n(ss.begin(), my_ngenes, optr);
             optr += my_ngenes;
@@ -43,8 +43,8 @@ public:
         return emscripten::val(emscripten::typed_memory_view(my_ngenes, my_store.detected[i].data()));
     }
 
-    void all_detected(std::uintptr_t output) const {
-        auto optr = reinterpret_cast<double*>(output);
+    void all_detected(JsFakeInt output_raw) const {
+        auto optr = reinterpret_cast<double*>(js2int<std::uintptr_t>(output_raw));
         for (const auto& ds : my_store.detected) {
             std::copy_n(ds.begin(), my_ngenes, optr);
             optr += my_ngenes;
@@ -52,10 +52,10 @@ public:
     }
 };
 
-AggregateAcrossCellsResults aggregate_across_cells(const NumericMatrix& mat, std::uintptr_t factor, bool average, JsFakeInt nthreads_raw) {
+AggregateAcrossCellsResults aggregate_across_cells(const NumericMatrix& mat, JsFakeInt factor_raw, bool average, JsFakeInt nthreads_raw) {
     scran_aggregate::AggregateAcrossCellsOptions aopt;
     aopt.num_threads = js2int<int>(nthreads_raw);
-    auto fptr = reinterpret_cast<const std::int32_t*>(factor);
+    auto fptr = reinterpret_cast<const std::int32_t*>(js2int<std::uintptr_t>(factor_raw));
     auto store = scran_aggregate::aggregate_across_cells<double, double>(*mat, fptr, aopt);
 
     if (average) {

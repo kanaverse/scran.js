@@ -40,11 +40,12 @@ TsneStatus initialize_tsne(const NeighborResults& neighbors, double perplexity, 
     opt.perplexity = perplexity;
     opt.num_threads = js2int<int>(nthreads_raw);
     opt.max_depth = 7; // speed up iterations, avoid problems with duplicates.
-    auto stat = qdtsne::initialize<2>(neighbors.neighbors, opt);
+    auto stat = qdtsne::initialize<2>(neighbors.neighbors(), opt);
     return TsneStatus(std::move(stat));
 }
 
-void randomize_tsne_start(JsFakeInt n_raw, std::uintptr_t Y, JsFakeInt seed_raw) {
+void randomize_tsne_start(JsFakeInt n_raw, JsFakeInt Y_raw, JsFakeInt seed_raw) {
+    const auto Y = js2int<std::uintptr_t>(Y_raw);
     qdtsne::initialize_random<2>(
         reinterpret_cast<double*>(Y),
         js2int<std::size_t>(n_raw),
@@ -57,8 +58,9 @@ JsFakeInt perplexity_to_k(double perplexity) {
     return int2js(qdtsne::perplexity_to_k(perplexity));
 }
 
-void run_tsne(TsneStatus& obj, JsFakeInt runtime_raw, JsFakeInt maxiter_raw, std::uintptr_t Y) {
+void run_tsne(TsneStatus& obj, JsFakeInt runtime_raw, JsFakeInt maxiter_raw, JsFakeInt Y_raw) {
     auto& status = obj.status();
+    const auto Y = js2int<std::uintptr_t>(Y_raw);
     double* ptr = reinterpret_cast<double*>(Y);
 
     auto iter = status.iteration();

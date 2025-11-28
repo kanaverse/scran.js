@@ -14,9 +14,9 @@
 #include "tatami_layered/tatami_layered.hpp"
 #include "eminem/eminem.hpp"
 
-NumericMatrix initialize_from_mtx_buffer(std::uintptr_t buffer, JsFakeInt size_raw, std::string compression, bool layered) {
+NumericMatrix initialize_from_mtx_buffer(JsFakeInt buffer_raw, JsFakeInt size_raw, std::string compression, bool layered) {
     const auto size = js2int<std::size_t>(size_raw);
-    unsigned char* bufptr = reinterpret_cast<unsigned char*>(buffer);
+    unsigned char* bufptr = reinterpret_cast<unsigned char*>(js2int<std::uintptr_t>(buffer_raw));
     if (layered) {
         if (compression == "none") {
             return NumericMatrix(tatami_layered::read_layered_sparse_from_matrix_market_text_buffer<MatrixValue, MatrixIndex>(bufptr, size));
@@ -76,9 +76,9 @@ emscripten::val get_preamble(std::unique_ptr<byteme::PerByteSerial<char> > input
     return output;
 }
 
-emscripten::val read_header_from_mtx_buffer(std::uintptr_t buffer, JsFakeInt size_raw, std::string compression) {
+emscripten::val read_header_from_mtx_buffer(JsFakeInt buffer_raw, JsFakeInt size_raw, std::string compression) {
     const auto size = js2int<std::size_t>(size_raw);
-    unsigned char* bufptr = reinterpret_cast<unsigned char*>(buffer);
+    unsigned char* bufptr = reinterpret_cast<unsigned char*>(js2int<std::uintptr_t>(buffer_raw));
     std::unique_ptr<byteme::Reader> input;
     if (compression == "none") {
         input.reset(new byteme::RawBufferReader(bufptr, size));

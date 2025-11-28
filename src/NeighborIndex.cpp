@@ -40,28 +40,31 @@ std::unique_ptr<knncolle::Builder<std::int32_t, double, double, knncolle::Simple
     }
 }
 
-NeighborIndex build_neighbor_index(std::uintptr_t mat, JsFakeInt nr_raw, JsFakeInt nc_raw, bool approximate) {
+NeighborIndex build_neighbor_index(JsFakeInt mat_raw, JsFakeInt nr_raw, JsFakeInt nc_raw, bool approximate) {
     auto builder = create_builder(approximate);
     NeighborIndex output;
-    const double* ptr = reinterpret_cast<const double*>(mat);
-    output.index = builder->build_unique(knncolle::SimpleMatrix<std::int32_t, double>(js2int<std::size_t>(nr_raw), js2int<std::int32_t>(nc_raw), ptr));
+    const auto nr = js2int<std::size_t>(nr_raw);
+    const auto nc = js2int<std::int32_t>(nc_raw);
+    const double* ptr = reinterpret_cast<const double*>(js2int<std::uintptr_t>(mat_raw));
+    output.index = builder->build_unique(knncolle::SimpleMatrix<std::int32_t, double>(nr, nc, ptr));
     return output;
 }
 
 NeighborResults find_nearest_neighbors(const NeighborIndex& index, JsFakeInt k_raw, JsFakeInt nthreads_raw) {
-    NeighborResults output;
-    output.neighbors = knncolle::find_nearest_neighbors(*(index.index), js2int<int>(k_raw), js2int<int>(nthreads_raw));
-    return output;
+    return NeighborResults(knncolle::find_nearest_neighbors(*(index.index), js2int<int>(k_raw), js2int<int>(nthreads_raw)));
 }
 
-NeighborResults truncate_nearest_neighbors(const NeighborResults& original, JsFakeInt k_raw) {
+NeighborResults truncate_nearest_neighbors(const NeighborResults& input, JsFakeInt k_raw) {
     NeighborResults output;
-    const auto nobs = original.neighbors.size();
-    output.neighbors.resize(nobs);
+    const auto nobs = input.neighbors().size();
+    auto& out_neighbors = output.neighbors();
+    sanisizer::resize(out_neighbors, nobs);
+
+    auto& in_neighbors = input.neighbors();
     const auto desired = js2int<int>(k_raw);
     for (I<decltype(nobs)> i = 0; i < nobs; ++i) {
-        const auto& current = original.neighbors[i];
-        auto& curout = output.neighbors[i];
+        const auto& current = in_neighbors[i];
+        auto& curout = out_neighbors[i];
         const auto size = sanisizer::min(current.size(), desired);
         curout.insert(curout.end(), current.begin(), current.begin() + size);
     }
@@ -80,7 +83,7 @@ EMSCRIPTEN_BINDINGS(build_neighbor_index) {
         .function("num_dim", &NeighborIndex::num_dim, emscripten::return_value_policy::take_ownership());
     
     emscripten::class_<NeighborResults>("NeighborResults")
-        .constructor<size_t, uintptr_t, uintptr_t, uintptr_t>()
+        .constructor<JsFakeInt, JsFakeInt, JsFakeInt, JsFakeInt>()
         .function("num_obs", &NeighborResults::num_obs, emscripten::return_value_policy::take_ownership())
         .function("num_neighbors", &NeighborResults::num_neighbors, emscripten::return_value_policy::take_ownership())
         .function("size", &NeighborResults::size, emscripten::return_value_policy::take_ownership())

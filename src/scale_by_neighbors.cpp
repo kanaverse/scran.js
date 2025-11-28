@@ -11,16 +11,16 @@
 
 void scale_by_neighbors(
     JsFakeInt nembed_raw,
-    std::uintptr_t embeddings,
-    std::uintptr_t indices,
-    std::uintptr_t combined,
+    JsFakeInt embeddings_raw,
+    JsFakeInt indices_raw,
+    JsFakeInt combined_raw,
     JsFakeInt num_neighbors,
     bool use_weights,
-    std::uintptr_t weights,
+    JsFakeInt weights_raw,
     JsFakeInt nthreads_raw
 ) {
     const auto nembed = js2int<std::size_t>(nembed_raw);
-    auto index_ptrs = convert_array_of_offsets<const NeighborIndex*>(nembed, indices);
+    auto index_ptrs = convert_array_of_offsets<const NeighborIndex*>(nembed, indices_raw);
     std::vector<const knncolle::Prebuilt<std::int32_t, double, double>*> actual_ptrs;
     std::vector<std::size_t> ndims;
 
@@ -37,7 +37,7 @@ void scale_by_neighbors(
     opt.num_neighbors = num_neighbors;
     opt.num_threads = js2int<int>(nthreads_raw);
 
-    std::vector<std::pair<double, double> > distances(nembed);
+    auto distances = sanisizer::create<std::vector<std::pair<double, double> > >(nembed);
     auto buffer = sanisizer::create<std::vector<double> >(num_cells);
     for (I<decltype(nembed)> e = 0; e < nembed; ++e) {
         distances[e] = mumosa::compute_distance(*(index_ptrs[e]->index), buffer.data(), opt);
@@ -45,6 +45,7 @@ void scale_by_neighbors(
 
     auto scaling = mumosa::compute_scale(distances);
     if (use_weights) {
+        const auto weights = js2int<std::uintptr_t>(weights_raw);
         auto weight_ptr = reinterpret_cast<const double*>(weights);
         for (I<decltype(nembed)> e = 0; e < nembed; ++e) {
             scaling[e] *= weight_ptr[e];
@@ -52,8 +53,9 @@ void scale_by_neighbors(
     }
 
     // Interleaving the scaled embeddings.
+    const auto combined = js2int<std::uintptr_t>(combined_raw);
     auto out_ptr = reinterpret_cast<double*>(combined);
-    auto embed_ptrs = convert_array_of_offsets<const double*>(nembed, embeddings);
+    auto embed_ptrs = convert_array_of_offsets<const double*>(nembed, embeddings_raw);
     mumosa::combine_scaled_embeddings(ndims, num_cells, embed_ptrs, scaling, out_ptr);
 }
 

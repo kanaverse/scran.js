@@ -23,63 +23,105 @@ struct NeighborIndex {
 
 std::unique_ptr<knncolle::Builder<std::int32_t, double, double, knncolle::SimpleMatrix<std::int32_t, double> > > create_builder(bool);
 
-struct NeighborResults { 
-    typedef std::vector<std::vector<std::pair<int32_t, double> > > Neighbors;
+class NeighborResults { 
+    typedef std::vector<std::vector<std::pair<std::int32_t, double> > > Neighbors;
 
-    Neighbors neighbors;
+    Neighbors my_neighbors;
 
 public:
-    NeighborResults(size_t n = 0) : neighbors(n) {}
+    NeighborResults() = default;
 
-    NeighborResults(size_t n, uintptr_t runs, uintptr_t indices, uintptr_t distances) : neighbors(n) {
-        auto rptr = reinterpret_cast<const int32_t*>(runs);
-        auto iptr = reinterpret_cast<const int32_t*>(indices);
+    NeighborResults(Neighbors neighbors) : my_neighbors(std::move(neighbors)) {}
+
+    NeighborResults(JsFakeInt n_raw, JsFakeInt runs_raw, JsFakeInt indices_raw, JsFakeInt distances_raw) : 
+        my_neighbors(js2int<I<decltype(my_neighbors.size())> >(n_raw))
+    {
+        const auto runs = js2int<std::uintptr_t>(runs_raw);
+        auto rptr = reinterpret_cast<const std::int32_t*>(runs);
+
+        const auto indices = js2int<std::uintptr_t>(indices_raw);
+        auto iptr = reinterpret_cast<const std::int32_t*>(indices);
+
+        const auto distances = js2int<std::uintptr_t>(distances_raw);
         auto dptr = reinterpret_cast<const double*>(distances);
 
-        for (size_t i = 0; i < n; ++i) {
-            neighbors[i].reserve(rptr[i]);
-            for (int32_t j = 0; j < rptr[i]; ++j, ++iptr, ++dptr) {
-                neighbors[i].emplace_back(*iptr, *dptr);
+        const auto n = my_neighbors.size();
+        for (I<decltype(n)> i = 0; i < n; ++i) {
+            const auto run = rptr[i];
+            auto& nn = my_neighbors[i];
+            nn.reserve(run);
+
+            for (I<decltype(run)> j = 0; j < run; ++j) {
+                nn.emplace_back(iptr[j], dptr[j]);
             }
+
+            iptr += run;
+            dptr += run;
         }
     }
 
 public:
-    double size(int32_t truncate) const {
-        size_t out = 0;
-        size_t long_truncate = truncate;
-        for (const auto& current : neighbors) {
-            out += std::min(long_truncate, current.size());
+    Neighbors& neighbors() {
+        return my_neighbors;
+    }
+
+    const Neighbors& neighbors() const {
+        return my_neighbors;
+    }
+
+public:
+    JsFakeInt size(JsFakeInt truncate_raw) const {
+        std::size_t out = 0;
+        if (truncate_raw < 0) {
+            for (const auto& current : my_neighbors) {
+                out = sanisizer::sum<std::size_t>(out, current.size());
+            }
+        } else {
+            const auto truncate = js2int<std::size_t>(truncate_raw);
+            for (const auto& current : my_neighbors) {
+                out = sanisizer::sum<std::size_t>(out, sanisizer::min(truncate, current.size()));
+            }
         }
-        return static_cast<double>(out);
+        return int2js(out);
     }
 
-    double num_obs() const {
-        return static_cast<double>(neighbors.size());
+    JsFakeInt num_obs() const {
+        return int2js(my_neighbors.size());
     }
 
-    double num_neighbors() const {
-        return (neighbors.empty() ? 0 : neighbors.front().size());
+    JsFakeInt num_neighbors() const {
+        return int2js(my_neighbors.empty() ? 0 : my_neighbors.front().size());
     }
 
-    void serialize(uintptr_t runs, uintptr_t indices, uintptr_t distances, int32_t truncate) const {
+    void serialize(JsFakeInt runs_raw, JsFakeInt indices_raw, JsFakeInt distances_raw, JsFakeInt truncate_raw) const {
+        const auto runs = js2int<std::uintptr_t>(runs_raw);
         auto rptr = reinterpret_cast<int32_t*>(runs);
+
+        const auto indices = js2int<std::uintptr_t>(indices_raw);
         auto iptr = reinterpret_cast<int32_t*>(indices);
+
+        const auto distances = js2int<std::uintptr_t>(distances_raw);
         auto dptr = reinterpret_cast<double*>(distances);
 
-        size_t long_truncate = truncate;
-        for (const auto& current : neighbors) {
-            size_t nkeep = std::min(long_truncate, current.size());
+        const bool do_truncate = truncate_raw >= 0;
+        const auto truncate = (do_truncate ? js2int<std::size_t>(truncate_raw) : 0);
+
+        for (const auto& current : my_neighbors) {
+            auto nkeep = current.size();
+            if (do_truncate && truncate < nkeep) {
+                nkeep = truncate;
+            }
             *rptr = nkeep;
             ++rptr;
 
-            for (int32_t i = 0; i < nkeep; ++i) {
+            for (I<decltype(nkeep)> i = 0; i < nkeep; ++i) {
                 const auto& x = current[i];
-                *iptr = x.first;
-                *dptr = x.second;
-                ++iptr;
-                ++dptr;
+                iptr[i] = x.first;
+                dptr[i] = x.second;
             }
+
+            iptr += nkeep;
+            dptr += nkeep;
         }
     }
 };

@@ -30,14 +30,15 @@ public:
 
 GsdeconResults score_gsdecon(
     const NumericMatrix& mat,
-    std::uintptr_t subset,
+    JsFakeInt subset_raw,
     bool use_blocks,
-    std::uintptr_t blocks,
+    JsFakeInt blocks_raw,
     bool scale,
     std::string weight_policy,
     JsFakeInt nthreads_raw
 ) {
     const auto NR = mat.nrow();
+    const auto subset = js2int<std::uintptr_t>(subset_raw);
     auto subptr = reinterpret_cast<const std::uint8_t*>(subset);
     std::vector<I<decltype(NR)> > keep;
     for (I<decltype(NR)> r = 0; r < NR; ++r) {
@@ -53,6 +54,7 @@ GsdeconResults score_gsdecon(
     opt.block_weight_policy = translate_block_weight_policy(weight_policy);
 
     if (use_blocks) {
+        const auto blocks = js2int<std::uintptr_t>(blocks_raw);
         auto store = gsdecon::compute_blocked(*ptr, reinterpret_cast<const std::int32_t*>(blocks), opt);
         return GsdeconResults(std::move(store));
     } else {

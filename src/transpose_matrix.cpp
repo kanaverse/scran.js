@@ -2,11 +2,17 @@
 
 #include "tatami/tatami.hpp"
 
+#include "utils.h"
+
 #include <vector>
 #include <cstdint>
 #include <cstddef>
 
-void transpose_matrix(std::size_t nr, std::size_t nc, std::uintptr_t input, bool column_major, std::uintptr_t output) {
+void transpose_matrix(JsFakeInt nr_raw, JsFakeInt nc_raw, JsFakeInt input_raw, bool column_major, JsFakeInt output_raw) {
+    const auto nr = js2int<std::size_t>(nr_raw);
+    const auto nc = js2int<std::size_t>(nc_raw);
+    const auto input = js2int<std::uintptr_t>(input_raw);
+    const auto output = js2int<std::uintptr_t>(output_raw);
     tatami::transpose(
         reinterpret_cast<const double*>(input),
         (column_major ? nc : nr),

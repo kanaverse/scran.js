@@ -87,10 +87,10 @@ PcaResults run_pca(
     const NumericMatrix& mat,
     JsFakeInt number_raw,
     bool use_subset,
-    std::uintptr_t subset,
+    JsFakeInt subset_raw,
     bool scale,
     bool use_blocks,
-    std::uintptr_t blocks, 
+    JsFakeInt blocks_raw, 
     std::string weight_policy,
     bool components_from_residuals,
     bool realize_matrix,
@@ -106,7 +106,8 @@ PcaResults run_pca(
     const auto NR = ptr->nrow();
 
     if (use_subset) {
-        auto subptr = reinterpret_cast<const uint8_t*>(subset);
+        const auto subset = js2int<std::uintptr_t>(subset_raw);
+        auto subptr = reinterpret_cast<const std::uint8_t*>(subset);
         std::vector<int> keep;
         for (I<decltype(NR)> r = 0; r < NR; ++r) {
             if (subptr[r]) {
@@ -128,6 +129,7 @@ PcaResults run_pca(
         opt.block_weight_policy = translate_block_weight_policy(weight_policy);
         opt.components_from_residuals = components_from_residuals;
 
+        const auto blocks = js2int<std::uintptr_t>(blocks_raw);
         auto store = scran_pca::blocked_pca(*ptr, reinterpret_cast<const std::int32_t*>(blocks), opt);
         return PcaResults(std::move(store));
 

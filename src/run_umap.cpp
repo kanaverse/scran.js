@@ -10,7 +10,7 @@
 
 class UmapStatus {
 private:
-    typedef umappp::Status<int32_t, float> Status;
+    typedef umappp::Status<std::int32_t, float> Status;
 
     Status my_status;
 
@@ -43,7 +43,7 @@ UmapStatus initialize_umap(
     const NeighborResults& neighbors,
     JsFakeInt num_epochs_raw,
     double min_dist,
-    std::uintptr_t Y,
+    JsFakeInt Y_raw,
     JsFakeInt nthreads_raw
 ) {
     umappp::Options opt;
@@ -51,11 +51,12 @@ UmapStatus initialize_umap(
     opt.num_epochs = js2int<int>(num_epochs_raw);
     opt.num_threads = js2int<int>(nthreads_raw);
 
-    const auto nobs = neighbors.neighbors.size();
-    auto copy = sanisizer::create<std::vector<std::vector<std::pair<int32_t, float> > > >(nobs);
+    const auto& in_neighbors = neighbors.neighbors(); 
+    const auto nobs = in_neighbors.size();
+    auto copy = sanisizer::create<std::vector<std::vector<std::pair<std::int32_t, float> > > >(nobs);
     for (I<decltype(nobs)> i = 0; i < nobs; ++i) {
         auto& output = copy[i];
-        const auto& src = neighbors.neighbors[i];
+        const auto& src = in_neighbors[i];
         const auto n = src.size();
         output.reserve(n);
         for (I<decltype(n)> j = 0; j < n; ++j) {
@@ -63,13 +64,15 @@ UmapStatus initialize_umap(
         }
     }
 
+    const auto Y = js2int<std::uintptr_t>(Y_raw);
     float* embedding = reinterpret_cast<float*>(Y);
     auto stat = umappp::initialize(std::move(copy), 2, embedding, opt);
     return UmapStatus(std::move(stat));
 }
 
-void run_umap(UmapStatus& obj, std::uintptr_t Y, JsFakeInt runtime_raw) {
+void run_umap(UmapStatus& obj, JsFakeInt Y_raw, JsFakeInt runtime_raw) {
     const auto runtime = js2int<std::uint64_t>(runtime_raw); 
+    const auto Y = js2int<std::uintptr_t>(Y_raw);
     float* embedding = reinterpret_cast<float*>(Y);
     auto& status = obj.status();
 

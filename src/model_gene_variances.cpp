@@ -66,13 +66,21 @@ public:
     }
 };
 
-ModelGeneVariancesResults model_gene_variances(const NumericMatrix& mat, bool use_blocks, std::uintptr_t blocks, double span, std::string weight_policy, JsFakeInt nthreads_raw) {
+ModelGeneVariancesResults model_gene_variances(
+    const NumericMatrix& mat,
+    bool use_blocks,
+    JsFakeInt blocks_raw,
+    double span,
+    std::string weight_policy,
+    JsFakeInt nthreads_raw
+) {
     scran_variances::ModelGeneVariancesOptions vopt;
     vopt.fit_variance_trend_options.span = span;
     vopt.block_weight_policy = translate_block_weight_policy(weight_policy);
     vopt.num_threads = js2int<int>(nthreads_raw);
 
     if (use_blocks) {
+        const auto blocks = js2int<std::uintptr_t>(blocks_raw);
         auto store = scran_variances::model_gene_variances_blocked(*mat, reinterpret_cast<const std::int32_t*>(blocks), vopt);
         return ModelGeneVariancesResults(std::move(store));
     } else {
@@ -81,12 +89,23 @@ ModelGeneVariancesResults model_gene_variances(const NumericMatrix& mat, bool us
     }
 }
 
-void choose_highly_variable_genes(JsFakeInt n_raw, std::uintptr_t statistics, std::uintptr_t output, JsFakeInt top_raw, double bound) {
+void choose_highly_variable_genes(
+    JsFakeInt n_raw,
+    JsFakeInt statistics_raw,
+    JsFakeInt output_raw,
+    JsFakeInt top_raw,
+    double bound
+) {
     scran_variances::ChooseHighlyVariableGenesOptions copt;
     copt.top = js2int<std::size_t>(top_raw);
     copt.use_bound = true;
     copt.bound = bound;
-    scran_variances::choose_highly_variable_genes(js2int<std::size_t>(n_raw), reinterpret_cast<double*>(statistics), reinterpret_cast<std::uint8_t*>(output), copt);
+    scran_variances::choose_highly_variable_genes(
+        js2int<std::size_t>(n_raw),
+        reinterpret_cast<double*>(js2int<std::uintptr_t>(statistics_raw)),
+        reinterpret_cast<std::uint8_t*>(js2int<std::uintptr_t>(output_raw)),
+        copt
+    );
 }
 
 EMSCRIPTEN_BINDINGS(model_gene_variances) {

@@ -6,9 +6,9 @@
 #include "NeighborIndex.h"
 #include "build_snn_graph.h"
 
-BuildSnnGraphResult build_snn_graph(const NeighborResults& neighbors, std::string scheme, int32_t nthreads) {
+BuildSnnGraphResult build_snn_graph(const NeighborResults& neighbors, std::string scheme, JsFakeInt nthreads_raw) {
     scran_graph_cluster::BuildSnnGraphOptions opt;
-    opt.num_threads = nthreads;
+    opt.num_threads = js2int<int>(nthreads_raw);
 
     if (scheme == "rank") {
         opt.weighting_scheme = scran_graph_cluster::SnnWeightScheme::RANKED;
@@ -20,7 +20,7 @@ BuildSnnGraphResult build_snn_graph(const NeighborResults& neighbors, std::strin
         throw std::runtime_error("no known weighting scheme '" + scheme + "'");
     }
 
-    return BuildSnnGraphResult(scran_graph_cluster::build_snn_graph(neighbors.neighbors, opt));
+    return BuildSnnGraphResult(scran_graph_cluster::build_snn_graph(neighbors.neighbors(), opt));
 }
 
 EMSCRIPTEN_BINDINGS(build_snn_graph) {

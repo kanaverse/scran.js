@@ -60,21 +60,33 @@ public:
 };
 
 SingleppRawReference load_singlepp_reference(
-    std::uintptr_t labels_buffer,
-    std::size_t labels_len,
-    std::uintptr_t markers_buffer,
-    std::size_t markers_len,
-    std::uintptr_t rankings_buffer,
-    std::size_t rankings_len
+    JsFakeInt labels_buffer_raw,
+    JsFakeInt labels_len_raw,
+    JsFakeInt markers_buffer_raw,
+    JsFakeInt markers_len_raw,
+    JsFakeInt rankings_buffer_raw,
+    JsFakeInt rankings_len_raw
 ) {
     singlepp_loaders::LoadLabelsOptions lopt;
-    auto lab = singlepp_loaders::load_labels_from_zlib_buffer<std::int32_t>(reinterpret_cast<unsigned char*>(labels_buffer), labels_len, lopt);
+    auto lab = singlepp_loaders::load_labels_from_zlib_buffer<std::int32_t>(
+        reinterpret_cast<unsigned char*>(js2int<std::uintptr_t>(labels_buffer_raw)),
+        js2int<std::size_t>(labels_len_raw),
+        lopt
+    );
 
     singlepp_loaders::LoadRankingsOptions ropt;
-    auto rank = singlepp_loaders::load_rankings_from_zlib_buffer<double, std::int32_t>(reinterpret_cast<unsigned char*>(rankings_buffer), rankings_len, ropt);
+    auto rank = singlepp_loaders::load_rankings_from_zlib_buffer<double, std::int32_t>(
+        reinterpret_cast<unsigned char*>(js2int<std::uintptr_t>(rankings_buffer_raw)),
+        js2int<std::size_t>(rankings_len_raw),
+        ropt
+    );
 
     singlepp_loaders::LoadMarkersOptions mopt;
-    auto mark = singlepp_loaders::load_markers_from_zlib_buffer<std::int32_t>(reinterpret_cast<unsigned char*>(markers_buffer), markers_len, mopt);
+    auto mark = singlepp_loaders::load_markers_from_zlib_buffer<std::int32_t>(
+        reinterpret_cast<unsigned char*>(js2int<std::uintptr_t>(markers_buffer_raw)),
+        js2int<std::size_t>(markers_len_raw),
+        mopt
+    );
 
     singlepp_loaders::verify(rank, lab, mark);
     return SingleppRawReference(std::move(rank), std::move(lab), std::move(mark));
@@ -84,7 +96,7 @@ SingleppRawReference load_singlepp_reference(
 
 class SingleppTrainedReference {
 private:
-    typedef singlepp::TrainedSingleIntersect<int32_t, double> Store;
+    typedef singlepp::TrainedSingleIntersect<std::int32_t, double> Store;
 
     Store my_store;
 
@@ -108,8 +120,8 @@ public:
 SingleppTrainedReference train_singlepp_reference(
     JsFakeInt num_test_features_raw,
     JsFakeInt num_intersected_raw,
-    std::uintptr_t test_feature_ids,
-    std::uintptr_t ref_feature_ids,
+    JsFakeInt test_feature_ids_raw,
+    JsFakeInt ref_feature_ids_raw,
     const SingleppRawReference& ref,
     JsFakeInt top_raw,
     bool approximate,
@@ -124,8 +136,13 @@ SingleppTrainedReference train_singlepp_reference(
     {
         const auto num_intersected = js2int<std::size_t>(num_intersected_raw);
         inter.reserve(num_intersected);
+
+        const auto test_feature_ids = js2int<std::uintptr_t>(test_feature_ids_raw);
         auto tptr = reinterpret_cast<const std::int32_t*>(test_feature_ids);
+
+        const auto ref_feature_ids = js2int<std::uintptr_t>(ref_feature_ids_raw);
         auto rptr = reinterpret_cast<const std::int32_t*>(ref_feature_ids);
+
         for (I<decltype(num_intersected)> i = 0; i < num_intersected; ++i) {
             inter.emplace_back(tptr[i], rptr[i]);
         }
@@ -171,7 +188,8 @@ public:
         return emscripten::val(emscripten::typed_memory_view(my_store.best.size(), my_store.best.data()));
     }
 
-    void score_for_sample(JsFakeInt i_raw, std::uintptr_t output) const {
+    void score_for_sample(JsFakeInt i_raw, JsFakeInt output_raw) const {
+        const auto output = js2int<std::uintptr_t>(output_raw);
         auto optr = reinterpret_cast<double*>(output);
         const auto i = js2int<std::size_t>(i_raw); 
         for (auto& s : my_store.scores) {
@@ -227,19 +245,20 @@ public:
 
 SingleppIntegratedReferences integrate_singlepp_references(
     JsFakeInt nref_raw, 
-    std::uintptr_t intersection_sizes,
-    std::uintptr_t test_feature_ids,
-    std::uintptr_t ref_feature_ids,
-    std::uintptr_t refs, 
-    std::uintptr_t built,
+    JsFakeInt intersection_sizes_raw,
+    JsFakeInt test_feature_ids_raw,
+    JsFakeInt ref_feature_ids_raw,
+    JsFakeInt refs_raw, 
+    JsFakeInt built_raw,
     JsFakeInt nthreads_raw
 ) {
     const auto nref = js2int<std::size_t>(nref_raw);
-    auto inter_ptr = reinterpret_cast<const std::int32_t*>(intersection_sizes);
-    auto tid_ptrs = convert_array_of_offsets<const std::int32_t*>(nref, test_feature_ids);
-    auto rid_ptrs = convert_array_of_offsets<const std::int32_t*>(nref, ref_feature_ids);
-    std::vector<singlepp::Intersection<std::int32_t> > all_inter(nref);
+    auto tid_ptrs = convert_array_of_offsets<const std::int32_t*>(nref, test_feature_ids_raw);
+    auto rid_ptrs = convert_array_of_offsets<const std::int32_t*>(nref, ref_feature_ids_raw);
 
+    const auto intersection_sizes = js2int<std::uintptr_t>(intersection_sizes_raw);
+    auto inter_ptr = reinterpret_cast<const std::int32_t*>(intersection_sizes);
+    auto all_inter = sanisizer::create<std::vector<singlepp::Intersection<std::int32_t> > >(nref);
     for (I<decltype(nref)> r = 0; r < nref; ++r) {
         auto& inter = all_inter[r];
         auto num_intersected = inter_ptr[r];
@@ -251,9 +270,9 @@ SingleppIntegratedReferences integrate_singlepp_references(
         }
     }
 
-    auto ref_ptrs = convert_array_of_offsets<const SingleppRawReference*>(nref, refs);
-    auto blt_ptrs = convert_array_of_offsets<const SingleppTrainedReference*>(nref, built);
-    std::vector<singlepp::TrainIntegratedInput<double, std::int32_t, std::int32_t> > prepared(nref);
+    auto ref_ptrs = convert_array_of_offsets<const SingleppRawReference*>(nref, refs_raw);
+    auto blt_ptrs = convert_array_of_offsets<const SingleppTrainedReference*>(nref, built_raw);
+    auto prepared = sanisizer::create<std::vector<singlepp::TrainIntegratedInput<double, std::int32_t, std::int32_t> > >(nref);
     for (I<decltype(nref)> r = 0; r < nref; ++r) {
         const auto& mat = ref_ptrs[r]->matrix();
         const auto& trained = blt_ptrs[r]->store();
@@ -281,7 +300,7 @@ SingleppIntegratedReferences integrate_singlepp_references(
 
 class SingleppIntegratedResults {
 private:
-    typedef singlepp::ClassifyIntegratedResults<int32_t, double> Store;
+    typedef singlepp::ClassifyIntegratedResults<std::int32_t, double> Store;
 
     Store my_store;
 
@@ -305,8 +324,9 @@ public:
         return emscripten::val(emscripten::typed_memory_view(my_store.best.size(), my_store.best.data()));
     }
 
-    void score_for_sample(JsFakeInt i_raw, std::uintptr_t output) const {
+    void score_for_sample(JsFakeInt i_raw, JsFakeInt output_raw) const {
         const auto i = js2int<std::size_t>(i_raw);
+        const auto output = js2int<std::uintptr_t>(output_raw);
         auto optr = reinterpret_cast<double*>(output);
         for (auto& s : my_store.scores) {
             *optr = s[i];
@@ -326,7 +346,7 @@ public:
 
 SingleppIntegratedResults integrate_singlepp(
     const NumericMatrix& mat,
-    std::uintptr_t assigned,
+    JsFakeInt assigned_raw,
     const SingleppIntegratedReferences& integrated,
     double quantile,
     JsFakeInt nthreads_raw
@@ -334,7 +354,7 @@ SingleppIntegratedResults integrate_singlepp(
     singlepp::ClassifyIntegratedOptions<double> opt;
     opt.quantile = quantile;
     opt.num_threads = js2int<int>(nthreads_raw);
-    auto ass_ptrs = convert_array_of_offsets<const std::int32_t*>(integrated.num_references(), assigned);
+    auto ass_ptrs = convert_array_of_offsets<const std::int32_t*>(integrated.store().num_references(), assigned_raw);
     auto store = singlepp::classify_integrated(*mat, ass_ptrs, integrated.store(), opt);
     return SingleppIntegratedResults(std::move(store));
 }

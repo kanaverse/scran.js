@@ -912,7 +912,8 @@ void create_compound_hdf5_attribute(std::string path, std::string name, std::str
 /************* Writing utilities **************/
 
 template<class Reader_, class Handle_>
-void write_numeric_hdf5_base(Handle_& handle, const std::string& type, std::uintptr_t data) {
+void write_numeric_hdf5_base(Handle_& handle, const std::string& type, JsFakeInt data_raw) {
+    const auto data = js2int<std::uintptr_t>(data_raw);
     if (type == "Uint8WasmArray") {
         Reader_::write(handle, reinterpret_cast<const std::uint8_t*>(data), H5::PredType::NATIVE_UINT8);
     } else if (type == "Int8WasmArray") {
@@ -971,7 +972,8 @@ void write_string_hdf5_base(Handle_& handle, const emscripten::val& data) {
 }
 
 template<class Writer_, class Handle_>
-void write_enum_hdf5_base(Handle_& handle, std::uintptr_t data) {
+void write_enum_hdf5_base(Handle_& handle, JsFakeInt data_raw) {
+    const auto data = js2int<std::uintptr_t>(data_raw);
     auto itype = handle.getIntType();
     const bool is_unsigned = (itype.getSign() == H5T_SGN_NONE);
     const auto isize = itype.getSize();
@@ -1101,7 +1103,7 @@ struct DataSetHandleWriter {
     }
 };
 
-void write_numeric_hdf5_dataset(std::string path, std::string name, std::string type, std::uintptr_t data) {
+void write_numeric_hdf5_dataset(std::string path, std::string name, std::string type, JsFakeInt data) {
     try {
         H5::H5File handle(path, H5F_ACC_RDWR);
         auto dhandle = handle.openDataSet(name);
@@ -1121,7 +1123,7 @@ void write_string_hdf5_dataset(std::string path, std::string name, emscripten::v
     }
 }
 
-void write_enum_hdf5_dataset(std::string path, std::string name, std::uintptr_t data) {
+void write_enum_hdf5_dataset(std::string path, std::string name, JsFakeInt data) {
     try {
         H5::H5File handle(path, H5F_ACC_RDWR);
         auto dhandle = handle.openDataSet(name);
@@ -1168,7 +1170,7 @@ void write_hdf5_attribute(const std::string& path, const std::string& name, cons
     }
 }
 
-void write_numeric_hdf5_attribute(std::string path, std::string name, std::string attr, std::string type, std::uintptr_t data) {
+void write_numeric_hdf5_attribute(std::string path, std::string name, std::string attr, std::string type, JsFakeInt data) {
     try {
         write_hdf5_attribute(
             path,
@@ -1198,7 +1200,7 @@ void write_string_hdf5_attribute(std::string path, std::string name, std::string
     }
 }
 
-void write_enum_hdf5_attribute(std::string path, std::string name, std::string attr, std::uintptr_t data) {
+void write_enum_hdf5_attribute(std::string path, std::string name, std::string attr, JsFakeInt data) {
     try {
         write_hdf5_attribute(
             path,

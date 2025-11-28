@@ -32,9 +32,10 @@ private:
     rds2cpp::Parsed my_full;
 };
 
-LoadedRds parse_rds_from_buffer(std::uintptr_t buffer, JsFakeInt size_raw) {
+LoadedRds parse_rds_from_buffer(JsFakeInt buffer_raw, JsFakeInt size_raw) {
+    const auto buffer = js2int<std::uintptr_t>(buffer_raw);
     const auto size = js2int<std::size_t>(size_raw);
-    byteme::SomeBufferReader reader(reinterpret_cast<const std::uint8_t*>(buffer), size, {});
+    byteme::SomeBufferReader reader(reinterpret_cast<unsigned char*>(buffer), size, {});
     return LoadedRds(rds2cpp::parse_rds(reader, {}));
 }
 

@@ -9,18 +9,22 @@
 #include <vector>
 #include <cstdint>
 
-void center_size_factors(JsFakeInt n_raw, std::uintptr_t ptr, bool use_blocks, std::uintptr_t blocks, bool to_lowest_block) {
+void center_size_factors(JsFakeInt n_raw, JsFakeInt ptr_raw, bool use_blocks, JsFakeInt blocks_raw, bool to_lowest_block) {
     const auto n = js2int<std::size_t>(n_raw);
+    const auto ptr = reinterpret_cast<double*>(js2int<std::uintptr_t>(ptr_raw));
+
     scran_norm::CenterSizeFactorsOptions opt;
     if (use_blocks) {
         opt.block_mode = (to_lowest_block ? scran_norm::CenterBlockMode::LOWEST : scran_norm::CenterBlockMode::PER_BLOCK);
-        scran_norm::center_size_factors_blocked(n, reinterpret_cast<double*>(ptr), reinterpret_cast<const int32_t*>(blocks), NULL, opt);
+        const auto blocks = reinterpret_cast<const std::int32_t*>(js2int<std::uintptr_t>(blocks_raw));
+        scran_norm::center_size_factors_blocked(n, ptr, blocks, NULL, opt);
     } else {
-        scran_norm::center_size_factors(n, reinterpret_cast<double*>(ptr), NULL, opt);
+        scran_norm::center_size_factors(n, ptr, NULL, opt);
     }
 }
 
-NumericMatrix normalize_counts(const NumericMatrix& mat, std::uintptr_t size_factors, bool log, bool allow_zero, bool allow_non_finite) {
+NumericMatrix normalize_counts(const NumericMatrix& mat, JsFakeInt size_factors_raw, bool log, bool allow_zero, bool allow_non_finite) {
+    const auto size_factors = js2int<std::uintptr_t>(size_factors_raw);
     const double* sfptr = reinterpret_cast<const double*>(size_factors);
     std::vector<double> sf(sfptr, sfptr + mat.ncol());
 

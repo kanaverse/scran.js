@@ -32,7 +32,7 @@ static emscripten::val get_effect_summary(const scran_markers::SummaryResults<do
 }
 
 class ScoreMarkersResults {
-    typedef scran_markers::ScoreMarkersSummaryResults<double, int32_t> Store;
+    typedef scran_markers::ScoreMarkersSummaryResults<double, std::int32_t> Store;
 
     Store my_store;
 
@@ -44,13 +44,13 @@ public:
     }
 
 public:
-    emscripten::val mean(std::int32_t g) const {
-        const auto& current = my_store.mean[g];
+    emscripten::val mean(JsFakeInt g_raw) const {
+        const auto& current = my_store.mean[js2int<std::size_t>(g_raw)];
         return emscripten::val(emscripten::typed_memory_view(current.size(), current.data()));
     }
 
-    emscripten::val detected(std::int32_t g) const {
-        const auto& current = my_store.detected[g];
+    emscripten::val detected(JsFakeInt g_raw) const {
+        const auto& current = my_store.detected[js2int<std::size_t>(g_raw)];
         return emscripten::val(emscripten::typed_memory_view(current.size(), current.data()));
     }
 
@@ -59,31 +59,31 @@ public:
     }
 
 public:
-    emscripten::val cohens_d(int32_t g, std::string summary) const {
-        return get_effect_summary(my_store.cohens_d[g], summary);
+    emscripten::val cohens_d(JsFakeInt g_raw, std::string summary) const {
+        return get_effect_summary(my_store.cohens_d[js2int<std::size_t>(g_raw)], summary);
     }
 
-    emscripten::val auc(int32_t g, std::string summary) const {
+    emscripten::val auc(JsFakeInt g_raw, std::string summary) const {
         if (my_store.auc.empty()) {
             throw std::runtime_error("no AUCs available in the scoreMarkers results");
         }
-        return get_effect_summary(my_store.auc[g], summary);
+        return get_effect_summary(my_store.auc[js2int<std::size_t>(g_raw)], summary);
     }
 
-    emscripten::val delta_mean(int32_t g, std::string summary) const {
-        return get_effect_summary(my_store.delta_mean[g], summary);
+    emscripten::val delta_mean(JsFakeInt g_raw, std::string summary) const {
+        return get_effect_summary(my_store.delta_mean[js2int<std::size_t>(g_raw)], summary);
     }
 
-    emscripten::val delta_detected(int32_t g, std::string summary) const {
-        return get_effect_summary(my_store.delta_detected[g], summary);
+    emscripten::val delta_detected(JsFakeInt g_raw, std::string summary) const {
+        return get_effect_summary(my_store.delta_detected[js2int<std::size_t>(g_raw)], summary);
     }
 };
 
 ScoreMarkersResults score_markers(
     const NumericMatrix& mat, 
-    std::uintptr_t groups, 
+    JsFakeInt groups_raw, 
     bool use_blocks, 
-    std::uintptr_t blocks, 
+    JsFakeInt blocks_raw, 
     double threshold, 
     bool compute_auc, 
     bool compute_med,
@@ -97,8 +97,10 @@ ScoreMarkersResults score_markers(
     mopt.compute_max = compute_max;
     mopt.num_threads = js2int<int>(nthreads_raw);
 
+    const auto groups = js2int<std::uintptr_t>(groups_raw);
     auto gptr = reinterpret_cast<const std::int32_t*>(groups);
     if (use_blocks) {
+        const auto blocks = js2int<std::uintptr_t>(blocks_raw);
         auto store = scran_markers::score_markers_summary_blocked(*mat, gptr, reinterpret_cast<const std::int32_t*>(blocks), mopt);
         return ScoreMarkersResults(std::move(store));
     } else {

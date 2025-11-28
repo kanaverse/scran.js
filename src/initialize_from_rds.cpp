@@ -180,8 +180,8 @@ NumericMatrix convert_dgTMatrix_to_sparse_matrix(rds2cpp::S4Object* obj, bool la
     return sparse_from_tatami(mat, layered);
 }
 
-NumericMatrix initialize_from_rds(std::uintptr_t ptr, bool force_integer, bool layered) {
-    RdsObject* wrapper = reinterpret_cast<RdsObject*>(ptr);
+NumericMatrix initialize_from_rds(JsFakeInt ptr_raw, bool force_integer, bool layered) {
+    RdsObject* wrapper = reinterpret_cast<RdsObject*>(js2int<std::uintptr_t>(ptr_raw));
     auto obj = wrapper->ptr;
 
     if (obj->type() == rds2cpp::SEXPType::INT) {

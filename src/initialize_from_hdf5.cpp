@@ -114,21 +114,23 @@ NumericMatrix apply_post_processing(
     bool sparse,
     bool layered, 
     bool row_subset, 
-    std::uintptr_t row_offset, 
-    std::size_t row_length,
+    JsFakeInt row_offset_raw, 
+    JsFakeInt row_length_raw,
     bool col_subset, 
-    std::uintptr_t col_offset,
-    std::size_t col_length
+    JsFakeInt col_offset_raw,
+    JsFakeInt col_length_raw
 ) {
     if (row_subset) {
-        auto offset_ptr = reinterpret_cast<const std::int32_t*>(row_offset);
+        const auto offset_ptr = reinterpret_cast<const std::int32_t*>(js2int<std::uintptr_t>(row_offset_raw));
+        const auto row_length = js2int<std::size_t>(row_length_raw);
         check_subset_indices<true>(offset_ptr, row_length, mat->nrow());
         auto smat = tatami::make_DelayedSubset(std::move(mat), std::vector<std::int32_t>(offset_ptr, offset_ptr + row_length), true);
         mat = std::move(smat);
     }
 
     if (col_subset) {
-        auto offset_ptr = reinterpret_cast<const std::int32_t*>(col_offset);
+        const auto offset_ptr = reinterpret_cast<const std::int32_t*>(js2int<std::uintptr_t>(col_offset_raw));
+        const auto col_length = js2int<std::size_t>(col_length_raw);
         check_subset_indices<false>(offset_ptr, col_length, mat->ncol());
         auto smat = tatami::make_DelayedSubset(std::move(mat), std::vector<std::int32_t>(offset_ptr, offset_ptr + col_length), false);
         mat = std::move(smat);
@@ -149,10 +151,10 @@ NumericMatrix initialize_from_hdf5_dense_internal(
     bool sparse,
     bool layered, 
     bool row_subset, 
-    std::uintptr_t row_offset, 
+    JsFakeInt row_offset_raw, 
     JsFakeInt row_length_raw,
     bool col_subset, 
-    std::uintptr_t col_offset,
+    JsFakeInt col_offset_raw,
     JsFakeInt col_length_raw
 ) {
     NumericMatrix mat;
@@ -163,11 +165,11 @@ NumericMatrix initialize_from_hdf5_dense_internal(
             sparse,
             layered, 
             row_subset, 
-            row_offset, 
-            js2int<std::size_t>(row_length_raw), 
+            row_offset_raw, 
+            row_length_raw,
             col_subset, 
-            col_offset, 
-            js2int<std::size_t>(col_length_raw)
+            col_offset_raw, 
+            col_length_raw
         );
     } catch (H5::Exception& e) {
         throw std::runtime_error(e.getCDetailMsg());
@@ -184,10 +186,10 @@ NumericMatrix initialize_from_hdf5_dense(
     bool sparse,
     bool layered, 
     bool row_subset, 
-    std::uintptr_t row_offset, 
+    JsFakeInt row_offset_raw, 
     JsFakeInt row_length_raw,
     bool col_subset, 
-    std::uintptr_t col_offset,
+    JsFakeInt col_offset_raw,
     JsFakeInt col_length_raw
 ) {
     bool as_integer = force_integer;
@@ -201,13 +203,34 @@ NumericMatrix initialize_from_hdf5_dense(
         }
     }
 
-    const auto row_length = js2int<std::size_t>(row_length_raw);
-    const auto col_length = js2int<std::size_t>(col_length_raw);
-
     if (as_integer) {
-        return initialize_from_hdf5_dense_internal<std::int32_t>(path, name, trans, sparse, layered, row_subset, row_offset, row_length, col_subset, col_offset, col_length);
+        return initialize_from_hdf5_dense_internal<std::int32_t>(
+            path,
+            name,
+            trans,
+            sparse,
+            layered,
+            row_subset,
+            row_offset_raw,
+            row_length_raw,
+            col_subset,
+            col_offset_raw,
+            col_length_raw
+        );
     } else {
-        return initialize_from_hdf5_dense_internal<double>(path, name, trans, sparse, false, row_subset, row_offset, row_length, col_subset, col_offset, col_length);
+        return initialize_from_hdf5_dense_internal<double>(
+            path,
+            name,
+            trans,
+            sparse,
+            false,
+            row_subset,
+            row_offset_raw,
+            row_length_raw,
+            col_subset,
+            col_offset_raw,
+            col_length_raw
+        );
     }
 }
 
@@ -217,18 +240,20 @@ NumericMatrix initialize_from_hdf5_sparse_internal(
     const std::string& data_name, 
     const std::string& indices_name, 
     const std::string& indptr_name, 
-    std::int32_t nr,
-    std::int32_t nc,
+    JsFakeInt nr_raw,
+    JsFakeInt nc_raw,
     bool csc,
     bool layered, 
     bool row_subset, 
-    std::uintptr_t row_offset, 
-    std::size_t row_length,
+    JsFakeInt row_offset_raw, 
+    JsFakeInt row_length_raw,
     bool col_subset, 
-    std::uintptr_t col_offset,
-    std::size_t col_length
+    JsFakeInt col_offset_raw,
+    JsFakeInt col_length_raw
 ) {
     NumericMatrix output;
+    const auto nr = js2int<MatrixIndex>(nr_raw);
+    const auto nc = js2int<MatrixIndex>(nc_raw);
 
     try {
         std::shared_ptr<tatami::Matrix<Type_, std::int32_t> > mat;
@@ -246,11 +271,11 @@ NumericMatrix initialize_from_hdf5_sparse_internal(
             true,
             layered, 
             row_subset, 
-            row_offset, 
-            row_length, 
+            row_offset_raw, 
+            row_length_raw, 
             col_subset, 
-            col_offset, 
-            col_length
+            col_offset_raw, 
+            col_length_raw
         );
 
     } catch (H5::Exception& e) {
@@ -271,10 +296,10 @@ NumericMatrix initialize_from_hdf5_sparse(
     bool force_integer, 
     bool layered,
     bool row_subset, 
-    std::uintptr_t row_offset, 
+    JsFakeInt row_offset_raw, 
     JsFakeInt row_length_raw,
     bool col_subset, 
-    std::uintptr_t col_offset,
+    JsFakeInt col_offset_raw,
     JsFakeInt col_length_raw
 ) {
     bool as_integer = force_integer;
@@ -288,15 +313,40 @@ NumericMatrix initialize_from_hdf5_sparse(
         }
     }
 
-    const auto nr = js2int<MatrixIndex>(nr_raw);
-    const auto nc = js2int<MatrixIndex>(nc_raw);
-    const auto row_length = js2int<std::size_t>(row_length_raw);
-    const auto col_length = js2int<std::size_t>(col_length_raw);
-
     if (as_integer) {
-        return initialize_from_hdf5_sparse_internal<std::int32_t>(path, data_name, indices_name, indptr_name, nr, nc, csc, layered, row_subset, row_offset, row_length, col_subset, col_offset, col_length);
+        return initialize_from_hdf5_sparse_internal<std::int32_t>(
+            path,
+            data_name,
+            indices_name,
+            indptr_name,
+            nr_raw,
+            nc_raw,
+            csc,
+            layered,
+            row_subset,
+            row_offset_raw,
+            row_length_raw,
+            col_subset,
+            col_offset_raw,
+            col_length_raw
+        );
     } else {
-        return initialize_from_hdf5_sparse_internal<double>(path, data_name, indices_name, indptr_name, nr, nc, csc, false, row_subset, row_offset, row_length, col_subset, col_offset, col_length);
+        return initialize_from_hdf5_sparse_internal<double>(
+            path,
+            data_name,
+            indices_name,
+            indptr_name,
+            nr_raw,
+            nc_raw,
+            csc,
+            false,
+            row_subset,
+            row_offset_raw,
+            row_length_raw,
+            col_subset,
+            col_offset_raw,
+            col_length_raw
+        );
     }
 }
 

@@ -94,9 +94,11 @@ public:
         return my_use_blocked;
     }
 
-    void filter(const ComputeCrisprQcMetricsResults& metrics, std::uintptr_t blocks, std::uintptr_t output) const {
-        auto optr = reinterpret_cast<uint8_t*>(output);
+    void filter(const ComputeCrisprQcMetricsResults& metrics, JsFakeInt blocks_raw, JsFakeInt output_raw) const {
+        const auto output = js2int<std::uintptr_t>(output_raw);
+        auto optr = reinterpret_cast<std::uint8_t*>(output);
         if (my_use_blocked) {
+            const auto blocks = js2int<std::uintptr_t>(blocks_raw);
             my_store_blocked.filter(metrics.store(), reinterpret_cast<const std::int32_t*>(blocks), optr);
         } else {
             my_store_unblocked.filter(metrics.store(), optr);
@@ -105,11 +107,12 @@ public:
     }
 };
 
-SuggestCrisprQcFiltersResults suggest_crispr_qc_filters(const ComputeCrisprQcMetricsResults& metrics, bool use_blocks, std::uintptr_t blocks, double nmads) {
+SuggestCrisprQcFiltersResults suggest_crispr_qc_filters(const ComputeCrisprQcMetricsResults& metrics, bool use_blocks, JsFakeInt blocks_raw, double nmads) {
     scran_qc::ComputeCrisprQcFiltersOptions opt;
     opt.max_value_num_mads = nmads;
 
     if (use_blocks) {
+        const auto blocks = js2int<std::uintptr_t>(blocks_raw);
         auto thresholds = scran_qc::compute_crispr_qc_filters_blocked(metrics.store(), reinterpret_cast<const std::int32_t*>(blocks), opt);
         return SuggestCrisprQcFiltersResults(std::move(thresholds));
     } else {

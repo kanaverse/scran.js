@@ -54,7 +54,7 @@ public:
 };
 
 ClusterKmeansResult cluster_kmeans(
-    std::uintptr_t mat,
+    JsFakeInt mat_raw,
     JsFakeInt nr_raw,
     JsFakeInt nc_raw,
     JsFakeInt k_raw,
@@ -67,7 +67,11 @@ ClusterKmeansResult cluster_kmeans(
     JsFakeInt refine_hw_iterations_raw,
     JsFakeInt nthreads_raw
 ) {
-    kmeans::SimpleMatrix<std::int32_t, double> smat(js2int<std::size_t>(nr_raw), js2int<std::int32_t>(nc_raw), reinterpret_cast<const double*>(mat));
+    kmeans::SimpleMatrix<std::int32_t, double> smat(
+        js2int<std::size_t>(nr_raw),
+        js2int<std::int32_t>(nc_raw),
+        reinterpret_cast<const double*>(js2int<std::uintptr_t>(mat_raw))
+    );
 
     std::unique_ptr<kmeans::Initialize<std::int32_t, double, std::int32_t, double, I<decltype(smat)> > > iptr;
     if (init_method == "random") {

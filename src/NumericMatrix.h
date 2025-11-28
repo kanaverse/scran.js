@@ -32,9 +32,9 @@ public:
     // Not thread-safe! by_row and by_column are initialized
     // on demand when particular rows and columns are requested
     // in Javascript. Don't use these functions from C++.
-    void row(JsFakeInt r, std::uintptr_t values);
+    void row(JsFakeInt r, JsFakeInt values_raw);
 
-    void column(JsFakeInt c, std::uintptr_t values);
+    void column(JsFakeInt c, JsFakeInt values_raw);
 
 public:
     const std::shared_ptr<const tatami::Matrix<MatrixValue, MatrixIndex> >& ptr() const;
