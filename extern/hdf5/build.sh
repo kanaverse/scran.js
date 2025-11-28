@@ -7,7 +7,6 @@ HDF5_VERSION=2.0.0
 HDF5_HASH=f4c2edc5668fb846627182708dbe1e16c60c467e63177a75b0b9f12c19d7efed
 SOURCE_DIR=hdf5-${HDF5_VERSION}
 
-echo $SOURCE_DIR
 if [[ ! -e ${SOURCE_DIR} ]]
 then
     wget -q https://github.com/HDFGroup/hdf5/releases/download/${HDF5_VERSION}/hdf5-${HDF5_VERSION}.tar.gz -O hdf5.tar.gz
@@ -18,13 +17,6 @@ then
         exit 1
     fi
     tar -xf hdf5.tar.gz
-
-    # Some source-editing shenanigans are required to deal with the lack of
-    # FE_INVALID in Emscripten, see emscripten-core/emscripten#22005. Hey,
-    # I don't make the rules.
-    offender=${SOURCE_DIR}/src/H5Tinit_float.c 
-    cat ${offender} | sed "s/feclearexcept(FE_INVALID)/0/" > tmp
-    mv tmp ${offender}
 fi
 
 BUILD_DIR=build-${HDF5_VERSION}
